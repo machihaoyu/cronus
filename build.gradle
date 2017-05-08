@@ -1,0 +1,51 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.2.RELEASE'
+	}
+	repositories {
+		maven {
+			url "http://192.168.1.123:8081/repository/maven-public/"
+		}
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'war'
+apply plugin: 'idea'
+
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+	maven {
+		url "http://192.168.1.123:8081/repository/maven-public/"
+	}
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Camden.SR6'
+	}
+}
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+	compile('io.springfox:springfox-swagger2:2.6.1')
+	compile('io.springfox:springfox-swagger-ui:2.6.1')
+	compile('org.springframework.cloud:spring-cloud-starter-feign')
+	compile('org.springframework.cloud:spring-cloud-starter-eureka')
+	compile('com.alibaba:fastjson:1.2.31')
+	compile('org.sction:phprpc:3.0.2')
+	compile('org.apache.commons:commons-lang3:3.5')
+	compile('org.springframework.boot:spring-boot-devtools')
+	compile "org.springframework.cloud:spring-cloud-starter-security:1.2.0.RELEASE"
+	compile "org.springframework.cloud:spring-cloud-starter-oauth2:1.2.0.RELEASE"
+}

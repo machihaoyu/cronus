@@ -1,0 +1,184 @@
+package com.fjs.cronus.dto;
+
+import java.io.Serializable;
+
+/**
+ * 我已审批的列表
+ * Created by crm on 2017/5/2.
+ */
+public class CheckFinishDTO implements Serializable {
+
+    private static final long serialVersionUID = -4058194369282416529L;
+
+    private Integer check_id;  //1492,
+    private Integer contract_id;  //196,
+    private Integer achievement_id;  //789,
+    private Integer check_user_id;  //15,
+    private Integer to_user_id;  //16,
+    private Integer check_status;  //0,
+    private Integer create_time;  //1490258385,
+    private Integer check_process;  //2,
+    private Integer next_process;  //3,
+    private Integer is_valid;  //0,
+    private Integer user_id;  //14,
+    private String status;  //已结束,
+    private Integer agreement_id;  //307,
+    private String customer_name;  //萌萌,
+    private String check_num_name;  //第1轮,
+    private Integer contract_type;  //2,
+    private String to_user_name;  //分公司总经理测试,
+    private String create_user_name;  //业务员测试,
+    private String next_check_name;  //— — —
+
+    public Integer getCheck_id() {
+        return check_id;
+    }
+
+    public void setCheck_id(Integer check_id) {
+        this.check_id = check_id;
+    }
+
+    public Integer getContract_id() {
+        return contract_id;
+    }
+
+    public void setContract_id(Integer contract_id) {
+        this.contract_id = contract_id;
+    }
+
+    public Integer getAchievement_id() {
+        return achievement_id;
+    }
+
+    public void setAchievement_id(Integer achievement_id) {
+        this.achievement_id = achievement_id;
+    }
+
+    public Integer getCheck_user_id() {
+        return check_user_id;
+    }
+
+    public void setCheck_user_id(Integer check_user_id) {
+        this.check_user_id = check_user_id;
+    }
+
+    public Integer getTo_user_id() {
+        return to_user_id;
+    }
+
+    public void setTo_user_id(Integer to_user_id) {
+        this.to_user_id = to_user_id;
+    }
+
+    public Integer getCheck_status() {
+        return check_status;
+    }
+
+    public void setCheck_status(Integer check_status) {
+        this.check_status = check_status;
+    }
+
+    public Integer getCreate_time() {
+        return create_time;
+    }
+
+    public void setCreate_time(Integer create_time) {
+        this.create_time = create_time;
+    }
+
+    public Integer getCheck_process() {
+        return check_process;
+    }
+
+    public void setCheck_process(Integer check_process) {
+        this.check_process = check_process;
+    }
+
+    public Integer getNext_process() {
+        return next_process;
+    }
+
+    public void setNext_process(Integer next_process) {
+        this.next_process = next_process;
+    }
+
+    public Integer getIs_valid() {
+        return is_valid;
+    }
+
+    public void setIs_valid(Integer is_valid) {
+        this.is_valid = is_valid;
+    }
+
+    public Integer getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(Integer user_id) {
+        this.user_id = user_id;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Integer getAgreement_id() {
+        return agreement_id;
+    }
+
+    public void setAgreement_id(Integer agreement_id) {
+        this.agreement_id = agreement_id;
+    }
+
+    public String getCustomer_name() {
+        return customer_name;
+    }
+
+    public void setCustomer_name(String customer_name) {
+        this.customer_name = customer_name;
+    }
+
+    public String getCheck_num_name() {
+        return check_num_name;
+    }
+
+    public void setCheck_num_name(String check_num_name) {
+        this.check_num_name = check_num_name;
+    }
+
+    public Integer getContract_type() {
+        return contract_type;
+    }
+
+    public void setContract_type(Integer contract_type) {
+        this.contract_type = contract_type;
+    }
+
+    public String getTo_user_name() {
+        return to_user_name;
+    }
+
+    public void setTo_user_name(String to_user_name) {
+        this.to_user_name = to_user_name;
+    }
+
+    public String getCreate_user_name() {
+        return create_user_name;
+    }
+
+    public void setCreate_user_name(String create_user_name) {
+        this.create_user_name = create_user_name;
+    }
+
+    public String getNext_check_name() {
+        return next_check_name;
+    }
+
+    public void setNext_check_name(String next_check_name) {
+        this.next_check_name = next_check_name;
+    }
+}
