@@ -1,13 +1,13 @@
-package com.fjs.cronus.common;
+package com.fjs.cronus.dto.crm;
 
-
-public class ResponseData {
+/**
+ * Created by crm on 2017/4/27.
+ */
+public class FileData {
 
     private String errNum;
-
     private String errMsg;
-
-    private String retData;
+    private String data;
 
     public String getErrNum() {
         return errNum;
@@ -25,11 +25,11 @@ public class ResponseData {
         this.errMsg = errMsg;
     }
 
-    public String getRetData() {
-        return retData;
+    public String getData() {
+        return data;
     }
 
-    public void setRetData(String retData) {
-        this.retData = retData;
+    public void setData(String data) {
+        this.data = data;
     }
 }

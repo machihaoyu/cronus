@@ -3,16 +3,15 @@ package com.fjs.cronus.api;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-import com.fjs.cronus.common.CRMData;
-import com.fjs.cronus.common.FileData;
+import com.fjs.cronus.dto.crm.CRMData;
+import com.fjs.cronus.dto.crm.FileData;
 import com.fjs.cronus.dto.*;
 import com.fjs.cronus.dto.param.CustomerSaleParamDTO;
 import com.fjs.cronus.entity.BaleLoginInfo;
 import com.fjs.cronus.enums.ErrorNumEnum;
 import com.fjs.cronus.entity.Agreement;
 import com.fjs.cronus.entity.CustomerSale;
-import com.fjs.cronus.entity.NewPageBean;
-import com.fjs.cronus.common.ResponseData;
+import com.fjs.cronus.dto.crm.ResponseData;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.exception.ExceptionValidate;
 import com.fjs.cronus.util.StringAsciiUtil;
@@ -510,14 +509,14 @@ public class CrmController {
 
     //合同列表
     @RequestMapping(value = "/contractList",method = RequestMethod.GET)
-    public NewPageBean<ContractDTO> contractList(@RequestParam Integer p , @RequestParam Integer contract_type , @RequestParam Integer is_special , @RequestParam String users , @RequestParam String search){
+    public PageBeanDTO<ContractDTO> contractList(@RequestParam Integer p , @RequestParam Integer contract_type , @RequestParam Integer is_special , @RequestParam String users , @RequestParam String search){
         String url = "http://beta-sale.fang-crm.com/Api/App/contractList?key=356a192b7913b06c54574d18c28d46e6395428ab&p="+ p  + "&users=" + users + "&is_special=" + is_special + "&search=" + search + "&contract_type=" + contract_type;
         logger.info("合同列表请求url: " + url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("合同列表请求url返回响应: " + res);
         ResponseData responseData = JSON.parseObject(res, ResponseData.class);
         validateResponse(responseData);
-        return JSON.parseObject(responseData.getRetData(),NewPageBean.class);
+        return JSON.parseObject(responseData.getRetData(),PageBeanDTO.class);
     }
 
     //获取用户组;

@@ -1,7 +1,7 @@
 package com.fjs.cronus.exception;
 
-import com.fjs.cronus.common.CRMData;
-import com.fjs.cronus.common.FileData;
+import com.fjs.cronus.dto.crm.CRMData;
+import com.fjs.cronus.dto.crm.FileData;
 import com.fjs.cronus.enums.ErrorNumEnum;
 import com.fjs.cronus.util.StringAsciiUtil;
 

@@ -1,4 +1,4 @@
-package com.fjs.cronus.common;
+package com.fjs.cronus.dto.crm;
 
 public class JSONData {
 
