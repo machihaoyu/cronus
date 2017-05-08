@@ -164,8 +164,7 @@ public class CrmController {
 
     //添加和修改客户
     @RequestMapping(value="/addCustomer", method = RequestMethod.POST)
-    public ResponseData addCustomer(@RequestBody CustomerSaleDTO customerSaleDTO, @RequestParam Integer userId){
-        logger.info("添加|修改客户信息:" + ReflectionToStringBuilder.toString(customerSaleDTO));
+    public ResponseData addCustomer(@RequestBody CustomerSaleDTO customerSaleDTO, @RequestParam Integer userId, @RequestParam Integer dataType){
         String url = saleUrl + "addCustomer";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
@@ -201,7 +200,10 @@ public class CrmController {
         param.add("house_loan", customerSaleDTO.getHouse_loan());
         param.add("house_alone", customerSaleDTO.getHouse_alone());
         param.add("per_description", customerSaleDTO.getPer_description());
+        param.add("data_type", dataType);
+        logger.info("添加|修改客户信息: url = " + url + ", 参数列表 = " + ReflectionToStringBuilder.toString(param));
         String str = restTemplate.postForObject(url,param,String.class);
+        logger.info("添加|修改客户信息返回信息: res = " + str);
         ResponseData data = JSON.parseObject(str,ResponseData.class);
         validateResponse(data);
         return data;
