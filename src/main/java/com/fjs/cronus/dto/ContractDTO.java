@@ -3,6 +3,7 @@ package com.fjs.cronus.dto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Created by chenjie on 2017/4/23.
@@ -49,7 +50,7 @@ public class ContractDTO implements Serializable{
     private Integer check_process;// tinyint(1) NOT NULL DEFAULT '0' COMMENT '审核流程(0-'''',1-结案申请,2-团队长确认,3-分公司总经理确认,4-财务确认,)',
     private Integer check_status;// tinyint(1) NOT NULL DEFAULT '0' COMMENT '0:提交  1:驳回',
     private Integer check_num;// int(10) NOT NULL DEFAULT '1' COMMENT '审核轮数:渠道一轮,自营可多轮',
-    private String partake;// text COMMENT '多个参与人',
+    private List<Object> partake;// text COMMENT '多个参与人',
     private String duration_unit;// varchar(255) NOT NULL DEFAULT '月' COMMENT '成本期限单位',
     private BigDecimal s_year_rate;// decimal(10,0) NOT NULL DEFAULT '0' COMMENT '收益年利率',
     private BigDecimal s_duration;// decimal(10,0) NOT NULL DEFAULT '0' COMMENT '收益期限',
@@ -60,6 +61,42 @@ public class ContractDTO implements Serializable{
     private String pay_percent_status;//回款支出完成度
     private String percent_status;//回款收入完成度
     private String product_type_name;
+    private String ext_value;//返回的模板内容;
+    private Integer template_id;//模板id;
+    private String partake_serialize;//分成;
+    private String template_serialize;//确认书
+
+    public String getTemplate_serialize() {
+        return template_serialize;
+    }
+
+    public void setTemplate_serialize(String template_serialize) {
+        this.template_serialize = template_serialize;
+    }
+
+    public String getPartake_serialize() {
+        return partake_serialize;
+    }
+
+    public void setPartake_serialize(String partake_serialize) {
+        this.partake_serialize = partake_serialize;
+    }
+
+    public Integer getTemplate_id() {
+        return template_id;
+    }
+
+    public void setTemplate_id(Integer template_id) {
+        this.template_id = template_id;
+    }
+
+    public String getExt_value() {
+        return ext_value;
+    }
+
+    public void setExt_value(String ext_value) {
+        this.ext_value = ext_value;
+    }
 
     public String getProduct_type_name() {
         return product_type_name;
@@ -421,11 +458,11 @@ public class ContractDTO implements Serializable{
         this.check_num = check_num;
     }
 
-    public String getPartake() {
+    public List<Object> getPartake() {
         return partake;
     }
 
-    public void setPartake(String partake) {
+    public void setPartake(List<Object> partake) {
         this.partake = partake;
     }
 
