@@ -15,6 +15,7 @@ import com.fjs.cronus.dto.crm.ResponseData;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.exception.ExceptionValidate;
 import com.fjs.cronus.util.StringAsciiUtil;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.phprpc.util.PHPSerializer;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -309,9 +311,13 @@ public class CrmController {
 
     //获取客户协议
     @RequestMapping(value = "/getAgreementInfo", method = RequestMethod.GET)
-    public String getAgreeMent(@RequestParam Integer agreementId){
+    public AgreementDTO getAgreement(@RequestParam Integer agreementId){
         String url = "http://beta-sale.fang-crm.com/Api/App/getAgreementInfo?key=356a192b7913b06c54574d18c28d46e6395428ab&agreement_id=" + agreementId;
-        return restTemplate.getForObject(url, String.class);
+        logger.info("获取客户协议 : url = " + url);
+        String res = restTemplate.getForObject(url, String.class);
+        ResponseData data = JSON.parseObject(res,ResponseData.class);
+        validateResponse(data);
+        return JSON.parseObject(data.getRetData(),AgreementDTO.class);
     }
 
     //新增客户协议
@@ -336,7 +342,7 @@ public class CrmController {
         param.add("pay_time",agreementDTO.getTime());
         param.add("payee",agreementDTO.getPayee());
         param.add("payee_account",agreementDTO.getPayee_account());
-        param.add("template_serialize","{\"template_id\":\"1\",\"a_name\":\"4\",\"b_name\":\"房金所有限公司\",\"house_num\":\"5\",\"agreement_year\":\"6\",\"agreement_mouth\":\"5\",\"agreement_day\":\"6\",\"pre_pay_days\":\"6\",\"appointment_num\":\"6\",\"appointment_money_lower\":\"6\",\"appointment_money_upper\":\"6\",\"appointment_money_percent\":\"6\",\"agreement_charge_lower\":\"6\",\"agreement_charge_upper\":\"6\",\"other_appointment_num\":\"6\",\"all_day\":\"6\",\"day_rate\":\"6\",\"all_manger_money_lower\":\"6\",\"all_manger_money_upper\":\"6\",\"a_account\":\"\\u7532\\u65b9\\u7684\\u6307\\u5b9a\\u8d26\\u6237:453115521@qq.com\",\"a_address\":\"\",\"a_email\":\"\",\"a_phone\":\"\",\"a_phone_house\":\"\",\"b_address\":\"\",\"answer_num\":\"\",\"other_agree\":\"\",\"a_pen_name\":\"\",\"seal\":\"\",\"a_company_people\":\"\",\"b_company_people\":\"\",\"a_card\":\"\",\"year\":\"\",\"mouth\":\"\",\"day\":\"\"}");
+        param.add("template_serialize",agreementDTO.getTemplate_serialize());
         logger.info("新增修改客户协议 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url,param,String.class);
         logger.info("新增修改客户协议返回值 : res = " + res);
@@ -493,15 +499,31 @@ public class CrmController {
 
     //获取用户信息
     @RequestMapping(value = "/getUserInfo", method = RequestMethod.GET)
-    public PageBeanDTO<UserInfoDTO> getUserInfo(@RequestBody Map map,
+    public PageBeanDTO<UserInfoDTO> getUserInfo(@RequestParam Integer departmentId ,@RequestParam String search,
                                   @RequestParam Integer type,@RequestParam Integer page,
                                   @RequestParam Integer size) throws InvocationTargetException, IllegalAccessException {
-        byte[] bytes = new PHPSerializer().serialize(map);
-        String url = "http://beta-base.fang-crm.com/Api/App/getUserInfo?key=356o192c191db04c54513b0lc28d46ee63954iab&where=" + bytes
-                + "&type=" + type + "&page=" + page + "&size=" + size;
-        String res = restTemplate.getForObject(url, String.class);
-        //TODO 修改接口返回值结构;
+        HashMap<String,Object> map = new HashMap<>();
+        if(StringUtils.isNotEmpty(search)){
+            map.put("name",search);
+        }
+        if(departmentId != 0){
+            map.put("sub_company_id",departmentId);
+        }
+        String url =  "http://beta-base.fang-crm.com/Api/App/getUserInfoWhereIsJson";
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("key", "356o192c191db04c54513b0lc28d46ee63954iab");
+        if(map.size()>0){
+            String where = JSON.toJSONString(map);
+            param.add("where", where);
+        }
+        param.add("type", type);
+        param.add("page", page);
+        param.add("size", size);
+        logger.info("获取用户信息 : url = " + url + ", param = " +param.toString());
+        String res = restTemplate.postForObject(url, param, String.class);
+        logger.info("获取用户信息返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
         PageBeanDTO<UserInfoDTO> pageBeanDTO = new PageBeanDTO<>();
         return JSON.parseObject(data.getRetData(),pageBeanDTO.getClass());
     }
@@ -590,13 +612,6 @@ public class CrmController {
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
     }
-
-    //TODO　获取模板
-    //获取模板
-/*
-    @RequestMapping(value = "/getTemplates",method = RequestMethod.GET)
-    public
-*/
 
     //获取"我的"面板数据
     @RequestMapping(value = "/getMine",method = RequestMethod.GET)
@@ -811,7 +826,7 @@ public class CrmController {
     }
 
     //获取模板信息 templateType(contract: 合同模板， agreement: 协议模板)
-    @RequestMapping("/getTemplates")
+    @RequestMapping(value = "/getTemplates",method = RequestMethod.GET)
     public List<TemplateDTO> getTemplates(@RequestParam String templateType, @RequestParam Integer userId) {
         if (StringUtils.isEmpty(templateType) && userId == 0) throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "模板类型、用户不能为空");
         String url = saleUrl + "getTemplates?key=" + saleKey + "&keyword=" + templateType + "&user_id=" + userId;
@@ -833,6 +848,19 @@ public class CrmController {
             }
         }
         return list;
+    }
+
+    //获取产品列表
+    @RequestMapping(value = "/getProductList",method = RequestMethod.GET)
+    public PageBeanDTO<ProductDTO> getProductList(@RequestParam String productName, @RequestParam String loanTime ,@RequestParam String risk,@RequestParam Integer p,@RequestParam Integer size){
+        String url = saleUrl + "getProductList?key=356a192b7913b06c54574d18c28d46e6395428ab&product_name=" + productName + "&loan_time=" + loanTime + "&risk=" + risk +"&p=" + p + "&perpage=" + size;
+        logger.info("获取产品列表 : url = " + url);
+        String res = restTemplate.getForObject(url, String.class);
+        logger.info("获取产品列表返回值 : res = " + res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        PageBeanDTO<ProductDTO> pageBeanDTO = new PageBeanDTO();
+        return JSON.parseObject(data.getRetData(),pageBeanDTO.getClass());
     }
 
     /**
