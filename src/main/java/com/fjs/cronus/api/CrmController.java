@@ -15,9 +15,7 @@ import com.fjs.cronus.dto.crm.ResponseData;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.exception.ExceptionValidate;
 import com.fjs.cronus.util.StringAsciiUtil;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.phprpc.util.PHPSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -32,9 +30,9 @@ import org.apache.commons.lang.StringUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -68,7 +66,7 @@ public class CrmController {
         String res = restTemplate.getForObject(url, String.class);
         logger.info("用户登录信息URL返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
-        validateResponse(data);
+        validateResponseBase(data);
         LoginInfoDTO loginInfoDTO = JSONObject.parseObject(data.getRetData(), LoginInfoDTO.class);
         return loginInfoDTO;
     }
@@ -361,6 +359,19 @@ public class CrmController {
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data.getRetData(),Agreement.class);
+    }
+
+    //获取客户协议列表
+    @RequestMapping(value = "/getAgreementListByCustomerIds", method = RequestMethod.GET)
+    public Agreement getAgreementListByCustomerIds(@RequestParam String customerIds, @RequestParam String search, @RequestParam Integer p) {
+        String url = "http://beta-sale.fang-crm.com/Api/App/getAgreementList?key=356a192b7913b06c54574d18c28d46e6395428ab&customer_ids=" + customerIds
+                + "&search=" + search + "&p=" + p;
+        logger.info("获取居间协议列表:url=" + url);
+        String res = restTemplate.getForObject(url, String.class);
+        logger.info("获取居间协议列表返回:res=" + res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        return JSON.parseObject(data.getRetData(), Agreement.class);
     }
 
 
@@ -828,7 +839,7 @@ public class CrmController {
     //获取模板信息 templateType(contract: 合同模板， agreement: 协议模板)
     @RequestMapping(value = "/getTemplates",method = RequestMethod.GET)
     public List<TemplateDTO> getTemplates(@RequestParam String templateType, @RequestParam Integer userId) {
-        if (StringUtils.isEmpty(templateType) && userId == 0) throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "模板类型、用户不能为空");
+        if (StringUtils.isEmpty(templateType) || userId == 0) throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "模板类型、用户不能为空");
         String url = saleUrl + "getTemplates?key=" + saleKey + "&keyword=" + templateType + "&user_id=" + userId;
         logger.info("获取模板信息 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
@@ -843,7 +854,9 @@ public class CrmController {
             for (TemplateOriginalDTO templateOriginalDTO : templateDTOS) {
                 templateDTO = new TemplateDTO();
                 BeanUtils.copyProperties(templateOriginalDTO, templateDTO);
-                templateDTO.setConfig(getTemplateConfig(templateOriginalDTO.getConfig()));
+                List<ConfigFieldDTO> configFieldDTOS = getTemplateConfig(templateOriginalDTO.getConfig());
+                Collections.sort(configFieldDTOS);
+                templateDTO.setConfig(configFieldDTOS);
                 list.add(templateDTO);
             }
         }
@@ -896,16 +909,21 @@ public class CrmController {
         ConfigFieldDTO configFieldDTO = null;
         for (String first : subStr) {
             //按照":["切割字符串, 得到表单元素的名字， 如name=""
+            // other:[其他约定,,1320,1135,1,970,20,input,11,26
+            // a_identity:[甲方身份证号,,440,281,1,180,20,input,11,3]
+
             String[] parts = first.split("\\:\\[");
 
             configFieldDTO = new ConfigFieldDTO();
             configFieldDTO.setEleName(parts[0]);
 
             //得到表单的类型及表单前的显示名词
-            String[] part1 = parts[1].replace("\\]", "").split(",");
+            String[] part1 = parts[1].replace("]", "").split(",");
             configFieldDTO.setFieldEleName(part1[0]);
             configFieldDTO.setEleValue(part1[1]);
+            configFieldDTO.setValidate(part1[4]);
             configFieldDTO.setEleType(part1[7]);
+            configFieldDTO.setSort(Integer.valueOf(part1[9]));
 
             list.add(configFieldDTO);
         }

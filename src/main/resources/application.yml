@@ -57,4 +57,4 @@ server:
     port: 8099
 spring:
     application:
-        name: cronus0418
+        name: cronushxf
