@@ -65,6 +65,24 @@ public class ContractDTO implements Serializable{
     private Integer template_id;//模板id;
     private String partake_serialize;//分成;
     private String template_serialize;//确认书
+    private String give_time_str;//放款时间字符串;
+    private String expire_time_str;//到期时间字符串
+
+    public String getGive_time_str() {
+        return give_time_str;
+    }
+
+    public void setGive_time_str(String give_time_str) {
+        this.give_time_str = give_time_str;
+    }
+
+    public String getExpire_time_str() {
+        return expire_time_str;
+    }
+
+    public void setExpire_time_str(String expire_time_str) {
+        this.expire_time_str = expire_time_str;
+    }
 
     public String getTemplate_serialize() {
         return template_serialize;
