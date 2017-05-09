@@ -2,7 +2,12 @@ package com.fjs.cronus.dto;
 
 import java.io.Serializable;
 
+/**
+ * 沟通日志表(communication_log)DTO
+ * Created by crm on 2017/4/13.
+ */
 public class CommunicationLogDTO implements Serializable {
+
 
     private static final long serialVersionUID = -320557644902364868L;
 
@@ -16,6 +21,7 @@ public class CommunicationLogDTO implements Serializable {
     private long create_time;// int(10) NOT NULL DEFAULT '0' COMMENT '创建时间',
     private String house_status;// enum('','无','有') NOT NULL DEFAULT '' COMMENT '有无房产',
     private int loan_amount;// int(11) NOT NULL DEFAULT '0' COMMENT '意向贷款金额',
+    private String create_user_name; //
     private int meet;
     private String meet_time;
     private int user_id;
@@ -61,6 +67,14 @@ public class CommunicationLogDTO implements Serializable {
         this.content = content;
     }
 
+    public String getNext_contact_time() {
+        return next_contact_time;
+    }
+
+    public void setNext_contact_time(String next_contact_time) {
+        this.next_contact_time = next_contact_time;
+    }
+
     public String getNext_contact_content() {
         return next_contact_content;
     }
@@ -93,6 +107,14 @@ public class CommunicationLogDTO implements Serializable {
         this.loan_amount = loan_amount;
     }
 
+    public String getCreate_user_name() {
+        return create_user_name;
+    }
+
+    public void setCreate_user_name(String create_user_name) {
+        this.create_user_name = create_user_name;
+    }
+
     public int getMeet() {
         return meet;
     }
@@ -107,14 +129,6 @@ public class CommunicationLogDTO implements Serializable {
 
     public void setMeet_time(String meet_time) {
         this.meet_time = meet_time;
-    }
-
-    public String getNext_contact_time() {
-        return next_contact_time;
-    }
-
-    public void setNext_contact_time(String next_contact_time) {
-        this.next_contact_time = next_contact_time;
     }
 
     public int getUser_id() {
