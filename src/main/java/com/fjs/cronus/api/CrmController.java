@@ -68,7 +68,7 @@ public class CrmController {
         String res = restTemplate.getForObject(url, String.class);
         logger.info("用户登录信息URL返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
-        validateResponse(data);
+        validateResponseBase(data);
         LoginInfoDTO loginInfoDTO = JSONObject.parseObject(data.getRetData(), LoginInfoDTO.class);
         return loginInfoDTO;
     }
