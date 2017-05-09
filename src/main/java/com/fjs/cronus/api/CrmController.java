@@ -6,8 +6,8 @@ import com.alibaba.fastjson.TypeReference;
 import com.fjs.cronus.dto.crm.CRMData;
 import com.fjs.cronus.dto.crm.FileData;
 import com.fjs.cronus.dto.*;
+import com.fjs.cronus.dto.login.LoginInfoDTO;
 import com.fjs.cronus.dto.param.CustomerSaleParamDTO;
-import com.fjs.cronus.entity.BaleLoginInfo;
 import com.fjs.cronus.enums.ErrorNumEnum;
 import com.fjs.cronus.entity.Agreement;
 import com.fjs.cronus.entity.CustomerSale;
@@ -60,18 +60,15 @@ public class CrmController {
 
     //用户登录
     @RequestMapping(value = "/userLogin", method = RequestMethod.GET)
-    public LoginDTO userLogin(@RequestParam String username, @RequestParam String password) {
-        String url = baseUrl + "userLogin?key=" + baseKey + "&system=sale&username="+ username +"&password="+ password ;
+    public LoginInfoDTO userLogin(@RequestParam String username, @RequestParam String password) {
+        String url = baseUrl + "userLoginForApp?key=" + baseKey + "&system=sale&username="+ username +"&password="+ password ;
         logger.info("用户登录信息URL: " + url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("用户登录信息URL返回响应: " + res);
-        BaleLoginInfo data = JSONObject.parseObject(res, BaleLoginInfo.class);
-        ResponseData validata = new ResponseData();
-        validata.setErrNum(data.getErrNum());
-        validata.setErrMsg(data.getErrMsg());
-        validateResponseBase(validata);
-        LoginDTO dto = JSONObject.parseObject(res, LoginDTO.class);
-        return dto;
+        ResponseData data = JSONObject.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        LoginInfoDTO loginInfoDTO = JSONObject.parseObject(data.getRetData(), LoginInfoDTO.class);
+        return loginInfoDTO;
     }
 
     //获取客户列表
