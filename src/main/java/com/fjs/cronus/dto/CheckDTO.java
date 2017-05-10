@@ -17,11 +17,11 @@ public class CheckDTO implements Serializable {
     private Integer to_user_id; //15,
     private Integer check_status; //0,
     private Integer create_time; //1491450574,
-    private String check_process; //1,
+    private Integer check_process; //1,
     private Integer next_process; //2,
     private Integer is_valid; //1,
     private Integer user_id; //14,
-    private Integer status; //-1,
+    private String status; //-1,
     private Integer agreement_id; //27569,
     private String customer_name; //萌萌,
     private String contract_type; //1,
@@ -31,6 +31,7 @@ public class CheckDTO implements Serializable {
     private String next_check_name; //团队长确认,
     private String create_user_name; //业务员测试
     private String suggestion;
+    private String check_process_name; //1,
 
     public Integer getCheck_id() {
         return check_id;
@@ -88,11 +89,11 @@ public class CheckDTO implements Serializable {
         this.create_time = create_time;
     }
 
-    public String getCheck_process() {
+    public Integer getCheck_process() {
         return check_process;
     }
 
-    public void setCheck_process(String check_process) {
+    public void setCheck_process(String Integer) {
         this.check_process = check_process;
     }
 
@@ -120,11 +121,11 @@ public class CheckDTO implements Serializable {
         this.user_id = user_id;
     }
 
-    public Integer getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
@@ -198,5 +199,16 @@ public class CheckDTO implements Serializable {
 
     public void setSuggestion(String suggestion) {
         this.suggestion = suggestion;
+    }
+    public void setCheck_process(Integer check_process) {
+        this.check_process = check_process;
+    }
+
+    public String getCheck_process_name() {
+        return check_process_name;
+    }
+
+    public void setCheck_process_name(String check_process_name) {
+        this.check_process_name = check_process_name;
     }
 }
