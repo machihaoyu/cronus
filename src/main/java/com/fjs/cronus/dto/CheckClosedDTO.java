@@ -37,6 +37,10 @@ public class CheckClosedDTO implements Serializable {
     private Integer check_status;//0,
     private Integer check_create_time;//1487827947
 
+    private Integer check_process;
+    private String check_process_name;
+
+
     public Integer getAchievement_id() {
         return achievement_id;
     }
@@ -235,5 +239,21 @@ public class CheckClosedDTO implements Serializable {
 
     public void setCheck_create_time(Integer check_create_time) {
         this.check_create_time = check_create_time;
+    }
+
+    public Integer getCheck_process() {
+        return check_process;
+    }
+
+    public void setCheck_process(Integer check_process) {
+        this.check_process = check_process;
+    }
+
+    public String getCheck_process_name() {
+        return check_process_name;
+    }
+
+    public void setCheck_process_name(String check_process_name) {
+        this.check_process_name = check_process_name;
     }
 }

@@ -93,7 +93,7 @@ public class CheckDTO implements Serializable {
         return check_process;
     }
 
-    public void setCheck_process(String Integer) {
+    public void setCheck_process(Integer check_process) {
         this.check_process = check_process;
     }
 
@@ -199,9 +199,6 @@ public class CheckDTO implements Serializable {
 
     public void setSuggestion(String suggestion) {
         this.suggestion = suggestion;
-    }
-    public void setCheck_process(Integer check_process) {
-        this.check_process = check_process;
     }
 
     public String getCheck_process_name() {
