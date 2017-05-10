@@ -548,7 +548,7 @@ public class CrmController {
         logger.info("合同列表请求url返回响应: " + res);
         ResponseData responseData = JSON.parseObject(res, ResponseData.class);
         validateResponse(responseData);
-        return JSON.parseObject(responseData.getRetData(),PageBeanDTO.class);
+        return JSON.parseObject(responseData.getRetData(),new PageBeanDTO<ContractDTO>().getClass());
     }
 
     //获取用户组;

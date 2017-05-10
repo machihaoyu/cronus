@@ -1,6 +1,7 @@
 package com.fjs.cronus.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
@@ -9,6 +10,8 @@ import java.util.List;
  * Created by chenjie on 2017/4/23.
  */
 public class ContractDTO implements Serializable{
+
+    private static final long serialVersionUID = -9007285493398929334L;
 
     private String contract_number;// varchar(25) DEFAULT '' COMMENT '合同标号字段',
     private Integer contract_id;// int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -50,6 +53,7 @@ public class ContractDTO implements Serializable{
     private Integer check_process;// tinyint(1) NOT NULL DEFAULT '0' COMMENT '审核流程(0-'''',1-结案申请,2-团队长确认,3-分公司总经理确认,4-财务确认,)',
     private Integer check_status;// tinyint(1) NOT NULL DEFAULT '0' COMMENT '0:提交  1:驳回',
     private Integer check_num;// int(10) NOT NULL DEFAULT '1' COMMENT '审核轮数:渠道一轮,自营可多轮',
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     private List<Object> partake;// text COMMENT '多个参与人',
     private String duration_unit;// varchar(255) NOT NULL DEFAULT '月' COMMENT '成本期限单位',
     private BigDecimal s_year_rate;// decimal(10,0) NOT NULL DEFAULT '0' COMMENT '收益年利率',
