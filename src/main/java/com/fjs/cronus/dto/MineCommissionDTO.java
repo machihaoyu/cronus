@@ -9,23 +9,22 @@ public class MineCommissionDTO extends BaseToStringDTO implements Serializable {
 
     private static final long serialVersionUID = -7699429716403417514L;
 
-    private Integer total;
-    private Integer month;
+    private Double total;
+    private Double month;
 
-    public Integer getTotal() {
+    public Double getTotal() {
         return total;
     }
 
-    public void setTotal(Integer total) {
+    public void setTotal(Double total) {
         this.total = total;
     }
 
-    public Integer getMonth() {
+    public Double getMonth() {
         return month;
     }
 
-    public void setMonth(Integer month) {
+    public void setMonth(Double month) {
         this.month = month;
     }
-
 }

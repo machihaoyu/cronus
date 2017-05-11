@@ -12,7 +12,7 @@ public class MineTotalDTO extends BaseToStringDTO implements Serializable {
     private Integer customer;//:5,
     private Integer customer_agreement;//:1,
     private Integer customer_contract;//:4,
-    private Integer receivables;//:216739
+    private Double receivables;//:216739
 
     public Integer getCustomer() {
         return customer;
@@ -38,12 +38,11 @@ public class MineTotalDTO extends BaseToStringDTO implements Serializable {
         this.customer_contract = customer_contract;
     }
 
-    public Integer getReceivables() {
+    public Double getReceivables() {
         return receivables;
     }
 
-    public void setReceivables(Integer receivables) {
+    public void setReceivables(Double receivables) {
         this.receivables = receivables;
     }
-
 }
