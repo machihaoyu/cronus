@@ -962,6 +962,22 @@ public class CrmController {
         validateResponse(data);
     }
 
+    /********************************-----产品相关---start----*********************************/
+    //通过产品ID获取单个产品信息
+    @RequestMapping(value = "/getProductInfoById",method = RequestMethod.GET)
+    public ProductDTO getProductInfoById(@RequestParam Integer productId) {
+        String url = saleUrl + "getProductInfo?key=" + saleKey + "&product_id=" + productId;
+        logger.info("通过产品ID获取单个产品信息url: "+url);
+        String res = restTemplate.getForObject(url, String.class);
+        logger.info("通过产品ID获取单个产品信息url返回响应: " + res);
+        ResponseData data = JSONObject.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        return JSONObject.parseObject(data.getRetData(), ProductDTO.class);
+    }
+    /********************************-----产品相关---end------*********************************/
+
+
+
     /**
      * 异常处理sale
      * @param data
