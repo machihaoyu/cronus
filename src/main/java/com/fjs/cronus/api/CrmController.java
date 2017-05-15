@@ -136,6 +136,9 @@ public class CrmController {
         if (null != customerSaleParamDTO.getPerpage() && customerSaleParamDTO.getPerpage().intValue() != 0) {
             url += "&perpage=" + customerSaleParamDTO.getPerpage();
         }
+        if (null != customerSaleParamDTO.getCommunication_order() && customerSaleParamDTO.getCommunication_order().intValue() != 0) {
+            url += "&communication_order=" + customerSaleParamDTO.getCommunication_order();
+        }
         logger.info("获取客户列表url: " + url);
         String str = restTemplate.getForObject(url, String.class);
         logger.info("获取客户列表url响应: " + str);

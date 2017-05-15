@@ -26,6 +26,8 @@ public class CustomerSaleParamDTO {
     private String pot; //排序的顺倒--:
     private String app_search; //app的手机号和客户名组合查询--:
     private Integer perpage; //每页的个数--:
+    //communication_order-是否沟通是否确认(0-未沟未确,1-已沟未确,2-已购已确
+    private Integer communication_order; //是否沟通是否确认--:
 
     public String getKey() {
         return key;
@@ -187,5 +189,11 @@ public class CustomerSaleParamDTO {
         this.perpage = perpage;
     }
 
+    public Integer getCommunication_order() {
+        return communication_order;
+    }
 
+    public void setCommunication_order(Integer communication_order) {
+        this.communication_order = communication_order;
+    }
 }
