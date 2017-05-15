@@ -6,6 +6,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.fjs.cronus.dto.crm.CRMData;
 import com.fjs.cronus.dto.crm.FileData;
 import com.fjs.cronus.dto.*;
+import com.fjs.cronus.dto.login.AuthorityDTO;
 import com.fjs.cronus.dto.login.LoginInfoDTO;
 import com.fjs.cronus.dto.param.CustomerSaleParamDTO;
 import com.fjs.cronus.enums.ErrorNumEnum;
@@ -29,10 +30,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -68,6 +66,8 @@ public class CrmController {
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponseBase(data);
         LoginInfoDTO loginInfoDTO = JSONObject.parseObject(data.getRetData(), LoginInfoDTO.class);
+        List<AuthorityDTO> authorLists = getLoginAuthor(loginInfoDTO.getAuthority());
+        loginInfoDTO.setAuthorityDTOS(authorLists);
         return loginInfoDTO;
     }
 
@@ -1030,6 +1030,37 @@ public class CrmController {
             list.add(configFieldDTO);
         }
         return list;
+    }
+
+
+    /**
+     * 根据登录的权限信息转换成对象
+     * @param authorStr
+     * @return
+     */
+    private List<AuthorityDTO> getLoginAuthor(String authorStr){
+        List<AuthorityDTO> list = new ArrayList<>();
+        if (StringUtils.isNotEmpty(authorStr)) {
+            AuthorityDTO authorityDTO;
+            String orinal = authorStr.substring(1, authorStr.length() - 1).replace("\"", "");
+            if (StringUtils.isNotEmpty(orinal)) {
+                String[] firstStr = orinal.split("},");
+                if (null != firstStr && firstStr.length > 0 ) {
+                    for (int i = 0; i < firstStr.length; i++) {
+                        String[] parent = firstStr[i].split(":\\{");
+                        authorityDTO = new AuthorityDTO();
+                        authorityDTO.setAuthorUrl(parent[0]);
+
+                        String[] secondStr = parent[1].replaceAll("\\{", "").replaceAll("}", "").split(",");
+                        authorityDTO.setActionTitle(secondStr[0].split(":")[1]);
+                        authorityDTO.setEnable(Integer.valueOf(secondStr[1].split(":")[1]));
+                        list.add(authorityDTO);
+                    }
+                }
+            }
+        }
+        return list;
+
     }
 
 }

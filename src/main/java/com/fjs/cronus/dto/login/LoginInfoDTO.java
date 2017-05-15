@@ -40,6 +40,9 @@ public class LoginInfoDTO {
     private String department_name; //": "上海总公司",
     private String sub_company_name; //": "上海总公司",
     private String redis_city; //": ""
+    private String authority;
+    private List<AuthorityDTO> authorityDTOS;
+
 
     public Integer getUser_id() {
         return user_id;
@@ -279,5 +282,21 @@ public class LoginInfoDTO {
 
     public void setRedis_city(String redis_city) {
         this.redis_city = redis_city;
+    }
+
+    public String getAuthority() {
+        return authority;
+    }
+
+    public void setAuthority(String authority) {
+        this.authority = authority;
+    }
+
+    public List<AuthorityDTO> getAuthorityDTOS() {
+        return authorityDTOS;
+    }
+
+    public void setAuthorityDTOS(List<AuthorityDTO> authorityDTOS) {
+        this.authorityDTOS = authorityDTOS;
     }
 }
