@@ -752,10 +752,14 @@ public class CrmController {
     }
     //审核-我发起的-撤销申请
     @RequestMapping(value = "/cancelCheck",method = RequestMethod.POST)
-    public void postCancelCheck(@RequestParam Integer achievement_id, @RequestParam Integer user_id) {
-        String url = saleUrl + "cancelCheck?key=" + saleKey + "&achievement_id=" + achievement_id + "&user_id=" + user_id;
-        logger.info("审核-我发起的-撤销申请的url: "+url);
-        String res = restTemplate.getForObject(url, String.class);
+    public void postCancelCheck(@RequestParam(value = "achievement_id") Integer achievement_id, @RequestParam(value = "user_id") Integer user_id) {
+        String url = saleUrl + "cancelCheck";
+        logger.info("审核-我发起的-撤销申请的url: "+url + ", achievement_id = " + achievement_id + ", user_id = " + user_id);
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("key", saleKey);
+        param.add("user_id", user_id);
+        param.add("achievement_id", achievement_id);
+        String res = restTemplate.postForObject(url, param, String.class);
         logger.info("审核-我发起的-撤销申请url返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
