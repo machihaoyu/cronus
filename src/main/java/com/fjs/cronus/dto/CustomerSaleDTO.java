@@ -6,14 +6,14 @@ public class CustomerSaleDTO implements Serializable{
 
     private static final long serialVersionUID = 6841315540181335020L;
 
-    private int customer_id; //int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '唯一值',
+    private Integer customer_id; //int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '唯一值',
     private String telephonenumber; // varchar(100) NOT NULL COMMENT '手机号码'
     private String customer_name; // varchar(100) NOT NULL COMMENT '客户姓名'
-    private int owner_user_id; // int(10) unsigned NOT NULL DEFAULT '0' COMMENT '当前负责人',
+    private Integer owner_user_id; // int(10) unsigned NOT NULL DEFAULT '0' COMMENT '当前负责人',
     private String owner_user_name; // varchar(50) DEFAULT NULL COMMENT '拥有人',
-    private int creater_user_id; // int(10) NOT NULL DEFAULT '0' COMMENT '创建人',
+    private Integer creater_user_id; // int(10) NOT NULL DEFAULT '0' COMMENT '创建人',
     private String customer_level;// varchar(100) DEFAULT '意向客户' COMMENT '客户等级',
-    private long loan_amount;// bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '意向需求资金1',
+    private Long loan_amount;// bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '意向需求资金1',
     private String spare_phone;// varchar(100) DEFAULT NULL COMMENT '备用联系方式',
     private String age;// varchar(100) DEFAULT NULL COMMENT '年龄',
     private String marriage;// enum('已婚','未婚','离异') DEFAULT NULL COMMENT '婚姻',
@@ -39,34 +39,34 @@ public class CustomerSaleDTO implements Serializable{
     private String house_loan;// enum('是','否') NOT NULL DEFAULT '否' COMMENT '是否按揭',
     private String house_alone;// enum('是','否') NOT NULL DEFAULT '否' COMMENT '是否备用房',
     private String house_location;// varchar(250) DEFAULT NULL COMMENT '房产地址',
-    private int retain;// tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否保留  0不保留1保留2已签合同',
-    private long create_time;// int(10) NOT NULL DEFAULT '0' COMMENT '创建时间',
-    private long update_time;// int(10) NOT NULL DEFAULT '0' COMMENT '更新时间',
-    private long receive_time;// int(10) NOT NULL DEFAULT '0' COMMENT '领取时间',
-    private int is_lock;// tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否锁定',
-    private long phone_view_time;// int(10) unsigned NOT NULL DEFAULT '0' COMMENT '被查看的最后时间',
-    private int phone_view_uid;// int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最后查看的人',
-    private long phone_view_count;// int(3) unsigned NOT NULL DEFAULT '0' COMMENT '被查看的次数',
-    private int autostatus;// tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否自动分配：1自动分配，0没有自动分配',
+    private Integer retain;// tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否保留  0不保留1保留2已签合同',
+    private Long create_time;// int(10) NOT NULL DEFAULT '0' COMMENT '创建时间',
+    private Long update_time;// int(10) NOT NULL DEFAULT '0' COMMENT '更新时间',
+    private Long receive_time;// int(10) NOT NULL DEFAULT '0' COMMENT '领取时间',
+    private Integer is_lock;// tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否锁定',
+    private Long phone_view_time;// int(10) unsigned NOT NULL DEFAULT '0' COMMENT '被查看的最后时间',
+    private Integer phone_view_uid;// int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最后查看的人',
+    private Long phone_view_count;// int(3) unsigned NOT NULL DEFAULT '0' COMMENT '被查看的次数',
+    private Integer autostatus;// tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否自动分配：1自动分配，0没有自动分配',
     private String customer_source;// varchar(255) DEFAULT NULL COMMENT '客户来源',
     private String utm_source;// varchar(255) DEFAULT NULL COMMENT '渠道',
     private String customer_classify;// varchar(100) NOT NULL DEFAULT '正常' COMMENT '体现客户的状态',
     private String customer_type;// varchar(100) NOT NULL DEFAULT '意向客户' COMMENT '客户类型(意向客户/协议客户/成交客户)',
-    private long communitime;// int(10) NOT NULL DEFAULT '0' COMMENT '沟通时间',
+    private Long communitime;// int(10) NOT NULL DEFAULT '0' COMMENT '沟通时间',
     private String callback_status;// char(10) DEFAULT '正常' COMMENT '回访状态',
-    private long callback_time;// int(11) NOT NULL DEFAULT '0' COMMENT '回访时间',
-    private long first_communitime_time;// int(10) NOT NULL DEFAULT '0' COMMENT '首次沟通时间',
-    private long first_fenpei_time;// int(10) NOT NULL DEFAULT '0' COMMENT '首次分配时间',
+    private Long callback_time;// int(11) NOT NULL DEFAULT '0' COMMENT '回访时间',
+    private Long first_communitime_time;// int(10) NOT NULL DEFAULT '0' COMMENT '首次沟通时间',
+    private Long first_fenpei_time;// int(10) NOT NULL DEFAULT '0' COMMENT '首次分配时间',
     private String cooperation_status;// varchar(100) DEFAULT NULL COMMENT '合作状态(暂未接通 无意向 有意向待跟踪 资质差无法操作 其他)',
     private String ext;// text,
     private String has_agreement; //
     private String useful;//":0
 
-    public int getCustomer_id() {
+    public Integer getCustomer_id() {
         return customer_id;
     }
 
-    public void setCustomer_id(int customer_id) {
+    public void setCustomer_id(Integer customer_id) {
         this.customer_id = customer_id;
     }
 
@@ -86,11 +86,11 @@ public class CustomerSaleDTO implements Serializable{
         this.customer_name = customer_name;
     }
 
-    public int getOwner_user_id() {
+    public Integer getOwner_user_id() {
         return owner_user_id;
     }
 
-    public void setOwner_user_id(int owner_user_id) {
+    public void setOwner_user_id(Integer owner_user_id) {
         this.owner_user_id = owner_user_id;
     }
 
@@ -102,11 +102,11 @@ public class CustomerSaleDTO implements Serializable{
         this.owner_user_name = owner_user_name;
     }
 
-    public int getCreater_user_id() {
+    public Integer getCreater_user_id() {
         return creater_user_id;
     }
 
-    public void setCreater_user_id(int creater_user_id) {
+    public void setCreater_user_id(Integer creater_user_id) {
         this.creater_user_id = creater_user_id;
     }
 
@@ -118,11 +118,11 @@ public class CustomerSaleDTO implements Serializable{
         this.customer_level = customer_level;
     }
 
-    public long getLoan_amount() {
+    public Long getLoan_amount() {
         return loan_amount;
     }
 
-    public void setLoan_amount(long loan_amount) {
+    public void setLoan_amount(Long loan_amount) {
         this.loan_amount = loan_amount;
     }
 
@@ -326,75 +326,75 @@ public class CustomerSaleDTO implements Serializable{
         this.house_location = house_location;
     }
 
-    public int getRetain() {
+    public Integer getRetain() {
         return retain;
     }
 
-    public void setRetain(int retain) {
+    public void setRetain(Integer retain) {
         this.retain = retain;
     }
 
-    public long getCreate_time() {
+    public Long getCreate_time() {
         return create_time;
     }
 
-    public void setCreate_time(long create_time) {
+    public void setCreate_time(Long create_time) {
         this.create_time = create_time;
     }
 
-    public long getUpdate_time() {
+    public Long getUpdate_time() {
         return update_time;
     }
 
-    public void setUpdate_time(long update_time) {
+    public void setUpdate_time(Long update_time) {
         this.update_time = update_time;
     }
 
-    public long getReceive_time() {
+    public Long getReceive_time() {
         return receive_time;
     }
 
-    public void setReceive_time(long receive_time) {
+    public void setReceive_time(Long receive_time) {
         this.receive_time = receive_time;
     }
 
-    public int getIs_lock() {
+    public Integer getIs_lock() {
         return is_lock;
     }
 
-    public void setIs_lock(int is_lock) {
+    public void setIs_lock(Integer is_lock) {
         this.is_lock = is_lock;
     }
 
-    public long getPhone_view_time() {
+    public Long getPhone_view_time() {
         return phone_view_time;
     }
 
-    public void setPhone_view_time(long phone_view_time) {
+    public void setPhone_view_time(Long phone_view_time) {
         this.phone_view_time = phone_view_time;
     }
 
-    public int getPhone_view_uid() {
+    public Integer getPhone_view_uid() {
         return phone_view_uid;
     }
 
-    public void setPhone_view_uid(int phone_view_uid) {
+    public void setPhone_view_uid(Integer phone_view_uid) {
         this.phone_view_uid = phone_view_uid;
     }
 
-    public long getPhone_view_count() {
+    public Long getPhone_view_count() {
         return phone_view_count;
     }
 
-    public void setPhone_view_count(long phone_view_count) {
+    public void setPhone_view_count(Long phone_view_count) {
         this.phone_view_count = phone_view_count;
     }
 
-    public int getAutostatus() {
+    public Integer getAutostatus() {
         return autostatus;
     }
 
-    public void setAutostatus(int autostatus) {
+    public void setAutostatus(Integer autostatus) {
         this.autostatus = autostatus;
     }
 
@@ -430,11 +430,11 @@ public class CustomerSaleDTO implements Serializable{
         this.customer_type = customer_type;
     }
 
-    public long getCommunitime() {
+    public Long getCommunitime() {
         return communitime;
     }
 
-    public void setCommunitime(long communitime) {
+    public void setCommunitime(Long communitime) {
         this.communitime = communitime;
     }
 
@@ -446,27 +446,27 @@ public class CustomerSaleDTO implements Serializable{
         this.callback_status = callback_status;
     }
 
-    public long getCallback_time() {
+    public Long getCallback_time() {
         return callback_time;
     }
 
-    public void setCallback_time(long callback_time) {
+    public void setCallback_time(Long callback_time) {
         this.callback_time = callback_time;
     }
 
-    public long getFirst_communitime_time() {
+    public Long getFirst_communitime_time() {
         return first_communitime_time;
     }
 
-    public void setFirst_communitime_time(long first_communitime_time) {
+    public void setFirst_communitime_time(Long first_communitime_time) {
         this.first_communitime_time = first_communitime_time;
     }
 
-    public long getFirst_fenpei_time() {
+    public Long getFirst_fenpei_time() {
         return first_fenpei_time;
     }
 
-    public void setFirst_fenpei_time(long first_fenpei_time) {
+    public void setFirst_fenpei_time(Long first_fenpei_time) {
         this.first_fenpei_time = first_fenpei_time;
     }
 
