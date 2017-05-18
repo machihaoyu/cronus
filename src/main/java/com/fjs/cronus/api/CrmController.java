@@ -343,7 +343,8 @@ public class CrmController {
         param.add("pay_time",agreementDTO.getTime());
         param.add("payee",agreementDTO.getPayee());
         param.add("payee_account",agreementDTO.getPayee_account());
-        param.add("template_serialize",agreementDTO.getTemplate_serialize());
+        //TODO 模板;
+        /*param.add("template_serialize",agreementDTO.getTemplate_serialize());*/
         logger.info("新增修改客户协议 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url,param,String.class);
         logger.info("新增修改客户协议返回值 : res = " + res);
