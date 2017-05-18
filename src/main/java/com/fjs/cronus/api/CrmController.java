@@ -380,7 +380,8 @@ public class CrmController {
         param.add("pay_time",agreementDTO.getTime());
         param.add("payee",agreementDTO.getPayee());
         param.add("payee_account",agreementDTO.getPayee_account());
-        param.add("template_serialize",agreementDTO.getTemplate_serialize());
+        //TODO 模板;
+        /*param.add("template_serialize",agreementDTO.getTemplate_serialize());*/
         logger.info("新增修改客户协议 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url,param,String.class);
         logger.info("新增修改客户协议返回值 : res = " + res);
@@ -806,8 +807,8 @@ public class CrmController {
 
     //添加协议页面，获取客户列表；
     @RequestMapping(value = "/agreementGetCustomerList",method = RequestMethod.GET)
-    public CustomerSale agreementGetCustomerList(@RequestParam String search , @RequestParam Integer p,@RequestParam Integer userId,@RequestParam String type,@RequestParam String users,@RequestParam String dataType){
-        String url = saleUrl + "getCustomerList?" + "key=" + saleKey + "&user_id=" + userId + "&type=" + type + "&p=" + p + "&user_ids=" + users + "&data_type=" + dataType + "&app_search=" + search + "&perpage=" + 4;
+    public CustomerSale agreementGetCustomerList(@RequestParam String search , @RequestParam Integer p,@RequestParam Integer userId,@RequestParam String type){
+        String url = saleUrl + "getCustomerList?" + "key=" + saleKey + "&user_id=" + userId + "&type=" + type + "&p=" + p + "&app_search=" + search + "&perpage=" + 4;
         //String url = saleUrl + "getCustomerList?" + "key=" + saleKey + "&user_id=" + userId + "&type=" + type + "&p=" + p + "&user_ids=" + users + "&data_type=" + dataType + "&app_search=" + search;
         logger.info("添加协议页面，获取客户列表 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
