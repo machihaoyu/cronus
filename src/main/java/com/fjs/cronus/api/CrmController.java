@@ -788,8 +788,8 @@ public class CrmController {
 
     //添加协议页面，获取客户列表；
     @RequestMapping(value = "/agreementGetCustomerList",method = RequestMethod.GET)
-    public CustomerSale agreementGetCustomerList(@RequestParam String search , @RequestParam Integer p,@RequestParam Integer userId,@RequestParam String type,@RequestParam String users,@RequestParam String dataType){
-        String url = saleUrl + "getCustomerList?" + "key=" + saleKey + "&user_id=" + userId + "&type=" + type + "&p=" + p + "&user_ids=" + users + "&data_type=" + dataType + "&app_search=" + search + "&perpage=" + 4;
+    public CustomerSale agreementGetCustomerList(@RequestParam String search , @RequestParam Integer p,@RequestParam Integer userId,@RequestParam String type){
+        String url = saleUrl + "getCustomerList?" + "key=" + saleKey + "&user_id=" + userId + "&type=" + type + "&p=" + p + "&app_search=" + search + "&perpage=" + 4;
         //String url = saleUrl + "getCustomerList?" + "key=" + saleKey + "&user_id=" + userId + "&type=" + type + "&p=" + p + "&user_ids=" + users + "&data_type=" + dataType + "&app_search=" + search;
         logger.info("添加协议页面，获取客户列表 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
