@@ -2,6 +2,7 @@ package com.fjs.cronus.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
@@ -71,6 +72,15 @@ public class ContractDTO implements Serializable{
     private String template_serialize;//确认书
     private String give_time_str;//放款时间字符串;
     private String expire_time_str;//到期时间字符串
+
+
+    //审核流程名
+    private String check_process_name;
+    private String check_name; //审核人
+    private String sub_company_name;  //分公司名称
+    private Integer customer_id; //客户id
+
+
 
     public String getGive_time_str() {
         return give_time_str;
@@ -528,4 +538,35 @@ public class ContractDTO implements Serializable{
         this.is_special = is_special;
     }
 
+    public String getCheck_process_name() {
+        return check_process_name;
+    }
+
+    public void setCheck_process_name(String check_process_name) {
+        this.check_process_name = check_process_name;
+    }
+
+    public String getCheck_name() {
+        return check_name;
+    }
+
+    public void setCheck_name(String check_name) {
+        this.check_name = check_name;
+    }
+
+    public String getSub_company_name() {
+        return sub_company_name;
+    }
+
+    public void setSub_company_name(String sub_company_name) {
+        this.sub_company_name = sub_company_name;
+    }
+
+    public Integer getCustomer_id() {
+        return customer_id;
+    }
+
+    public void setCustomer_id(Integer customer_id) {
+        this.customer_id = customer_id;
+    }
 }
