@@ -289,6 +289,25 @@ public class CrmController {
     }
 
 
+    /**
+     * 取消保留客户接口
+     */
+    @RequestMapping(value = "/unRetainCustomer", method = RequestMethod.POST)
+    public void unRetainCustomer(@RequestParam Integer customerId, @RequestParam Integer userId) {
+        String url = saleUrl + "unretain";
+        logger.info("取消保留客户接口url: " + url);
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("key", saleKey);
+        param.add("customer_id",customerId);
+        param.add("user_id",userId);
+        logger.info("取消保留客户接口url[POST]提交参数：key=" + saleKey + ", user_id=" + userId + ", customer_id=" + customerId);
+        String res = restTemplate.postForObject(url,param,String.class);
+        logger.info("取消保留客户接口url的返回响应: " + res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+    }
+
+
     //获取客户沟通日志
     @RequestMapping(value = "/getCustomerCommunication", method = RequestMethod.GET)
     public List<CommunicationLogDTO> getCustomerCommunication(@RequestParam Integer customerId){
