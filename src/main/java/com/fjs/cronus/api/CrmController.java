@@ -211,7 +211,7 @@ public class CrmController {
 
     //新增客户沟通
     @RequestMapping(value = "/addCommunicationLog", method = RequestMethod.POST)
-    public ResponseData addCommunicationLog(@RequestBody CommunicationLogDTO communicationLogDTO){
+    public ResponseData addCommunicationLog(@RequestBody CommunicationLogDTO communicationLogDTO, String houseStatus, Long loanAmount, String purpose){
         logger.info("新增客户沟通:　" + ReflectionToStringBuilder.toString(communicationLogDTO));
         String url = saleUrl + "addCommunicationLog";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
@@ -222,13 +222,12 @@ public class CrmController {
         param.add("content",communicationLogDTO.getContent());
         param.add("next_time",communicationLogDTO.getNext_contact_time());
         param.add("next_contact_content",communicationLogDTO.getNext_contact_content());
-        param.add("house_status",communicationLogDTO.getHouse_status());
-        param.add("loan_amount",communicationLogDTO.getLoan_amount());
+        param.add("house_status",houseStatus);
+        param.add("loan_amount",loanAmount);
         param.add("meet",communicationLogDTO.getMeet());
         param.add("meet_time",communicationLogDTO.getMeet_time());
-        param.add("user_id",communicationLogDTO.getUser_id());
-        param.add("user_name", communicationLogDTO.getUser_name());
-
+        param.add("user_id", communicationLogDTO.getUser_id());
+        param.add("purpose", purpose);
         String str = restTemplate.postForObject(url,param,String.class);
         ResponseData data = JSON.parseObject(str,ResponseData.class);
         validateResponse(data);
@@ -310,15 +309,15 @@ public class CrmController {
 
     //获取客户沟通日志
     @RequestMapping(value = "/getCustomerCommunication", method = RequestMethod.GET)
-    public List<CommunicationLogDTO> getCustomerCommunication(@RequestParam Integer customerId){
+    public CommunicationInfoDTO getCustomerCommunication(@RequestParam Integer customerId){
         String url = saleUrl + "getCustomerCommunication?key=" + saleKey + "&customer_id=" + customerId;
         logger.info("获取沟通日志请求url：" + url);
         String str = restTemplate.getForObject(url, String.class);
         logger.info("获取沟通日志请求url返回响应：" + str);
         ResponseData data = JSON.parseObject(str, ResponseData.class);
         validateResponse(data);
-        List<CommunicationLogDTO> list = JSON.parseArray(data.getRetData(), CommunicationLogDTO.class);
-        return list;
+        CommunicationInfoDTO communicationInfoDTO = JSON.parseObject(data.getRetData(), CommunicationInfoDTO.class);
+        return communicationInfoDTO;
     }
 
     //获取客户面见记录

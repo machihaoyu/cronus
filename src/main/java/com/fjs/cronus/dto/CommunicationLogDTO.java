@@ -19,13 +19,12 @@ public class CommunicationLogDTO implements Serializable {
     private String next_contact_time;// int(10) NOT NULL DEFAULT '0' COMMENT '再次沟通内容',
     private String next_contact_content;// text,
     private long create_time;// int(10) NOT NULL DEFAULT '0' COMMENT '创建时间',
-    private String house_status;// enum('','无','有') NOT NULL DEFAULT '' COMMENT '有无房产',
-    private int loan_amount;// int(11) NOT NULL DEFAULT '0' COMMENT '意向贷款金额',
     private String create_user_name; //
     private int meet;
     private String meet_time;
     private int user_id;
     private String user_name;
+
 
     public int getId() {
         return id;
@@ -91,22 +90,6 @@ public class CommunicationLogDTO implements Serializable {
         this.create_time = create_time;
     }
 
-    public String getHouse_status() {
-        return house_status;
-    }
-
-    public void setHouse_status(String house_status) {
-        this.house_status = house_status;
-    }
-
-    public int getLoan_amount() {
-        return loan_amount;
-    }
-
-    public void setLoan_amount(int loan_amount) {
-        this.loan_amount = loan_amount;
-    }
-
     public String getCreate_user_name() {
         return create_user_name;
     }
@@ -146,4 +129,5 @@ public class CommunicationLogDTO implements Serializable {
     public void setUser_name(String user_name) {
         this.user_name = user_name;
     }
+
 }
