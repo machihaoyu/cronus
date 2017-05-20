@@ -1164,7 +1164,7 @@ public class CrmController {
                 if (StringUtils.isNotEmpty(data.getRetData())) {
                     throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, StringAsciiUtil.asciiToString(data.getRetData()));
                 } else {
-                    throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, CronusException.Type.SYSTEM_CRM_ERROR.getError()+"异常消息返回");
+                    throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, CronusException.Type.SYSTEM_CRM_ERROR.getError()+"返回异常");
                 }
             }
         }
@@ -1180,7 +1180,7 @@ public class CrmController {
                 if (StringUtils.isNotEmpty(data.getErrMsg())) {
                     throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, StringAsciiUtil.asciiToString(data.getErrMsg()));
                 } else {
-                    throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, CronusException.Type.SYSTEM_CRM_ERROR.getError()+"异常消息返回");
+                    throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, CronusException.Type.SYSTEM_CRM_ERROR.getError()+"返回异常");
                 }
             }
         }
