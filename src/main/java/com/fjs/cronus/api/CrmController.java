@@ -6,6 +6,10 @@ import com.alibaba.fastjson.TypeReference;
 import com.fjs.cronus.dto.crm.CRMData;
 import com.fjs.cronus.dto.crm.FileData;
 import com.fjs.cronus.dto.*;
+import com.fjs.cronus.dto.customer.HaidaiCustomerDTO;
+import com.fjs.cronus.dto.customer.HaidaiCustomerParamDTO;
+import com.fjs.cronus.dto.customer.MarketCustomerDTO;
+import com.fjs.cronus.dto.customer.MarketCustomerParamDTO;
 import com.fjs.cronus.dto.login.AuthorityDTO;
 import com.fjs.cronus.dto.login.LoginInfoDTO;
 import com.fjs.cronus.dto.param.CustomerSaleParamDTO;
@@ -1019,6 +1023,134 @@ public class CrmController {
         return JSONObject.parseObject(data.getRetData(), ProductDTO.class);
     }
     /********************************-----产品相关---end------*********************************/
+
+
+
+    /********************************海贷魔方盘---start----************************************************/
+    //获取海贷魔方客户
+    @RequestMapping(value = "/getHaidaiList",method = RequestMethod.GET)
+    public PageBeanDTO<HaidaiCustomerDTO> getHaidaiList(@RequestParam Integer userId, @RequestParam Integer page){
+        String url = saleUrl + "getHaidaiList?key=" + saleKey + "&user_id=" + userId + "&p=" + page;
+        logger.info("获取海贷魔方客户 : url = " + url);
+        String res = restTemplate.getForObject(url, String.class);
+        logger.info("获取海贷魔方客户返回值 : res = " + res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        PageBeanDTO<HaidaiCustomerDTO> pageBeanDTO = new PageBeanDTO();
+        return JSON.parseObject(data.getRetData(),pageBeanDTO.getClass());
+    }
+    //获取海贷魔方的客户信息
+    @RequestMapping(value = "/getHaidaiCustomerInfo",method = RequestMethod.GET)
+    public HaidaiCustomerDTO getHaidaiCustomerInfo(@RequestParam Integer customerId){
+        String url = saleUrl + "getHaidaiCustomerInfo?key=" + saleKey + "&id=" + customerId;
+        logger.info("获取海贷魔方的客户信息 : url = " + url);
+        String res = restTemplate.getForObject(url, String.class);
+        logger.info("获取海贷魔方的客户信息返回值 : res = " + res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        return JSON.parseObject(data.getRetData(),HaidaiCustomerDTO.class);
+    }
+
+    //修改海贷魔方客户信息
+    @RequestMapping(value="/saveHaidaiInfo", method = RequestMethod.POST)
+    public void saveHaidaiInfo(@RequestBody HaidaiCustomerParamDTO paramDTO){
+        String url = saleUrl + "saveHaidaiInfo";
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("key",saleKey);
+        param.add("user_id",paramDTO.getUser_id());
+        param.add("id", paramDTO.getCustomerId());
+        param.add("telephone", paramDTO.getTelephone());
+        param.add("name", paramDTO.getName());
+        param.add("loan_amount", paramDTO.getLoanAmount());
+        logger.info("修改海贷魔方客户信息: url = " + url + ", 参数列表 = " + ReflectionToStringBuilder.toString(param));
+        String str = restTemplate.postForObject(url,param,String.class);
+        logger.info("修改海贷魔方客户信息: res = " + str);
+        ResponseData data = JSON.parseObject(str,ResponseData.class);
+        validateResponse(data);
+    }
+
+    //更新海贷魔方客户的状态(toStatus:-2(无效) 0(正常))
+    @RequestMapping(value="/updataHaidaiStatus", method = RequestMethod.POST)
+    public void updataHaidaiStatus(@RequestParam Integer customerId, @RequestParam Integer userId, @RequestParam String toStatus){
+        String url = saleUrl + "updataHaidaiStatus";
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("key",saleKey);
+        param.add("id",customerId);
+        param.add("user_id",userId);
+        param.add("toStatus", toStatus);
+        logger.info("更新海贷魔方客户的状态(toStatus:-2(无效) 0(正常)): url = " + url + ", 参数列表 = " + ReflectionToStringBuilder.toString(param));
+        String str = restTemplate.postForObject(url,param,String.class);
+        logger.info("更新海贷魔方客户的状态(toStatus:-2(无效) 0(正常)): res = " + str);
+        ResponseData data = JSON.parseObject(str,ResponseData.class);
+        validateResponse(data);
+    }
+
+    //海贷魔方客户转入到客户盘(只有正常状态的客户才能转入)
+    @RequestMapping(value="/haiDaimoveToSale", method = RequestMethod.POST)
+    public void haiDaimoveToSale(@RequestParam Integer customerId, @RequestParam Integer userId){
+        String url = saleUrl + "haiDaimoveToSale";
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("key",saleKey);
+        param.add("id",customerId);
+        param.add("user_id",userId);
+        logger.info("海贷魔方客户转入到客户盘(只有正常状态的客户才能转入): url = " + url + ", 参数列表 = " + ReflectionToStringBuilder.toString(param));
+        String str = restTemplate.postForObject(url,param,String.class);
+        logger.info("海贷魔方客户转入到客户盘(只有正常状态的客户才能转入): res = " + str);
+        ResponseData data = JSON.parseObject(str,ResponseData.class);
+        validateResponse(data);
+    }
+    /********************************海贷魔方盘---end----**************************************************/
+
+
+
+    /********************************市场推广盘列表---start----**************************************************/
+    //市场推广盘列表  type(public-工作盘 other-沉淀池)市场推广盘有两个盘 工作盘和沉淀池
+    @RequestMapping(value = "/getPrdPanCustomerList",method = RequestMethod.GET)
+    public List<MarketCustomerDTO> getPrdPanCustomerList(@RequestParam String panType, @RequestParam Integer userId){
+        String url = saleUrl + "getPrdPanCustomerList?key=" + saleKey + "&type=" + panType + "&user_id=" + userId;
+        logger.info("市场推广盘列表  type(public other) : url = " + url);
+        String res = restTemplate.getForObject(url, String.class);
+        logger.info("市场推广盘列表  type(public other)返回值 : res = " + res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        return JSON.parseArray(data.getRetData(),MarketCustomerDTO.class);
+    }
+
+    //获取市场推广盘客户信息  TODO  数据还包括一层
+    @RequestMapping(value = "/getPrdCustomerInfo",method = RequestMethod.GET)
+    public PageBeanDTO<MarketCustomerDTO> getPrdCustomerInfo(@RequestParam String panType, @RequestParam Integer userId){
+        String url = saleUrl + "getPrdCustomerInfo?key=" + saleKey + "&type=" + panType + "&user_id=" + userId;
+        logger.info("获取市场推广盘客户信息: url = " + url);
+        String res = restTemplate.getForObject(url, String.class);
+        logger.info("获取市场推广盘客户信息返回值 : res = " + res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        PageBeanDTO<MarketCustomerDTO> pageBeanDTO = new PageBeanDTO();
+        return JSON.parseObject(data.getRetData(),pageBeanDTO.getClass());
+    }
+
+    //添加/删除/转入客户修改  submit 操作类型:(save-修改 delectCustomer-删除 pullToSale-推到客户盘)
+    @RequestMapping(value="/addPrdCustomerByAction", method = RequestMethod.POST)
+    public void addPrdCustomerByAction(@RequestBody MarketCustomerParamDTO paramDTO){
+        String url = saleUrl + "addPrdCustomerByAction";
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("key",saleKey);
+        param.add("user_id",paramDTO.getUserId());
+        param.add("id",paramDTO.getId());
+        param.add("customer_name",paramDTO.getCustomerName());
+        param.add("customer_type",paramDTO.getCustomerType());
+        param.add("sex",paramDTO.getSex());
+        param.add("loan_amount",paramDTO.getLoanAmount());
+        param.add("city",paramDTO.getCity());
+        param.add("content",paramDTO.getContent());
+        param.add("submit",paramDTO.getSubmit());
+        logger.info("市场推广盘-添加/删除/转入客户修改 : url = " + url + ", 参数列表 = " + ReflectionToStringBuilder.toString(param));
+        String str = restTemplate.postForObject(url,param,String.class);
+        logger.info("市场推广盘-添加/删除/转入客户修改 返回响应: res = " + str);
+        ResponseData data = JSON.parseObject(str,ResponseData.class);
+        validateResponse(data);
+    }
+    /********************************市场推广盘列表---end----****************************************************/
 
 
 
