@@ -1161,7 +1161,11 @@ public class CrmController {
     private static void validateResponse(ResponseData data) {
         if (null != data){
             if (!ErrorNumEnum.SUCCESS.getCode().equals(data.getErrNum())){
-                throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, StringAsciiUtil.asciiToString(data.getRetData()));
+                if (StringUtils.isNotEmpty(data.getRetData())) {
+                    throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, StringAsciiUtil.asciiToString(data.getRetData()));
+                } else {
+                    throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, CronusException.Type.SYSTEM_CRM_ERROR.getError()+"异常消息返回");
+                }
             }
         }
     }
@@ -1173,7 +1177,11 @@ public class CrmController {
     private static void validateResponseBase(ResponseData data) {
         if (null != data){
             if (!ErrorNumEnum.SUCCESS.getCode().equals(data.getErrNum())){
-                throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, StringAsciiUtil.asciiToString(data.getErrMsg()));
+                if (StringUtils.isNotEmpty(data.getErrMsg())) {
+                    throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, StringAsciiUtil.asciiToString(data.getErrMsg()));
+                } else {
+                    throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, CronusException.Type.SYSTEM_CRM_ERROR.getError()+"异常消息返回");
+                }
             }
         }
     }
