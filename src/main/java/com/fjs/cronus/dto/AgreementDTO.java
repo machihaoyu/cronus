@@ -33,6 +33,15 @@ public class AgreementDTO implements Serializable {
     private Integer is_special;// int(1) NOT NULL DEFAULT '0' COMMENT '是不是利差合同(0-不是,1是)',
     private String template_serialize; //纸质协议
     private String time;
+    private String create_user_name;//协议所属者名字;
+
+    public String getCreate_user_name() {
+        return create_user_name;
+    }
+
+    public void setCreate_user_name(String create_user_name) {
+        this.create_user_name = create_user_name;
+    }
 
     public String getTime() {
         return time;
