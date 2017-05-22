@@ -681,6 +681,17 @@ public class CrmController {
         return JSONObject.parseObject(data.getRetData(), MineDTO.class);
     }
 
+    //判断客户是否上传了房产证或身份证
+    @RequestMapping(value = "/checkCustomerIsUpload",method = RequestMethod.GET)
+    public Boolean checkCustomerIsUpload(@RequestParam Integer customerId){
+        String url = saleUrl + "checkCustomerIsUpload?key=356a192b7913b06c54574d18c28d46e6395428ab&customer_id="+customerId;
+        logger.info("判断客户是否上传了房产证或身份证 : url = " + url);
+        String res = restTemplate.getForObject(url, String.class);
+        logger.info("判断客户是否上传了房产证或身份证返回值 : res = " + res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        return JSON.parseObject(data.getRetData(),Boolean.class);
+    }
 
 
     /************************审核-start**************************/
@@ -1017,9 +1028,12 @@ public class CrmController {
         Map<String,Object> map = new HashMap();
         map.put("user_id",userId);
         String where = JSON.toJSONString(map);
-        String url = baseUrl + "getUserInfoWhereIsJson?key=356o192c191db04c54513b0lc28d46ee63954iab&where="+where;
-        logger.info("根据当前登录用户id获得用户信息 : url = " + url);
-        String res = restTemplate.getForObject(url, String.class);
+        String url = baseUrl + "getUserInfoWhereIsJson";
+        MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
+        param.add("key","356o192c191db04c54513b0lc28d46ee63954iab");
+        param.add("where",where);
+        logger.info("根据当前登录用户id获得用户信息 : url = " + url + ", param = " + param.toString());
+        String res = restTemplate.postForObject(url, param, String.class);
         logger.info("根据当前登录用户id获得用户信息返回值: res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
