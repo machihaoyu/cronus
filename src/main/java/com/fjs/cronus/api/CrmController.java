@@ -686,7 +686,7 @@ public class CrmController {
     //获取待我审核列表
     @RequestMapping(value = "/myCheckList",method = RequestMethod.GET)
     public PageBeanDTO<CheckDTO> getMyCheckList(@RequestParam Integer userId, @RequestParam Integer page) {
-        String url = saleUrl + "myCheckList?key=" + saleKey + "&user_id=" + userId;
+        String url = saleUrl + "myCheckList?key=" + saleKey + "&user_id=" + userId + "&p=" + page;
         logger.info("获取'审核'列表数据url: "+url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("获取'审核'列表数据url返回响应: " + res);
@@ -698,7 +698,7 @@ public class CrmController {
     //我已审批的列表
     @RequestMapping(value = "/myAlreadyCheckList",method = RequestMethod.GET)
     public PageBeanDTO<CheckFinishDTO> getMyCheckFinishList(@RequestParam Integer userId, @RequestParam Integer page) {
-        String url = saleUrl + "myAlreadyCheckList?key=" + saleKey + "&user_id=" + userId;
+        String url = saleUrl + "myAlreadyCheckList?key=" + saleKey + "&user_id=" + userId + "&p=" + page;
         logger.info("我已审批的列表url: "+url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("我已审批的列表url返回响应: " + res);
@@ -710,7 +710,7 @@ public class CrmController {
     //我已提交结案的列表
     @RequestMapping(value = "/myAlreadyBeginList",method = RequestMethod.GET)
     public PageBeanDTO<CheckClosedDTO> getMyCheckClosedList(@RequestParam Integer userId, @RequestParam Integer page) {
-        String url = saleUrl + "myAlreadyBeginList?key=" + saleKey + "&user_id=" + userId;
+        String url = saleUrl + "myAlreadyBeginList?key=" + saleKey + "&user_id=" + userId + "&p=" + page;
         logger.info("我已提交结案的列表url: "+url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("我已提交结案的列表返回响应: " + res);
