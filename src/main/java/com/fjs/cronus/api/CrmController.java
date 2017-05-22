@@ -20,6 +20,7 @@ import com.fjs.cronus.dto.crm.ResponseData;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.exception.ExceptionValidate;
 import com.fjs.cronus.util.StringAsciiUtil;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1008,6 +1009,21 @@ public class CrmController {
         String res = restTemplate.postForObject(url, param, String.class);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
+    }
+
+    //根据当前登录用户id获得用户信息;
+    @RequestMapping(value = "/getUserInfoById",method = RequestMethod.GET)
+    public UserInfoDTO getUserInfoById(@RequestParam Integer userId){
+        Map<String,Object> map = new HashMap();
+        map.put("user_id",userId);
+        String where = JSON.toJSONString(map);
+        String url = baseUrl + "getUserInfoWhereIsJson?key=356o192c191db04c54513b0lc28d46ee63954iab&where="+where;
+        logger.info("根据当前登录用户id获得用户信息 : url = " + url);
+        String res = restTemplate.getForObject(url, String.class);
+        logger.info("根据当前登录用户id获得用户信息返回值: res = " + res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        return JSON.parseObject(data.getRetData(),UserInfoDTO.class);
     }
 
     /********************************-----产品相关---start----*********************************/
