@@ -34,6 +34,15 @@ public class AgreementDTO implements Serializable {
     private String template_serialize; //纸质协议
     private String time;
     private String create_user_name;//协议所属者名字;
+    private String customer_name;
+
+    public String getCustomer_name() {
+        return customer_name;
+    }
+
+    public void setCustomer_name(String customer_name) {
+        this.customer_name = customer_name;
+    }
 
     public String getCreate_user_name() {
         return create_user_name;
