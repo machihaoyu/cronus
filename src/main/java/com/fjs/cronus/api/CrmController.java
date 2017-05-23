@@ -385,7 +385,7 @@ public class CrmController {
         param.add("payee",agreementDTO.getPayee());
         param.add("payee_account",agreementDTO.getPayee_account());
         //TODO 模板;
-        /*param.add("template_serialize",agreementDTO.getTemplate_serialize());*/
+        param.add("template_serialize",agreementDTO.getTemplate_serialize());
         logger.info("新增修改客户协议 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url,param,String.class);
         logger.info("新增修改客户协议返回值 : res = " + res);
@@ -594,6 +594,52 @@ public class CrmController {
         ResponseData responseData = JSON.parseObject(res, ResponseData.class);
         validateResponse(responseData);
         return JSON.parseObject(responseData.getRetData(),new PageBeanDTO<ContractDTO>().getClass());
+    }
+
+    //修改合同
+    @RequestMapping(value = "/editContract",method = RequestMethod.POST)
+    public void editContract(@RequestBody ContractDTO contractDTO,@RequestParam Integer userId,@RequestParam String userName){
+        String url = saleUrl + "/editContract";
+        MultiValueMap<String,Object> param = new LinkedMultiValueMap();
+        param.add("key","356a192b7913b06c54574d18c28d46e6395428ab");
+        param.add("partake_serialize",contractDTO.getPartake_serialize());
+        param.add("template_serialize",contractDTO.getTemplate_serialize());
+        param.add("contract_id",contractDTO.getContract_id());
+        param.add("borrower",contractDTO.getBorrower());
+        param.add("identity",contractDTO.getIdentity());
+        param.add("phone",contractDTO.getPhone());
+        param.add("per_address",contractDTO.getPer_address());
+        param.add("address",contractDTO.getAddress());
+        param.add("contract_type",contractDTO.getContract_type());
+        param.add("product_type",contractDTO.getProduct_type());
+        param.add("borrow_money",contractDTO.getBorrow_money());
+        param.add("month_rate",contractDTO.getMonth_rate());
+        param.add("year_rate",contractDTO.getYear_rate());
+        param.add("duration",contractDTO.getDuration());
+        param.add("duration_unit",contractDTO.getDuration_unit());
+        param.add("s_year_rate",contractDTO.getS_year_rate());
+        param.add("s_duration",contractDTO.getS_duration());
+        param.add("s_duration_unit",contractDTO.getS_duration_unit());
+        param.add("service_money",contractDTO.getService_money());
+        param.add("return_fee",contractDTO.getReturn_fee());
+        param.add("packing",contractDTO.getPacking());
+        param.add("channel_money",contractDTO.getChannel_money());
+        param.add("give_money",contractDTO.getGive_money());
+        param.add("give_time",contractDTO.getGive_time_str());
+        param.add("expire_time",contractDTO.getExpire_time_str());
+        param.add("pay_type",contractDTO.getPay_type());
+        param.add("house_address",contractDTO.getHouse_address());
+        param.add("house_age",contractDTO.getHouse_age());
+        param.add("house_area",contractDTO.getHouse_area());
+        param.add("house_value",contractDTO.getHouse_value());
+        param.add("user_id",userId);
+        param.add("user_name",userName);
+        param.add("product_name",contractDTO.getProduct_name());
+        logger.info("修改合同 : url = " + url + ", param = " + param.toString());
+        String res = restTemplate.postForObject(url, param, String.class);
+        logger.info("修改合同返回值 : res = " + res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
     }
 
     //获取用户组;
