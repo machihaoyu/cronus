@@ -603,7 +603,8 @@ public class CrmController {
         MultiValueMap<String,Object> param = new LinkedMultiValueMap();
         param.add("key","356a192b7913b06c54574d18c28d46e6395428ab");
         param.add("partake_serialize",contractDTO.getPartake_serialize());
-        param.add("template_serialize",contractDTO.getTemplate_serialize());
+        //param.add("template_serialize",contractDTO.getTemplate_serialize());
+        param.add("template_serialize","{\"template_id\":\"3\",\"a_name\":\"1\",\"b_name\":\"1\",\"borrow_money_upper\":\"1\",\"borrow_money_lower\":\"147\",\"service_money_upper\":\"1\",\"service_money_lower\":\"1\",\"a_pen_name\":\"1\",\"a_year\":\"1\",\"a_mouth\":\"1\",\"a_day\":\"1\",\"b_pen_name\":\"1\",\"b_year\":\"1\",\"b_mouth\":\"1\",\"b_day\":\"1\"}");
         param.add("contract_id",contractDTO.getContract_id());
         param.add("borrower",contractDTO.getBorrower());
         param.add("identity",contractDTO.getIdentity());
