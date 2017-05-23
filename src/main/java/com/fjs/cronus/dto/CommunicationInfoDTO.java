@@ -11,7 +11,7 @@ public class CommunicationInfoDTO implements Serializable {
 
     private List<CommunicationLogDTO> data; //沟通记录信息集合
     private String house_status;// enum('','无','有') NOT NULL DEFAULT '' COMMENT '有无房产',
-    private Long loan_amount;// int(11) NOT NULL DEFAULT '0' COMMENT '意向贷款金额',
+    private Double loan_amount;// int(11) NOT NULL DEFAULT '0' COMMENT '意向贷款金额',
     private String purpose;  //资金用途
     private String telephonenumber; //电话号码
 
@@ -31,11 +31,11 @@ public class CommunicationInfoDTO implements Serializable {
         this.house_status = house_status;
     }
 
-    public Long getLoan_amount() {
+    public Double getLoan_amount() {
         return loan_amount;
     }
 
-    public void setLoan_amount(Long loan_amount) {
+    public void setLoan_amount(Double loan_amount) {
         this.loan_amount = loan_amount;
     }
 
