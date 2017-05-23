@@ -32,6 +32,7 @@ public class AchievementInfoDTO implements Serializable {
     private Integer create_time; //1476165963,
     private Integer check_time; //1476176446,
     private Integer confirm_time; //0
+    private AchievementContractInfo new_contract_info;
 
     public Integer getAchievement_id() {
         return achievement_id;
@@ -191,5 +192,13 @@ public class AchievementInfoDTO implements Serializable {
 
     public void setConfirm_time(Integer confirm_time) {
         this.confirm_time = confirm_time;
+    }
+
+    public AchievementContractInfo getNew_contract_info() {
+        return new_contract_info;
+    }
+
+    public void setNew_contract_info(AchievementContractInfo new_contract_info) {
+        this.new_contract_info = new_contract_info;
     }
 }
