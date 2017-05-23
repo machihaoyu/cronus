@@ -13,7 +13,7 @@ public class CustomerSaleDTO implements Serializable{
     private String owner_user_name; // varchar(50) DEFAULT NULL COMMENT '拥有人',
     private Integer creater_user_id; // int(10) NOT NULL DEFAULT '0' COMMENT '创建人',
     private String customer_level;// varchar(100) DEFAULT '意向客户' COMMENT '客户等级',
-    private Long loan_amount;// bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '意向需求资金1',
+    private Double loan_amount;// bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '意向需求资金1',
     private String spare_phone;// varchar(100) DEFAULT NULL COMMENT '备用联系方式',
     private String age;// varchar(100) DEFAULT NULL COMMENT '年龄',
     private String marriage;// enum('已婚','未婚','离异') DEFAULT NULL COMMENT '婚姻',
@@ -118,11 +118,11 @@ public class CustomerSaleDTO implements Serializable{
         this.customer_level = customer_level;
     }
 
-    public Long getLoan_amount() {
+    public Double getLoan_amount() {
         return loan_amount;
     }
 
-    public void setLoan_amount(Long loan_amount) {
+    public void setLoan_amount(Double loan_amount) {
         this.loan_amount = loan_amount;
     }
 
