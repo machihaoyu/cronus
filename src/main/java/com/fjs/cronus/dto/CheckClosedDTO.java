@@ -39,6 +39,7 @@ public class CheckClosedDTO implements Serializable {
 
     private Integer check_process;
     private String check_process_name;
+    private String next_check_name;
 
 
     public Integer getAchievement_id() {
@@ -255,5 +256,13 @@ public class CheckClosedDTO implements Serializable {
 
     public void setCheck_process_name(String check_process_name) {
         this.check_process_name = check_process_name;
+    }
+
+    public String getNext_check_name() {
+        return next_check_name;
+    }
+
+    public void setNext_check_name(String next_check_name) {
+        this.next_check_name = next_check_name;
     }
 }
