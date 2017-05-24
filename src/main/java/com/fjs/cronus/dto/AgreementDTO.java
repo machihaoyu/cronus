@@ -4,20 +4,24 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * 协议表DTO
+ * Created by crm on 2017/4/13.
+ */
 public class AgreementDTO implements Serializable {
 
     private static final long serialVersionUID = 1623659527822670142L;
 
     private Integer agreement_id;// int(11) NOT NULL AUTO_INCREMENT COMMENT '主键id',
     private Integer customer_id;// int(11) NOT NULL DEFAULT '0' COMMENT '客户id',
-    private Integer user_id;
+    private String customer_name;//客户名；
     private String number;// varchar(20) NOT NULL DEFAULT '' COMMENT '居间协议编号',
     private BigDecimal plan_money;// decimal(12,2) NOT NULL DEFAULT '0.00' COMMENT '拟借款金额',
     private BigDecimal commission;// decimal(12,2) NOT NULL DEFAULT '0.00' COMMENT '佣金',
     private String status;// tinyint(3) NOT NULL DEFAULT '0' COMMENT '状态(-1:无效,0-处理中,1-成功,2-失败)',
     private Integer create_user_id;// int(11) unsigned NOT NULL DEFAULT '0' COMMENT '创建人id',
     private Integer old_create_user_id;// int(11) NOT NULL DEFAULT '0' COMMENT '原始创建人',
-    private Integer create_time;// int(10) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
+    private Long create_time;// int(10) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
     private String mark;// varchar(255) DEFAULT NULL COMMENT '业务员对协议的额外备注信息',
     private String borrower;// varchar(127) NOT NULL DEFAULT '' COMMENT '借款人',
     private String product_type;// enum('抵押','信用','理财','','赎楼') NOT NULL DEFAULT '',
@@ -34,15 +38,6 @@ public class AgreementDTO implements Serializable {
     private String template_serialize; //纸质协议
     private String time;
     private String create_user_name;//协议所属者名字;
-    private String customer_name;
-
-    public String getCustomer_name() {
-        return customer_name;
-    }
-
-    public void setCustomer_name(String customer_name) {
-        this.customer_name = customer_name;
-    }
 
     public String getCreate_user_name() {
         return create_user_name;
@@ -67,6 +62,16 @@ public class AgreementDTO implements Serializable {
     public void setTemplate_serialize(String template_serialize) {
         this.template_serialize = template_serialize;
     }
+
+    public Integer getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(Integer user_id) {
+        this.user_id = user_id;
+    }
+
+    private Integer user_id;
     public Integer getAgreement_id() {
         return agreement_id;
     }
@@ -131,11 +136,11 @@ public class AgreementDTO implements Serializable {
         this.old_create_user_id = old_create_user_id;
     }
 
-    public Integer getCreate_time() {
+    public Long getCreate_time() {
         return create_time;
     }
 
-    public void setCreate_time(Integer create_time) {
+    public void setCreate_time(Long create_time) {
         this.create_time = create_time;
     }
 
@@ -243,11 +248,39 @@ public class AgreementDTO implements Serializable {
         this.is_special = is_special;
     }
 
-    public Integer getUser_id() {
-        return user_id;
+    @Override
+    public String toString() {
+        return "AgreementDTO{" +
+                "agreement_id=" + agreement_id +
+                ", customer_id=" + customer_id +
+                ", number='" + number + '\'' +
+                ", plan_money=" + plan_money +
+                ", commission=" + commission +
+                ", status=" + status +
+                ", create_user_id=" + create_user_id +
+                ", old_create_user_id=" + old_create_user_id +
+                ", create_time=" + create_time +
+                ", mark='" + mark + '\'' +
+                ", borrower='" + borrower + '\'' +
+                ", product_type='" + product_type + '\'' +
+                ", identity='" + identity + '\'' +
+                ", rate=" + rate +
+                ", telephone='" + telephone + '\'' +
+                ", update_time=" + update_time +
+                ", deposit=" + deposit +
+                ", pay_type=" + pay_type +
+                ", pay_time=" + pay_time +
+                ", payee='" + payee + '\'' +
+                ", payee_account='" + payee_account + '\'' +
+                ", is_special=" + is_special +
+                '}';
     }
 
-    public void setUser_id(Integer user_id) {
-        this.user_id = user_id;
+    public String getCustomer_name() {
+        return customer_name;
+    }
+
+    public void setCustomer_name(String customer_name) {
+        this.customer_name = customer_name;
     }
 }
