@@ -1069,14 +1069,14 @@ public class CrmController {
 
     //判断客户是不是特殊渠道来源;是:返回返费支出计算利率,不是:返回数值小于0;
     @RequestMapping(value = "/getCustomerUtmSourceRate",method = RequestMethod.GET)
-    public Integer getCustomerUtmSourceRate(@RequestParam Integer customerId){
+    public Float getCustomerUtmSourceRate(@RequestParam Integer customerId){
         String url = saleUrl + "getCustomerUtmSourceRate?key=356a192b7913b06c54574d18c28d46e6395428ab&customer_id=" + customerId;
         logger.info("判断客户是不是特殊渠道来源,返回利率 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("判断客户是不是特殊渠道来源,返回利率返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
-        return JSON.parseObject(data.getRetData(),Integer.class);
+        return JSON.parseObject(data.getRetData(),Float.class);
     }
 
     //根据当前登录用户id获得用户信息;
