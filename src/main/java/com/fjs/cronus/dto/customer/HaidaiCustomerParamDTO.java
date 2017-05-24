@@ -10,7 +10,7 @@ public class HaidaiCustomerParamDTO {
     private Integer customerId;
     private String telephone;
     private String name;
-    private Integer loanAmount;
+    private String loanAmount;
 
     public Integer getUser_id() {
         return user_id;
@@ -44,11 +44,11 @@ public class HaidaiCustomerParamDTO {
         this.name = name;
     }
 
-    public Integer getLoanAmount() {
+    public String getLoanAmount() {
         return loanAmount;
     }
 
-    public void setLoanAmount(Integer loanAmount) {
+    public void setLoanAmount(String loanAmount) {
         this.loanAmount = loanAmount;
     }
 }

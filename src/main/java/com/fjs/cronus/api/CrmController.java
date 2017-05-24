@@ -6,10 +6,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.fjs.cronus.dto.crm.CRMData;
 import com.fjs.cronus.dto.crm.FileData;
 import com.fjs.cronus.dto.*;
-import com.fjs.cronus.dto.customer.HaidaiCustomerDTO;
-import com.fjs.cronus.dto.customer.HaidaiCustomerParamDTO;
-import com.fjs.cronus.dto.customer.MarketCustomerDTO;
-import com.fjs.cronus.dto.customer.MarketCustomerParamDTO;
+import com.fjs.cronus.dto.customer.*;
 import com.fjs.cronus.dto.login.AuthorityDTO;
 import com.fjs.cronus.dto.login.LoginInfoDTO;
 import com.fjs.cronus.dto.param.CustomerSaleParamDTO;
@@ -1206,17 +1203,16 @@ public class CrmController {
         return JSON.parseArray(data.getRetData(),MarketCustomerDTO.class);
     }
 
-    //获取市场推广盘客户信息  TODO  数据还包括一层
+    //获取市场推广盘客户信息
     @RequestMapping(value = "/getPrdCustomerInfo",method = RequestMethod.GET)
-    public PageBeanDTO<MarketCustomerDTO> getPrdCustomerInfo(@RequestParam String panType, @RequestParam Integer userId){
-        String url = saleUrl + "getPrdCustomerInfo?key=" + saleKey + "&type=" + panType + "&user_id=" + userId;
+    public MarketCustomerInfoDTO getPrdCustomerInfo(@RequestParam Integer customerId, @RequestParam Integer userId){
+        String url = saleUrl + "getPrdCustomerInfo?key=" + saleKey + "&id=" + customerId + "&user_id=" + userId;
         logger.info("获取市场推广盘客户信息: url = " + url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("获取市场推广盘客户信息返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
-        PageBeanDTO<MarketCustomerDTO> pageBeanDTO = new PageBeanDTO();
-        return JSON.parseObject(data.getRetData(),pageBeanDTO.getClass());
+        return JSON.parseObject(data.getRetData(), MarketCustomerInfoDTO.class);
     }
 
     //添加/删除/转入客户修改  submit 操作类型:(save-修改 delectCustomer-删除 pullToSale-推到客户盘)

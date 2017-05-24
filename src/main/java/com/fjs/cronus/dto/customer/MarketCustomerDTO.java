@@ -13,7 +13,7 @@ public class MarketCustomerDTO {
     private String sex;//男,
     private String customer_type;//意向客户,
     private String telephonenumber;//1850845****,
-    private Integer loan_amount;//0,
+    private String loan_amount;//0,
     private String city;//上海,
     private String house_status;//,
     private String level;//高,
@@ -26,6 +26,7 @@ public class MarketCustomerDTO {
     private Long communit_time;//0,
     private String communit_content;//null,
     private Integer status;//0
+    private String house_location;
 
     public Integer getId() {
         return id;
@@ -67,11 +68,11 @@ public class MarketCustomerDTO {
         this.telephonenumber = telephonenumber;
     }
 
-    public Integer getLoan_amount() {
+    public String getLoan_amount() {
         return loan_amount;
     }
 
-    public void setLoan_amount(Integer loan_amount) {
+    public void setLoan_amount(String loan_amount) {
         this.loan_amount = loan_amount;
     }
 
@@ -169,5 +170,13 @@ public class MarketCustomerDTO {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public String getHouse_location() {
+        return house_location;
+    }
+
+    public void setHouse_location(String house_location) {
+        this.house_location = house_location;
     }
 }

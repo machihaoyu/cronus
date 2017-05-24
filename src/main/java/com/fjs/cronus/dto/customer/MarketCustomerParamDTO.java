@@ -11,7 +11,7 @@ public class MarketCustomerParamDTO {
     private String customerName;
     private String customerType;
     private String sex;
-    private Integer loanAmount;
+    private String loanAmount;
     private String city;
     private String content;
 
@@ -58,11 +58,11 @@ public class MarketCustomerParamDTO {
         this.sex = sex;
     }
 
-    public Integer getLoanAmount() {
+    public String getLoanAmount() {
         return loanAmount;
     }
 
-    public void setLoanAmount(Integer loanAmount) {
+    public void setLoanAmount(String loanAmount) {
         this.loanAmount = loanAmount;
     }
 
