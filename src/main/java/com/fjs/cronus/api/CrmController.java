@@ -1034,7 +1034,6 @@ public class CrmController {
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
         param.add("key","356a192b7913b06c54574d18c28d46e6395428ab");
         param.add("partake_serialize",contractDTO.getPartake_serialize());
-        param.add("template_serialize",contractDTO.getTemplate_serialize());
         param.add("customer_id",customerId);
         param.add("borrower",contractDTO.getBorrower());
         param.add("identity",contractDTO.getIdentity());
@@ -1064,9 +1063,23 @@ public class CrmController {
         param.add("house_value",contractDTO.getHouse_value());
         param.add("user_id",userId);
         param.add("user_name",userName);
+        logger.info("添加利差合同 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url, param, String.class);
+        logger.info("添加利差合同 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
+    }
+
+    //判断客户是不是特殊渠道来源;是:返回返费支出计算利率,不是:返回数值小于0;
+    @RequestMapping(value = "/getCustomerUtmSourceRate",method = RequestMethod.GET)
+    public Integer getCustomerUtmSourceRate(@RequestParam Integer customerId){
+        String url = saleUrl + "getCustomerUtmSourceRate?key=356a192b7913b06c54574d18c28d46e6395428ab&customer_id=" + customerId;
+        logger.info("判断客户是不是特殊渠道来源,返回利率 : url = " + url);
+        String res = restTemplate.getForObject(url, String.class);
+        logger.info("判断客户是不是特殊渠道来源,返回利率返回值 : res = " + res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        return JSON.parseObject(data.getRetData(),Integer.class);
     }
 
     //根据当前登录用户id获得用户信息;
