@@ -1143,8 +1143,11 @@ public class CrmController {
     /********************************海贷魔方盘---start----************************************************/
     //获取海贷魔方客户
     @RequestMapping(value = "/getHaidaiList",method = RequestMethod.GET)
-    public PageBeanDTO<HaidaiCustomerDTO> getHaidaiList(@RequestParam Integer userId, @RequestParam Integer page){
-        String url = saleUrl + "getHaidaiList?key=" + saleKey + "&user_id=" + userId + "&p=" + page;
+    public PageBeanDTO<HaidaiCustomerDTO> getHaidaiList(@RequestParam Integer userId, @RequestParam Integer page,
+                                                        @RequestParam String status, @RequestParam String city, @RequestParam String where){
+        String url = saleUrl + "getHaidaiList?key=" + saleKey + "&user_id=" + userId + "&p=" + page + "&status="
+                + status + "&city=" + city + "&where=" + where;
+
         logger.info("获取海贷魔方客户 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("获取海贷魔方客户返回值 : res = " + res);
