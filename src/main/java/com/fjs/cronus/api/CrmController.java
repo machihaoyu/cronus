@@ -1102,6 +1102,22 @@ public class CrmController {
         return JSON.parseObject(data.getRetData(),UserInfoDTO.class);
     }
 
+    //通过id获取用户登录信息
+    @RequestMapping(value = "/getUserLoginInfoById",method = RequestMethod.POST)
+    public LoginInfoDTO getUserLoginInfoById(@RequestParam Integer userId){
+        String url = baseUrl + "getUserLoginInfoById";
+        MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
+        param.add("key","356o192c191db04c54513b0lc28d46ee63954iab");
+        param.add("system","sale");
+        param.add("user_id",userId);
+        logger.info("通过id获取用户登录信息 : url = " + url);
+        String res = restTemplate.postForObject(url, param, String.class);
+        logger.info("通过id获取用户登录信息返回值 : res = " + res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        return JSON.parseObject(data.getRetData(),LoginInfoDTO.class);
+    }
+
     /********************************-----产品相关---start----*********************************/
     //通过产品ID获取单个产品信息
     @RequestMapping(value = "/getProductInfoById",method = RequestMethod.GET)
