@@ -38,6 +38,24 @@ public class AgreementDTO implements Serializable {
     private String template_serialize; //纸质协议
     private String time;
     private String create_user_name;//协议所属者名字;
+    private Integer pull_customer_id;//海贷魔方客户id;
+    private String loan_id;//海贷魔方订单号;
+
+    public Integer getPull_customer_id() {
+        return pull_customer_id;
+    }
+
+    public void setPull_customer_id(Integer pull_customer_id) {
+        this.pull_customer_id = pull_customer_id;
+    }
+
+    public String getLoan_id() {
+        return loan_id;
+    }
+
+    public void setLoan_id(String loan_id) {
+        this.loan_id = loan_id;
+    }
 
     public String getCreate_user_name() {
         return create_user_name;

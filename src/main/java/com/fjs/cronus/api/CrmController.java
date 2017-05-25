@@ -383,6 +383,12 @@ public class CrmController {
         param.add("payee_account",agreementDTO.getPayee_account());
         //TODO 模板;
         param.add("template_serialize",agreementDTO.getTemplate_serialize());
+        if(agreementDTO.getLoan_id()!=null){
+            param.add("loan_id",agreementDTO.getLoan_id());
+        }
+        if(agreementDTO.getPull_customer_id() != null){
+            param.add("pull_customer_id",agreementDTO.getPull_customer_id());
+        }
         logger.info("新增修改客户协议 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url,param,String.class);
         logger.info("新增修改客户协议返回值 : res = " + res);
@@ -1210,6 +1216,19 @@ public class CrmController {
         ResponseData data = JSON.parseObject(str,ResponseData.class);
         validateResponse(data);
     }
+
+    //通过客户id获取海贷魔方可选的订单
+    @RequestMapping(value = "/getPullListByCustomerSaleId",method = RequestMethod.GET)
+    public List<HaidaiOrderDTO> getPullListByCustomerSaleId(@RequestParam Integer customerId){
+        String url = saleUrl + "getPullListByCustomerSaleId?key=356a192b7913b06c54574d18c28d46e6395428ab&customer_id="+customerId;
+        logger.info("通过客户id获取海贷魔方可选的订单 : url = " + url);
+        String res = restTemplate.getForObject(url, String.class);
+        logger.info("通过客户id获取海贷魔方可选的订单返回值 : res = " + res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        return JSON.parseArray(data.getRetData(),HaidaiOrderDTO.class);
+    }
+
     /********************************海贷魔方盘---end----**************************************************/
 
 
