@@ -583,8 +583,13 @@ public class CrmController {
 
     //合同列表
     @RequestMapping(value = "/contractList",method = RequestMethod.GET)
-    public PageBeanDTO<ContractDTO> contractList(@RequestParam Integer p , @RequestParam Integer contract_type , @RequestParam Integer is_special , @RequestParam String users , @RequestParam String search){
-        String url = "http://beta-sale.fang-crm.com/Api/App/contractList?key=356a192b7913b06c54574d18c28d46e6395428ab&p="+ p  + "&users=" + users + "&is_special=" + is_special + "&search=" + search + "&contract_type=" + contract_type;
+    public PageBeanDTO<ContractDTO> contractList(@RequestParam(required = false) Integer p , @RequestParam(required = false) Integer contract_type , @RequestParam(required = false) Integer is_special , @RequestParam String users , @RequestParam(required = false) String search,@RequestParam(required = false) Integer agreementId){
+        String url;
+        if(agreementId == null){
+            url = "http://beta-sale.fang-crm.com/Api/App/contractList?key=356a192b7913b06c54574d18c28d46e6395428ab&p="+ p  + "&users=" + users + "&is_special=" + is_special + "&search=" + search + "&contract_type=" + contract_type;
+        }else{
+            url = "http://beta-sale.fang-crm.com/Api/App/contractList?key=356a192b7913b06c54574d18c28d46e6395428ab&users=" + users + "&agreement_ids=" + agreementId;
+        }
         logger.info("合同列表请求url: " + url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("合同列表请求url返回响应: " + res);
