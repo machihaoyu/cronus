@@ -1,8 +1,11 @@
 package com.fjs.cronus.dto;
 
+import com.fjs.cronus.dto.customer.HaidaiCustomerDTO;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 协议表DTO
@@ -40,6 +43,24 @@ public class AgreementDTO implements Serializable {
     private String create_user_name;//协议所属者名字;
     private Integer pull_customer_id;//海贷魔方客户id;
     private String loan_id;//海贷魔方订单号;
+    private HaidaiCustomerDTO haidaiCustomerDTO;//海贷魔方订单信息;
+    private String haidaiCustomer;
+
+    public HaidaiCustomerDTO getHaidaiCustomerDTO() {
+        return haidaiCustomerDTO;
+    }
+
+    public void setHaidaiCustomerDTO(HaidaiCustomerDTO haidaiCustomerDTO) {
+        this.haidaiCustomerDTO = haidaiCustomerDTO;
+    }
+
+    public String getHaidaiCustomer() {
+        return haidaiCustomer;
+    }
+
+    public void setHaidaiCustomer(String haidaiCustomer) {
+        this.haidaiCustomer = haidaiCustomer;
+    }
 
     public Integer getPull_customer_id() {
         return pull_customer_id;
