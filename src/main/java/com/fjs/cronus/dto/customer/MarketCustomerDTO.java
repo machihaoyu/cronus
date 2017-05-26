@@ -23,7 +23,7 @@ public class MarketCustomerDTO {
     private Integer view_uid;//1,
     private Long create_time;//1493786734,
     private Date update_time;//2017-05-11 13:31:30,
-    private Long communit_time;//0,
+    private long communit_time;//0,
     private String communit_content;//null,
     private Integer status;//0
     private String house_location;
@@ -148,11 +148,11 @@ public class MarketCustomerDTO {
         this.update_time = update_time;
     }
 
-    public Long getCommunit_time() {
+    public long getCommunit_time() {
         return communit_time;
     }
 
-    public void setCommunit_time(Long communit_time) {
+    public void setCommunit_time(long communit_time) {
         this.communit_time = communit_time;
     }
 

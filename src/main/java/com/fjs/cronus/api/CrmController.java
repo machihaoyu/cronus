@@ -213,7 +213,7 @@ public class CrmController {
 
     //新增客户沟通
     @RequestMapping(value = "/addCommunicationLog", method = RequestMethod.POST)
-    public ResponseData addCommunicationLog(@RequestBody CommunicationLogDTO communicationLogDTO, String houseStatus, Long loanAmount, String purpose){
+    public ResponseData addCommunicationLog(@RequestBody CommunicationLogDTO communicationLogDTO, String houseStatus, String loanAmount, String purpose){
         logger.info("新增客户沟通:　" + ReflectionToStringBuilder.toString(communicationLogDTO));
         String url = saleUrl + "addCommunicationLog";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
@@ -1236,8 +1236,11 @@ public class CrmController {
     /********************************市场推广盘列表---start----**************************************************/
     //市场推广盘列表  type(public-工作盘 other-沉淀池)市场推广盘有两个盘 工作盘和沉淀池
     @RequestMapping(value = "/getPrdPanCustomerList",method = RequestMethod.GET)
-    public List<MarketCustomerDTO> getPrdPanCustomerList(@RequestParam String panType, @RequestParam Integer userId){
-        String url = saleUrl + "getPrdPanCustomerList?key=" + saleKey + "&type=" + panType + "&user_id=" + userId;
+    public List<MarketCustomerDTO> getPrdPanCustomerList(@RequestParam String panType, @RequestParam Integer userId, @RequestParam String customerType,
+                                                         @RequestParam String houseStatus, @RequestParam String level, @RequestParam String communStatus,
+                                                         @RequestParam String searchKey){
+        String url = saleUrl + "getPrdPanCustomerList?key=" + saleKey + "&type=" + panType + "&user_id=" + userId + "&customer_type=" + customerType +
+                "&house_status=" + houseStatus + "&level=" + level + "&communication_order=" + communStatus + "&search_where=" + searchKey;
         logger.info("市场推广盘列表  type(public other) : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("市场推广盘列表  type(public other)返回值 : res = " + res);
