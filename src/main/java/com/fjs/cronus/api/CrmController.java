@@ -356,7 +356,13 @@ public class CrmController {
         String res = restTemplate.getForObject(url, String.class);
         ResponseData data = JSON.parseObject(res,ResponseData.class);
         validateResponse(data);
-        return JSON.parseObject(data.getRetData(),AgreementDTO.class);
+        AgreementDTO agreementDTO = JSON.parseObject(data.getRetData(), AgreementDTO.class);
+        String haidaiCustomer = agreementDTO.getHaidaiCustomer();
+        if(haidaiCustomer.length()>2){
+            HaidaiCustomerDTO haidaiCustomerDTO = JSON.parseObject(haidaiCustomer, HaidaiCustomerDTO.class);
+            agreementDTO.setHaidaiCustomerDTO(haidaiCustomerDTO);
+        }
+        return agreementDTO;
     }
 
     //新增客户协议
