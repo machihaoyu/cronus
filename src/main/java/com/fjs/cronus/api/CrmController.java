@@ -213,7 +213,7 @@ public class CrmController {
 
     //新增客户沟通
     @RequestMapping(value = "/addCommunicationLog", method = RequestMethod.POST)
-    public ResponseData addCommunicationLog(@RequestBody CommunicationLogDTO communicationLogDTO, String houseStatus, Long loanAmount, String purpose){
+    public ResponseData addCommunicationLog(@RequestBody CommunicationLogDTO communicationLogDTO, String houseStatus, String loanAmount, String purpose){
         logger.info("新增客户沟通:　" + ReflectionToStringBuilder.toString(communicationLogDTO));
         String url = saleUrl + "addCommunicationLog";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
