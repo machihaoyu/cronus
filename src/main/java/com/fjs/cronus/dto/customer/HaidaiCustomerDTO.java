@@ -23,6 +23,28 @@ public class HaidaiCustomerDTO {
     private String cust_house_city;//,
     private String cust_city;//
 
+    //海贷魔方订单的协议需要的字段; start
+    private Integer pull_customer_id;
+    private String loan_id;
+    //海贷魔方订单的协议需要的字段; end
+
+
+    public Integer getPull_customer_id() {
+        return pull_customer_id;
+    }
+
+    public void setPull_customer_id(Integer pull_customer_id) {
+        this.pull_customer_id = pull_customer_id;
+    }
+
+    public String getLoan_id() {
+        return loan_id;
+    }
+
+    public void setLoan_id(String loan_id) {
+        this.loan_id = loan_id;
+    }
+
     public Integer getId() {
         return id;
     }
