@@ -55,6 +55,9 @@ public class CrmController {
     @Value("${base.url.document}")
     private String baseDocumentUrl;
 
+    @Value("${base.url.index}")
+    private String baseIndexUrl;
+
     @Autowired
     RestTemplate restTemplate;
 
@@ -338,7 +341,7 @@ public class CrmController {
     //获取客户回访记录
     @RequestMapping(value = "/getCustomerCallbackPhoneLog", method = RequestMethod.GET)
     public List<CallbackLogDTO> getCustomerCallbackPhoneLog(@RequestParam Integer customerId){
-        String url = saleUrl + "getCustomerCallbackPhoneLog?key=356a192b7913b06c54574d18c28d46e6395428ab&customer_id=" + customerId;
+        String url = saleUrl + "getCustomerCallbackPhoneLog?key=" + saleKey + "&customer_id=" + customerId;
         logger.info("获取客户回访记录url: " + url);
         String str = restTemplate.getForObject(url, String.class);
         logger.info("获取客户回访记录url返回响应：" + str);
@@ -351,7 +354,7 @@ public class CrmController {
     //获取客户协议
     @RequestMapping(value = "/getAgreementInfo", method = RequestMethod.GET)
     public AgreementDTO getAgreement(@RequestParam Integer agreementId){
-        String url = "http://beta-sale.fang-crm.com/Api/App/getAgreementInfo?key=356a192b7913b06c54574d18c28d46e6395428ab&agreement_id=" + agreementId;
+        String url = saleUrl + "getAgreementInfo?key=" + saleKey + "&agreement_id=" + agreementId;
         logger.info("获取客户协议 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
         ResponseData data = JSON.parseObject(res,ResponseData.class);
@@ -368,9 +371,9 @@ public class CrmController {
     //新增客户协议
     @RequestMapping(value = "/addAgreementByCustomer", method = RequestMethod.POST)
     public void addAgreeMent(@RequestBody AgreementDTO agreementDTO) {
-        String url = "http://beta-sale.fang-crm.com/Api/App/addAgreementByCustomer";
+        String url = saleUrl + "addAgreementByCustomer";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-        param.add("key","356a192b7913b06c54574d18c28d46e6395428ab");
+        param.add("key",saleKey);
         param.add("user_id",agreementDTO.getUser_id());
         param.add("customer_id",agreementDTO.getCustomer_id());
         param.add("agreement_id",agreementDTO.getAgreement_id());
@@ -405,7 +408,7 @@ public class CrmController {
     //获取居间协议列表
     @RequestMapping(value = "/getAgreementList", method = RequestMethod.GET)
     public Agreement getAgreementList (@RequestParam String users, @RequestParam String search, @RequestParam Integer p){
-        String url = "http://beta-sale.fang-crm.com/Api/App/getAgreementList?key=356a192b7913b06c54574d18c28d46e6395428ab&users=" + users
+        String url = saleUrl + "getAgreementList?key=" + saleKey + "&users=" + users
                 + "&search=" + search + "&p=" + p;
         logger.info("获取居间协议列表:url="+url);
         String res = restTemplate.getForObject(url, String.class);
@@ -418,7 +421,7 @@ public class CrmController {
     //获取客户协议列表
     @RequestMapping(value = "/getAgreementListByCustomerIds", method = RequestMethod.GET)
     public Agreement getAgreementListByCustomerIds(@RequestParam String customerIds, @RequestParam String search, @RequestParam Integer p) {
-        String url = "http://beta-sale.fang-crm.com/Api/App/getAgreementList?key=356a192b7913b06c54574d18c28d46e6395428ab&customer_ids=" + customerIds
+        String url = saleUrl + "getAgreementList?key=" + saleKey + "&customer_ids=" + customerIds
                 + "&search=" + search + "&p=" + p;
         logger.info("获取居间协议列表:url=" + url);
         String res = restTemplate.getForObject(url, String.class);
@@ -465,7 +468,7 @@ public class CrmController {
     //获取附件分类-上传附件后弹出选择分类
     @RequestMapping(value = "/getCategory", method = RequestMethod.GET)
     public String getCategory() {
-        String url = "http://beta-sale.fang-crm.com/Api/Document/getCategoryAll?key=" + saleKey;
+        String url =  baseDocumentUrl + "getCategoryAll?key=" + saleKey;
         logger.info("获取附件分类-上传附件后弹出选择分类url: " + url);
         String str = restTemplate.getForObject(url, String.class);
         logger.info("获取附件分类-上传附件后弹出选择分类url返回响应：" + str);
@@ -530,9 +533,9 @@ public class CrmController {
     public void addToReceivable(@RequestParam Integer userId,@RequestParam String userName,
                                   @RequestParam Integer agreementId,@RequestParam Integer contractId,
                                   @RequestParam BigDecimal deposit){
-        String url = "http://beta-sale.fang-crm.com/Api/App/addToReceivable";
+        String url = saleUrl + "addToReceivable";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-        param.add("key","356a192b7913b06c54574d18c28d46e6395428ab");
+        param.add("key",saleKey);
         param.add("user_id",userId);
         param.add("user_name",userName);
         param.add("agreement_id",agreementId);
@@ -549,9 +552,9 @@ public class CrmController {
     @RequestMapping(value = "/updataStatus", method = RequestMethod.POST)
     public void updataStatus(@RequestParam Integer userId,@RequestParam Integer agreementId,
                                @RequestParam Integer status){
-        String url = "http://beta-sale.fang-crm.com/Api/App/updataStatus";
+        String url = saleUrl + "updataStatus";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-        param.add("key","356a192b7913b06c54574d18c28d46e6395428ab");
+        param.add("key",saleKey);
         param.add("user_id",userId);
         param.add("agreement_id",agreementId);
         param.add("status",status);
@@ -574,9 +577,9 @@ public class CrmController {
         if(departmentId != 0){
             map.put("sub_company_id",departmentId);
         }
-        String url =  "http://beta-base.fang-crm.com/Api/App/getUserInfoWhereIsJson";
+        String url =  baseUrl + "getUserInfoWhereIsJson";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-        param.add("key", "356o192c191db04c54513b0lc28d46ee63954iab");
+        param.add("key", baseKey);
         if(map.size()>0){
             String where = JSON.toJSONString(map);
             param.add("where", where);
@@ -598,9 +601,9 @@ public class CrmController {
     public PageBeanDTO<ContractDTO> contractList(@RequestParam(required = false) Integer p , @RequestParam(required = false) Integer contract_type , @RequestParam(required = false) Integer is_special , @RequestParam String users , @RequestParam(required = false) String search,@RequestParam(required = false) Integer agreementId){
         String url;
         if(agreementId == null){
-            url = "http://beta-sale.fang-crm.com/Api/App/contractList?key=356a192b7913b06c54574d18c28d46e6395428ab&p="+ p  + "&users=" + users + "&is_special=" + is_special + "&search=" + search + "&contract_type=" + contract_type;
+            url = saleUrl + "contractList?key=" + saleKey + "&p="+ p  + "&users=" + users + "&is_special=" + is_special + "&search=" + search + "&contract_type=" + contract_type;
         }else{
-            url = "http://beta-sale.fang-crm.com/Api/App/contractList?key=356a192b7913b06c54574d18c28d46e6395428ab&users=" + users + "&agreement_ids=" + agreementId;
+            url = saleUrl + "contractList?key=" + saleKey + "&users=" + users + "&agreement_ids=" + agreementId;
         }
         logger.info("合同列表请求url: " + url);
         String res = restTemplate.getForObject(url, String.class);
@@ -615,7 +618,7 @@ public class CrmController {
     public void editContract(@RequestBody ContractDTO contractDTO,@RequestParam Integer userId,@RequestParam String userName){
         String url = saleUrl + "/editContract";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap();
-        param.add("key","356a192b7913b06c54574d18c28d46e6395428ab");
+        param.add("key",saleKey);
         param.add("partake_serialize",contractDTO.getPartake_serialize());
         //param.add("template_serialize",contractDTO.getTemplate_serialize());
         param.add("template_serialize","{\"template_id\":\"3\",\"a_name\":\"1\",\"b_name\":\"1\",\"borrow_money_upper\":\"1\",\"borrow_money_lower\":\"147\",\"service_money_upper\":\"1\",\"service_money_lower\":\"1\",\"a_pen_name\":\"1\",\"a_year\":\"1\",\"a_mouth\":\"1\",\"a_day\":\"1\",\"b_pen_name\":\"1\",\"b_year\":\"1\",\"b_mouth\":\"1\",\"b_day\":\"1\"}");
@@ -660,10 +663,10 @@ public class CrmController {
     //获取用户组;
     @RequestMapping(value = "/getSubUserByUserId" ,method = RequestMethod.POST)
     public String getSubUserByUserId(@RequestParam String dataType ,@RequestParam Integer userId){
-        String url = "http://beta-base.fang-crm.com/Api/Index/getSubUserByUserId";
+        String url = baseIndexUrl + "getSubUserByUserId";
         logger.info("获取用户组:url="+url+",dataType=" + dataType +",userId="+userId);
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-        param.add("key","356o192c191db04c54513b0lc28d46ee63954iab");
+        param.add("key",baseKey);
         param.add("user_id",userId);
         param.add("data_type",dataType);
         String res = restTemplate.postForObject(url, param,String.class);
@@ -678,7 +681,7 @@ public class CrmController {
     //合同详情
     @RequestMapping(value = "/getContractInfo",method = RequestMethod.GET)
     public ContractDTO getContractInfo(@RequestParam Integer contractId){
-        String url = "http://beta-sale.fang-crm.com/Api/App/getContractInfo?key=356a192b7913b06c54574d18c28d46e6395428ab&contract_id=" + contractId;
+        String url = saleUrl + "getContractInfo?key=" + saleKey + "&contract_id=" + contractId;
         logger.info("合同详情:url="+url);
         String res = restTemplate.getForObject(url, String.class);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
@@ -690,7 +693,7 @@ public class CrmController {
     //根据协议获得合同
     @RequestMapping(value = "/getContractListByAgreement",method = RequestMethod.GET)
     public List<ContractDTO> getContractListByAgreement(@RequestParam Integer agreementId){
-        String url = "http://beta-sale.fang-crm.com/Api/App/getContractListByAgreement?key=356a192b7913b06c54574d18c28d46e6395428ab&agreement_id="+agreementId;
+        String url = saleUrl + "getContractListByAgreement?key=" + saleKey + "&agreement_id="+agreementId;
         logger.info("根据协议获得合同:url=" + url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("根据协议获得合同返回:res=" + res);
@@ -704,7 +707,7 @@ public class CrmController {
         String url = saleUrl + "addReceivables";
         logger.info("添加回款:url="+url);
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-        param.add("key","356a192b7913b06c54574d18c28d46e6395428ab");
+        param.add("key",saleKey);
         param.add("user_id",userId);
         param.add("user_name",userName);
         param.add("contract_id",receivablesDTO.getContract_id());
@@ -745,7 +748,7 @@ public class CrmController {
     //判断客户是否上传了房产证或身份证
     @RequestMapping(value = "/checkCustomerIsUpload",method = RequestMethod.GET)
     public Boolean checkCustomerIsUpload(@RequestParam Integer customerId){
-        String url = saleUrl + "checkCustomerIsUpload?key=356a192b7913b06c54574d18c28d46e6395428ab&customer_id="+customerId;
+        String url = saleUrl + "checkCustomerIsUpload?key=" + saleKey + "&customer_id="+customerId;
         logger.info("判断客户是否上传了房产证或身份证 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("判断客户是否上传了房产证或身份证返回值 : res = " + res);
@@ -899,7 +902,7 @@ public class CrmController {
     public List<BaseDepartmentDTO> getDepartmentByWhere(@RequestParam String type ,@RequestParam String search){
         String url =  baseUrl + "getDepartmentByWhere";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-        param.add("key","356o192c191db04c54513b0lc28d46ee63954iab");
+        param.add("key",baseKey);
         param.add("type",type);
         param.add("where",search);
         logger.info("获取分公司列表 : url = " + url + ", param = " + param.toString());
@@ -914,7 +917,7 @@ public class CrmController {
     public void contractAbnormalAction(@RequestParam Integer userId,@RequestParam String userName,@RequestBody ContractDTO contractDTO){
         String url =  saleUrl + "contractAbnormalAction";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
-        param.add("key","356a192b7913b06c54574d18c28d46e6395428ab");
+        param.add("key",saleKey);
         param.add("user_id",userId);
         param.add("user_name",userName);
         param.add("contract_id",contractDTO.getContract_id());
@@ -932,7 +935,7 @@ public class CrmController {
     //通过合同获得回款信息
     @RequestMapping(value = "/getReceivablesListByContractId",method = RequestMethod.GET)
     public List<ReceivablesDTO> getReceivablesListByContractId(@RequestParam Integer contractId){
-        String url = saleUrl + "getReceivablesListByContractId?key=356a192b7913b06c54574d18c28d46e6395428ab&contract_id=" + contractId;
+        String url = saleUrl + "getReceivablesListByContractId?key=" + saleKey + "&contract_id=" + contractId;
         logger.info("通过合同获得回款信息 : contractId = " + contractId);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("通过合同获得回款信息返回值 : res = " + res);
@@ -946,7 +949,7 @@ public class CrmController {
     public void updateReceivablesStatus(@RequestParam Integer receivablesId, @RequestParam String status ,@RequestParam Integer userId){
         String url = saleUrl + "updateReceivablesStatus";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
-        param.add("key","356a192b7913b06c54574d18c28d46e6395428ab");
+        param.add("key",saleKey);
         param.add("id",receivablesId);
         param.add("toStatus",status);
         param.add("user_id",userId);
@@ -987,7 +990,7 @@ public class CrmController {
     //获取产品列表
     @RequestMapping(value = "/getProductList",method = RequestMethod.GET)
     public PageBeanDTO<ProductDTO> getProductList(@RequestParam String productName, @RequestParam String loanTime ,@RequestParam String risk,@RequestParam Integer p,@RequestParam Integer size){
-        String url = saleUrl + "getProductList?key=356a192b7913b06c54574d18c28d46e6395428ab&product_name=" + productName + "&loan_time=" + loanTime + "&risk=" + risk +"&p=" + p + "&perpage=" + size;
+        String url = saleUrl + "getProductList?key=" + saleKey + "&product_name=" + productName + "&loan_time=" + loanTime + "&risk=" + risk +"&p=" + p + "&perpage=" + size;
         logger.info("获取产品列表 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("获取产品列表返回值 : res = " + res);
@@ -1002,7 +1005,7 @@ public class CrmController {
     public void addContract(@RequestBody ContractDTO contractDTO,@RequestParam Integer userId,@RequestParam String userName){
         String url = saleUrl + "addContract";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
-        param.add("key","356a192b7913b06c54574d18c28d46e6395428ab");
+        param.add("key",saleKey);
         param.add("partake_serialize",contractDTO.getPartake_serialize());
         param.add("template_serialize",contractDTO.getTemplate_serialize());
         param.add("agreement_id",contractDTO.getAgreement_id());
@@ -1046,7 +1049,7 @@ public class CrmController {
     public void addSpecialContract(@RequestBody ContractDTO contractDTO,@RequestParam Integer userId,@RequestParam String userName,@RequestParam Integer customerId){
         String url = saleUrl + "addSpecialContract";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
-        param.add("key","356a192b7913b06c54574d18c28d46e6395428ab");
+        param.add("key",saleKey);
         param.add("partake_serialize",contractDTO.getPartake_serialize());
         param.add("customer_id",customerId);
         param.add("borrower",contractDTO.getBorrower());
@@ -1087,7 +1090,7 @@ public class CrmController {
     //判断客户是不是特殊渠道来源;是:返回返费支出计算利率,不是:返回数值小于0;
     @RequestMapping(value = "/getCustomerUtmSourceRate",method = RequestMethod.GET)
     public Float getCustomerUtmSourceRate(@RequestParam Integer customerId){
-        String url = saleUrl + "getCustomerUtmSourceRate?key=356a192b7913b06c54574d18c28d46e6395428ab&customer_id=" + customerId;
+        String url = saleUrl + "getCustomerUtmSourceRate?key=" + saleKey + "&customer_id=" + customerId;
         logger.info("判断客户是不是特殊渠道来源,返回利率 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("判断客户是不是特殊渠道来源,返回利率返回值 : res = " + res);
@@ -1104,7 +1107,7 @@ public class CrmController {
         String where = JSON.toJSONString(map);
         String url = baseUrl + "getUserInfoWhereIsJson";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
-        param.add("key","356o192c191db04c54513b0lc28d46ee63954iab");
+        param.add("key",baseKey);
         param.add("where",where);
         logger.info("根据当前登录用户id获得用户信息 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url, param, String.class);
@@ -1119,7 +1122,7 @@ public class CrmController {
     public LoginInfoDTO getUserLoginInfoById(@RequestParam Integer userId){
         String url = baseUrl + "getUserLoginInfoById";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
-        param.add("key","356o192c191db04c54513b0lc28d46ee63954iab");
+        param.add("key",baseKey);
         param.add("system","sale");
         param.add("user_id",userId);
         logger.info("通过id获取用户登录信息 : url = " + url);
@@ -1226,7 +1229,7 @@ public class CrmController {
     //通过客户id获取海贷魔方可选的订单
     @RequestMapping(value = "/getPullListByCustomerSaleId",method = RequestMethod.GET)
     public List<HaidaiOrderDTO> getPullListByCustomerSaleId(@RequestParam Integer customerId){
-        String url = saleUrl + "getPullListByCustomerSaleId?key=356a192b7913b06c54574d18c28d46e6395428ab&customer_id="+customerId;
+        String url = saleUrl + "getPullListByCustomerSaleId?key=" + saleKey + "&customer_id="+customerId;
         logger.info("通过客户id获取海贷魔方可选的订单 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("通过客户id获取海贷魔方可选的订单返回值 : res = " + res);
