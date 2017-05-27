@@ -141,7 +141,7 @@ public class CrmController {
         if (null != customerSaleParamDTO.getPerpage() && customerSaleParamDTO.getPerpage().intValue() != 0) {
             url += "&perpage=" + customerSaleParamDTO.getPerpage();
         }
-        if (null != customerSaleParamDTO.getCommunication_order() && customerSaleParamDTO.getCommunication_order().intValue() != 0) {
+        if (StringUtils.isNotEmpty(customerSaleParamDTO.getCommunication_order())) {
             url += "&communication_order=" + customerSaleParamDTO.getCommunication_order();
         }
         logger.info("获取客户列表url: " + url);
