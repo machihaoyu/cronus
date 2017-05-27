@@ -818,7 +818,7 @@ public class CrmController {
     //获取合同的审核记录;
     @RequestMapping(value = "/getCheckListByContractId",method = RequestMethod.GET)
     public List<ContractCheckDTO> getCheckListByContractId(@RequestParam Integer contractId){
-        String url = saleUrl + "getCheckListByContractId?key=356a192b7913b06c54574d18c28d46e6395428ab&contract_id="+contractId;
+        String url = saleUrl + "getCheckListByContractId?key=" + saleKey + "&contract_id="+contractId;
         logger.info("获取合同的审核记录 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("获取合同的审核记录返回值 : res = " + res);
