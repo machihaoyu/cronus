@@ -1290,10 +1290,10 @@ public class CrmController {
         param.add("key",saleKey);
         param.add("user_id",paramDTO.getUserId());
         param.add("id",paramDTO.getId());
-        param.add("customer_name",paramDTO.getCustomerName());
-        param.add("customer_type",paramDTO.getCustomerType());
+        param.add("customer_name",paramDTO.getCustomer_name());
+        param.add("customer_type",paramDTO.getCustomer_type());
         param.add("sex",paramDTO.getSex());
-        param.add("loan_amount",paramDTO.getLoanAmount());
+        param.add("loan_amount",paramDTO.getLoan_amount());
         param.add("city",paramDTO.getCity());
         param.add("content",paramDTO.getContent());
         param.add("submit",paramDTO.getSubmit());

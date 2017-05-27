@@ -8,10 +8,10 @@ public class MarketCustomerParamDTO {
 
     private Integer userId;
     private Integer id;
-    private String customerName;
-    private String customerType;
+    private String customer_name;
+    private String customer_type;
     private String sex;
-    private String loanAmount;
+    private String loan_amount;
     private String city;
     private String content;
 
@@ -34,20 +34,20 @@ public class MarketCustomerParamDTO {
         this.id = id;
     }
 
-    public String getCustomerName() {
-        return customerName;
+    public String getCustomer_name() {
+        return customer_name;
     }
 
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
+    public void setCustomer_name(String customer_name) {
+        this.customer_name = customer_name;
     }
 
-    public String getCustomerType() {
-        return customerType;
+    public String getCustomer_type() {
+        return customer_type;
     }
 
-    public void setCustomerType(String customerType) {
-        this.customerType = customerType;
+    public void setCustomer_type(String customer_type) {
+        this.customer_type = customer_type;
     }
 
     public String getSex() {
@@ -58,12 +58,12 @@ public class MarketCustomerParamDTO {
         this.sex = sex;
     }
 
-    public String getLoanAmount() {
-        return loanAmount;
+    public String getLoan_amount() {
+        return loan_amount;
     }
 
-    public void setLoanAmount(String loanAmount) {
-        this.loanAmount = loanAmount;
+    public void setLoan_amount(String loan_amount) {
+        this.loan_amount = loan_amount;
     }
 
     public String getCity() {
