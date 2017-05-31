@@ -314,8 +314,8 @@ public class CrmController {
 
     //获取客户沟通日志
     @RequestMapping(value = "/getCustomerCommunication", method = RequestMethod.GET)
-    public CommunicationInfoDTO getCustomerCommunication(@RequestParam Integer customerId){
-        String url = saleUrl + "getCustomerCommunication?key=" + saleKey + "&customer_id=" + customerId;
+    public CommunicationInfoDTO getCustomerCommunication(@RequestParam Integer customerId,@RequestParam Integer userId){
+        String url = saleUrl + "getCustomerCommunication?key=" + saleKey + "&customer_id=" + customerId + "&user_id=" + userId;
         logger.info("获取沟通日志请求url：" + url);
         String str = restTemplate.getForObject(url, String.class);
         logger.info("获取沟通日志请求url返回响应：" + str);
