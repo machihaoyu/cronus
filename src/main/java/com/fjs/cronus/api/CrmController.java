@@ -1129,6 +1129,18 @@ public class CrmController {
         return JSON.parseObject(data.getRetData(),UserInfoDTO.class);
     }
 
+    //获取线上线下签章模式(1-线上签章,0-线下签章)
+    @RequestMapping(value = "/getEnableOnLine",method = RequestMethod.GET)
+    public Integer getEnableOnLine(){
+        String url = saleUrl + "getEnableOnLine&key=" + saleKey;
+        logger.info("获取线上线下签章模式 : url = " + url);
+        String res = restTemplate.getForObject(url, String.class);
+        logger.info("获取线上线下签章模式返回值 : res = " + res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        return JSON.parseObject(data.getRetData(),Integer.class);
+    }
+
     //通过id获取用户登录信息
     @RequestMapping(value = "/getUserLoginInfoById",method = RequestMethod.POST)
     public LoginInfoDTO getUserLoginInfoById(@RequestParam Integer userId){
