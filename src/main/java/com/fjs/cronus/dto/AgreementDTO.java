@@ -45,6 +45,42 @@ public class AgreementDTO implements Serializable {
     private String loan_id;//海贷魔方订单号;
     private HaidaiCustomerDTO haidaiCustomerDTO;//海贷魔方订单信息;
     private String haidaiCustomer;
+    private Integer has_ext;//新老协议:0:老协议;1:新协议;
+    private Integer is_chapter;//是否盖章了;0:没有盖章,1:盖章了;
+    private TemplateConfigDTO ext_value;//协议意向书;
+    private Integer template_id;//模板id;
+
+    public Integer getTemplate_id() {
+        return template_id;
+    }
+
+    public void setTemplate_id(Integer template_id) {
+        this.template_id = template_id;
+    }
+
+    public TemplateConfigDTO getExt_value() {
+        return ext_value;
+    }
+
+    public void setExt_value(TemplateConfigDTO ext_value) {
+        this.ext_value = ext_value;
+    }
+
+    public Integer getHas_ext() {
+        return has_ext;
+    }
+
+    public void setHas_ext(Integer has_ext) {
+        this.has_ext = has_ext;
+    }
+
+    public Integer getIs_chapter() {
+        return is_chapter;
+    }
+
+    public void setIs_chapter(Integer is_chapter) {
+        this.is_chapter = is_chapter;
+    }
 
     public HaidaiCustomerDTO getHaidaiCustomerDTO() {
         return haidaiCustomerDTO;
