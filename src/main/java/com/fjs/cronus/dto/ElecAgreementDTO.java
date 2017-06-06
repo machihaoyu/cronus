@@ -35,6 +35,24 @@ public class ElecAgreementDTO implements Serializable {
     private String  number;
     private String  key;
     private String  is_chapter;
+    private String customer_seal;
+    private String company_seal;
+
+    public String getCustomer_seal() {
+        return customer_seal;
+    }
+
+    public void setCustomer_seal(String customer_seal) {
+        this.customer_seal = customer_seal;
+    }
+
+    public String getCompany_seal() {
+        return company_seal;
+    }
+
+    public void setCompany_seal(String company_seal) {
+        this.company_seal = company_seal;
+    }
 
     public ElecAgreementDTO() {
     }

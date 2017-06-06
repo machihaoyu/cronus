@@ -1156,6 +1156,19 @@ public class CrmController {
         validateResponse(data);
         ElecAgreementDTO dto = JSON.parseObject(data.getRetData(), ElecAgreementDTO.class);
         dto.setKey(saleKey);
+        if("1".equals(dto.getIs_chapter())){
+            //盖章过，则调用生成的章
+            //调用生成的章
+            String signUrl = saleUrl + "getSealByAgreement?key=" + saleKey + "&agreement_id="+agreementId;
+            logger.info("电子章"+url);
+            String res2 = restTemplate.getForObject(signUrl, String.class);
+            logger.info("电子章返回"+res2);
+            ResponseData data2 = JSON.parseObject(res2, ResponseData.class);
+            validateResponse(data2);
+            Map<String, String> map = JSON.parseObject(data2.getRetData(),Map.class);
+            dto.setCustomer_seal(map.get("customer_seal"));
+            dto.setCompany_seal(map.get("company_seal"));
+        }
         return dto;
     }
 
@@ -1197,13 +1210,8 @@ public class CrmController {
         String res1 = restTemplate.postForObject(PDFUrl, param1, String.class);
         logger.info("电子签章生成pdf返回："+res1);
         ResponseData data1 = JSON.parseObject(res1, ResponseData.class);
-        if(!"success".equals(data1.getErrMsg())){
-            Map<String, String> map1 = new HashMap<String, String>();
-            map1.put("result", data1.getErrMsg());
-            map1.put("msg", data1.getRetData());
-            return map1;
-        }
-
+        validateResponse(data1);
+        Map<String, String> map = new HashMap<String, String>();
         //再调用电子盖章
         String url = saleUrl + "agreementChapter";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
@@ -1216,9 +1224,15 @@ public class CrmController {
         String res = restTemplate.postForObject(url, param, String.class);
         logger.info("电子签章盖章返回："+res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("result", data.getErrMsg());
-        map.put("msg", data.getRetData());
+        validateResponse(data);
+        //调用生成的章
+        String signUrl = saleUrl + "getSealByAgreement?key=" + saleKey + "&agreement_id="+elecSignRequestDTO.getAgreementId();
+        logger.info("电子章"+signUrl);
+        String res2 = restTemplate.getForObject(signUrl, String.class);
+        logger.info("电子章返回"+res2);
+        ResponseData data2 = JSON.parseObject(res2, ResponseData.class);
+        validateResponse(data2);
+        map = JSON.parseObject(data2.getRetData(),Map.class);
         return map;
     }
 
