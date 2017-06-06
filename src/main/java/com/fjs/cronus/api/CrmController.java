@@ -1141,6 +1141,77 @@ public class CrmController {
         return JSON.parseObject(data.getRetData(),Integer.class);
     }
 
+    //获取签章信息
+    @RequestMapping(value = "/getSign",method = RequestMethod.GET)
+    public ElecAgreementDTO getSign(@RequestParam Integer userId, @RequestParam String agreementId){
+        String url = saleUrl + "getAgreementExt?key=" + saleKey + "&agreement_id=" + agreementId;
+        logger.info("通过协议ID获取盖章前意向书内容"+url);
+        String res = restTemplate.getForObject(url, String.class);
+        logger.info("通过协议ID、user_id获取盖章前意向书内容url返回："+res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        ElecAgreementDTO dto = JSON.parseObject(data.getRetData(), ElecAgreementDTO.class);
+        dto.setKey(saleKey);
+        return dto;
+    }
+
+    //agreementChapterSendSignCode
+    @RequestMapping(value = "/sendSmS",method = RequestMethod.POST)
+    public Map<String, String> sendSmS(@RequestBody ElecSignRequestDTO elecSignRequestDTO){
+        String url = saleUrl + "agreementChapterSendSignCode";
+        MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
+        param.add("key",saleKey);
+        param.add("agreement_id",elecSignRequestDTO.getAgreementId());
+        param.add("user_id",elecSignRequestDTO.getUserId());
+
+        logger.info("盖章前意向书前发送短信"+url);
+        String res = restTemplate.postForObject(url, param, String.class);
+        logger.info("盖章前意向书前发送短信返回："+res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("result", data.getErrMsg());
+        map.put("msg", data.getRetData());
+        return map;
+    }
+
+    //进行签章
+    @RequestMapping(value = "/elecSign",method = RequestMethod.POST)
+    public Map<String, String> elecSign(@RequestBody ElecSignRequestDTO elecSignRequestDTO){
+        //先调用生成pdf接口
+        String PDFUrl = saleUrl + "makeAgreementPdf";
+        MultiValueMap<String,Object> param1 = new LinkedMultiValueMap<>();
+        param1.add("key", saleKey);
+        param1.add("agreement_id", elecSignRequestDTO.getAgreementId());
+        param1.add("user_id", elecSignRequestDTO.getUserId());
+        logger.info("电子签章生成pdf" + PDFUrl);
+        String res1 = restTemplate.postForObject(PDFUrl, param1, String.class);
+        logger.info("电子签章生成pdf返回："+res1);
+        ResponseData data1 = JSON.parseObject(res1, ResponseData.class);
+        if("error".equals(data1.getErrMsg())){
+            Map<String, String> map1 = new HashMap<String, String>();
+            map1.put("result", data1.getErrMsg());
+            map1.put("msg", data1.getRetData());
+            return map1;
+        }
+
+        //再调用电子盖章
+        String url = saleUrl + "agreementChapter";
+        MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
+        param.add("key",saleKey);
+        param.add("agreement_id",elecSignRequestDTO.getAgreementId());
+        param.add("user_id",elecSignRequestDTO.getUserId());
+        param.add("code", elecSignRequestDTO.getCode());
+
+        logger.info("电子签章盖章"+url);
+        String res = restTemplate.postForObject(url, param, String.class);
+        logger.info("电子签章盖章返回："+res);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("result", data.getErrMsg());
+        map.put("msg", data.getRetData());
+        return map;
+    }
+
     //通过id获取用户登录信息
     @RequestMapping(value = "/getUserLoginInfoById",method = RequestMethod.POST)
     public LoginInfoDTO getUserLoginInfoById(@RequestParam Integer userId){
@@ -1193,6 +1264,7 @@ public class CrmController {
     @RequestMapping(value = "/getHaidaiCustomerInfo",method = RequestMethod.GET)
     public HaidaiCustomerDTO getHaidaiCustomerInfo(@RequestParam Integer customerId){
         String url = saleUrl + "getHaidaiCustomerInfo?key=" + saleKey + "&id=" + customerId;
+
         logger.info("获取海贷魔方的客户信息 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
         logger.info("获取海贷魔方的客户信息返回值 : res = " + res);
