@@ -79,8 +79,15 @@ public class ContractDTO implements Serializable{
     private String check_name; //审核人
     private String sub_company_name;  //分公司名称
     private Integer customer_id; //客户id
+    private String has_ext;
 
+    public String getHas_ext() {
+        return has_ext;
+    }
 
+    public void setHas_ext(String has_ext) {
+        this.has_ext = has_ext;
+    }
 
     public String getGive_time_str() {
         return give_time_str;

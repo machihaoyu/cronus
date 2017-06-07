@@ -1,47 +1,60 @@
 package com.fjs.cronus.dto;
 
+import java.io.Serializable;
+
 /**
  * Created by xulu on 2017/6/5 0005.
  * 电子签章dto
  */
-public class ElecAgreementDTO {
-    String a_name;
-    String b_name;
-    String a_identity;
-    String a_address;
-    String a_email;
-    String a_phone;
-    String b_contact;
-    String a_pay_year;
-    String a_pay_mouth;
-    String a_pay_day;
-    String a_pay_address_shi;
-    String a_pay_address_qu;
-    String a_plan_money_lower;
-    String a_plan_money_upper;
-    String product_type;
-    String use_address;
-    String select_item;
-    String commission_lower;
-    String commission_upper;
-    String rate;
-    String deposit_lower;
-    String deposit_upper;
-    String b_account;
-    String other;
-    String number;
-    String key;
-    String status;
+public class ElecAgreementDTO implements Serializable {
+    
+    private String  a_name;
+    private String  b_name;
+    private String  a_identity;
+    private String  a_address;
+    private String  a_email;
+    private String  a_phone;
+    private String  b_contact;
+    private String  a_pay_year;
+    private String  a_pay_mouth;
+    private String  a_pay_day;
+    private String  a_pay_address_shi;
+    private String  a_pay_address_qu;
+    private String  a_plan_money_lower;
+    private String  a_plan_money_upper;
+    private String  product_type;
+    private String  use_address;
+    private String  select_item;
+    private String  commission_lower;
+    private String  commission_upper;
+    private String  rate;
+    private String  deposit_lower;
+    private String  deposit_upper;
+    private String  b_account;
+    private String  other;
+    private String  number;
+    private String  key;
+    private String  is_chapter;
+    private String customer_seal;
+    private String company_seal;
+
+    public String getCustomer_seal() {
+        return customer_seal;
+    }
+
+    public void setCustomer_seal(String customer_seal) {
+        this.customer_seal = customer_seal;
+    }
+
+    public String getCompany_seal() {
+        return company_seal;
+    }
+
+    public void setCompany_seal(String company_seal) {
+        this.company_seal = company_seal;
+    }
 
     public ElecAgreementDTO() {
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
     }
 
     public String getA_name() {
@@ -244,11 +257,19 @@ public class ElecAgreementDTO {
         this.number = number;
     }
 
-    public String getStatus() {
-        return status;
+    public String getKey() {
+        return key;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getIs_chapter() {
+        return is_chapter;
+    }
+
+    public void setIs_chapter(String is_chapter) {
+        this.is_chapter = is_chapter;
     }
 }
