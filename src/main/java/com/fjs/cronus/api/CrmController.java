@@ -17,10 +17,6 @@ import com.fjs.cronus.dto.crm.ResponseData;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.exception.ExceptionValidate;
 import com.fjs.cronus.util.StringAsciiUtil;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,8 +33,6 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/v1")
 public class CrmController {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Value("${base.url}")
     private String baseUrl;
@@ -65,9 +59,7 @@ public class CrmController {
     @RequestMapping(value = "/userLogin", method = RequestMethod.GET)
     public LoginInfoDTO userLogin(@RequestParam String username, @RequestParam String password) {
         String url = baseUrl + "userLoginForApp?key=" + baseKey + "&system=sale&username="+ username +"&password="+ password ;
-        logger.info("用户登录信息URL: " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("用户登录信息URL返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponseBase(data);
         LoginInfoDTO loginInfoDTO = JSONObject.parseObject(data.getRetData(), LoginInfoDTO.class);
@@ -144,9 +136,7 @@ public class CrmController {
         if (StringUtils.isNotEmpty(customerSaleParamDTO.getCommunication_order())) {
             url += "&communication_order=" + customerSaleParamDTO.getCommunication_order();
         }
-        logger.info("获取客户列表url: " + url);
         String str = restTemplate.getForObject(url, String.class);
-        logger.info("获取客户列表url响应: " + str);
         ResponseData responseData = JSON.parseObject(str, ResponseData.class);
         validateResponse(responseData);
         return JSONObject.parseObject(responseData.getRetData(), new PageBeanDTO<CustomerSaleDTO>().getClass());
@@ -157,7 +147,6 @@ public class CrmController {
     public CustomerSaleDTO getCustomerInfo(@RequestParam Integer customerId){
         String url = saleUrl + "getCustomerInfo?key=" + saleKey + "&customer_id=" + customerId;
         String str = restTemplate.getForObject(url, String.class);
-        logger.info(str);
         ResponseData responseData = JSON.parseObject(str, ResponseData.class);
         if (null != responseData && ErrorNumEnum.SUCCESS.getCode().equals(responseData.getErrNum()) ){
             return JSON.parseObject(responseData.getRetData(),CustomerSaleDTO.class);
@@ -206,9 +195,7 @@ public class CrmController {
         param.add("house_alone", customerSaleDTO.getHouse_alone());
         param.add("per_description", customerSaleDTO.getPer_description());
         param.add("data_type", dataType);
-        logger.info("添加|修改客户信息: url = " + url + ", 参数列表 = " + ReflectionToStringBuilder.toString(param));
         String str = restTemplate.postForObject(url,param,String.class);
-        logger.info("添加|修改客户信息返回信息: res = " + str);
         ResponseData data = JSON.parseObject(str,ResponseData.class);
         validateResponse(data);
         return data;
@@ -217,7 +204,6 @@ public class CrmController {
     //新增客户沟通
     @RequestMapping(value = "/addCommunicationLog", method = RequestMethod.POST)
     public ResponseData addCommunicationLog(@RequestBody CommunicationLogDTO communicationLogDTO, String houseStatus, String loanAmount, String purpose){
-        logger.info("新增客户沟通:　" + ReflectionToStringBuilder.toString(communicationLogDTO));
         String url = saleUrl + "addCommunicationLog";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
@@ -244,14 +230,11 @@ public class CrmController {
     @RequestMapping(value = "/retain", method = RequestMethod.POST)
     public ResponseData retain(@RequestParam Integer userId,@RequestParam Integer customerId){
         String url = saleUrl + "retain";
-        logger.info("保留客户请求url: " + url);
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key", saleKey);
         param.add("user_id",userId);
         param.add("customer_id",customerId);
-        logger.info("保留客户请求url[POST]提交参数：key=" + saleKey + ", user_id=" + userId + ", customer_id=" + customerId);
         String res = restTemplate.postForObject(url,param,String.class);
-        logger.info("保留客户请求url的返回响应: " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return data;
@@ -262,14 +245,11 @@ public class CrmController {
     @RequestMapping(value = "/receiveCustomer", method = RequestMethod.POST)
     public void receiveCustomer(@RequestParam Integer userId,@RequestParam Integer customerId){
         String url = saleUrl + "receiveCustomer";
-        logger.info("领取客户请求url: " + url);
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key", saleKey);
         param.add("user_id",userId);
         param.add("customer_id",customerId);
-        logger.info("领取客户请求url[POST]提交参数：key=" + saleKey + ", user_id=" + userId + ", customer_id=" + customerId);
         String res = restTemplate.postForObject(url,param,String.class);
-        logger.info("领取客户请求url的返回响应: " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
     }
@@ -280,14 +260,11 @@ public class CrmController {
     @RequestMapping(value = "/removeCustomer", method = RequestMethod.POST)
     public void removeCustomer(@RequestParam Integer customerId, @RequestParam Integer userId) {
         String url = saleUrl + "removeCustomer";
-        logger.info("移除客户接口url: " + url);
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key", saleKey);
         param.add("customer_id",customerId);
         param.add("user_id",userId);
-        logger.info("移除客户接口url[POST]提交参数：key=" + saleKey + ", user_id=" + userId + ", customer_id=" + customerId);
         String res = restTemplate.postForObject(url,param,String.class);
-        logger.info("移除客户接口url的返回响应: " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
     }
@@ -299,14 +276,11 @@ public class CrmController {
     @RequestMapping(value = "/unRetainCustomer", method = RequestMethod.POST)
     public void unRetainCustomer(@RequestParam Integer customerId, @RequestParam Integer userId) {
         String url = saleUrl + "unretain";
-        logger.info("取消保留客户接口url: " + url);
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key", saleKey);
         param.add("customer_id",customerId);
         param.add("user_id",userId);
-        logger.info("取消保留客户接口url[POST]提交参数：key=" + saleKey + ", user_id=" + userId + ", customer_id=" + customerId);
         String res = restTemplate.postForObject(url,param,String.class);
-        logger.info("取消保留客户接口url的返回响应: " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
     }
@@ -316,9 +290,7 @@ public class CrmController {
     @RequestMapping(value = "/getCustomerCommunication", method = RequestMethod.GET)
     public CommunicationInfoDTO getCustomerCommunication(@RequestParam Integer customerId,@RequestParam Integer userId){
         String url = saleUrl + "getCustomerCommunication?key=" + saleKey + "&customer_id=" + customerId + "&user_id=" + userId;
-        logger.info("获取沟通日志请求url：" + url);
         String str = restTemplate.getForObject(url, String.class);
-        logger.info("获取沟通日志请求url返回响应：" + str);
         ResponseData data = JSON.parseObject(str, ResponseData.class);
         validateResponse(data);
         CommunicationInfoDTO communicationInfoDTO = JSON.parseObject(data.getRetData(), CommunicationInfoDTO.class);
@@ -329,9 +301,7 @@ public class CrmController {
     @RequestMapping(value = "/getCustomerMeetLog", method = RequestMethod.GET)
     public List<CustomerMeetDTO> getCustomerMeetLog(@RequestParam Integer customerId){
         String url = saleUrl + "getCustomerMeetLog?key=" + saleKey + "&customer_id=" + customerId;
-        logger.info("获取面见记录请求url: " + url);
         String str = restTemplate.getForObject(url, String.class);
-        logger.info("获取面见记录请求url返回响应：" + str);
         ResponseData data = JSON.parseObject(str,ResponseData.class);
         validateResponse(data);
         List<CustomerMeetDTO> list = JSON.parseArray(data.getRetData(), CustomerMeetDTO.class);
@@ -342,9 +312,7 @@ public class CrmController {
     @RequestMapping(value = "/getCustomerCallbackPhoneLog", method = RequestMethod.GET)
     public List<CallbackLogDTO> getCustomerCallbackPhoneLog(@RequestParam Integer customerId){
         String url = saleUrl + "getCustomerCallbackPhoneLog?key=" + saleKey + "&customer_id=" + customerId;
-        logger.info("获取客户回访记录url: " + url);
         String str = restTemplate.getForObject(url, String.class);
-        logger.info("获取客户回访记录url返回响应：" + str);
         ResponseData data = JSON.parseObject(str,ResponseData.class);
         validateResponse(data);
         List<CallbackLogDTO> list = JSON.parseArray(data.getRetData(), CallbackLogDTO.class);
@@ -355,7 +323,6 @@ public class CrmController {
     @RequestMapping(value = "/getAgreementInfo", method = RequestMethod.GET)
     public AgreementDTO getAgreement(@RequestParam Integer agreementId){
         String url = saleUrl + "getAgreementInfo?key=" + saleKey + "&agreement_id=" + agreementId;
-        logger.info("获取客户协议 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
         ResponseData data = JSON.parseObject(res,ResponseData.class);
         validateResponse(data);
@@ -398,9 +365,7 @@ public class CrmController {
         if(agreementDTO.getPull_customer_id() != null){
             param.add("pull_customer_id",agreementDTO.getPull_customer_id());
         }
-        logger.info("新增修改客户协议 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url,param,String.class);
-        logger.info("新增修改客户协议返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res,ResponseData.class);
         validateResponse(data);
     }
@@ -410,9 +375,7 @@ public class CrmController {
     public Agreement getAgreementList (@RequestParam String users, @RequestParam String search, @RequestParam Integer p){
         String url = saleUrl + "getAgreementList?key=" + saleKey + "&users=" + users
                 + "&search=" + search + "&p=" + p;
-        logger.info("获取居间协议列表:url="+url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("获取居间协议列表返回:res="+res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data.getRetData(),Agreement.class);
@@ -423,9 +386,7 @@ public class CrmController {
     public Agreement getAgreementListByCustomerIds(@RequestParam String customerIds, @RequestParam String search, @RequestParam Integer p) {
         String url = saleUrl + "getAgreementList?key=" + saleKey + "&customer_ids=" + customerIds
                 + "&search=" + search + "&p=" + p;
-        logger.info("获取居间协议列表:url=" + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("获取居间协议列表返回:res=" + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data.getRetData(), Agreement.class);
@@ -436,9 +397,7 @@ public class CrmController {
     @RequestMapping(value = "/getCustomerFile", method = RequestMethod.GET)
     public String getCustomerFile (@RequestParam Integer customerId){
         String url = saleUrl + "getDocumentByCustomerId?key=" + saleKey + "&customer_id=" + customerId;
-        logger.info("获取附件列表请求url: " + url);
         String str = restTemplate.getForObject(url, String.class);
-        logger.info("获取附件列表请求url返回响应：" + str);
         ResponseData data = JSON.parseObject(str, ResponseData.class);
         validateResponse(data);
         return data.getRetData();
@@ -448,7 +407,6 @@ public class CrmController {
     @RequestMapping(value = "/preViewDocument", method = RequestMethod.GET)
     public String preViewDocument(@RequestParam Integer id){
         String url = saleUrl + "preViewDocument?key=" + saleKey + "&id=" + id;
-        logger.info("获取下载单个附件请求url: " + url);
         return url;
     }
 
@@ -456,9 +414,7 @@ public class CrmController {
     @RequestMapping(value = "/getNextCategory", method = RequestMethod.GET)
     public List<DocumentCategoryDTO> getNextCategory(@RequestParam Integer cateId){
         String url = saleUrl + "getNextCategory?key=" + saleKey + "&cate_id=" + cateId;
-        logger.info("获取附件分类请求url: " + url);
         String str = restTemplate.getForObject(url, String.class);
-        logger.info("获取附件分类请求url返回响应：" + str);
         ResponseData data = JSON.parseObject(str, ResponseData.class);
         validateResponse(data);
         List<DocumentCategoryDTO> list = JSON.parseArray(data.getRetData(), DocumentCategoryDTO.class);
@@ -469,9 +425,7 @@ public class CrmController {
     @RequestMapping(value = "/getCategory", method = RequestMethod.GET)
     public String getCategory() {
         String url =  baseDocumentUrl + "getCategoryAll?key=" + saleKey;
-        logger.info("获取附件分类-上传附件后弹出选择分类url: " + url);
         String str = restTemplate.getForObject(url, String.class);
-        logger.info("获取附件分类-上传附件后弹出选择分类url返回响应：" + str);
         FileData data = JSON.parseObject(str, FileData.class);
         ExceptionValidate.validateFileData(data);
         return data.getData();
@@ -486,9 +440,7 @@ public class CrmController {
         param.add("key",saleKey);
         param.add("id",id);
         param.add("user_id",userId);
-        logger.info("删除附件：url = " + url + ", 参数对象[ key = " + saleKey + ", id = " + id + ", user_id = " + userId + "]");
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("删除附件返回的响应：" + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return data;
@@ -498,7 +450,6 @@ public class CrmController {
     @RequestMapping(value = "/addCustomerFile", method = RequestMethod.POST)
     public Integer addCustomerFile(@RequestBody RContractDocumentDTO rContractDocumentDTO){
         String url =  saleUrl + "addCustomerFile";
-        logger.info("上传附件：url = " + url + ", 参数对象 = " + ReflectionToStringBuilder.toString(rContractDocumentDTO));
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
         param.add("cate_id",rContractDocumentDTO.getCate_id());
@@ -507,7 +458,6 @@ public class CrmController {
         param.add("customer_id",rContractDocumentDTO.getCustomer_id());
         param.add("image_base64",rContractDocumentDTO.getImage_base64());
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("上传附件：响应 = " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
         UploadResponseDTO[] usa2 = JSON.parseObject(data.getRetData(), new TypeReference<UploadResponseDTO[]>(){});
@@ -519,9 +469,7 @@ public class CrmController {
     @RequestMapping(value = "/updateFileCateId", method = RequestMethod.GET)
     public void updateCateIdByDocumentId(@RequestParam Integer documentId,@RequestParam String categoryId) {
         String url =  baseDocumentUrl + "changeCategoryForMobile?key=" + saleKey + "&id=" + documentId + "&category=" + categoryId;
-        logger.info("更新上传附件分类的url: " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("更新上传附件分类的url返回响应: " + res);
         CRMData crmData = JSONObject.parseObject(res, CRMData.class);
         ExceptionValidate.validateCRMData(crmData);
     }
@@ -541,9 +489,7 @@ public class CrmController {
         param.add("agreement_id",agreementId);
         param.add("contract_id",contractId);
         param.add("deposit",deposit);
-        logger.info("协议定金转佣金:url=" + url + "param" + param.toString());
         String res = restTemplate.postForObject(url,param,String.class);
-        logger.info("协议定金转佣金返回:res=" + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
     }
@@ -558,9 +504,7 @@ public class CrmController {
         param.add("user_id",userId);
         param.add("agreement_id",agreementId);
         param.add("status",status);
-        logger.info("协议设为失败 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url,param,String.class);
-        logger.info("协议设为失败返回值 : res = " + res );
         ResponseData data = JSON.parseObject(res,ResponseData.class);
         validateResponse(data);
     }
@@ -587,9 +531,7 @@ public class CrmController {
         param.add("type", type);
         param.add("page", page);
         param.add("size", size);
-        logger.info("获取用户信息 : url = " + url + ", param = " +param.toString());
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("获取用户信息返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         PageBeanDTO<UserInfoDTO> pageBeanDTO = new PageBeanDTO<>();
@@ -605,9 +547,7 @@ public class CrmController {
         }else{
             url = saleUrl + "contractList?key=" + saleKey + "&users=" + users + "&agreement_ids=" + agreementId;
         }
-        logger.info("合同列表请求url: " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("合同列表请求url返回响应: " + res);
         ResponseData responseData = JSON.parseObject(res, ResponseData.class);
         validateResponse(responseData);
         return JSON.parseObject(responseData.getRetData(),new PageBeanDTO<ContractDTO>().getClass());
@@ -653,9 +593,7 @@ public class CrmController {
         param.add("user_id",userId);
         param.add("user_name",userName);
         param.add("product_name",contractDTO.getProduct_name());
-        logger.info("修改合同 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("修改合同返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
     }
@@ -664,7 +602,6 @@ public class CrmController {
     @RequestMapping(value = "/getSubUserByUserId" ,method = RequestMethod.POST)
     public String getSubUserByUserId(@RequestParam String dataType ,@RequestParam Integer userId){
         String url = baseIndexUrl + "getSubUserByUserId";
-        logger.info("获取用户组:url="+url+",dataType=" + dataType +",userId="+userId);
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key",baseKey);
         param.add("user_id",userId);
@@ -674,7 +611,6 @@ public class CrmController {
         List<Integer> rs = JSONObject.parseArray(responseData.getRetData(), Integer.class);
         String s = rs.toString();
         String users = s.substring(1, s.length()-1);
-        logger.info("获取用户组返回：users="+users);
         return users;
     }
 
@@ -682,11 +618,9 @@ public class CrmController {
     @RequestMapping(value = "/getContractInfo",method = RequestMethod.GET)
     public ContractDTO getContractInfo(@RequestParam Integer contractId){
         String url = saleUrl + "getContractInfo?key=" + saleKey + "&contract_id=" + contractId;
-        logger.info("合同详情:url="+url);
         String res = restTemplate.getForObject(url, String.class);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
-        logger.info("合同详情返回值:res=" + res);
         return JSON.parseObject(data.getRetData(),ContractDTO.class);
     }
 
@@ -694,9 +628,7 @@ public class CrmController {
     @RequestMapping(value = "/getContractListByAgreement",method = RequestMethod.GET)
     public List<ContractDTO> getContractListByAgreement(@RequestParam Integer agreementId){
         String url = saleUrl + "getContractListByAgreement?key=" + saleKey + "&agreement_id="+agreementId;
-        logger.info("根据协议获得合同:url=" + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("根据协议获得合同返回:res=" + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         return JSON.parseArray(data.getRetData(),ContractDTO.class);
     }
@@ -705,7 +637,6 @@ public class CrmController {
     @RequestMapping(value = "/addReceivables",method = RequestMethod.POST)
     public void addReceivables(@RequestBody ReceivablesDTO receivablesDTO,@RequestParam String userName , @RequestParam Integer userId){
         String url = saleUrl + "addReceivables";
-        logger.info("添加回款:url="+url);
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
         param.add("user_id",userId);
@@ -726,9 +657,7 @@ public class CrmController {
         if (StringUtils.isNotEmpty(receivablesDTO.getMark())){
         param.add("mark",receivablesDTO.getMark());
         }
-        logger.info("添加回款:param="+param.toString());
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("添加回款返回:res=" +res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
     }
@@ -737,9 +666,7 @@ public class CrmController {
     @RequestMapping(value = "/getMine",method = RequestMethod.GET)
     public MineDTO getMineData(@RequestParam Integer userId) {
         String url = saleUrl + "getMine?key=" + saleKey + "&user_id=" + userId;
-        logger.info("获取'我的'面板数据url: "+url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("获取'我的'面板数据url返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSONObject.parseObject(data.getRetData(), MineDTO.class);
@@ -749,9 +676,7 @@ public class CrmController {
     @RequestMapping(value = "/checkCustomerIsUpload",method = RequestMethod.GET)
     public Boolean checkCustomerIsUpload(@RequestParam Integer customerId){
         String url = saleUrl + "checkCustomerIsUpload?key=" + saleKey + "&customer_id="+customerId;
-        logger.info("判断客户是否上传了房产证或身份证 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("判断客户是否上传了房产证或身份证返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data.getRetData(),Boolean.class);
@@ -763,9 +688,7 @@ public class CrmController {
     @RequestMapping(value = "/myCheckList",method = RequestMethod.GET)
     public PageBeanDTO<CheckDTO> getMyCheckList(@RequestParam Integer userId, @RequestParam Integer page) {
         String url = saleUrl + "myCheckList?key=" + saleKey + "&user_id=" + userId + "&p=" + page;
-        logger.info("获取'审核'列表数据url: "+url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("获取'审核'列表数据url返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
         PageBeanDTO<CheckDTO> checkSaleDTO = new PageBeanDTO<CheckDTO>();
@@ -775,9 +698,7 @@ public class CrmController {
     @RequestMapping(value = "/myAlreadyCheckList",method = RequestMethod.GET)
     public PageBeanDTO<CheckFinishDTO> getMyCheckFinishList(@RequestParam Integer userId, @RequestParam Integer page) {
         String url = saleUrl + "myAlreadyCheckList?key=" + saleKey + "&user_id=" + userId + "&p=" + page;
-        logger.info("我已审批的列表url: "+url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("我已审批的列表url返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
         PageBeanDTO<CheckFinishDTO> checkSaleDTO = new PageBeanDTO<CheckFinishDTO>();
@@ -787,9 +708,7 @@ public class CrmController {
     @RequestMapping(value = "/myAlreadyBeginList",method = RequestMethod.GET)
     public PageBeanDTO<CheckClosedDTO> getMyCheckClosedList(@RequestParam Integer userId, @RequestParam Integer page) {
         String url = saleUrl + "myAlreadyBeginList?key=" + saleKey + "&user_id=" + userId + "&p=" + page;
-        logger.info("我已提交结案的列表url: "+url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("我已提交结案的列表返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
         PageBeanDTO<CheckClosedDTO> checkSaleDTO = new PageBeanDTO<CheckClosedDTO>();
@@ -809,9 +728,7 @@ public class CrmController {
         param.add("next_process", checkActionDTO.getNext_process());
         param.add("to_user_id", checkActionDTO.getTo_user_id());
         param.add("user_id", checkActionDTO.getUser_id());
-        logger.info("审核操作url: "+url + ", 参数：" + ReflectionToStringBuilder.toString(checkActionDTO));
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("审核操作url返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
     }
@@ -819,9 +736,7 @@ public class CrmController {
     @RequestMapping(value = "/getCheckListByContractId",method = RequestMethod.GET)
     public List<ContractCheckDTO> getCheckListByContractId(@RequestParam Integer contractId){
         String url = saleUrl + "getCheckListByContractId?key=" + saleKey + "&contract_id="+contractId;
-        logger.info("获取合同的审核记录 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("获取合同的审核记录返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseArray(data.getRetData(),ContractCheckDTO.class);
@@ -840,9 +755,7 @@ public class CrmController {
         param.add("next_process", referCheckActionDTO.getNext_process());
         param.add("to_user_id", referCheckActionDTO.getTo_user_id());
         param.add("user_id", referCheckActionDTO.getUser_id());
-        logger.info("结案申请url: "+url + ", 参数：" + ReflectionToStringBuilder.toString(referCheckActionDTO));
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("结案申请url返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
     }
@@ -850,9 +763,7 @@ public class CrmController {
     @RequestMapping(value = "/getCheckProcess",method = RequestMethod.GET)
     public ApprovalProcessDTO getApprovalCheckProcess(@RequestParam Integer contract_id, @RequestParam String action) {
         String url = saleUrl + "getCheckProcess?key=" + saleKey + "&contract_id=" + contract_id + "&action=" + action;
-        logger.info("获取审核步骤url: "+url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("获取审核步骤url返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSONObject.parseObject(data.getRetData(), ApprovalProcessDTO.class);
@@ -861,9 +772,7 @@ public class CrmController {
     @RequestMapping(value = "/getAchievementInfoById",method = RequestMethod.GET)
     public AchievementInfoDTO getAchievementInfo(@RequestParam Integer achievement_id) {
         String url = saleUrl + "getAchievementInfoById?key=" + saleKey + "&achievement_id=" + achievement_id;
-        logger.info("审核-获取'当时'业绩的url: "+url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("审核-获取'当时'业绩的url返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSONObject.parseObject(data.getRetData(), AchievementInfoDTO.class);
@@ -872,9 +781,7 @@ public class CrmController {
     @RequestMapping(value = "/getCheckListByAchievementId",method = RequestMethod.GET)
     public List<CheckDTO> getAchievementRecord(@RequestParam Integer achievement_id) {
         String url = saleUrl + "getCheckListByAchievementId?key=" + saleKey + "&achievement_id=" + achievement_id;
-        logger.info("获取'当时'业绩的-审核流程记录的url: "+url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("获取'当时'业绩的-审核流程记录的url返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSONObject.parseArray(data.getRetData(), CheckDTO.class);
@@ -883,13 +790,11 @@ public class CrmController {
     @RequestMapping(value = "/cancelCheck",method = RequestMethod.POST)
     public void postCancelCheck(@RequestParam(value = "achievement_id") Integer achievement_id, @RequestParam(value = "user_id") Integer user_id) {
         String url = saleUrl + "cancelCheck";
-        logger.info("审核-我发起的-撤销申请的url: "+url + ", achievement_id = " + achievement_id + ", user_id = " + user_id);
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key", saleKey);
         param.add("user_id", user_id);
         param.add("achievement_id", achievement_id);
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("审核-我发起的-撤销申请url返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
     }
@@ -900,10 +805,7 @@ public class CrmController {
     @RequestMapping(value = "/agreementGetCustomerList",method = RequestMethod.GET)
     public CustomerSale agreementGetCustomerList(@RequestParam String search , @RequestParam Integer p,@RequestParam Integer userId,@RequestParam String type){
         String url = saleUrl + "getCustomerList?" + "key=" + saleKey + "&user_id=" + userId + "&type=" + type + "&p=" + p + "&app_search=" + search + "&perpage=" + 4;
-        //String url = saleUrl + "getCustomerList?" + "key=" + saleKey + "&user_id=" + userId + "&type=" + type + "&p=" + p + "&user_ids=" + users + "&data_type=" + dataType + "&app_search=" + search;
-        logger.info("添加协议页面，获取客户列表 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("添加协议页面，获取客户列表返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data.getRetData(),CustomerSale.class);
@@ -917,9 +819,7 @@ public class CrmController {
         param.add("key",baseKey);
         param.add("type",type);
         param.add("where",search);
-        logger.info("获取分公司列表 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url,param,String.class);
-        logger.info("获取分公司列表返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res,ResponseData.class);
         return JSON.parseArray(data.getRetData(),BaseDepartmentDTO.class);
     }
@@ -937,9 +837,7 @@ public class CrmController {
         param.add("return_fee",contractDTO.getReturn_fee());
         param.add("packing",contractDTO.getPacking());
         param.add("channel_money",contractDTO.getChannel_money());
-        logger.info("合同异常 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url,param,String.class);
-        logger.info("合同异常返回值: res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
     }
@@ -948,9 +846,7 @@ public class CrmController {
     @RequestMapping(value = "/getReceivablesListByContractId",method = RequestMethod.GET)
     public List<ReceivablesDTO> getReceivablesListByContractId(@RequestParam Integer contractId){
         String url = saleUrl + "getReceivablesListByContractId?key=" + saleKey + "&contract_id=" + contractId;
-        logger.info("通过合同获得回款信息 : contractId = " + contractId);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("通过合同获得回款信息返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseArray(data.getRetData(),ReceivablesDTO.class);
@@ -965,9 +861,7 @@ public class CrmController {
         param.add("id",receivablesId);
         param.add("toStatus",status);
         param.add("user_id",userId);
-        logger.info("删除回款 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("删除回款返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
     }
@@ -977,9 +871,7 @@ public class CrmController {
     public List<TemplateDTO> getTemplates(@RequestParam String templateType, @RequestParam Integer userId) {
         if (StringUtils.isEmpty(templateType) || userId == 0) throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "模板类型、用户不能为空");
         String url = saleUrl + "getTemplates?key=" + saleKey + "&keyword=" + templateType + "&user_id=" + userId;
-        logger.info("获取模板信息 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("获取模板信息返回响应 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         List<TemplateDTO> list = new ArrayList<>();
@@ -1003,9 +895,7 @@ public class CrmController {
     @RequestMapping(value = "/getProductList",method = RequestMethod.GET)
     public PageBeanDTO<ProductDTO> getProductList(@RequestParam String productName, @RequestParam String loanTime ,@RequestParam String risk,@RequestParam Integer p,@RequestParam Integer size){
         String url = saleUrl + "getProductList?key=" + saleKey + "&product_name=" + productName + "&loan_time=" + loanTime + "&risk=" + risk +"&p=" + p + "&perpage=" + size;
-        logger.info("获取产品列表 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("获取产品列表返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         PageBeanDTO<ProductDTO> pageBeanDTO = new PageBeanDTO();
@@ -1049,9 +939,7 @@ public class CrmController {
         if(contractDTO.getProduct_name()!=null){
             param.add("product_name",contractDTO.getProduct_name());
         }
-        logger.info("添加普通合同 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("添加普通合同返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res,ResponseData.class);
         validateResponse(data);
     }
@@ -1092,9 +980,7 @@ public class CrmController {
         param.add("house_value",contractDTO.getHouse_value());
         param.add("user_id",userId);
         param.add("user_name",userName);
-        logger.info("添加利差合同 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("添加利差合同 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
     }
@@ -1103,9 +989,7 @@ public class CrmController {
     @RequestMapping(value = "/getCustomerUtmSourceRate",method = RequestMethod.GET)
     public Float getCustomerUtmSourceRate(@RequestParam Integer customerId){
         String url = saleUrl + "getCustomerUtmSourceRate?key=" + saleKey + "&customer_id=" + customerId;
-        logger.info("判断客户是不是特殊渠道来源,返回利率 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("判断客户是不是特殊渠道来源,返回利率返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data.getRetData(),Float.class);
@@ -1121,9 +1005,7 @@ public class CrmController {
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
         param.add("key",baseKey);
         param.add("where",where);
-        logger.info("根据当前登录用户id获得用户信息 : url = " + url + ", param = " + param.toString());
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("根据当前登录用户id获得用户信息返回值: res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data.getRetData(),UserInfoDTO.class);
@@ -1133,9 +1015,7 @@ public class CrmController {
     @RequestMapping(value = "/getEnableOnLine",method = RequestMethod.GET)
     public Integer getEnableOnLine(){
         String url = saleUrl + "getEnableOnLine&key=" + saleKey;
-        logger.info("获取线上线下签章模式 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("获取线上线下签章模式返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data.getRetData(),Integer.class);
@@ -1149,9 +1029,7 @@ public class CrmController {
     public ElecAgreementDTO getSign(@RequestParam Integer userId, @RequestParam String agreementId){
 
         String url = saleUrl + "getAgreementExt?key=" + saleKey + "&agreement_id=" + agreementId;
-        logger.info("通过协议ID获取盖章前意向书内容"+url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("通过协议ID、user_id获取盖章前意向书内容url返回："+res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         ElecAgreementDTO dto = JSON.parseObject(data.getRetData(), ElecAgreementDTO.class);
@@ -1160,9 +1038,7 @@ public class CrmController {
             //盖章过，则调用生成的章
             //调用生成的章
             String signUrl = saleUrl + "getSealByAgreement?key=" + saleKey + "&agreement_id="+agreementId;
-            logger.info("电子章"+url);
             String res2 = restTemplate.getForObject(signUrl, String.class);
-            logger.info("电子章返回"+res2);
             ResponseData data2 = JSON.parseObject(res2, ResponseData.class);
             validateResponse(data2);
             Map<String, String> map = JSON.parseObject(data2.getRetData(),Map.class);
@@ -1184,9 +1060,7 @@ public class CrmController {
         param.add("agreement_id",elecSignRequestDTO.getAgreementId());
         param.add("user_id",elecSignRequestDTO.getUserId());
 
-        logger.info("盖章前意向书前发送短信"+url);
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("盖章前意向书前发送短信返回："+res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         Map<String, String> map = new HashMap<String, String>();
         map.put("result", data.getErrMsg());
@@ -1206,9 +1080,7 @@ public class CrmController {
         param1.add("key", saleKey);
         param1.add("agreement_id", elecSignRequestDTO.getAgreementId());
         param1.add("user_id", elecSignRequestDTO.getUserId());
-        logger.info("电子签章生成pdf" + PDFUrl);
         String res1 = restTemplate.postForObject(PDFUrl, param1, String.class);
-        logger.info("电子签章生成pdf返回："+res1);
         ResponseData data1 = JSON.parseObject(res1, ResponseData.class);
         validateResponse(data1);
         Map<String, String> map = new HashMap<String, String>();
@@ -1220,16 +1092,12 @@ public class CrmController {
         param.add("user_id",elecSignRequestDTO.getUserId());
         param.add("code", elecSignRequestDTO.getCode());
 
-        logger.info("电子签章盖章"+url);
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("电子签章盖章返回："+res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         //调用生成的章
         String signUrl = saleUrl + "getSealByAgreement?key=" + saleKey + "&agreement_id="+elecSignRequestDTO.getAgreementId();
-        logger.info("电子章"+signUrl);
         String res2 = restTemplate.getForObject(signUrl, String.class);
-        logger.info("电子章返回"+res2);
         ResponseData data2 = JSON.parseObject(res2, ResponseData.class);
         validateResponse(data2);
         map = JSON.parseObject(data2.getRetData(),Map.class);
@@ -1243,9 +1111,7 @@ public class CrmController {
     @RequestMapping(value = "/getElecContract",method = RequestMethod.GET)
     public ElecContractDTO getElecContract(@RequestParam String contractId){
         String url = saleUrl + "getContractExt?key=" + saleKey + "&contract_id=" + contractId;
-        logger.info("通过合同ID获取盖章前合同内容"+url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("通过合同ID获取盖章前合同内容返回："+res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         ElecContractDTO dto = JSON.parseObject(data.getRetData(), ElecContractDTO.class);
@@ -1254,9 +1120,7 @@ public class CrmController {
             //盖章过，则调用生成的章
             //调用生成的章
             String signUrl = saleUrl + "getSealByContract?key=" + saleKey + "&contract_id="+contractId;
-            logger.info("电子章"+url);
             String res2 = restTemplate.getForObject(signUrl, String.class);
-            logger.info("电子章返回"+res2);
             ResponseData data2 = JSON.parseObject(res2, ResponseData.class);
             validateResponse(data2);
             Map<String, String> map = JSON.parseObject(data2.getRetData(),Map.class);
@@ -1278,9 +1142,7 @@ public class CrmController {
         param.add("contract_id",elecContractRequestDTO.getContractId());
         param.add("user_id",elecContractRequestDTO.getUserId());
 
-        logger.info("盖章前意向书前发送短信"+url);
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("盖章前意向书前发送短信返回："+res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         Map<String, String> map = new HashMap<String, String>();
         map.put("result", data.getErrMsg());
@@ -1301,9 +1163,7 @@ public class CrmController {
         param1.add("key", saleKey);
         param1.add("contract_id", contractId);
         param1.add("user_id", elecContractRequestDTO.getUserId());
-        logger.info("合同电子签章生成pdf" + PDFUrl);
         String res1 = restTemplate.postForObject(PDFUrl, param1, String.class);
-        logger.info("合同电子签章生成pdf返回："+res1);
         ResponseData data1 = JSON.parseObject(res1, ResponseData.class);
         validateResponse(data1);
 
@@ -1315,17 +1175,13 @@ public class CrmController {
         param.add("user_id",elecContractRequestDTO.getUserId());
         param.add("code", elecContractRequestDTO.getCode());
 
-        logger.info("电子签章盖章"+url);
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("电子签章盖章返回："+res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
 
         //调用生成的章
         String signUrl = saleUrl + "getSealByContract?key=" + saleKey + "&contract_id="+contractId;
-        logger.info("电子章"+url);
         String res2 = restTemplate.getForObject(signUrl, String.class);
-        logger.info("电子章返回"+res2);
         ResponseData data2 = JSON.parseObject(res2, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data2.getRetData(), SignDTO.class);
@@ -1339,9 +1195,7 @@ public class CrmController {
         param.add("key",baseKey);
         param.add("system","sale");
         param.add("user_id",userId);
-        logger.info("通过id获取用户登录信息 : url = " + url);
         String res = restTemplate.postForObject(url, param, String.class);
-        logger.info("通过id获取用户登录信息返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data.getRetData(),LoginInfoDTO.class);
@@ -1352,9 +1206,7 @@ public class CrmController {
     @RequestMapping(value = "/getProductInfoById",method = RequestMethod.GET)
     public ProductDTO getProductInfoById(@RequestParam Integer productId) {
         String url = saleUrl + "getProductInfo?key=" + saleKey + "&product_id=" + productId;
-        logger.info("通过产品ID获取单个产品信息url: "+url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("通过产品ID获取单个产品信息url返回响应: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSONObject.parseObject(data.getRetData(), ProductDTO.class);
@@ -1371,9 +1223,7 @@ public class CrmController {
         String url = saleUrl + "getHaidaiList?key=" + saleKey + "&user_id=" + userId + "&p=" + page + "&status="
                 + status + "&city=" + city + "&where=" + where;
 
-        logger.info("获取海贷魔方客户 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("获取海贷魔方客户返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         PageBeanDTO<HaidaiCustomerDTO> pageBeanDTO = new PageBeanDTO();
@@ -1384,9 +1234,7 @@ public class CrmController {
     public HaidaiCustomerDTO getHaidaiCustomerInfo(@RequestParam Integer customerId){
         String url = saleUrl + "getHaidaiCustomerInfo?key=" + saleKey + "&id=" + customerId;
 
-        logger.info("获取海贷魔方的客户信息 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("获取海贷魔方的客户信息返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data.getRetData(),HaidaiCustomerDTO.class);
@@ -1403,9 +1251,7 @@ public class CrmController {
         param.add("telephone", paramDTO.getTelephone());
         param.add("name", paramDTO.getName());
         param.add("loan_amount", paramDTO.getLoanAmount());
-        logger.info("修改海贷魔方客户信息: url = " + url + ", 参数列表 = " + ReflectionToStringBuilder.toString(param));
         String str = restTemplate.postForObject(url,param,String.class);
-        logger.info("修改海贷魔方客户信息: res = " + str);
         ResponseData data = JSON.parseObject(str,ResponseData.class);
         validateResponse(data);
     }
@@ -1419,9 +1265,7 @@ public class CrmController {
         param.add("id",customerId);
         param.add("user_id",userId);
         param.add("toStatus", toStatus);
-        logger.info("更新海贷魔方客户的状态(toStatus:-2(无效) 0(正常)): url = " + url + ", 参数列表 = " + ReflectionToStringBuilder.toString(param));
         String str = restTemplate.postForObject(url,param,String.class);
-        logger.info("更新海贷魔方客户的状态(toStatus:-2(无效) 0(正常)): res = " + str);
         ResponseData data = JSON.parseObject(str,ResponseData.class);
         validateResponse(data);
     }
@@ -1434,9 +1278,7 @@ public class CrmController {
         param.add("key",saleKey);
         param.add("id",customerId);
         param.add("user_id",userId);
-        logger.info("海贷魔方客户转入到客户盘(只有正常状态的客户才能转入): url = " + url + ", 参数列表 = " + ReflectionToStringBuilder.toString(param));
         String str = restTemplate.postForObject(url,param,String.class);
-        logger.info("海贷魔方客户转入到客户盘(只有正常状态的客户才能转入): res = " + str);
         ResponseData data = JSON.parseObject(str,ResponseData.class);
         validateResponse(data);
     }
@@ -1445,9 +1287,7 @@ public class CrmController {
     @RequestMapping(value = "/getPullListByCustomerSaleId",method = RequestMethod.GET)
     public List<HaidaiOrderDTO> getPullListByCustomerSaleId(@RequestParam Integer customerId){
         String url = saleUrl + "getPullListByCustomerSaleId?key=" + saleKey + "&customer_id="+customerId;
-        logger.info("通过客户id获取海贷魔方可选的订单 : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("通过客户id获取海贷魔方可选的订单返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseArray(data.getRetData(),HaidaiOrderDTO.class);
@@ -1465,9 +1305,7 @@ public class CrmController {
                                                          @RequestParam String searchKey){
         String url = saleUrl + "getPrdPanCustomerList?key=" + saleKey + "&type=" + panType + "&user_id=" + userId + "&customer_type=" + customerType +
                 "&house_status=" + houseStatus + "&level=" + level + "&communication_order=" + communStatus + "&search_where=" + searchKey;
-        logger.info("市场推广盘列表  type(public other) : url = " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("市场推广盘列表  type(public other)返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseArray(data.getRetData(),MarketCustomerDTO.class);
@@ -1477,9 +1315,7 @@ public class CrmController {
     @RequestMapping(value = "/getPrdCustomerInfo",method = RequestMethod.GET)
     public MarketCustomerInfoDTO getPrdCustomerInfo(@RequestParam Integer customerId, @RequestParam Integer userId){
         String url = saleUrl + "getPrdCustomerInfo?key=" + saleKey + "&id=" + customerId + "&user_id=" + userId;
-        logger.info("获取市场推广盘客户信息: url = " + url);
         String res = restTemplate.getForObject(url, String.class);
-        logger.info("获取市场推广盘客户信息返回值 : res = " + res);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data.getRetData(), MarketCustomerInfoDTO.class);
@@ -1500,9 +1336,7 @@ public class CrmController {
         param.add("city",paramDTO.getCity());
         param.add("content",paramDTO.getContent());
         param.add("submit",paramDTO.getSubmit());
-        logger.info("市场推广盘-添加/删除/转入客户修改 : url = " + url + ", 参数列表 = " + ReflectionToStringBuilder.toString(param));
         String str = restTemplate.postForObject(url,param,String.class);
-        logger.info("市场推广盘-添加/删除/转入客户修改 返回响应: res = " + str);
         ResponseData data = JSON.parseObject(str,ResponseData.class);
         validateResponse(data);
     }
