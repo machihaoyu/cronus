@@ -66,12 +66,13 @@ public class ContractDTO implements Serializable{
     private String pay_percent_status;//回款支出完成度
     private String percent_status;//回款收入完成度
     private String product_type_name;
-    private String ext_value;//返回的模板内容;
+    private TemplateConfigDTO ext_value;//返回的模板内容;
     private Integer template_id;//模板id;
     private String partake_serialize;//分成;
     private String template_serialize;//确认书
     private String give_time_str;//放款时间字符串;
     private String expire_time_str;//到期时间字符串
+    private String has_ext;//新老服务合同:0:老合同;1:新合同;
 
 
     //审核流程名
@@ -79,7 +80,6 @@ public class ContractDTO implements Serializable{
     private String check_name; //审核人
     private String sub_company_name;  //分公司名称
     private Integer customer_id; //客户id
-    private String has_ext;
 
     public String getHas_ext() {
         return has_ext;
@@ -129,11 +129,11 @@ public class ContractDTO implements Serializable{
         this.template_id = template_id;
     }
 
-    public String getExt_value() {
+    public TemplateConfigDTO getExt_value() {
         return ext_value;
     }
 
-    public void setExt_value(String ext_value) {
+    public void setExt_value(TemplateConfigDTO ext_value) {
         this.ext_value = ext_value;
     }
 
