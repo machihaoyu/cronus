@@ -73,13 +73,21 @@ public class ContractDTO implements Serializable{
     private String give_time_str;//放款时间字符串;
     private String expire_time_str;//到期时间字符串
     private String has_ext;//新老服务合同:0:老合同;1:新合同;
-
+    private String is_chapter;//是否盖章了;0:没有盖章,1:盖章了;
 
     //审核流程名
     private String check_process_name;
     private String check_name; //审核人
     private String sub_company_name;  //分公司名称
     private Integer customer_id; //客户id
+
+    public String getIs_chapter() {
+        return is_chapter;
+    }
+
+    public void setIs_chapter(String is_chapter) {
+        this.is_chapter = is_chapter;
+    }
 
     public String getHas_ext() {
         return has_ext;
