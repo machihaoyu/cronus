@@ -35,6 +35,133 @@ public class TemplateConfigDTO implements Serializable{
     private String other;
     private String number;
 
+    private String sign_year;
+    private String sign_month;
+    private String sign_day;
+    private String agreement_number;
+    private String a_pay_month;
+    private String borrower_lower;
+    private String borrower_upper;
+    private String type;
+    private String purpose;
+    private String service_money_lower;
+    private String service_money_upper;
+    private String other_lower;
+    private String other_upper;
+    private String contract_number;
+
+    public String getSign_year() {
+        return sign_year;
+    }
+
+    public void setSign_year(String sign_year) {
+        this.sign_year = sign_year;
+    }
+
+    public String getSign_month() {
+        return sign_month;
+    }
+
+    public void setSign_month(String sign_month) {
+        this.sign_month = sign_month;
+    }
+
+    public String getSign_day() {
+        return sign_day;
+    }
+
+    public void setSign_day(String sign_day) {
+        this.sign_day = sign_day;
+    }
+
+    public String getAgreement_number() {
+        return agreement_number;
+    }
+
+    public void setAgreement_number(String agreement_number) {
+        this.agreement_number = agreement_number;
+    }
+
+    public String getA_pay_month() {
+        return a_pay_month;
+    }
+
+    public void setA_pay_month(String a_pay_month) {
+        this.a_pay_month = a_pay_month;
+    }
+
+    public String getBorrower_lower() {
+        return borrower_lower;
+    }
+
+    public void setBorrower_lower(String borrower_lower) {
+        this.borrower_lower = borrower_lower;
+    }
+
+    public String getBorrower_upper() {
+        return borrower_upper;
+    }
+
+    public void setBorrower_upper(String borrower_upper) {
+        this.borrower_upper = borrower_upper;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getPurpose() {
+        return purpose;
+    }
+
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
+    }
+
+    public String getService_money_lower() {
+        return service_money_lower;
+    }
+
+    public void setService_money_lower(String service_money_lower) {
+        this.service_money_lower = service_money_lower;
+    }
+
+    public String getService_money_upper() {
+        return service_money_upper;
+    }
+
+    public void setService_money_upper(String service_money_upper) {
+        this.service_money_upper = service_money_upper;
+    }
+
+    public String getOther_lower() {
+        return other_lower;
+    }
+
+    public void setOther_lower(String other_lower) {
+        this.other_lower = other_lower;
+    }
+
+    public String getOther_upper() {
+        return other_upper;
+    }
+
+    public void setOther_upper(String other_upper) {
+        this.other_upper = other_upper;
+    }
+
+    public String getContract_number() {
+        return contract_number;
+    }
+
+    public void setContract_number(String contract_number) {
+        this.contract_number = contract_number;
+    }
+
     public String getA_name() {
         return a_name;
     }
