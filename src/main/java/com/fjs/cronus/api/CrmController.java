@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
@@ -285,7 +286,6 @@ public class CrmController {
         validateResponse(data);
     }
 
-
     //获取客户沟通日志
     @RequestMapping(value = "/getCustomerCommunication", method = RequestMethod.GET)
     public CommunicationInfoDTO getCustomerCommunication(@RequestParam Integer customerId,@RequestParam Integer userId){
@@ -317,6 +317,85 @@ public class CrmController {
         validateResponse(data);
         List<CallbackLogDTO> list = JSON.parseArray(data.getRetData(), CallbackLogDTO.class);
         return list;
+    }
+
+    //获取沟通界面数据
+    @RequestMapping(value = "/getCommunicationInfo", method = RequestMethod.GET)
+    public CustomerCommunicationDTO getCustomerCommun(@RequestParam Integer customerId, @RequestParam Integer userId) {
+        CustomerCommunicationDTO customerCommunicationDTO = new CustomerCommunicationDTO();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        String separator = "|";
+        //沟通
+        String url = saleUrl + "getCustomerCommunication?key=" + saleKey + "&customer_id=" + customerId + "&user_id=" + userId;
+        String str = restTemplate.getForObject(url, String.class);
+        ResponseData data = JSON.parseObject(str, ResponseData.class);
+        validateResponse(data);
+        CommunicationInfoDTO communicationInfoDTO = JSON.parseObject(data.getRetData(), CommunicationInfoDTO.class);
+        //会面
+        url = saleUrl + "getCustomerMeetLog?key=" + saleKey + "&customer_id=" + customerId;
+        str = restTemplate.getForObject(url, String.class);
+        data = JSON.parseObject(str,ResponseData.class);
+        validateResponse(data);
+        List<CustomerMeetDTO> meetList = JSON.parseArray(data.getRetData(), CustomerMeetDTO.class);
+        //回访
+        url = saleUrl + "getCustomerCallbackPhoneLog?key=" + saleKey + "&customer_id=" + customerId;
+        str = restTemplate.getForObject(url, String.class);
+        data = JSON.parseObject(str,ResponseData.class);
+        validateResponse(data);
+        List<CallbackLogDTO> backList = JSON.parseArray(data.getRetData(), CallbackLogDTO.class);
+
+        if (null != communicationInfoDTO) {
+            List<String> resList = new ArrayList<>();
+            if (null != communicationInfoDTO.getData() && communicationInfoDTO.getData().size() > 0 ) {
+                for (CommunicationLogDTO dto : communicationInfoDTO.getData()) {
+                    String date = sdf.format(new Date(Long.valueOf(dto.getCreate_time() * 1000)));
+                    String createName = dto.getCreate_user_name() == null ? "" : dto.getCreate_user_name();
+                    resList.add(new String(date + separator + createName + separator + dto.getContent()));
+                }
+                customerCommunicationDTO.setCommunts(resList);
+            }
+
+            // 设置有无房产、意向金额、资金用途、电话号码
+            customerCommunicationDTO.setHouseStatus(communicationInfoDTO.getHouse_status());
+            if (null != communicationInfoDTO.getLoan_amount()) {
+                if (communicationInfoDTO.getLoan_amount() != 0)
+                communicationInfoDTO.setLoan_amount(new BigDecimal(communicationInfoDTO.getLoan_amount()).divide(new BigDecimal(10000)).setScale(4).doubleValue());
+                String amount = communicationInfoDTO.getLoan_amount().toString();
+                String suffer = amount.substring(amount.indexOf(".") + 1);
+                if ("0".equals(suffer)) {
+                    customerCommunicationDTO.setLoanAmount(amount.substring(0, amount.indexOf(".")));
+                } else {
+                    customerCommunicationDTO.setLoanAmount(amount);
+                }
+            }
+            customerCommunicationDTO.setPurpose(communicationInfoDTO.getPurpose());
+            customerCommunicationDTO.setTelPhone(communicationInfoDTO.getTelephonenumber());
+        }
+
+
+        //回访日志表
+        if (null != backList && backList.size() > 0) {
+            List<String> resList = new ArrayList<>();
+            for (CallbackLogDTO dto : backList) {
+                String date = sdf.format(new Date(Long.valueOf(dto.getCreate_time() * 1000)));
+                String operaterName = dto.getCreate_user_name() == null ? "" : dto.getCreate_user_name();
+                resList.add(new String(date + separator + operaterName));
+            }
+            customerCommunicationDTO.setVisits(resList);
+        }
+
+
+        //面见表
+        if (null != meetList && meetList.size() > 0) {
+            List<String> resList = new ArrayList<>();
+            for (CustomerMeetDTO dto : meetList) {
+                String date = sdf.format(new Date(Long.valueOf(dto.getCreate_time() * 1000)));
+                String operaterName = dto.getUser_name() == null ? "" : dto.getUser_name();
+                resList.add(new String(date + separator + operaterName));
+            }
+            customerCommunicationDTO.setMeets(resList);
+        }
+        return customerCommunicationDTO;
     }
 
     //获取客户协议
