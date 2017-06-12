@@ -1,5 +1,7 @@
 package com.fjs.cronus.dto;
 
+import com.fjs.cronus.dto.customer.LatestCommunicatLogDTO;
+
 import java.io.Serializable;
 
 public class CustomerSaleDTO implements Serializable{
@@ -61,6 +63,8 @@ public class CustomerSaleDTO implements Serializable{
     private String ext;// text,
     private String has_agreement; //
     private String useful;//":0
+
+    private LatestCommunicatLogDTO newestCommunicat_log; //最新一条沟通日志记录
 
     public Integer getCustomer_id() {
         return customer_id;
@@ -500,5 +504,13 @@ public class CustomerSaleDTO implements Serializable{
 
     public void setUseful(String useful) {
         this.useful = useful;
+    }
+
+    public LatestCommunicatLogDTO getNewestCommunicat_log() {
+        return newestCommunicat_log;
+    }
+
+    public void setNewestCommunicat_log(LatestCommunicatLogDTO newestCommunicat_log) {
+        this.newestCommunicat_log = newestCommunicat_log;
     }
 }
