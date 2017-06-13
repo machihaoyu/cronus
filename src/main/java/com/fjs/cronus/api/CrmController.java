@@ -69,6 +69,15 @@ public class CrmController {
         return loginInfoDTO;
     }
 
+    //用户退出登录清crm缓存
+    @RequestMapping(value = "/logout", method = RequestMethod.GET)
+    public void logoutCache(@RequestParam Integer userId) {
+        String url = saleUrl + "logout?key=" + saleKey + "&user_id="+ userId;
+        String res = restTemplate.getForObject(url, String.class);
+        ResponseData data = JSONObject.parseObject(res, ResponseData.class);
+        validateResponseBase(data);
+    }
+
     //获取客户列表
     @RequestMapping(value = "/getCustomerList", method = RequestMethod.POST)
     public PageBeanDTO<CustomerSaleDTO> getCustomerList(@RequestBody CustomerSaleParamDTO customerSaleParamDTO){
