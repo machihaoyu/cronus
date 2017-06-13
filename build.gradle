@@ -28,6 +28,13 @@ repositories {
 	}
 }
 
+bootRun {
+	systemProperties['CONFIG_PASSWORD'] = 'user'
+	systemProperties['CONFIG_SERVER_ADDRESS'] = '192.168.1.119'
+	systemProperties['CONFIG_PROFILE'] = 'xl'
+//	systemProperties['DEFAULT_JVM_OPTS'] = '-Dfile.encoding=UTF-8'
+}
+
 dependencyManagement {
 	imports {
 		mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Camden.SR6'
