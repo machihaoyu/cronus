@@ -1,0 +1,6 @@
+spring:
+    cloud:
+        config:
+            uri: http://user:${CONFIG_PASSWORD}@${CONFIG_SERVER_ADDRESS}:6020
+            name: cronus-application
+            profile: ${CONFIG_PROFILE}
