@@ -436,7 +436,6 @@ public class CrmController {
         param.add("pay_time",agreementDTO.getTime());
         param.add("payee",agreementDTO.getPayee());
         param.add("payee_account",agreementDTO.getPayee_account());
-        //TODO 模板;
         param.add("template_serialize",agreementDTO.getTemplate_serialize());
         if(agreementDTO.getLoan_id()!=null){
             param.add("loan_id",agreementDTO.getLoan_id());
@@ -444,6 +443,32 @@ public class CrmController {
         if(agreementDTO.getPull_customer_id() != null){
             param.add("pull_customer_id",agreementDTO.getPull_customer_id());
         }
+        String res = restTemplate.postForObject(url,param,String.class);
+        ResponseData data = JSON.parseObject(res,ResponseData.class);
+        validateResponse(data);
+    }
+
+    //将协议信息保存到缓存
+    @RequestMapping(value = "/agreementAgainChapterSaveInfo",method = RequestMethod.POST)
+    public void agreementAgainChapterSaveInfo(@RequestBody AgreementDTO agreementDTO){
+        String url = saleUrl + "agreementAgainChapterSaveInfo";
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("key",saleKey);
+        param.add("user_id",agreementDTO.getUser_id());
+        param.add("agreement_id",agreementDTO.getAgreement_id());
+        param.add("product_type",agreementDTO.getProduct_type());
+        param.add("borrower",agreementDTO.getBorrower());
+        param.add("telephone",agreementDTO.getTelephone());
+        param.add("plan_money",agreementDTO.getPlan_money());
+        param.add("identity",agreementDTO.getIdentity());
+        param.add("commission",agreementDTO.getCommission());
+        param.add("rate",agreementDTO.getRate());
+        param.add("deposit",agreementDTO.getDeposit());
+        param.add("pay_type",agreementDTO.getPay_type());
+        param.add("pay_time",agreementDTO.getTime());
+        param.add("payee",agreementDTO.getPayee());
+        param.add("payee_account",agreementDTO.getPayee_account());
+        param.add("template_serialize",agreementDTO.getTemplate_serialize());
         String res = restTemplate.postForObject(url,param,String.class);
         ResponseData data = JSON.parseObject(res,ResponseData.class);
         validateResponse(data);
@@ -968,6 +993,22 @@ public class CrmController {
             }
         }
         return list;
+    }
+
+    //获取单个模板信息;
+    @RequestMapping(value = "/getTemplateInfo",method = RequestMethod.GET)
+    public TemplateDTO getTemplateInfo(@RequestParam Integer templateId){
+        String url = saleUrl + "getTemplateInfo?key=" + saleKey + "&template_id=" + templateId;
+        String res = restTemplate.getForObject(url, String.class);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        TemplateOriginalDTO templateOriginalDTO = JSON.parseObject(data.getRetData(),TemplateOriginalDTO.class);
+        TemplateDTO templateDTO = new TemplateDTO();
+        BeanUtils.copyProperties(templateOriginalDTO, templateDTO);
+        List<ConfigFieldDTO> configFieldDTOS = getTemplateConfig(templateOriginalDTO.getConfig());
+        Collections.sort(configFieldDTOS);
+        templateDTO.setConfig(configFieldDTOS);
+        return templateDTO;
     }
 
     //获取产品列表
