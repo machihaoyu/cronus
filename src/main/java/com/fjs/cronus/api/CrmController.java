@@ -483,6 +483,67 @@ public class CrmController {
         validateResponse(data);
     }
 
+    //设置协议缓存，并发送短信;
+    @RequestMapping(value = "/agreementChapterAndsendMobile",method = RequestMethod.POST)
+    public void agreementChapterAndsendMobile(@RequestBody AgreementDTO agreementDTO){
+        String url = saleUrl + "agreementAgainChapterSaveInfo";
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("key",saleKey);
+        param.add("user_id",agreementDTO.getUser_id());
+        param.add("agreement_id",agreementDTO.getAgreement_id());
+        param.add("product_type",agreementDTO.getProduct_type());
+        param.add("borrower",agreementDTO.getBorrower());
+        param.add("telephone",agreementDTO.getTelephone());
+        param.add("plan_money",agreementDTO.getPlan_money());
+        param.add("identity",agreementDTO.getIdentity());
+        param.add("commission",agreementDTO.getCommission());
+        param.add("rate",agreementDTO.getRate());
+        param.add("deposit",agreementDTO.getDeposit());
+        param.add("pay_type",agreementDTO.getPay_type());
+        param.add("pay_time",agreementDTO.getTime());
+        param.add("payee",agreementDTO.getPayee());
+        param.add("payee_account",agreementDTO.getPayee_account());
+        param.add("template_serialize",agreementDTO.getTemplate_serialize());
+        String res = restTemplate.postForObject(url,param,String.class);
+        ResponseData data = JSON.parseObject(res,ResponseData.class);
+        validateResponse(data);
+        url = saleUrl + "sendMobileCodeForAgreementAgainChapter";
+        MultiValueMap<String, Object> paramn = new LinkedMultiValueMap<>();
+        paramn.add("key",saleKey);
+        paramn.add("agreement_id",agreementDTO.getAgreement_id());
+        paramn.add("user_id",agreementDTO.getUser_id());
+        res = restTemplate.postForObject(url,paramn,String.class);
+        data = JSON.parseObject(res,ResponseData.class);
+        validateResponse(data);
+    }
+
+    //协议意向书重签盖章
+    @RequestMapping(value = "/againChapterAgreementForApp",method = RequestMethod.POST)
+    public void againChapterAgreementForApp(@RequestParam Integer agreementId,@RequestParam Integer userId,@RequestParam String code){
+        String url = saleUrl + "againChapterAgreementForApp";
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("key",saleKey);
+        param.add("agreement_id",agreementId);
+        param.add("user_id",userId);
+        param.add("code",code);
+        String res = restTemplate.postForObject(url,param,String.class);
+        ResponseData data = JSON.parseObject(res,ResponseData.class);
+        validateResponse(data);
+    }
+
+    //重签发送短信
+    @RequestMapping(value = "/sendMobileCodeForAgreementAgainChapter",method = RequestMethod.POST)
+    public void sendMobileCodeForAgreementAgainChapter(@RequestParam Integer agreementId,@RequestParam Integer userId){
+        String url = saleUrl + "sendMobileCodeForAgreementAgainChapter";
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("key",saleKey);
+        param.add("agreement_id",agreementId);
+        param.add("user_id",userId);
+        String res = restTemplate.postForObject(url,param,String.class);
+        ResponseData data = JSON.parseObject(res,ResponseData.class);
+        validateResponse(data);
+    }
+
     //获取居间协议列表
     @RequestMapping(value = "/getAgreementList", method = RequestMethod.GET)
     public Agreement getAgreementList (@RequestParam String users, @RequestParam String search, @RequestParam Integer p){
