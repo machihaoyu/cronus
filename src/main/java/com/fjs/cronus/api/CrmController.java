@@ -772,6 +772,88 @@ public class CrmController {
         validateResponse(data);
     }
 
+    //重签修改合同
+    @RequestMapping(value = "/contractAgainChapterSaveInfo",method = RequestMethod.POST)
+    public void contractAgainChapterSaveInfo(@RequestBody ContractDTO contractDTO,@RequestParam Integer userId,@RequestParam String userName){
+        String url1 = saleUrl + "/contractAgainChapterSaveInfo";
+        MultiValueMap<String,Object> param1 = new LinkedMultiValueMap();
+        param1.add("key",saleKey);
+        param1.add("partake_serialize",contractDTO.getPartake_serialize());
+        param1.add("template_serialize",contractDTO.getTemplate_serialize());
+        param1.add("contract_id",contractDTO.getContract_id());
+        param1.add("borrower",contractDTO.getBorrower());
+        param1.add("identity",contractDTO.getIdentity());
+        param1.add("phone",contractDTO.getPhone());
+        param1.add("per_address",contractDTO.getPer_address());
+        param1.add("address",contractDTO.getAddress());
+        param1.add("contract_type",contractDTO.getContract_type());
+        param1.add("product_type",contractDTO.getProduct_type());
+        param1.add("borrow_money",contractDTO.getBorrow_money());
+        param1.add("month_rate",contractDTO.getMonth_rate());
+        param1.add("year_rate",contractDTO.getYear_rate());
+        param1.add("duration",contractDTO.getDuration());
+        param1.add("duration_unit",contractDTO.getDuration_unit());
+        param1.add("s_year_rate",contractDTO.getS_year_rate());
+        param1.add("s_duration",contractDTO.getS_duration());
+        param1.add("s_duration_unit",contractDTO.getS_duration_unit());
+        param1.add("service_money",contractDTO.getService_money());
+        param1.add("return_fee",contractDTO.getReturn_fee());
+        param1.add("packing",contractDTO.getPacking());
+        param1.add("channel_money",contractDTO.getChannel_money());
+        param1.add("give_money",contractDTO.getGive_money());
+        param1.add("give_time",contractDTO.getGive_time_str());
+        param1.add("expire_time",contractDTO.getExpire_time_str());
+        param1.add("pay_type",contractDTO.getPay_type());
+        param1.add("house_address",contractDTO.getHouse_address());
+        param1.add("house_age",contractDTO.getHouse_age());
+        param1.add("house_area",contractDTO.getHouse_area());
+        param1.add("house_value",contractDTO.getHouse_value());
+        param1.add("user_id",userId);
+        param1.add("user_name",userName);
+        param1.add("product_name",contractDTO.getProduct_name());
+        String res1 = restTemplate.postForObject(url1, param1, String.class);
+        ResponseData data1 = JSON.parseObject(res1, ResponseData.class);
+        validateResponse(data1);
+        //发送短信验证码
+        String url2 = saleUrl + "/sendMobileCodeForContractAgainChapter";
+        MultiValueMap<String,Object> param2 = new LinkedMultiValueMap();
+        param2.add("key",saleKey);
+        param2.add("contract_id",contractDTO.getContract_id());
+        param2.add("user_id",userId);
+        String res = restTemplate.postForObject(url2, param2, String.class);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+
+    }
+
+    @RequestMapping(value = "/sendMobileCodeForContractAgainChapter",method = RequestMethod.POST)
+    public void sendMobileCodeForContractAgainChapter(@RequestParam Integer contractId,
+                                                      @RequestParam Integer userId){
+        String url = saleUrl + "/sendMobileCodeForContractAgainChapter";
+        MultiValueMap<String,Object> param = new LinkedMultiValueMap();
+        param.add("key",saleKey);
+        param.add("contract_id",contractId);
+        param.add("user_id",userId);
+        String res = restTemplate.postForObject(url, param, String.class);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+    }
+
+    @RequestMapping(value = "/againChapterContractForApp",method = RequestMethod.POST)
+    public void againChapterContractForApp(@RequestParam Integer contractId,
+                                           @RequestParam Integer userId,
+                                           @RequestParam String code){
+        String url = saleUrl + "/againChapterContractForApp";
+        MultiValueMap<String,Object> param = new LinkedMultiValueMap();
+        param.add("key",saleKey);
+        param.add("contract_id",contractId);
+        param.add("user_id",userId);
+        param.add("code",code);
+        String res = restTemplate.postForObject(url, param, String.class);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+    }
+
     //获取用户组;
     @RequestMapping(value = "/getSubUserByUserId" ,method = RequestMethod.POST)
     public String getSubUserByUserId(@RequestParam String dataType ,@RequestParam Integer userId){
