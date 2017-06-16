@@ -42,7 +42,15 @@ public class LoginInfoDTO {
     private String redis_city; //": ""
     private String authority;
     private List<AuthorityDTO> authorityDTOS;
+    private Integer model;//线上线下签章模式;
 
+    public Integer getModel() {
+        return model;
+    }
+
+    public void setModel(Integer model) {
+        this.model = model;
+    }
 
     public Integer getUser_id() {
         return user_id;
