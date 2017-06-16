@@ -69,6 +69,25 @@ public class CrmController {
         return loginInfoDTO;
     }
 
+    //用户登录并获取线上线下签章模式;
+    @RequestMapping(value = "/userLoginNew",method = RequestMethod.GET)
+    public LoginInfoDTO userLoginNew(@RequestParam String username, @RequestParam String password){
+        String url = baseUrl + "userLoginForApp?key=" + baseKey + "&system=sale&username="+ username +"&password="+ password ;
+        String res = restTemplate.getForObject(url, String.class);
+        ResponseData data = JSONObject.parseObject(res, ResponseData.class);
+        validateResponseBase(data);
+        LoginInfoDTO loginInfoDTO = JSONObject.parseObject(data.getRetData(), LoginInfoDTO.class);
+        List<AuthorityDTO> authorLists = getLoginAuthor(loginInfoDTO.getAuthority());
+        loginInfoDTO.setAuthorityDTOS(authorLists);
+        url = saleUrl + "getEnableOnLine&key=" + saleKey;
+        res = restTemplate.getForObject(url, String.class);
+        data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        Integer model = JSON.parseObject(data.getRetData(),Integer.class);
+        loginInfoDTO.setModel(model);
+        return loginInfoDTO;
+    }
+
     //用户退出登录清crm缓存
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
     public void logoutCache(@RequestParam Integer userId) {
