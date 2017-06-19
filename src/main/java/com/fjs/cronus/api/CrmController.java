@@ -104,6 +104,21 @@ public class CrmController {
         validateResponseBase(data);
     }
 
+    //修改密码
+    @RequestMapping(value = "/editUserPassword", method = RequestMethod.POST)
+    public void changePWD(@RequestParam Integer userId, @RequestParam String oldPWD, @RequestParam String newPWD){
+        String url = saleUrl + "editUserPassword";
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("key",saleKey);
+        param.add("user_id",userId);
+        param.add("old_pw",oldPWD);
+        param.add("new_pw",newPWD);
+        String str = restTemplate.postForObject(url,param,String.class);
+        ResponseData data = JSON.parseObject(str,ResponseData.class);
+        validateResponse(data);
+    }
+
+
     //获取客户列表
     @RequestMapping(value = "/getCustomerList", method = RequestMethod.POST)
     public PageBeanDTO<CustomerSaleDTO> getCustomerList(@RequestBody CustomerSaleParamDTO customerSaleParamDTO){
