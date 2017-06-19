@@ -16,6 +16,7 @@ import com.fjs.cronus.entity.CustomerSale;
 import com.fjs.cronus.dto.crm.ResponseData;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.exception.ExceptionValidate;
+import com.fjs.cronus.util.DownloadFileUtil;
 import com.fjs.cronus.util.StringAsciiUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,16 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static java.lang.System.out;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -1477,6 +1484,51 @@ public class CrmController {
         validateResponse(data);
         return JSON.parseObject(data2.getRetData(), SignDTO.class);
     }
+
+    /**
+     * 下载合同
+     * @param contractId
+     * @return
+     */
+    @RequestMapping(value = "/downloadContract",method = RequestMethod.POST)
+    public byte[] downloadContract(@RequestParam Integer contractId){
+        //String url = "http://beta-sale.fang-crm.com/Api/App/" + "printContract?"+"key="+saleKey+"&contract_id="+contractId;
+
+        String signUrl = saleUrl + "printContract?"+"key="+saleKey+"&contract_id="+contractId;
+        String res = restTemplate.getForObject(signUrl, String.class);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        try{
+            ByteArrayOutputStream byteArrayOutputStream = DownloadFileUtil.downloadFile1(new URL(signUrl));
+            byteArrayOutputStream.toByteArray();
+            return byteArrayOutputStream.toByteArray();
+        } catch (Exception e){
+            throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "下载合同文件失败!");
+        }
+    }
+
+    /**
+     * 下载协议
+     * @param agreementId
+     * @return
+     */
+    @RequestMapping(value = "/downloadAgreement",method = RequestMethod.POST)
+    public byte[] downloadAgreement(@RequestParam Integer agreementId){
+        //String url = "http://beta-sale.fang-crm.com/Api/App/" + "printContract?"+"key="+saleKey+"&contract_id="+contractId;
+
+        String signUrl = saleUrl + "printAgreement?"+"key="+saleKey+"&agreement_id="+agreementId;
+        String res = restTemplate.getForObject(signUrl, String.class);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        try{
+            ByteArrayOutputStream byteArrayOutputStream = DownloadFileUtil.downloadFile1(new URL(signUrl));
+            byteArrayOutputStream.toByteArray();
+            return byteArrayOutputStream.toByteArray();
+        } catch (Exception e){
+            throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "下载协议文件失败!");
+        }
+    }
+
 
     //通过id获取用户登录信息
     @RequestMapping(value = "/getUserLoginInfoById",method = RequestMethod.POST)
