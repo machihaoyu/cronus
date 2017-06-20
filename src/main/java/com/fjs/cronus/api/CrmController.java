@@ -1500,6 +1500,32 @@ public class CrmController {
         return JSON.parseObject(data2.getRetData(), SignDTO.class);
     }
 
+
+    /**
+     * 下载合同、协议前检查校验
+     * @param attachType type (agreement contract)
+     * @param id 合同或者协议的id
+     * @return
+     */
+    @RequestMapping(value = "/validCanDownChapterPdf",method = RequestMethod.GET)
+    public String validCanDownChapterPdf(@RequestParam Integer id, @RequestParam String attachType){
+        if(StringUtils.isNotEmpty(attachType) && null != id && id.intValue() > 0 ) {
+            String validUrl = saleUrl + "validCanDownChapterPdf?key=" + saleKey + "&type=" + attachType + "&id=" + id;
+            String res = restTemplate.getForObject(validUrl, String.class);
+            ResponseData data = JSON.parseObject(res, ResponseData.class);
+            validateResponse(data);
+            String downUrl = "";
+            if ("contract".equals(attachType)) {
+                downUrl = saleUrl + "printContract?"+"key="+saleKey+"&contract_id="+id;
+            } else {
+                downUrl = saleUrl + "printAgreement?"+"key="+saleKey+"&agreement_id="+id;
+            }
+            return downUrl;
+        } else {
+           throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, CronusException.Type.SYSTEM_CRM_ERROR.getError());
+        }
+    }
+
     /**
      * 下载合同
      * @param contractId
@@ -1510,9 +1536,9 @@ public class CrmController {
         //String url = "http://beta-sale.fang-crm.com/Api/App/" + "printContract?"+"key="+saleKey+"&contract_id="+contractId;
 
         String signUrl = saleUrl + "printContract?"+"key="+saleKey+"&contract_id="+contractId;
-        String res = restTemplate.getForObject(signUrl, String.class);
-        ResponseData data = JSON.parseObject(res, ResponseData.class);
-        validateResponse(data);
+//        String res = restTemplate.getForObject(signUrl, String.class);
+//        ResponseData data = JSON.parseObject(res, ResponseData.class);
+//        validateResponse(data);
         try{
             ByteArrayOutputStream byteArrayOutputStream = DownloadFileUtil.downloadFile1(new URL(signUrl));
             byteArrayOutputStream.toByteArray();
@@ -1532,9 +1558,9 @@ public class CrmController {
         //String url = "http://beta-sale.fang-crm.com/Api/App/" + "printContract?"+"key="+saleKey+"&contract_id="+contractId;
 
         String signUrl = saleUrl + "printAgreement?"+"key="+saleKey+"&agreement_id="+agreementId;
-        String res = restTemplate.getForObject(signUrl, String.class);
-        ResponseData data = JSON.parseObject(res, ResponseData.class);
-        validateResponse(data);
+//        String res = restTemplate.getForObject(signUrl, String.class);
+//        ResponseData data = JSON.parseObject(res, ResponseData.class);
+//        validateResponse(data);
         try{
             ByteArrayOutputStream byteArrayOutputStream = DownloadFileUtil.downloadFile1(new URL(signUrl));
             byteArrayOutputStream.toByteArray();
@@ -1557,6 +1583,25 @@ public class CrmController {
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data.getRetData(),LoginInfoDTO.class);
+    }
+
+    //通过id或name获取用户登录信息
+    @RequestMapping(value = "/getLoginUserByNameOrId",method = RequestMethod.GET)
+    public LoginInfoDTO getLoginUserByNameOrId(@RequestParam Integer userId, @RequestParam String name){
+        if(StringUtils.isNotEmpty(name) && null != userId && userId.intValue() > 0) throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "用户名和ID不能同时传入!");
+        String url = baseUrl + "getUserLoginInfoById";
+        MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
+        param.add("key",baseKey);
+        param.add("system","sale");
+        param.add("user_id",userId);
+        param.add("name", name);
+        String res = restTemplate.postForObject(url, param, String.class);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        LoginInfoDTO loginInfoDTO = JSON.parseObject(data.getRetData(),LoginInfoDTO.class);
+        List<AuthorityDTO> authorLists = getLoginAuthor(loginInfoDTO.getAuthority());
+        loginInfoDTO.setAuthorityDTOS(authorLists);
+        return loginInfoDTO;
     }
 
     /********************************-----产品相关---start----*********************************/
