@@ -159,6 +159,12 @@ public class CrmController {
         if (StringUtils.isNotEmpty(customerSaleParamDTO.getApp_search())) {
             url += "&app_search=" + customerSaleParamDTO.getApp_search();
         }
+        if(StringUtils.isNotEmpty(customerSaleParamDTO.getOwner_user_name())){
+            url +="&owner_user_name=" + customerSaleParamDTO.getOwner_user_name();
+        }
+        if(StringUtils.isNotEmpty(customerSaleParamDTO.getUtm_source())){
+            url +="&utm_source=" + customerSaleParamDTO.getUtm_source();
+        }
         if (null != customerSaleParamDTO.getPerpage() && customerSaleParamDTO.getPerpage().intValue() != 0) {
             url += "&perpage=" + customerSaleParamDTO.getPerpage();
         }

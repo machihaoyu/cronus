@@ -28,6 +28,24 @@ public class CustomerSaleParamDTO {
     private Integer perpage; //每页的个数--:
     //communication_order-是否沟通是否确认(0-未沟未确,1-已沟未确,2-已购已确
     private String communication_order; //是否沟通是否确认--:
+    private String owner_user_name;//负责人,搜索选项;
+    private String utm_source;//渠道,搜索选项;
+
+    public String getOwner_user_name() {
+        return owner_user_name;
+    }
+
+    public void setOwner_user_name(String owner_user_name) {
+        this.owner_user_name = owner_user_name;
+    }
+
+    public String getUtm_source() {
+        return utm_source;
+    }
+
+    public void setUtm_source(String utm_source) {
+        this.utm_source = utm_source;
+    }
 
     public String getKey() {
         return key;
