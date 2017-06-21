@@ -31,7 +31,7 @@ repositories {
 bootRun {
 	systemProperties['CONFIG_PASSWORD'] = 'user'
 	systemProperties['CONFIG_SERVER_ADDRESS'] = '192.168.1.119'
-	systemProperties['CONFIG_PROFILE'] = 'xl'
+	systemProperties['CONFIG_PROFILE'] = 'hxf'
 //	systemProperties['DEFAULT_JVM_OPTS'] = '-Dfile.encoding=UTF-8'
 }
 

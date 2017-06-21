@@ -16,6 +16,7 @@ import com.fjs.cronus.entity.CustomerSale;
 import com.fjs.cronus.dto.crm.ResponseData;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.exception.ExceptionValidate;
+import com.fjs.cronus.util.DownloadFileUtil;
 import com.fjs.cronus.util.StringAsciiUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,16 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static java.lang.System.out;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -96,6 +103,21 @@ public class CrmController {
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponseBase(data);
     }
+
+    //修改密码
+    @RequestMapping(value = "/editUserPassword", method = RequestMethod.POST)
+    public void changePWD(@RequestParam Integer userId, @RequestParam String oldPWD, @RequestParam String newPWD){
+        String url = saleUrl + "editUserPassword";
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("key",saleKey);
+        param.add("user_id",userId);
+        param.add("old_pw",oldPWD);
+        param.add("new_pw",newPWD);
+        String str = restTemplate.postForObject(url,param,String.class);
+        ResponseData data = JSON.parseObject(str,ResponseData.class);
+        validateResponse(data);
+    }
+
 
     //获取客户列表
     @RequestMapping(value = "/getCustomerList", method = RequestMethod.POST)
@@ -1484,6 +1506,77 @@ public class CrmController {
         return JSON.parseObject(data2.getRetData(), SignDTO.class);
     }
 
+
+    /**
+     * 下载合同、协议前检查校验
+     * @param attachType type (agreement contract)
+     * @param id 合同或者协议的id
+     * @return
+     */
+    @RequestMapping(value = "/validCanDownChapterPdf",method = RequestMethod.GET)
+    public String validCanDownChapterPdf(@RequestParam Integer id, @RequestParam String attachType){
+        if(StringUtils.isNotEmpty(attachType) && null != id && id.intValue() > 0 ) {
+            String validUrl = saleUrl + "validCanDownChapterPdf?key=" + saleKey + "&type=" + attachType + "&id=" + id;
+            String res = restTemplate.getForObject(validUrl, String.class);
+            ResponseData data = JSON.parseObject(res, ResponseData.class);
+            validateResponse(data);
+            String downUrl = "";
+            if ("contract".equals(attachType)) {
+                downUrl = saleUrl + "printContract?"+"key="+saleKey+"&contract_id="+id;
+            } else {
+                downUrl = saleUrl + "printAgreement?"+"key="+saleKey+"&agreement_id="+id;
+            }
+            return downUrl;
+        } else {
+           throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, CronusException.Type.SYSTEM_CRM_ERROR.getError());
+        }
+    }
+
+    /**
+     * 下载合同
+     * @param contractId
+     * @return
+     */
+    @RequestMapping(value = "/downloadContract",method = RequestMethod.POST)
+    public byte[] downloadContract(@RequestParam Integer contractId){
+        //String url = "http://beta-sale.fang-crm.com/Api/App/" + "printContract?"+"key="+saleKey+"&contract_id="+contractId;
+
+        String signUrl = saleUrl + "printContract?"+"key="+saleKey+"&contract_id="+contractId;
+//        String res = restTemplate.getForObject(signUrl, String.class);
+//        ResponseData data = JSON.parseObject(res, ResponseData.class);
+//        validateResponse(data);
+        try{
+            ByteArrayOutputStream byteArrayOutputStream = DownloadFileUtil.downloadFile1(new URL(signUrl));
+            byteArrayOutputStream.toByteArray();
+            return byteArrayOutputStream.toByteArray();
+        } catch (Exception e){
+            throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "下载合同文件失败!");
+        }
+    }
+
+    /**
+     * 下载协议
+     * @param agreementId
+     * @return
+     */
+    @RequestMapping(value = "/downloadAgreement",method = RequestMethod.POST)
+    public byte[] downloadAgreement(@RequestParam Integer agreementId){
+        //String url = "http://beta-sale.fang-crm.com/Api/App/" + "printContract?"+"key="+saleKey+"&contract_id="+contractId;
+
+        String signUrl = saleUrl + "printAgreement?"+"key="+saleKey+"&agreement_id="+agreementId;
+//        String res = restTemplate.getForObject(signUrl, String.class);
+//        ResponseData data = JSON.parseObject(res, ResponseData.class);
+//        validateResponse(data);
+        try{
+            ByteArrayOutputStream byteArrayOutputStream = DownloadFileUtil.downloadFile1(new URL(signUrl));
+            byteArrayOutputStream.toByteArray();
+            return byteArrayOutputStream.toByteArray();
+        } catch (Exception e){
+            throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "下载协议文件失败!");
+        }
+    }
+
+
     //通过id获取用户登录信息
     @RequestMapping(value = "/getUserLoginInfoById",method = RequestMethod.POST)
     public LoginInfoDTO getUserLoginInfoById(@RequestParam Integer userId){
@@ -1496,6 +1589,25 @@ public class CrmController {
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data.getRetData(),LoginInfoDTO.class);
+    }
+
+    //通过id或name获取用户登录信息
+    @RequestMapping(value = "/getLoginUserByNameOrId",method = RequestMethod.GET)
+    public LoginInfoDTO getLoginUserByNameOrId(@RequestParam Integer userId, @RequestParam String name){
+        if(StringUtils.isNotEmpty(name) && null != userId && userId.intValue() > 0) throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "用户名和ID不能同时传入!");
+        String url = baseUrl + "getUserLoginInfoById";
+        MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
+        param.add("key",baseKey);
+        param.add("system","sale");
+        param.add("user_id",userId);
+        param.add("name", name);
+        String res = restTemplate.postForObject(url, param, String.class);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        LoginInfoDTO loginInfoDTO = JSON.parseObject(data.getRetData(),LoginInfoDTO.class);
+        List<AuthorityDTO> authorLists = getLoginAuthor(loginInfoDTO.getAuthority());
+        loginInfoDTO.setAuthorityDTOS(authorLists);
+        return loginInfoDTO;
     }
 
     /********************************-----产品相关---start----*********************************/
