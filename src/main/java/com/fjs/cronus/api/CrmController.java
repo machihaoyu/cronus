@@ -95,6 +95,32 @@ public class CrmController {
         return loginInfoDTO;
     }
 
+    //通过id或name获取用户登录信息(登录接口入库，记住密码入口)
+    @RequestMapping(value = "/getLoginUserByNameOrId",method = RequestMethod.GET)
+    public LoginInfoDTO getLoginUserByNameOrId(@RequestParam Integer userId, @RequestParam String name){
+        if(StringUtils.isNotEmpty(name) && null != userId && userId.intValue() > 0) throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "用户名和ID不能同时传入!");
+        if(StringUtils.isEmpty(name) && null == userId && userId.intValue() == 0) throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "用户名或id必须传入一个!");
+        String url = baseUrl + "getUserLoginInfoById";
+        MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
+        param.add("key",baseKey);
+        param.add("system","sale");
+        param.add("user_id",userId);
+        param.add("name", name);
+        String res = restTemplate.postForObject(url, param, String.class);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        LoginInfoDTO loginInfoDTO = JSON.parseObject(data.getRetData(),LoginInfoDTO.class);
+        List<AuthorityDTO> authorLists = getLoginAuthor(loginInfoDTO.getAuthority());
+        loginInfoDTO.setAuthorityDTOS(authorLists);
+        url = saleUrl + "getEnableOnLine&key=" + saleKey + "&user_id=" + loginInfoDTO.getUser_id();
+        res = restTemplate.getForObject(url, String.class);
+        data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        Integer model = JSON.parseObject(data.getRetData(),Integer.class);
+        loginInfoDTO.setModel(model);
+        return loginInfoDTO;
+    }
+
     //用户退出登录清crm缓存
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
     public void logoutCache(@RequestParam Integer userId) {
@@ -1591,24 +1617,7 @@ public class CrmController {
         return JSON.parseObject(data.getRetData(),LoginInfoDTO.class);
     }
 
-    //通过id或name获取用户登录信息
-    @RequestMapping(value = "/getLoginUserByNameOrId",method = RequestMethod.GET)
-    public LoginInfoDTO getLoginUserByNameOrId(@RequestParam Integer userId, @RequestParam String name){
-        if(StringUtils.isNotEmpty(name) && null != userId && userId.intValue() > 0) throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "用户名和ID不能同时传入!");
-        String url = baseUrl + "getUserLoginInfoById";
-        MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
-        param.add("key",baseKey);
-        param.add("system","sale");
-        param.add("user_id",userId);
-        param.add("name", name);
-        String res = restTemplate.postForObject(url, param, String.class);
-        ResponseData data = JSON.parseObject(res, ResponseData.class);
-        validateResponse(data);
-        LoginInfoDTO loginInfoDTO = JSON.parseObject(data.getRetData(),LoginInfoDTO.class);
-        List<AuthorityDTO> authorLists = getLoginAuthor(loginInfoDTO.getAuthority());
-        loginInfoDTO.setAuthorityDTOS(authorLists);
-        return loginInfoDTO;
-    }
+
 
     /********************************-----产品相关---start----*********************************/
     //通过产品ID获取单个产品信息
