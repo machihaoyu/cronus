@@ -86,7 +86,7 @@ public class CrmController {
         LoginInfoDTO loginInfoDTO = JSONObject.parseObject(data.getRetData(), LoginInfoDTO.class);
         List<AuthorityDTO> authorLists = getLoginAuthor(loginInfoDTO.getAuthority());
         loginInfoDTO.setAuthorityDTOS(authorLists);
-        url = saleUrl + "getEnableOnLine&key=" + saleKey;
+        url = saleUrl + "getEnableOnLine&key=" + saleKey + "&user_id=" + loginInfoDTO.getUser_id();
         res = restTemplate.getForObject(url, String.class);
         data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
