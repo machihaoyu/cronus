@@ -28,15 +28,11 @@ import org.springframework.web.client.RestTemplate;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static java.lang.System.out;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -219,6 +215,9 @@ public class CrmController {
         if (StringUtils.isNotEmpty(customerSaleParamDTO.getCommunication_order())) {
             url += "&communication_order=" + customerSaleParamDTO.getCommunication_order();
         }
+        if (StringUtils.isNotEmpty(customerSaleParamDTO.getWant_communit())) {
+            url += "&want_communit=" + customerSaleParamDTO.getWant_communit();
+        }
         String str = restTemplate.getForObject(url, String.class);
         ResponseData responseData = JSON.parseObject(str, ResponseData.class);
         validateResponse(responseData);
@@ -286,7 +285,7 @@ public class CrmController {
 
     //新增客户沟通
     @RequestMapping(value = "/addCommunicationLog", method = RequestMethod.POST)
-    public ResponseData addCommunicationLog(@RequestBody CommunicationLogDTO communicationLogDTO, String houseStatus, String loanAmount, String purpose){
+    public ResponseData addCommunicationLog(@RequestBody CommunicationLogDTO communicationLogDTO, String houseStatus, String loanAmount, String purpose, String cooperationStatus){
         String url = saleUrl + "addCommunicationLog";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
@@ -302,6 +301,7 @@ public class CrmController {
         param.add("meet_time",communicationLogDTO.getMeet_time());
         param.add("user_id", communicationLogDTO.getUser_id());
         param.add("purpose", purpose);
+        param.add("cooperation_status", cooperationStatus);
         String str = restTemplate.postForObject(url,param,String.class);
         ResponseData data = JSON.parseObject(str,ResponseData.class);
         validateResponse(data);

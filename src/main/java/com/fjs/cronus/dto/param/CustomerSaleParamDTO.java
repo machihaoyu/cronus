@@ -30,6 +30,7 @@ public class CustomerSaleParamDTO {
     private String communication_order; //是否沟通是否确认--:
     private String owner_user_name;//负责人,搜索选项;
     private String utm_source;//渠道,搜索选项;
+    private String want_communit;//是否需要沟通(1-已领取未沟通的)
 
     public String getOwner_user_name() {
         return owner_user_name;
@@ -213,5 +214,13 @@ public class CustomerSaleParamDTO {
 
     public void setCommunication_order(String communication_order) {
         this.communication_order = communication_order;
+    }
+
+    public String getWant_communit() {
+        return want_communit;
+    }
+
+    public void setWant_communit(String want_communit) {
+        this.want_communit = want_communit;
     }
 }
