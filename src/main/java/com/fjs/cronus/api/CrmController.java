@@ -1637,9 +1637,13 @@ public class CrmController {
     //获取海贷魔方客户
     @RequestMapping(value = "/getHaidaiList",method = RequestMethod.GET)
     public PageBeanDTO<HaidaiCustomerDTO> getHaidaiList(@RequestParam Integer userId, @RequestParam Integer page,
-                                                        @RequestParam String status, @RequestParam String city, @RequestParam String where){
+                                                        @RequestParam String status, @RequestParam String city, @RequestParam String where, @RequestParam Integer id){
         String url = saleUrl + "getHaidaiList?key=" + saleKey + "&user_id=" + userId + "&p=" + page + "&status="
                 + status + "&city=" + city + "&where=" + where;
+
+        if (null != id && id.intValue() != 0) {
+            url += "&id=" + id;
+        }
 
         String res = restTemplate.getForObject(url, String.class);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
@@ -1720,9 +1724,14 @@ public class CrmController {
     @RequestMapping(value = "/getPrdPanCustomerList",method = RequestMethod.GET)
     public List<MarketCustomerDTO> getPrdPanCustomerList(@RequestParam String panType, @RequestParam Integer userId, @RequestParam String customerType,
                                                          @RequestParam String houseStatus, @RequestParam String level, @RequestParam String communStatus,
-                                                         @RequestParam String searchKey){
+                                                         @RequestParam String searchKey, @RequestParam Integer id){
         String url = saleUrl + "getPrdPanCustomerList?key=" + saleKey + "&type=" + panType + "&user_id=" + userId + "&customer_type=" + customerType +
                 "&house_status=" + houseStatus + "&level=" + level + "&communication_order=" + communStatus + "&search_where=" + searchKey;
+
+        if (null != id && id.intValue() != 0) {
+            url += "&id=" + id;
+        }
+
         String res = restTemplate.getForObject(url, String.class);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
