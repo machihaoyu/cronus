@@ -938,8 +938,12 @@ public class CrmController {
         String res = restTemplate.postForObject(url, param,String.class);
         ResponseData responseData = JSON.parseObject(res, ResponseData.class);
         List<Integer> rs = JSONObject.parseArray(responseData.getRetData(), Integer.class);
-        String s = rs.toString();
-        String users = s.substring(1, s.length()-1);
+        String users = "";
+        if (null != rs && rs.size() > 0) {
+            String s = rs.toString();
+            users = s.substring(1, s.length()-1);
+        }
+
         return users;
     }
 
