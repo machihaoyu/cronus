@@ -630,9 +630,9 @@ public class CrmController {
 
     //获取客户协议列表
     @RequestMapping(value = "/getAgreementListByCustomerIds", method = RequestMethod.GET)
-    public Agreement getAgreementListByCustomerIds(@RequestParam String customerIds, @RequestParam String search, @RequestParam Integer p) {
+    public Agreement getAgreementListByCustomerIds(@RequestParam String customerIds, @RequestParam String search, @RequestParam Integer p,@RequestParam Integer userId) {
         String url = saleUrl + "getAgreementList?key=" + saleKey + "&customer_ids=" + customerIds
-                + "&search=" + search + "&p=" + p;
+                + "&search=" + search + "&p=" + p + "&users=" + userId;
         String res = restTemplate.getForObject(url, String.class);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
