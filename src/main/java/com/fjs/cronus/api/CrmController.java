@@ -218,6 +218,9 @@ public class CrmController {
         if (StringUtils.isNotEmpty(customerSaleParamDTO.getWant_communit())) {
             url += "&want_communit=" + customerSaleParamDTO.getWant_communit();
         }
+        if (null != customerSaleParamDTO.getCustomer_id() && customerSaleParamDTO.getCustomer_id().intValue() != 0) {
+            url += "&customer_id=" + customerSaleParamDTO.getCustomer_id();
+        }
         String str = restTemplate.getForObject(url, String.class);
         ResponseData responseData = JSON.parseObject(str, ResponseData.class);
         validateResponse(responseData);

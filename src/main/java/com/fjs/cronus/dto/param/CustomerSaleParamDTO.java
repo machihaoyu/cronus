@@ -31,6 +31,7 @@ public class CustomerSaleParamDTO {
     private String owner_user_name;//负责人,搜索选项;
     private String utm_source;//渠道,搜索选项;
     private String want_communit;//是否需要沟通(1-已领取未沟通的)
+    private Integer customer_id;
 
     public String getOwner_user_name() {
         return owner_user_name;
@@ -222,5 +223,13 @@ public class CustomerSaleParamDTO {
 
     public void setWant_communit(String want_communit) {
         this.want_communit = want_communit;
+    }
+
+    public Integer getCustomer_id() {
+        return customer_id;
+    }
+
+    public void setCustomer_id(Integer customer_id) {
+        this.customer_id = customer_id;
     }
 }
