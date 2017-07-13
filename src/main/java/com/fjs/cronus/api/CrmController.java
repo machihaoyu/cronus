@@ -1245,8 +1245,8 @@ public class CrmController {
 
     //获取产品列表
     @RequestMapping(value = "/getProductList",method = RequestMethod.GET)
-    public PageBeanDTO<ProductDTO> getProductList(@RequestParam String productName, @RequestParam String loanTime ,@RequestParam String risk,@RequestParam Integer p,@RequestParam Integer size){
-        String url = saleUrl + "getProductList?key=" + saleKey + "&product_name=" + productName + "&loan_time=" + loanTime + "&risk=" + risk +"&p=" + p + "&perpage=" + size;
+    public PageBeanDTO<ProductDTO> getProductList(@RequestParam String search, @RequestParam Integer subCompanyId ,@RequestParam Integer p,@RequestParam Integer size){
+        String url = saleUrl + "getProductList?key=" + saleKey + "&search=" + search + "&sub_company_id=" + subCompanyId +"&p=" + p + "&perpage=" + size;
         String res = restTemplate.getForObject(url, String.class);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
