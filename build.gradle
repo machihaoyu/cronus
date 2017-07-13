@@ -44,7 +44,12 @@ dependencyManagement {
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
-	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-web') {
+		exclude module: "spring-boot-starter-tomcat"
+	}
+	runtime('org.apache.tomcat.embed:tomcat-embed-jasper')
+	compile("org.springframework.boot:spring-boot-starter-jetty")
+	compile('jstl:jstl:1.2')
 	compile('org.springframework.boot:spring-boot-starter-actuator')
 	compile('io.springfox:springfox-swagger2:2.6.1')
 	compile('io.springfox:springfox-swagger-ui:2.6.1')
