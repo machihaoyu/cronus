@@ -2,7 +2,6 @@ package com.fjs.cronus;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -20,9 +19,11 @@ public class Swagger2 {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.fjs.cronus.controller"))
-                .paths(PathSelectors.any())
-                .build();
+                .apis(RequestHandlerSelectors.basePackage("com.fjs.cronus.api"))
+                .paths(PathSelectors.ant("/saas/api/**"))
+                .build()
+                .useDefaultResponseMessages(false)
+                ;
     }
 
     //HTTP Status 200 状态码表示成功，其他表示异常; 业务异常状态码见 Response Messages
