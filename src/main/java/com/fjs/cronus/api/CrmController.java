@@ -1365,8 +1365,8 @@ public class CrmController {
 
     //获取线上线下签章模式(1-线上签章,0-线下签章)
     @RequestMapping(value = "/getEnableOnLine",method = RequestMethod.GET)
-    public Integer getEnableOnLine(){
-        String url = saleUrl + "getEnableOnLine&key=" + saleKey;
+    public Integer getEnableOnLine(Integer userId){
+        String url = saleUrl + "getEnableOnLine&key=" + saleKey + "&user_id=" + userId;
         String res = restTemplate.getForObject(url, String.class);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
