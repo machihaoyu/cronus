@@ -34,7 +34,7 @@ services:
       - '-Xmx1000M'
       - '-XX:+UseParallelGC'
       - '-jar'
-      - /opt/branch1-cronus-1.0.0.war
+      - /opt/branch1-cronus-dev-1.0.0.war
 networks:
   fjs_overlay_branch1:
     external:
