@@ -2,6 +2,7 @@ package com.fjs.cronus.api;
 
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.PhpQueryResultDTO;
+import com.fjs.cronus.dto.uc.SwitchSystemDTO;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -182,7 +183,7 @@ public class ThorController {
     @ApiOperation(value="根据业务员id查询所属的团队长接口", notes="根据业务员id查询所属的团队长接口API")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
-        @ApiImplicitParam(name = "user_id", value = "用户编号", required = true, paramType = "body", dataType = "Integer"),
+        @ApiImplicitParam(name = "user_id", value = "用户编号", required = true, paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/api/v1/getUpTdz",method = RequestMethod.POST)
     @ResponseBody
@@ -194,5 +195,68 @@ public class ThorController {
             return new BaseUcDTO(9000,  e.getMessage(), null);
         }
     }
+
+
+    /**
+     *
+     * 切换系统
+     */
+    @ApiOperation(value="切换系统接口", notes="切换系统接口API")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+        @ApiImplicitParam(name = "uid", value = "用户id", required = true, paramType = "query", dataType = "int"),
+        @ApiImplicitParam(name = "system", value = "系统名", required = true, paramType = "query", dataType = "String"),
+    })
+    @RequestMapping(value = "/api/v1/getSwitchSystem",method = RequestMethod.POST)
+    @ResponseBody
+    public Object getSwitchSystem(@RequestHeader String Authorization, @RequestParam Integer uid, @RequestParam String system) {
+        try {
+            return thorInterfaceService.getSwitchSystem(Authorization, uid, system);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            return new BaseUcDTO(9000,  e.getMessage(), null);
+        }
+    }
+
+
+
+    //解决header跨域问题
+    @ApiOperation(value="得到下属员工接口", notes="得到下属员工接口API")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+        @ApiImplicitParam(name = "user_id", value = "用户编号", required = true, paramType = "query", dataType = "int"),
+        @ApiImplicitParam(name = "data_type", value = "data_type1，2，3，4", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/getSubUserByUserId",method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getSubUserByUserId(@RequestHeader String Authorization, @RequestParam(value = "user_id",defaultValue = "0",required = false) Integer user_id,
+                                        @RequestParam(value = "data_type",defaultValue = "1",required = true) Integer data_type){
+        try{
+            return thorInterfaceService.getSubUserByUserId(Authorization, user_id, data_type);
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(), e);
+            return new BaseUcDTO(9000,  e.getMessage(), null);
+        }
+    }
+
+
+    @ApiOperation(value="得到团队长下业务员操作接口", notes="得到团队长下业务员操作接口API")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+        @ApiImplicitParam(name = "user_id", value = "用户编号", required = true, paramType = "query", dataType = "int"),
+        @ApiImplicitParam(name = "department_id", value = "部门编号", required = true, paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/api/v1/getSubUserByTDZ",method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getSubUserByTDZ(@RequestHeader String Authorization, @RequestParam(value = "user_id",defaultValue = "0",required = false) Integer user_id,
+                                     @RequestParam(value = "department_id",defaultValue = "0",required = false) Integer department_id) {
+        try {
+            return thorInterfaceService.getSubUserByTDZ(Authorization, user_id, department_id);
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(), e);
+            return new BaseUcDTO(9000,  e.getMessage(), null);
+        }
+    }
+
 
 }

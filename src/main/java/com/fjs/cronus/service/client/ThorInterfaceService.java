@@ -3,6 +3,7 @@ package com.fjs.cronus.service.client;
 import com.fjs.cronus.config.FeignClientConfig;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.PhpQueryResultDTO;
+import com.fjs.cronus.dto.uc.SwitchSystemDTO;
 import com.fjs.cronus.dto.uc.UserModelDTO;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
@@ -97,6 +98,7 @@ public interface ThorInterfaceService {
 
     /**
      * 得到用户到列表
+     * @see /swagger-ui.html#!/php-api-user-controller/getUserInfoUsingPOST
      * @param token 认证信息
      * @param page 页数
      * @param size 页码
@@ -115,6 +117,7 @@ public interface ThorInterfaceService {
 
     /**
      * 获取团队长信息
+     * @see /swagger-ui.html#!/php-api-user-controller/getUpTdzByRole_idUsingGET
      * @param token 认证信息
      * @return
      */
@@ -126,6 +129,7 @@ public interface ThorInterfaceService {
 
     /**
      * 查询此业务员的团队长
+     * @see /swagger-ui.html#!/php-api-user-controller/getUpTdzUsingPOST
      * @param token
      * @param user_id
      * @return
@@ -134,6 +138,46 @@ public interface ThorInterfaceService {
     List<UserModelDTO> getUpTdz(@RequestHeader("Authorization") String token,
                                 @RequestParam(value = "user_id",defaultValue ="0",required = false) Integer user_id);
 
+
+    /**
+     * 切换系统
+     * @see /swagger-ui.html#!/php-api-user-controller/getSwitchSystemUsingPOST
+     * @param token
+     * @param uid
+     * @param system
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getSwitchSystem",method = RequestMethod.POST)
+    SwitchSystemDTO getSwitchSystem(@RequestHeader("Authorization") String token,
+                                    @RequestParam(value = "uid") Integer uid,
+                                    @RequestParam(value = "system") String system);
+
+
+    /** 得到下属员工
+     * @see /swagger-ui.html#!/php-api-user-controller/getSubUserByUserIdUsingPOST
+     * @param token
+     * @param user_id
+     * @param data_type
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getSubUserByUserId",method = RequestMethod.POST)
+    BaseUcDTO getSubUserByUserId(@RequestHeader("Authorization") String token,
+                                 @RequestParam(value = "user_id") Integer user_id,
+                                 @RequestParam(value = "data_type") Integer data_type);
+
+
+    /**
+     * 得到团队长下业务员操作
+     * @see /swagger-ui.html#!/php-api-user-controller/getSubUserByTDZUsingPOST
+     * @param token
+     * @param user_id
+     * @param department_id
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getSubUserByTDZ",method = RequestMethod.POST)
+    BaseUcDTO getSubUserByTDZ(@RequestHeader("Authorization") String token,
+                              @RequestParam(value = "user_id", defaultValue = "0", required = false) Integer user_id,
+                              @RequestParam(value = "department_id", defaultValue = "0", required = false)Integer department_id);
 }
 
 
