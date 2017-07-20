@@ -1,6 +1,7 @@
 package com.fjs.cronus.service.client;
 
 import com.fjs.cronus.config.FeignClientConfig;
+import com.fjs.cronus.dto.uc.AllUserDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.PhpQueryResultDTO;
 import com.fjs.cronus.dto.uc.SwitchSystemDTO;
@@ -29,6 +30,98 @@ public interface ThorInterfaceService {
     @RequestMapping(value = "/api/v1/checkMobile", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     BaseUcDTO postUCByCheckMobile(@RequestHeader("Authorization") String token, @RequestParam(value = "phone") String phone);
 
+    /**
+     * 检查是否是业务员
+     * @param token 认证信息
+     * @param id 编号
+     */
+    @RequestMapping(value = "/api/v1/checkIfSaler", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO postUcForCheckedSaler(@RequestHeader("Authorization") String token, @RequestParam(value = "id") Integer id);
+
+    /**
+     * 验证用户权限
+     * @param url url地址
+     * @param user_id
+     */
+    @RequestMapping(value = "/api/v1/checkUserAuthority", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO checkUserAuthority(@RequestParam(value = "url") String url, @RequestParam(value = "user_id") Integer user_id);
+
+    /**
+     * 修改密码
+     * @param token 认证信息
+     * @param user_id 用户编号
+     * @param old_pw 原密码
+     * @param new_pw 新密码
+     * @param ok_pw 第二次输入新密码
+     */
+    @RequestMapping(value = "/api/v1/editPassword", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO editPassword(@RequestHeader("Authorization") String token, @RequestParam(value = "user_id") Integer user_id, @RequestParam(value = "old_pw") String old_pw, @RequestParam(value = "new_pw") String new_pw,
+                           @RequestParam(value = "ok_pw") String ok_pw);
+
+    /**
+     * 编辑用户信息
+     * @param token 认证信息
+     * @param user_id 用户编号
+     * @param sex 性别
+     * @param email 邮箱
+     * @param telephone 电话号码
+     * @param address 地址
+     */
+    @RequestMapping(value = "/api/v1/editUserInfo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO editUserInfo(@RequestHeader("Authorization") String token, @RequestParam(value = "user_id") Integer user_id, @RequestParam(value = "sex") String sex, @RequestParam(value = "email") String email,
+                           @RequestParam(value = "telephone") String telephone, @RequestParam(value = "address") String address);
+
+
+    /**
+     * 得到所有分公司业务员操作
+     * @param token 认证信息
+     * @param city 城市
+     */
+    @RequestMapping(value = "/api/v1/getAllSalesman", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO getAllSalesman(@RequestHeader("Authorization") String token, @RequestParam(value = "city") String city);
+
+    /**
+     * 得到所有业务员不包括userId
+     * @param token 认证信息
+     * @param user_id 用户编号
+     */
+    @RequestMapping(value = "/api/v1/getAllUser", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    AllUserDTO getAllUser(@RequestHeader("Authorization") String token, @RequestParam(value = "user_id") Integer user_id);
+
+    /**
+     * 得到员工所在地址
+     * @param token 认证信息
+     * @param user_id 用户编号
+     */
+    @RequestMapping(value = "/api/v1/getCityByUserid", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO getCityByUserid(@RequestHeader("Authorization") String token, @RequestParam(value = "user_id") Integer user_id);
+
+    /**
+     * 获取员工信息
+     * @param token 认证信息
+     * @param user_id
+     * @param user_ids 用户编号
+     */
+    @RequestMapping(value = "/api/v1/getRoleInfoByUser_id", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO getRoleInfoByUser_id(@RequestHeader("Authorization") String token, @RequestParam(value = "user_id") String user_id, @RequestParam(value = "user_ids") String user_ids);
+
+    /**
+     * 查询业务员信息
+     * @param token 认证信息
+     * @param user_id 用户编号
+     * @param name 姓名
+     * @param company_id 分公司Id
+     */
+    @RequestMapping(value = "/api/v1/getSaleInfos", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO getSaleInfos(@RequestHeader("Authorization") String token, @RequestParam(value = "user_id") Integer user_id, @RequestParam(value = "name") String name, @RequestParam(value = "company_id") Integer company_id);
+
+    /**
+     * 根据手机号得到业务员信息
+     * @param token 认证信息
+     * @param phone 手机号
+     */
+    @RequestMapping(value = "/api/v1/getSalesmanByPhone", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO getSalesmanByPhone(@RequestHeader("Authorization") String token, @RequestParam(value = "phone") String phone);
 
     /**
      * 得到员工姓名

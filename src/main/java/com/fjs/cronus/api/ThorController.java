@@ -1,5 +1,6 @@
 package com.fjs.cronus.api;
 
+import com.fjs.cronus.dto.uc.AllUserDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.PhpQueryResultDTO;
 import com.fjs.cronus.dto.uc.SwitchSystemDTO;
@@ -62,6 +63,185 @@ public class ThorController {
         }
     }
 
+    @ApiOperation(value = "检查是否是业务员接口",notes = "检查是否是业务员接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "id", value = "编号", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/checkIfSaler",method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO checkIfSaler(@RequestHeader String Authorization,@RequestParam Integer id){
+        try{
+            BaseUcDTO baseUcDTO = thorInterfaceService.postUcForCheckedSaler(Authorization, id);
+            return baseUcDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+    @ApiOperation(value = "验证用户权限接口", notes = "验证用户权限接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "url", value = "url地址", required = true, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "user_id", value = "user_id", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/checkUserAuthority", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO checkUserAuthority(@RequestParam String url, @RequestParam Integer user_id){
+        try{
+            BaseUcDTO baseUcDTO = thorInterfaceService.checkUserAuthority(url, user_id);
+            return baseUcDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+    @ApiOperation(value = "修改密码接口", notes = "修改密码接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "user_id", value = "用户编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "old_pw", value = "原密码", required = true, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "new_pw", value = "新密码", required = true, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "ok_pw", value = "第二次输入新密码", required = true, paramType = "query", dataType = "string")
+    })
+    @RequestMapping(value = "/api/v1/editPassword", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO editPassword(@RequestHeader String Authorization, @RequestParam Integer user_id, @RequestParam String old_pw, @RequestParam String new_pw, @RequestParam String ok_pw){
+        try{
+            BaseUcDTO baseUcDTO = thorInterfaceService.editPassword( Authorization, user_id, old_pw, new_pw, ok_pw);
+            return baseUcDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+    @ApiOperation(value = "编辑用户信息接口", notes = "编辑用户信息接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "user_id", value = "用户编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "sex", value = "性别", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "email", value = "邮箱", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "telephone", value = "电话号码", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "address", value = "地址", required = false, paramType = "query", dataType = "string")
+    })
+    @RequestMapping(value = "/api/v1/editUserInfo", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO editUserInfo(@RequestHeader String Authorization, @RequestParam Integer user_id, @RequestParam String sex, @RequestParam String email,@RequestParam String telephone, @RequestParam String address){
+        try{
+            BaseUcDTO baseUcDTO = thorInterfaceService.editUserInfo( Authorization, user_id, sex, email, telephone, address);
+            return baseUcDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+    @ApiOperation(value = "得到所有分公司业务员操作接口", notes = "得到所有分公司业务员操作接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "city", value = "例如city=上海市", required = true, paramType = "query", dataType = "string")
+    })
+    @RequestMapping(value = "/api/v1/getAllSalesman", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getAllSalesman(@RequestHeader String Authorization, @RequestParam String city){
+        try{
+            BaseUcDTO baseUcDTO = thorInterfaceService.getAllSalesman( Authorization, city);
+            return baseUcDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+    @ApiOperation(value = "得到所有业务员不包括userId接口", notes = "得到所有业务员不包括userId接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "user_id", value = "用户编号", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/getAllUser", method = RequestMethod.POST)
+    @ResponseBody
+    public Object getAllUser(@RequestHeader String Authorization, @RequestParam Integer user_id){
+        try{
+            AllUserDTO allUserDTO = thorInterfaceService.getAllUser( Authorization, user_id);
+            return allUserDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+    @ApiOperation(value = "得到员工所在地址接口", notes = "得到员工所在地址接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "user_id", value = "用户编号", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/getCityByUserid", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getCityByUserid(@RequestHeader String Authorization, @RequestParam Integer user_id){
+        try{
+            BaseUcDTO baseUcDTO = thorInterfaceService.getCityByUserid( Authorization, user_id);
+            return baseUcDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+    @ApiOperation(value = "获取员工信息接口", notes = "获取员工信息接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "user_id", value = "user_id", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "user_ids", value = "用户编号", required = false, paramType = "query", dataType = "string")
+    })
+    @RequestMapping(value = "/api/v1/getRoleInfoByUser_id", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getRoleInfoByUser_id(@RequestHeader String Authorization, @RequestParam String user_id, @RequestParam String user_ids){
+        try{
+            BaseUcDTO baseUcDTO = thorInterfaceService.getRoleInfoByUser_id( Authorization, user_id, user_ids);
+            return baseUcDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+    @ApiOperation(value = "查询业务员信息接口", notes = "查询业务员信息接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "user_id", value = "用户编号", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "name", value = "姓名", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "company_id", value = "分公司Id", required = false, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/getSaleInfos", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getSaleInfos(@RequestHeader String Authorization, @RequestParam Integer user_id, @RequestParam String name, @RequestParam Integer company_id){
+        try{
+            BaseUcDTO baseUcDTO = thorInterfaceService.getSaleInfos( Authorization, user_id, name, company_id);
+            return baseUcDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+    @ApiOperation(value = "根据手机号得到业务员信息接口", notes = "根据手机号得到业务员信息接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "phone", value = "手机号", required = true, paramType = "query", dataType = "string")
+    })
+    @RequestMapping(value = "/api/v1/getSalesmanByPhone", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getSalesmanByPhone(@RequestHeader String Authorization, @RequestParam String phone){
+        try{
+            BaseUcDTO baseUcDTO = thorInterfaceService.getSalesmanByPhone( Authorization, phone);
+            return baseUcDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
 
     @ApiOperation(value="根据信息查到用户信息接口", notes="根据信息查到用户信息接口API")
     @ApiImplicitParams({
