@@ -3,9 +3,12 @@ package com.fjs.cronus.service.client;
 import com.fjs.cronus.config.FeignClientConfig;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.PhpQueryResultDTO;
+import com.fjs.cronus.dto.uc.UserModelDTO;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * UC用户中心接口
@@ -91,4 +94,46 @@ public interface ThorInterfaceService {
                                  @RequestParam(value = "user_id",required = false) Integer user_id,
                                  @RequestParam(value = "name",required = false) String name);
 
+
+    /**
+     * 得到用户到列表
+     * @param token 认证信息
+     * @param page 页数
+     * @param size 页码
+     * @param where 条件
+     * @param type  类型
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getUserInfo",method = RequestMethod.POST)
+    @ResponseBody
+    PhpQueryResultDTO getUserInfo(@RequestHeader("Authorization") String token,
+                                  @RequestParam(value = "page",defaultValue = "0",required = false) Integer page,
+                                  @RequestParam(value = "size",defaultValue = "10",required = false) Integer size,
+                                  @RequestParam(value = "where",required = false,defaultValue = "") String where,
+                                  @RequestParam(value="type",required = true,defaultValue = "1") Integer type);
+
+
+    /**
+     * 获取团队长信息
+     * @param token 认证信息
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getUpTdzByRole_id",method = RequestMethod.GET)
+    @ResponseBody
+    BaseUcDTO getUpTdzByRole_id(@RequestHeader("Authorization") String token);
+
+
+
+    /**
+     * 查询此业务员的团队长
+     * @param token
+     * @param user_id
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getUpTdz",method = RequestMethod.POST)
+    List<UserModelDTO> getUpTdz(@RequestHeader("Authorization") String token,
+                                @RequestParam(value = "user_id",defaultValue ="0",required = false) Integer user_id);
+
 }
+
+

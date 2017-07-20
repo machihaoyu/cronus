@@ -1,9 +1,11 @@
 package com.fjs.cronus.dto.uc;
 
 import com.fjs.cronus.util.StringAsciiUtil;
+import com.fjs.framework.exception.ResponseError;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Created by Administrator on 2017/7/19 0019.
@@ -23,9 +25,15 @@ public class BaseUcDTO<T> implements Serializable {
         if (StringUtils.isEmpty(errMsg)) {
             this.errMsg = "请求成功!";
         } else {
-            FegionExceptionDTO fegionExceptionDTO = StringAsciiUtil.fegionException(errMsg);
-            if (null != fegionExceptionDTO) {
-                this.errMsg = fegionExceptionDTO.getError();
+            Map<String, Object> map = StringAsciiUtil.fegionException(errMsg);
+            if (null != map && map.size() > 0) {
+                if (map.containsKey("fegionExceptionDTO")) {
+                    FegionExceptionDTO fegionExceptionDTO = (FegionExceptionDTO)map.get("fegionExceptionDTO");
+                    this.errMsg = fegionExceptionDTO.getError();
+                } else {
+                    FegionResponseErrorDTO responseError = (FegionResponseErrorDTO)map.get("responseError");
+                    this.errMsg = responseError.getMessage();
+                }
             } else {
                 this.errMsg = errMsg;
             }

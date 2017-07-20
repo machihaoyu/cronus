@@ -2,6 +2,7 @@ package com.fjs.cronus.api;
 
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.PhpQueryResultDTO;
+import com.fjs.cronus.dto.uc.UserModelDTO;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -10,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Created by Administrator on 2017/7/19 0019.
@@ -133,10 +136,66 @@ public class ThorController {
             return thorInterfaceService.getUserInfoByField(Authorization, telephone, user_id, name);
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
-            return PhpQueryResultDTO.getExcetion(9000, e.getMessage());
+            return new BaseUcDTO(9000,  e.getMessage(), null);
         }
-
     }
 
+
+    @ApiOperation(value="得到用户到列表接口", notes="得到用户到列表接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "page", value = "page", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "size", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "where", value = "a:1:{s:5:\"title\";s:13:\"这是标题1\";}", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "type", value = "类型1或者2", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/getUserInfo",method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getUserInfo(@RequestHeader String Authorization,
+                                 @RequestParam(value = "page",defaultValue = "0",required = false) Integer page,
+                                 @RequestParam(value = "size",defaultValue = "10",required = false) Integer size,
+                                 @RequestParam(value = "where",required = false,defaultValue = "") String where,
+                                 @RequestParam(value="type",required = true,defaultValue = "1") Integer type){
+        try{
+            return thorInterfaceService.getUserInfo(Authorization, page, size, where, type);
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(), e);
+            return new BaseUcDTO(9000,  e.getMessage(), null);
+        }
+    }
+
+
+    @ApiOperation(value="根据roleId获取获取团队长信息接口", notes="根据roleId获取获取团队长信息接口API")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+    })
+    @RequestMapping(value = "/api/v1/getUpTdzByRole_id",method = RequestMethod.GET)
+    @ResponseBody
+    public BaseUcDTO getUpTdzByRole_id(@RequestHeader String Authorization){
+        try{
+            return thorInterfaceService.getUpTdzByRole_id(Authorization);
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(), e);
+            return new BaseUcDTO(9000,  e.getMessage(), null);
+        }
+    }
+
+
+
+    @ApiOperation(value="根据业务员id查询所属的团队长接口", notes="根据业务员id查询所属的团队长接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "user_id", value = "用户编号", required = true, paramType = "body", dataType = "Integer"),
+    })
+    @RequestMapping(value = "/api/v1/getUpTdz",method = RequestMethod.POST)
+    @ResponseBody
+    public Object getUpTdz(@RequestHeader String Authorization, @RequestParam(value = "user_id",defaultValue ="0",required = false) Integer user_id){
+        try {
+            return thorInterfaceService.getUpTdz(Authorization, user_id);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            return new BaseUcDTO(9000,  e.getMessage(), null);
+        }
+    }
 
 }

@@ -1,6 +1,9 @@
 package com.fjs.cronus.dto.uc;
 
 import com.fjs.cronus.util.StringAsciiUtil;
+import com.fjs.framework.exception.ResponseError;
+
+import java.util.Map;
 
 /**
  * Created by Administrator on 2017/7/20 0020.
@@ -28,12 +31,20 @@ public class PhpQueryResultDTO extends BaseUcDTO {
     public static PhpQueryResultDTO getExcetion(int errNum, String errMsg) {
         PhpQueryResultDTO dto = new PhpQueryResultDTO();
         dto.setErrNum(errNum);
-        FegionExceptionDTO fegionExceptionDTO = StringAsciiUtil.fegionException(errMsg);
-        if (null != fegionExceptionDTO) {
-            dto.setErrMsg(fegionExceptionDTO.getError());
+
+        Map<String, Object> map = StringAsciiUtil.fegionException(errMsg);
+        if (null != map && map.size() > 0) {
+            if (map.containsKey("fegionExceptionDTO")) {
+                FegionExceptionDTO fegionExceptionDTO = (FegionExceptionDTO)map.get("fegionExceptionDTO");
+                dto.setErrMsg(fegionExceptionDTO.getError());
+            } else {
+                FegionResponseErrorDTO responseError = (FegionResponseErrorDTO)map.get("responseError");
+                dto.setErrMsg(responseError.getMessage());
+            }
         } else {
             dto.setErrMsg(errMsg);
         }
+
         return dto;
     }
 }
