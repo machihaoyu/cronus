@@ -55,14 +55,14 @@ public interface ThorInterfaceService {
     /**
      * 根据信息查到用户信息
      * @see /swagger-ui.html#!/php-api-user-controller/getUserInfoByIdsUsingPOST
-     * @param token
-     * @param user_ids
-     * @param department_ids
-     * @param sub_company_id
-     * @param flag
-     * @param page
-     * @param size
-     * @param name
+     * @param token 认证信息
+     * @param user_ids 用户编号
+     * @param department_ids 部门编号
+     * @param sub_company_id 分公司编号
+     * @param flag eqh或者neq
+     * @param page 页数
+     * @param size 每页显示
+     * @param name 用户姓名
      * @return
      */
     @RequestMapping(value = "/api/v1/getUserInfoByIds", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -74,4 +74,21 @@ public interface ThorInterfaceService {
                                        @RequestParam(value = "page", required = false) Integer page,
                                        @RequestParam(value = "size", required = false) Integer size,
                                        @RequestParam(value = "name", required = false)String name);
+
+
+    /**
+     * 通过属性得到用户信息
+     * @see /swagger-ui.html#!/php-api-user-controller/getUserInfoByFieldUsingPOST
+     * @param token 认证信息
+     * @param telephone 手机号
+     * @param user_id 用户编号
+     * @param name 用户姓名
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getUserInfoByField", method = RequestMethod.POST)
+    BaseUcDTO getUserInfoByField(@RequestHeader("Authorization") String token,
+                                 @RequestParam(value = "telephone",required = false) String telephone,
+                                 @RequestParam(value = "user_id",required = false) Integer user_id,
+                                 @RequestParam(value = "name",required = false) String name);
+
 }

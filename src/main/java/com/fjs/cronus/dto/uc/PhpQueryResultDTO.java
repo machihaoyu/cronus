@@ -1,5 +1,7 @@
 package com.fjs.cronus.dto.uc;
 
+import com.fjs.cronus.util.StringAsciiUtil;
+
 /**
  * Created by Administrator on 2017/7/20 0020.
  */
@@ -26,7 +28,12 @@ public class PhpQueryResultDTO extends BaseUcDTO {
     public static PhpQueryResultDTO getExcetion(int errNum, String errMsg) {
         PhpQueryResultDTO dto = new PhpQueryResultDTO();
         dto.setErrNum(errNum);
-        dto.setErrMsg(errMsg);
+        FegionExceptionDTO fegionExceptionDTO = StringAsciiUtil.fegionException(errMsg);
+        if (null != fegionExceptionDTO) {
+            dto.setErrMsg(fegionExceptionDTO.getError());
+        } else {
+            dto.setErrMsg(errMsg);
+        }
         return dto;
     }
 }

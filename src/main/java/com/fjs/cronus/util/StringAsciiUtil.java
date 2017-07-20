@@ -1,5 +1,10 @@
 package com.fjs.cronus.util;
 
+import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.dto.uc.FegionExceptionDTO;
+import com.fjs.framework.exception.ResponseError;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,6 +34,17 @@ public class StringAsciiUtil {
             return true;
         }
         return false;
+    }
+
+    public static FegionExceptionDTO fegionException(String exceptionMsg) {
+        String destSrc = "content";
+        String result = exceptionMsg.substring(exceptionMsg.indexOf(destSrc) + destSrc.length() + 1);
+        String res = result.replaceAll("\\\n", "");
+        FegionExceptionDTO fegionExceptionDTO = null;
+        if (res.contains("error") && res.contains("error_description")) {
+            fegionExceptionDTO = JSONObject.parseObject(res, FegionExceptionDTO.class);
+        }
+        return fegionExceptionDTO;
     }
 
 }

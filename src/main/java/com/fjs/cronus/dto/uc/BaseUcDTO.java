@@ -1,5 +1,6 @@
 package com.fjs.cronus.dto.uc;
 
+import com.fjs.cronus.util.StringAsciiUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
@@ -22,7 +23,12 @@ public class BaseUcDTO<T> implements Serializable {
         if (StringUtils.isEmpty(errMsg)) {
             this.errMsg = "请求成功!";
         } else {
-            this.errMsg = errMsg;
+            FegionExceptionDTO fegionExceptionDTO = StringAsciiUtil.fegionException(errMsg);
+            if (null != fegionExceptionDTO) {
+                this.errMsg = fegionExceptionDTO.getError();
+            } else {
+                this.errMsg = errMsg;
+            }
         }
         this.retData = obj;
     }
