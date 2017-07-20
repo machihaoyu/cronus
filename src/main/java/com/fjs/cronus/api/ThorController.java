@@ -36,7 +36,7 @@ public class ThorController {
             return baseUcDTO;
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
-            return new BaseUcDTO(0,  e.getMessage(), null);
+            return new BaseUcDTO(9000,  e.getMessage(), null);
         }
     }
 
@@ -55,7 +55,7 @@ public class ThorController {
             return baseUcDTO;
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
-            return new BaseUcDTO(0,  e.getMessage(), null);
+            return new BaseUcDTO(9000,  e.getMessage(), null);
         }
     }
 
