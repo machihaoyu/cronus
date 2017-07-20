@@ -4,10 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.crm.ResponseData;
 import com.fjs.cronus.dto.saas.MineAchievementDTO;
-import com.fjs.cronus.dto.saas.SaasApiDTO;
 import com.fjs.cronus.dto.saas.SaasIndexDTO;
+import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.exception.ExceptionValidate;
 import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -19,6 +21,8 @@ import org.springframework.web.client.RestTemplate;
 @RequestMapping("/saas")
 public class SaasController {
 
+    public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+
 //    @Value("${sale.url}")
     private String saleUrl = "http://beta-sale.fang-crm.com/Api/Api/";
 
@@ -29,18 +33,20 @@ public class SaasController {
     RestTemplate restTemplate;
 
     @ApiOperation(value="Saas首页数据", notes="Saas首页数据接口API")
-//    @ApiImplicitParams({
-//        @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-//    })
     @RequestMapping(value = "/api/v1/getSaasIndexData", method = RequestMethod.GET)
     @ResponseBody
-    public SaasApiDTO getSaasIndexData() {
-        String url = saleUrl + "crmCountData?key=" + saasKey;
-        String res = restTemplate.getForObject(url, String.class);
-        ResponseData data = JSONObject.parseObject(res, ResponseData.class);
-        ExceptionValidate.validateResponse(data);
-        SaasIndexDTO saasIndexDTO = JSON.parseObject(data.getRetData(), SaasIndexDTO.class);
-        return new SaasApiDTO(saasIndexDTO);
+    public BaseUcDTO getSaasIndexData() {
+        try {
+            String url = saleUrl + "crmCountData?key=" + saasKey;
+            String res = restTemplate.getForObject(url, String.class);
+            ResponseData data = JSONObject.parseObject(res, ResponseData.class);
+            ExceptionValidate.validateResponse(data);
+            SaasIndexDTO saasIndexDTO = JSON.parseObject(data.getRetData(), SaasIndexDTO.class);
+            return new BaseUcDTO(0, null, saasIndexDTO);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            return new BaseUcDTO(8000, e.getMessage(), null);
+        }
     }
 
     /**
@@ -53,13 +59,18 @@ public class SaasController {
     })
     @RequestMapping(value = "/api/v1/getCrmAchievement", method = RequestMethod.GET)
     @ResponseBody
-    public SaasApiDTO getCrmAchievement(@RequestParam String userId) {
-        String url = saleUrl + "getMyData?key=" + saasKey + "&user_id=" + userId;
-        String res = restTemplate.getForObject(url, String.class);
-        ResponseData data = JSONObject.parseObject(res, ResponseData.class);
-        ExceptionValidate.validateResponse(data);
-        MineAchievementDTO mineAchievementDTO = JSON.parseObject(data.getRetData(), MineAchievementDTO.class);
-        return new SaasApiDTO(mineAchievementDTO);
+    public BaseUcDTO getCrmAchievement(@RequestParam String userId) {
+        try {
+            String url = saleUrl + "getMyData?key=" + saasKey + "&user_id=" + userId;
+            String res = restTemplate.getForObject(url, String.class);
+            ResponseData data = JSONObject.parseObject(res, ResponseData.class);
+            ExceptionValidate.validateResponse(data);
+            MineAchievementDTO mineAchievementDTO = JSON.parseObject(data.getRetData(), MineAchievementDTO.class);
+            return new BaseUcDTO(0, null, mineAchievementDTO);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            return new BaseUcDTO(8001, e.getMessage(), null);
+        }
     }
 
 
