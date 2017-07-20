@@ -127,7 +127,12 @@ public class ThorController {
     })
     @RequestMapping(value = "/api/v1/editUserInfo", method = RequestMethod.POST)
     @ResponseBody
-    public BaseUcDTO editUserInfo(@RequestHeader String Authorization, @RequestParam Integer user_id, @RequestParam String sex, @RequestParam String email,@RequestParam String telephone, @RequestParam String address){
+    public BaseUcDTO editUserInfo(@RequestHeader String Authorization,
+                                  @RequestParam Integer user_id,
+                                  @RequestParam(required = false) String sex,
+                                  @RequestParam(required = false) String email,
+                                  @RequestParam(required = false) String telephone,
+                                  @RequestParam(required = false) String address){
         try{
             BaseUcDTO baseUcDTO = thorInterfaceService.editUserInfo( Authorization, user_id, sex, email, telephone, address);
             return baseUcDTO;
@@ -196,7 +201,7 @@ public class ThorController {
     })
     @RequestMapping(value = "/api/v1/getRoleInfoByUser_id", method = RequestMethod.POST)
     @ResponseBody
-    public BaseUcDTO getRoleInfoByUser_id(@RequestHeader String Authorization, @RequestParam String user_id, @RequestParam String user_ids){
+    public BaseUcDTO getRoleInfoByUser_id(@RequestHeader String Authorization, @RequestParam(required = false) String user_id, @RequestParam(required = false) String user_ids){
         try{
             BaseUcDTO baseUcDTO = thorInterfaceService.getRoleInfoByUser_id( Authorization, user_id, user_ids);
             return baseUcDTO;
@@ -215,7 +220,7 @@ public class ThorController {
     })
     @RequestMapping(value = "/api/v1/getSaleInfos", method = RequestMethod.POST)
     @ResponseBody
-    public BaseUcDTO getSaleInfos(@RequestHeader String Authorization, @RequestParam Integer user_id, @RequestParam String name, @RequestParam Integer company_id){
+    public BaseUcDTO getSaleInfos(@RequestHeader String Authorization, @RequestParam(required = false) Integer user_id, @RequestParam(required = false) String name, @RequestParam(required = false) Integer company_id){
         try{
             BaseUcDTO baseUcDTO = thorInterfaceService.getSaleInfos( Authorization, user_id, name, company_id);
             return baseUcDTO;
@@ -241,6 +246,149 @@ public class ThorController {
             return new BaseUcDTO(9000,e.getMessage(),null);
         }
     }
+
+    @ApiOperation(value = "查询角色信息接口", notes = "查询角色信息接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "name", value = "字段名称", required = true, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "value", value = "字段值", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/getRoleInfo", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getRoleInfo(@RequestHeader String Authorization,
+                                 @RequestParam String name,
+                                 @RequestParam Integer value){
+        try{
+            BaseUcDTO baseUcDTO = thorInterfaceService.getRoleInfo( Authorization, name, value);
+            return baseUcDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+    @ApiOperation(value = "查询角色信息接口", notes = "查询角色信息接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "where", value = "a:1:{s:5:\"title\";s:13:\"这是标题1\";}", required = true, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "type", value = "类型1或者2", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/getRoleByWhere", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getRoleByWhere(@RequestHeader String Authorization,
+                                    @RequestParam String where,
+                                    @RequestParam Integer type){
+        try{
+            BaseUcDTO baseUcDTO = thorInterfaceService.getRoleByWhere( Authorization, where, type);
+            return baseUcDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+    @ApiOperation(value = "得到department列表接口", notes = "得到department列表接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "where", value = "a:1:{s:5:\"title\";s:13:\"这是标题1\";}", required = true, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "type", value = "类型1或者2", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/getDepartmentByWhere", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getDepartmentByWhere(@RequestHeader String Authorization,
+                                          @RequestParam String where,
+                                          @RequestParam Integer type){
+        try{
+            BaseUcDTO baseUcDTO = thorInterfaceService.getDepartmentByWhere( Authorization, where, type);
+            return baseUcDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+
+    @ApiOperation(value = "得到下属部门Id接口", notes = "得到下属部门Id接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "department_id", value = "部门编号", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/getSubDepartmentId", method = RequestMethod.POST)
+    @ResponseBody
+    public Object getSubDepartmentId(@RequestHeader String Authorization,
+                                     @RequestParam Integer department_id){
+        try{
+            return thorInterfaceService.getSubDepartmentId( Authorization, department_id);
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+
+    @ApiOperation(value = "得到department列表接口", notes = "得到department列表接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "where", value = "a:1:{s:5:\"title\";s:13:\"这是标题1\";}", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "type", value = "类型1或者2", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/getDepartment", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getDepartment(@RequestHeader String Authorization,
+                                   @RequestParam(required = false) String where,
+                                   @RequestParam Integer type){
+        try{
+            BaseUcDTO baseUcDTO = thorInterfaceService.getDepartment( Authorization, where, type);
+            return baseUcDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+
+    @ApiOperation(value = "得到SubCompanys接口", notes = "得到SubCompanys接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "city", value = "城市", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "where", value = "a:1:{s:5:\"title\";s:13:\"这是标题1\";}", required = true, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "type", value = "类型1或者2", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/getSubCompanys", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getSubCompanys(@RequestHeader String Authorization,
+                                    @RequestParam(required = false) String city,
+                                    @RequestParam String where,
+                                    @RequestParam Integer type){
+        try{
+            BaseUcDTO baseUcDTO = thorInterfaceService.getSubCompanys( Authorization, city, where, type);
+            return baseUcDTO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
+
+    @ApiOperation(value = "得到下属部门列表接口", notes = "得到下属部门列表接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "department_id", value = "部门编号", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "data_type", value = "类型4：查询全部或者其他", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/getSubDepartmentList", method = RequestMethod.POST)
+    @ResponseBody
+    public Object getSubDepartmentList(@RequestHeader String Authorization,
+                                          @RequestParam Integer department_id,
+                                          @RequestParam Integer data_type){
+        try{
+            return thorInterfaceService.getSubDepartmentList( Authorization, department_id, data_type);
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
 
     @ApiOperation(value="根据信息查到用户信息接口", notes="根据信息查到用户信息接口API")
     @ApiImplicitParams({
