@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   cronus:
-    image: 192.168.1.126/library/fjs/cronus:branch1
+    image: 192.168.1.126/library/fjs/cronus-dev:branch1
     deploy:
       replicas: 1
       update_config: 
