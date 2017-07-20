@@ -131,7 +131,91 @@ public interface ThorInterfaceService {
      * @return
      */
     @RequestMapping(value = "/api/v1/getUserNames", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    BaseUcDTO getUserNames(@RequestHeader("Authorization") String token, @RequestParam(value = "user_ids") String user_ids);
+    BaseUcDTO getUserNames(@RequestHeader("Authorization") String token,
+                           @RequestParam(value = "user_ids") String user_ids);
+
+    /**
+     * 查询角色信息
+     * @param token 认证信息
+     * @param name 字段名称
+     * @param value 字段值
+     */
+    @RequestMapping(value = "/api/v1/getRoleInfo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO getRoleInfo(@RequestHeader("Authorization") String token,
+                          @RequestParam(value = "name") String name,
+                          @RequestParam(value = "value") Integer value);
+
+    /**
+     * 查询角色信息
+     * @param token 认证信息
+     * @param where
+     * @param type 类型1或者2
+     */
+    @RequestMapping(value = "/api/v1/getRoleByWhere", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO getRoleByWhere(@RequestHeader("Authorization") String token,
+                             @RequestParam(value = "where") String where,
+                             @RequestParam(value = "type") Integer type);
+
+    /**
+     * 得到department列表
+     * @param token 认证信息
+     * @param where
+     * @param type 类型1或者2
+     */
+    @RequestMapping(value = "/api/v1/getDepartmentByWhere", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO getDepartmentByWhere(@RequestHeader("Authorization") String token,
+                                   @RequestParam(value = "where") String where,
+                                   @RequestParam(value = "type") Integer type);
+
+
+    /**
+     * 得到下属部门Id
+     * @param token 认证信息
+     * @param department_id 部门编号
+     */
+    @RequestMapping(value = "/api/v1/getSubDepartmentId", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    List getSubDepartmentId(@RequestHeader("Authorization") String token,
+                            @RequestParam(value = "department_id") Integer department_id);
+
+
+    /**
+     * 得到department列表
+     * @param token 认证信息
+     * @param where
+     * @param type 类型1或者2
+     */
+    @RequestMapping(value = "/api/v1/getDepartment", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO getDepartment(@RequestHeader("Authorization") String token,
+                            @RequestParam(value = "where") String where,
+                            @RequestParam(value = "type") Integer type);
+
+
+    /**
+     * 得到SubCompanys
+     * @param token 认证信息
+     * @param city 城市
+     * @param where
+     * @param type 类型1或者2
+     */
+    @RequestMapping(value = "/api/v1/getSubCompanys", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO getSubCompanys(@RequestHeader("Authorization") String token,
+                             @RequestParam(value = "city") String city,
+                             @RequestParam(value = "where") String where,
+                             @RequestParam(value = "type") Integer type);
+
+
+    /**
+     * 得到下属部门列表
+     * @param token 认证信息
+     * @param department_id 部门编号
+     * @param data_type 类型4：查询全部或者其他
+     */
+    @RequestMapping(value = "/api/v1/getSubDepartmentList", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    List getSubDepartmentList(@RequestHeader("Authorization") String token,
+                              @RequestParam(value = "department_id") Integer department_id,
+                              @RequestParam(value = "data_type") Integer data_type);
+
+
 
     /**
      * 根据信息查到用户信息
