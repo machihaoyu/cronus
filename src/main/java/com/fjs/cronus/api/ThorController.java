@@ -3,7 +3,6 @@ package com.fjs.cronus.api;
 import com.fjs.cronus.dto.uc.AllUserDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.PhpQueryResultDTO;
-import com.fjs.cronus.dto.uc.SwitchSystemDTO;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
