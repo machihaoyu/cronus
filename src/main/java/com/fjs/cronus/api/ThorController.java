@@ -2,7 +2,6 @@ package com.fjs.cronus.api;
 
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.PhpQueryResultDTO;
-import com.fjs.cronus.dto.uc.UserModelDTO;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 /**
  * Created by Administrator on 2017/7/19 0019.
@@ -48,8 +46,8 @@ public class ThorController {
 
     @ApiOperation(value="根据用户id集合得到对应员工姓名JSON接口", notes="根据用户id集合得到对应员工姓名JSON接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
-            @ApiImplicitParam(name = "user_ids", value = "用户编号，逗号隔开", required = true, paramType = "query",  dataType = "string")
+        @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+        @ApiImplicitParam(name = "user_ids", value = "用户编号，逗号隔开", required = true, paramType = "query",  dataType = "string")
     })
     @RequestMapping(value = "/api/v1/getUserNames", method = RequestMethod.POST)
     @ResponseBody
@@ -66,10 +64,10 @@ public class ThorController {
 
     @ApiOperation(value="根据信息查到用户信息接口", notes="根据信息查到用户信息接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
-            @ApiImplicitParam(name = "department_id", value = "部门编号", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "sub_company_id", value = "分公司Id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "role_id", value = "角色id", required = true, paramType = "query", dataType = "int"),
+        @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+        @ApiImplicitParam(name = "department_id", value = "部门编号", required = true, paramType = "query", dataType = "int"),
+        @ApiImplicitParam(name = "sub_company_id", value = "分公司Id", required = true, paramType = "query", dataType = "int"),
+        @ApiImplicitParam(name = "role_id", value = "角色id", required = true, paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/api/v1/getUserListByRoles",method = RequestMethod.POST)
     @ResponseBody
@@ -89,15 +87,14 @@ public class ThorController {
 
     @ApiOperation(value="根据信息查到用户id集合查询用户信息接口", notes="根据信息查到用户id集合查询用户信息接口API")
     @ApiImplicitParams({
-
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
-            @ApiImplicitParam(name = "user_ids", value = "用户编号", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "department_ids", value = "部门编号", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "sub_company_id", value = "分公司编号编号", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "flag", value = "eqh或者neq", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "page", value = "页数", required = false, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "size", value = "每页显示", required = false, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "name", value = "用户姓名", required = false, paramType = "query", dataType = "String"),
+        @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+        @ApiImplicitParam(name = "user_ids", value = "用户编号", required = false, paramType = "query", dataType = "String"),
+        @ApiImplicitParam(name = "department_ids", value = "部门编号", required = false, paramType = "query", dataType = "String"),
+        @ApiImplicitParam(name = "sub_company_id", value = "分公司编号编号", required = false, paramType = "query", dataType = "String"),
+        @ApiImplicitParam(name = "flag", value = "eqh或者neq", required = false, paramType = "query", dataType = "String"),
+        @ApiImplicitParam(name = "page", value = "页数", required = false, paramType = "query", dataType = "int"),
+        @ApiImplicitParam(name = "size", value = "每页显示", required = false, paramType = "query", dataType = "int"),
+        @ApiImplicitParam(name = "name", value = "用户姓名", required = false, paramType = "query", dataType = "String"),
     })
     @RequestMapping(value = "/api/v1/getUserInfoByIds",method = RequestMethod.POST)
     @ResponseBody
@@ -121,10 +118,10 @@ public class ThorController {
 
     @ApiOperation(value="通过用户属性得到用户信息接口", notes="通过用户属性得到用户信息接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
-            @ApiImplicitParam(name = "telephone", value = "手机号", required = false, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "user_id", value = "用户编号", required = false, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "name", value = "用户姓名", required = false, paramType = "query", dataType = "String"),
+        @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+        @ApiImplicitParam(name = "telephone", value = "手机号", required = false, paramType = "query", dataType = "String"),
+        @ApiImplicitParam(name = "user_id", value = "用户编号", required = false, paramType = "query", dataType = "int"),
+        @ApiImplicitParam(name = "name", value = "用户姓名", required = false, paramType = "query", dataType = "String"),
     })
     @RequestMapping(value = "/api/v1/getUserInfoByField",method = RequestMethod.POST)
     @ResponseBody
@@ -143,11 +140,11 @@ public class ThorController {
 
     @ApiOperation(value="得到用户到列表接口", notes="得到用户到列表接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
-            @ApiImplicitParam(name = "page", value = "page", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "size", value = "size", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "where", value = "a:1:{s:5:\"title\";s:13:\"这是标题1\";}", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "type", value = "类型1或者2", required = true, paramType = "query", dataType = "int")
+        @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+        @ApiImplicitParam(name = "page", value = "page", required = true, paramType = "query", dataType = "int"),
+        @ApiImplicitParam(name = "size", value = "size", required = true, paramType = "query", dataType = "int"),
+        @ApiImplicitParam(name = "where", value = "a:1:{s:5:\"title\";s:13:\"这是标题1\";}", required = false, paramType = "query", dataType = "string"),
+        @ApiImplicitParam(name = "type", value = "类型1或者2", required = true, paramType = "query", dataType = "int")
     })
     @RequestMapping(value = "/api/v1/getUserInfo",method = RequestMethod.POST)
     @ResponseBody
@@ -184,8 +181,8 @@ public class ThorController {
 
     @ApiOperation(value="根据业务员id查询所属的团队长接口", notes="根据业务员id查询所属的团队长接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
-            @ApiImplicitParam(name = "user_id", value = "用户编号", required = true, paramType = "body", dataType = "Integer"),
+        @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+        @ApiImplicitParam(name = "user_id", value = "用户编号", required = true, paramType = "body", dataType = "Integer"),
     })
     @RequestMapping(value = "/api/v1/getUpTdz",method = RequestMethod.POST)
     @ResponseBody

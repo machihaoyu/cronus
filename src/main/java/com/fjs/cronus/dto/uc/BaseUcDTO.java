@@ -1,7 +1,6 @@
 package com.fjs.cronus.dto.uc;
 
 import com.fjs.cronus.util.StringAsciiUtil;
-import com.fjs.framework.exception.ResponseError;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
