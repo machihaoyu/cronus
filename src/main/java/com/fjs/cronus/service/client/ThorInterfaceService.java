@@ -1,11 +1,7 @@
 package com.fjs.cronus.service.client;
 
 import com.fjs.cronus.config.FeignClientConfig;
-import com.fjs.cronus.dto.uc.AllUserDTO;
-import com.fjs.cronus.dto.uc.BaseUcDTO;
-import com.fjs.cronus.dto.uc.PhpQueryResultDTO;
-import com.fjs.cronus.dto.uc.SwitchSystemDTO;
-import com.fjs.cronus.dto.uc.UserModelDTO;
+import com.fjs.cronus.dto.uc.*;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +15,18 @@ import java.util.Map;
  */
 @FeignClient(value = "${client.feign.thor-backend}", configuration = FeignClientConfig.class)
 public interface ThorInterfaceService {
+
+
+    /**
+     * 登录系统带用户情报
+     * @param username 用户名
+     * @param password 密码
+     * @param system 系统名
+     */
+    @RequestMapping(value = "/loginWithUserInfo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)//TODO uc并未指派请求类型，暂时用post请求
+    PhpLoginDTO loginWithUserInfo(@RequestParam(value = "username") String username,
+                                  @RequestParam(value = "password") String password,
+                                  @RequestParam(value = "system") String system);
 
 
     /**
@@ -355,6 +363,15 @@ public interface ThorInterfaceService {
     BaseUcDTO getSubUserByTDZ(@RequestHeader("Authorization") String token,
                               @RequestParam(value = "user_id", defaultValue = "0", required = false) Integer user_id,
                               @RequestParam(value = "department_id", defaultValue = "0", required = false)Integer department_id);
+
+
+    /**
+     * 获取所有业务员的信息（包括团队长）
+     * @param token 认证信息
+     */
+    @RequestMapping(value = "/api/v1/getUpYwyByRole_id",method = RequestMethod.GET)
+    BaseUcDTO getUpYwyByRole_id(@RequestHeader("Authorization") String token);
+
 }
 
 
