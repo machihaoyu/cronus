@@ -65,8 +65,7 @@ public class FeignClientConfig {
                     localToken = star[0].toString();
                 }
                 if (StringUtils.isNotEmpty(localToken)) {
-                    requestTemplate.header("Authorization",
-                            "bearer " + localToken);
+                    requestTemplate.header("Authorization", localToken);
                 }
             }
         };
