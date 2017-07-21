@@ -50,7 +50,7 @@ public class ThorController {
 
     @ApiOperation(value="验证手机号是否被注册接口", notes="验证手机号是否被注册接口API")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+        @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
         @ApiImplicitParam(name = "phone", value = "手机号码", required = true, paramType = "query",  dataType = "string")
     })
     @RequestMapping(value = "/api/v1/checkMobile", method = RequestMethod.POST)
@@ -69,7 +69,7 @@ public class ThorController {
 
     @ApiOperation(value="根据用户id集合得到对应员工姓名JSON接口", notes="根据用户id集合得到对应员工姓名JSON接口API")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+        @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
         @ApiImplicitParam(name = "user_ids", value = "用户编号，逗号隔开", required = true, paramType = "query",  dataType = "string")
     })
     @RequestMapping(value = "/api/v1/getUserNames", method = RequestMethod.POST)
@@ -86,7 +86,7 @@ public class ThorController {
 
     @ApiOperation(value = "检查是否是业务员接口",notes = "检查是否是业务员接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "id", value = "编号", required = true, paramType = "query", dataType = "int")
     })
     @RequestMapping(value = "/api/v1/checkIfSaler",method = RequestMethod.POST)
@@ -119,7 +119,7 @@ public class ThorController {
 
     @ApiOperation(value = "修改密码接口", notes = "修改密码接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "user_id", value = "用户编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "old_pw", value = "原密码", required = true, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "new_pw", value = "新密码", required = true, paramType = "query", dataType = "string"),
@@ -139,7 +139,7 @@ public class ThorController {
 
     @ApiOperation(value = "编辑用户信息接口", notes = "编辑用户信息接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "user_id", value = "用户编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "sex", value = "性别", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "email", value = "邮箱", required = false, paramType = "query", dataType = "string"),
@@ -165,7 +165,7 @@ public class ThorController {
 
     @ApiOperation(value = "得到所有分公司业务员操作接口", notes = "得到所有分公司业务员操作接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "city", value = "例如city=上海市", required = false, paramType = "query", dataType = "string")
     })
     @RequestMapping(value = "/api/v1/getAllSalesman", method = RequestMethod.POST)
@@ -182,7 +182,7 @@ public class ThorController {
 
     @ApiOperation(value = "得到所有业务员不包括userId接口", notes = "得到所有业务员不包括userId接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "user_id", value = "用户编号", required = true, paramType = "query", dataType = "int")
     })
     @RequestMapping(value = "/api/v1/getAllUser", method = RequestMethod.POST)
@@ -199,7 +199,7 @@ public class ThorController {
 
     @ApiOperation(value = "得到员工所在地址接口", notes = "得到员工所在地址接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "user_id", value = "用户编号", required = false, paramType = "query", dataType = "int")
     })
     @RequestMapping(value = "/api/v1/getCityByUserid", method = RequestMethod.POST)
@@ -216,7 +216,7 @@ public class ThorController {
 
     @ApiOperation(value = "获取员工信息接口", notes = "获取员工信息接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "user_id", value = "用户编号", required = false, paramType = "query", dataType = "string")
     })
     @RequestMapping(value = "/api/v1/getRoleInfoByUser_id", method = RequestMethod.POST)
@@ -234,7 +234,7 @@ public class ThorController {
 
     @ApiOperation(value = "查询业务员信息接口", notes = "查询业务员信息接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "user_id", value = "用户编号", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "name", value = "姓名", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "company_id", value = "分公司Id", required = false, paramType = "query", dataType = "int")
@@ -253,7 +253,7 @@ public class ThorController {
 
     @ApiOperation(value = "根据手机号得到业务员信息接口", notes = "根据手机号得到业务员信息接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "phone", value = "手机号", required = true, paramType = "query", dataType = "string")
     })
     @RequestMapping(value = "/api/v1/getSalesmanByPhone", method = RequestMethod.POST)
@@ -270,7 +270,7 @@ public class ThorController {
 
     @ApiOperation(value = "查询角色信息接口", notes = "查询角色信息接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "name", value = "字段名称", required = true, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "value", value = "字段值", required = true, paramType = "query", dataType = "int")
     })
@@ -290,7 +290,7 @@ public class ThorController {
 
     @ApiOperation(value = "查询角色信息接口", notes = "查询角色信息接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "where", value = "a:1:{s:5:\"title\";s:13:\"这是标题1\";}", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "type", value = "类型1或者2", required = true, paramType = "query", dataType = "int")
     })
@@ -310,7 +310,7 @@ public class ThorController {
 
     @ApiOperation(value = "得到department列表接口", notes = "得到department列表接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "where", value = "a:1:{s:5:\"title\";s:13:\"这是标题1\";}", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "type", value = "类型1或者2", required = true, paramType = "query", dataType = "int")
     })
@@ -331,7 +331,7 @@ public class ThorController {
 
     @ApiOperation(value = "得到下属部门Id接口", notes = "得到下属部门Id接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "department_id", value = "部门编号", required = true, paramType = "query", dataType = "int")
     })
     @RequestMapping(value = "/api/v1/getSubDepartmentId", method = RequestMethod.POST)
@@ -349,7 +349,7 @@ public class ThorController {
 
     @ApiOperation(value = "得到department列表接口", notes = "得到department列表接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "where", value = "a:1:{s:5:\"title\";s:13:\"这是标题1\";}", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "type", value = "类型1或者2", required = true, paramType = "query", dataType = "int")
     })
@@ -370,7 +370,7 @@ public class ThorController {
 
     @ApiOperation(value = "得到SubCompanys接口", notes = "得到SubCompanys接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "city", value = "城市", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "where", value = "a:1:{s:5:\"title\";s:13:\"这是标题1\";}", required = true, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "type", value = "类型1或者2", required = true, paramType = "query", dataType = "int")
@@ -393,7 +393,7 @@ public class ThorController {
 
     @ApiOperation(value = "得到下属部门列表接口", notes = "得到下属部门列表接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "department_id", value = "部门编号", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "data_type", value = "类型4：查询全部或者其他", required = true, paramType = "query", dataType = "int")
     })
@@ -413,7 +413,7 @@ public class ThorController {
 
     @ApiOperation(value="根据信息查到用户信息接口", notes="根据信息查到用户信息接口API")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+        @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
         @ApiImplicitParam(name = "department_id", value = "部门编号", required = true, paramType = "query", dataType = "int"),
         @ApiImplicitParam(name = "sub_company_id", value = "分公司Id", required = true, paramType = "query", dataType = "int"),
         @ApiImplicitParam(name = "role_id", value = "角色id", required = true, paramType = "query", dataType = "int"),
@@ -436,7 +436,7 @@ public class ThorController {
 
     @ApiOperation(value="根据信息查到用户id集合查询用户信息接口", notes="根据信息查到用户id集合查询用户信息接口API")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+        @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
         @ApiImplicitParam(name = "user_ids", value = "用户编号", required = false, paramType = "query", dataType = "String"),
         @ApiImplicitParam(name = "department_ids", value = "部门编号", required = false, paramType = "query", dataType = "String"),
         @ApiImplicitParam(name = "sub_company_id", value = "分公司编号编号", required = false, paramType = "query", dataType = "String"),
