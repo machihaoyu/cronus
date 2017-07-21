@@ -2,6 +2,7 @@ package com.fjs.cronus.api;
 
 import com.fjs.cronus.dto.uc.AllUserDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
+import com.fjs.cronus.dto.uc.PhpLoginDTO;
 import com.fjs.cronus.dto.uc.PhpQueryResultDTO;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -24,6 +25,27 @@ public class ThorController {
 
     @Autowired
     ThorInterfaceService thorInterfaceService;
+
+
+    @ApiOperation(value="登录系统带用户情报接口", notes="登录系统带用户情报接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", value = "用户名", required = true, paramType = "query",  dataType = "string"),
+            @ApiImplicitParam(name = "password", value = "密码", required = true, paramType = "query",  dataType = "string"),
+            @ApiImplicitParam(name = "system", value = "系统名", required = true, paramType = "query",  dataType = "string")
+    })
+    @RequestMapping(value = "/loginWithUserInfo", method = RequestMethod.POST)//TODO 不确定请求方式，暂用post请求;
+    @ResponseBody
+    public Object loginWithUserInfo(@RequestParam String username,
+                                    @RequestParam String password,
+                                    @RequestParam String system) {
+        try {
+            PhpLoginDTO phpLoginDTO = thorInterfaceService.loginWithUserInfo(username, password, system);
+            return phpLoginDTO;
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            return new BaseUcDTO(9000,  e.getMessage(), null);
+        }
+    }
 
 
     @ApiOperation(value="验证手机号是否被注册接口", notes="验证手机号是否被注册接口API")
@@ -578,6 +600,20 @@ public class ThorController {
                                      @RequestParam(value = "department_id",defaultValue = "0",required = false) Integer department_id) {
         try {
             return thorInterfaceService.getSubUserByTDZ(Authorization, user_id, department_id);
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(), e);
+            return new BaseUcDTO(9000,  e.getMessage(), null);
+        }
+    }
+
+
+    @ApiOperation(value="得到团队长下业务员操作接口", notes="得到团队长下业务员操作接口API")
+    @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")
+    @RequestMapping(value = "/api/v1/getUpYwyByRole_id",method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getUpYwyByRole_id(@RequestHeader String Authorization) {
+        try {
+            return thorInterfaceService.getUpYwyByRole_id(Authorization);
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
             return new BaseUcDTO(9000,  e.getMessage(), null);
