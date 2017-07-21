@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * UC用户中心接口
@@ -36,7 +37,7 @@ public interface ThorInterfaceService {
      * @param id 编号
      */
     @RequestMapping(value = "/api/v1/checkIfSaler", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    BaseUcDTO postUcForCheckedSaler(@RequestHeader("Authorization") String token, @RequestParam(value = "id") Integer id);
+    Map<String ,Object> postUcForCheckedSaler(@RequestHeader("Authorization") String token, @RequestParam(value = "id") Integer id);
 
     /**
      * 验证用户权限
@@ -99,11 +100,10 @@ public interface ThorInterfaceService {
     /**
      * 获取员工信息
      * @param token 认证信息
-     * @param user_id
-     * @param user_ids 用户编号
+     * @param user_id 用户编号
      */
     @RequestMapping(value = "/api/v1/getRoleInfoByUser_id", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    BaseUcDTO getRoleInfoByUser_id(@RequestHeader("Authorization") String token, @RequestParam(value = "user_id") String user_id, @RequestParam(value = "user_ids") String user_ids);
+    BaseUcDTO getRoleInfoByUser_id(@RequestHeader("Authorization") String token, @RequestParam(value = "user_id") String user_id);
 
     /**
      * 查询业务员信息
