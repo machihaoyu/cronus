@@ -17,7 +17,7 @@ import java.util.Map;
  * UC用户中心接口
  * Created by Administrator on 2017/7/19 0019.
  */
-@FeignClient(value = "thor-backend-dev", configuration = FeignClientConfig.class)  //TODO 换成配置
+@FeignClient(value = "${feign.thor.name}", configuration = FeignClientConfig.class)
 public interface ThorInterfaceService {
 
 

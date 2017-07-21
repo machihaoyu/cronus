@@ -33,7 +33,7 @@ public class SaasController {
     RestTemplate restTemplate;
 
     @ApiOperation(value="Saas首页数据", notes="Saas首页数据接口API")
-    @RequestMapping(value = "/api/v1/getSaasIndexData", method = RequestMethod.GET)
+    @RequestMapping(value = "/apiwithout/v1/getSaasIndexData", method = RequestMethod.GET)
     @ResponseBody
     public SaasApiDTO getSaasIndexData() {
         try {
