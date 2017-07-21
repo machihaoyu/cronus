@@ -37,7 +37,11 @@ public class BaseUcDTO<T> implements Serializable {
                 this.errMsg = errMsg;
             }
         }
-        this.retData = obj;
+        if (null == obj) {
+            this.retData = (T)"";
+        } else {
+            this.retData = obj;
+        }
     }
 
     public String getErrMsg() {
