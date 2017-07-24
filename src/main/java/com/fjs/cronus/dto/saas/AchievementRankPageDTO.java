@@ -10,17 +10,28 @@ public class AchievementRankPageDTO implements Serializable {
 
     private static final long serialVersionUID = -7203877309487034645L;
 
-    private List<AchievementRankDTO> dpage;
+    private List<AchievementRankDTO> data;
+
+    private AchievementRankDTO self;
+
     private String p;
     private String total;
     private String perpage;
 
-    public List<AchievementRankDTO> getDpage() {
-        return dpage;
+    public List<AchievementRankDTO> getData() {
+        return data;
     }
 
-    public void setDpage(List<AchievementRankDTO> dpage) {
-        this.dpage = dpage;
+    public void setData(List<AchievementRankDTO> data) {
+        this.data = data;
+    }
+
+    public AchievementRankDTO getSelf() {
+        return self;
+    }
+
+    public void setSelf(AchievementRankDTO self) {
+        this.self = self;
     }
 
     public String getP() {
