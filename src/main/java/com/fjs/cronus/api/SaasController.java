@@ -81,7 +81,7 @@ public class SaasController {
     @ApiOperation(value="获取'我的'业绩排行", notes="获取'我的'业绩排行接口API")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer test8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
-        @ApiImplicitParam(name = "achievementRankParamDTO", value = "每页的个数", required = true, paramType = "body",  dataType = "AchievementRankParamDTO")
+        @ApiImplicitParam(name = "achievementRankParamDTO", value = "type(1-团队,2-公司,3-城市,4-国家);page页码;perpage每页的个数;user_id用户编码", required = true, paramType = "body",  dataType = "AchievementRankParamDTO")
     })
     @RequestMapping(value = "/api/v1/getCrmAchievementRank", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
@@ -93,6 +93,7 @@ public class SaasController {
             param.add("type",achievementRankParamDTO.getType());
             param.add("page", achievementRankParamDTO.getPage());
             param.add("perpage", achievementRankParamDTO.getPerpage());
+            param.add("user_id", achievementRankParamDTO.getUserId());
 
             String str = restTemplate.postForObject(url, param, String.class);
             ResponseData data = JSON.parseObject(str, ResponseData.class);
