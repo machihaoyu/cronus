@@ -3,7 +3,7 @@ services:
   cronus:
     image: 192.168.1.126/library/fjs/cronus:branch1
     deploy:
-      replicas: 2
+      replicas: 1
       update_config: 
         parallelism: 1   
         delay: 2s        
