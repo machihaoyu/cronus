@@ -18,6 +18,7 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.exception.ExceptionValidate;
 import com.fjs.cronus.util.DownloadFileUtil;
 import com.fjs.cronus.util.StringAsciiUtil;
+import com.sun.org.apache.xpath.internal.operations.Mult;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -1345,6 +1346,25 @@ public class CrmController {
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         return JSON.parseObject(data.getRetData(),Float.class);
+    }
+
+
+    /**
+     * 改变自动分配客户的状态
+     * @param userId 当前登录用户id
+     * @param customerId 操作的自动分配的客户的id
+     */
+    @RequestMapping(value = "/clickCommunitButton",method = RequestMethod.POST)
+    public void clickCommunitButton(@RequestParam Integer userId,
+                                    @RequestParam Integer customerId){
+        String url = saleUrl + "clickCommunitButton";
+        MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
+        param.add("key",saleKey);
+        param.add("user_id",userId);
+        param.add("customer_id",customerId);
+        String res = restTemplate.postForObject(url, param, String.class);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
+        validateResponse(data);
     }
 
     //根据当前登录用户id获得用户信息;

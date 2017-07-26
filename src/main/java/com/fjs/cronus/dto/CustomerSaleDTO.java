@@ -63,6 +63,33 @@ public class CustomerSaleDTO implements Serializable{
     private String ext;// text,
     private String has_agreement; //
     private String useful;//":0
+    private Integer has_operate;//自动分配客户是否进行了操作，0：没有操作；1：已经进行了操作;
+    private Integer confirm;// int(11) DEFAULT '1' COMMENT '确认状态(1-没有确认,2-有效客户,3-无效客户,4-老客户无需确认)'
+    private Integer can_retain;//can_retain为1就是能保留,can_retain为0就是不能保留
+
+    public Integer getCan_retain() {
+        return can_retain;
+    }
+
+    public void setCan_retain(Integer can_retain) {
+        this.can_retain = can_retain;
+    }
+
+    public Integer getHas_operate() {
+        return has_operate;
+    }
+
+    public void setHas_operate(Integer has_operate) {
+        this.has_operate = has_operate;
+    }
+
+    public Integer getConfirm() {
+        return confirm;
+    }
+
+    public void setConfirm(Integer confirm) {
+        this.confirm = confirm;
+    }
 
     private LatestCommunicatLogDTO newestCommunicat_log; //最新一条沟通日志记录
 
