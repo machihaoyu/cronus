@@ -151,7 +151,19 @@ public interface ThorInterfaceService {
     @RequestMapping(value = "/api/v1/getRoleInfo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     BaseUcDTO getRoleInfo(@RequestHeader("Authorization") String token,
                           @RequestParam(value = "name") String name,
-                          @RequestParam(value = "value") Integer value);
+                          @RequestParam(value = "value") String value);
+
+    /**
+     * 获取用户集合
+     * @param token
+     * @param company_id
+     * @param department_id
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getUserIds", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO getUserIds(@RequestHeader("Authorization") String token,
+                         @RequestParam(value = "company_id") Integer company_id,
+                         @RequestParam(value = "department_id") Integer department_id);
 
     /**
      * 查询角色信息
@@ -311,6 +323,17 @@ public interface ThorInterfaceService {
     BaseUcDTO getUpTdzByRole_id(@RequestHeader("Authorization") String token);
 
 
+    /**
+     * 获取团队长下用户信息成功
+     * @see /swagger-ui.html#!/php-api-user-controller/getCRMUserUsingGET
+     * @param token 认证信息
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getCRMUser",method = RequestMethod.GET)
+    @ResponseBody
+    BaseUcDTO<List<CrmUserDTO>> getCRMUser(@RequestHeader("Authorization") String token);
+
+
 
     /**
      * 查询此业务员的团队长
@@ -320,7 +343,7 @@ public interface ThorInterfaceService {
      * @return
      */
     @RequestMapping(value = "/api/v1/getUpTdz",method = RequestMethod.POST)
-    List<UserModelDTO> getUpTdz(@RequestHeader("Authorization") String token,
+    UserModelDTO getUpTdz(@RequestHeader("Authorization") String token,
                                 @RequestParam(value = "user_id",defaultValue ="0",required = false) Integer user_id);
 
 

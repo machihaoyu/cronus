@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 /**
  * Created by Administrator on 2017/7/19 0019.
  */
@@ -275,13 +274,13 @@ public class ThorController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "name", value = "字段名称", required = true, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "value", value = "字段值", required = true, paramType = "query", dataType = "int")
+            @ApiImplicitParam(name = "value", value = "字段值", required = true, paramType = "query", dataType = "string")
     })
     @RequestMapping(value = "/api/v1/getRoleInfo", method = RequestMethod.POST)
     @ResponseBody
     public BaseUcDTO getRoleInfo(@RequestHeader String Authorization,
                                  @RequestParam String name,
-                                 @RequestParam Integer value){
+                                 @RequestParam String value){
         try{
             BaseUcDTO baseUcDTO = thorInterfaceService.getRoleInfo( Authorization, name, value);
             return baseUcDTO;
@@ -290,6 +289,27 @@ public class ThorController {
             return new BaseUcDTO(9000,e.getMessage(),null);
         }
     }
+
+
+    @ApiOperation(value = "根据部门iD或分公司ID获取用户集合接口", notes = "根据部门iD或分公司ID获取用户集合接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "token信息", required = true, paramType = "header", defaultValue = "Bearer 8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
+            @ApiImplicitParam(name = "company_id", value = "分公司Id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "department_id", value = "部门id", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/getUserIds", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseUcDTO getRoleInfo(@RequestHeader String Authorization,
+                                 @RequestParam Integer company_id,
+                                 @RequestParam Integer department_id){
+        try{
+            return thorInterfaceService.getUserIds(Authorization, company_id, department_id);
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            return new BaseUcDTO(9000,e.getMessage(),null);
+        }
+    }
+
 
     @ApiOperation(value = "查询角色信息接口", notes = "查询角色信息接口API")
     @ApiImplicitParams({
@@ -540,8 +560,24 @@ public class ThorController {
     @ResponseBody
     public Object getUpTdz(@RequestHeader String Authorization, @RequestParam(required = false) Integer user_id){
         try {
-            List<UserModelDTO> upTdz = thorInterfaceService.getUpTdz(Authorization, user_id);
-            return upTdz;
+            UserModelDTO upTdz = thorInterfaceService.getUpTdz(Authorization, user_id);
+            return new BaseUcDTO(0,  null, upTdz);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            return new BaseUcDTO(9000,  e.getMessage(), null);
+        }
+    }
+
+    @ApiOperation(value="获取团队长下用户信息接口", notes="获取团队长下用户信息接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")
+    })
+    @RequestMapping(value = "/api/v1/getCRMUser",method = RequestMethod.GET)
+    @ResponseBody
+    public Object getCRMUser(@RequestHeader String Authorization, @RequestParam(required = false) Integer user_id){
+        try {
+            BaseUcDTO<List<CrmUserDTO>> crmUser = thorInterfaceService.getCRMUser(Authorization);
+            return new BaseUcDTO(0,  null, crmUser.getRetData());
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return new BaseUcDTO(9000,  e.getMessage(), null);
@@ -613,7 +649,7 @@ public class ThorController {
 
     @ApiOperation(value="得到团队长下业务员操作接口", notes="得到团队长下业务员操作接口API")
     @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")
-    @RequestMapping(value = "/api/v1/getUpYwyByRole_id",method = RequestMethod.POST)
+    @RequestMapping(value = "/api/v1/getUpYwyByRole_id",method = RequestMethod.GET)
     @ResponseBody
     public BaseUcDTO getUpYwyByRole_id(@RequestHeader String Authorization) {
         try {
