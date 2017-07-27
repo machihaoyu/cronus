@@ -77,16 +77,10 @@ public class SaasController {
     @RequestMapping(value = "/api/v1/getCrmAchievementRank", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public SaasApiDTO getCrmAchievementRank(@RequestBody AchievementRankParamDTO achievementRankParamDTO) {
-        String url = saleUrl + "getAchievementRanking";
-        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-        param.add("key",saasKey);
-        param.add("type",achievementRankParamDTO.getType());
-        param.add("page", achievementRankParamDTO.getPage());
-        param.add("perpage", achievementRankParamDTO.getPerpage());
-        param.add("user_id", achievementRankParamDTO.getUserId());
-
-        String str = restTemplate.postForObject(url, param, String.class);
-        ResponseData data = JSON.parseObject(str, ResponseData.class);
+        String url = saleUrl + "getAchievementRanking?key=" + saasKey + "&type=" + achievementRankParamDTO.getType() + "&page=" + achievementRankParamDTO.getPage() +
+                        "&perpage=" + achievementRankParamDTO.getPerpage() + "&user_id=" + achievementRankParamDTO.getUserId();
+        String res = restTemplate.getForObject(url, String.class);
+        ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         AchievementRankPageDTO dto = JSONObject.parseObject(data.getRetData(), AchievementRankPageDTO.class);
         if (null == dto) dto = new AchievementRankPageDTO();
