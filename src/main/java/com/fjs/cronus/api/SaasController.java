@@ -38,17 +38,12 @@ public class SaasController {
     @RequestMapping(value = "/apiwithout/v1/getSaasIndexData", method = RequestMethod.GET)
     @ResponseBody
     public SaasApiDTO getSaasIndexData() {
-        try {
-            String url = saleUrl + "crmCountData?key=" + saasKey;
-            String res = restTemplate.getForObject(url, String.class);
-            ResponseData data = JSONObject.parseObject(res, ResponseData.class);
-            validateResponse(data);
-            SaasIndexDTO saasIndexDTO = JSON.parseObject(data.getRetData(), SaasIndexDTO.class);
-            return new SaasApiDTO(0, null, saasIndexDTO);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            return new SaasApiDTO(8000, e.getMessage(), null);
-        }
+        String url = saleUrl + "crmCountData?key=" + saasKey;
+        String res = restTemplate.getForObject(url, String.class);
+        ResponseData data = JSONObject.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        SaasIndexDTO saasIndexDTO = JSON.parseObject(data.getRetData(), SaasIndexDTO.class);
+        return new SaasApiDTO(0, null, saasIndexDTO);
     }
 
     /**
@@ -62,17 +57,13 @@ public class SaasController {
     @RequestMapping(value = "/api/v1/getCrmAchievement", method = RequestMethod.GET)
     @ResponseBody
     public SaasApiDTO getCrmAchievement(@RequestParam String userId) {
-        try {
-            String url = saleUrl + "getMyData?key=" + saasKey + "&user_id=" + userId;
-            String res = restTemplate.getForObject(url, String.class);
-            ResponseData data = JSONObject.parseObject(res, ResponseData.class);
-            validateResponse(data);
-            MineAchievementDTO mineAchievementDTO = JSON.parseObject(data.getRetData(), MineAchievementDTO.class);
-            return new SaasApiDTO(0, null, mineAchievementDTO);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            return new SaasApiDTO(8001, e.getMessage(), null);
-        }
+        String url = saleUrl + "getMyData?key=" + saasKey + "&user_id=" + userId;
+        String res = restTemplate.getForObject(url, String.class);
+        ResponseData data = JSONObject.parseObject(res, ResponseData.class);
+        validateResponse(data);
+        MineAchievementDTO mineAchievementDTO = JSON.parseObject(data.getRetData(), MineAchievementDTO.class);
+        return new SaasApiDTO(0, null, mineAchievementDTO);
+
     }
 
     /**
@@ -86,25 +77,20 @@ public class SaasController {
     @RequestMapping(value = "/api/v1/getCrmAchievementRank", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public SaasApiDTO getCrmAchievementRank(@RequestBody AchievementRankParamDTO achievementRankParamDTO) {
-        try {
-            String url = saleUrl + "getAchievementRanking";
-            MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-            param.add("key",saasKey);
-            param.add("type",achievementRankParamDTO.getType());
-            param.add("page", achievementRankParamDTO.getPage());
-            param.add("perpage", achievementRankParamDTO.getPerpage());
-            param.add("user_id", achievementRankParamDTO.getUserId());
+        String url = saleUrl + "getAchievementRanking";
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("key",saasKey);
+        param.add("type",achievementRankParamDTO.getType());
+        param.add("page", achievementRankParamDTO.getPage());
+        param.add("perpage", achievementRankParamDTO.getPerpage());
+        param.add("user_id", achievementRankParamDTO.getUserId());
 
-            String str = restTemplate.postForObject(url, param, String.class);
-            ResponseData data = JSON.parseObject(str, ResponseData.class);
-            validateResponse(data);
-            AchievementRankPageDTO dto = JSONObject.parseObject(data.getRetData(), AchievementRankPageDTO.class);
-            if (null == dto) dto = new AchievementRankPageDTO();
-            return new SaasApiDTO(0, null, dto);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            return new SaasApiDTO(8001, e.getMessage(), null);
-        }
+        String str = restTemplate.postForObject(url, param, String.class);
+        ResponseData data = JSON.parseObject(str, ResponseData.class);
+        validateResponse(data);
+        AchievementRankPageDTO dto = JSONObject.parseObject(data.getRetData(), AchievementRankPageDTO.class);
+        if (null == dto) dto = new AchievementRankPageDTO();
+        return new SaasApiDTO(0, null, dto);
     }
 
 
