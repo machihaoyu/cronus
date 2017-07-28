@@ -16,6 +16,7 @@ public class CronusException extends BaseException {
          * 短息发送失败
          */
         SYSTEM_CRM_ERROR("5001", "CRONUS_SYSTEM_CRM_ERROR"),
+        SAAS_CRM_EXCEPTION("6001", "SAAS_CRM_EXCEPTION"),
         ;
 
         private String status;

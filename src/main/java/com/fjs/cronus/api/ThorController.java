@@ -34,11 +34,9 @@ public class ThorController {
     })
     @RequestMapping(value = "/loginWithUserInfo", method = RequestMethod.POST)//TODO 不确定请求方式，暂用post请求;
     @ResponseBody
-    public Object loginWithUserInfo(@RequestParam String username,
-                                    @RequestParam String password,
-                                    @RequestParam String system) {
+    public Object loginWithUserInfo(@RequestBody LoginDTO loginDTO) {
         try {
-            PhpLoginDTO phpLoginDTO = thorInterfaceService.loginWithUserInfo(username, password, system);
+            PhpLoginDTO phpLoginDTO = thorInterfaceService.loginWithUserInfo(loginDTO.getUsername(), loginDTO.getPassword(), loginDTO.getSystem());
             return phpLoginDTO;
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);

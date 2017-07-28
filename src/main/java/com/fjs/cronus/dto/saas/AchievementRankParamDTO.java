@@ -9,10 +9,17 @@ public class AchievementRankParamDTO implements Serializable {
 
     private static final long serialVersionUID = 2642107505155983673L;
 
+    //业绩排行榜（净佣）
+    public static final String QUERY_TYPE_ACHIEVE = "achieve";
+    //有效客户协议率（有效分配客户到协议客户转化率）
+    public static final String QUERY_TYPE_VALIDCUS_AGREEMRATE = "ValidCus_AgreemRate";
+
+
     private String userId;
     private String type; //":"1",
     private String page; //":"1",
     private String perpage; //":"1"
+    private String queryType;
 
     public String getUserId() {
         return userId;
@@ -44,5 +51,13 @@ public class AchievementRankParamDTO implements Serializable {
 
     public void setPerpage(String perpage) {
         this.perpage = perpage;
+    }
+
+    public String getQueryType() {
+        return queryType;
+    }
+
+    public void setQueryType(String queryType) {
+        this.queryType = queryType;
     }
 }
