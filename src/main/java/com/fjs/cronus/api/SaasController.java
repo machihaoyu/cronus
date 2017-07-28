@@ -10,6 +10,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -25,11 +26,11 @@ public class SaasController {
 
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-//    @Value("${sale.url}")
-    private String saleUrl = "http://beta-sale.fang-crm.com/Api/Api/";
+    @Value("${saas.url}")
+    private String saasUrl;
 
-//    @Value("${saas.key}")
-    private String saasKey = "67gXBstOju5LX7WOxSaQnjZguNs2citrJ99ZSJl8";
+    @Value("${saas.key}")
+    private String saasKey;
 
     @Autowired
     RestTemplate restTemplate;
@@ -41,8 +42,9 @@ public class SaasController {
     @RequestMapping(value = "/apiwithout/v1/getSaasIndexData", method = RequestMethod.GET)
     @ResponseBody
     public SaasApiDTO getSaasIndexData() {
-        String url = saleUrl + "crmCountData?key=" + saasKey;
+        String url = saasUrl + "crmCountData?key=" + saasKey;
         String res = restTemplate.getForObject(url, String.class);
+        LOGGER.warn("Saas首页数据返回：" + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
         SaasIndexDTO saasIndexDTO = JSON.parseObject(data.getRetData(), SaasIndexDTO.class);
@@ -60,8 +62,10 @@ public class SaasController {
     @RequestMapping(value = "/api/v1/getCrmAchievement", method = RequestMethod.GET)
     @ResponseBody
     public SaasApiDTO getCrmAchievement(@RequestParam String userId) {
-        String url = saleUrl + "getMyData?key=" + saasKey + "&user_id=" + userId;
+        String url = saasUrl + "getMyData?key=" + saasKey + "&user_id=" + userId;
+        LOGGER.warn("获取'我的'业绩: " + url);
         String res = restTemplate.getForObject(url, String.class);
+        LOGGER.warn("获取'我的'业绩接口返回: " + res);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
         MineAchievementDTO mineAchievementDTO = JSON.parseObject(data.getRetData(), MineAchievementDTO.class);
@@ -81,9 +85,15 @@ public class SaasController {
     @RequestMapping(value = "/api/v1/getCrmAchievementRank", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public SaasApiDTO getCrmAchievementRank(@RequestBody AchievementRankParamDTO achievementRankParamDTO) {
+        achievementRankParamDTO.setPerpage("12");
         LOGGER.warn("我的排名参数: " + ReflectionToStringBuilder.toString(achievementRankParamDTO));
-        AchievementRankPageDTO dto = saasService.getCrmRank(achievementRankParamDTO, saleUrl, saasKey);
-        if (null == dto) dto = new AchievementRankPageDTO();
+        AchievementRankPageDTO dto = saasService.getCrmRank(achievementRankParamDTO, saasUrl, saasKey);
+        if (null != dto) {
+            if (dto.getSelf() == null) dto.setSelf(new AchievementRankDTO());
+        } else {
+            dto = new AchievementRankPageDTO();
+            dto.setSelf(new AchievementRankDTO());
+        }
         return new SaasApiDTO(0, null, dto);
     }
 
