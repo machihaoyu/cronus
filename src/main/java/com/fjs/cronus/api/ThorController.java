@@ -32,11 +32,11 @@ public class ThorController {
             @ApiImplicitParam(name = "password", value = "密码", required = true, paramType = "query",  dataType = "string"),
             @ApiImplicitParam(name = "system", value = "系统名", required = true, paramType = "query",  dataType = "string")
     })
-    @RequestMapping(value = "/loginWithUserInfo", method = RequestMethod.POST)//TODO 不确定请求方式，暂用post请求;
+    @RequestMapping(value = "/loginWithUserInfo")
     @ResponseBody
-    public Object loginWithUserInfo(@RequestBody LoginDTO loginDTO) {
+    public Object loginWithUserInfo(@RequestParam String username, @RequestParam String password, @RequestParam String system) {
         try {
-            PhpLoginDTO phpLoginDTO = thorInterfaceService.loginWithUserInfo(loginDTO.getUsername(), loginDTO.getPassword(), loginDTO.getSystem());
+            PhpLoginDTO phpLoginDTO = thorInterfaceService.loginWithUserInfo(username, password, system);
             return phpLoginDTO;
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
