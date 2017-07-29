@@ -35,7 +35,10 @@ public class ThorController {
     @ResponseBody
     public Object loginWithUserInfo(@RequestParam String username, @RequestParam String password, @RequestParam String system) {
         try {
+            long l = System.currentTimeMillis();
+            LOGGER.warn("33333:");
             PhpLoginDTO phpLoginDTO = thorInterfaceService.loginWithUserInfo(username, password, system);
+            LOGGER.warn("44444:" + (System.currentTimeMillis() - l));
             return phpLoginDTO;
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
