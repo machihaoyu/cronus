@@ -34,13 +34,14 @@ public class ThorController {
     @RequestMapping(value = "/loginWithUserInfo")
     @ResponseBody
     public Object loginWithUserInfo(@RequestParam String username, @RequestParam String password, @RequestParam String system) {
+        long l = System.currentTimeMillis();
         try {
-            long l = System.currentTimeMillis();
-            LOGGER.warn("33333:");
+            LOGGER.warn("33333(UC登录):");
             PhpLoginDTO phpLoginDTO = thorInterfaceService.loginWithUserInfo(username, password, system);
-            LOGGER.warn("44444:" + (System.currentTimeMillis() - l));
+            LOGGER.warn("44444(UC登录):" + (System.currentTimeMillis() - l));
             return phpLoginDTO;
         } catch (Exception e) {
+            LOGGER.warn("44444(UC登录):" + (System.currentTimeMillis() - l));
             LOGGER.error(e.getMessage(), e);
             return new BaseUcDTO(9000,  e.getMessage(), null);
         }

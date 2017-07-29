@@ -42,18 +42,19 @@ public class SaasController {
     @RequestMapping(value = "/apiwithout/v1/getSaasIndexData", method = RequestMethod.GET)
     @ResponseBody
     public SaasApiDTO getSaasIndexData() {
+        long l = System.currentTimeMillis();
         try {
-            LOGGER.warn("11111=");
-            long l = System.currentTimeMillis();
+            LOGGER.warn("11111首页=");
             String url = saasUrl + "crmCountData?key=" + saasKey;
             String res = restTemplate.getForObject(url, String.class);
             LOGGER.warn("Saas首页数据返回：" + res);
             ResponseData data = JSONObject.parseObject(res, ResponseData.class);
             validateResponse(data);
             SaasIndexDTO saasIndexDTO = JSON.parseObject(data.getRetData(), SaasIndexDTO.class);
-            LOGGER.warn("2222=" + (System.currentTimeMillis() - l));
+            LOGGER.warn("2222首页=" + (System.currentTimeMillis() - l));
             return new SaasApiDTO(0, null, saasIndexDTO);
         } catch (Exception e) {
+            LOGGER.warn("2222首页=" + (System.currentTimeMillis() - l));
             LOGGER.error(e.getMessage(), e);
         }
         return new SaasApiDTO(0, null, new SaasIndexDTO());
