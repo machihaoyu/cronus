@@ -27,7 +27,6 @@ public class ThorController {
 
     @ApiOperation(value="登录系统带用户情报接口", notes="登录系统带用户情报接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "access_token", value = "网关", required = true, paramType = "header",  dataType = "string"),
             @ApiImplicitParam(name = "username", value = "用户名", required = true, paramType = "query",  dataType = "string"),
             @ApiImplicitParam(name = "password", value = "密码", required = true, paramType = "query",  dataType = "string"),
             @ApiImplicitParam(name = "system", value = "系统名", required = true, paramType = "query",  dataType = "string")
