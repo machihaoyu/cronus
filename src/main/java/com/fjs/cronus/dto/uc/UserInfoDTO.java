@@ -39,6 +39,9 @@ public class UserInfoDTO {
     private String sub_company_name;
     private String redis_city;
 
+    private String company_name;
+    private String company_id;//": "2"
+
     public String getUser_id() {
         return user_id;
     }
@@ -285,5 +288,21 @@ public class UserInfoDTO {
 
     public void setRedis_city(String redis_city) {
         this.redis_city = redis_city;
+    }
+
+    public String getCompany_name() {
+        return company_name;
+    }
+
+    public void setCompany_name(String company_name) {
+        this.company_name = company_name;
+    }
+
+    public String getCompany_id() {
+        return company_id;
+    }
+
+    public void setCompany_id(String company_id) {
+        this.company_id = company_id;
     }
 }
