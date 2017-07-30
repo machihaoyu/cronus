@@ -18,6 +18,8 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.exception.ExceptionValidate;
 import com.fjs.cronus.util.DownloadFileUtil;
 import com.fjs.cronus.util.StringAsciiUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,6 +60,8 @@ public class CrmController {
 
     @Autowired
     RestTemplate restTemplate;
+
+    public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     //用户登录
     @RequestMapping(value = "/userLogin", method = RequestMethod.GET)
@@ -1211,18 +1215,23 @@ public class CrmController {
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         List<TemplateDTO> list = new ArrayList<>();
-        List<TemplateOriginalDTO> templateDTOS = JSONObject.parseArray(data.getRetData(), TemplateOriginalDTO.class);
-        if (null != templateDTOS && templateDTOS.size() > 0) {
+        try {
+            List<TemplateOriginalDTO> templateDTOS = JSONObject.parseArray(data.getRetData(), TemplateOriginalDTO.class);
+            if (null != templateDTOS && templateDTOS.size() > 0) {
 
-            TemplateDTO templateDTO = null;
-            for (TemplateOriginalDTO templateOriginalDTO : templateDTOS) {
-                templateDTO = new TemplateDTO();
-                BeanUtils.copyProperties(templateOriginalDTO, templateDTO);
-                List<ConfigFieldDTO> configFieldDTOS = getTemplateConfig(templateOriginalDTO.getConfig());
-                Collections.sort(configFieldDTOS);
-                templateDTO.setConfig(configFieldDTOS);
-                list.add(templateDTO);
+                TemplateDTO templateDTO = null;
+                for (TemplateOriginalDTO templateOriginalDTO : templateDTOS) {
+                    templateDTO = new TemplateDTO();
+                    BeanUtils.copyProperties(templateOriginalDTO, templateDTO);
+                    List<ConfigFieldDTO> configFieldDTOS = getTemplateConfig(templateOriginalDTO.getConfig());
+                    Collections.sort(configFieldDTOS);
+                    templateDTO.setConfig(configFieldDTOS);
+                    list.add(templateDTO);
+                }
             }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, CronusException.Type.SYSTEM_CRM_ERROR.getError());
         }
         return list;
     }

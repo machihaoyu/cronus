@@ -46,7 +46,6 @@ public class SaasController {
         try {
             LOGGER.warn("11111首页=");
             String url = saasUrl + "crmCountData?key=" + saasKey;
-            LOGGER.warn("Saas首页数据返回url：" + url);
             String res = restTemplate.getForObject(url, String.class);
             LOGGER.warn("Saas首页数据返回：" + res);
             ResponseData data = JSONObject.parseObject(res, ResponseData.class);
