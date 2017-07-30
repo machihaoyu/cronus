@@ -9,10 +9,10 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 /**
  * Created by Administrator on 2017/7/30 0030.
  */
-@Configuration
+//@Configuration
 public class MyWebConfiguration {
 
-    @Bean
+//    @Bean
     public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
         MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
         ObjectMapper mapper = new JsonMapper();
