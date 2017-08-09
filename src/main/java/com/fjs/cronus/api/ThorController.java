@@ -571,13 +571,14 @@ public class ThorController {
 
     @ApiOperation(value="获取团队长下用户信息接口", notes="获取团队长下用户信息接口API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "city", value = "城市", required = false, paramType = "query", dataType = "String")
     })
     @RequestMapping(value = "/api/v1/getCRMUser",method = RequestMethod.GET)
     @ResponseBody
-    public Object getCRMUser(@RequestHeader String Authorization, @RequestParam(required = false) Integer user_id){
+    public Object getCRMUser(@RequestHeader String Authorization, @RequestParam(required = false) Integer user_id, @RequestParam(required = false) String city){
         try {
-            BaseUcDTO<List<CrmUserDTO>> crmUser = thorInterfaceService.getCRMUser(Authorization);
+            BaseUcDTO<List<CrmUserDTO>> crmUser = thorInterfaceService.getCRMUser(Authorization, city);
             return new BaseUcDTO(0,  null, crmUser.getRetData());
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);

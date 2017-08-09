@@ -331,7 +331,7 @@ public interface ThorInterfaceService {
      */
     @RequestMapping(value = "/api/v1/getCRMUser",method = RequestMethod.GET)
     @ResponseBody
-    BaseUcDTO<List<CrmUserDTO>> getCRMUser(@RequestHeader("Authorization") String token);
+    BaseUcDTO<List<CrmUserDTO>> getCRMUser(@RequestHeader("Authorization") String token, @RequestParam(value = "city") String city);
 
 
 
