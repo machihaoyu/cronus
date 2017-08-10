@@ -164,8 +164,8 @@ public interface ThorInterfaceService {
     BaseUcDTO getUserIds(@RequestHeader("Authorization") String token,
                          @RequestParam(value = "company_id") Integer company_id,
                          @RequestParam(value = "department_id") Integer department_id,
-                         @RequestParam(required = false) Integer role_id,
-                         @RequestParam(required = false) Integer status);
+                         @RequestParam(value = "role_id", required = false) Integer role_id,
+                         @RequestParam(value = "status", required = false) Integer status);
 
     /**
      * 查询角色信息
