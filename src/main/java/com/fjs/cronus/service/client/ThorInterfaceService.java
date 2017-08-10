@@ -276,7 +276,8 @@ public interface ThorInterfaceService {
                                        @RequestParam(value = "flag", required = false) String flag,
                                        @RequestParam(value = "page", required = false) Integer page,
                                        @RequestParam(value = "size", required = false) Integer size,
-                                       @RequestParam(value = "name", required = false)String name);
+                                       @RequestParam(value = "name", required = false)String name,
+                                       @RequestParam(value = "status", required = false) Integer status);
 
 
     /**

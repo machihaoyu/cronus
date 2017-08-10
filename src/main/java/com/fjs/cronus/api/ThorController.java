@@ -472,6 +472,7 @@ public class ThorController {
         @ApiImplicitParam(name = "page", value = "页数", required = false, paramType = "query", dataType = "int"),
         @ApiImplicitParam(name = "size", value = "每页显示", required = false, paramType = "query", dataType = "int"),
         @ApiImplicitParam(name = "name", value = "用户姓名", required = false, paramType = "query", dataType = "String"),
+        @ApiImplicitParam(name = "status", value = "状态", required = false, paramType = "query", dataType = "int")
     })
     @RequestMapping(value = "/api/v1/getUserInfoByIds",method = RequestMethod.POST)
     @ResponseBody
@@ -482,9 +483,10 @@ public class ThorController {
                                                @RequestParam(required = false) String flag,
                                                @RequestParam(required = false) Integer page,
                                                @RequestParam(required = false) Integer size,
-                                               @RequestParam(required = false)String name){
+                                               @RequestParam(required = false)String name,
+                                               @RequestParam(required = false) Integer status){
         try{
-            return thorInterfaceService.getUserInfoByIds(Authorization, user_ids,department_ids,sub_company_id,flag,page,size,name);
+            return thorInterfaceService.getUserInfoByIds(Authorization, user_ids,department_ids,sub_company_id,flag,page,size,name, status);
 
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
