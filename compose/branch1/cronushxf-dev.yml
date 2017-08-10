@@ -1,7 +1,7 @@
 version: '3.1'
 services:
-  cronus:
-    image: 192.168.1.126/library/fjs/cronus-dev:branch1
+  cronushxf:
+    image: 192.168.1.126/library/fjs/cronushxf-dev:branch1
     deploy:
       replicas: 1
       update_config: 
@@ -16,11 +16,11 @@ services:
     networks:
       fjs_overlay_branch1:
         aliases:
-          - cronus
+          - cronushxf
     ports:
-      - "1100:8010"
+      - "38010:38010"
     environment:
-      - CONFIG_PROFILE=dev
+      - CONFIG_PROFILE=hxf
       - CONFIG_PASSWORD=123456
       - CONFIG_SERVER_ADDRESS=zues
       - CONFIG_SERVER_PORT=6020
@@ -34,7 +34,7 @@ services:
       - '-Xmx1000M'
       - '-XX:+UseParallelGC'
       - '-jar'
-      - /opt/branch1-cronus-dev-1.0.0.war
+      - /opt/branch1-cronushxf-dev-1.0.0.war
 networks:
   fjs_overlay_branch1:
     external:
