@@ -3,6 +3,8 @@ package com.fjs.cronus.dto.php;
 
 
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.io.Serializable;
 
 public class CustomerInterviewInfoDTO implements Serializable{
@@ -10,21 +12,23 @@ public class CustomerInterviewInfoDTO implements Serializable{
     private static final long serialVersionUID = 6841315540181335020L;
     private Integer customer_interview_base_info_id;//`customer_interview_base_info_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
 
+    @ApiModelProperty(value = "客户ID" ,required = true)
     private Integer customer_id;// `customer_id` int(11) DEFAULT NULL COMMENT '客户ID',
     private Integer owner_user_id;//`owner_user_id` int(11) DEFAULT NULL COMMENT '当前负责人ID',
     private String owner_user_name;// `owner_user_name` varchar(255) DEFAULT NULL COMMENT '当前负责人姓名',
     private String name;//`name` varchar(50) DEFAULT NULL COMMENT '姓名',
     private String sex;//`sex` varchar(10) DEFAULT NULL COMMENT '性别',
     private String birth_date;//`birth_date` int(10) DEFAULT NULL COMMENT '出生日期',
+    private String age;//`age` int(10) DEFAULT NULL COMMENT '年龄',
     private String telephonenumber;//`telephonenumber` varchar(50) DEFAULT NULL COMMENT '手机号码',
     private String marital_status;//`marital_status` varchar(50) DEFAULT NULL COMMENT '婚姻状况',
     private String household_register;//`household_register` varchar(50) DEFAULT NULL COMMENT '户籍地址',
     private String education;//`education` varchar(50) DEFAULT NULL COMMENT '学历',
     private String fee_channel_name;//`fee_channel_name` varchar(50) DEFAULT NULL COMMENT '资金渠道名',
     private String product_name;//`product_name` varchar(50) DEFAULT NULL COMMENT '产品类型名',
-    private String loan_amount;//loan_amount` varchar(50) DEFAULT NULL COMMENT '借款金额',
-    private String loan_time;//loan_time` int(11) DEFAULT NULL COMMENT '借款期限（月）',
-    private String loan_use_time;//`loan_use_time` varchar(50) DEFAULT NULL COMMENT '借款使用时间',
+    private Integer loan_amount;//loan_amount` varchar(50) DEFAULT NULL COMMENT '借款金额',
+    private Integer loan_time;//loan_time` int(11) DEFAULT NULL COMMENT '借款期限（月）',
+    private Integer loan_use_time;//`loan_use_time` varchar(50) DEFAULT NULL COMMENT '借款使用时间',
     private String loan_purpose;//`loan_purpose` varchar(50) DEFAULT NULL COMMENT '借款用途',
     private String payment_type;//`payment_type` varchar(50) DEFAULT NULL COMMENT '还款方式',
     private String credit_record;//`credit_record` varchar(50) DEFAULT NULL COMMENT '征信记录',
@@ -33,56 +37,56 @@ public class CustomerInterviewInfoDTO implements Serializable{
     private Integer credit_query_num_six_month;//`credit_query_num_six_month` int(10) DEFAULT NULL COMMENT '征信近半年查询次数',
     private Integer continuity_overdue_num_two_year;//`continuity_overdue_num_two_year` int(10) DEFAULT NULL COMMENT '两年内连续逾期月数',
     private Integer total_overdue_num_two_year;//`total_overdue_num_two_year` int(10) DEFAULT NULL COMMENT '两年内累计逾期月数',
-    private String debt_amount;//`debt_amount` int(10) DEFAULT NULL COMMENT '负债金额',
+    private Integer debt_amount;//`debt_amount` int(10) DEFAULT NULL COMMENT '负债金额',
     private String is_overdue;//`is_overdue` varchar(50) DEFAULT NULL COMMENT '当前是否有逾期',
     private String overdue_amount;//`overdue_amount` int(10) DEFAULT NULL COMMENT '当前逾期金额',
     private String industry;//`industry` varchar(50) DEFAULT NULL COMMENT '行业',
-    private String income_amount;//`income_amount` int(10) DEFAULT NULL COMMENT '打卡工资',
-    private String social_security_date;//`social_security_date` int(10) DEFAULT NULL COMMENT '社保缴纳时间',
-    private String social_security_payment;//`social_security_payment` int(10) DEFAULT NULL COMMENT '社保缴纳基数',
-    private String housing_fund_date;//`housing_fund_date` int(10) DEFAULT NULL COMMENT '公积金缴纳时间',
-    private String housing_fund_payment;//`housing_fund_payment` int(10) DEFAULT NULL COMMENT '公积金缴纳基数',
-    private String work_date;//`work_date` int(10) DEFAULT NULL COMMENT '工作日期',
-    private String company_register_date;//`company_register_date` int(10) DEFAULT NULL COMMENT '公司注册时间',
-    private String share_rate;//`share_rate` decimal(10,2) DEFAULT NULL COMMENT '占股比例',
-    private String public_flow_year_amount;//`public_flow_year_amount` int(10) DEFAULT NULL COMMENT '年对公流水',
-    private String private_flow_year_amount;//`private_flow_year_amount` int(10) DEFAULT NULL COMMENT '年对私流水',
+    private Integer income_amount;//`income_amount` int(10) DEFAULT NULL COMMENT '打卡工资',
+    private Integer social_security_date;//`social_security_date` int(10) DEFAULT NULL COMMENT '社保缴纳时间',
+    private Integer social_security_payment;//`social_security_payment` int(10) DEFAULT NULL COMMENT '社保缴纳基数',
+    private Integer housing_fund_date;//`housing_fund_date` int(10) DEFAULT NULL COMMENT '公积金缴纳时间',
+    private Integer housing_fund_payment;//`housing_fund_payment` int(10) DEFAULT NULL COMMENT '公积金缴纳基数',
+    private Integer work_date;//`work_date` int(10) DEFAULT NULL COMMENT '工作年限',
+    private Integer company_register_date;//`company_register_date` int(10) DEFAULT NULL COMMENT '公司注册年限',
+    private Float share_rate;//`share_rate` decimal(10,2) DEFAULT NULL COMMENT '占股比例',
+    private Integer public_flow_year_amount;//`public_flow_year_amount` int(10) DEFAULT NULL COMMENT '年对公流水',
+    private Integer private_flow_year_amount;//`private_flow_year_amount` int(10) DEFAULT NULL COMMENT '年对私流水',
     private String is_litigation;//`is_litigation` varchar(50) DEFAULT NULL COMMENT '有无涉诉',
-    private String retire_date;//`retire_date` int(10) DEFAULT NULL COMMENT '退休日期',
-    private String retirement_pay_min_amount;//`retirement_pay_min_amount` int(10) DEFAULT NULL COMMENT '退休最少工资',
+    private Integer retire_date;//`retire_date` int(10) DEFAULT NULL COMMENT '退休日期',
+    private Integer retirement_pay_min_amount;//`retirement_pay_min_amount` int(10) DEFAULT NULL COMMENT '退休最少工资',
     private String is_relative_known;//`is_relative_known` varchar(50) DEFAULT NULL COMMENT '直系亲属是否知道',
     private String remark;// 备注信息
 
     private Integer customer_interview_house_info_id;//`customer_interview_insurance_info_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     private String house_status;//`house_status` varchar(50) DEFAULT NULL COMMENT '产权状态',
     private String house_property_type;//`house_property_type` varchar(50) DEFAULT NULL COMMENT '产权类型',
-    private String area;//`area` decimal(10,2) DEFAULT NULL COMMENT '面积',
-    private String build_date;//`build_date` int(10) DEFAULT NULL COMMENT '建成时间',
-    private String house_property_rights_num;//`house_property_rights_num` int(11) DEFAULT NULL COMMENT '产权人数',
+    private Float area;//`area` decimal(10,2) DEFAULT NULL COMMENT '面积',
+    private Integer build_date;//`build_date` int(10) DEFAULT NULL COMMENT '建成年限',
+    private Integer house_property_rights_num;//`house_property_rights_num` int(11) DEFAULT NULL COMMENT '产权人数',
     private String is_child_in_property_rigths;//`is_child_in_property_rigths` varchar(50) DEFAULT NULL COMMENT '产权中是否有小孩',
     private String is_old_in_property_rigths;//`is_old_in_property_rigths` varchar(50) DEFAULT NULL COMMENT '产权中是否有老人',
     private String is_property_rights_clear;//`is_property_rights_clear` varchar(50) DEFAULT NULL COMMENT '房产权属是否清晰',
     private String is_other_house;//`is_other_house` varchar(50) DEFAULT NULL COMMENT '有无备用房',
     private String is_bank_flow;//`is_bank_flow` varchar(50) DEFAULT NULL COMMENT '是否有银行流水',
-    private String bank_flow_month_amount;//`bank_flow_month_amount` int(10) DEFAULT NULL COMMENT '月流水金额',
-    private String house_mortgage_month_amount;//`mortgage_month_amount` int(50) DEFAULT NULL COMMENT '按揭月供金额',
-    private String house_mortgage_paid_num;//`mortgage_paid_num` int(10) DEFAULT NULL COMMENT '按揭已还月份',
+    private Integer bank_flow_month_amount;//`bank_flow_month_amount` int(10) DEFAULT NULL COMMENT '月流水金额',
+    private Integer house_mortgage_month_amount;//`mortgage_month_amount` int(50) DEFAULT NULL COMMENT '按揭月供金额',
+    private Integer house_mortgage_paid_num;//`mortgage_paid_num` int(10) DEFAULT NULL COMMENT '按揭已还月份',
 
     private Integer customer_interview_car_info_id;//`customer_interview_car_info_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     private String car_type;//`car_type` varchar(50) DEFAULT NULL COMMENT '车辆类型',
     private String licence_plate_location;//`licence_plate_location` varchar(255) DEFAULT NULL COMMENT '车牌地区',
-    private String buy_date;//`buy_date` int(10) DEFAULT NULL COMMENT '购买时间',
-    private String car_mortgage_paid_num;//`mortgage_paid_num` int(10) DEFAULT NULL COMMENT '按揭月供已还月数',
-    private String car_mortgage_month_amount;//`mortgage_month_amount` int(10) DEFAULT NULL COMMENT '按揭月供金额',
-    private String price_now;//`price_now` decimal(10,2) DEFAULT NULL COMMENT '现车价',
+    private Integer buy_date;//`buy_date` int(10) DEFAULT NULL COMMENT '购买时间（月）',
+    private Integer car_mortgage_paid_num;//`mortgage_paid_num` int(10) DEFAULT NULL COMMENT '按揭月供已还月数',
+    private Integer car_mortgage_month_amount;//`mortgage_month_amount` int(10) DEFAULT NULL COMMENT '按揭月供金额',
+    private Integer price_now;//`price_now` decimal(10,2) DEFAULT NULL COMMENT '现车价',
     private String is_full_insurance;//`is_full_insurance` varchar(50) DEFAULT NULL COMMENT '是否两险齐全',
 
     private Integer customer_interview_insurance_info_id;//`customer_interview_insurance_info_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     private String insurance_type;//`insurance_type` varchar(50) DEFAULT NULL COMMENT '保险类型',
     private String pay_type;//`pay_type` varchar(50) DEFAULT NULL COMMENT '缴费方式',
-    private String year_pay_amount;//`year_pay_amount` int(10) DEFAULT NULL COMMENT '年缴费金额',
-    private String month_pay_amount;//`month_pay_amount` int(10) DEFAULT NULL COMMENT '月缴费金额',
-    private String effect_date;//`effect_date` int(10) DEFAULT NULL COMMENT '生效时间',
+    private Integer year_pay_amount;//`year_pay_amount` int(10) DEFAULT NULL COMMENT '年缴费金额',
+    private Integer month_pay_amount;//`month_pay_amount` int(10) DEFAULT NULL COMMENT '月缴费金额',
+    private Integer effect_date;//`effect_date` int(10) DEFAULT NULL COMMENT '生效时间',
     private String is_suspend;//`is_suspend` varchar(50) DEFAULT NULL COMMENT '有无断缴',
     private String create_time;//`create_time` int(10) DEFAULT NULL COMMENT '创建时间',
     private Integer create_user_id;//`create_user_id` int(11) DEFAULT NULL COMMENT '创建人ID',
@@ -144,6 +148,14 @@ public class CustomerInterviewInfoDTO implements Serializable{
         this.birth_date = birth_date;
     }
 
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
+    }
+
     public String getTelephonenumber() {
         return telephonenumber;
     }
@@ -192,27 +204,27 @@ public class CustomerInterviewInfoDTO implements Serializable{
         this.product_name = product_name;
     }
 
-    public String getLoan_amount() {
+    public Integer getLoan_amount() {
         return loan_amount;
     }
 
-    public void setLoan_amount(String loan_amount) {
+    public void setLoan_amount(Integer loan_amount) {
         this.loan_amount = loan_amount;
     }
 
-    public String getLoan_time() {
+    public Integer getLoan_time() {
         return loan_time;
     }
 
-    public void setLoan_time(String loan_time) {
+    public void setLoan_time(Integer loan_time) {
         this.loan_time = loan_time;
     }
 
-    public String getLoan_use_time() {
+    public Integer getLoan_use_time() {
         return loan_use_time;
     }
 
-    public void setLoan_use_time(String loan_use_time) {
+    public void setLoan_use_time(Integer loan_use_time) {
         this.loan_use_time = loan_use_time;
     }
 
@@ -280,11 +292,11 @@ public class CustomerInterviewInfoDTO implements Serializable{
         this.total_overdue_num_two_year = total_overdue_num_two_year;
     }
 
-    public String getDebt_amount() {
+    public Integer getDebt_amount() {
         return debt_amount;
     }
 
-    public void setDebt_amount(String debt_amount) {
+    public void setDebt_amount(Integer debt_amount) {
         this.debt_amount = debt_amount;
     }
 
@@ -312,83 +324,83 @@ public class CustomerInterviewInfoDTO implements Serializable{
         this.industry = industry;
     }
 
-    public String getIncome_amount() {
+    public Integer getIncome_amount() {
         return income_amount;
     }
 
-    public void setIncome_amount(String income_amount) {
+    public void setIncome_amount(Integer income_amount) {
         this.income_amount = income_amount;
     }
 
-    public String getSocial_security_date() {
+    public Integer getSocial_security_date() {
         return social_security_date;
     }
 
-    public void setSocial_security_date(String social_security_date) {
+    public void setSocial_security_date(Integer social_security_date) {
         this.social_security_date = social_security_date;
     }
 
-    public String getSocial_security_payment() {
+    public Integer getSocial_security_payment() {
         return social_security_payment;
     }
 
-    public void setSocial_security_payment(String social_security_payment) {
+    public void setSocial_security_payment(Integer social_security_payment) {
         this.social_security_payment = social_security_payment;
     }
 
-    public String getHousing_fund_date() {
+    public Integer getHousing_fund_date() {
         return housing_fund_date;
     }
 
-    public void setHousing_fund_date(String housing_fund_date) {
+    public void setHousing_fund_date(Integer housing_fund_date) {
         this.housing_fund_date = housing_fund_date;
     }
 
-    public String getHousing_fund_payment() {
+    public Integer getHousing_fund_payment() {
         return housing_fund_payment;
     }
 
-    public void setHousing_fund_payment(String housing_fund_payment) {
+    public void setHousing_fund_payment(Integer housing_fund_payment) {
         this.housing_fund_payment = housing_fund_payment;
     }
 
-    public String getWork_date() {
+    public Integer getWork_date() {
         return work_date;
     }
 
-    public void setWork_date(String work_date) {
+    public void setWork_date(Integer work_date) {
         this.work_date = work_date;
     }
 
-    public String getCompany_register_date() {
+    public Integer getCompany_register_date() {
         return company_register_date;
     }
 
-    public void setCompany_register_date(String company_register_date) {
+    public void setCompany_register_date(Integer company_register_date) {
         this.company_register_date = company_register_date;
     }
 
-    public String getShare_rate() {
+    public Float getShare_rate() {
         return share_rate;
     }
 
-    public void setShare_rate(String share_rate) {
+    public void setShare_rate(Float share_rate) {
         this.share_rate = share_rate;
     }
 
-    public String getPublic_flow_year_amount() {
+    public Integer getPublic_flow_year_amount() {
         return public_flow_year_amount;
     }
 
-    public void setPublic_flow_year_amount(String public_flow_year_amount) {
+    public void setPublic_flow_year_amount(Integer public_flow_year_amount) {
         this.public_flow_year_amount = public_flow_year_amount;
     }
 
-    public String getPrivate_flow_year_amount() {
+    public Integer getPrivate_flow_year_amount() {
         return private_flow_year_amount;
     }
 
-    public void setPrivate_flow_year_amount(String private_flow_year_amount) {
+    public void setPrivate_flow_year_amount(Integer private_flow_year_amount) {
         this.private_flow_year_amount = private_flow_year_amount;
     }
 
@@ -400,19 +412,19 @@ public class CustomerInterviewInfoDTO implements Serializable{
         this.is_litigation = is_litigation;
     }
 
-    public String getRetire_date() {
+    public Integer getRetire_date() {
         return retire_date;
     }
 
-    public void setRetire_date(String retire_date) {
+    public void setRetire_date(Integer retire_date) {
         this.retire_date = retire_date;
     }
 
-    public String getRetirement_pay_min_amount() {
+    public Integer getRetirement_pay_min_amount() {
         return retirement_pay_min_amount;
     }
 
-    public void setRetirement_pay_min_amount(String retirement_pay_min_amount) {
+    public void setRetirement_pay_min_amount(Integer retirement_pay_min_amount) {
         this.retirement_pay_min_amount = retirement_pay_min_amount;
     }
 
@@ -456,27 +468,27 @@ public class CustomerInterviewInfoDTO implements Serializable{
         this.house_property_type = house_property_type;
     }
 
-    public String getArea() {
+    public Float getArea() {
         return area;
     }
 
-    public void setArea(String area) {
+    public void setArea(Float area) {
         this.area = area;
     }
 
-    public String getBuild_date() {
+    public Integer getBuild_date() {
         return build_date;
     }
 
-    public void setBuild_date(String build_date) {
+    public void setBuild_date(Integer build_date) {
         this.build_date = build_date;
     }
 
-    public String getHouse_property_rights_num() {
+    public Integer getHouse_property_rights_num() {
         return house_property_rights_num;
     }
 
-    public void setHouse_property_rights_num(String house_property_rights_num) {
+    public void setHouse_property_rights_num(Integer house_property_rights_num) {
         this.house_property_rights_num = house_property_rights_num;
     }
 
@@ -520,27 +532,27 @@ public class CustomerInterviewInfoDTO implements Serializable{
         this.is_bank_flow = is_bank_flow;
     }
 
-    public String getBank_flow_month_amount() {
+    public Integer getBank_flow_month_amount() {
         return bank_flow_month_amount;
     }
 
-    public void setBank_flow_month_amount(String bank_flow_month_amount) {
+    public void setBank_flow_month_amount(Integer bank_flow_month_amount) {
         this.bank_flow_month_amount = bank_flow_month_amount;
     }
 
-    public String getHouse_mortgage_month_amount() {
+    public Integer getHouse_mortgage_month_amount() {
         return house_mortgage_month_amount;
     }
 
-    public void setHouse_mortgage_month_amount(String house_mortgage_month_amount) {
+    public void setHouse_mortgage_month_amount(Integer house_mortgage_month_amount) {
         this.house_mortgage_month_amount = house_mortgage_month_amount;
     }
 
-    public String getHouse_mortgage_paid_num() {
+    public Integer getHouse_mortgage_paid_num() {
         return house_mortgage_paid_num;
     }
 
-    public void setHouse_mortgage_paid_num(String house_mortgage_paid_num) {
+    public void setHouse_mortgage_paid_num(Integer house_mortgage_paid_num) {
         this.house_mortgage_paid_num = house_mortgage_paid_num;
     }
 
@@ -568,35 +580,35 @@ public class CustomerInterviewInfoDTO implements Serializable{
         this.licence_plate_location = licence_plate_location;
     }
 
-    public String getBuy_date() {
+    public Integer getBuy_date() {
         return buy_date;
     }
 
-    public void setBuy_date(String buy_date) {
+    public void setBuy_date(Integer buy_date) {
         this.buy_date = buy_date;
     }
 
-    public String getCar_mortgage_paid_num() {
+    public Integer getCar_mortgage_paid_num() {
         return car_mortgage_paid_num;
     }
 
-    public void setCar_mortgage_paid_num(String car_mortgage_paid_num) {
+    public void setCar_mortgage_paid_num(Integer car_mortgage_paid_num) {
         this.car_mortgage_paid_num = car_mortgage_paid_num;
     }
 
-    public String getCar_mortgage_month_amount() {
+    public Integer getCar_mortgage_month_amount() {
         return car_mortgage_month_amount;
     }
 
-    public void setCar_mortgage_month_amount(String car_mortgage_month_amount) {
+    public void setCar_mortgage_month_amount(Integer car_mortgage_month_amount) {
         this.car_mortgage_month_amount = car_mortgage_month_amount;
     }
 
-    public String getPrice_now() {
+    public Integer getPrice_now() {
         return price_now;
     }
 
-    public void setPrice_now(String price_now) {
+    public void setPrice_now(Integer price_now) {
         this.price_now = price_now;
     }
 
@@ -632,27 +644,27 @@ public class CustomerInterviewInfoDTO implements Serializable{
         this.pay_type = pay_type;
     }
 
-    public String getYear_pay_amount() {
+    public Integer getYear_pay_amount() {
         return year_pay_amount;
     }
 
-    public void setYear_pay_amount(String year_pay_amount) {
+    public void setYear_pay_amount(Integer year_pay_amount) {
         this.year_pay_amount = year_pay_amount;
     }
 
-    public String getMonth_pay_amount() {
+    public Integer getMonth_pay_amount() {
         return month_pay_amount;
     }
 
-    public void setMonth_pay_amount(String month_pay_amount) {
+    public void setMonth_pay_amount(Integer month_pay_amount) {
         this.month_pay_amount = month_pay_amount;
     }
 
-    public String getEffect_date() {
+    public Integer getEffect_date() {
         return effect_date;
     }
 
-    public void setEffect_date(String effect_date) {
+    public void setEffect_date(Integer effect_date) {
         this.effect_date = effect_date;
     }
 
