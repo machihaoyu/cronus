@@ -1,8 +1,13 @@
 package com.fjs.cronus.api;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.crm.ResponseData;
 import com.fjs.cronus.dto.php.*;
+import com.fjs.cronus.dto.uc.UcData;
+import com.fjs.cronus.dto.uc.UserInfoDTO;
+import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.service.client.ThorInterfaceService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -33,6 +38,9 @@ public class PhpController {
     private String saleKey;
 
     @Autowired
+    ThorInterfaceService thorInterfaceService;
+
+    @Autowired
     RestTemplate restTemplate;
 
     //添加和修改客户面谈信息
@@ -41,16 +49,30 @@ public class PhpController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer test8665aea5-04e3-4ebd-a7f3-b66442512762", dataType = "string"),
             @ApiImplicitParam(name = "customerInterviewInfoDTO", value = "",
-                    required = true, paramType = "body", dataType = "CustomerInterviewInfoDTO"),
-            @ApiImplicitParam(name = "user_id", value = "",
-                    required = true, paramType = "query", dataType = "int"),
+                    required = true, paramType = "body", dataType = "CustomerInterviewInfoDTO")
     })
     @RequestMapping(value = "/addCustomerInterviewInfo", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseData addCustomerInterviewInfo(@RequestBody CustomerInterviewInfoDTO customerInterviewInfoDTO,
-                                                 @RequestParam Integer user_id) {
+    public ResponseData addCustomerInterviewInfo(@RequestHeader String Authorization,
+                                                 @RequestBody CustomerInterviewInfoDTO customerInterviewInfoDTO
+    ) {
+        String user_id = null;
+        try{
+            String ucDataStr =thorInterfaceService.getCurrentUserInfo(Authorization,"");
+            UcData ucData = JSONObject.parseObject(ucDataStr, UcData.class);
+            if(null != ucData && ucData.getResult() == 0) {
+                UserInfoDTO userInfoDTO = JSONObject.parseObject(ucData.getData(), UserInfoDTO.class);
+                user_id= userInfoDTO.getUser_id();
+            } else {
+                throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "请登录后操作！");
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "请登录后操作！");
+        }
         String url = saleUrl + "addCustomerInterviewInfo";
-        MultiValueMap<String, Object> param = this.generateInfoParams(customerInterviewInfoDTO,user_id);
+        MultiValueMap<String, Object> param = this.generateInfoParams(customerInterviewInfoDTO);
+        param.add("user_id",user_id);
         String str = restTemplate.postForObject(url, param, String.class);
         ResponseData data = JSON.parseObject(str, ResponseData.class);
         validateResponse(data);
@@ -244,10 +266,9 @@ public class PhpController {
 
     /*构建基础信息*/
     public MultiValueMap<String, Object> generateInfoParams(
-            CustomerInterviewInfoDTO customerInterviewInfoDTO, Integer user_id) {
+            CustomerInterviewInfoDTO customerInterviewInfoDTO) {
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key", saleKey);
-        param.add("user_id", user_id);
         param.add("customer_interview_base_info_id", customerInterviewInfoDTO.getCustomer_interview_base_info_id());
         param.add("customer_id", customerInterviewInfoDTO.getCustomer_id());
         param.add("owner_user_id", customerInterviewInfoDTO.getOwner_user_id());
