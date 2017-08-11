@@ -163,7 +163,9 @@ public interface ThorInterfaceService {
     @RequestMapping(value = "/api/v1/getUserIds", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     BaseUcDTO getUserIds(@RequestHeader("Authorization") String token,
                          @RequestParam(value = "company_id") Integer company_id,
-                         @RequestParam(value = "department_id") Integer department_id);
+                         @RequestParam(value = "department_id") Integer department_id,
+                         @RequestParam(value = "role_id", required = false) Integer role_id,
+                         @RequestParam(value = "status", required = false) Integer status);
 
     /**
      * 查询角色信息
@@ -274,7 +276,8 @@ public interface ThorInterfaceService {
                                        @RequestParam(value = "flag", required = false) String flag,
                                        @RequestParam(value = "page", required = false) Integer page,
                                        @RequestParam(value = "size", required = false) Integer size,
-                                       @RequestParam(value = "name", required = false)String name);
+                                       @RequestParam(value = "name", required = false)String name,
+                                       @RequestParam(value = "status", required = false) Integer status);
 
 
     /**
