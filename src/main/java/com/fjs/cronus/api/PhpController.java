@@ -260,6 +260,8 @@ public class PhpController {
         param.add("marital_status", customerInterviewInfoDTO.getMarital_status());
         param.add("household_register", customerInterviewInfoDTO.getHousehold_register());
         param.add("education", customerInterviewInfoDTO.getEducation());
+        param.add("service_charge",customerInterviewInfoDTO.getService_charge());
+        param.add("month_interest_rate",customerInterviewInfoDTO.getMonth_interest_rate());
         param.add("fee_channel_name", customerInterviewInfoDTO.getFee_channel_name());
         param.add("product_name", customerInterviewInfoDTO.getProduct_name());
         param.add("loan_amount", customerInterviewInfoDTO.getLoan_amount());

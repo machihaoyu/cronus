@@ -24,6 +24,8 @@ public class CustomerInterviewInfoDTO implements Serializable{
     private String marital_status;//`marital_status` varchar(50) DEFAULT NULL COMMENT '婚姻状况',
     private String household_register;//`household_register` varchar(50) DEFAULT NULL COMMENT '户籍地址',
     private String education;//`education` varchar(50) DEFAULT NULL COMMENT '学历',
+    private Float service_charge;//`service_charge` decimal(10,2) DEFAULT NULL COMMENT '服务费率(%)',
+    private Float month_interest_rate;//`month_interest_rate` decimal(10,2) DEFAULT NULL COMMENT '月利率(%)',
     private String fee_channel_name;//`fee_channel_name` varchar(50) DEFAULT NULL COMMENT '资金渠道名',
     private String product_name;//`product_name` varchar(50) DEFAULT NULL COMMENT '产品类型名',
     private Integer loan_amount;//loan_amount` varchar(50) DEFAULT NULL COMMENT '借款金额',
@@ -186,6 +188,22 @@ public class CustomerInterviewInfoDTO implements Serializable{
 
     public void setEducation(String education) {
         this.education = education;
+    }
+
+    public Float getService_charge() {
+        return service_charge;
+    }
+
+    public void setService_charge(Float service_charge) {
+        this.service_charge = service_charge;
+    }
+
+    public Float getMonth_interest_rate() {
+        return month_interest_rate;
+    }
+
+    public void setMonth_interest_rate(Float month_interest_rate) {
+        this.month_interest_rate = month_interest_rate;
     }
 
     public String getFee_channel_name() {
