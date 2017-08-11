@@ -255,6 +255,7 @@ public class PhpController {
         param.add("name", customerInterviewInfoDTO.getName());
         param.add("sex", customerInterviewInfoDTO.getSex());
         param.add("birth_date", customerInterviewInfoDTO.getBirth_date());
+        param.add("age",customerInterviewInfoDTO.getAge());
         param.add("telephonenumber", customerInterviewInfoDTO.getTelephonenumber());
         param.add("marital_status", customerInterviewInfoDTO.getMarital_status());
         param.add("household_register", customerInterviewInfoDTO.getHousehold_register());

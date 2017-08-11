@@ -19,7 +19,7 @@ public class CustomerInterviewInfoDTO implements Serializable{
     private String name;//`name` varchar(50) DEFAULT NULL COMMENT '姓名',
     private String sex;//`sex` varchar(10) DEFAULT NULL COMMENT '性别',
     private String birth_date;//`birth_date` int(10) DEFAULT NULL COMMENT '出生日期',
-    private String age;//`age` int(10) DEFAULT NULL COMMENT '年龄',
+    private Integer age;//`age` int(10) DEFAULT NULL COMMENT '年龄',
     private String telephonenumber;//`telephonenumber` varchar(50) DEFAULT NULL COMMENT '手机号码',
     private String marital_status;//`marital_status` varchar(50) DEFAULT NULL COMMENT '婚姻状况',
     private String household_register;//`household_register` varchar(50) DEFAULT NULL COMMENT '户籍地址',
@@ -148,11 +148,11 @@ public class CustomerInterviewInfoDTO implements Serializable{
         this.birth_date = birth_date;
     }
 
-    public String getAge() {
+    public Integer getAge() {
         return age;
     }
 
-    public void setAge(String age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 
