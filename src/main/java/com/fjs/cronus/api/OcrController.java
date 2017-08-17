@@ -7,17 +7,21 @@ import org.springframework.web.bind.annotation.RestController;
  * Created by Administrator on 2017/8/17 0017.
  */
 @RestController
-@RequestMapping("/ocr/api/v1/")
+@RequestMapping("/ocr/api")
 public class OcrController {
 
-
-    @RequestMapping("/crmin/")
+    /**
+     * cronus对外提供API给PHP使用
+     */
+    @RequestMapping("/v1/crmin/")
     public void ocrInvoke(){
 
     }
 
-
-    @RequestMapping("/crmout/")
+    /**
+     * Java调用Php接口
+     */
+    @RequestMapping("/v1/crmout/")
     public void ocrOutCRM(){
 
 
