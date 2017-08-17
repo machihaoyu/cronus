@@ -7,7 +7,6 @@ import java.util.Date;
  */
 public class OcrCronusBaseDTO {
 
-    private Long id;
     private Long customer_id;// int(11) NOT NULL COMMENT '客户ID',
     private String customer_name;// varchar(50) DEFAULT NULL COMMENT '客户姓名',
     private String customer_telephone;// varchar(11) NOT NULL COMMENT '客户手机号',
@@ -19,14 +18,6 @@ public class OcrCronusBaseDTO {
     private Long update_user_id;// int(11) NOT NULL COMMENT '更新人ID',
     private String update_user_name;// varchar(50) DEFAULT NULL COMMENT '更新人名称',
     private Date update_time;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public Long getCustomer_id() {
         return customer_id;
