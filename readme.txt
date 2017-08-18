@@ -11,7 +11,6 @@ saas:
 
 
 ####  预计 2017-08-25 上线配置
-
 client:
     feign:
         talos-backend: talos-backend
