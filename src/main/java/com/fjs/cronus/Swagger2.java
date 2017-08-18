@@ -61,6 +61,6 @@ public class Swagger2 {
 
 
     private Predicate<String> doFilteringRules() {
-        return or(ant("/saas/**"), ant("/uc/**"));
+        return or(ant("/saas/**"), ant("/uc/**"), ant("/ocr/**"));
     }
 }
