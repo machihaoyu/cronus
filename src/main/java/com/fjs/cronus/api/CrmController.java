@@ -18,6 +18,7 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.exception.ExceptionValidate;
 import com.fjs.cronus.util.DownloadFileUtil;
 import com.fjs.cronus.util.StringAsciiUtil;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -506,6 +507,7 @@ public class CrmController {
     //新增客户协议
     @RequestMapping(value = "/addAgreementByCustomer", method = RequestMethod.POST)
     public void addAgreeMent(@RequestBody AgreementDTO agreementDTO) {
+        LOGGER.warn("新增客户协议=" + ReflectionToStringBuilder.toString(agreementDTO));
         String url = saleUrl + "addAgreementByCustomer";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
@@ -540,6 +542,7 @@ public class CrmController {
     //将协议信息保存到缓存
     @RequestMapping(value = "/agreementAgainChapterSaveInfo",method = RequestMethod.POST)
     public void agreementAgainChapterSaveInfo(@RequestBody AgreementDTO agreementDTO){
+        LOGGER.warn(" 将协议信息保存到缓存 " + ReflectionToStringBuilder.toString(agreementDTO));
         String url = saleUrl + "agreementAgainChapterSaveInfo";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
@@ -566,6 +569,7 @@ public class CrmController {
     //设置协议缓存，并发送短信;
     @RequestMapping(value = "/agreementChapterAndsendMobile",method = RequestMethod.POST)
     public void agreementChapterAndsendMobile(@RequestBody AgreementDTO agreementDTO){
+        LOGGER.warn("设置协议缓存，并发送短信=" + ReflectionToStringBuilder.toString(agreementDTO));
         String url = saleUrl + "agreementAgainChapterSaveInfo";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
@@ -600,6 +604,7 @@ public class CrmController {
     //协议意向书重签盖章
     @RequestMapping(value = "/againChapterAgreementForApp",method = RequestMethod.POST)
     public void againChapterAgreementForApp(@RequestParam Integer agreementId,@RequestParam Integer userId,@RequestParam String code){
+        LOGGER.warn("userId=" + userId + ", code=" + code + ", param=" + ReflectionToStringBuilder.toString(agreementId));
         String url = saleUrl + "againChapterAgreementForApp";
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
@@ -810,6 +815,7 @@ public class CrmController {
     //修改合同
     @RequestMapping(value = "/editContract",method = RequestMethod.POST)
     public void editContract(@RequestBody ContractDTO contractDTO,@RequestParam Integer userId,@RequestParam String userName){
+        LOGGER.warn(" 修改合同：userId = " + userId + ", userName = " + userName + ", 信息 = " + ReflectionToStringBuilder.toString(contractDTO));
         String url = saleUrl + "/editContract";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap();
         param.add("key",saleKey);
@@ -856,6 +862,7 @@ public class CrmController {
     @RequestMapping(value = "/contractAgainChapterSaveInfo",method = RequestMethod.POST)
     public void contractAgainChapterSaveInfo(@RequestBody ContractDTO contractDTO,@RequestParam Integer userId,@RequestParam String userName){
         String url1 = saleUrl + "/contractAgainChapterSaveInfo";
+        LOGGER.warn(" 重签修改合同：userId = " + userId + ", userName = " + userName + ", 信息 = " + ReflectionToStringBuilder.toString(contractDTO));
         MultiValueMap<String,Object> param1 = new LinkedMultiValueMap();
         param1.add("key",saleKey);
         param1.add("partake_serialize",contractDTO.getPartake_serialize());
@@ -1266,6 +1273,7 @@ public class CrmController {
     //添加普通合同;
     @RequestMapping(value = "/addContract",method = RequestMethod.POST)
     public void addContract(@RequestBody ContractDTO contractDTO,@RequestParam Integer userId,@RequestParam String userName){
+        LOGGER.warn(" 添加普通合同：userId = " + userId + ", userName = " + userName + ", 信息 = " + ReflectionToStringBuilder.toString(contractDTO));
         String url = saleUrl + "addContract";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
@@ -1308,6 +1316,7 @@ public class CrmController {
     //添加利差合同
     @RequestMapping(value = "/addSpecialContract",method = RequestMethod.POST)
     public void addSpecialContract(@RequestBody ContractDTO contractDTO,@RequestParam Integer userId,@RequestParam String userName,@RequestParam Integer customerId){
+        LOGGER.warn(" 添加利差合同：userId = " + userId + ", userName = " + userName + ", 信息 = " + ReflectionToStringBuilder.toString(contractDTO));
         String url = saleUrl + "addSpecialContract";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
@@ -1507,6 +1516,7 @@ public class CrmController {
             dto.setPerson_sign(map.get("customer_seal"));
             dto.setCompany_sign(map.get("company_seal"));
         }
+        LOGGER.warn(" 获取合同签章信息 : " + ReflectionToStringBuilder.toString(data));
         return dto;
     }
 
@@ -1536,6 +1546,7 @@ public class CrmController {
      */
     @RequestMapping(value = "/elecContractSign",method = RequestMethod.POST)
     public SignDTO elecContractSign(@RequestBody ElecContractRequestDTO elecContractRequestDTO){
+        LOGGER.warn(" 进行合同签章 " + ReflectionToStringBuilder.toString(elecContractRequestDTO));
         //先调用生成pdf接口
         String PDFUrl = saleUrl + "makeContractPdf";
         String contractId = elecContractRequestDTO.getContractId();
