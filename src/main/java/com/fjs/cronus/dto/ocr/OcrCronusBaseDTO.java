@@ -14,10 +14,17 @@ public class OcrCronusBaseDTO {
 
     private Long create_user_id;// int(11) DEFAULT '0' COMMENT '创建人ID',
     private String create_user_name;// varchar(50) DEFAULT 'OCR' COMMENT '创建人名称',
-    private Long create_time;
     private Long update_user_id;// int(11) NOT NULL COMMENT '更新人ID',
     private String update_user_name;// varchar(50) DEFAULT NULL COMMENT '更新人名称',
-    private Long update_time;
+    private String type;// 证件类型;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public Long getCustomer_id() {
         return customer_id;
@@ -67,14 +74,6 @@ public class OcrCronusBaseDTO {
         this.create_user_name = create_user_name;
     }
 
-    public Long getCreate_time() {
-        return create_time;
-    }
-
-    public void setCreate_time(Long create_time) {
-        this.create_time = create_time;
-    }
-
     public Long getUpdate_user_id() {
         return update_user_id;
     }
@@ -91,11 +90,4 @@ public class OcrCronusBaseDTO {
         this.update_user_name = update_user_name;
     }
 
-    public Long getUpdate_time() {
-        return update_time;
-    }
-
-    public void setUpdate_time(Long update_time) {
-        this.update_time = update_time;
-    }
 }
