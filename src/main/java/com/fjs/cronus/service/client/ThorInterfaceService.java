@@ -13,7 +13,7 @@ import java.util.Map;
  * UC用户中心接口
  * Created by Administrator on 2017/7/19 0019. url = "http://192.168.1.124:1120",
  */
-@FeignClient(value = "${client.feign.thor-backend}", configuration = FeignClientConfig.class)
+@FeignClient(value = "${client.feign.thor-backend}",  configuration = FeignClientConfig.class)
 public interface ThorInterfaceService {
 
 
@@ -398,6 +398,14 @@ public interface ThorInterfaceService {
     @RequestMapping(value = "/api/v1/getUpYwyByRole_id",method = RequestMethod.GET)
     BaseUcDTO getUpYwyByRole_id(@RequestHeader("Authorization") String token);
 
+    /**
+     * 通过token获取用户基本信息
+     * @param Authorization
+     * @param systemName
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getCurrentUserInfo",method = RequestMethod.GET)
+    String getCurrentUserInfo(@RequestHeader("Authorization") String Authorization,
+                              @RequestParam(value = "systemName") String systemName);
 }
-
 
