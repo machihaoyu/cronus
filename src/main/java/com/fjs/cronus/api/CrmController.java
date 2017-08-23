@@ -1254,13 +1254,14 @@ public class CrmController {
 
     //获取产品列表
     @RequestMapping(value = "/getProductList",method = RequestMethod.GET)
-    public PageBeanDTO<ProductDTO> getProductList(@RequestParam String search, @RequestParam Integer subCompanyId ,@RequestParam Integer p,@RequestParam Integer size){
-        String url = saleUrl + "getProductList?key=" + saleKey + "&search=" + search + "&sub_company_id=" + subCompanyId +"&p=" + p + "&perpage=" + size;
+    public PageBeanDTO<ProductDTO> getProductList(@RequestParam String search, @RequestParam Integer subCompanyId ,@RequestParam Integer p,@RequestParam Integer size, @RequestParam Integer userId){
+        String url = saleUrl + "getProductList?key=" + saleKey + "&search=" + search + "&sub_company_id=" + subCompanyId +"&p=" + p + "&perpage=" + size + "&user_id=" + userId;
         String res = restTemplate.getForObject(url, String.class);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         PageBeanDTO<ProductDTO> pageBeanDTO = new PageBeanDTO();
-        return JSON.parseObject(data.getRetData(),pageBeanDTO.getClass());
+        pageBeanDTO = JSON.parseObject(data.getRetData(), pageBeanDTO.getClass());
+        return pageBeanDTO;
     }
 
     //添加普通合同;
