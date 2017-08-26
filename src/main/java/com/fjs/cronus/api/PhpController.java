@@ -11,6 +11,7 @@ import com.fjs.cronus.service.client.ThorInterfaceService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Map;
 
 import static com.fjs.cronus.exception.ExceptionValidate.validateResponse;
 
@@ -58,6 +61,7 @@ public class PhpController {
     ) {
         String user_id = null;
         try{
+//            Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
             String ucDataStr =thorInterfaceService.getCurrentUserInfo(Authorization,"");
             UcData ucData = JSONObject.parseObject(ucDataStr, UcData.class);
             if(null != ucData && ucData.getResult() == 0) {
@@ -70,11 +74,17 @@ public class PhpController {
             e.printStackTrace();
             throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "请登录后操作！");
         }
-        String url = saleUrl + "addCustomerInterviewInfo";
-        MultiValueMap<String, Object> param = this.generateInfoParams(customerInterviewInfoDTO);
-        param.add("user_id",user_id);
-        String str = restTemplate.postForObject(url, param, String.class);
-        ResponseData data = JSON.parseObject(str, ResponseData.class);
+        ResponseData data = new ResponseData();
+        try{
+            String url = saleUrl + "addCustomerInterviewInfo";
+            MultiValueMap<String, Object> param = this.generateInfoParams(customerInterviewInfoDTO);
+            param.add("user_id",user_id);
+            String str = restTemplate.postForObject(url, param, String.class);
+            data = JSON.parseObject(str, ResponseData.class);
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "参数初始化错误，不可传入undifined参数！");
+        }
         validateResponse(data);
         return data;
     }
