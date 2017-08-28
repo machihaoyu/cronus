@@ -151,7 +151,8 @@ public interface ThorInterfaceService {
     @RequestMapping(value = "/api/v1/getRoleInfo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     BaseUcDTO getRoleInfo(@RequestHeader("Authorization") String token,
                           @RequestParam(value = "name") String name,
-                          @RequestParam(value = "value") String value);
+                          @RequestParam(value = "value") String value,
+                          @RequestParam(value = "company_id") Integer company_id);
 
     /**
      * 获取用户集合
@@ -162,10 +163,11 @@ public interface ThorInterfaceService {
      */
     @RequestMapping(value = "/api/v1/getUserIds", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     BaseUcDTO getUserIds(@RequestHeader("Authorization") String token,
-                         @RequestParam(value = "company_id") Integer company_id,
-                         @RequestParam(value = "department_id") Integer department_id,
+                         @RequestParam(value = "company_id", required = false) Integer company_id,
+                         @RequestParam(value = "department_id", required = false) Integer department_id,
                          @RequestParam(value = "role_id", required = false) Integer role_id,
-                         @RequestParam(value = "status", required = false) Integer status);
+                         @RequestParam(value = "status", required = false) Integer status,
+                         @RequestParam(value = "sub_company_id", required = false) Integer sub_company_id);
 
     /**
      * 查询角色信息
@@ -223,7 +225,8 @@ public interface ThorInterfaceService {
     BaseUcDTO getSubCompanys(@RequestHeader("Authorization") String token,
                              @RequestParam(value = "city") String city,
                              @RequestParam(value = "where") String where,
-                             @RequestParam(value = "type") Integer type);
+                             @RequestParam(value = "type") Integer type,
+                             @RequestParam(value = "company_id") Integer company_id);
 
 
     /**
