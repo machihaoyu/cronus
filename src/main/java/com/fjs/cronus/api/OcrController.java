@@ -46,7 +46,7 @@ public class OcrController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", defaultValue = "Bearer ", required = true, paramType = "header", dataType = "string"),
             @ApiImplicitParam(name = "reqParamDTO", value = "", required = true, paramType = "body", dataType = "ReqParamDTO")
     })
-    @RequestMapping(value = "/v1/", method = RequestMethod.POST)//TODO 地址;
+    @RequestMapping(value = "/v1/ocrService", method = RequestMethod.POST)
     public void ocrService(@RequestHeader(name = "Authorization") String token, @RequestBody ReqParamDTO reqParamDTO){
         LOGGER.warn("OCR识别接口_OcrController_ocrService : reqParamDTO = " + ReflectionToStringBuilder.toString(reqParamDTO));
         talosService.ocrService(reqParamDTO, token);
