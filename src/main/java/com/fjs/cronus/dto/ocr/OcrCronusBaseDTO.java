@@ -1,7 +1,5 @@
 package com.fjs.cronus.dto.ocr;
 
-import java.util.Date;
-
 /**
  * Created by chenjie on 2017/8/17.
  */
@@ -17,6 +15,8 @@ public class OcrCronusBaseDTO {
     private Long update_user_id;// int(11) NOT NULL COMMENT '更新人ID',
     private String update_user_name;// varchar(50) DEFAULT NULL COMMENT '更新人名称',
     private String type;// 证件类型;
+
+    private Long id;
 
     public String getType() {
         return type;
@@ -90,4 +90,11 @@ public class OcrCronusBaseDTO {
         this.update_user_name = update_user_name;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

@@ -38,6 +38,9 @@ public class ReqParamDTO implements Serializable{
     @ApiModelProperty(value = "如过证件类型为身份证时必传:反面-face;反面-back", required = false)
     private String side;
 
+    @ApiModelProperty(value = "实体对象的ID", required = true)
+    private Long id;
+
     public Long getCustomerId() {
         return customerId;
     }
@@ -108,5 +111,13 @@ public class ReqParamDTO implements Serializable{
 
     public void setSide(String side) {
         this.side = side;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
