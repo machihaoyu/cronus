@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.LinkedMultiValueMap;
@@ -48,7 +49,10 @@ public class OcrController {
     })
     @RequestMapping(value = "/v1/ocrService", method = RequestMethod.POST)
     public void ocrService(@RequestHeader(name = "Authorization") String token, @RequestBody ReqParamDTO reqParamDTO){
-        LOGGER.warn("OCR识别接口_OcrController_ocrService : reqParamDTO = " + ReflectionToStringBuilder.toString(reqParamDTO));
+        ReqParamDTO reqParamDTO1 = new ReqParamDTO();
+        BeanUtils.copyProperties(reqParamDTO, reqParamDTO1);
+        reqParamDTO1.setImgBase64(null);
+        LOGGER.warn("OCR识别接口_OcrController_ocrService : reqParamDTO = " + ReflectionToStringBuilder.toString(reqParamDTO1));
         talosService.ocrService(reqParamDTO, token);
     }
 
