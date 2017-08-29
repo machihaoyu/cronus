@@ -52,7 +52,7 @@ public class OcrController {
         ReqParamDTO reqParamDTO1 = new ReqParamDTO();
         BeanUtils.copyProperties(reqParamDTO, reqParamDTO1);
         reqParamDTO1.setImgBase64(null);
-        LOGGER.warn("OCR识别接口_OcrController_ocrService : reqParamDTO = " + ReflectionToStringBuilder.toString(reqParamDTO1));
+        LOGGER.warn("OCR识别接口_OcrController_ocrService : token = " +  token + ", reqParamDTO = " + ReflectionToStringBuilder.toString(reqParamDTO1));
         talosService.ocrService(reqParamDTO, token);
     }
 
