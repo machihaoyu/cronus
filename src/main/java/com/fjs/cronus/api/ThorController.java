@@ -1,12 +1,16 @@
 package com.fjs.cronus.api;
 
+import com.fjs.cronus.dto.ocr.ReqParamDTO;
 import com.fjs.cronus.dto.uc.*;
+import com.fjs.cronus.service.client.TalosService;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +27,30 @@ public class ThorController {
 
     @Autowired
     ThorInterfaceService thorInterfaceService;
+
+
+    @Autowired
+    private TalosService talosService;//TODO 删除;
+
+    /**
+     * 调用第三方图文识别
+     * @param token 认证信息;
+     * @param reqParamDTO 请求参数DTO;
+     */
+    @ApiOperation(value="OCR识别接口", notes="OCR识别接口API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", defaultValue = "Bearer ", required = true, paramType = "header", dataType = "string"),
+            @ApiImplicitParam(name = "reqParamDTO", value = "", required = true, paramType = "body", dataType = "ReqParamDTO")
+    })
+    @RequestMapping(value = "/v1/ocrService", method = RequestMethod.POST)
+    public void ocrService(@RequestHeader(name = "Authorization") String token, @RequestBody ReqParamDTO reqParamDTO){
+        ReqParamDTO reqParamDTO1 = new ReqParamDTO();
+        BeanUtils.copyProperties(reqParamDTO, reqParamDTO1);
+        reqParamDTO1.setImgBase64(null);
+        LOGGER.warn("OCR识别接口_OcrController_ocrService : token = " +  token + ", reqParamDTO = " + ReflectionToStringBuilder.toString(reqParamDTO1));
+        talosService.ocrService(reqParamDTO, token);
+    }
+    //TODO 删除;
 
 
     @ApiOperation(value="登录系统带用户情报接口", notes="登录系统带用户情报接口API")
