@@ -33,7 +33,7 @@ public class OAuthResourceConfig extends ResourceServerConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/uc/api/**", "/saas/api/**").authenticated();
+        http.authorizeRequests().antMatchers("/uc/api/**", "/saas/api/**", "/ocr/api/**").authenticated();
         //http.addFilterBefore( new PreAuthFilter(), BasicAuthenticationFilter )
        /* http
                 .authorizeRequests()
