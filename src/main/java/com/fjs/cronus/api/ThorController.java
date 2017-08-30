@@ -42,7 +42,7 @@ public class ThorController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", defaultValue = "Bearer ", required = true, paramType = "header", dataType = "string"),
             @ApiImplicitParam(name = "reqParamDTO", value = "", required = true, paramType = "body", dataType = "ReqParamDTO")
     })
-    @RequestMapping(value = "/v1/ocrService", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/v1/ocrService", method = RequestMethod.POST)
     public void ocrService(@RequestHeader(name = "Authorization") String token, @RequestBody ReqParamDTO reqParamDTO){
         ReqParamDTO reqParamDTO1 = new ReqParamDTO();
         BeanUtils.copyProperties(reqParamDTO, reqParamDTO1);
