@@ -1,12 +1,16 @@
 package com.fjs.cronus.api;
 
+import com.fjs.cronus.dto.ocr.ReqParamDTO;
 import com.fjs.cronus.dto.uc.*;
+import com.fjs.cronus.service.client.TalosService;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
