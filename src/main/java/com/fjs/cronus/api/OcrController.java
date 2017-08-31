@@ -72,6 +72,7 @@ public class OcrController {
         String url = saleUrl + "addOrcInfo";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
+        param.add("id", idCardDTO.getId());
         param.add("customer_id",idCardDTO.getCustomer_id());
         param.add("customer_name",idCardDTO.getCustomer_name());
         param.add("customer_telephone",idCardDTO.getCustomer_telephone());
@@ -112,6 +113,7 @@ public class OcrController {
         String url = saleUrl + "addOrcInfo";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
+        param.add("id", driverLicenseDTO.getId());
         param.add("customer_id",driverLicenseDTO.getCustomer_id());
         param.add("customer_name",driverLicenseDTO.getCustomer_name());
         param.add("customer_telephone",driverLicenseDTO.getCustomer_telephone());
@@ -148,6 +150,7 @@ public class OcrController {
         String url = saleUrl + "addOrcInfo";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
+        param.add("id", driverVehicleDTO.getId());
         param.add("customer_id",driverVehicleDTO.getCustomer_id());
         param.add("customer_name",driverVehicleDTO.getCustomer_name());
         param.add("customer_telephone",driverVehicleDTO.getCustomer_telephone());
@@ -185,6 +188,7 @@ public class OcrController {
         String url = saleUrl + "addOrcInfo";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
         param.add("key",saleKey);
+        param.add("id", householdRegisterDTO.getId());
         param.add("customer_id",householdRegisterDTO.getCustomer_id());
         param.add("customer_name",householdRegisterDTO.getCustomer_name());
         param.add("customer_telephone",householdRegisterDTO.getCustomer_telephone());
