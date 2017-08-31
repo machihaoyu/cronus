@@ -19,8 +19,8 @@ import org.springframework.web.client.RestTemplate;
 /**
  * Created by Administrator on 2017/8/17 0017.
  */
-@RestController
-@RequestMapping("/ocr")
+//@RestController
+//@RequestMapping("/ocr/api")
 public class OcrController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
