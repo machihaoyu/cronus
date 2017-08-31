@@ -1,6 +1,7 @@
 package com.fjs.cronus.api;
 
 import com.fjs.cronus.dto.ocr.*;
+import com.fjs.cronus.dto.saas.SaasApiDTO;
 import com.fjs.cronus.service.client.TalosService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -19,8 +20,8 @@ import org.springframework.web.client.RestTemplate;
 /**
  * Created by Administrator on 2017/8/17 0017.
  */
-@RestController
-@RequestMapping("/ocr/api")
+//@RestController
+//@RequestMapping("/ocr/api")
 public class OcrController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
@@ -39,7 +40,7 @@ public class OcrController {
 
     /**
      * 调用第三方图文识别
-     * @param token 认证信息;
+     * @param Authorization 认证信息;
      * @param reqParamDTO 请求参数DTO;
      */
     @ApiOperation(value="OCR识别接口", notes="OCR识别接口API")
@@ -48,12 +49,12 @@ public class OcrController {
             @ApiImplicitParam(name = "reqParamDTO", value = "", required = true, paramType = "body", dataType = "ReqParamDTO")
     })
     @RequestMapping(value = "/v1/ocrService", method = RequestMethod.POST)
-    public void ocrService(@RequestHeader(name = "Authorization") String token, @RequestBody ReqParamDTO reqParamDTO){
+    public void ocrService(@RequestHeader(name = "Authorization") String Authorization, @RequestBody ReqParamDTO reqParamDTO){
         ReqParamDTO reqParamDTO1 = new ReqParamDTO();
         BeanUtils.copyProperties(reqParamDTO, reqParamDTO1);
         reqParamDTO1.setImgBase64(null);
-        LOGGER.warn("OCR识别接口_OcrController_ocrService : token = " +  token + ", reqParamDTO = " + ReflectionToStringBuilder.toString(reqParamDTO1));
-        talosService.ocrService(reqParamDTO, token);
+        LOGGER.warn("OCR识别接口_OcrController_ocrService : token = " +  Authorization + ", reqParamDTO = " + ReflectionToStringBuilder.toString(reqParamDTO1));
+        talosService.ocrService(reqParamDTO, Authorization);
     }
 
 
