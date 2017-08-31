@@ -60,12 +60,13 @@ public class PhpController {
                                                  @RequestBody CustomerInterviewInfoDTO customerInterviewInfoDTO
     ) {
         String user_id = null;
+        UserInfoDTO userInfoDTO = null;
         try{
 //            Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
             String ucDataStr =thorInterfaceService.getCurrentUserInfo(Authorization,"");
             UcData ucData = JSONObject.parseObject(ucDataStr, UcData.class);
             if(null != ucData && ucData.getResult() == 0) {
-                UserInfoDTO userInfoDTO = JSONObject.parseObject(ucData.getData(), UserInfoDTO.class);
+                userInfoDTO = JSONObject.parseObject(ucData.getData(), UserInfoDTO.class);
                 user_id= userInfoDTO.getUser_id();
             } else {
                 throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "请登录后操作！");
@@ -77,7 +78,7 @@ public class PhpController {
         ResponseData data = new ResponseData();
         try{
             String url = saleUrl + "addCustomerInterviewInfo";
-            MultiValueMap<String, Object> param = this.generateInfoParams(customerInterviewInfoDTO);
+            MultiValueMap<String, Object> param = this.generateInfoParams(customerInterviewInfoDTO,userInfoDTO);
             param.add("user_id",user_id);
             String str = restTemplate.postForObject(url, param, String.class);
             data = JSON.parseObject(str, ResponseData.class);
@@ -276,13 +277,13 @@ public class PhpController {
 
     /*构建基础信息*/
     public MultiValueMap<String, Object> generateInfoParams(
-            CustomerInterviewInfoDTO customerInterviewInfoDTO) {
+            CustomerInterviewInfoDTO customerInterviewInfoDTO,UserInfoDTO userInfoDTO) {
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key", saleKey);
         param.add("customer_interview_base_info_id", customerInterviewInfoDTO.getCustomer_interview_base_info_id());
         param.add("customer_id", customerInterviewInfoDTO.getCustomer_id());
-        param.add("owner_user_id", customerInterviewInfoDTO.getOwner_user_id());
-        param.add("owner_user_name", customerInterviewInfoDTO.getOwner_user_name());
+        param.add("owner_user_id", userInfoDTO.getUser_id());
+        param.add("owner_user_name", userInfoDTO.getName());
         param.add("name", customerInterviewInfoDTO.getName());
         param.add("sex", customerInterviewInfoDTO.getSex());
         param.add("birth_date", customerInterviewInfoDTO.getBirth_date());
