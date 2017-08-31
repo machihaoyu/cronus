@@ -1,7 +1,6 @@
 package com.fjs.cronus.api;
 
 import com.fjs.cronus.dto.ocr.*;
-import com.fjs.cronus.dto.saas.SaasApiDTO;
 import com.fjs.cronus.service.client.TalosService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -40,7 +39,7 @@ public class OcrController {
 
     /**
      * 调用第三方图文识别
-     * @param Authorization 认证信息;
+     * @param token 认证信息;
      * @param reqParamDTO 请求参数DTO;
      */
     @ApiOperation(value="OCR识别接口", notes="OCR识别接口API")
@@ -48,13 +47,13 @@ public class OcrController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", defaultValue = "Bearer ", required = true, paramType = "header", dataType = "string"),
             @ApiImplicitParam(name = "reqParamDTO", value = "", required = true, paramType = "body", dataType = "ReqParamDTO")
     })
-    @RequestMapping(value = "/v1/ocrService", method = RequestMethod.POST)
-    public void ocrService(@RequestHeader(name = "Authorization") String Authorization, @RequestBody ReqParamDTO reqParamDTO){
+    @RequestMapping(value = "/api/v1/ocrService", method = RequestMethod.POST)
+    public void ocrService(@RequestHeader(name = "Authorization") String token, @RequestBody ReqParamDTO reqParamDTO){
         ReqParamDTO reqParamDTO1 = new ReqParamDTO();
         BeanUtils.copyProperties(reqParamDTO, reqParamDTO1);
         reqParamDTO1.setImgBase64(null);
-        LOGGER.warn("OCR识别接口_OcrController_ocrService : token = " +  Authorization + ", reqParamDTO = " + ReflectionToStringBuilder.toString(reqParamDTO1));
-        talosService.ocrService(reqParamDTO, Authorization);
+        LOGGER.warn("OCR识别接口_OcrController_ocrService : token = " +  token + ", reqParamDTO = " + ReflectionToStringBuilder.toString(reqParamDTO1));
+        talosService.ocrService(reqParamDTO, token);
     }
 
 
@@ -68,7 +67,7 @@ public class OcrController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", defaultValue = "Bearer ", required = true, paramType = "header", dataType = "string"),
             @ApiImplicitParam(name = "idCardDTO", value = "", required = true, paramType = "body", dataType = "IdCardDTO")
     })
-    @RequestMapping(value = "/v1/saveIdCard", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/v1/saveIdCard", method = RequestMethod.POST)
     public void saveIdCard(@RequestBody IdCardDTO idCardDTO, @RequestHeader(name = "Authorization") String token){
         String url = saleUrl + "addOrcInfo";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
@@ -109,7 +108,7 @@ public class OcrController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", defaultValue = "Bearer ", required = true, paramType = "header", dataType = "string"),
             @ApiImplicitParam(name = "driverLicenseDTO", value = "", required = true, paramType = "body", dataType = "DriverLicenseDTO")
     })
-    @RequestMapping(value = "/v1/saveDriverLicense", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/v1/saveDriverLicense", method = RequestMethod.POST)
     public void saveDriverLicense(@RequestBody DriverLicenseDTO driverLicenseDTO, @RequestHeader(name = "Authorization") String token){
         String url = saleUrl + "addOrcInfo";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
@@ -146,7 +145,7 @@ public class OcrController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", defaultValue = "Bearer ", required = true, paramType = "header", dataType = "string"),
             @ApiImplicitParam(name = "driverVehicleDTO", value = "", required = true, paramType = "body", dataType = "DriverVehicleDTO")
     })
-    @RequestMapping(value = "/v1/saveDriverVehicle", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/v1/saveDriverVehicle", method = RequestMethod.POST)
     public void saveDriverVehicle(@RequestBody DriverVehicleDTO driverVehicleDTO, @RequestHeader(name = "Authorization") String token){
         String url = saleUrl + "addOrcInfo";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
@@ -184,7 +183,7 @@ public class OcrController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", defaultValue = "Bearer ", required = true, paramType = "header", dataType = "string"),
             @ApiImplicitParam(name = "householdRegisterDTO", value = "", required = true, paramType = "body", dataType = "HouseholdRegisterDTO")
     })
-    @RequestMapping(value = "/v1/saveHouseholdRegister", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/v1/saveHouseholdRegister", method = RequestMethod.POST)
     public void saveHouseholdRegister(@RequestBody HouseholdRegisterDTO householdRegisterDTO, @RequestHeader(name = "Authorization") String token){
         String url = saleUrl + "addOrcInfo";
         MultiValueMap<String,Object> param = new LinkedMultiValueMap<>();
