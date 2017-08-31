@@ -340,6 +340,7 @@ public class PhpController {
 
         param.add("customer_interview_insurance_info_id", customerInterviewInfoDTO.getCustomer_interview_house_info_id());
         param.add("house_status", customerInterviewInfoDTO.getHouse_status());
+        param.add("acceptHousearea",customerInterviewInfoDTO.getAcceptHousearea());
         param.add("house_property_type", customerInterviewInfoDTO.getHouse_property_type());
         param.add("area", customerInterviewInfoDTO.getArea());
         param.add("build_date", customerInterviewInfoDTO.getBuild_date());

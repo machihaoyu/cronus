@@ -62,6 +62,7 @@ public class CustomerInterviewInfoDTO implements Serializable{
     private Integer customer_interview_house_info_id;//`customer_interview_insurance_info_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     private String house_status;//`house_status` varchar(50) DEFAULT NULL COMMENT '产权状态',
     private String house_property_type;//`house_property_type` varchar(50) DEFAULT NULL COMMENT '产权类型',
+    private String acceptHousearea;//房产所在城市
     private Float area;//`area` decimal(10,2) DEFAULT NULL COMMENT '面积',
     private Integer build_date;//`build_date` int(10) DEFAULT NULL COMMENT '建成年限',
     private Integer house_property_rights_num;//`house_property_rights_num` int(11) DEFAULT NULL COMMENT '产权人数',
@@ -94,6 +95,14 @@ public class CustomerInterviewInfoDTO implements Serializable{
     private String create_time;//`create_time` int(10) DEFAULT NULL COMMENT '创建时间',
     private Integer create_user_id;//`create_user_id` int(11) DEFAULT NULL COMMENT '创建人ID',
     private String update_time;//`update_time` int(10) DEFAULT NULL COMMENT '更新时间',
+
+    public String getAcceptHousearea() {
+        return acceptHousearea;
+    }
+
+    public void setAcceptHousearea(String acceptHousearea) {
+        this.acceptHousearea = acceptHousearea;
+    }
 
     public Integer getCustomer_interview_base_info_id() {
         return customer_interview_base_info_id;
