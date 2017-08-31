@@ -330,6 +330,7 @@ public class PhpController {
         param.add("update_time", customerInterviewInfoDTO.getUpdate_time());
 
         param.add("customer_interview_insurance_info_id", customerInterviewInfoDTO.getCustomer_interview_insurance_info_id());
+        param.add("insurance_company",customerInterviewInfoDTO.getInsurance_company());
         param.add("insurance_type", customerInterviewInfoDTO.getInsurance_type());
         param.add("pay_type", customerInterviewInfoDTO.getPay_type());
         param.add("year_pay_amount", customerInterviewInfoDTO.getYear_pay_amount());

@@ -84,6 +84,7 @@ public class CustomerInterviewInfoDTO implements Serializable{
     private String is_full_insurance;//`is_full_insurance` varchar(50) DEFAULT NULL COMMENT '是否两险齐全',
 
     private Integer customer_interview_insurance_info_id;//`customer_interview_insurance_info_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    private String insurance_company;//保险公司名
     private String insurance_type;//`insurance_type` varchar(50) DEFAULT NULL COMMENT '保险类型',
     private String pay_type;//`pay_type` varchar(50) DEFAULT NULL COMMENT '缴费方式',
     private Integer year_pay_amount;//`year_pay_amount` int(10) DEFAULT NULL COMMENT '年缴费金额',
@@ -100,6 +101,14 @@ public class CustomerInterviewInfoDTO implements Serializable{
 
     public void setCustomer_interview_base_info_id(Integer customer_interview_base_info_id) {
         this.customer_interview_base_info_id = customer_interview_base_info_id;
+    }
+
+    public String getInsurance_company() {
+        return insurance_company;
+    }
+
+    public void setInsurance_company(String insurance_company) {
+        this.insurance_company = insurance_company;
     }
 
     public Integer getCustomer_id() {
