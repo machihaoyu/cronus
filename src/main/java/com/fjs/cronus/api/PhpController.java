@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -59,27 +60,27 @@ public class PhpController {
     public ResponseData addCustomerInterviewInfo(@RequestHeader String Authorization,
                                                  @RequestBody CustomerInterviewInfoDTO customerInterviewInfoDTO
     ) {
-        String user_id = null;
+//        String user_id = null;
         UserInfoDTO userInfoDTO = null;
-        try{
-//            Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-            String ucDataStr =thorInterfaceService.getCurrentUserInfo(Authorization,"");
-            UcData ucData = JSONObject.parseObject(ucDataStr, UcData.class);
-            if(null != ucData && ucData.getResult() == 0) {
-                userInfoDTO = JSONObject.parseObject(ucData.getData(), UserInfoDTO.class);
-                user_id= userInfoDTO.getUser_id();
-            } else {
-                throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "请登录后操作！");
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-            throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "请登录后操作！");
-        }
+//        try{
+            Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+//            String ucDataStr =thorInterfaceService.getCurrentUserInfo(Authorization,"");
+//            UcData ucData = JSONObject.parseObject(ucDataStr, UcData.class);
+//            if(null != ucData && ucData.getResult() == 0) {
+//                userInfoDTO = JSONObject.parseObject(ucData.getData(), UserInfoDTO.class);
+//                user_id= userInfoDTO.getUser_id();
+//            } else {
+//                throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "请登录后操作！");
+//            }
+//        } catch (Exception e){
+//            e.printStackTrace();
+//            throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "请登录后操作！");
+//        }
         ResponseData data = new ResponseData();
         try{
             String url = saleUrl + "addCustomerInterviewInfo";
             MultiValueMap<String, Object> param = this.generateInfoParams(customerInterviewInfoDTO,userInfoDTO);
-            param.add("user_id",user_id);
+            param.add("user_id",userId);
             String str = restTemplate.postForObject(url, param, String.class);
             data = JSON.parseObject(str, ResponseData.class);
         } catch (Exception e){
@@ -282,8 +283,8 @@ public class PhpController {
         param.add("key", saleKey);
         param.add("customer_interview_base_info_id", customerInterviewInfoDTO.getCustomer_interview_base_info_id());
         param.add("customer_id", customerInterviewInfoDTO.getCustomer_id());
-        param.add("owner_user_id", userInfoDTO.getUser_id());
-        param.add("owner_user_name", userInfoDTO.getName());
+//        param.add("owner_user_id", userInfoDTO.getUser_id());
+//        param.add("owner_user_name", userInfoDTO.getName());
         param.add("name", customerInterviewInfoDTO.getName());
         param.add("sex", customerInterviewInfoDTO.getSex());
         param.add("birth_date", customerInterviewInfoDTO.getBirth_date());
