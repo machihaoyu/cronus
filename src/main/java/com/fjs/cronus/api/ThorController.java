@@ -43,7 +43,28 @@ public class ThorController {
             @ApiImplicitParam(name = "reqParamDTO", value = "", required = true, paramType = "body", dataType = "ReqParamDTO")
     })
     @RequestMapping(value = "/api/v1/ocrService", method = RequestMethod.POST)
-    public void ocrService(@RequestHeader(name = "Authorization") String token, @RequestBody ReqParamDTO reqParamDTO){
+    public void ocrService(@RequestHeader(name = "Authorization") String token,
+                           @RequestParam(value = "customerId") Long customerId,
+                           @RequestParam(value = "customerName") String customerName,
+                           @RequestParam(value = "customerTelephone") String customerTelephone,
+                           @RequestParam(value = "userId") Long userId,
+                           @RequestParam(value = "userName") String userName,
+                           @RequestParam(value = "attachmentId") Long attachmentId,
+                           @RequestParam(value = "imgBase64") String imgBase64,
+                           @RequestParam(value = "type") String type,
+                           @RequestParam(value = "side",required = false) String side,
+                           @RequestParam(value = "id") Long id){
+        ReqParamDTO reqParamDTO = new ReqParamDTO();
+        reqParamDTO.setCustomerId(customerId);
+        reqParamDTO.setCustomerName(customerName);
+        reqParamDTO.setCustomerTelephone(customerTelephone);
+        reqParamDTO.setUserId(userId);
+        reqParamDTO.setUserName(userName);
+        reqParamDTO.setAttachmentId(attachmentId);
+        reqParamDTO.setImgBase64(imgBase64);
+        reqParamDTO.setType(type);
+        reqParamDTO.setSide(side);
+        reqParamDTO.setId(id);
         ReqParamDTO reqParamDTO1 = new ReqParamDTO();
         BeanUtils.copyProperties(reqParamDTO, reqParamDTO1);
         reqParamDTO1.setImgBase64(null);
