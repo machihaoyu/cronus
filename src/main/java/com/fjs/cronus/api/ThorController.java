@@ -28,52 +28,6 @@ public class ThorController {
     @Autowired
     ThorInterfaceService thorInterfaceService;
 
-    @Autowired
-    private TalosService talosService;//TODO 删除;
-
-
-    /**
-     * 调用第三方图文识别
-     * @param token 认证信息;
-     * @param reqParamDTO 请求参数DTO;
-     */
-    @ApiOperation(value="OCR识别接口", notes="OCR识别接口API")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", defaultValue = "Bearer ", required = true, paramType = "header", dataType = "string"),
-            @ApiImplicitParam(name = "reqParamDTO", value = "", required = true, paramType = "body", dataType = "ReqParamDTO")
-    })
-    @RequestMapping(value = "/api/v1/ocrService", method = RequestMethod.POST)
-    public void ocrService(@RequestHeader(name = "Authorization") String token,
-                           @RequestParam(value = "customerId") Long customerId,
-                           @RequestParam(value = "customerName") String customerName,
-                           @RequestParam(value = "customerTelephone") String customerTelephone,
-                           @RequestParam(value = "userId") Long userId,
-                           @RequestParam(value = "userName") String userName,
-                           @RequestParam(value = "attachmentId") Long attachmentId,
-                           @RequestParam(value = "imgBase64") String imgBase64,
-                           @RequestParam(value = "type") String type,
-                           @RequestParam(value = "side",required = false) String side,
-                           @RequestParam(value = "id") Long id){
-        ReqParamDTO reqParamDTO = new ReqParamDTO();
-        reqParamDTO.setCustomerId(customerId);
-        reqParamDTO.setCustomerName(customerName);
-        reqParamDTO.setCustomerTelephone(customerTelephone);
-        reqParamDTO.setUserId(userId);
-        reqParamDTO.setUserName(userName);
-        reqParamDTO.setAttachmentId(attachmentId);
-        reqParamDTO.setImgBase64(imgBase64);
-        reqParamDTO.setType(type);
-        reqParamDTO.setSide(side);
-        reqParamDTO.setId(id);
-        ReqParamDTO reqParamDTO1 = new ReqParamDTO();
-        BeanUtils.copyProperties(reqParamDTO, reqParamDTO1);
-        reqParamDTO1.setImgBase64(null);
-        LOGGER.warn("OCR识别接口_OcrController_ocrService : token = " +  token + ", reqParamDTO = " + ReflectionToStringBuilder.toString(reqParamDTO1));
-        talosService.ocrService(reqParamDTO, token);
-    }
-    //TODO 删除;
-
-
 
     @ApiOperation(value="登录系统带用户情报接口", notes="登录系统带用户情报接口API")
     @ApiImplicitParams({
