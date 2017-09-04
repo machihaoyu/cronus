@@ -726,8 +726,8 @@ public class CrmController {
 
     //使用附件分类头categoryId更新上传附件分类的
     @RequestMapping(value = "/updateFileCateId", method = RequestMethod.GET)
-    public void updateCateIdByDocumentId(@RequestParam Integer documentId,@RequestParam String categoryId/*, @RequestParam Integer userId, @RequestParam Integer customerId*/) {//TODO 对接图文识别需要放开
-        String url =  baseDocumentUrl + "changeCategoryForMobile?key=" + saleKey + "&id=" + documentId + "&category=" + categoryId /*+ "&user_id=" + userId + "&customer_id=" + customerId*/;
+    public void updateCateIdByDocumentId(@RequestParam Integer documentId,@RequestParam String categoryId, @RequestParam Integer userId, @RequestParam Integer customerId) {
+        String url =  baseDocumentUrl + "changeCategoryForMobile?key=" + saleKey + "&id=" + documentId + "&category=" + categoryId + "&user_id=" + userId + "&customer_id=" + customerId;
         String res = restTemplate.getForObject(url, String.class);
         CRMData crmData = JSONObject.parseObject(res, CRMData.class);
         ExceptionValidate.validateCRMData(crmData);
