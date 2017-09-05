@@ -18,6 +18,15 @@ public class IdCardDTO extends OcrCronusBaseDTO implements Serializable {
     private String card_sign_org;// varchar(50) DEFAULT NULL COMMENT '身份证-签发机关',
     private String card_valid_start;// varchar(50) DEFAULT NULL COMMENT '身份证-有效期-开始',
     private String card_valid_end;// varchar(50) DEFAULT NULL COMMENT '身份证-有效期-截止',
+    private String side; //身份证正反面 #### 正面 : face ; 反面 : back
+
+    public String getSide() {
+        return side;
+    }
+
+    public void setSide(String side) {
+        this.side = side;
+    }
 
     public String getCard_name() {
         return card_name;

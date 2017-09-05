@@ -92,6 +92,7 @@ public class OcrController {
         param.add("update_user_id",idCardDTO.getCreate_user_id());
         param.add("update_user_name",idCardDTO.getCreate_user_name());
         param.add("type",idCardDTO.getType());
+        param.add("side",idCardDTO.getSide());
         LOGGER.warn("保存身份证信息接口_OcrController_saveIdCard : idCardDTO = " + ReflectionToStringBuilder.toString(idCardDTO) + ", token = " + token);
         String res = restTemplate.postForObject(url, param, String.class);
         LOGGER.warn("保存身份证信息接口_OcrController_saveIdCard ：res = " + res);
