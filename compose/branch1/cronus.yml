@@ -3,9 +3,6 @@ services:
   cronus:
     image: 192.168.1.126/library/fjs/cronus:branch1
     deploy:
-      placement:
-        constraints:
-          - node.id == b0ao1mlyucdulb8m3p2nz6rny
       replicas: 1
       update_config: 
         parallelism: 1   
