@@ -62,6 +62,7 @@ public class CustomerInterviewInfoDTO implements Serializable{
     private Integer customer_interview_house_info_id;//`customer_interview_insurance_info_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     private String house_status;//`house_status` varchar(50) DEFAULT NULL COMMENT '产权状态',
     private String house_property_type;//`house_property_type` varchar(50) DEFAULT NULL COMMENT '产权类型',
+    private String acceptHousearea;//房产所在城市
     private Float area;//`area` decimal(10,2) DEFAULT NULL COMMENT '面积',
     private Integer build_date;//`build_date` int(10) DEFAULT NULL COMMENT '建成年限',
     private Integer house_property_rights_num;//`house_property_rights_num` int(11) DEFAULT NULL COMMENT '产权人数',
@@ -84,6 +85,7 @@ public class CustomerInterviewInfoDTO implements Serializable{
     private String is_full_insurance;//`is_full_insurance` varchar(50) DEFAULT NULL COMMENT '是否两险齐全',
 
     private Integer customer_interview_insurance_info_id;//`customer_interview_insurance_info_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    private String insurance_company;//保险公司名
     private String insurance_type;//`insurance_type` varchar(50) DEFAULT NULL COMMENT '保险类型',
     private String pay_type;//`pay_type` varchar(50) DEFAULT NULL COMMENT '缴费方式',
     private Integer year_pay_amount;//`year_pay_amount` int(10) DEFAULT NULL COMMENT '年缴费金额',
@@ -94,12 +96,28 @@ public class CustomerInterviewInfoDTO implements Serializable{
     private Integer create_user_id;//`create_user_id` int(11) DEFAULT NULL COMMENT '创建人ID',
     private String update_time;//`update_time` int(10) DEFAULT NULL COMMENT '更新时间',
 
+    public String getAcceptHousearea() {
+        return acceptHousearea;
+    }
+
+    public void setAcceptHousearea(String acceptHousearea) {
+        this.acceptHousearea = acceptHousearea;
+    }
+
     public Integer getCustomer_interview_base_info_id() {
         return customer_interview_base_info_id;
     }
 
     public void setCustomer_interview_base_info_id(Integer customer_interview_base_info_id) {
         this.customer_interview_base_info_id = customer_interview_base_info_id;
+    }
+
+    public String getInsurance_company() {
+        return insurance_company;
+    }
+
+    public void setInsurance_company(String insurance_company) {
+        this.insurance_company = insurance_company;
     }
 
     public Integer getCustomer_id() {

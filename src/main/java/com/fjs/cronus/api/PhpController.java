@@ -11,14 +11,18 @@ import com.fjs.cronus.service.client.ThorInterfaceService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Map;
 
 import static com.fjs.cronus.exception.ExceptionValidate.validateResponse;
 
@@ -56,25 +60,33 @@ public class PhpController {
     public ResponseData addCustomerInterviewInfo(@RequestHeader String Authorization,
                                                  @RequestBody CustomerInterviewInfoDTO customerInterviewInfoDTO
     ) {
-        String user_id = null;
+//        String user_id = null;
+        UserInfoDTO userInfoDTO = null;
+//        try{
+            Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+//            String ucDataStr =thorInterfaceService.getCurrentUserInfo(Authorization,"");
+//            UcData ucData = JSONObject.parseObject(ucDataStr, UcData.class);
+//            if(null != ucData && ucData.getResult() == 0) {
+//                userInfoDTO = JSONObject.parseObject(ucData.getData(), UserInfoDTO.class);
+//                user_id= userInfoDTO.getUser_id();
+//            } else {
+//                throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "请登录后操作！");
+//            }
+//        } catch (Exception e){
+//            e.printStackTrace();
+//            throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "请登录后操作！");
+//        }
+        ResponseData data = new ResponseData();
         try{
-            String ucDataStr =thorInterfaceService.getCurrentUserInfo(Authorization,"");
-            UcData ucData = JSONObject.parseObject(ucDataStr, UcData.class);
-            if(null != ucData && ucData.getResult() == 0) {
-                UserInfoDTO userInfoDTO = JSONObject.parseObject(ucData.getData(), UserInfoDTO.class);
-                user_id= userInfoDTO.getUser_id();
-            } else {
-                throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "请登录后操作！");
-            }
+            String url = saleUrl + "addCustomerInterviewInfo";
+            MultiValueMap<String, Object> param = this.generateInfoParams(customerInterviewInfoDTO,userInfoDTO);
+            param.add("user_id",userId);
+            String str = restTemplate.postForObject(url, param, String.class);
+            data = JSON.parseObject(str, ResponseData.class);
         } catch (Exception e){
             e.printStackTrace();
-            throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "请登录后操作！");
+            throw new CronusException(CronusException.Type.SYSTEM_CRM_ERROR, "参数初始化错误，不可传入undifined参数！");
         }
-        String url = saleUrl + "addCustomerInterviewInfo";
-        MultiValueMap<String, Object> param = this.generateInfoParams(customerInterviewInfoDTO);
-        param.add("user_id",user_id);
-        String str = restTemplate.postForObject(url, param, String.class);
-        ResponseData data = JSON.parseObject(str, ResponseData.class);
         validateResponse(data);
         return data;
     }
@@ -266,13 +278,13 @@ public class PhpController {
 
     /*构建基础信息*/
     public MultiValueMap<String, Object> generateInfoParams(
-            CustomerInterviewInfoDTO customerInterviewInfoDTO) {
+            CustomerInterviewInfoDTO customerInterviewInfoDTO,UserInfoDTO userInfoDTO) {
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("key", saleKey);
         param.add("customer_interview_base_info_id", customerInterviewInfoDTO.getCustomer_interview_base_info_id());
         param.add("customer_id", customerInterviewInfoDTO.getCustomer_id());
-        param.add("owner_user_id", customerInterviewInfoDTO.getOwner_user_id());
-        param.add("owner_user_name", customerInterviewInfoDTO.getOwner_user_name());
+//        param.add("owner_user_id", userInfoDTO.getUser_id());
+//        param.add("owner_user_name", userInfoDTO.getName());
         param.add("name", customerInterviewInfoDTO.getName());
         param.add("sex", customerInterviewInfoDTO.getSex());
         param.add("birth_date", customerInterviewInfoDTO.getBirth_date());
@@ -320,6 +332,7 @@ public class PhpController {
         param.add("update_time", customerInterviewInfoDTO.getUpdate_time());
 
         param.add("customer_interview_insurance_info_id", customerInterviewInfoDTO.getCustomer_interview_insurance_info_id());
+        param.add("insurance_company",customerInterviewInfoDTO.getInsurance_company());
         param.add("insurance_type", customerInterviewInfoDTO.getInsurance_type());
         param.add("pay_type", customerInterviewInfoDTO.getPay_type());
         param.add("year_pay_amount", customerInterviewInfoDTO.getYear_pay_amount());
@@ -329,6 +342,7 @@ public class PhpController {
 
         param.add("customer_interview_insurance_info_id", customerInterviewInfoDTO.getCustomer_interview_house_info_id());
         param.add("house_status", customerInterviewInfoDTO.getHouse_status());
+        param.add("acceptHousearea",customerInterviewInfoDTO.getAcceptHousearea());
         param.add("house_property_type", customerInterviewInfoDTO.getHouse_property_type());
         param.add("area", customerInterviewInfoDTO.getArea());
         param.add("build_date", customerInterviewInfoDTO.getBuild_date());
