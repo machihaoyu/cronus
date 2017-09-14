@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.CustomerInterviewInsuranceInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.CustomerInterviewInsuranceInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customer_interview_base_info_id" property="customerInterviewBaseInfoId" jdbcType="INTEGER" />
+    <result column="insurance_company" property="insuranceCompany" jdbcType="VARCHAR" />
+    <result column="insurance_type" property="insuranceType" jdbcType="VARCHAR" />
+    <result column="pay_type" property="payType" jdbcType="VARCHAR" />
+    <result column="year_pay_amount" property="yearPayAmount" jdbcType="INTEGER" />
+    <result column="month_pay_amount" property="monthPayAmount" jdbcType="INTEGER" />
+    <result column="effect_date" property="effectDate" jdbcType="INTEGER" />
+    <result column="is_suspend" property="isSuspend" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, customer_interview_base_info_id, insurance_company, insurance_type, pay_type, 
+    year_pay_amount, month_pay_amount, effect_date, is_suspend, create_time, last_update_time, 
+    create_user, last_update_user, is_deleted
+  </sql>
+</mapper>

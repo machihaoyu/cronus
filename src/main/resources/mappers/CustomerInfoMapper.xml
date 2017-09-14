@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.CustomerInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.CustomerInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="telephonenumber" property="telephonenumber" jdbcType="VARCHAR" />
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="customer_level" property="customerLevel" jdbcType="VARCHAR" />
+    <result column="spare_phone" property="sparePhone" jdbcType="VARCHAR" />
+    <result column="age" property="age" jdbcType="VARCHAR" />
+    <result column="marriage" property="marriage" jdbcType="VARCHAR" />
+    <result column="id_card" property="idCard" jdbcType="VARCHAR" />
+    <result column="province_huji" property="provinceHuji" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="VARCHAR" />
+    <result column="customer_address" property="customerAddress" jdbcType="VARCHAR" />
+    <result column="house_status" property="houseStatus" jdbcType="VARCHAR" />
+    <result column="house_amount" property="houseAmount" jdbcType="VARCHAR" />
+    <result column="house_type" property="houseType" jdbcType="VARCHAR" />
+    <result column="house_value" property="houseValue" jdbcType="VARCHAR" />
+    <result column="house_area" property="houseArea" jdbcType="VARCHAR" />
+    <result column="house_age" property="houseAge" jdbcType="VARCHAR" />
+    <result column="house_loan" property="houseLoan" jdbcType="VARCHAR" />
+    <result column="house_alone" property="houseAlone" jdbcType="VARCHAR" />
+    <result column="house_location" property="houseLocation" jdbcType="VARCHAR" />
+    <result column="city" property="city" jdbcType="VARCHAR" />
+    <result column="customer_classify" property="customerClassify" jdbcType="VARCHAR" />
+    <result column="callback_status" property="callbackStatus" jdbcType="VARCHAR" />
+    <result column="callback_time" property="callbackTime" jdbcType="TIMESTAMP" />
+    <result column="sub_company_id" property="subCompanyId" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.fjs.cronus.model.CustomerInfo" extends="BaseResultMap" >
+    <result column="per_description" property="perDescription" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, telephonenumber, customer_name, customer_level, spare_phone, age, marriage, id_card, 
+    province_huji, sex, customer_address, house_status, house_amount, house_type, house_value, 
+    house_area, house_age, house_loan, house_alone, house_location, city, customer_classify, 
+    callback_status, callback_time, sub_company_id, create_time, last_update_time, create_user, 
+    last_update_user, is_deleted
+  </sql>
+  <sql id="Blob_Column_List" >
+    per_description
+  </sql>
+  <select id="customerListCount" resultType="java.lang.Integer">
+    select count(*) from customer_info c
+    WHERE  1 = 1
+    <if test="customerName !=null and customerName !=''">
+      AND  c.customer_name  like CONCAT('%',#{customerName},'%' )
+    </if>
+    <if test="createTimeStart!=null and createTimeStart!='' and createTimeEnd!=null and createTimeEnd!=''">
+      and c.create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
+    </if>
+    <if test="telephonenumber != null and telephonenumber !=''">
+      and c.telephonenumber like CONCAT('%',#{telephonenumber},'%' )
+    </if>
+  </select>
+
+  <select id="customerList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from customer_info  c
+    WHERE  c.is_deleted = 0
+    <if test="customerName !=null and customerName !=''">
+      and c.customer_name  like CONCAT('%', #{customerName},'%' )
+    </if>
+     <if test="createTimeStart!=null and createTimeStart!='' and createTimeEnd!=null and createTimeEnd!=''">
+      and c.create_time BETWEEN ${createTimeStart} and ${createTimeEnd}
+     </if>
+    <if test="telephonenumber != null and telephonenumber != ''">
+      and c.telephonenumber like CONCAT('%',${telephonenumber},'%' )
+    </if>
+    <choose>
+      <when test="order != null and order !=''">
+        order by ${order} desc
+      </when>
+      <otherwise>
+        order by c.create_time desc
+      </otherwise>
+    </choose>
+    limit #{start},#{size}
+  </select>
+</mapper>

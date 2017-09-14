@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.CustomerInterviewCarInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.CustomerInterviewCarInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customer_interview_base_info_id" property="customerInterviewBaseInfoId" jdbcType="INTEGER" />
+    <result column="car_type" property="carType" jdbcType="VARCHAR" />
+    <result column="licence_plate_location" property="licencePlateLocation" jdbcType="VARCHAR" />
+    <result column="buy_date" property="buyDate" jdbcType="INTEGER" />
+    <result column="car_mortgage_paid_num" property="carMortgagePaidNum" jdbcType="INTEGER" />
+    <result column="car_mortgage_month_amount" property="carMortgageMonthAmount" jdbcType="INTEGER" />
+    <result column="price_now" property="priceNow" jdbcType="DECIMAL" />
+    <result column="is_full_insurance" property="isFullInsurance" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, customer_interview_base_info_id, car_type, licence_plate_location, buy_date, 
+    car_mortgage_paid_num, car_mortgage_month_amount, price_now, is_full_insurance, create_time, 
+    last_update_time, create_user, last_update_user, is_deleted
+  </sql>
+</mapper>

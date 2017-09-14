@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.CustomerInterviewHouseInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.CustomerInterviewHouseInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customer_interview_base_info_id" property="customerInterviewBaseInfoId" jdbcType="INTEGER" />
+    <result column="acceptHousearea" property="accepthousearea" jdbcType="VARCHAR" />
+    <result column="house_status" property="houseStatus" jdbcType="VARCHAR" />
+    <result column="house_property_type" property="housePropertyType" jdbcType="VARCHAR" />
+    <result column="area" property="area" jdbcType="DECIMAL" />
+    <result column="build_date" property="buildDate" jdbcType="INTEGER" />
+    <result column="house_property_rights_num" property="housePropertyRightsNum" jdbcType="INTEGER" />
+    <result column="is_child_in_property_rigths" property="isChildInPropertyRigths" jdbcType="VARCHAR" />
+    <result column="is_old_in_property_rigths" property="isOldInPropertyRigths" jdbcType="VARCHAR" />
+    <result column="is_property_rights_clear" property="isPropertyRightsClear" jdbcType="VARCHAR" />
+    <result column="is_other_house" property="isOtherHouse" jdbcType="VARCHAR" />
+    <result column="is_bank_flow" property="isBankFlow" jdbcType="VARCHAR" />
+    <result column="bank_flow_month_amount" property="bankFlowMonthAmount" jdbcType="INTEGER" />
+    <result column="house_mortgage_month_amount" property="houseMortgageMonthAmount" jdbcType="INTEGER" />
+    <result column="house_mortgage_paid_num" property="houseMortgagePaidNum" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, customer_interview_base_info_id, acceptHousearea, house_status, house_property_type, 
+    area, build_date, house_property_rights_num, is_child_in_property_rigths, is_old_in_property_rigths, 
+    is_property_rights_clear, is_other_house, is_bank_flow, bank_flow_month_amount, house_mortgage_month_amount, 
+    house_mortgage_paid_num, create_time, last_update_time, create_user, last_update_user, 
+    is_deleted
+  </sql>
+</mapper>

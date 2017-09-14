@@ -17,6 +17,7 @@ public class CronusException extends BaseException {
          */
         SYSTEM_CRM_ERROR("5001", "CRONUS_SYSTEM_CRM_ERROR"),
         SAAS_CRM_EXCEPTION("6001", "SAAS_CRM_EXCEPTION"),
+        CRM_OTHER_ERROR("6002","其它错误"),
         ;
 
         private String status;

@@ -1,0 +1,9 @@
+package com.fjs.cronus.mappers;
+
+
+import com.fjs.cronus.model.CallbackConfig;
+import com.fjs.cronus.util.MyMapper;
+
+public interface CallbackConfigMapper extends MyMapper<CallbackConfig> {
+
+}

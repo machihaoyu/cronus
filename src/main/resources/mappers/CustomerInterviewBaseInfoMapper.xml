@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.CustomerInterviewBaseInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.CustomerInterviewBaseInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customer_id" property="customerId" jdbcType="INTEGER" />
+    <result column="owner_user_id" property="ownerUserId" jdbcType="INTEGER" />
+    <result column="owner_user_name" property="ownerUserName" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="VARCHAR" />
+    <result column="age" property="age" jdbcType="INTEGER" />
+    <result column="birth_date" property="birthDate" jdbcType="INTEGER" />
+    <result column="telephonenumber" property="telephonenumber" jdbcType="VARCHAR" />
+    <result column="marital_status" property="maritalStatus" jdbcType="VARCHAR" />
+    <result column="household_register" property="householdRegister" jdbcType="VARCHAR" />
+    <result column="education" property="education" jdbcType="VARCHAR" />
+    <result column="fee_channel_name" property="feeChannelName" jdbcType="VARCHAR" />
+    <result column="product_name" property="productName" jdbcType="VARCHAR" />
+    <result column="month_interest_rate" property="monthInterestRate" jdbcType="VARCHAR" />
+    <result column="service_charge" property="serviceCharge" jdbcType="VARCHAR" />
+    <result column="loan_amount" property="loanAmount" jdbcType="VARCHAR" />
+    <result column="loan_time" property="loanTime" jdbcType="INTEGER" />
+    <result column="loan_use_time" property="loanUseTime" jdbcType="VARCHAR" />
+    <result column="loan_purpose" property="loanPurpose" jdbcType="VARCHAR" />
+    <result column="payment_type" property="paymentType" jdbcType="VARCHAR" />
+    <result column="credit_record" property="creditRecord" jdbcType="VARCHAR" />
+    <result column="zhima_credit" property="zhimaCredit" jdbcType="INTEGER" />
+    <result column="credit_query_num_two_month" property="creditQueryNumTwoMonth" jdbcType="INTEGER" />
+    <result column="credit_query_num_six_month" property="creditQueryNumSixMonth" jdbcType="INTEGER" />
+    <result column="continuity_overdue_num_two_year" property="continuityOverdueNumTwoYear" jdbcType="INTEGER" />
+    <result column="total_overdue_num_two_year" property="totalOverdueNumTwoYear" jdbcType="INTEGER" />
+    <result column="debt_amount" property="debtAmount" jdbcType="INTEGER" />
+    <result column="is_overdue" property="isOverdue" jdbcType="VARCHAR" />
+    <result column="overdue_amount" property="overdueAmount" jdbcType="INTEGER" />
+    <result column="industry" property="industry" jdbcType="VARCHAR" />
+    <result column="income_amount" property="incomeAmount" jdbcType="INTEGER" />
+    <result column="social_security_date" property="socialSecurityDate" jdbcType="INTEGER" />
+    <result column="social_security_payment" property="socialSecurityPayment" jdbcType="INTEGER" />
+    <result column="housing_fund_date" property="housingFundDate" jdbcType="INTEGER" />
+    <result column="housing_fund_payment" property="housingFundPayment" jdbcType="INTEGER" />
+    <result column="work_date" property="workDate" jdbcType="INTEGER" />
+    <result column="company_register_date" property="companyRegisterDate" jdbcType="INTEGER" />
+    <result column="share_rate" property="shareRate" jdbcType="DECIMAL" />
+    <result column="public_flow_year_amount" property="publicFlowYearAmount" jdbcType="INTEGER" />
+    <result column="private_flow_year_amount" property="privateFlowYearAmount" jdbcType="INTEGER" />
+    <result column="is_litigation" property="isLitigation" jdbcType="VARCHAR" />
+    <result column="retire_date" property="retireDate" jdbcType="INTEGER" />
+    <result column="retirement_pay_min_amount" property="retirementPayMinAmount" jdbcType="INTEGER" />
+    <result column="is_relative_known" property="isRelativeKnown" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, customer_id, owner_user_id, owner_user_name, name, sex, age, birth_date, telephonenumber, 
+    marital_status, household_register, education, fee_channel_name, product_name, month_interest_rate, 
+    service_charge, loan_amount, loan_time, loan_use_time, loan_purpose, payment_type, 
+    credit_record, zhima_credit, credit_query_num_two_month, credit_query_num_six_month, 
+    continuity_overdue_num_two_year, total_overdue_num_two_year, debt_amount, is_overdue, 
+    overdue_amount, industry, income_amount, social_security_date, social_security_payment, 
+    housing_fund_date, housing_fund_payment, work_date, company_register_date, share_rate, 
+    public_flow_year_amount, private_flow_year_amount, is_litigation, retire_date, retirement_pay_min_amount, 
+    is_relative_known, remark, create_time, last_update_time, create_user, last_update_user, 
+    is_deleted
+  </sql>
+</mapper>

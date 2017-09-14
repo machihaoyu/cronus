@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.OcrDriverLicenseMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.OcrDriverLicense" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customer_id" property="customerId" jdbcType="INTEGER" />
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="customer_telephone" property="customerTelephone" jdbcType="VARCHAR" />
+    <result column="driver_name" property="driverName" jdbcType="VARCHAR" />
+    <result column="driver_num" property="driverNum" jdbcType="VARCHAR" />
+    <result column="driver_vehicle_type" property="driverVehicleType" jdbcType="VARCHAR" />
+    <result column="driver_start_date" property="driverStartDate" jdbcType="VARCHAR" />
+    <result column="driver_end_date" property="driverEndDate" jdbcType="VARCHAR" />
+    <result column="document_id" property="documentId" jdbcType="INTEGER" />
+    <result column="create_user_id" property="createUserId" jdbcType="INTEGER" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="update_user_id" property="updateUserId" jdbcType="INTEGER" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, customer_id, customer_name, customer_telephone, driver_name, driver_num, driver_vehicle_type, 
+    driver_start_date, driver_end_date, document_id, create_user_id, create_user_name, 
+    create_time, status, update_user_id, update_user_name, update_time
+  </sql>
+</mapper>

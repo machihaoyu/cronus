@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.OcrHouseholdRegisterMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.OcrHouseholdRegister" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customer_id" property="customerId" jdbcType="INTEGER" />
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="customer_telephone" property="customerTelephone" jdbcType="VARCHAR" />
+    <result column="household_name" property="householdName" jdbcType="VARCHAR" />
+    <result column="household_sex" property="householdSex" jdbcType="VARCHAR" />
+    <result column="household_native_place" property="householdNativePlace" jdbcType="VARCHAR" />
+    <result column="household_birthday" property="householdBirthday" jdbcType="VARCHAR" />
+    <result column="household_id_number" property="householdIdNumber" jdbcType="VARCHAR" />
+    <result column="household_people" property="householdPeople" jdbcType="VARCHAR" />
+    <result column="household_job" property="householdJob" jdbcType="VARCHAR" />
+    <result column="household_merriage" property="householdMerriage" jdbcType="VARCHAR" />
+    <result column="household_education" property="householdEducation" jdbcType="VARCHAR" />
+    <result column="document_id" property="documentId" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, customer_id, customer_name, customer_telephone, household_name, household_sex, 
+    household_native_place, household_birthday, household_id_number, household_people, 
+    household_job, household_merriage, household_education, document_id, status, create_time, 
+    last_update_time, create_user, last_update_user, is_deleted
+  </sql>
+</mapper>

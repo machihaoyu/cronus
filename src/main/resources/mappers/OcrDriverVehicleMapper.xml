@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.OcrDriverVehicleMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.OcrDriverVehicle" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customer_id" property="customerId" jdbcType="INTEGER" />
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="customer_telephone" property="customerTelephone" jdbcType="VARCHAR" />
+    <result column="driver_owner" property="driverOwner" jdbcType="VARCHAR" />
+    <result column="driver_plate_num" property="driverPlateNum" jdbcType="VARCHAR" />
+    <result column="driver_vehicle_type" property="driverVehicleType" jdbcType="VARCHAR" />
+    <result column="driver_vin" property="driverVin" jdbcType="VARCHAR" />
+    <result column="driver_engine_num" property="driverEngineNum" jdbcType="VARCHAR" />
+    <result column="driver_register_date" property="driverRegisterDate" jdbcType="VARCHAR" />
+    <result column="document_id" property="documentId" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, customer_id, customer_name, customer_telephone, driver_owner, driver_plate_num, 
+    driver_vehicle_type, driver_vin, driver_engine_num, driver_register_date, document_id, 
+    status, create_time, last_update_time, create_user, last_update_user, is_deleted
+  </sql>
+</mapper>

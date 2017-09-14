@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.OcrHouseRegistrationMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.OcrHouseRegistration" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customer_id" property="customerId" jdbcType="INTEGER" />
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="customer_telephone" property="customerTelephone" jdbcType="VARCHAR" />
+    <result column="house_ownner" property="houseOwnner" jdbcType="VARCHAR" />
+    <result column="house_address" property="houseAddress" jdbcType="VARCHAR" />
+    <result column="house_purpose" property="housePurpose" jdbcType="VARCHAR" />
+    <result column="house_usage_term" property="houseUsageTerm" jdbcType="VARCHAR" />
+    <result column="house_area" property="houseArea" jdbcType="VARCHAR" />
+    <result column="house_type" property="houseType" jdbcType="VARCHAR" />
+    <result column="house_completion_date" property="houseCompletionDate" jdbcType="VARCHAR" />
+    <result column="document_id" property="documentId" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, customer_id, customer_name, customer_telephone, house_ownner, house_address, 
+    house_purpose, house_usage_term, house_area, house_type, house_completion_date, document_id, 
+    status, create_time, last_update_time, create_user, last_update_user, is_deleted
+  </sql>
+</mapper>
