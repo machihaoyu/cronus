@@ -12,8 +12,11 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.regex.Pattern;
 
 /**
  * Created by msi on 2017/9/13.
@@ -66,17 +69,95 @@ public class CustomerController {
     @ApiOperation(value="手动添加客户", notes="手动添加客户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "JSONObject", value = "", required = true, paramType = "query", dataType = "JSONObject")
+            @ApiImplicitParam(name = "JSONObject", value = "{      \n" +
+                    "        \"telephonenumber\":\"xxxxxxxxxxx\"\n" +
+                    "        \"customerName\":\"xxxxxxxxxxx\"\n" +
+                    "        \"customerLevel\":\"xxxxxxxxxxx\"\n" +
+                    "        \"sparePhone\":\"xxxxxxxxxxx\"\n" +
+                    "        \"age\":\"xxxxxxxxxxx\"\n" +
+                    "        \"marriage\":\"xxxxxxxxxxx\"\n" +
+                    "        \"idCard\":\"xxxxxxxxxxx\"\n" +
+                    "        \"provinceHuji\":\"xxxxxxxxxxx\"\n" +
+                    "        \"sex\":\"xxxxxxxxxxx\"\n" +
+                    "        \"customerAddress\":\"xxxxxxxxxxx\"\n" +
+                    "        \"houseStatus\":\"xxxxxxxxxxx\"\n" +
+                    "        \"houseAmount\":\"xxxxxxxxxxx\"\n" +
+                    "        \"houseType\":\"xxxxxxxxxxx\"\n" +
+                    "        \"houseValue\":\"xxxxxxxxxxx\"\n" +
+                    "        \"houseArea\":\"xxxxxxxxxxx\"\n" +
+                    "        \"houseAge\":\"xxxxxxxxxxx\"\n" +
+                    "        \"houseLoan\":\"xxxxxxxxxxx\"\n" +
+                    "        \"houseAlone\":\"xxxxxxxxxxx\"\n" +
+                    "        \"houseLocation\":\"xxxxxxxxxxx\"\n" +
+                    "        \"city\":\"xxxxxxxxxxx\"\n" +
+                    "        \"customerClassify\":\"xxxxxxxxxxx\"\n" +
+                    "        \"callbackStatus\":\"xxxxxxxxxxx\"\n" +
+                    "        \"callbackTime\":\"xxxxxxxxxxx\"\n" +
+                    "        \"subCompanyId\":\"xxxxxxxxxxx\"\n" +
+                    "        \"perDescription\":\"xxxxxxxxxxx\"\n" +
+                    "}", required = true, paramType = "query", dataType = "JSONObject")
     })
-    @RequestMapping(value = "/addCustomer", method = RequestMethod.GET)
+    @RequestMapping(value = "/addCrmCustomer", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto addCustomer(@RequestBody JSONObject jsonObject) {
+    public CronusDto addCrmCustomer(@RequestBody JSONObject jsonObject) {
         CronusDto cronusDto = new CronusDto();
         try {
             cronusDto = customerInfoService.addCustomer(jsonObject);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->customerList获取列表信息操作失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException) e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+
+    @ApiOperation(value="根据手机号匹配客户", notes="根据手机号匹配客户")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "telephonenumber", value = "s手机号", required = true, paramType = "query", dataType = "String")
+    })
+    @RequestMapping(value = "/findBytelephone", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto findBytelephone(@RequestParam(required = false) String telephonenumber) {
+        CronusDto cronusDto = new CronusDto();
+        try {
+           // JSONObject json = JSONObject.parseObject(jsonObject);
+           // String telephonenumber = jsonObject.getString("telephonenumber");
+            if (telephonenumber == null || "".equals(telephonenumber)) {
+                throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONE_ERROR);
+            }
+            cronusDto = customerInfoService.fingBytelephone(telephonenumber);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->fingBytelephone获取用户信息失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException) e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+    @ApiOperation(value="根据客户id查找客户信息", notes="根据客户id查找客户信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "JSONObject", value = "{'customerids' : 'customerids'}", required = true, paramType = "query", dataType = "JSONObject")
+    })
+    @RequestMapping(value = "/findCustomerListByIds", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto findCustomerListByIds(@RequestParam String customerids) {
+        CronusDto cronusDto = new CronusDto();
+        try {
+         //   String customerids = jsonObject.getString("customerids");
+            if (customerids == null || "".equals(customerids)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+            }
+            cronusDto = customerInfoService.findCustomerListByIds(customerids);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->fingBytelephone获取用户信息失败", e);
             if (e instanceof CronusException) {
                 CronusException thorException = (CronusException) e;
                 throw thorException;

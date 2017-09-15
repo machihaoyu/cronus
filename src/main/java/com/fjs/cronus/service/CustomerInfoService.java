@@ -1,9 +1,11 @@
 package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.CustomerDto;
+import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.util.DateUtils;
@@ -12,9 +14,12 @@ import com.fjs.cronus.util.FastJsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import sun.security.provider.MD5;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by msi on 2017/9/13.
@@ -69,7 +74,7 @@ public class CustomerInfoService {
     public CronusDto addCustomer(JSONObject jsonObject){
         CronusDto cronusDto = new CronusDto();
         //校验参数
-         String telephonenumber = jsonObject.getString("telephonenumber");
+         /*String telephonenumber = jsonObject.getString("telephonenumber");
          String customerName = jsonObject.getString("customerName");
          String customerLevel  = jsonObject.getString("customerName");
          String sparePhone = jsonObject.getString("customerName");
@@ -94,10 +99,87 @@ public class CustomerInfoService {
          Date callbackTime = jsonObject.getDate("customerName");
          Integer subCompanyId = jsonObject.getInteger("customerName");
          String perDescription = jsonObject.getString("customerName");
-         //判断必传字段
-
-
-
+         //判断必传字段*/
+         //json转map 参数，教研参数
+         validAddData(jsonObject);
+         Map<String,Object> paramsMap = FastJsonUtils.json2Map(jsonObject.toJSONString());
+         if (paramsMap.isEmpty()){
+             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+         }
+         CustomerInfo customerInfo = customerInfoMapper.insertCustomer(paramsMap);
+         if (customerInfo == null){
+             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
+         }
+        cronusDto.setResult(ResultResource.CODE_SUCCESS);
+        cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         return  cronusDto;
+    }
+
+    public CronusDto fingBytelephone(String telephonenumber){
+        CronusDto resultDto =  new CronusDto();
+        //手机需要加密
+        Map<String,Object> paramsMap = new HashMap<>();
+        CustomerDto dto= new CustomerDto();
+        String encryptTelephone = "";//加密后的
+        List paramsList = new ArrayList();
+        paramsList.add(encryptTelephone);
+        paramsList.add(telephonenumber);
+        paramsMap.put("paramsList",paramsList);
+        CustomerInfo customerInfo = customerInfoMapper.fingByFeild(paramsMap);
+        if (customerInfo == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        EntityToDto.customerEntityToCustomerDto(customerInfo,dto);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(customerInfo);
+        return  resultDto;
+    }
+    public CronusDto findCustomerListByIds (String customerids){
+        CronusDto resultDto = new CronusDto();
+        Map<String,Object> paramsMap = new HashMap<>();
+        List paramsList = new ArrayList();
+        //截取逗号
+        String[] strArray = null;
+        strArray = customerids.split(",");
+        for (int i= 0;i<strArray.length;i++){
+            paramsList.add(Integer.parseInt(strArray[i]));
+        }
+        paramsMap.put("paramsList",paramsList);
+        List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerListByFeild(paramsMap);
+        //遍历
+        List<CustomerDto> customerDtos = new ArrayList<>();
+        for (CustomerInfo customerInfo: customerInfoList) {
+            CustomerDto customerDto = new CustomerDto();
+            EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
+            //TODO  增加source 调用接口 来源渠道
+            customerDtos.add(customerDto);
+        }
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(customerDtos);
+        return  resultDto;
+    }
+    public void validAddData(JSONObject jsonObject){
+        String customerName = jsonObject.getString("customerName");
+        String telephonenumber = jsonObject.getString("telephonenumber");
+        Integer customerId = jsonObject.getInteger("id");
+
+        if (customerName == null || "".equals(customerName)){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERNAME_ERROR);
+        }
+        if (telephonenumber == null || "".equals(telephonenumber) ||  Pattern.compile("/[0-9]{11}$/").matcher(telephonenumber).find() == false) {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONE_ERROR);
+        }
+        //判断手机号是否被注册
+        if (customerId == null){
+            Map<String,Object> paramsMap = new HashMap<>();
+            paramsMap.put("telephonenumber",telephonenumber);
+            List<CustomerInfo> customerInfos = customerInfoMapper.customerList(paramsMap);
+            if (customerInfos.size() > 0){
+                throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONERE_ERROR);
+            }
+        }
+
     }
 }

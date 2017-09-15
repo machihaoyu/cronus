@@ -78,23 +78,4 @@ public class FastJsonUtils {
     public static String obj2JsonString(Object obj){
         return JSON.toJSONString(obj);
     }
-    /**
-     * 将网络请求下来的数据用fastjson处理空的情况，并将时间戳转化为标准时间格式
-     * @param result
-     * @return
-     */
-    public static String dealResponseResult(String result) {
-        result = JSONObject.toJSONString(result,
-                SerializerFeature.WriteClassName,
-                SerializerFeature.WriteMapNullValue,
-                SerializerFeature.WriteNullBooleanAsFalse,
-                SerializerFeature.WriteNullListAsEmpty,
-                SerializerFeature.WriteNullNumberAsZero,
-                SerializerFeature.WriteNullStringAsEmpty,
-                SerializerFeature.WriteDateUseDateFormat,
-                SerializerFeature.WriteEnumUsingToString,
-                SerializerFeature.WriteSlashAsSpecial,
-                SerializerFeature.WriteTabAsSpecial);
-        return result;
-    }
 }

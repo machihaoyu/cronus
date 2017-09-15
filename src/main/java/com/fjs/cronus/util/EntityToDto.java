@@ -1,7 +1,9 @@
 package com.fjs.cronus.util;
 
 import com.fjs.cronus.dto.cronus.CustomerDto;
+import com.fjs.cronus.dto.cronus.CustomerInterVibaseInfoDto;
 import com.fjs.cronus.model.CustomerInfo;
+import com.fjs.cronus.model.CustomerInterviewBaseInfo;
 import org.springframework.util.StringUtils;
 
 /**
@@ -123,15 +125,11 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getHouseAlone())){
             dto.setHouseAlone(customerInfo.getHouseAlone());
         }
+    }
 
-
-
-
-
+    public static void CustomerInterviewEntityToCustomerInterviewDto(CustomerInterviewBaseInfo customerInfo, CustomerInterVibaseInfoDto dto){
 
 
     }
-
-
 
 }
