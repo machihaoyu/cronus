@@ -1,13 +1,17 @@
 package com.fjs.cronus.service;
 
+import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.UserDTO;
+import com.fjs.cronus.dto.cronus.CustomerInterVibaseInfoDto;
+import com.fjs.cronus.dto.php.CustomerInterviewBaseInfoDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInterviewBaseInfoMapper;
 import com.fjs.cronus.model.CustomerInterviewBaseInfo;
 import com.fjs.cronus.service.client.ThorInterfaceService;
+import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.FastJsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +32,8 @@ public class CustomerInterviewService {
     CustomerInterviewBaseInfoMapper customerInterviewBaseInfoMapper;
     @Autowired
     ThorInterfaceService thorInterfaceService;
+    @Autowired
+    UcService ucService;
     public CronusDto customerInterviewList(String token,String name,String loanAmount,String industry,String feeChannelName,String productName,String ownerUserName,
                                            String telephonenumber,String householdRegister,Integer page,Integer size){
         CronusDto resultDto = new CronusDto();
@@ -38,7 +44,9 @@ public class CustomerInterviewService {
             BaseUcDTO<UserInfoDTO> dto = FastJsonUtils.getSingleBean(result,BaseUcDTO.class);
             UserInfoDTO userDTO = dto.getRetData();
             List idList = new ArrayList();
-            if (userDTO.getData_type() == null || !"".equals(userDTO.getData_type())){
+            CronusDto<List> cronusDto = ucService.getSubUserByUserId(token,Integer.valueOf(userDTO.getUser_id()));
+            idList = cronusDto.getData();
+         /*   if (userDTO.getData_type() == null || !"".equals(userDTO.getData_type())){
                 throw new CronusException(CronusException.Type.CRM_DATAAUTH_ERROR);
             }
             Integer data_type = Integer.valueOf(userDTO.getData_type());
@@ -51,8 +59,11 @@ public class CustomerInterviewService {
                 //获取到下属员工
                 idList = (List) ucDTO.getRetData();
                 //TODO 加入缓存并设置好缓存时间
-            }
+            }*/
             //拼装参数
+            if (idList.size() > 0){
+                paramsMap.put("idList",idList);
+            }
             if (!StringUtils.isEmpty(name)){
                 paramsMap.put("name",name);
             }
@@ -86,13 +97,18 @@ public class CustomerInterviewService {
             paramsMap.put("start",(page-1) * size);
             paramsMap.put("size",size);
             List<CustomerInterviewBaseInfo> customerInterviewBaseInfos = customerInterviewBaseInfoMapper.customerInterviewList(paramsMap);
+            List<CustomerInterVibaseInfoDto> relustList = new ArrayList<>();
             if (customerInterviewBaseInfos.size() > 0){
                 for (CustomerInterviewBaseInfo customerInterviewBaseInfo : customerInterviewBaseInfos) {
-                    //EntityToDto.customerEntityToCustomerDto();
+                    CustomerInterVibaseInfoDto customerInterVibaseInfoDto = new CustomerInterVibaseInfoDto();
+                    EntityToDto.CustomerInterviewEntityToCustomerInterviewDto(customerInterviewBaseInfo,customerInterVibaseInfoDto);
+                    relustList.add(customerInterVibaseInfoDto);
                 }
+                resultDto.setData(relustList);
+                resultDto.setResult(ResultResource.CODE_SUCCESS);
+                resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             }
         }catch (Exception e){
-
         }
         return  resultDto;
     }

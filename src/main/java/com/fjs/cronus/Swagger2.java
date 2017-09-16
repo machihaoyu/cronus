@@ -27,7 +27,7 @@ public class Swagger2 {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.fjs.cronus.api"))
+                .apis(RequestHandlerSelectors.basePackage("com.fjs.cronus.controller"))
                 .paths(doFilteringRules())
                 .build()
                 .useDefaultResponseMessages(false)

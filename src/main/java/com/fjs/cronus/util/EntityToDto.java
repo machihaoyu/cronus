@@ -129,6 +129,162 @@ public class EntityToDto {
 
     public static void CustomerInterviewEntityToCustomerInterviewDto(CustomerInterviewBaseInfo customerInfo, CustomerInterVibaseInfoDto dto){
 
+      /*  dto.setId(customerInfo.getId().toString());
+        if (!StringUtils.isEmpty(customerInfo.getCustomerId())){
+            dto.setCustomerId(customerInfo.getCustomerId().toString());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerId())){
+            dto.setCustomerId();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getOwnerUserId())){
+            dto.setOwnerUserId();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getOwnerUserName())){
+            dto.setOwnerUserName();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getName())){
+            dto.setName();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getSex())){
+            dto.setSex();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getAge())){
+            dto.setAge();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getBirthDate())){
+            dto.setBirthDate();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
+            dto.setTelephonenumber();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getMaritalStatus())){
+            dto.setMaritalStatus();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHouseholdRegister())){
+            dto.setHouseholdRegister();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getEducation())){
+            dto.setEducation();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getFeeChannelName())){
+            dto.setFeeChannelName();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getProductName())){
+            dto.setProductName();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getMonthInterestRate())){
+            dto.setMonthInterestRate();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getServiceCharge())){
+            dto.setServiceCharge();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getLoanAmount())){
+            dto.setLoanAmount();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getLoanTime())){
+            dto.setLoanTime();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getLoanUseTime())){
+            dto.setLoanUseTime();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getLoanPurpose())){
+            dto.setLoanPurpose();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getPaymentType())){
+            dto.setPaymentType();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCreditRecord())){
+            dto.setCreditRecord();
+        }  if (!StringUtils.isEmpty(customerInfo.getZhimaCredit())){
+            dto.setZhimaCredit();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCreditQueryNumTwoMonth())){
+            dto.setCreditQueryNumTwoMonth();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCreditQueryNumSixMonth())){
+            dto.setCreditQueryNumSixMonth();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getContinuityOverdueNumTwoYear())){
+            dto.setContinuityOverdueNumTwoYear();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getTotalOverdueNumTwoYear())){
+            dto.setTotalOverdueNumTwoYear();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getDebtAmount())){
+            dto.setDebtAmount();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIsOverdue())){
+            dto.setIsOverdue();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getOverdueAmount())){
+            dto.setOverdueAmount();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIndustry())){
+            dto.setIndustry();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIncomeAmount())){
+            dto.setIncomeAmount();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getSocialSecurityDate())){
+            dto.setSocialSecurityDate();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getSocialSecurityPayment())){
+            dto.setSocialSecurityPayment();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHousingFundDate())){
+            dto.setHousingFundDate();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHousingFundPayment())){
+            dto.setHousingFundPayment();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getWorkDate())){
+            dto.setWorkDate();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCompanyRegisterDate())){
+            dto.setCompanyRegisterDate();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getShareRate())){
+            dto.setShareRate();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getPublicFlowYearAmount())){
+            dto.setPublicFlowYearAmount();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getPrivateFlowYearAmount())){
+            dto.setPrivateFlowYearAmount();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIsLitigation())){
+             dto.setIsLitigation();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getRetireDate())){
+             dto.setRetireDate();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getRetirementPayMinAmount())){
+             dto.setRetirementPayMinAmount();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIsRelativeKnown())){
+             dto.setIsRelativeKnown();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getRemark())){
+             dto.setRemark();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCreateTime())){
+            dto.setCreateTime();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getLastUpdateTime())){
+            dto.setLastUpdateTime();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCreateUser())){
+            dto.setCreateUser();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getLastUpdateUser())){
+           dto.setLastUpdateUser();
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIsDeleted())){
+           dto.setIsDeleted();
+        }
+*/
+
+
 
     }
 

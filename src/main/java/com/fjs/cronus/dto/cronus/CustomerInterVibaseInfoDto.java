@@ -7,11 +7,11 @@ import java.util.Date;
  * Created by msi on 2017/9/15.
  */
 public class CustomerInterVibaseInfoDto {
-    private Integer id;
+    private String id;
 
-    private Integer customerId;
+    private String customerId;
 
-    private Integer ownerUserId;
+    private String ownerUserId;
 
     private String ownerUserName;
 
@@ -19,9 +19,9 @@ public class CustomerInterVibaseInfoDto {
 
     private String sex;
 
-    private Integer age;
+    private String age;
 
-    private Integer birthDate;
+    private String birthDate;
 
     private String telephonenumber;
 
@@ -41,7 +41,7 @@ public class CustomerInterVibaseInfoDto {
 
     private String loanAmount;
 
-    private Integer loanTime;
+    private String loanTime;
 
     private String loanUseTime;
 
@@ -51,85 +51,85 @@ public class CustomerInterVibaseInfoDto {
 
     private String creditRecord;
 
-    private Integer zhimaCredit;
+    private String zhimaCredit;
 
-    private Integer creditQueryNumTwoMonth;
+    private String creditQueryNumTwoMonth;
 
-    private Integer creditQueryNumSixMonth;
+    private String creditQueryNumSixMonth;
 
-    private Integer continuityOverdueNumTwoYear;
+    private String continuityOverdueNumTwoYear;
 
-    private Integer totalOverdueNumTwoYear;
+    private String totalOverdueNumTwoYear;
 
-    private Integer debtAmount;
+    private String debtAmount;
 
     private String isOverdue;
 
-    private Integer overdueAmount;
+    private String overdueAmount;
 
     private String industry;
 
-    private Integer incomeAmount;
+    private String incomeAmount;
 
-    private Integer socialSecurityDate;
+    private String socialSecurityDate;
 
-    private Integer socialSecurityPayment;
+    private String socialSecurityPayment;
 
-    private Integer housingFundDate;
+    private String housingFundDate;
 
-    private Integer housingFundPayment;
+    private String housingFundPayment;
 
-    private Integer workDate;
+    private String workDate;
 
-    private Integer companyRegisterDate;
+    private String companyRegisterDate;
 
-    private BigDecimal shareRate;
+    private String shareRate;
 
-    private Integer publicFlowYearAmount;
+    private String publicFlowYearAmount;
 
-    private Integer privateFlowYearAmount;
+    private String privateFlowYearAmount;
 
     private String isLitigation;
 
-    private Integer retireDate;
+    private String retireDate;
 
-    private Integer retirementPayMinAmount;
+    private String retirementPayMinAmount;
 
     private String isRelativeKnown;
 
     private String remark;
 
-    private Date createTime;
+    private String createTime;
 
-    private Date lastUpdateTime;
+    private String lastUpdateTime;
 
-    private Integer createUser;
+    private String createUser;
 
-    private Integer lastUpdateUser;
+    private String lastUpdateUser;
 
-    private Integer isDeleted;
+    private String isDeleted;
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Integer getCustomerId() {
+    public String getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Integer customerId) {
+    public void setCustomerId(String customerId) {
         this.customerId = customerId;
     }
 
-    public Integer getOwnerUserId() {
+    public String getOwnerUserId() {
         return ownerUserId;
     }
 
-    public void setOwnerUserId(Integer ownerUserId) {
+    public void setOwnerUserId(String ownerUserId) {
         this.ownerUserId = ownerUserId;
     }
 
@@ -157,19 +157,19 @@ public class CustomerInterVibaseInfoDto {
         this.sex = sex;
     }
 
-    public Integer getAge() {
+    public String getAge() {
         return age;
     }
 
-    public void setAge(Integer age) {
+    public void setAge(String age) {
         this.age = age;
     }
 
-    public Integer getBirthDate() {
+    public String getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(Integer birthDate) {
+    public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
     }
 
@@ -245,11 +245,11 @@ public class CustomerInterVibaseInfoDto {
         this.loanAmount = loanAmount;
     }
 
-    public Integer getLoanTime() {
+    public String getLoanTime() {
         return loanTime;
     }
 
-    public void setLoanTime(Integer loanTime) {
+    public void setLoanTime(String loanTime) {
         this.loanTime = loanTime;
     }
 
@@ -285,51 +285,51 @@ public class CustomerInterVibaseInfoDto {
         this.creditRecord = creditRecord;
     }
 
-    public Integer getZhimaCredit() {
+    public String getZhimaCredit() {
         return zhimaCredit;
     }
 
-    public void setZhimaCredit(Integer zhimaCredit) {
+    public void setZhimaCredit(String zhimaCredit) {
         this.zhimaCredit = zhimaCredit;
     }
 
-    public Integer getCreditQueryNumTwoMonth() {
+    public String getCreditQueryNumTwoMonth() {
         return creditQueryNumTwoMonth;
     }
 
-    public void setCreditQueryNumTwoMonth(Integer creditQueryNumTwoMonth) {
+    public void setCreditQueryNumTwoMonth(String creditQueryNumTwoMonth) {
         this.creditQueryNumTwoMonth = creditQueryNumTwoMonth;
     }
 
-    public Integer getCreditQueryNumSixMonth() {
+    public String getCreditQueryNumSixMonth() {
         return creditQueryNumSixMonth;
     }
 
-    public void setCreditQueryNumSixMonth(Integer creditQueryNumSixMonth) {
+    public void setCreditQueryNumSixMonth(String creditQueryNumSixMonth) {
         this.creditQueryNumSixMonth = creditQueryNumSixMonth;
     }
 
-    public Integer getContinuityOverdueNumTwoYear() {
+    public String getContinuityOverdueNumTwoYear() {
         return continuityOverdueNumTwoYear;
     }
 
-    public void setContinuityOverdueNumTwoYear(Integer continuityOverdueNumTwoYear) {
+    public void setContinuityOverdueNumTwoYear(String continuityOverdueNumTwoYear) {
         this.continuityOverdueNumTwoYear = continuityOverdueNumTwoYear;
     }
 
-    public Integer getTotalOverdueNumTwoYear() {
+    public String getTotalOverdueNumTwoYear() {
         return totalOverdueNumTwoYear;
     }
 
-    public void setTotalOverdueNumTwoYear(Integer totalOverdueNumTwoYear) {
+    public void setTotalOverdueNumTwoYear(String totalOverdueNumTwoYear) {
         this.totalOverdueNumTwoYear = totalOverdueNumTwoYear;
     }
 
-    public Integer getDebtAmount() {
+    public String getDebtAmount() {
         return debtAmount;
     }
 
-    public void setDebtAmount(Integer debtAmount) {
+    public void setDebtAmount(String debtAmount) {
         this.debtAmount = debtAmount;
     }
 
@@ -341,11 +341,11 @@ public class CustomerInterVibaseInfoDto {
         this.isOverdue = isOverdue;
     }
 
-    public Integer getOverdueAmount() {
+    public String getOverdueAmount() {
         return overdueAmount;
     }
 
-    public void setOverdueAmount(Integer overdueAmount) {
+    public void setOverdueAmount(String overdueAmount) {
         this.overdueAmount = overdueAmount;
     }
 
@@ -357,83 +357,83 @@ public class CustomerInterVibaseInfoDto {
         this.industry = industry;
     }
 
-    public Integer getIncomeAmount() {
+    public String getIncomeAmount() {
         return incomeAmount;
     }
 
-    public void setIncomeAmount(Integer incomeAmount) {
+    public void setIncomeAmount(String incomeAmount) {
         this.incomeAmount = incomeAmount;
     }
 
-    public Integer getSocialSecurityDate() {
+    public String getSocialSecurityDate() {
         return socialSecurityDate;
     }
 
-    public void setSocialSecurityDate(Integer socialSecurityDate) {
+    public void setSocialSecurityDate(String socialSecurityDate) {
         this.socialSecurityDate = socialSecurityDate;
     }
 
-    public Integer getSocialSecurityPayment() {
+    public String getSocialSecurityPayment() {
         return socialSecurityPayment;
     }
 
-    public void setSocialSecurityPayment(Integer socialSecurityPayment) {
+    public void setSocialSecurityPayment(String socialSecurityPayment) {
         this.socialSecurityPayment = socialSecurityPayment;
     }
 
-    public Integer getHousingFundDate() {
+    public String getHousingFundDate() {
         return housingFundDate;
     }
 
-    public void setHousingFundDate(Integer housingFundDate) {
+    public void setHousingFundDate(String housingFundDate) {
         this.housingFundDate = housingFundDate;
     }
 
-    public Integer getHousingFundPayment() {
+    public String getHousingFundPayment() {
         return housingFundPayment;
     }
 
-    public void setHousingFundPayment(Integer housingFundPayment) {
+    public void setHousingFundPayment(String housingFundPayment) {
         this.housingFundPayment = housingFundPayment;
     }
 
-    public Integer getWorkDate() {
+    public String getWorkDate() {
         return workDate;
     }
 
-    public void setWorkDate(Integer workDate) {
+    public void setWorkDate(String workDate) {
         this.workDate = workDate;
     }
 
-    public Integer getCompanyRegisterDate() {
+    public String getCompanyRegisterDate() {
         return companyRegisterDate;
     }
 
-    public void setCompanyRegisterDate(Integer companyRegisterDate) {
+    public void setCompanyRegisterDate(String companyRegisterDate) {
         this.companyRegisterDate = companyRegisterDate;
     }
 
-    public BigDecimal getShareRate() {
+    public String getShareRate() {
         return shareRate;
     }
 
-    public void setShareRate(BigDecimal shareRate) {
+    public void setShareRate(String shareRate) {
         this.shareRate = shareRate;
     }
 
-    public Integer getPublicFlowYearAmount() {
+    public String getPublicFlowYearAmount() {
         return publicFlowYearAmount;
     }
 
-    public void setPublicFlowYearAmount(Integer publicFlowYearAmount) {
+    public void setPublicFlowYearAmount(String publicFlowYearAmount) {
         this.publicFlowYearAmount = publicFlowYearAmount;
     }
 
-    public Integer getPrivateFlowYearAmount() {
+    public String getPrivateFlowYearAmount() {
         return privateFlowYearAmount;
     }
 
-    public void setPrivateFlowYearAmount(Integer privateFlowYearAmount) {
+    public void setPrivateFlowYearAmount(String privateFlowYearAmount) {
         this.privateFlowYearAmount = privateFlowYearAmount;
     }
 
@@ -445,19 +445,19 @@ public class CustomerInterVibaseInfoDto {
         this.isLitigation = isLitigation;
     }
 
-    public Integer getRetireDate() {
+    public String getRetireDate() {
         return retireDate;
     }
 
-    public void setRetireDate(Integer retireDate) {
+    public void setRetireDate(String retireDate) {
         this.retireDate = retireDate;
     }
 
-    public Integer getRetirementPayMinAmount() {
+    public String getRetirementPayMinAmount() {
         return retirementPayMinAmount;
     }
 
-    public void setRetirementPayMinAmount(Integer retirementPayMinAmount) {
+    public void setRetirementPayMinAmount(String retirementPayMinAmount) {
         this.retirementPayMinAmount = retirementPayMinAmount;
     }
 
@@ -477,43 +477,43 @@ public class CustomerInterVibaseInfoDto {
         this.remark = remark;
     }
 
-    public Date getCreateTime() {
+    public String getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(String createTime) {
         this.createTime = createTime;
     }
 
-    public Date getLastUpdateTime() {
+    public String getLastUpdateTime() {
         return lastUpdateTime;
     }
 
-    public void setLastUpdateTime(Date lastUpdateTime) {
+    public void setLastUpdateTime(String lastUpdateTime) {
         this.lastUpdateTime = lastUpdateTime;
     }
 
-    public Integer getCreateUser() {
+    public String getCreateUser() {
         return createUser;
     }
 
-    public void setCreateUser(Integer createUser) {
+    public void setCreateUser(String createUser) {
         this.createUser = createUser;
     }
 
-    public Integer getLastUpdateUser() {
+    public String getLastUpdateUser() {
         return lastUpdateUser;
     }
 
-    public void setLastUpdateUser(Integer lastUpdateUser) {
+    public void setLastUpdateUser(String lastUpdateUser) {
         this.lastUpdateUser = lastUpdateUser;
     }
 
-    public Integer getIsDeleted() {
+    public String getIsDeleted() {
         return isDeleted;
     }
 
-    public void setIsDeleted(Integer isDeleted) {
+    public void setIsDeleted(String isDeleted) {
         this.isDeleted = isDeleted;
     }
 }
