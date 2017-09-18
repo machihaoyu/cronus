@@ -101,5 +101,4 @@ public class CustomerInterviewController {
         }
         return  cronusDto;
     }
-    
 }
