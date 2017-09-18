@@ -25,6 +25,7 @@ public class CronusException extends BaseException {
         CRM_CUSTOMERPHONERE_ERROR("6006","该手机号已存在"),
         CRM_CUSTOMEINFO_ERROR("6007","该用户不存在"),
         CRM_DATAAUTH_ERROR("6008","当前用户无数据权限"),
+        CEM_CUSTOMERINTERVIEW("6009","非法参数")
 
         ;
 

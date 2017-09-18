@@ -16,7 +16,7 @@ public class CustomerInterviewHouseInfo extends BaseModel {
 
     private BigDecimal area;
 
-    private Integer buildDate;
+    private Date buildDate;
 
     private Integer housePropertyRightsNum;
 
@@ -85,11 +85,11 @@ public class CustomerInterviewHouseInfo extends BaseModel {
         this.area = area;
     }
 
-    public Integer getBuildDate() {
+    public Date getBuildDate() {
         return buildDate;
     }
 
-    public void setBuildDate(Integer buildDate) {
+    public void setBuildDate(Date buildDate) {
         this.buildDate = buildDate;
     }
 

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.CustomerInfoService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -56,11 +57,7 @@ public class CustomerController {
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->customerList获取列表信息操作失败",e);
-            if (e instanceof CronusException) {
-                CronusException thorException = (CronusException) e;
-                throw thorException;
-            }
-            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+            return new CronusDto(9000,  e.getMessage(), null);
         }
     }
 
@@ -106,11 +103,7 @@ public class CustomerController {
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->customerList获取列表信息操作失败", e);
-            if (e instanceof CronusException) {
-                CronusException thorException = (CronusException) e;
-                throw thorException;
-            }
-            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+            return new CronusDto(9000,  e.getMessage(), null);
         }
     }
 
@@ -133,17 +126,13 @@ public class CustomerController {
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->fingBytelephone获取用户信息失败", e);
-            if (e instanceof CronusException) {
-                CronusException thorException = (CronusException) e;
-                throw thorException;
-            }
-            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+            return new CronusDto(9000,  e.getMessage(), null);
         }
     }
     @ApiOperation(value="根据客户id查找客户信息", notes="根据客户id查找客户信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "JSONObject", value = "{'customerids' : 'customerids'}", required = true, paramType = "query", dataType = "JSONObject")
+            @ApiImplicitParam(name = "customerids", value = "1,2,3", required = true, paramType = "query", dataType = "String")
     })
     @RequestMapping(value = "/findCustomerListByIds", method = RequestMethod.GET)
     @ResponseBody
@@ -158,11 +147,7 @@ public class CustomerController {
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->fingBytelephone获取用户信息失败", e);
-            if (e instanceof CronusException) {
-                CronusException thorException = (CronusException) e;
-                throw thorException;
-            }
-            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+            return new CronusDto(9000,  e.getMessage(), null);
         }
     }
 }

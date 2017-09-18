@@ -109,6 +109,8 @@ public class CustomerInterVibaseInfoDto {
 
     private String isDeleted;
 
+    //
+
     public String getId() {
         return id;
     }

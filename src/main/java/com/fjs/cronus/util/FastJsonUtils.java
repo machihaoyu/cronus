@@ -19,7 +19,7 @@ public class FastJsonUtils {
      * @throws Exception
      * @author myclover
      */
-    public static List<String> getStringList(String jsonData) throws Exception {
+    public static List<String> getStringList(String jsonData){
         return JSON.parseArray(jsonData, String.class);
     }
 
@@ -34,8 +34,8 @@ public class FastJsonUtils {
      * @throws Exception
      * @author myclover
      */
-    public static <T> T getSingleBean(String jsonData, Class<T> clazz)
-            throws Exception {
+    public static <T> T getSingleBean(String jsonData, Class<T> clazz) {
+         Object object = JSON.parseObject(jsonData, clazz);
         return JSON.parseObject(jsonData, clazz);
     }
 

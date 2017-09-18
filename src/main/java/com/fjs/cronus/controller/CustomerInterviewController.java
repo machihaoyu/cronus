@@ -1,6 +1,8 @@
 package com.fjs.cronus.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.cronus.CustomerInterViewBaseCarHouseInsturDto;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.CustomerInterviewService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -56,13 +58,48 @@ public class CustomerInterviewController {
 
         }catch (Exception e){
             logger.error("--------------->customerList获取列表信息操作失败",e);
-            if (e instanceof CronusException) {
-                CronusException thorException = (CronusException) e;
-                throw thorException;
-            }
-            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+            return new CronusDto(9000,  e.getMessage(), null);
         }
 
         return  resultDto;
     }
+    @ApiOperation(value="根据客户id查找客户信息", notes="根据客户id查找客户信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerid", value = "1", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/findCustomerinteViewById", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto findCustomerinteVIewById(@RequestParam Integer customerid) {
+        CronusDto cronusDto = new CronusDto();
+        try {
+            //   String customerids = jsonObject.getString("customerids");
+            if (customerid == null || "".equals(customerid)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+            }
+            cronusDto = customerInterviewService.findCustomerinteViewById(customerid);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->findCustomerinteVIewById 获取用户信息失败", e);
+            return new CronusDto(9000,  e.getMessage(), null);
+        }
+    }
+    @ApiOperation(value="添加客户面谈信息", notes="添加客户面谈信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "JSONObject", value = "{}", required = true, paramType = "query", dataType = "JSONObject")
+    })
+    @RequestMapping(value = "/addCustomerView", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto addCustomerView(@RequestBody JSONObject jsonObject,@RequestHeader("Authorization") String token){
+        CronusDto cronusDto = new CronusDto();
+        try{
+            cronusDto = customerInterviewService.addCustomerView(jsonObject,token);
+        }catch (Exception e){
+            logger.error("--------------->addCustomerView 客户面谈信息添加失败", e);
+            return new CronusDto(9000,  e.getMessage(), null);
+        }
+        return  cronusDto;
+    }
+    
 }

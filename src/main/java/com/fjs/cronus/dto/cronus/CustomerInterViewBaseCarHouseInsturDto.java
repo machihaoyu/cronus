@@ -1,9 +1,14 @@
-package com.fjs.cronus.model;
+package com.fjs.cronus.dto.cronus;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class CustomerInterviewBaseInfo extends  BaseModel {
+/**
+ * Created by msi on 2017/9/18.
+ */
+public class CustomerInterViewBaseCarHouseInsturDto implements Serializable{
+    private static final long serialVersionUID = 6841315540181335028L;
     private Integer id;
 
     private Integer customerId;
@@ -95,6 +100,79 @@ public class CustomerInterviewBaseInfo extends  BaseModel {
     private String isRelativeKnown;
 
     private String remark;
+
+    /**
+     * 车辆信息
+     */
+    private Integer carInfoid;
+
+    private Integer customerInterviewBaseInfoId;
+
+    private String carType;
+
+    private String licencePlateLocation;
+
+    private Date buyDate;
+
+    private Integer carMortgagePaidNum;
+
+    private Integer carMortgageMonthAmount;
+
+    private BigDecimal priceNow;
+
+    private String isFullInsurance;
+
+    /**
+     * 房产信息
+     */
+    private Integer houseInfoId;
+
+    private String accepthousearea;
+
+    private String houseStatus;
+
+    private String housePropertyType;
+
+    private BigDecimal area;
+
+    private Date buildDate;
+
+    private Integer housePropertyRightsNum;
+
+    private String isChildInPropertyRigths;
+
+    private String isOldInPropertyRigths;
+
+    private String isPropertyRightsClear;
+
+    private String isOtherHouse;
+
+    private String isBankFlow;
+
+    private Integer bankFlowMonthAmount;
+
+    private Integer houseMortgageMonthAmount;
+
+    private Integer houseMortgagePaidNum;
+
+    /**
+     * 保险信息
+     */
+    private Integer insuranceInfoId;
+
+    private String insuranceCompany;
+
+    private String insuranceType;
+
+    private String payType;
+
+    private Integer yearPayAmount;
+
+    private Integer monthPayAmount;
+
+    private Date effectDate;
+
+    private String isSuspend;
 
     public Integer getId() {
         return id;
@@ -462,5 +540,261 @@ public class CustomerInterviewBaseInfo extends  BaseModel {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public Integer getCarInfoid() {
+        return carInfoid;
+    }
+
+    public void setCarInfoid(Integer carInfoid) {
+        this.carInfoid = carInfoid;
+    }
+
+    public Integer getCustomerInterviewBaseInfoId() {
+        return customerInterviewBaseInfoId;
+    }
+
+    public void setCustomerInterviewBaseInfoId(Integer customerInterviewBaseInfoId) {
+        this.customerInterviewBaseInfoId = customerInterviewBaseInfoId;
+    }
+
+    public String getCarType() {
+        return carType;
+    }
+
+    public void setCarType(String carType) {
+        this.carType = carType;
+    }
+
+    public String getLicencePlateLocation() {
+        return licencePlateLocation;
+    }
+
+    public void setLicencePlateLocation(String licencePlateLocation) {
+        this.licencePlateLocation = licencePlateLocation;
+    }
+
+    public Date getBuyDate() {
+        return buyDate;
+    }
+
+    public void setBuyDate(Date buyDate) {
+        this.buyDate = buyDate;
+    }
+
+    public Integer getCarMortgagePaidNum() {
+        return carMortgagePaidNum;
+    }
+
+    public void setCarMortgagePaidNum(Integer carMortgagePaidNum) {
+        this.carMortgagePaidNum = carMortgagePaidNum;
+    }
+
+    public Integer getCarMortgageMonthAmount() {
+        return carMortgageMonthAmount;
+    }
+
+    public void setCarMortgageMonthAmount(Integer carMortgageMonthAmount) {
+        this.carMortgageMonthAmount = carMortgageMonthAmount;
+    }
+
+    public BigDecimal getPriceNow() {
+        return priceNow;
+    }
+
+    public void setPriceNow(BigDecimal priceNow) {
+        this.priceNow = priceNow;
+    }
+
+    public String getIsFullInsurance() {
+        return isFullInsurance;
+    }
+
+    public void setIsFullInsurance(String isFullInsurance) {
+        this.isFullInsurance = isFullInsurance;
+    }
+
+    public Integer getHouseInfoId() {
+        return houseInfoId;
+    }
+
+    public void setHouseInfoId(Integer houseInfoId) {
+        this.houseInfoId = houseInfoId;
+    }
+
+    public String getAccepthousearea() {
+        return accepthousearea;
+    }
+
+    public void setAccepthousearea(String accepthousearea) {
+        this.accepthousearea = accepthousearea;
+    }
+
+    public String getHouseStatus() {
+        return houseStatus;
+    }
+
+    public void setHouseStatus(String houseStatus) {
+        this.houseStatus = houseStatus;
+    }
+
+    public String getHousePropertyType() {
+        return housePropertyType;
+    }
+
+    public void setHousePropertyType(String housePropertyType) {
+        this.housePropertyType = housePropertyType;
+    }
+
+    public BigDecimal getArea() {
+        return area;
+    }
+
+    public void setArea(BigDecimal area) {
+        this.area = area;
+    }
+
+    public Date getBuildDate() {
+        return buildDate;
+    }
+
+    public void setBuildDate(Date buildDate) {
+        this.buildDate = buildDate;
+    }
+
+    public Integer getHousePropertyRightsNum() {
+        return housePropertyRightsNum;
+    }
+
+    public void setHousePropertyRightsNum(Integer housePropertyRightsNum) {
+        this.housePropertyRightsNum = housePropertyRightsNum;
+    }
+
+    public String getIsChildInPropertyRigths() {
+        return isChildInPropertyRigths;
+    }
+
+    public void setIsChildInPropertyRigths(String isChildInPropertyRigths) {
+        this.isChildInPropertyRigths = isChildInPropertyRigths;
+    }
+
+    public String getIsOldInPropertyRigths() {
+        return isOldInPropertyRigths;
+    }
+
+    public void setIsOldInPropertyRigths(String isOldInPropertyRigths) {
+        this.isOldInPropertyRigths = isOldInPropertyRigths;
+    }
+
+    public String getIsPropertyRightsClear() {
+        return isPropertyRightsClear;
+    }
+
+    public void setIsPropertyRightsClear(String isPropertyRightsClear) {
+        this.isPropertyRightsClear = isPropertyRightsClear;
+    }
+
+    public String getIsOtherHouse() {
+        return isOtherHouse;
+    }
+
+    public void setIsOtherHouse(String isOtherHouse) {
+        this.isOtherHouse = isOtherHouse;
+    }
+
+    public String getIsBankFlow() {
+        return isBankFlow;
+    }
+
+    public void setIsBankFlow(String isBankFlow) {
+        this.isBankFlow = isBankFlow;
+    }
+
+    public Integer getBankFlowMonthAmount() {
+        return bankFlowMonthAmount;
+    }
+
+    public void setBankFlowMonthAmount(Integer bankFlowMonthAmount) {
+        this.bankFlowMonthAmount = bankFlowMonthAmount;
+    }
+
+    public Integer getHouseMortgageMonthAmount() {
+        return houseMortgageMonthAmount;
+    }
+
+    public void setHouseMortgageMonthAmount(Integer houseMortgageMonthAmount) {
+        this.houseMortgageMonthAmount = houseMortgageMonthAmount;
+    }
+
+    public Integer getHouseMortgagePaidNum() {
+        return houseMortgagePaidNum;
+    }
+
+    public void setHouseMortgagePaidNum(Integer houseMortgagePaidNum) {
+        this.houseMortgagePaidNum = houseMortgagePaidNum;
+    }
+
+    public Integer getInsuranceInfoId() {
+        return insuranceInfoId;
+    }
+
+    public void setInsuranceInfoId(Integer insuranceInfoId) {
+        this.insuranceInfoId = insuranceInfoId;
+    }
+
+    public String getInsuranceCompany() {
+        return insuranceCompany;
+    }
+
+    public void setInsuranceCompany(String insuranceCompany) {
+        this.insuranceCompany = insuranceCompany;
+    }
+
+    public String getInsuranceType() {
+        return insuranceType;
+    }
+
+    public void setInsuranceType(String insuranceType) {
+        this.insuranceType = insuranceType;
+    }
+
+    public String getPayType() {
+        return payType;
+    }
+
+    public void setPayType(String payType) {
+        this.payType = payType;
+    }
+
+    public Integer getYearPayAmount() {
+        return yearPayAmount;
+    }
+
+    public void setYearPayAmount(Integer yearPayAmount) {
+        this.yearPayAmount = yearPayAmount;
+    }
+
+    public Integer getMonthPayAmount() {
+        return monthPayAmount;
+    }
+
+    public void setMonthPayAmount(Integer monthPayAmount) {
+        this.monthPayAmount = monthPayAmount;
+    }
+
+    public Date getEffectDate() {
+        return effectDate;
+    }
+
+    public void setEffectDate(Date effectDate) {
+        this.effectDate = effectDate;
+    }
+
+    public String getIsSuspend() {
+        return isSuspend;
+    }
+
+    public void setIsSuspend(String isSuspend) {
+        this.isSuspend = isSuspend;
     }
 }

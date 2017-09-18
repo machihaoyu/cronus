@@ -10,4 +10,6 @@ import java.util.Map;
 public interface CustomerInterviewBaseInfoMapper extends MyMapper<CustomerInterviewBaseInfo> {
 
     List<CustomerInterviewBaseInfo>  customerInterviewList (Map<String, Object> paramsMap);
+    CustomerInterviewBaseInfo customerInterviewByFeild(Map<String,Object> paramsMap);
+    void  addCustomerInteview(CustomerInterviewBaseInfo customerInterviewBaseInfo);
 }

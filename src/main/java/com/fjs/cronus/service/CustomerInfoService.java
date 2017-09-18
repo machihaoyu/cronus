@@ -58,12 +58,15 @@ public class CustomerInfoService {
         paramsMap.put("start",(page-1) * size);
         paramsMap.put("size",size);
         resultList = customerInfoMapper.customerList(paramsMap);
-        if (resultList.size() > 0){
-            for (CustomerInfo customerInfo : resultList) {
+        if (resultList != null && resultList.size() > 0){
+           /* for (CustomerInfo customerInfo : resultList) {
                 CustomerDto customerDto = new CustomerDto();
                 EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
                 dtoList.add(customerDto);
-            }
+            }*/
+            Integer count = customerInfoMapper.customerListCount(paramsMap);
+            result.setRows(dtoList);
+            result.setTotal(count.toString());
         }
         Integer count = customerInfoMapper.customerListCount(paramsMap);
         result.setRows(dtoList);
@@ -132,7 +135,7 @@ public class CustomerInfoService {
         EntityToDto.customerEntityToCustomerDto(customerInfo,dto);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
-        resultDto.setData(customerInfo);
+        resultDto.setData(customerInfo.getId());
         return  resultDto;
     }
     public CronusDto findCustomerListByIds (String customerids){
@@ -149,15 +152,17 @@ public class CustomerInfoService {
         List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerListByFeild(paramsMap);
         //遍历
         List<CustomerDto> customerDtos = new ArrayList<>();
-        for (CustomerInfo customerInfo: customerInfoList) {
+     /*   for (CustomerInfo customerInfo: customerInfoList) {
             CustomerDto customerDto = new CustomerDto();
             EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
             //TODO  增加source 调用接口 来源渠道
             customerDtos.add(customerDto);
+        }*/
+        if (customerInfoList != null && customerInfoList.size() > 0) {
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            resultDto.setData(customerInfoList);
         }
-        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
-        resultDto.setResult(ResultResource.CODE_SUCCESS);
-        resultDto.setData(customerDtos);
         return  resultDto;
     }
     public void validAddData(JSONObject jsonObject){

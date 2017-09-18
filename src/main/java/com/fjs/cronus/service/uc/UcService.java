@@ -3,10 +3,13 @@ package com.fjs.cronus.service.uc;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.UserDTO;
 import com.fjs.cronus.dto.UserInfoDTO;
+import com.fjs.cronus.dto.cronus.BaseUcDto;
 import com.fjs.cronus.dto.cronus.UcUserDto;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.client.ThorInterfaceService;
+import com.fjs.cronus.service.redis.UcRedisService;
+import com.fjs.cronus.util.FastJsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,55 +24,78 @@ public class UcService {
 
     @Autowired
     ThorInterfaceService thorInterfaceService;
+    @Autowired
+    UcRedisService ucRedisService;
 
-
-    public CronusDto<List> getSubUserByUserId(String token,Integer user_id){
+    public List getSubUserByUserId(String token,Integer user_id){
         CronusDto resultDto = new CronusDto();
-        List resultList = new ArrayList();
         if (user_id == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
         //TODO 从缓存中取数据如果没有在查接口
-        List list = new ArrayList();
-        if (list.size() > 0 ){
-
+        List  resultList = ucRedisService.getRedisUcInfo("keyIds" + user_id);
+        if (resultList!=null && resultList.size() > 0 ){
+            return  resultList;
         }else {
             //查接口先查看用户的数据权限
-            CronusDto ucDTO = getUserInfoByID(token,user_id);
-            if (ucDTO.getData() ==null){
+            List idList = new ArrayList();
+            UcUserDto ucUserDto = getUserInfoByID(token,user_id);
+            if (ucUserDto ==null){
                 throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
-            }
-            UcUserDto ucUserDto = (UcUserDto)ucDTO.getData();
-            if (ucUserDto.getData_type() == null){
-                throw new CronusException(CronusException.Type.CRM_DATAAUTH_ERROR);
             }
             Integer data_type = Integer.valueOf(ucUserDto.getData_type());
             if (data_type == 1){
                 //TODO 只能查看自己并把结果存入缓存并设置好失效时间
-                resultList.add(user_id);
-                resultDto.setData(resultList);
+                idList.add(user_id);
+                //插入缓存
+                ucRedisService.setRedisUcInfo("keyIds" + user_id,idList);
+                return  idList;
             }
             BaseUcDTO baseDto = thorInterfaceService.getSubUserByUserId(token,user_id,data_type);
-            resultList = (List) baseDto.getRetData();
-            resultDto.setData(resultList);
+            if (baseDto.getRetData() != null){
+                //转json
+                String result = FastJsonUtils.obj2JsonString(baseDto.getRetData());
+                idList = FastJsonUtils.getStringList(result);
+            }
+
+            ucRedisService.setRedisUcInfo("keyIds" + user_id ,idList);
+            return  idList;
         }
-        return  resultDto;
     }
 
-    public CronusDto getUserInfoByID(String token,Integer user_id){
+    public UcUserDto getUserInfoByID(String token,Integer user_id){
         //TODO 差缓存是否存在用户信息 不存在 插接口
-        CronusDto resultDto = new CronusDto();
+        UcUserDto ucUserDto = null;
+        ucUserDto = ucRedisService.getRedisUserInfo("key");
+        if (ucUserDto != null){
+            return ucUserDto;
+        }
         BaseUcDTO ucDTO = thorInterfaceService.getUserInfoByField(token,null,user_id,null);
         if (ucDTO.getRetData() !=null){
-            UcUserDto ucUserDto = (UcUserDto)ucDTO.getRetData();
+            //map 转json
+            String result = FastJsonUtils.obj2JsonString(ucDTO.getRetData());
+            //把json格式的数据转为对象
+
+            ucUserDto  = FastJsonUtils.getSingleBean(result,UcUserDto.class);
             //TODO 信息存入缓存 并设置失效时间
-            resultDto.setData(ucUserDto);
+            ucRedisService.setRedisUserInfo("key" + ucUserDto.getUser_id(),ucUserDto);
 
         }
-        return  resultDto;
+        return  ucUserDto;
+    }
 
-
-
+    public Integer getUserIdByToken(String token){
+        Integer user_id = null;
+        CronusDto resultDto = new CronusDto();
+        //根据token查询当前用户id
+        String result = thorInterfaceService.getCurrentUserInfo(token,null);
+        BaseUcDto dto = FastJsonUtils.getSingleBean(result,BaseUcDto.class);
+        System.out.println(dto.getData().toString());
+        UcUserDto userDTO = FastJsonUtils.getSingleBean(dto.getData().toString(),UcUserDto.class);
+        if (userDTO != null){
+            user_id  = Integer.valueOf(userDTO.getUser_id());
+        }
+        return  user_id;
     }
 
 }
