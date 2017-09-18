@@ -59,11 +59,11 @@ public class CustomerInfoService {
         paramsMap.put("size",size);
         resultList = customerInfoMapper.customerList(paramsMap);
         if (resultList != null && resultList.size() > 0){
-           /* for (CustomerInfo customerInfo : resultList) {
+            for (CustomerInfo customerInfo : resultList) {
                 CustomerDto customerDto = new CustomerDto();
                 EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
                 dtoList.add(customerDto);
-            }*/
+            }
             Integer count = customerInfoMapper.customerListCount(paramsMap);
             result.setRows(dtoList);
             result.setTotal(count.toString());
@@ -110,6 +110,7 @@ public class CustomerInfoService {
              throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
          }
          CustomerInfo customerInfo = customerInfoMapper.insertCustomer(paramsMap);
+
          if (customerInfo == null){
              throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
          }
@@ -152,12 +153,12 @@ public class CustomerInfoService {
         List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerListByFeild(paramsMap);
         //遍历
         List<CustomerDto> customerDtos = new ArrayList<>();
-     /*   for (CustomerInfo customerInfo: customerInfoList) {
+       for (CustomerInfo customerInfo: customerInfoList) {
             CustomerDto customerDto = new CustomerDto();
             EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
             //TODO  增加source 调用接口 来源渠道
             customerDtos.add(customerDto);
-        }*/
+        }
         if (customerInfoList != null && customerInfoList.size() > 0) {
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDto.setResult(ResultResource.CODE_SUCCESS);

@@ -8,7 +8,7 @@ import java.util.Date;
  * Created by msi on 2017/9/14.
  */
 public class CustomerDto {
-    private String id;
+    private Integer id;
 
     private String telephonenumber;
 
@@ -54,27 +54,67 @@ public class CustomerDto {
 
     private String callbackStatus;
 
-    private String callbackTime;
+    private Date callbackTime;
 
-    private String subCompanyId;
+    private Integer subCompanyId;
 
     private String perDescription;
 
-    private String createTime;
+    private Date createTime;
 
-    private String lastUpdateTime;
+    private Date lastUpdateTime;
 
-    private String createUser;
+    private Integer createUser;
 
-    private String lastUpdateUser;
+    private Integer lastUpdateUser;
 
-    private String isDeleted;
+    private Integer isDeleted;
 
-    public String getId() {
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
+    public void setLastUpdateTime(Date lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
+    }
+
+    public Integer getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(Integer createUser) {
+        this.createUser = createUser;
+    }
+
+    public Integer getLastUpdateUser() {
+        return lastUpdateUser;
+    }
+
+    public void setLastUpdateUser(Integer lastUpdateUser) {
+        this.lastUpdateUser = lastUpdateUser;
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -254,19 +294,19 @@ public class CustomerDto {
         this.callbackStatus = callbackStatus;
     }
 
-    public String getCallbackTime() {
+    public Date getCallbackTime() {
         return callbackTime;
     }
 
-    public void setCallbackTime(String callbackTime) {
+    public void setCallbackTime(Date callbackTime) {
         this.callbackTime = callbackTime;
     }
 
-    public String getSubCompanyId() {
+    public Integer getSubCompanyId() {
         return subCompanyId;
     }
 
-    public void setSubCompanyId(String subCompanyId) {
+    public void setSubCompanyId(Integer subCompanyId) {
         this.subCompanyId = subCompanyId;
     }
 
@@ -276,45 +316,5 @@ public class CustomerDto {
 
     public void setPerDescription(String perDescription) {
         this.perDescription = perDescription;
-    }
-
-    public String getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(String createTime) {
-        this.createTime = createTime;
-    }
-
-    public String getLastUpdateTime() {
-        return lastUpdateTime;
-    }
-
-    public void setLastUpdateTime(String lastUpdateTime) {
-        this.lastUpdateTime = lastUpdateTime;
-    }
-
-    public String getCreateUser() {
-        return createUser;
-    }
-
-    public void setCreateUser(String createUser) {
-        this.createUser = createUser;
-    }
-
-    public String getLastUpdateUser() {
-        return lastUpdateUser;
-    }
-
-    public void setLastUpdateUser(String lastUpdateUser) {
-        this.lastUpdateUser = lastUpdateUser;
-    }
-
-    public String getIsDeleted() {
-        return isDeleted;
-    }
-
-    public void setIsDeleted(String isDeleted) {
-        this.isDeleted = isDeleted;
     }
 }

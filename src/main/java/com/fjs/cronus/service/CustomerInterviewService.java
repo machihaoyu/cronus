@@ -96,8 +96,13 @@ public class CustomerInterviewService {
             paramsMap.put("start",(page-1) * size);
             paramsMap.put("size",size);
             List<CustomerInterviewBaseInfo> customerInterviewBaseInfos = customerInterviewBaseInfoMapper.customerInterviewList(paramsMap);
+            List<CustomerInterVibaseInfoDto> resultList = new ArrayList<>();
             if (customerInterviewBaseInfos !=null && customerInterviewBaseInfos.size() > 0){
-                resultDto.setData(customerInterviewBaseInfos);
+                for (CustomerInterviewBaseInfo customerInterviewBaseInfo : customerInterviewBaseInfos) {
+                    CustomerInterVibaseInfoDto customerInterviewBaseInfoDTO = new CustomerInterVibaseInfoDto();
+                    EntityToDto.CustomerInterviewEntityToCustomerInterviewDto(customerInterviewBaseInfo,customerInterviewBaseInfoDTO);
+                }
+                resultDto.setData(resultList);
                 resultDto.setResult(ResultResource.CODE_SUCCESS);
                 resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             }

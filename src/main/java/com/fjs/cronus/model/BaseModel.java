@@ -11,7 +11,7 @@ import java.util.Date;
 public class BaseModel {
 
     private Date createTime;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+
     private Date lastUpdateTime;
 
     private Integer createUser;
