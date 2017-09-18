@@ -6,7 +6,7 @@
     <result column="customer_interview_base_info_id" property="customerInterviewBaseInfoId" jdbcType="INTEGER" />
     <result column="car_type" property="carType" jdbcType="VARCHAR" />
     <result column="licence_plate_location" property="licencePlateLocation" jdbcType="VARCHAR" />
-    <result column="buy_date" property="buyDate" jdbcType="INTEGER" />
+    <result column="buy_date" property="buyDate" jdbcType="TIMESTAMP" />
     <result column="car_mortgage_paid_num" property="carMortgagePaidNum" jdbcType="INTEGER" />
     <result column="car_mortgage_month_amount" property="carMortgageMonthAmount" jdbcType="INTEGER" />
     <result column="price_now" property="priceNow" jdbcType="DECIMAL" />
@@ -22,4 +22,135 @@
     car_mortgage_paid_num, car_mortgage_month_amount, price_now, is_full_insurance, create_time, 
     last_update_time, create_user, last_update_user, is_deleted
   </sql>
+  <select id="findByCustomerInterviewByFeild" parameterType="java.util.Map" resultMap="BaseResultMap"  >
+  select
+  <include refid="Base_Column_List" />
+  from customer_interview_car_info
+  WHERE  is_deleted = 0
+    <if test="id != null" >
+      id = #{id},
+    </if>
+    <if test="customerInterviewBaseInfoId != null" >
+      customer_interview_base_info_id = #{customerInterviewBaseInfoId},
+    </if>
+    <if test="carType != null" >
+      car_type =#{carType,jdbcType=VARCHAR},
+    </if>
+    <if test="licencePlateLocation != null" >
+      licence_plate_location = #{licencePlateLocation,jdbcType=VARCHAR},
+    </if>
+    <if test="buyDate != null" >
+      buy_date= #{buyDate},
+    </if>
+    <if test="carMortgagePaidNum != null" >
+      car_mortgage_paid_num = #{carMortgagePaidNum,jdbcType=INTEGER},
+    </if>
+    <if test="carMortgageMonthAmount != null" >
+      car_mortgage_month_amount = #{carMortgageMonthAmount,jdbcType=INTEGER},
+    </if>
+    <if test="priceNow != null" >
+      price_now =#{priceNow},
+    </if>
+    <if test="isFullInsurance != null" >
+      is_full_insurance = #{isFullInsurance,jdbcType=VARCHAR},
+    </if>
+    <if test="createTime != null" >
+      create_time = #{createTime},
+    </if>
+    <if test="lastUpdateTime != null" >
+      last_update_time= #{lastUpdateTime},
+    </if>
+    <if test="createUser != null" >
+      create_user = #{createUser,jdbcType=INTEGER},
+    </if>
+    <if test="lastUpdateUser != null" >
+      last_update_user = #{lastUpdateUser},
+    </if>
+  </select>
+  <insert id="addCustomerInteviewCarInfo" parameterType="com.fjs.cronus.model.CustomerInterviewCarInfo" useGeneratedKeys="true" keyProperty="id" >
+    insert into customer_interview_car_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="customerInterviewBaseInfoId != null" >
+        customer_interview_base_info_id,
+      </if>
+      <if test="carType != null" >
+        car_type,
+      </if>
+      <if test="licencePlateLocation != null" >
+        licence_plate_location,
+      </if>
+      <if test="buyDate != null" >
+        buy_date,
+      </if>
+      <if test="carMortgagePaidNum != null" >
+        car_mortgage_paid_num,
+      </if>
+      <if test="carMortgageMonthAmount != null" >
+        car_mortgage_month_amount,
+      </if>
+      <if test="priceNow != null" >
+        price_now,
+      </if>
+      <if test="isFullInsurance != null" >
+        is_full_insurance,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    values (
+    <if test="customerInterviewBaseInfoId != null" >
+      #{customerInterviewBaseInfoId,jdbcType=INTEGER},
+    </if>
+    <if test="carType != null" >
+      #{carType,jdbcType=VARCHAR},
+    </if>
+    <if test="licencePlateLocation != null" >
+      #{licencePlateLocation,jdbcType=VARCHAR},
+    </if>
+    <if test="buyDate != null" >
+      #{buyDate,jdbcType=TIMESTAMP},
+    </if>
+    <if test="carMortgagePaidNum != null" >
+      #{carMortgagePaidNum,jdbcType=INTEGER},
+    </if>
+    <if test="carMortgageMonthAmount != null" >
+      #{carMortgageMonthAmount,jdbcType=INTEGER},
+    </if>
+    <if test="priceNow != null" >
+      #{priceNow,jdbcType=DECIMAL},
+    </if>
+    <if test="isFullInsurance != null" >
+      #{isFullInsurance,jdbcType=VARCHAR},
+    </if>
+    <if test="createTime != null" >
+      #{createTime,jdbcType=TIMESTAMP},
+    </if>
+    <if test="lastUpdateTime != null" >
+      #{lastUpdateTime,jdbcType=TIMESTAMP},
+    </if>
+    <if test="createUser != null" >
+      #{createUser,jdbcType=INTEGER},
+    </if>
+    <if test="lastUpdateUser != null" >
+      #{lastUpdateUser,jdbcType=INTEGER},
+    </if>
+    <if test="isDeleted != null" >
+      #{isDeleted,jdbcType=INTEGER},
+    </if>
+    )
+
+  </insert>
 </mapper>

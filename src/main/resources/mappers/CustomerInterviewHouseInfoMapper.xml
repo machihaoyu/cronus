@@ -8,7 +8,7 @@
     <result column="house_status" property="houseStatus" jdbcType="VARCHAR" />
     <result column="house_property_type" property="housePropertyType" jdbcType="VARCHAR" />
     <result column="area" property="area" jdbcType="DECIMAL" />
-    <result column="build_date" property="buildDate" jdbcType="INTEGER" />
+    <result column="build_date" property="buildDate" jdbcType="TIMESTAMP" />
     <result column="house_property_rights_num" property="housePropertyRightsNum" jdbcType="INTEGER" />
     <result column="is_child_in_property_rigths" property="isChildInPropertyRigths" jdbcType="VARCHAR" />
     <result column="is_old_in_property_rigths" property="isOldInPropertyRigths" jdbcType="VARCHAR" />
@@ -31,4 +31,139 @@
     house_mortgage_paid_num, create_time, last_update_time, create_user, last_update_user, 
     is_deleted
   </sql>
+  <select id="findByCustomerInterviewByFeild" parameterType="java.util.Map" resultMap="BaseResultMap" >
+    select
+    <include refid="Base_Column_List" />
+    from customer_interview_house_info
+    where is deleted = 0
+    <if test="customerInterviewBaseInfoId != null" >
+      customer_interview_base_info_id = #{customerInterviewBaseInfoId},
+    </if>
+
+  </select>
+  <insert id="addCustomerInterviewHouseInfo" parameterType="com.fjs.cronus.model.CustomerInterviewHouseInfo" useGeneratedKeys="true" keyProperty="id">
+    insert into customer_interview_house_info
+      <if test="customerInterviewBaseInfoId != null" >
+        customer_interview_base_info_id,
+      </if>
+      <if test="accepthousearea != null" >
+        acceptHousearea,
+      </if>
+      <if test="houseStatus != null" >
+        house_status,
+      </if>
+      <if test="housePropertyType != null" >
+        house_property_type,
+      </if>
+      <if test="area != null" >
+        area,
+      </if>
+      <if test="buildDate != null" >
+        build_date,
+      </if>
+      <if test="housePropertyRightsNum != null" >
+        house_property_rights_num,
+      </if>
+      <if test="isChildInPropertyRigths != null" >
+        is_child_in_property_rigths,
+      </if>
+      <if test="isOldInPropertyRigths != null" >
+        is_old_in_property_rigths,
+      </if>
+      <if test="isPropertyRightsClear != null" >
+        is_property_rights_clear,
+      </if>
+      <if test="isOtherHouse != null" >
+        is_other_house,
+      </if>
+      <if test="isBankFlow != null" >
+        is_bank_flow,
+      </if>
+      <if test="bankFlowMonthAmount != null" >
+        bank_flow_month_amount,
+      </if>
+      <if test="houseMortgageMonthAmount != null" >
+        house_mortgage_month_amount,
+      </if>
+      <if test="houseMortgagePaidNum != null" >
+        house_mortgage_paid_num,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    values(
+      <if test="customerInterviewBaseInfoId != null" >
+        #{customerInterviewBaseInfoId,jdbcType=INTEGER},
+      </if>
+      <if test="accepthousearea != null" >
+        #{accepthousearea,jdbcType=VARCHAR},
+      </if>
+      <if test="houseStatus != null" >
+        #{houseStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="housePropertyType != null" >
+        #{housePropertyType,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        #{area,jdbcType=DECIMAL},
+      </if>
+      <if test="buildDate != null" >
+        #{buildDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="housePropertyRightsNum != null" >
+        #{housePropertyRightsNum,jdbcType=INTEGER},
+      </if>
+      <if test="isChildInPropertyRigths != null" >
+        #{isChildInPropertyRigths,jdbcType=VARCHAR},
+      </if>
+      <if test="isOldInPropertyRigths != null" >
+        #{isOldInPropertyRigths,jdbcType=VARCHAR},
+      </if>
+      <if test="isPropertyRightsClear != null" >
+        #{isPropertyRightsClear,jdbcType=VARCHAR},
+      </if>
+      <if test="isOtherHouse != null" >
+        #{isOtherHouse,jdbcType=VARCHAR},
+      </if>
+      <if test="isBankFlow != null" >
+        #{isBankFlow,jdbcType=VARCHAR},
+      </if>
+      <if test="bankFlowMonthAmount != null" >
+        #{bankFlowMonthAmount,jdbcType=INTEGER},
+      </if>
+      <if test="houseMortgageMonthAmount != null" >
+        #{houseMortgageMonthAmount,jdbcType=INTEGER},
+      </if>
+      <if test="houseMortgagePaidNum != null" >
+        #{houseMortgagePaidNum,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+)
+  </insert>
 </mapper>
