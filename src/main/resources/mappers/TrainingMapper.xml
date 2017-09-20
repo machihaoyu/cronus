@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.TrainingMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.Training" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="create_user_id" property="createUserId" jdbcType="INTEGER" />
+    <result column="topic" property="topic" jdbcType="VARCHAR" />
+    <result column="speaker" property="speaker" jdbcType="VARCHAR" />
+    <result column="introduce" property="introduce" jdbcType="VARCHAR" />
+    <result column="place" property="place" jdbcType="VARCHAR" />
+    <result column="start_time" property="startTime" jdbcType="TIMESTAMP" />
+    <result column="end_time" property="endTime" jdbcType="TIMESTAMP" />
+    <result column="is_revoke" property="isRevoke" jdbcType="TINYINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, create_user_id, topic, speaker, introduce, place, start_time, end_time, is_revoke, 
+    create_time, last_update_time, create_user, last_update_user, is_deleted
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from training
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from training
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.fjs.cronus.model.Training" >
+    insert into training (id, create_user_id, topic, 
+      speaker, introduce, place, 
+      start_time, end_time, is_revoke, 
+      create_time, last_update_time, create_user, 
+      last_update_user, is_deleted)
+    values (#{id,jdbcType=INTEGER}, #{createUserId,jdbcType=INTEGER}, #{topic,jdbcType=VARCHAR}, 
+      #{speaker,jdbcType=VARCHAR}, #{introduce,jdbcType=VARCHAR}, #{place,jdbcType=VARCHAR}, 
+      #{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, #{isRevoke,jdbcType=TINYINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{lastUpdateTime,jdbcType=TIMESTAMP}, #{createUser,jdbcType=INTEGER}, 
+      #{lastUpdateUser,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.fjs.cronus.model.Training" >
+    insert into training
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="topic != null" >
+        topic,
+      </if>
+      <if test="speaker != null" >
+        speaker,
+      </if>
+      <if test="introduce != null" >
+        introduce,
+      </if>
+      <if test="place != null" >
+        place,
+      </if>
+      <if test="startTime != null" >
+        start_time,
+      </if>
+      <if test="endTime != null" >
+        end_time,
+      </if>
+      <if test="isRevoke != null" >
+        is_revoke,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="topic != null" >
+        #{topic,jdbcType=VARCHAR},
+      </if>
+      <if test="speaker != null" >
+        #{speaker,jdbcType=VARCHAR},
+      </if>
+      <if test="introduce != null" >
+        #{introduce,jdbcType=VARCHAR},
+      </if>
+      <if test="place != null" >
+        #{place,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null" >
+        #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null" >
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isRevoke != null" >
+        #{isRevoke,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.fjs.cronus.model.Training" >
+    update training
+    <set >
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="topic != null" >
+        topic = #{topic,jdbcType=VARCHAR},
+      </if>
+      <if test="speaker != null" >
+        speaker = #{speaker,jdbcType=VARCHAR},
+      </if>
+      <if test="introduce != null" >
+        introduce = #{introduce,jdbcType=VARCHAR},
+      </if>
+      <if test="place != null" >
+        place = #{place,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null" >
+        start_time = #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null" >
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isRevoke != null" >
+        is_revoke = #{isRevoke,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.fjs.cronus.model.Training" >
+    update training
+    set create_user_id = #{createUserId,jdbcType=INTEGER},
+      topic = #{topic,jdbcType=VARCHAR},
+      speaker = #{speaker,jdbcType=VARCHAR},
+      introduce = #{introduce,jdbcType=VARCHAR},
+      place = #{place,jdbcType=VARCHAR},
+      start_time = #{startTime,jdbcType=TIMESTAMP},
+      end_time = #{endTime,jdbcType=TIMESTAMP},
+      is_revoke = #{isRevoke,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      create_user = #{createUser,jdbcType=INTEGER},
+      last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+      is_deleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

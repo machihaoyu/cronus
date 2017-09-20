@@ -10,4 +10,8 @@ public class ResultResource {
     public static int CODE_OTHER_ERROR = 999999;
     public static String MESSAGE_OTHER_ERROR = "其他错误";
 
+    public static  String LEAVELLINKAGE_KEY = "PROVIENCECITYAREA";
+    public static  String USERINFOBYID = "UserInfoByID_";
+
+    public static String SUBUSERBYIDS = "SubUserByUserId_";
 }

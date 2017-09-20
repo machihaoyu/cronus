@@ -35,7 +35,6 @@ public class FastJsonUtils {
      * @author myclover
      */
     public static <T> T getSingleBean(String jsonData, Class<T> clazz) {
-         Object object = JSON.parseObject(jsonData, clazz);
         return JSON.parseObject(jsonData, clazz);
     }
 

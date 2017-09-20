@@ -10,5 +10,11 @@ import java.util.Map;
 public interface CustomerInterviewHouseInfoMapper extends MyMapper<CustomerInterviewHouseInfo> {
 
     List<CustomerInterviewHouseInfo> findByCustomerInterviewByFeild(Map<String,Object> paramsMap);
+
     void addCustomerInterviewHouseInfo(CustomerInterviewHouseInfo customerInterviewHouseInfo);
+
+    CustomerInterviewHouseInfo findByFeild(Map<String,Object> paramsMap);
+
+    void updateCustomerInterviewHouseInfo(CustomerInterviewHouseInfo customerInterviewHouseInfo);
+
 }

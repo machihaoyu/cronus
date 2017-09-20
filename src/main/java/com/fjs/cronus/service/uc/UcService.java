@@ -1,5 +1,6 @@
 package com.fjs.cronus.service.uc;
 
+import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.UserDTO;
 import com.fjs.cronus.dto.UserInfoDTO;
@@ -33,7 +34,7 @@ public class UcService {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
         //TODO 从缓存中取数据如果没有在查接口
-        List  resultList = ucRedisService.getRedisUcInfo("keyIds" + user_id);
+        List  resultList = ucRedisService.getRedisUcInfo(ResultResource.SUBUSERBYIDS + user_id);
         if (resultList!=null && resultList.size() > 0 ){
             return  resultList;
         }else {
@@ -48,7 +49,7 @@ public class UcService {
                 //TODO 只能查看自己并把结果存入缓存并设置好失效时间
                 idList.add(user_id);
                 //插入缓存
-                ucRedisService.setRedisUcInfo("keyIds" + user_id,idList);
+                ucRedisService.setRedisUcInfo(ResultResource.SUBUSERBYIDS + user_id,idList);
                 return  idList;
             }
             BaseUcDTO baseDto = thorInterfaceService.getSubUserByUserId(token,user_id,data_type);
@@ -58,7 +59,7 @@ public class UcService {
                 idList = FastJsonUtils.getStringList(result);
             }
 
-            ucRedisService.setRedisUcInfo("keyIds" + user_id ,idList);
+            ucRedisService.setRedisUcInfo(ResultResource.SUBUSERBYIDS + user_id ,idList);
             return  idList;
         }
     }
@@ -66,7 +67,7 @@ public class UcService {
     public UcUserDto getUserInfoByID(String token,Integer user_id){
         //TODO 差缓存是否存在用户信息 不存在 插接口
         UcUserDto ucUserDto = null;
-        ucUserDto = ucRedisService.getRedisUserInfo("key");
+        ucUserDto = ucRedisService.getRedisUserInfo(ResultResource.USERINFOBYID + user_id);
         if (ucUserDto != null){
             return ucUserDto;
         }
@@ -78,12 +79,13 @@ public class UcService {
 
             ucUserDto  = FastJsonUtils.getSingleBean(result,UcUserDto.class);
             //TODO 信息存入缓存 并设置失效时间
-            ucRedisService.setRedisUserInfo("key" + ucUserDto.getUser_id(),ucUserDto);
+            ucRedisService.setRedisUserInfo(ResultResource.USERINFOBYID + user_id + ucUserDto.getUser_id(),ucUserDto);
 
         }
         return  ucUserDto;
     }
 
+    //校验是否有权限进行编辑
     public Integer getUserIdByToken(String token){
         Integer user_id = null;
         CronusDto resultDto = new CronusDto();

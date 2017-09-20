@@ -57,7 +57,11 @@ public class CustomerController {
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->customerList获取列表信息操作失败",e);
-            return new CronusDto(9000,  e.getMessage(), null);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
 
@@ -103,7 +107,11 @@ public class CustomerController {
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->customerList获取列表信息操作失败", e);
-            return new CronusDto(9000,  e.getMessage(), null);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
 
@@ -126,7 +134,11 @@ public class CustomerController {
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->fingBytelephone获取用户信息失败", e);
-            return new CronusDto(9000,  e.getMessage(), null);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
     @ApiOperation(value="根据客户id查找客户信息", notes="根据客户id查找客户信息")
@@ -147,7 +159,11 @@ public class CustomerController {
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->fingBytelephone获取用户信息失败", e);
-            return new CronusDto(9000,  e.getMessage(), null);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
 }

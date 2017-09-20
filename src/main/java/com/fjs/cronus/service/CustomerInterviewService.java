@@ -119,8 +119,12 @@ public class CustomerInterviewService {
         if (!StringUtils.isEmpty(customerInterviewBaseInfoId)){
             paramsMap.put("customerInterviewBaseInfoId",customerInterviewBaseInfoId);
         }
+        //TODO 手机号的加密解密
         CustomerInterviewBaseInfo customerInterviewBaseInfo = customerInterviewBaseInfoMapper.customerInterviewByFeild(paramsMap);
         //查找房产信息
+        if (customerInterviewBaseInfo == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR, "该用户不存在!");
+        }
         List<CustomerInterviewHouseInfo> customerInterviewHouseInfos = customerInterviewHouseInfoMapper.findByCustomerInterviewByFeild(paramsMap);
         //查找车辆信息
         List<CustomerInterviewCarInfo> customerInterviewCarInfos = customerInterviewCarInfoMapper.findByCustomerInterviewCarByFeild(paramsMap);
@@ -145,9 +149,11 @@ public class CustomerInterviewService {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户面谈信息出错!");
         }
         //json 转为Dto
-        CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto = FastJsonUtils.getSingleBean(jsonObject.toString(),CustomerInterViewBaseCarHouseInsturDto.class);
+        System.out.println(jsonObject.toString());
+        CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto = FastJsonUtils.getSingleBean(jsonObject.toJSONString(),CustomerInterViewBaseCarHouseInsturDto.class);
         //dto 与实体互相转换
         //实例化
+
         CustomerInterviewBaseInfo customerInterviewBaseInfo = new CustomerInterviewBaseInfo();
         CustomerInterviewCarInfo customerInterviewCarInfo   = new CustomerInterviewCarInfo();
         CustomerInterviewHouseInfo customerInterviewHouseInfo = new CustomerInterviewHouseInfo();
@@ -199,5 +205,98 @@ public class CustomerInterviewService {
            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
            resultDto.setResult(ResultResource.CODE_SUCCESS);
            return  resultDto;
+    }
+
+    public CronusDto editCustomerinteView(Integer customerInterviewBaseInfoId){
+        CronusDto resultDto = new CronusDto();
+        //查找指定id的用户
+        Map<String,Object> paramsMap = new HashMap<>();
+        //封装参数
+        if (!StringUtils.isEmpty(customerInterviewBaseInfoId)){
+            paramsMap.put("customerInterviewBaseInfoId",customerInterviewBaseInfoId);
+        }
+        //TODO 手机号的加密解密
+        CustomerInterviewBaseInfo customerInterviewBaseInfo = customerInterviewBaseInfoMapper.customerInterviewByFeild(paramsMap);
+        //查找房产信息
+        List<CustomerInterviewHouseInfo> customerInterviewHouseInfos = customerInterviewHouseInfoMapper.findByCustomerInterviewByFeild(paramsMap);
+        //查找车辆信息
+        List<CustomerInterviewCarInfo> customerInterviewCarInfos = customerInterviewCarInfoMapper.findByCustomerInterviewCarByFeild(paramsMap);
+        //查找保单信息
+        List<CustomerInterviewInsuranceInfo> customerInterviewInsuranceInfos = customerInterviewInsuranceInfoMapper.findByCustomerInterviewInsurByFeild(paramsMap);
+        //拼装参数
+        CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto = new CustomerInterViewBaseCarHouseInsturDto();
+        EntityToDto.CustomerInterviewEntityToCustomerInterviewAllInfoDto(customerInterViewBaseCarHouseInsturDto,customerInterviewBaseInfo,
+                customerInterviewCarInfos,customerInterviewHouseInfos,customerInterviewInsuranceInfos);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setData(customerInterViewBaseCarHouseInsturDto);
+        return  resultDto;
+
+    }
+    @Transactional
+    public CronusDto edditCustomerViewOk (JSONObject jsonObject,String token){
+        CronusDto resultDto = new CronusDto();
+        //根据token查询当前用户id
+        Integer user_id = ucService.getUserIdByToken(token);
+        if (user_id == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户面谈信息出错!");
+        }
+        //json转成dto
+        CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto = FastJsonUtils.getSingleBean(jsonObject.toString(),CustomerInterViewBaseCarHouseInsturDto.class);
+
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("customerInterviewBaseInfoId",customerInterViewBaseCarHouseInsturDto.getId());
+        CustomerInterviewBaseInfo customerInterviewBaseInfo = customerInterviewBaseInfoMapper.customerInterviewByFeild(paramsMap);
+        if (customerInterviewBaseInfo ==null){
+            throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
+        }else {
+            paramsMap.clear();
+        }
+        paramsMap.put("id",customerInterViewBaseCarHouseInsturDto.getCarInfoid());
+        CustomerInterviewCarInfo customerInterviewCarInfo = customerInterviewCarInfoMapper.findByCustomerByFeild(paramsMap);
+        paramsMap.clear();
+        paramsMap.put("id",customerInterViewBaseCarHouseInsturDto.getHouseInfoId());
+        CustomerInterviewHouseInfo customerInterviewHouseInfo = customerInterviewHouseInfoMapper.findByFeild(paramsMap);
+        paramsMap.clear();
+        CustomerInterviewInsuranceInfo customerInterviewInsuranceInfo = customerInterviewInsuranceInfoMapper.findByFeild(paramsMap);
+        //dto 转为实体
+        EntityToDto.CustomerInterviewDtoToCustomerInterviewAllInfoEntity(customerInterViewBaseCarHouseInsturDto,customerInterviewBaseInfo,customerInterviewCarInfo,
+                customerInterviewHouseInfo,customerInterviewInsuranceInfo);
+        //
+        Date date = new Date();
+        if (customerInterviewBaseInfo == null){  throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW); }
+        customerInterviewBaseInfo.setLastUpdateTime(date);
+        customerInterviewBaseInfo.setLastUpdateUser(user_id);
+        customerInterviewBaseInfo.setIsDeleted(0);
+        //存入数据库
+        customerInterviewBaseInfoMapper.updateCustomerInteview(customerInterviewBaseInfo);
+        //存入车辆信息
+        if (customerInterviewCarInfo  !=null ){
+            customerInterviewCarInfo.setCustomerInterviewBaseInfoId(customerInterviewBaseInfo.getId());
+            customerInterviewCarInfo.setLastUpdateTime(date);
+            customerInterviewCarInfo.setLastUpdateUser(user_id);
+            customerInterviewCarInfo.setIsDeleted(0);
+            customerInterviewCarInfoMapper.updateCustomerInteviewCarInfo(customerInterviewCarInfo);
+        }
+        //存入房产信息
+        if (customerInterviewHouseInfo != null){
+            customerInterviewHouseInfo.setCustomerInterviewBaseInfoId(customerInterviewBaseInfo.getId());
+            customerInterviewHouseInfo.setLastUpdateTime(date);
+            customerInterviewHouseInfo.setLastUpdateUser(user_id);
+            customerInterviewHouseInfo.setIsDeleted(0);
+            customerInterviewHouseInfoMapper.updateCustomerInterviewHouseInfo(customerInterviewHouseInfo);
+
+        }
+        //存入保险信息
+        if (customerInterviewInsuranceInfo != null){
+            customerInterviewInsuranceInfo.setCustomerInterviewBaseInfoId(customerInterviewBaseInfo.getId());
+            customerInterviewInsuranceInfo.setLastUpdateTime(date);
+            customerInterviewInsuranceInfo.setLastUpdateUser(user_id);
+            customerInterviewInsuranceInfo.setIsDeleted(0);
+            customerInterviewInsuranceInfoMapper.updateCustomerInsura(customerInterviewInsuranceInfo);
+        }
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        return  resultDto;
     }
 }

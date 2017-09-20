@@ -10,5 +10,11 @@ import java.util.Map;
 public interface CustomerInterviewCarInfoMapper  extends MyMapper<CustomerInterviewCarInfo> {
 
     List<CustomerInterviewCarInfo> findByCustomerInterviewCarByFeild(Map<String,Object> paramsMap);
+
     void addCustomerInteviewCarInfo(CustomerInterviewCarInfo customerInterviewCarInfo);
+
+    CustomerInterviewCarInfo findByCustomerByFeild(Map<String,Object> paramsMap);
+
+    void updateCustomerInteviewCarInfo(CustomerInterviewCarInfo customerInterviewCarInfo);
+
 }
