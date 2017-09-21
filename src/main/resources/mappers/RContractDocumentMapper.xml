@@ -21,4 +21,83 @@
     rc_document_source, create_time, last_update_time, create_user, last_update_user, 
     is_deleted
   </sql>
+  <insert id="addConDocument" parameterType="com.fjs.cronus.model.RContractDocument" >
+    insert into r_contract_document
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="contractId != null" >
+        contract_id,
+      </if>
+      <if test="customerId != null" >
+        customer_id,
+      </if>
+      <if test="documentId != null" >
+        document_id,
+      </if>
+      <if test="creatorId != null" >
+        creator_id,
+      </if>
+      <if test="documentCId != null" >
+        document_c_id,
+      </if>
+      <if test="documentName != null" >
+        document_name,
+      </if>
+      <if test="rcDocumentSource != null" >
+        rc_document_source,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="contractId != null" >
+        #{contractId,jdbcType=INTEGER},
+      </if>
+      <if test="customerId != null" >
+        #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="documentId != null" >
+        #{documentId,jdbcType=INTEGER},
+      </if>
+      <if test="creatorId != null" >
+        #{creatorId,jdbcType=INTEGER},
+      </if>
+      <if test="documentCId != null" >
+        #{documentCId,jdbcType=INTEGER},
+      </if>
+      <if test="documentName != null" >
+        #{documentName,jdbcType=VARCHAR},
+      </if>
+      <if test="rcDocumentSource != null" >
+        #{rcDocumentSource,jdbcType=CHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
 </mapper>

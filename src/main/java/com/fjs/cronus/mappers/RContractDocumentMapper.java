@@ -6,4 +6,6 @@ import com.fjs.cronus.util.MyMapper;
 
 public interface RContractDocumentMapper extends MyMapper<RContractDocument> {
 
+
+    void addConDocument(RContractDocument rContractDocument);
 }

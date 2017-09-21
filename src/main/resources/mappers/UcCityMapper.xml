@@ -16,4 +16,14 @@
     id, province_id, name, status, create_time, last_update_time, create_user, last_update_user, 
     is_deleted
   </sql>
+
+  <select id="findByProviceId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  select
+  <include refid="Base_Column_List" />
+  from uc_city
+  WHERE is_deleted = 0
+  <if test="_parameter != null and _parameter !=''" >
+    and province_id = ${_parameter}
+  </if>
+  </select>
 </mapper>

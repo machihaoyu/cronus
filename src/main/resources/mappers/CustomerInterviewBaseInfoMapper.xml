@@ -122,19 +122,19 @@
     from customer_interview_base_info
     WHERE  is_deleted = 0
     <if test="customerInterviewBaseInfoId != null" >
-      id = #{customerInterviewBaseInfoId},
+     and  id = #{customerInterviewBaseInfoId}
     </if>
     <if test="customerId != null" >
-      customer_id=#{customerId},
+      and customer_id=#{customerId}
     </if>
     <if test="ownerUserId != null" >
-      owner_user_id= #{ownerUserId},
+      and owner_user_id= #{ownerUserId}
     </if>
     <if test="ownerUserName != null" >
-      owner_user_name= #{ownerUserName},
+      and owner_user_name= #{ownerUserName}
     </if>
     <if test="name != null" >
-      name = #{name},
+      and name = #{name}
     </if>
    <!-- <if test="sex != null" >
       sex = #{sex},
@@ -146,7 +146,7 @@
       #{birthDate},
     </if>-->
     <if test="telephonenumber != null" >
-      telephonenumber = #{telephonenumber},
+      and telephonenumber = #{telephonenumber}
     </if>
    <!-- <if test="maritalStatus != null" >
       #{maritalStatus},
@@ -275,6 +275,7 @@
   </select>
   <insert id="addCustomerInteview" parameterType="com.fjs.cronus.model.CustomerInterviewBaseInfo" useGeneratedKeys="true" keyProperty="id">
     insert into customer_interview_base_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="customerId != null" >
         customer_id,
       </if>
@@ -425,7 +426,11 @@
       <if test="isDeleted != null" >
         is_deleted,
       </if>
-      values (
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="customerId != null" >
+        #{customerId,jdbcType=INTEGER},
+      </if>
       <if test="ownerUserId != null" >
         #{ownerUserId,jdbcType=INTEGER},
       </if>
@@ -442,7 +447,7 @@
         #{age,jdbcType=INTEGER},
       </if>
       <if test="birthDate != null" >
-        #{birthDate,jdbcType=INTEGER},
+        #{birthDate,jdbcType=TIMESTAMP},
       </if>
       <if test="telephonenumber != null" >
         #{telephonenumber,jdbcType=VARCHAR},
@@ -517,22 +522,22 @@
         #{incomeAmount,jdbcType=INTEGER},
       </if>
       <if test="socialSecurityDate != null" >
-        #{socialSecurityDate,jdbcType=INTEGER},
+        #{socialSecurityDate,jdbcType=TIMESTAMP},
       </if>
       <if test="socialSecurityPayment != null" >
         #{socialSecurityPayment,jdbcType=INTEGER},
       </if>
       <if test="housingFundDate != null" >
-        #{housingFundDate,jdbcType=INTEGER},
+        #{housingFundDate,jdbcType=TIMESTAMP},
       </if>
       <if test="housingFundPayment != null" >
         #{housingFundPayment,jdbcType=INTEGER},
       </if>
       <if test="workDate != null" >
-        #{workDate,jdbcType=INTEGER},
+        #{workDate,jdbcType=TIMESTAMP},
       </if>
       <if test="companyRegisterDate != null" >
-        #{companyRegisterDate,jdbcType=INTEGER},
+        #{companyRegisterDate,jdbcType=TIMESTAMP},
       </if>
       <if test="shareRate != null" >
         #{shareRate,jdbcType=DECIMAL},
@@ -547,7 +552,7 @@
         #{isLitigation,jdbcType=VARCHAR},
       </if>
       <if test="retireDate != null" >
-        #{retireDate,jdbcType=INTEGER},
+        #{retireDate,jdbcType=TIMESTAMP},
       </if>
       <if test="retirementPayMinAmount != null" >
         #{retirementPayMinAmount,jdbcType=INTEGER},
@@ -573,6 +578,163 @@
       <if test="isDeleted != null" >
         #{isDeleted,jdbcType=INTEGER},
       </if>
-    )
+    </trim>
   </insert>
+  <update id="updateCustomerInteview" parameterType="com.fjs.cronus.model.CustomerInterviewBaseInfo" >
+    update customer_interview_base_info
+    <set >
+      <if test="customerId != null" >
+        customer_id = #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="ownerUserId != null" >
+        owner_user_id = #{ownerUserId,jdbcType=INTEGER},
+      </if>
+      <if test="ownerUserName != null" >
+        owner_user_name = #{ownerUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null" >
+        age = #{age,jdbcType=INTEGER},
+      </if>
+      <if test="birthDate != null" >
+        birth_date = #{birthDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="telephonenumber != null" >
+        telephonenumber = #{telephonenumber,jdbcType=VARCHAR},
+      </if>
+      <if test="maritalStatus != null" >
+        marital_status = #{maritalStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="householdRegister != null" >
+        household_register = #{householdRegister,jdbcType=VARCHAR},
+      </if>
+      <if test="education != null" >
+        education = #{education,jdbcType=VARCHAR},
+      </if>
+      <if test="feeChannelName != null" >
+        fee_channel_name = #{feeChannelName,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null" >
+        product_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="monthInterestRate != null" >
+        month_interest_rate = #{monthInterestRate,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceCharge != null" >
+        service_charge = #{serviceCharge,jdbcType=VARCHAR},
+      </if>
+      <if test="loanAmount != null" >
+        loan_amount = #{loanAmount,jdbcType=VARCHAR},
+      </if>
+      <if test="loanTime != null" >
+        loan_time = #{loanTime,jdbcType=INTEGER},
+      </if>
+      <if test="loanUseTime != null" >
+        loan_use_time = #{loanUseTime,jdbcType=VARCHAR},
+      </if>
+      <if test="loanPurpose != null" >
+        loan_purpose = #{loanPurpose,jdbcType=VARCHAR},
+      </if>
+      <if test="paymentType != null" >
+        payment_type = #{paymentType,jdbcType=VARCHAR},
+      </if>
+      <if test="creditRecord != null" >
+        credit_record = #{creditRecord,jdbcType=VARCHAR},
+      </if>
+      <if test="zhimaCredit != null" >
+        zhima_credit = #{zhimaCredit,jdbcType=INTEGER},
+      </if>
+      <if test="creditQueryNumTwoMonth != null" >
+        credit_query_num_two_month = #{creditQueryNumTwoMonth,jdbcType=INTEGER},
+      </if>
+      <if test="creditQueryNumSixMonth != null" >
+        credit_query_num_six_month = #{creditQueryNumSixMonth,jdbcType=INTEGER},
+      </if>
+      <if test="continuityOverdueNumTwoYear != null" >
+        continuity_overdue_num_two_year = #{continuityOverdueNumTwoYear,jdbcType=INTEGER},
+      </if>
+      <if test="totalOverdueNumTwoYear != null" >
+        total_overdue_num_two_year = #{totalOverdueNumTwoYear,jdbcType=INTEGER},
+      </if>
+      <if test="debtAmount != null" >
+        debt_amount = #{debtAmount,jdbcType=INTEGER},
+      </if>
+      <if test="isOverdue != null" >
+        is_overdue = #{isOverdue,jdbcType=VARCHAR},
+      </if>
+      <if test="overdueAmount != null" >
+        overdue_amount = #{overdueAmount,jdbcType=INTEGER},
+      </if>
+      <if test="industry != null" >
+        industry = #{industry,jdbcType=VARCHAR},
+      </if>
+      <if test="incomeAmount != null" >
+        income_amount = #{incomeAmount,jdbcType=INTEGER},
+      </if>
+      <if test="socialSecurityDate != null" >
+        social_security_date = #{socialSecurityDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="socialSecurityPayment != null" >
+        social_security_payment = #{socialSecurityPayment,jdbcType=INTEGER},
+      </if>
+      <if test="housingFundDate != null" >
+        housing_fund_date = #{housingFundDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="housingFundPayment != null" >
+        housing_fund_payment = #{housingFundPayment,jdbcType=INTEGER},
+      </if>
+      <if test="workDate != null" >
+        work_date = #{workDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="companyRegisterDate != null" >
+        company_register_date = #{companyRegisterDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="shareRate != null" >
+        share_rate = #{shareRate,jdbcType=DECIMAL},
+      </if>
+      <if test="publicFlowYearAmount != null" >
+        public_flow_year_amount = #{publicFlowYearAmount,jdbcType=INTEGER},
+      </if>
+      <if test="privateFlowYearAmount != null" >
+        private_flow_year_amount = #{privateFlowYearAmount,jdbcType=INTEGER},
+      </if>
+      <if test="isLitigation != null" >
+        is_litigation = #{isLitigation,jdbcType=VARCHAR},
+      </if>
+      <if test="retireDate != null" >
+        retire_date = #{retireDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="retirementPayMinAmount != null" >
+        retirement_pay_min_amount = #{retirementPayMinAmount,jdbcType=INTEGER},
+      </if>
+      <if test="isRelativeKnown != null" >
+        is_relative_known = #{isRelativeKnown,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
 </mapper>

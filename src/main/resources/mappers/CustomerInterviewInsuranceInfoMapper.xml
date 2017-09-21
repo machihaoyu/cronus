@@ -28,12 +28,22 @@
     from customer_interview_insurance_info
     where is_deleted = 0
     <if test="customerInterviewBaseInfoId != null">
-      customer_interview_base_info_id = #{customerInterviewBaseInfoId}
+      and customer_interview_base_info_id = #{customerInterviewBaseInfoId}
+    </if>
+  </select>
+  <select id="findByFeild" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from customer_interview_insurance_info
+    where is_deleted = 0
+    <if test="id != null">
+      and  id = #{id}
     </if>
   </select>
   <insert id="addCustomerInsura" parameterType="com.fjs.cronus.model.CustomerInterviewInsuranceInfo" useGeneratedKeys="true" keyProperty="id" >
     insert into customer_interview_insurance_info
 
+    <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="customerInterviewBaseInfoId != null" >
         customer_interview_base_info_id,
       </if>
@@ -73,8 +83,8 @@
       <if test="isDeleted != null" >
         is_deleted,
       </if>
-
-      values(
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="customerInterviewBaseInfoId != null" >
         #{customerInterviewBaseInfoId,jdbcType=INTEGER},
       </if>
@@ -114,7 +124,51 @@
       <if test="isDeleted != null" >
         #{isDeleted,jdbcType=INTEGER},
       </if>
-    )
-
+    </trim>
   </insert>
+  <update id="updateCustomerInsura" parameterType="com.fjs.cronus.model.CustomerInterviewInsuranceInfo" >
+    update customer_interview_insurance_info
+    <set >
+      <if test="customerInterviewBaseInfoId != null" >
+        customer_interview_base_info_id = #{customerInterviewBaseInfoId,jdbcType=INTEGER},
+      </if>
+      <if test="insuranceCompany != null" >
+        insurance_company = #{insuranceCompany,jdbcType=VARCHAR},
+      </if>
+      <if test="insuranceType != null" >
+        insurance_type = #{insuranceType,jdbcType=VARCHAR},
+      </if>
+      <if test="payType != null" >
+        pay_type = #{payType,jdbcType=VARCHAR},
+      </if>
+      <if test="yearPayAmount != null" >
+        year_pay_amount = #{yearPayAmount,jdbcType=INTEGER},
+      </if>
+      <if test="monthPayAmount != null" >
+        month_pay_amount = #{monthPayAmount,jdbcType=INTEGER},
+      </if>
+      <if test="effectDate != null" >
+        effect_date = #{effectDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isSuspend != null" >
+        is_suspend = #{isSuspend,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
 </mapper>

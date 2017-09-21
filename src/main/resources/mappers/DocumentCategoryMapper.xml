@@ -20,4 +20,13 @@
     document_c_name, sort, create_time, last_update_time, create_user, last_update_user, 
     is_deleted
   </sql>
+  <select id="getNextCategory" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from document_category
+    where is_deleted = 0
+    <if test="documentCParentId != null">
+      and document_c_parent_id = #{documentCParentId}
+    </if>
+  </select>
 </mapper>

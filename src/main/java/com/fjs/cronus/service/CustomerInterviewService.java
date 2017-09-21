@@ -141,7 +141,7 @@ public class CustomerInterviewService {
 
     }
     @Transactional
-    public CronusDto  addCustomerView (JSONObject jsonObject,String token){
+    public CronusDto  addCustomerView ( CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto,String token){
         CronusDto resultDto = new CronusDto();
         //根据token查询当前用户id
         Integer user_id = ucService.getUserIdByToken(token);
@@ -149,8 +149,8 @@ public class CustomerInterviewService {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户面谈信息出错!");
         }
         //json 转为Dto
-        System.out.println(jsonObject.toString());
-        CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto = FastJsonUtils.getSingleBean(jsonObject.toJSONString(),CustomerInterViewBaseCarHouseInsturDto.class);
+     /*   System.out.println(jsonObject.toString());
+        CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto = FastJsonUtils.getSingleBean(jsonObject.toJSONString(),CustomerInterViewBaseCarHouseInsturDto.class);*/
         //dto 与实体互相转换
         //实例化
 
@@ -234,7 +234,7 @@ public class CustomerInterviewService {
 
     }
     @Transactional
-    public CronusDto edditCustomerViewOk (JSONObject jsonObject,String token){
+    public CronusDto edditCustomerViewOk ( CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto,String token){
         CronusDto resultDto = new CronusDto();
         //根据token查询当前用户id
         Integer user_id = ucService.getUserIdByToken(token);
@@ -242,7 +242,7 @@ public class CustomerInterviewService {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户面谈信息出错!");
         }
         //json转成dto
-        CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto = FastJsonUtils.getSingleBean(jsonObject.toString(),CustomerInterViewBaseCarHouseInsturDto.class);
+       // CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto = FastJsonUtils.getSingleBean(jsonObject.toString(),CustomerInterViewBaseCarHouseInsturDto.class);
 
         Map<String,Object> paramsMap = new HashMap<>();
         paramsMap.put("customerInterviewBaseInfoId",customerInterViewBaseCarHouseInsturDto.getId());

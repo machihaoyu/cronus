@@ -25,8 +25,10 @@ public class CronusException extends BaseException {
         CRM_CUSTOMERPHONERE_ERROR("6006","该手机号已存在"),
         CRM_CUSTOMEINFO_ERROR("6007","该用户不存在"),
         CRM_DATAAUTH_ERROR("6008","当前用户无数据权限"),
-        CEM_CUSTOMERINTERVIEW("6009","非法参数")
-
+        CEM_CUSTOMERINTERVIEW("6009","非法参数"),
+        CRM_MAXSIZE_UPLOAD("6010","附件过大，附件大小不能超过20M"),
+        CRM_FILETYPR_UPLOAD("6011","不支持此文件类型上传"),
+        CRM_CONTROCTDOCU_ERROR("6012","新增附件客户关系失败"),
         ;
 
         private String status;

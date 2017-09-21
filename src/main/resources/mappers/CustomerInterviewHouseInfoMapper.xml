@@ -35,14 +35,23 @@
     select
     <include refid="Base_Column_List" />
     from customer_interview_house_info
-    where is deleted = 0
+    where is_deleted = 0
     <if test="customerInterviewBaseInfoId != null" >
-      customer_interview_base_info_id = #{customerInterviewBaseInfoId},
+      and customer_interview_base_info_id = #{customerInterviewBaseInfoId}
     </if>
-
+  </select>
+  <select id="findByFeild" parameterType="java.util.Map" resultMap="BaseResultMap" >
+  select
+  <include refid="Base_Column_List" />
+  from customer_interview_house_info
+  where is_deleted = 0
+  <if test="id != null" >
+    and id = #{id}
+  </if>
   </select>
   <insert id="addCustomerInterviewHouseInfo" parameterType="com.fjs.cronus.model.CustomerInterviewHouseInfo" useGeneratedKeys="true" keyProperty="id">
     insert into customer_interview_house_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="customerInterviewBaseInfoId != null" >
         customer_interview_base_info_id,
       </if>
@@ -103,7 +112,8 @@
       <if test="isDeleted != null" >
         is_deleted,
       </if>
-    values(
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="customerInterviewBaseInfoId != null" >
         #{customerInterviewBaseInfoId,jdbcType=INTEGER},
       </if>
@@ -164,6 +174,72 @@
       <if test="isDeleted != null" >
         #{isDeleted,jdbcType=INTEGER},
       </if>
-)
+    </trim>
   </insert>
+  <update id="updateCustomerInterviewHouseInfo" parameterType="com.fjs.cronus.model.CustomerInterviewHouseInfo" >
+    update customer_interview_house_info
+    <set >
+      <if test="customerInterviewBaseInfoId != null" >
+        customer_interview_base_info_id = #{customerInterviewBaseInfoId,jdbcType=INTEGER},
+      </if>
+      <if test="accepthousearea != null" >
+        acceptHousearea = #{accepthousearea,jdbcType=VARCHAR},
+      </if>
+      <if test="houseStatus != null" >
+        house_status = #{houseStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="housePropertyType != null" >
+        house_property_type = #{housePropertyType,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        area = #{area,jdbcType=DECIMAL},
+      </if>
+      <if test="buildDate != null" >
+        build_date = #{buildDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="housePropertyRightsNum != null" >
+        house_property_rights_num = #{housePropertyRightsNum,jdbcType=INTEGER},
+      </if>
+      <if test="isChildInPropertyRigths != null" >
+        is_child_in_property_rigths = #{isChildInPropertyRigths,jdbcType=VARCHAR},
+      </if>
+      <if test="isOldInPropertyRigths != null" >
+        is_old_in_property_rigths = #{isOldInPropertyRigths,jdbcType=VARCHAR},
+      </if>
+      <if test="isPropertyRightsClear != null" >
+        is_property_rights_clear = #{isPropertyRightsClear,jdbcType=VARCHAR},
+      </if>
+      <if test="isOtherHouse != null" >
+        is_other_house = #{isOtherHouse,jdbcType=VARCHAR},
+      </if>
+      <if test="isBankFlow != null" >
+        is_bank_flow = #{isBankFlow,jdbcType=VARCHAR},
+      </if>
+      <if test="bankFlowMonthAmount != null" >
+        bank_flow_month_amount = #{bankFlowMonthAmount,jdbcType=INTEGER},
+      </if>
+      <if test="houseMortgageMonthAmount != null" >
+        house_mortgage_month_amount = #{houseMortgageMonthAmount,jdbcType=INTEGER},
+      </if>
+      <if test="houseMortgagePaidNum != null" >
+        house_mortgage_paid_num = #{houseMortgagePaidNum,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
 </mapper>

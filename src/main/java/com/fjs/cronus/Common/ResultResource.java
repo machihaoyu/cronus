@@ -14,4 +14,12 @@ public class ResultResource {
     public static  String USERINFOBYID = "UserInfoByID_";
 
     public static String SUBUSERBYIDS = "SubUserByUserId_";
+
+    public static Integer FILEMAXSIZE = 20971520;
+    public static String[] FILETYPE = {"pdf","doc","docx","xls","xlsx","txt","rar","zip","jpg","png","jpeg","gif"};
+
+    public static int UPLOAD_ERROR = 1;
+    public static String UPLOAD_ERROR_MESSAGE ="上传图片失败";
+
+    public static String THUMP_ERROR_MESSAGE = "图片不需要缩放";
 }

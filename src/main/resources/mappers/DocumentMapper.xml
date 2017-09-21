@@ -21,4 +21,93 @@
     document_savepath, create_time, last_update_time, create_user, last_update_user, 
     is_deleted
   </sql>
+  <select id="findByFeild;">
+    select
+    <include refid="Base_Column_List"/>
+    from document
+    where is_deleted = 0
+    <if test="documentMd5 != null">
+      and document_md5 = #{documentMd5}
+    </if>
+  </select>
+  <insert id="addDocument" parameterType="com.fjs.cronus.model.Document" useGeneratedKeys="true" keyProperty="id">
+    insert into document
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="documentName != null" >
+        document_name,
+      </if>
+      <if test="documentType != null" >
+        document_type,
+      </if>
+      <if test="documentSize != null" >
+        document_size,
+      </if>
+      <if test="documentExt != null" >
+        document_ext,
+      </if>
+      <if test="documentMd5 != null" >
+        document_md5,
+      </if>
+      <if test="documentSavename != null" >
+        document_savename,
+      </if>
+      <if test="documentSavepath != null" >
+        document_savepath,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="documentName != null" >
+        #{documentName,jdbcType=VARCHAR},
+      </if>
+      <if test="documentType != null" >
+        #{documentType,jdbcType=VARCHAR},
+      </if>
+      <if test="documentSize != null" >
+        #{documentSize,jdbcType=INTEGER},
+      </if>
+      <if test="documentExt != null" >
+        #{documentExt,jdbcType=VARCHAR},
+      </if>
+      <if test="documentMd5 != null" >
+        #{documentMd5,jdbcType=VARCHAR},
+      </if>
+      <if test="documentSavename != null" >
+        #{documentSavename,jdbcType=VARCHAR},
+      </if>
+      <if test="documentSavepath != null" >
+        #{documentSavepath,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
 </mapper>

@@ -18,4 +18,24 @@
     id, province_id, city_id, parent_id, area_name, status, create_time, last_update_time, 
     create_user, last_update_user, is_deleted
   </sql>
+  <select id="findByProvinceId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from uc_area
+    WHERE is_deleted = 0
+    <if test="_parameter != null and _parameter !=''" >
+      and province_id = ${_parameter}
+    </if>
+
+  </select>
+  <select id="findCity_id" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from uc_area
+    WHERE is_deleted = 0
+    <if test="_parameter != null and _parameter !=''" >
+      and city_id = ${_parameter}
+    </if>
+
+  </select>
 </mapper>
