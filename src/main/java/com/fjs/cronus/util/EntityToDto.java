@@ -1,8 +1,10 @@
 package com.fjs.cronus.util;
 
-import com.fjs.cronus.dto.cronus.CustomerDto;
-import com.fjs.cronus.dto.cronus.CustomerInterVibaseInfoDto;
-import com.fjs.cronus.dto.cronus.CustomerInterViewBaseCarHouseInsturDto;
+import com.fjs.cronus.dto.cronus.CustomerDTO;
+import com.fjs.cronus.dto.cronus.CustomerInterVibaseInfoDTO;
+import com.fjs.cronus.dto.cronus.CustomerInterViewBaseCarHouseInsturDTO;
+import com.fjs.cronus.dto.cronus.OcrSaveBaseInfoDTO;
+import com.fjs.cronus.dto.ocr.IdCardDTO;
 import com.fjs.cronus.model.*;
 import org.springframework.util.StringUtils;
 
@@ -14,7 +16,7 @@ import java.util.List;
 public class EntityToDto {
 
 
-    public static void customerEntityToCustomerDto(CustomerInfo customerInfo, CustomerDto dto){
+    public static void customerEntityToCustomerDto(CustomerInfo customerInfo, CustomerDTO dto){
 
             dto.setId(customerInfo.getId());
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
@@ -132,7 +134,7 @@ public class EntityToDto {
         }
     }
 
-    public static void CustomerInterviewEntityToCustomerInterviewDto(CustomerInterviewBaseInfo customerInfo, CustomerInterVibaseInfoDto dto){
+    public static void CustomerInterviewEntityToCustomerInterviewDto(CustomerInterviewBaseInfo customerInfo, CustomerInterVibaseInfoDTO dto){
 
         dto.setId(customerInfo.getId());
         if (!StringUtils.isEmpty(customerInfo.getCustomerId())){
@@ -291,7 +293,7 @@ public class EntityToDto {
            dto.setIsDeleted(customerInfo.getIsDeleted());
         }
     }
-    public static void CustomerInterviewEntityToCustomerInterviewAllInfoDto(CustomerInterViewBaseCarHouseInsturDto dto,
+    public static void CustomerInterviewEntityToCustomerInterviewAllInfoDto(CustomerInterViewBaseCarHouseInsturDTO dto,
                                                                             CustomerInterviewBaseInfo customerInfo,
                                                                             List<CustomerInterviewCarInfo> customerInterviewCarInfoList,
                                                                             List<CustomerInterviewHouseInfo> customerInterviewHouseInfoList,
@@ -545,7 +547,7 @@ public class EntityToDto {
         }
 
     }
-    public static void CustomerInterviewDtoToCustomerInterviewAllInfoEntity(CustomerInterViewBaseCarHouseInsturDto dto,
+    public static void CustomerInterviewDtoToCustomerInterviewAllInfoEntity(CustomerInterViewBaseCarHouseInsturDTO dto,
                                                                             CustomerInterviewBaseInfo customerInfo,
                                                                             CustomerInterviewCarInfo customerInterviewCarInfo,
                                                                             CustomerInterviewHouseInfo customerInterviewHouseInfo,
@@ -787,6 +789,16 @@ public class EntityToDto {
                 customerInterviewInsuranceInfo.setYearPayAmount(dto.getYearPayAmount());
             }
         }
+      public static void copyOcrSaveBaseInfoDTOToOcrIndentyDto(OcrSaveBaseInfoDTO ocrSaveBaseInfoDTO,IdCardDTO IdCardDTO){
 
+          if (!StringUtils.isEmpty(ocrSaveBaseInfoDTO.getId())){
+            IdCardDTO.setId(ocrSaveBaseInfoDTO.getId());
+           }
+          if (!StringUtils.isEmpty(ocrSaveBaseInfoDTO)){
+              IdCardDTO.setId(ocrSaveBaseInfoDTO.getId());
+           }
+
+
+      }
 
 }

@@ -29,6 +29,8 @@ public class CronusException extends BaseException {
         CRM_MAXSIZE_UPLOAD("6010","附件过大，附件大小不能超过20M"),
         CRM_FILETYPR_UPLOAD("6011","不支持此文件类型上传"),
         CRM_CONTROCTDOCU_ERROR("6012","新增附件客户关系失败"),
+        CRM_OCRIDENTITY_ERROR("6013","插入身份证信息操作失败"),
+        CRM_OCRDOCUMENTCAGORY_ERROR("6014","获取附件类型出错")
         ;
 
         private String status;

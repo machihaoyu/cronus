@@ -1,6 +1,6 @@
 package com.fjs.cronus.service;
 
-import com.fjs.cronus.dto.cronus.ThreePcLinkAge;
+import com.fjs.cronus.dto.cronus.ThreePcLinkAgeDTO;
 import com.fjs.cronus.mappers.LicensePlateMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,8 +18,8 @@ public class LicensePlateService {
     LicensePlateMapper licensePlateMapper;
 
 
-    public List<ThreePcLinkAge>  getCarPlate(){
-        List<ThreePcLinkAge> resultList = new ArrayList<>();
+    public List<ThreePcLinkAgeDTO>  getCarPlate(){
+        List<ThreePcLinkAgeDTO> resultList = new ArrayList<>();
         //查询到所有的parent
         //TODO 车辆三级联动
 

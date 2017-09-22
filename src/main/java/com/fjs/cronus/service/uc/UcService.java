@@ -2,11 +2,8 @@ package com.fjs.cronus.service.uc;
 
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.UserDTO;
-import com.fjs.cronus.dto.UserInfoDTO;
-import com.fjs.cronus.dto.cronus.BaseUcDto;
-import com.fjs.cronus.dto.cronus.UcUserDto;
-import com.fjs.cronus.dto.uc.BaseUcDTO;
+import com.fjs.cronus.dto.cronus.BaseUcDTO;
+import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import com.fjs.cronus.service.redis.UcRedisService;
@@ -40,11 +37,11 @@ public class UcService {
         }else {
             //查接口先查看用户的数据权限
             List idList = new ArrayList();
-            UcUserDto ucUserDto = getUserInfoByID(token,user_id);
-            if (ucUserDto ==null){
+            UcUserDTO ucUserDTO = getUserInfoByID(token,user_id);
+            if (ucUserDTO ==null){
                 throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
             }
-            Integer data_type = Integer.valueOf(ucUserDto.getData_type());
+            Integer data_type = Integer.valueOf(ucUserDTO.getData_type());
             if (data_type == 1){
                 //TODO 只能查看自己并把结果存入缓存并设置好失效时间
                 idList.add(user_id);
@@ -52,7 +49,7 @@ public class UcService {
                 ucRedisService.setRedisUcInfo(ResultResource.SUBUSERBYIDS + user_id,idList);
                 return  idList;
             }
-            BaseUcDTO baseDto = thorInterfaceService.getSubUserByUserId(token,user_id,data_type);
+            com.fjs.cronus.dto.uc.BaseUcDTO baseDto = thorInterfaceService.getSubUserByUserId(token,user_id,data_type);
             if (baseDto.getRetData() != null){
                 //转json
                 String result = FastJsonUtils.obj2JsonString(baseDto.getRetData());
@@ -64,25 +61,25 @@ public class UcService {
         }
     }
 
-    public UcUserDto getUserInfoByID(String token,Integer user_id){
+    public UcUserDTO getUserInfoByID(String token, Integer user_id){
         //TODO 差缓存是否存在用户信息 不存在 插接口
-        UcUserDto ucUserDto = null;
-        ucUserDto = ucRedisService.getRedisUserInfo(ResultResource.USERINFOBYID + user_id);
-        if (ucUserDto != null){
-            return ucUserDto;
+        UcUserDTO ucUserDTO = null;
+        ucUserDTO = ucRedisService.getRedisUserInfo(ResultResource.USERINFOBYID + user_id);
+        if (ucUserDTO != null){
+            return ucUserDTO;
         }
-        BaseUcDTO ucDTO = thorInterfaceService.getUserInfoByField(token,null,user_id,null);
+        com.fjs.cronus.dto.uc.BaseUcDTO ucDTO = thorInterfaceService.getUserInfoByField(token,null,user_id,null);
         if (ucDTO.getRetData() !=null){
             //map 转json
             String result = FastJsonUtils.obj2JsonString(ucDTO.getRetData());
             //把json格式的数据转为对象
 
-            ucUserDto  = FastJsonUtils.getSingleBean(result,UcUserDto.class);
+            ucUserDTO = FastJsonUtils.getSingleBean(result,UcUserDTO.class);
             //TODO 信息存入缓存 并设置失效时间
-            ucRedisService.setRedisUserInfo(ResultResource.USERINFOBYID + user_id + ucUserDto.getUser_id(),ucUserDto);
+            ucRedisService.setRedisUserInfo(ResultResource.USERINFOBYID + user_id + ucUserDTO.getUser_id(), ucUserDTO);
 
         }
-        return  ucUserDto;
+        return ucUserDTO;
     }
 
     //校验是否有权限进行编辑
@@ -91,9 +88,9 @@ public class UcService {
         CronusDto resultDto = new CronusDto();
         //根据token查询当前用户id
         String result = thorInterfaceService.getCurrentUserInfo(token,null);
-        BaseUcDto dto = FastJsonUtils.getSingleBean(result,BaseUcDto.class);
+        BaseUcDTO dto = FastJsonUtils.getSingleBean(result,BaseUcDTO.class);
         System.out.println(dto.getData().toString());
-        UcUserDto userDTO = FastJsonUtils.getSingleBean(dto.getData().toString(),UcUserDto.class);
+        UcUserDTO userDTO = FastJsonUtils.getSingleBean(dto.getData().toString(),UcUserDTO.class);
         if (userDTO != null){
             user_id  = Integer.valueOf(userDTO.getUser_id());
         }

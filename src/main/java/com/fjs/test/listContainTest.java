@@ -14,10 +14,12 @@ public class listContainTest {
             System.out.println(111);
             return;
         };
-        System.out.println(2222);*/
+    /*    System.out.println(2222);*//*
         String oldName = "12324.jpg";
         String newname= oldName.substring(oldName.lastIndexOf("."));
-        System.out.println(newname);
-
+        System.out.println(newname);*/
+        String str = "借款人配偶(反)";
+        str.replace("(反)","(正)");
+        System.out.println(str);
     }
 }

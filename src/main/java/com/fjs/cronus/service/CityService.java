@@ -1,10 +1,8 @@
 package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.ResultResource;
-import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.cronus.PCChrdrenDto;
-import com.fjs.cronus.dto.cronus.ThreePcLinkAge;
-import com.fjs.cronus.dto.cronus.ThreelinkageDto;
+import com.fjs.cronus.dto.cronus.PCChrdrenDTO;
+import com.fjs.cronus.dto.cronus.ThreePcLinkAgeDTO;
 import com.fjs.cronus.mappers.UcAreaMapper;
 import com.fjs.cronus.mappers.UcCityMapper;
 import com.fjs.cronus.mappers.UcProvinceMapper;
@@ -34,8 +32,8 @@ public class CityService {
     @Autowired
     LevallinkAgeRedisService levallinkAgeRedisService;
 
-    public List<ThreePcLinkAge> getPCCityTwoLinkAge() {
-        List<ThreePcLinkAge> resultList = new ArrayList<>();
+    public List<ThreePcLinkAgeDTO> getPCCityTwoLinkAge() {
+        List<ThreePcLinkAgeDTO> resultList = new ArrayList<>();
         //查询到所有的省份
         List<UcProvince> provinceList = ucProvinceMapper.selectAll();
         //遍历省份得到所属城市
@@ -50,7 +48,7 @@ public class CityService {
 
                 for (UcCity city : citylist) {
                     //判断是否是直辖市
-                    PCChrdrenDto dto = new PCChrdrenDto();
+                    PCChrdrenDTO dto = new PCChrdrenDTO();
                     dto.setLabel(province.getName() + "/" + city.getName());
                     dto.setValue(province.getName() + "/" + city.getName());
                     //获取所有的
@@ -61,7 +59,7 @@ public class CityService {
                 List cityListDTO = new ArrayList<>();
                 List<UcArea> listArea = ucAreaMapper.findByProvinceId(province.getId());
                 for (UcArea area : listArea) {
-                    PCChrdrenDto dto = new PCChrdrenDto();
+                    PCChrdrenDTO dto = new PCChrdrenDTO();
                     dto.setLabel(province.getName() + "/" + area.getAreaName());
                     dto.setValue(province.getName() + "/" + area.getAreaName());
                     provenceList.add(dto);
@@ -72,8 +70,8 @@ public class CityService {
         return resultList;
     }
 
-    public List<ThreePcLinkAge> getPCCityThreeLinkAge(){
-        List<ThreePcLinkAge> resultList = new ArrayList<>();
+    public List<ThreePcLinkAgeDTO> getPCCityThreeLinkAge(){
+        List<ThreePcLinkAgeDTO> resultList = new ArrayList<>();
         //从缓存中取数据
         List pcCityThreeLinkAgeList = levallinkAgeRedisService.getLevallinkAgeInfo(ResultResource.LEAVELLINKAGE_KEY);
         if ( pcCityThreeLinkAgeList != null){
@@ -83,7 +81,7 @@ public class CityService {
         if (provinceList.size() > 0) {
             for (UcProvince province : provinceList) {
                 //判断是否是直辖市
-                ThreePcLinkAge dto = new ThreePcLinkAge();
+                ThreePcLinkAgeDTO dto = new ThreePcLinkAgeDTO();
                 dto.setValue(province.getName());
                 dto.setLabel(province.getName());
                 //根据城市找到当前的市区
@@ -93,14 +91,14 @@ public class CityService {
                     //判断是否是直辖市
                     UcProvince province2 = ucProvinceMapper.findById(city.getProvinceId());
                     if (province2.getIsDirectly() != 1) {
-                        ThreePcLinkAge cityDto = new ThreePcLinkAge();
+                        ThreePcLinkAgeDTO cityDto = new ThreePcLinkAgeDTO();
                         cityDto.setLabel(city.getName());
                         cityDto.setValue(city.getName());
                         //获取所有的
                         List<UcArea> arList = ucAreaMapper.findCity_id(city.getId());
-                        List<PCChrdrenDto> areaList = new ArrayList<>();
+                        List<PCChrdrenDTO> areaList = new ArrayList<>();
                         for (UcArea area : arList) {
-                            PCChrdrenDto areaDto = new PCChrdrenDto();
+                            PCChrdrenDTO areaDto = new PCChrdrenDTO();
                             areaDto.setValue(area.getAreaName());
                             areaDto.setLabel(area.getAreaName());
                             areaList.add(areaDto);
@@ -114,14 +112,14 @@ public class CityService {
                         List<UcArea> areaList = ucAreaMapper.findCity_id(city.getId());
 
                         for (UcArea area: areaList) {
-                            List<PCChrdrenDto> dtoList = new ArrayList<>();
-                            ThreePcLinkAge cityDto = new ThreePcLinkAge();
+                            List<PCChrdrenDTO> dtoList = new ArrayList<>();
+                            ThreePcLinkAgeDTO cityDto = new ThreePcLinkAgeDTO();
                             cityDto.setLabel(area.getAreaName());
                             cityDto.setValue(area.getAreaName());
-                            PCChrdrenDto dto1 = new PCChrdrenDto();
+                            PCChrdrenDTO dto1 = new PCChrdrenDTO();
                             dto1.setValue("城区");
                             dto1.setLabel("城区");
-                            PCChrdrenDto dto2 = new PCChrdrenDto();
+                            PCChrdrenDTO dto2 = new PCChrdrenDTO();
                             dto2.setValue("非城区 ");
                             dto2.setLabel("非城区");
                             dtoList.add(dto1);

@@ -1,8 +1,7 @@
 package com.fjs.cronus.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.cronus.CustomerInterViewBaseCarHouseInsturDto;
+import com.fjs.cronus.dto.cronus.CustomerInterViewBaseCarHouseInsturDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.CustomerInterviewService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -100,10 +99,10 @@ public class CustomerInterviewController {
     })
     @RequestMapping(value = "/addCustomerView", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto addCustomerView(@RequestBody CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto,@RequestHeader("Authorization") String token){
+    public CronusDto addCustomerView(@RequestBody CustomerInterViewBaseCarHouseInsturDTO customerInterViewBaseCarHouseInsturDTO, @RequestHeader("Authorization") String token){
         CronusDto cronusDto = new CronusDto();
         try{
-            cronusDto = customerInterviewService.addCustomerView(customerInterViewBaseCarHouseInsturDto,token);
+            cronusDto = customerInterviewService.addCustomerView(customerInterViewBaseCarHouseInsturDTO,token);
         }catch (Exception e){
             logger.error("--------------->addCustomerView 客户面谈信息添加失败", e);
             if (e instanceof CronusException) {
@@ -147,10 +146,10 @@ public class CustomerInterviewController {
     })
     @RequestMapping(value = "/editCustomerViewOk", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto edditCustomerViewOk(@RequestBody CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto,@RequestHeader("Authorization") String token){
+    public CronusDto edditCustomerViewOk(@RequestBody CustomerInterViewBaseCarHouseInsturDTO customerInterViewBaseCarHouseInsturDTO, @RequestHeader("Authorization") String token){
         CronusDto cronusDto = new CronusDto();
         try{
-            cronusDto = customerInterviewService.edditCustomerViewOk(customerInterViewBaseCarHouseInsturDto,token);
+            cronusDto = customerInterviewService.edditCustomerViewOk(customerInterViewBaseCarHouseInsturDTO,token);
         }catch (Exception e){
             logger.error("--------------->edditCustomerViewOk 提交客户面谈信信息失败", e);
             if (e instanceof CronusException) {

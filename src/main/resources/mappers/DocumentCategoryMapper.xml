@@ -21,12 +21,21 @@
     is_deleted
   </sql>
   <select id="getNextCategory" parameterType="java.util.Map" resultMap="BaseResultMap">
+  select
+  <include refid="Base_Column_List"/>
+  from document_category
+  where is_deleted = 0
+  <if test="documentCParentId != null">
+    and document_c_parent_id = #{documentCParentId}
+  </if>
+  </select>
+  <select id="findByFeild" parameterType="java.util.Map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List"/>
     from document_category
     where is_deleted = 0
-    <if test="documentCParentId != null">
-      and document_c_parent_id = #{documentCParentId}
+    <if test="document_c_name != null">
+      and document_c_name = #{document_c_name}
     </if>
   </select>
 </mapper>

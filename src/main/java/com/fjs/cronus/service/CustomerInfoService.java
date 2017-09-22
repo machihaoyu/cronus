@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
-import com.fjs.cronus.dto.cronus.CustomerDto;
+import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
@@ -14,11 +14,8 @@ import com.fjs.cronus.util.FastJsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import sun.security.provider.MD5;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -40,7 +37,7 @@ public class CustomerInfoService {
         QueryResult result = new QueryResult();
         Map<String,Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
-        List<CustomerDto> dtoList = new ArrayList<>();
+        List<CustomerDTO> dtoList = new ArrayList<>();
         if (!StringUtils.isEmpty(customerName)){
             paramsMap.put("customerName",customerName);
         }
@@ -60,7 +57,7 @@ public class CustomerInfoService {
         resultList = customerInfoMapper.customerList(paramsMap);
         if (resultList != null && resultList.size() > 0){
             for (CustomerInfo customerInfo : resultList) {
-                CustomerDto customerDto = new CustomerDto();
+                CustomerDTO customerDto = new CustomerDTO();
                 EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
                 dtoList.add(customerDto);
             }
@@ -123,7 +120,7 @@ public class CustomerInfoService {
         CronusDto resultDto =  new CronusDto();
         //手机需要加密
         Map<String,Object> paramsMap = new HashMap<>();
-        CustomerDto dto= new CustomerDto();
+        CustomerDTO dto= new CustomerDTO();
         String encryptTelephone = "";//加密后的
         List paramsList = new ArrayList();
         paramsList.add(encryptTelephone);
@@ -152,9 +149,9 @@ public class CustomerInfoService {
         paramsMap.put("paramsList",paramsList);
         List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerListByFeild(paramsMap);
         //遍历
-        List<CustomerDto> customerDtos = new ArrayList<>();
+        List<CustomerDTO> customerDtos = new ArrayList<>();
        for (CustomerInfo customerInfo: customerInfoList) {
-            CustomerDto customerDto = new CustomerDto();
+            CustomerDTO customerDto = new CustomerDTO();
             EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
             //TODO  增加source 调用接口 来源渠道
             customerDtos.add(customerDto);

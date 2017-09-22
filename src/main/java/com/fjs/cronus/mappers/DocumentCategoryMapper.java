@@ -10,4 +10,6 @@ public interface DocumentCategoryMapper extends MyMapper<DocumentCategory> {
 
 
     List<DocumentCategory> getNextCategory(Map<String,Object> paramsMap);
+
+    DocumentCategory   findByFeild(Map<String,Object> paraMap);
 }

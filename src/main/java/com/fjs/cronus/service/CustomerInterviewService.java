@@ -1,16 +1,11 @@
 package com.fjs.cronus.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.UserDTO;
-import com.fjs.cronus.dto.cronus.BaseUcDto;
-import com.fjs.cronus.dto.cronus.CustomerInterVibaseInfoDto;
-import com.fjs.cronus.dto.cronus.CustomerInterViewBaseCarHouseInsturDto;
-import com.fjs.cronus.dto.cronus.UcUserDto;
-import com.fjs.cronus.dto.php.CustomerInterviewBaseInfoDTO;
-import com.fjs.cronus.dto.uc.BaseUcDTO;
-import com.fjs.cronus.dto.uc.UserInfoDTO;
+import com.fjs.cronus.dto.cronus.BaseUcDTO;
+import com.fjs.cronus.dto.cronus.CustomerInterVibaseInfoDTO;
+import com.fjs.cronus.dto.cronus.CustomerInterViewBaseCarHouseInsturDTO;
+import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInterviewBaseInfoMapper;
 import com.fjs.cronus.mappers.CustomerInterviewCarInfoMapper;
@@ -55,8 +50,8 @@ public class CustomerInterviewService {
         //TODO 通过token查询到用户的id 查询自己以及下属员工
         String  result = thorInterfaceService.getCurrentUserInfo(token,null);
         try {
-            BaseUcDto dto = FastJsonUtils.getSingleBean(result,BaseUcDto.class);
-            UcUserDto userDTO = FastJsonUtils.getSingleBean(dto.getData().toString(),UcUserDto.class);
+            BaseUcDTO dto = FastJsonUtils.getSingleBean(result,BaseUcDTO.class);
+            UcUserDTO userDTO = FastJsonUtils.getSingleBean(dto.getData().toString(),UcUserDTO.class);
             List idList = new ArrayList();
             idList = ucService.getSubUserByUserId(token,Integer.valueOf(userDTO.getUser_id()));
             //拼装参数
@@ -96,10 +91,10 @@ public class CustomerInterviewService {
             paramsMap.put("start",(page-1) * size);
             paramsMap.put("size",size);
             List<CustomerInterviewBaseInfo> customerInterviewBaseInfos = customerInterviewBaseInfoMapper.customerInterviewList(paramsMap);
-            List<CustomerInterVibaseInfoDto> resultList = new ArrayList<>();
+            List<CustomerInterVibaseInfoDTO> resultList = new ArrayList<>();
             if (customerInterviewBaseInfos !=null && customerInterviewBaseInfos.size() > 0){
                 for (CustomerInterviewBaseInfo customerInterviewBaseInfo : customerInterviewBaseInfos) {
-                    CustomerInterVibaseInfoDto customerInterviewBaseInfoDTO = new CustomerInterVibaseInfoDto();
+                    CustomerInterVibaseInfoDTO customerInterviewBaseInfoDTO = new CustomerInterVibaseInfoDTO();
                     EntityToDto.CustomerInterviewEntityToCustomerInterviewDto(customerInterviewBaseInfo,customerInterviewBaseInfoDTO);
                 }
                 resultDto.setData(resultList);
@@ -131,17 +126,17 @@ public class CustomerInterviewService {
         //查找保单信息
         List<CustomerInterviewInsuranceInfo> customerInterviewInsuranceInfos = customerInterviewInsuranceInfoMapper.findByCustomerInterviewInsurByFeild(paramsMap);
         //拼装参数
-        CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto = new CustomerInterViewBaseCarHouseInsturDto();
-        EntityToDto.CustomerInterviewEntityToCustomerInterviewAllInfoDto(customerInterViewBaseCarHouseInsturDto,customerInterviewBaseInfo,
+        CustomerInterViewBaseCarHouseInsturDTO customerInterViewBaseCarHouseInsturDTO = new CustomerInterViewBaseCarHouseInsturDTO();
+        EntityToDto.CustomerInterviewEntityToCustomerInterviewAllInfoDto(customerInterViewBaseCarHouseInsturDTO,customerInterviewBaseInfo,
                 customerInterviewCarInfos,customerInterviewHouseInfos,customerInterviewInsuranceInfos);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
-        resultDto.setData(customerInterViewBaseCarHouseInsturDto);
+        resultDto.setData(customerInterViewBaseCarHouseInsturDTO);
         return  resultDto;
 
     }
     @Transactional
-    public CronusDto  addCustomerView ( CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto,String token){
+    public CronusDto  addCustomerView (CustomerInterViewBaseCarHouseInsturDTO customerInterViewBaseCarHouseInsturDTO, String token){
         CronusDto resultDto = new CronusDto();
         //根据token查询当前用户id
         Integer user_id = ucService.getUserIdByToken(token);
@@ -158,7 +153,7 @@ public class CustomerInterviewService {
         CustomerInterviewCarInfo customerInterviewCarInfo   = new CustomerInterviewCarInfo();
         CustomerInterviewHouseInfo customerInterviewHouseInfo = new CustomerInterviewHouseInfo();
         CustomerInterviewInsuranceInfo customerInterviewInsuranceInfo = new CustomerInterviewInsuranceInfo();
-        EntityToDto.CustomerInterviewDtoToCustomerInterviewAllInfoEntity(customerInterViewBaseCarHouseInsturDto,customerInterviewBaseInfo,customerInterviewCarInfo,
+        EntityToDto.CustomerInterviewDtoToCustomerInterviewAllInfoEntity(customerInterViewBaseCarHouseInsturDTO,customerInterviewBaseInfo,customerInterviewCarInfo,
                 customerInterviewHouseInfo,customerInterviewInsuranceInfo);
         //
         Date date = new Date();
@@ -224,17 +219,17 @@ public class CustomerInterviewService {
         //查找保单信息
         List<CustomerInterviewInsuranceInfo> customerInterviewInsuranceInfos = customerInterviewInsuranceInfoMapper.findByCustomerInterviewInsurByFeild(paramsMap);
         //拼装参数
-        CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto = new CustomerInterViewBaseCarHouseInsturDto();
-        EntityToDto.CustomerInterviewEntityToCustomerInterviewAllInfoDto(customerInterViewBaseCarHouseInsturDto,customerInterviewBaseInfo,
+        CustomerInterViewBaseCarHouseInsturDTO customerInterViewBaseCarHouseInsturDTO = new CustomerInterViewBaseCarHouseInsturDTO();
+        EntityToDto.CustomerInterviewEntityToCustomerInterviewAllInfoDto(customerInterViewBaseCarHouseInsturDTO,customerInterviewBaseInfo,
                 customerInterviewCarInfos,customerInterviewHouseInfos,customerInterviewInsuranceInfos);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
-        resultDto.setData(customerInterViewBaseCarHouseInsturDto);
+        resultDto.setData(customerInterViewBaseCarHouseInsturDTO);
         return  resultDto;
 
     }
     @Transactional
-    public CronusDto edditCustomerViewOk ( CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto,String token){
+    public CronusDto edditCustomerViewOk (CustomerInterViewBaseCarHouseInsturDTO customerInterViewBaseCarHouseInsturDTO, String token){
         CronusDto resultDto = new CronusDto();
         //根据token查询当前用户id
         Integer user_id = ucService.getUserIdByToken(token);
@@ -245,22 +240,22 @@ public class CustomerInterviewService {
        // CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto = FastJsonUtils.getSingleBean(jsonObject.toString(),CustomerInterViewBaseCarHouseInsturDto.class);
 
         Map<String,Object> paramsMap = new HashMap<>();
-        paramsMap.put("customerInterviewBaseInfoId",customerInterViewBaseCarHouseInsturDto.getId());
+        paramsMap.put("customerInterviewBaseInfoId", customerInterViewBaseCarHouseInsturDTO.getId());
         CustomerInterviewBaseInfo customerInterviewBaseInfo = customerInterviewBaseInfoMapper.customerInterviewByFeild(paramsMap);
         if (customerInterviewBaseInfo ==null){
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
         }else {
             paramsMap.clear();
         }
-        paramsMap.put("id",customerInterViewBaseCarHouseInsturDto.getCarInfoid());
+        paramsMap.put("id", customerInterViewBaseCarHouseInsturDTO.getCarInfoid());
         CustomerInterviewCarInfo customerInterviewCarInfo = customerInterviewCarInfoMapper.findByCustomerByFeild(paramsMap);
         paramsMap.clear();
-        paramsMap.put("id",customerInterViewBaseCarHouseInsturDto.getHouseInfoId());
+        paramsMap.put("id", customerInterViewBaseCarHouseInsturDTO.getHouseInfoId());
         CustomerInterviewHouseInfo customerInterviewHouseInfo = customerInterviewHouseInfoMapper.findByFeild(paramsMap);
         paramsMap.clear();
         CustomerInterviewInsuranceInfo customerInterviewInsuranceInfo = customerInterviewInsuranceInfoMapper.findByFeild(paramsMap);
         //dto 转为实体
-        EntityToDto.CustomerInterviewDtoToCustomerInterviewAllInfoEntity(customerInterViewBaseCarHouseInsturDto,customerInterviewBaseInfo,customerInterviewCarInfo,
+        EntityToDto.CustomerInterviewDtoToCustomerInterviewAllInfoEntity(customerInterViewBaseCarHouseInsturDTO,customerInterviewBaseInfo,customerInterviewCarInfo,
                 customerInterviewHouseInfo,customerInterviewInsuranceInfo);
         //
         Date date = new Date();

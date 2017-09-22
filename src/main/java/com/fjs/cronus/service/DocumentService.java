@@ -1,15 +1,18 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.ResultResource;
-import com.fjs.cronus.controller.LeavelLinkAgeController;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.UploadDocumentDto;
-import com.fjs.cronus.dto.cronus.DocumentCategoryDto;
-import com.fjs.cronus.dto.cronus.NewDocumentDto;
+import com.fjs.cronus.dto.cronus.*;
+import com.fjs.cronus.dto.ocr.IdCardDTO;
+import com.fjs.cronus.dto.ocr.ReqParamDTO;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.DocumentCategoryMapper;
 import com.fjs.cronus.mappers.DocumentMapper;
 import com.fjs.cronus.mappers.RContractDocumentMapper;
+import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.Document;
 import com.fjs.cronus.model.DocumentCategory;
 import com.fjs.cronus.model.RContractDocument;
@@ -42,6 +45,8 @@ public class DocumentService {
 
     @Autowired
     UcService ucService;
+    @Autowired
+    CustomerInfoMapper customerInfoMapper;
 
     @Autowired
     DocumentMapper documentMapper;
@@ -49,7 +54,8 @@ public class DocumentService {
     RContractDocumentMapper rContractDocumentMapper;
     @Autowired
     DocumentCategoryMapper documentCategoryMapper;
-
+    @Autowired
+    OcrIdentityService ocrIdentityService;
     static final ThreadFactory supplyThreadFactory = new BasicThreadFactory.Builder().namingPattern("tuwenshibie-%d").daemon(true)
             .priority(Thread.MAX_PRIORITY).build();
 
@@ -66,10 +72,10 @@ public class DocumentService {
         Map<String,Object> paramsMap = new HashMap<>();
         paramsMap.put("documentCParentId",0);
         List<DocumentCategory> documentCategoryList = documentCategoryMapper.getNextCategory(paramsMap);
-        List<DocumentCategoryDto> resultList = new ArrayList<>();
+        List<DocumentCategoryDTO> resultList = new ArrayList<>();
         if (documentCategoryList != null && documentCategoryList.size() > 0 ){
             for (DocumentCategory documentCategory : documentCategoryList) {
-                DocumentCategoryDto documentCategoryDTO = new DocumentCategoryDto();
+                DocumentCategoryDTO documentCategoryDTO = new DocumentCategoryDTO();
                 documentCategoryDTO.setId(documentCategory.getId());
                 documentCategoryDTO.setDocumentCNameHeader(documentCategory.getDocumentCNameHeader());
                 documentCategoryDTO.setDocumentCName(documentCategory.getDocumentCNameHeader()+" "+documentCategory.getDocumentCName());
@@ -91,7 +97,7 @@ public class DocumentService {
     @Transactional
     public CronusDto uploadDocumentOk(List<UploadDocumentDto> uploadDocumentDtoList,String token){
         CronusDto resultDto = new CronusDto();
-        List<NewDocumentDto> resultList = new ArrayList<>();
+        List<NewDocumentDTO> resultList = new ArrayList<>();
         for (UploadDocumentDto uploadDocumentDto:uploadDocumentDtoList ) {
             Integer category = uploadDocumentDto.getCategory();
             if (category == null){
@@ -143,7 +149,7 @@ public class DocumentService {
                     //TODO 通过合同查询客户id
                 }
                 //封装参数
-                com.fjs.cronus.dto.cronus.UploadDocumentDto paramsDto = new  com.fjs.cronus.dto.cronus.UploadDocumentDto();
+                UploadDocumentDTO paramsDto = new UploadDocumentDTO();
                 paramsDto.setName(uploadDocumentDto.getFileName());
                 paramsDto.setExt(uploadDocumentDto.getType());
                 paramsDto.setMd5(md5);
@@ -153,7 +159,7 @@ public class DocumentService {
                 paramsDto.setSource(uploadDocumentDto.getSource());
                 paramsDto.setType(uploadDocumentDto.getType());
                 paramsDto.setKey(name);
-                NewDocumentDto documentDto = newDocument(paramsDto,user_id,category,uploadDocumentDto.getCustomerId(),uploadDocumentDto.getContractId());
+                NewDocumentDTO documentDto = newDocument(paramsDto,user_id,category,uploadDocumentDto.getCustomerId(),uploadDocumentDto.getContractId());
                 if (documentDto.getStatus() == -1){
                     throw new CronusException(CronusException.Type.CRM_CONTROCTDOCU_ERROR);
                 }
@@ -171,13 +177,13 @@ public class DocumentService {
 
     //生成一条新的合同数据
     @Transactional
-    public NewDocumentDto newDocument (com.fjs.cronus.dto.cronus.UploadDocumentDto uploadDocumentDto,Integer user_id,Integer category,Integer customerId,Integer contratId ){
+    public NewDocumentDTO newDocument (UploadDocumentDTO uploadDocumentDTO, Integer user_id, Integer category, Integer customerId, Integer contratId ){
         Document document = new Document();
         Integer status = 0;
         Integer documentId = null;
         Map<String,Object> paramsMap = new HashMap<>();
         //检查文件是否重复
-        String md5 = uploadDocumentDto.getMd5();
+        String md5 = uploadDocumentDTO.getMd5();
         paramsMap.put("documentMd5",md5);
         Document document1 = documentMapper.findByFeild(paramsMap);
         paramsMap.clear();
@@ -187,13 +193,13 @@ public class DocumentService {
             documentId = document1.getId();
         }else {
             //增加一条新的数据
-            document.setDocumentName(uploadDocumentDto.getName());
-            document.setDocumentSavename(uploadDocumentDto.getSavename());
-            document.setDocumentMd5(uploadDocumentDto.getMd5());
-            document.setDocumentType(uploadDocumentDto.getType());
-            document.setDocumentExt(uploadDocumentDto.getExt());
-            document.setDocumentSavepath(uploadDocumentDto.getSavepath());
-            document.setDocumentSize(Integer.valueOf(uploadDocumentDto.getSize()));
+            document.setDocumentName(uploadDocumentDTO.getName());
+            document.setDocumentSavename(uploadDocumentDTO.getSavename());
+            document.setDocumentMd5(uploadDocumentDTO.getMd5());
+            document.setDocumentType(uploadDocumentDTO.getType());
+            document.setDocumentExt(uploadDocumentDTO.getExt());
+            document.setDocumentSavepath(uploadDocumentDTO.getSavepath());
+            document.setDocumentSize(Integer.valueOf(uploadDocumentDTO.getSize()));
             document.setCreateTime(date);
             document.setCreateUser(user_id);
             document.setLastUpdateTime(date);
@@ -207,7 +213,7 @@ public class DocumentService {
         }
         Map<String,Object> contract_document_data = new HashMap<>();
         contract_document_data.put("document_c_id",contratId);
-        contract_document_data.put("rc_document_source",uploadDocumentDto.getSource());
+        contract_document_data.put("rc_document_source", uploadDocumentDTO.getSource());
         //添加一条附件与人的关联记录
         RContractDocument rContractDocument = new RContractDocument();
         if (contratId == null) {
@@ -218,7 +224,7 @@ public class DocumentService {
         rContractDocument.setCustomerId(customerId);
         rContractDocument.setDocumentId(documentId);
         rContractDocument.setDocumentCId(category);
-        rContractDocument.setRcDocumentSource(uploadDocumentDto.getSource());
+        rContractDocument.setRcDocumentSource(uploadDocumentDTO.getSource());
         rContractDocument.setCreatorId(user_id);
         rContractDocument.setCreateTime(date);
         rContractDocument.setCreateUser(user_id);
@@ -231,32 +237,32 @@ public class DocumentService {
            throw new CronusException(CronusException.Type.CRM_CONTROCTDOCU_ERROR);
        }
         Integer rcontrac_doucument_id = rContractDocument.getId();//附件关系id
-        NewDocumentDto newDocumentDto = new NewDocumentDto();
-        newDocumentDto.setDocument(document.getDocumentSavepath() + document.getDocumentSavename());
+        NewDocumentDTO newDocumentDTO = new NewDocumentDTO();
+        newDocumentDTO.setDocument(document.getDocumentSavepath() + document.getDocumentSavename());
         if (Arrays.<String> asList(ResultResource.FILETYPE).contains(document.getDocumentExt())){
             //添加缩略图_S _M
-            newDocumentDto.setM_document(document.getDocumentSavepath() + "_M" + document.getDocumentSavename());
-            newDocumentDto.setS_document(document.getDocumentSavepath() + "_S" + document.getDocumentSavename());
+            newDocumentDTO.setM_document(document.getDocumentSavepath() + "_M" + document.getDocumentSavename());
+            newDocumentDTO.setS_document(document.getDocumentSavepath() + "_S" + document.getDocumentSavename());
         }
         //根据id查询catory信息
         DocumentCategory documentCategory = documentCategoryMapper.selectByPrimaryKey(category);
-        newDocumentDto.setContract_document_id(rContractDocument.getId());
-        newDocumentDto.setCategory_id(category);
-        newDocumentDto.setCategory_name(documentCategory.getDocumentCNameHeader()+ " " +documentCategory.getDocumentCName());
-        newDocumentDto.setContract_id(contratId);
-        newDocumentDto.setExt(document.getDocumentExt());
-        newDocumentDto.setName(uploadDocumentDto.getName());
+        newDocumentDTO.setContract_document_id(rContractDocument.getId());
+        newDocumentDTO.setCategory_id(category);
+        newDocumentDTO.setCategory_name(documentCategory.getDocumentCNameHeader()+ " " +documentCategory.getDocumentCName());
+        newDocumentDTO.setContract_id(contratId);
+        newDocumentDTO.setExt(document.getDocumentExt());
+        newDocumentDTO.setName(uploadDocumentDTO.getName());
         if (contratId != null && contratId > 0){
             //TODO 根据合同id查询到合同信息
-            newDocumentDto.setM_name("");
+            newDocumentDTO.setM_name("");
         }else {
-            newDocumentDto.setM_name("");
+            newDocumentDTO.setM_name("");
         }
         //TODO 从缓存中查询到相关信息
-        newDocumentDto.setUp_name("");
-        newDocumentDto.setUp_date(date);
-        newDocumentDto.setStatus(status);
-        return  newDocumentDto;
+        newDocumentDTO.setUp_name("");
+        newDocumentDTO.setUp_date(date);
+        newDocumentDTO.setStatus(status);
+        return newDocumentDTO;
     }
     public CronusDto uploadStreamDocument(String imageBase64,String name){
         CronusDto resultDto = new CronusDto();
@@ -320,14 +326,12 @@ public class DocumentService {
         }
     return resultDto;
     }
-   public boolean addOcrInfo(Integer category,Integer customer_id,String imageBase64,Integer rc_document_id,Integer user_id){
+   public boolean addOcrInfo(Integer category,Integer customer_id,String imageBase64,Integer rc_document_id,Integer user_id,String token){
        final long step1Time = System.currentTimeMillis();
        try {
             es.execute(new Runnable() {
                 @Override
                 public void run() {
-                    //主要业务操作
-
 
                 }
             });
@@ -339,4 +343,82 @@ public class DocumentService {
      return  true;
    }
 
+   public ReqParamDTO addOcrDealParam(Integer category,Integer customer_id,String imageBase64,Integer rc_document_id,Integer user_id,String token){
+
+       ReqParamDTO reqParamDTO = new ReqParamDTO();
+       //主要业务操作
+       // 根据rc_document_id获取document_id
+       //拼装参数
+       Map<String,Object> paramsMap = new HashMap<>();
+       paramsMap.put("rc_document_id",rc_document_id);
+       RContractDocument rContractDocument = rContractDocumentMapper.findByFeild(paramsMap);
+       paramsMap.clear();
+       Integer document_id = rContractDocument.getDocumentId();
+       //根据customer_id获取客户信息
+       List paramsList = new ArrayList();
+       paramsList.add(customer_id);
+       paramsMap.put("paramsList",paramsList);
+       CustomerInfo customerInfo = customerInfoMapper.fingByFeild(paramsMap);
+       //通过$category获取这个图片的分类属性
+       DocumentCategory documentCategory = documentCategoryMapper.selectByPrimaryKey(category);
+       //参数使用json
+       JSONObject jsonObject = new JSONObject();
+       //OcrSaveBaseInfoDTO ocrSaveBaseInfoDTO = new OcrSaveBaseInfoDTO();
+       if (documentCategory.getDocumentCName().indexOf("(正)") != -1){
+           jsonObject.put("side","face");
+           jsonObject.put("type",1);
+       } else  if (documentCategory.getDocumentCName().indexOf("(反)") != -1){
+           jsonObject.put("side","back");
+           jsonObject.put("type",1);
+       }
+       else  if (documentCategory.getDocumentCName().indexOf("户口簿") != -1){
+           jsonObject.put("type",2);
+       }
+       else  if (documentCategory.getDocumentCName().indexOf("驾驶证") != -1){
+           jsonObject.put("type",3);
+       }
+       else  if (documentCategory.getDocumentCName().indexOf("行驶证") != -1){
+           jsonObject.put("type",4);
+       }
+       else  if (documentCategory.getDocumentCName().indexOf("房产证") != -1){
+           jsonObject.put("type",5);
+       }
+       else {
+           jsonObject.put("type",0);
+       }
+       UcUserDTO userInfo = ucService.getUserInfoByID(token,user_id);
+     /*  ocrSaveBaseInfoDTO.setR_contract_document(rContractDocument);
+       ocrSaveBaseInfoDTO.setCategoryInfo(documentCategory);*/
+       jsonObject.put("customer_id",customerInfo.getId());
+       jsonObject.put("customer_name",customerInfo.getCustomerName());
+       //TODO 需要解密
+       jsonObject.put("customer_telephone",customerInfo.getTelephonenumber());
+       jsonObject.put("crm_attach_id",document_id);
+       jsonObject.put("create_user_id",userInfo.getUser_id());
+       jsonObject.put("create_user_name",userInfo.getName());
+       jsonObject.put("update_user_id",userInfo.getUser_id());
+       jsonObject.put("update_user_name",userInfo.getName());
+       jsonObject.put("category",category);
+       // TODO 生成对应的ocr信息
+       return  reqParamDTO;
+   }
+
+   public Integer addOrSaveInfo(JSONObject jsonObject){
+       ReqParamDTO resultDto = new ReqParamDTO();
+    if (jsonObject == null){
+        throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
+    }
+    Integer type = jsonObject.getInteger("type");
+    Integer id = null;
+    switch (type){
+        case 1:
+            //插入一条身份证信息
+            //转为身份证
+            IdCardDTO idCardDTO = FastJsonUtils.getSingleBean(jsonObject.toString(), IdCardDTO.class);
+             id = ocrIdentityService.addOrUpdateOcrInden(idCardDTO);
+             break;
+        case 2:
+    }
+    return null;
+   }
 }

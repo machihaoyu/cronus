@@ -1,7 +1,6 @@
 package com.fjs.cronus.service.redis;
 
-import com.fjs.cronus.config.RedisConfig;
-import com.fjs.cronus.dto.cronus.UcUserDto;
+import com.fjs.cronus.dto.cronus.UcUserDTO;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -32,13 +31,13 @@ public class UcRedisService {
         return idList;
     }
 
-    public void setRedisUserInfo(String key, UcUserDto ucUserDto){
+    public void setRedisUserInfo(String key, UcUserDTO ucUserDTO){
         ValueOperations<String,Object> redis = valueOperations.opsForValue();
-        redis.set(key,ucUserDto,30, TimeUnit.SECONDS);
+        redis.set(key, ucUserDTO,30, TimeUnit.SECONDS);
     }
-    public UcUserDto getRedisUserInfo(String key) {
+    public UcUserDTO getRedisUserInfo(String key) {
         ValueOperations<String,Object> redis = valueOperations.opsForValue();
-        UcUserDto ucUserDto = (UcUserDto)redis.get(key);
-        return ucUserDto;
+        UcUserDTO ucUserDTO = (UcUserDTO)redis.get(key);
+        return ucUserDTO;
     }
 }

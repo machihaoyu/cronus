@@ -2,8 +2,8 @@ package com.fjs.cronus.controller;
 
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.cronus.ThreePcLinkAge;
-import com.fjs.cronus.dto.cronus.ThreelinkageDto;
+import com.fjs.cronus.dto.cronus.ThreePcLinkAgeDTO;
+import com.fjs.cronus.dto.cronus.ThreelinkageDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.CityService;
 import com.fjs.cronus.service.LicensePlateService;
@@ -37,11 +37,11 @@ public class LeavelLinkAgeController {
             })
     @RequestMapping(value = "/getPCCityTwoLinkAge", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<List<ThreePcLinkAge>> getPCCityTwoLinkAge() {
+    public CronusDto<List<ThreePcLinkAgeDTO>> getPCCityTwoLinkAge() {
         CronusDto resultDto = new CronusDto();
 
         try {
-            List<ThreePcLinkAge> cityDtoList = cityService.getPCCityTwoLinkAge();
+            List<ThreePcLinkAgeDTO> cityDtoList = cityService.getPCCityTwoLinkAge();
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDto.setData(cityDtoList);
@@ -63,11 +63,11 @@ public class LeavelLinkAgeController {
             })
     @RequestMapping(value = "/getPCCityThreeLinkAge", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<List<ThreelinkageDto>> getPCCityThreeLinkAge() {
+    public CronusDto<List<ThreelinkageDTO>> getPCCityThreeLinkAge() {
         CronusDto resultDto = new CronusDto();
 
         try {
-            List<ThreePcLinkAge> cityDtoList = cityService.getPCCityThreeLinkAge();
+            List<ThreePcLinkAgeDTO> cityDtoList = cityService.getPCCityThreeLinkAge();
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDto.setData(cityDtoList);
@@ -87,11 +87,11 @@ public class LeavelLinkAgeController {
             })
     @RequestMapping(value = "/getCarPlate", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<List<ThreePcLinkAge>> getCarPlate() {
+    public CronusDto<List<ThreePcLinkAgeDTO>> getCarPlate() {
         CronusDto resultDto = new CronusDto();
 
         try {
-            List<ThreePcLinkAge> cityDtoList = licensePlateService.getCarPlate();
+            List<ThreePcLinkAgeDTO> cityDtoList = licensePlateService.getCarPlate();
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDto.setData(cityDtoList);

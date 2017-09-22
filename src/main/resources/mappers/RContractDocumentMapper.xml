@@ -21,6 +21,16 @@
     rc_document_source, create_time, last_update_time, create_user, last_update_user, 
     is_deleted
   </sql>
+
+  <select id="findByFeild" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from r_contract_document
+    where is_deleted = 0
+    <if test="rc_document_id != null">
+      and id = #{rc_document_id}
+    </if>
+  </select>
   <insert id="addConDocument" parameterType="com.fjs.cronus.model.RContractDocument" >
     insert into r_contract_document
     <trim prefix="(" suffix=")" suffixOverrides="," >

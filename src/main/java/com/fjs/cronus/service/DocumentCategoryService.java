@@ -2,8 +2,7 @@ package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.DocumentCategoryDTO;
-import com.fjs.cronus.dto.cronus.DocumentCategoryDto;
+import com.fjs.cronus.dto.cronus.DocumentCategoryDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.DocumentCategoryMapper;
 import com.fjs.cronus.model.DocumentCategory;
@@ -35,10 +34,10 @@ public class DocumentCategoryService {
         Map<String,Object> paramsMap = new HashMap<>();
         paramsMap.put("documentCParentId",cateGoryParentId);
         List<DocumentCategory> documentCategoryList = documentCategoryMapper.getNextCategory(paramsMap);
-        List<DocumentCategoryDto> resultList = new ArrayList<>();
+        List<DocumentCategoryDTO> resultList = new ArrayList<>();
         if (documentCategoryList != null && documentCategoryList.size() > 0){
             for (DocumentCategory documentCategory : documentCategoryList) {
-                DocumentCategoryDto documentCategoryDTO = new DocumentCategoryDto();
+                DocumentCategoryDTO documentCategoryDTO = new DocumentCategoryDTO();
                 documentCategoryDTO.setId(documentCategory.getId());
                 documentCategoryDTO.setDocumentCNameHeader(documentCategory.getDocumentCNameHeader());
                 documentCategoryDTO.setDocumentCName(documentCategory.getDocumentCNameHeader()+" "+documentCategory.getDocumentCName());
