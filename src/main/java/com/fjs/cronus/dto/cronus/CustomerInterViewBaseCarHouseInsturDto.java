@@ -7,7 +7,7 @@ import java.util.Date;
 /**
  * Created by msi on 2017/9/18.
  */
-public class CustomerInterViewBaseCarHouseInsturDto implements Serializable{
+public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
     private static final long serialVersionUID = 6841315540181335028L;
     private Integer id;
 

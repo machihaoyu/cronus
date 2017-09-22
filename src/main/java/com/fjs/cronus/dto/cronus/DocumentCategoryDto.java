@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by msi on 2017/9/20.
  */
-public class DocumentCategoryDto implements Serializable{
+public class DocumentCategoryDTO implements Serializable{
 
     private Integer id;
     private Integer documentCParentId;

@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by msi on 2017/9/19.
  */
-public class EditCustomerDto implements Serializable {
+public class EditCustomerDTO implements Serializable {
     private static final long serialVersionUID = 6841315540181335027L;
 
 

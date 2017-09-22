@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by msi on 2017/9/21.
  */
-public class UploadDocumentDto implements Serializable {
+public class UploadDocumentDTO implements Serializable {
 
     private String key;
     private String  name;//原始文件名

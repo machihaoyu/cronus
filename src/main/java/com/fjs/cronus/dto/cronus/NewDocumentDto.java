@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * Created by msi on 2017/9/21.
  */
-public class NewDocumentDto implements Serializable{
+public class NewDocumentDTO implements Serializable{
 
     private String document;//原始文件地址
 

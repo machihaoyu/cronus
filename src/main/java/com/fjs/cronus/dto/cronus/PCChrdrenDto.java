@@ -4,7 +4,7 @@ import java.io.Serializable;
 /**
  * Created by msi on 2017/8/17.
  */
-public class PCChrdrenDto<T> implements Serializable {
+public class PCChrdrenDTO<T> implements Serializable {
     private static final long serialVersionUID = 1546456112568212151L;
 
     private  String  value;

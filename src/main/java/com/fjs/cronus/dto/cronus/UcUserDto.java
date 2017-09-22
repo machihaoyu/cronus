@@ -5,7 +5,7 @@ import java.util.HashMap;
 /**
  * Created by msi on 2017/9/16.
  */
-public class UcUserDto {
+public class UcUserDTO {
     private String user_id;
     private String role_ids;
     private String look_phone;

@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by msi on 2017/8/17.
  */
-public class ThreePcLinkAge<T> implements Serializable {
+public class ThreePcLinkAgeDTO<T> implements Serializable {
     private static final long serialVersionUID = 1546456112568212154L;
 
     private  String value;

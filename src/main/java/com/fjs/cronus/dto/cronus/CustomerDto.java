@@ -7,7 +7,7 @@ import java.util.Date;
 /**
  * Created by msi on 2017/9/14.
  */
-public class CustomerDto {
+public class CustomerDTO {
     private Integer id;
 
     private String telephonenumber;

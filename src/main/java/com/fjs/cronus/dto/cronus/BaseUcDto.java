@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Created by msi on 2017/9/18.
  */
-public class BaseUcDto<T> implements Serializable{
+public class BaseUcDTO<T> implements Serializable{
     private static final long serialVersionUID = 1009503547913045851L;
 
     private String errMsg;
@@ -45,8 +45,8 @@ public class BaseUcDto<T> implements Serializable{
     public void setData(T data) {
         this.data = data;
     }
-    public BaseUcDto() {}
-    public BaseUcDto(int errNum, String errMsg, T obj) {
+    public BaseUcDTO() {}
+    public BaseUcDTO(int errNum, String errMsg, T obj) {
         this.errNum = errNum;
         if (StringUtils.isEmpty(errMsg)) {
             this.errMsg = "请求成功!";

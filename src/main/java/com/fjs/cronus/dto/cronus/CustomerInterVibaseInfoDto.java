@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * Created by msi on 2017/9/15.
  */
-public class CustomerInterVibaseInfoDto {
+public class CustomerInterVibaseInfoDTO {
     private Integer id;
 
     private Integer customerId;
