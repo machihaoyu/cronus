@@ -4,7 +4,7 @@ import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerInterVibaseInfoDTO;
 import com.fjs.cronus.dto.cronus.CustomerInterViewBaseCarHouseInsturDTO;
 import com.fjs.cronus.dto.cronus.OcrSaveBaseInfoDTO;
-import com.fjs.cronus.dto.ocr.IdCardDTO;
+import com.fjs.cronus.dto.ocr.*;
 import com.fjs.cronus.model.*;
 import org.springframework.util.StringUtils;
 
@@ -789,16 +789,191 @@ public class EntityToDto {
                 customerInterviewInsuranceInfo.setYearPayAmount(dto.getYearPayAmount());
             }
         }
-      public static void copyOcrSaveBaseInfoDTOToOcrIndentyDto(OcrSaveBaseInfoDTO ocrSaveBaseInfoDTO,IdCardDTO IdCardDTO){
+    public static void  ConyDtoToEntityHOuseReg(HouseholdRegisterDTO dto,OcrHouseholdRegister ocrHouseholdRegister){
 
-          if (!StringUtils.isEmpty(ocrSaveBaseInfoDTO.getId())){
-            IdCardDTO.setId(ocrSaveBaseInfoDTO.getId());
-           }
-          if (!StringUtils.isEmpty(ocrSaveBaseInfoDTO)){
-              IdCardDTO.setId(ocrSaveBaseInfoDTO.getId());
-           }
+        if (!StringUtils.isEmpty(dto.getHousehold_birthday())){
+            ocrHouseholdRegister.setHouseholdBirthday(dto.getHousehold_birthday());
+        }
 
+        if (!StringUtils.isEmpty(dto.getHousehold_name())){
+            ocrHouseholdRegister.setHouseholdName(dto.getHousehold_name());
+        }
 
+        if (!StringUtils.isEmpty(dto.getHousehold_sex())){
+            ocrHouseholdRegister.setHouseholdSex(dto.getHousehold_sex());
+        }
+        if (!StringUtils.isEmpty(dto.getHousehold_native_place())){
+            ocrHouseholdRegister.setHouseholdNativePlace(dto.getHousehold_native_place());
+        }
+        if (!StringUtils.isEmpty(dto.getHousehold_id_number())){
+            ocrHouseholdRegister.setHouseholdIdNumber(dto.getHousehold_id_number());
+        }
+
+        if (!StringUtils.isEmpty(dto.getHousehold_people())){
+            ocrHouseholdRegister.setHouseholdPeople(dto.getHousehold_people());
+        }
+        if (!StringUtils.isEmpty(dto.getHousehold_job())){
+            ocrHouseholdRegister.setHouseholdJob(dto.getHousehold_job());
+        }
+        if (!StringUtils.isEmpty(dto.getHousehold_merriage())){
+            ocrHouseholdRegister.setHouseholdMerriage(dto.getHousehold_merriage());
+        }
+
+        if (!StringUtils.isEmpty(dto.getHousehold_education())){
+            ocrHouseholdRegister.setHouseholdEducation(dto.getHousehold_education());
+        }
+       if (!StringUtils.isEmpty(dto.getCustomer_id())){
+           ocrHouseholdRegister.setCustomerId(Integer.parseInt(dto.getCustomer_id().toString()));
+       }
+       if (!StringUtils.isEmpty(dto.getCustomer_name())){
+           ocrHouseholdRegister.setCustomerName(dto.getCustomer_name());
+       }
+        if (!StringUtils.isEmpty(dto.getCustomer_telephone())){
+            ocrHouseholdRegister.setCustomerTelephone(dto.getCustomer_telephone());
+        }
+        if (!StringUtils.isEmpty(dto.getCrm_attach_id())){
+            ocrHouseholdRegister.setDocumentId(dto.getCrm_attach_id().toString());
+        }
+        if (!StringUtils.isEmpty(dto.getCreate_user_id())){
+            ocrHouseholdRegister.setCreateUser(Integer.parseInt(dto.getCreate_user_id().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getUpdate_user_id())){
+            ocrHouseholdRegister.setLastUpdateUser(Integer.parseInt(dto.getUpdate_user_id().toString()));
+        }
+    }
+      public static void copyDriverLienceToDto(DriverLicenseDTO dto ,OcrDriverLicense ocrDriverLicense){
+
+        if (!StringUtils.isEmpty(dto.getDriver_name())){
+            ocrDriverLicense.setDriverName(dto.getDriver_name());
+        }
+
+          if (!StringUtils.isEmpty(dto.getDriver_num())){
+              ocrDriverLicense.setDriverNum(dto.getDriver_num());
+          }
+
+          if (!StringUtils.isEmpty(dto.getDriver_vehicle_type())){
+              ocrDriverLicense.setDriverVehicleType(dto.getDriver_vehicle_type());
+          }
+
+          if (!StringUtils.isEmpty(dto.getDriver_start_date())){
+              ocrDriverLicense.setDriverStartDate(dto.getDriver_start_date());
+          }
+
+          if (!StringUtils.isEmpty(dto.getDriver_end_date())){
+              ocrDriverLicense.setDriverEndDate(dto.getDriver_end_date());
+          }
+
+          if (!StringUtils.isEmpty(dto.getCustomer_id())){
+              ocrDriverLicense.setCustomerId(Integer.parseInt(dto.getCustomer_id().toString()));
+          }
+          if (!StringUtils.isEmpty(dto.getCustomer_name())){
+              ocrDriverLicense.setCustomerName(dto.getCustomer_name());
+          }
+          if (!StringUtils.isEmpty(dto.getCustomer_telephone())){
+              ocrDriverLicense.setCustomerTelephone(dto.getCustomer_telephone());
+          }
+          if (!StringUtils.isEmpty(dto.getCrm_attach_id())){
+              ocrDriverLicense.setDocumentId(Integer.parseInt(dto.getCrm_attach_id().toString()));
+          }
+          if (!StringUtils.isEmpty(dto.getCreate_user_id())){
+              ocrDriverLicense.setCreateUserId(Integer.parseInt(dto.getCreate_user_id().toString()));
+          }
+          if (!StringUtils.isEmpty(dto.getCreate_user_name())){
+              ocrDriverLicense.setCreateUserName(dto.getCreate_user_name());
+          }
+          if (!StringUtils.isEmpty(dto.getUpdate_user_name())){
+              ocrDriverLicense.setUpdateUserName(dto.getUpdate_user_name());
+          }
+          if (!StringUtils.isEmpty(dto.getUpdate_user_id())){
+              ocrDriverLicense.setUpdateUserId(Integer.parseInt(dto.getUpdate_user_id().toString()));
+          }
       }
+
+    public static void copyDriverVehToDto(DriverVehicleDTO dto,OcrDriverVehicle ocrDriverVehicle){
+
+          if (!StringUtils.isEmpty(dto.getDriver_owner())){
+              ocrDriverVehicle.setDriverOwner(dto.getDriver_owner());
+          }
+        if (!StringUtils.isEmpty(dto.getDriver_plate_num())){
+            ocrDriverVehicle.setDriverPlateNum(dto.getDriver_plate_num());
+        }
+
+        if (!StringUtils.isEmpty(dto.getDriver_vehicle_type())){
+            ocrDriverVehicle.setDriverVehicleType(dto.getDriver_vehicle_type());
+        }
+
+        if (!StringUtils.isEmpty(dto.getDriver_vin())){
+            ocrDriverVehicle.setDriverVin(dto.getDriver_vin());
+        }
+
+        if (!StringUtils.isEmpty(dto.getDriver_engine_num())){
+            ocrDriverVehicle.setDriverEngineNum(dto.getDriver_engine_num());
+        }
+
+        if (!StringUtils.isEmpty(dto.getDriver_register_date())){
+            ocrDriverVehicle.setDriverRegisterDate(dto.getDriver_register_date());
+        }
+        if (!StringUtils.isEmpty(dto.getCustomer_id())){
+            ocrDriverVehicle.setCustomerId(Integer.parseInt(dto.getCustomer_id().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getCustomer_name())){
+            ocrDriverVehicle.setCustomerName(dto.getCustomer_name());
+        }
+        if (!StringUtils.isEmpty(dto.getCustomer_telephone())){
+            ocrDriverVehicle.setCustomerTelephone(dto.getCustomer_telephone());
+        }
+        if (!StringUtils.isEmpty(dto.getCrm_attach_id())){
+            ocrDriverVehicle.setDocumentId(Integer.parseInt(dto.getCrm_attach_id().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getCreate_user_id())){
+            ocrDriverVehicle.setCreateUser(Integer.parseInt(dto.getCreate_user_id().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getUpdate_user_id())){
+            ocrDriverVehicle.setLastUpdateUser(Integer.parseInt(dto.getUpdate_user_id().toString()));
+        }
+
+    }
+    public static void copyHouseRegToDto(HouseRegisterDTO dto, OcrHouseRegistration ocrHouseRegistration) {
+
+        if (StringUtils.isEmpty(dto.getHouse_ownner())){
+            ocrHouseRegistration.setHouseOwnner(dto.getHouse_ownner());
+        }
+        if (StringUtils.isEmpty(dto.getHouse_address())){
+            ocrHouseRegistration.setHouseAddress(dto.getHouse_address());
+        }
+        if (StringUtils.isEmpty(dto.getHouse_purpose())){
+            ocrHouseRegistration.setHousePurpose(dto.getHouse_purpose());
+        }
+        if (StringUtils.isEmpty(dto.getHouse_usage_term())){
+            ocrHouseRegistration.setHouseUsageTerm(dto.getHouse_usage_term());
+        }
+        if (StringUtils.isEmpty(dto.getHouse_area())){
+            ocrHouseRegistration.setHouseArea(dto.getHouse_area());
+        }
+        if (StringUtils.isEmpty(dto.getHouse_type())){
+            ocrHouseRegistration.setHouseType(dto.getHouse_type());
+        }
+        if (StringUtils.isEmpty(dto.getHouse_completion_date())){
+            ocrHouseRegistration.setHouseCompletionDate(dto.getHouse_completion_date());
+        }
+        if (!StringUtils.isEmpty(dto.getCustomer_id())){
+            ocrHouseRegistration.setCustomerId(Integer.parseInt(dto.getCustomer_id().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getCustomer_name())){
+            ocrHouseRegistration.setCustomerName(dto.getCustomer_name());
+        }
+        if (!StringUtils.isEmpty(dto.getCustomer_telephone())){
+            ocrHouseRegistration.setCustomerTelephone(dto.getCustomer_telephone());
+        }
+        if (!StringUtils.isEmpty(dto.getCrm_attach_id())){
+            ocrHouseRegistration.setDocumentId(Integer.parseInt(dto.getCrm_attach_id().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getCreate_user_id())){
+            ocrHouseRegistration.setCreateUser(Integer.parseInt(dto.getCreate_user_id().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getUpdate_user_id())){
+            ocrHouseRegistration.setLastUpdateUser(Integer.parseInt(dto.getUpdate_user_id().toString()));
+        }
+    }
 
 }

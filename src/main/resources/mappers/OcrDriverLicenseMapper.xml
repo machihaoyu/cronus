@@ -25,4 +25,171 @@
     driver_start_date, driver_end_date, document_id, create_user_id, create_user_name, 
     create_time, status, update_user_id, update_user_name, update_time
   </sql>
+  <select id="findByFeild" parameterType="java.util.Map" resultMap="BaseResultMap">
+  select
+  <include refid="Base_Column_List" />
+  from ocr_driver_license
+  WHERE is_deleted = 0
+  <if test="id != null">
+    and id = #{id}
+  </if>
+  </select>
+  <update id="updateDriverLience" parameterType="com.fjs.cronus.model.OcrDriverLicense" >
+    update ocr_driver_license
+    <set >
+      <if test="customerId != null" >
+        customer_id = #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="customerName != null" >
+        customer_name = #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerTelephone != null" >
+        customer_telephone = #{customerTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="driverName != null" >
+        driver_name = #{driverName,jdbcType=VARCHAR},
+      </if>
+      <if test="driverNum != null" >
+        driver_num = #{driverNum,jdbcType=VARCHAR},
+      </if>
+      <if test="driverVehicleType != null" >
+        driver_vehicle_type = #{driverVehicleType,jdbcType=VARCHAR},
+      </if>
+      <if test="driverStartDate != null" >
+        driver_start_date = #{driverStartDate,jdbcType=VARCHAR},
+      </if>
+      <if test="driverEndDate != null" >
+        driver_end_date = #{driverEndDate,jdbcType=VARCHAR},
+      </if>
+      <if test="documentId != null" >
+        document_id = #{documentId,jdbcType=INTEGER},
+      </if>
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="createUserName != null" >
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserId != null" >
+        update_user_id = #{updateUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateUserName != null" >
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <insert id="addDriverLience" parameterType="com.fjs.cronus.model.OcrDriverLicense" >
+    insert into ocr_driver_license
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="customerId != null" >
+        customer_id,
+      </if>
+      <if test="customerName != null" >
+        customer_name,
+      </if>
+      <if test="customerTelephone != null" >
+        customer_telephone,
+      </if>
+      <if test="driverName != null" >
+        driver_name,
+      </if>
+      <if test="driverNum != null" >
+        driver_num,
+      </if>
+      <if test="driverVehicleType != null" >
+        driver_vehicle_type,
+      </if>
+      <if test="driverStartDate != null" >
+        driver_start_date,
+      </if>
+      <if test="driverEndDate != null" >
+        driver_end_date,
+      </if>
+      <if test="documentId != null" >
+        document_id,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="createUserName != null" >
+        create_user_name,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="updateUserId != null" >
+        update_user_id,
+      </if>
+      <if test="updateUserName != null" >
+        update_user_name,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="customerId != null" >
+        #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="customerName != null" >
+        #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerTelephone != null" >
+        #{customerTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="driverName != null" >
+        #{driverName,jdbcType=VARCHAR},
+      </if>
+      <if test="driverNum != null" >
+        #{driverNum,jdbcType=VARCHAR},
+      </if>
+      <if test="driverVehicleType != null" >
+        #{driverVehicleType,jdbcType=VARCHAR},
+      </if>
+      <if test="driverStartDate != null" >
+        #{driverStartDate,jdbcType=VARCHAR},
+      </if>
+      <if test="driverEndDate != null" >
+        #{driverEndDate,jdbcType=VARCHAR},
+      </if>
+      <if test="documentId != null" >
+        #{documentId,jdbcType=INTEGER},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="createUserName != null" >
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserId != null" >
+        #{updateUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateUserName != null" >
+        #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
 </mapper>

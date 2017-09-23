@@ -54,7 +54,7 @@ public class DocumentController {
         return  cronusDto;
     }
 
-    @ApiOperation(value="上传图片", notes="上传图片")
+    @ApiOperation(value="提交上传附件", notes="提交上传附件")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "imageBase64", value = "文件流64编码", required = true, paramType = "query", dataType = "String"),

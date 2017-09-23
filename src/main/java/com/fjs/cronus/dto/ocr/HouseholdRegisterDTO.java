@@ -16,6 +16,34 @@ public class HouseholdRegisterDTO extends OcrCronusBaseDTO implements Serializab
     private String household_id_number;
     private String household_people;
 
+    private String household_job;
+    private String household_merriage;
+    private String household_education;
+
+    public String getHousehold_job() {
+        return household_job;
+    }
+
+    public void setHousehold_job(String household_job) {
+        this.household_job = household_job;
+    }
+
+    public String getHousehold_merriage() {
+        return household_merriage;
+    }
+
+    public void setHousehold_merriage(String household_merriage) {
+        this.household_merriage = household_merriage;
+    }
+
+    public String getHousehold_education() {
+        return household_education;
+    }
+
+    public void setHousehold_education(String household_education) {
+        this.household_education = household_education;
+    }
+
     public String getHousehold_name() {
         return household_name;
     }

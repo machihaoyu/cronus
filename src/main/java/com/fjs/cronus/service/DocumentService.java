@@ -5,13 +5,9 @@ import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.UploadDocumentDto;
 import com.fjs.cronus.dto.cronus.*;
-import com.fjs.cronus.dto.ocr.IdCardDTO;
-import com.fjs.cronus.dto.ocr.ReqParamDTO;
+import com.fjs.cronus.dto.ocr.*;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.mappers.CustomerInfoMapper;
-import com.fjs.cronus.mappers.DocumentCategoryMapper;
-import com.fjs.cronus.mappers.DocumentMapper;
-import com.fjs.cronus.mappers.RContractDocumentMapper;
+import com.fjs.cronus.mappers.*;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.Document;
 import com.fjs.cronus.model.DocumentCategory;
@@ -56,6 +52,14 @@ public class DocumentService {
     DocumentCategoryMapper documentCategoryMapper;
     @Autowired
     OcrIdentityService ocrIdentityService;
+    @Autowired
+    OcrHouseholdRegisterService ocrHouseholdRegisterService;
+    @Autowired
+    DriverLicenseService driverLicenseService;
+    @Autowired
+    OcrDriverVehicleService driverVehicleService;
+    @Autowired
+    HouseRegisterService houseRegisterService;
     static final ThreadFactory supplyThreadFactory = new BasicThreadFactory.Builder().namingPattern("tuwenshibie-%d").daemon(true)
             .priority(Thread.MAX_PRIORITY).build();
 
@@ -166,7 +170,10 @@ public class DocumentService {
                 resultList.add(documentDto);
                 //调用图文识别接口
                 Integer rc_document_id =documentDto.getContract_document_id();
-                //addOcrInfo();
+                //异步无回调
+                addOcrInfo(category,uploadDocumentDto.getCustomerId(),uploadDocumentDto.getImageBase64(), rc_document_id,user_id,token);
+                resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+                resultDto.setResult(ResultResource.CODE_SUCCESS);
             }else {
                 resultDto.setMessage(ResultResource.UPLOAD_ERROR_MESSAGE);
                 resultDto.setResult(ResultResource.UPLOAD_ERROR);
@@ -332,6 +339,20 @@ public class DocumentService {
             es.execute(new Runnable() {
                 @Override
                 public void run() {
+                    final Thread currentThread = Thread.currentThread();
+                    final String oldName = currentThread.getName();
+                    currentThread.setName(String.format(currentThread.getName() + "图文识别线程"));
+                    long step2Time = System.currentTimeMillis();
+                    try {
+                        logger.warn("开始通信");
+                        addOcrDealParam(category,customer_id, imageBase64, rc_document_id, user_id, token);
+                    } catch (Exception e) {
+                        logger.error("charge error ", e);
+                    } finally {
+                        logger.warn("通信完成,总耗时: " + (System.currentTimeMillis() - step1Time) + "ms 上游通信耗时:"
+                                + (System.currentTimeMillis() - step2Time) + "ms");
+                        currentThread.setName(oldName);
+                    }
 
                 }
             });
@@ -400,6 +421,23 @@ public class DocumentService {
        jsonObject.put("update_user_name",userInfo.getName());
        jsonObject.put("category",category);
        // TODO 生成对应的ocr信息
+       Integer id = addOrSaveInfo(jsonObject);
+       if (id == null){
+           throw new CronusException(CronusException.Type.CRM_OCRINFO_ERROR);
+       }
+       //
+       reqParamDTO.setAttachmentId(Long.parseLong(document_id.toString()));
+       reqParamDTO.setCustomerId(Long.parseLong(customerInfo.getId().toString()));
+       reqParamDTO.setCustomerName(customerInfo.getCustomerName());
+       reqParamDTO.setCustomerTelephone(customerInfo.getTelephonenumber());
+       reqParamDTO.setImgBase64(imageBase64);
+       reqParamDTO.setSide(jsonObject.getString("side"));
+       if (jsonObject.getInteger("type") != null) {
+           reqParamDTO.setType(jsonObject.getInteger("type").toString());
+       }
+       reqParamDTO.setUserId(Long.parseLong(userInfo.getUser_id()));
+       reqParamDTO.setUserName(userInfo.getName());
+       reqParamDTO.setId(Long.parseLong(id.toString()));
        return  reqParamDTO;
    }
 
@@ -418,7 +456,24 @@ public class DocumentService {
              id = ocrIdentityService.addOrUpdateOcrInden(idCardDTO);
              break;
         case 2:
+            HouseholdRegisterDTO  householdRegisterDTO = FastJsonUtils.getSingleBean(jsonObject.toString(), HouseholdRegisterDTO.class);
+            id =  ocrHouseholdRegisterService.addOrUpdateHouse(householdRegisterDTO);
+            break;
+        case 3:
+            DriverLicenseDTO driverLicenseDTO = FastJsonUtils.getSingleBean(jsonObject.toString(), DriverLicenseDTO.class);
+            id = driverLicenseService.addOrUpdateDriverLicense(driverLicenseDTO);
+            break;
+        case 4:
+            DriverVehicleDTO driverVehicleDTO = FastJsonUtils.getSingleBean(jsonObject.toString(), DriverVehicleDTO.class);
+            id = driverVehicleService.addOrUpdateDriverVeh(driverVehicleDTO);
+            break;
+        case 5:
+            HouseRegisterDTO houseRegisterDTO = FastJsonUtils.getSingleBean(jsonObject.toString(), HouseRegisterDTO.class);
+            id = houseRegisterService.addOrUpdateHousRegister(houseRegisterDTO);
+            break;
+        default:
+            break;
     }
-    return null;
+    return id;
    }
 }

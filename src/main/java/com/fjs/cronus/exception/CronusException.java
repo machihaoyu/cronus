@@ -30,7 +30,11 @@ public class CronusException extends BaseException {
         CRM_FILETYPR_UPLOAD("6011","不支持此文件类型上传"),
         CRM_CONTROCTDOCU_ERROR("6012","新增附件客户关系失败"),
         CRM_OCRIDENTITY_ERROR("6013","插入身份证信息操作失败"),
-        CRM_OCRDOCUMENTCAGORY_ERROR("6014","获取附件类型出错")
+        CRM_OCRDOCUMENTCAGORY_ERROR("6014","获取附件类型出错"),
+        CRM_OCRDRIVERLICENCE_ERROR("6015","插驾驶证操作失败"),
+        CRM_OCRDRIVERLICENCEVEH_ERROR("6016","插行驶证操作失败"),
+        CRM_OCRHOUSEREGISTION_ERROR("6017","增加房产证信息失败"),
+        CRM_OCRINFO_ERROR("6018","图文识别非法参数");
         ;
 
         private String status;
