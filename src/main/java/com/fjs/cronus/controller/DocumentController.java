@@ -64,21 +64,7 @@ public class DocumentController {
     public CronusDto uploadDocumentOk(@RequestHeader("Authorization") String token, @RequestBody List<UploadDocumentDto> uploadDocumentDto ){
 
         CronusDto resultDto = new CronusDto();
-      /*  //判断图片格式
-        // 校验图片格式
-        boolean isLegal = false;
-        for (String type : PandoraConstant.IMAGE_TYPE) {
-            if (StringUtils.endsWithIgnoreCase(uploadFile.getOriginalFilename(), type)) {
-                isLegal = true;
-                break;
-            }
-        }
-        String fileName = uploadFile.getOriginalFilename();*/
         try {
-//            Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-//            OssUtil ossUtil = new OssUtil();
-//            String picUrl = ossUtil.uploadImag(fileName,uploadFile.getInputStream(),Info_Type,userId,token);
-//            resultDto.setData(picUrl);
             resultDto = documentService.uploadDocumentOk(uploadDocumentDto,token);
             return  resultDto;
         }catch (Exception e){
@@ -109,7 +95,6 @@ public class DocumentController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
         return  cronusDto;
-
     }
 
 }

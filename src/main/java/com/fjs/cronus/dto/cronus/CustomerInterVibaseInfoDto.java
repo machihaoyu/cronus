@@ -1,5 +1,7 @@
 package com.fjs.cronus.dto.cronus;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -20,7 +22,7 @@ public class CustomerInterVibaseInfoDTO {
     private String sex;
 
     private Integer age;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date birthDate;
 
     private String telephonenumber;
@@ -70,17 +72,17 @@ public class CustomerInterVibaseInfoDTO {
     private String industry;
 
     private Integer incomeAmount;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date socialSecurityDate;
 
     private Integer socialSecurityPayment;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date housingFundDate;
 
     private Integer housingFundPayment;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date workDate;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date companyRegisterDate;
 
     private BigDecimal shareRate;
@@ -90,7 +92,7 @@ public class CustomerInterVibaseInfoDTO {
     private Integer privateFlowYearAmount;
 
     private String isLitigation;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date retireDate;
 
     private Integer retirementPayMinAmount;
@@ -98,8 +100,9 @@ public class CustomerInterVibaseInfoDTO {
     private String isRelativeKnown;
 
     private String remark;
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date createTime;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date lastUpdateTime;
 
     private Integer createUser;

@@ -142,7 +142,7 @@ public class CustomerInterviewController {
     @ApiOperation(value="提交编辑客户面谈信息", notes="提交编辑客户面谈信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "customerInterViewBaseCarHouseInsturDto", value = "", required = true, paramType = "body", dataType = "CustomerInterViewBaseCarHouseInsturDto")
+            @ApiImplicitParam(name = "customerInterViewBaseCarHouseInsturDTO", value = "", required = true, paramType = "body", dataType = "CustomerInterViewBaseCarHouseInsturDTO")
     })
     @RequestMapping(value = "/editCustomerViewOk", method = RequestMethod.POST)
     @ResponseBody

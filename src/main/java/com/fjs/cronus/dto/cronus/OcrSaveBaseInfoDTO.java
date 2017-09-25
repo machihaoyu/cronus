@@ -1,5 +1,6 @@
 package com.fjs.cronus.dto.cronus;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fjs.cronus.model.DocumentCategory;
 import com.fjs.cronus.model.RContractDocument;
 
@@ -24,8 +25,10 @@ public class OcrSaveBaseInfoDTO {
     private String create_user_name;
     private Integer crm_attach_id;//附件id
     private String status;
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date   create_time;
     private Integer update_user_id;
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date update_user_name;
     private Long id;
 

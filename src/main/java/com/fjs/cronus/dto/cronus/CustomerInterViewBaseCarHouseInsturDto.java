@@ -1,5 +1,7 @@
 package com.fjs.cronus.dto.cronus;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -22,7 +24,7 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
     private String sex;
 
     private Integer age;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date birthDate;
 
     private String telephonenumber;
@@ -72,17 +74,17 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
     private String industry;
 
     private Integer incomeAmount;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date socialSecurityDate;
 
     private Integer socialSecurityPayment;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date housingFundDate;
 
     private Integer housingFundPayment;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date workDate;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date companyRegisterDate;
 
     private BigDecimal shareRate;
@@ -92,7 +94,7 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
     private Integer privateFlowYearAmount;
 
     private String isLitigation;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date retireDate;
 
     private Integer retirementPayMinAmount;
@@ -111,7 +113,7 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
     private String carType;
 
     private String licencePlateLocation;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date buyDate;
 
     private Integer carMortgagePaidNum;
@@ -134,7 +136,7 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
     private String housePropertyType;
 
     private BigDecimal area;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date buildDate;
 
     private Integer housePropertyRightsNum;
@@ -169,7 +171,7 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
     private Integer yearPayAmount;
 
     private Integer monthPayAmount;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date effectDate;
 
     private String isSuspend;

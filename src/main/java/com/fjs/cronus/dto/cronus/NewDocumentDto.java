@@ -1,5 +1,7 @@
 package com.fjs.cronus.dto.cronus;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -29,7 +31,7 @@ public class NewDocumentDTO implements Serializable{
     private String m_name;
 
     private String up_name;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date up_date;
 
     private Integer status;

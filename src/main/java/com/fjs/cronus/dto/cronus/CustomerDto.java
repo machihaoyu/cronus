@@ -1,5 +1,6 @@
 package com.fjs.cronus.dto.cronus;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
@@ -54,14 +55,15 @@ public class CustomerDTO {
 
     private String callbackStatus;
 
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date callbackTime;
 
     private Integer subCompanyId;
 
     private String perDescription;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date createTime;
-
+    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
     private Date lastUpdateTime;
 
     private Integer createUser;
@@ -69,7 +71,6 @@ public class CustomerDTO {
     private Integer lastUpdateUser;
 
     private Integer isDeleted;
-
     public Date getCreateTime() {
         return createTime;
     }
