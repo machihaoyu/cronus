@@ -6,7 +6,7 @@
     <result column="customer_interview_base_info_id" property="customerInterviewBaseInfoId" jdbcType="INTEGER" />
     <result column="car_type" property="carType" jdbcType="VARCHAR" />
     <result column="licence_plate_location" property="licencePlateLocation" jdbcType="VARCHAR" />
-    <result column="buy_date" property="buyDate" jdbcType="TIMESTAMP" />
+    <result column="buy_date" property="buyDate" jdbcType="INTEGER" />
     <result column="car_mortgage_paid_num" property="carMortgagePaidNum" jdbcType="INTEGER" />
     <result column="car_mortgage_month_amount" property="carMortgageMonthAmount" jdbcType="INTEGER" />
     <result column="price_now" property="priceNow" jdbcType="DECIMAL" />
@@ -168,7 +168,7 @@
         #{licencePlateLocation,jdbcType=VARCHAR},
       </if>
       <if test="buyDate != null" >
-        #{buyDate,jdbcType=TIMESTAMP},
+        #{buyDate,jdbcType=INTEGER},
       </if>
       <if test="carMortgagePaidNum != null" >
         #{carMortgagePaidNum,jdbcType=INTEGER},
@@ -212,7 +212,7 @@
         licence_plate_location = #{licencePlateLocation,jdbcType=VARCHAR},
       </if>
       <if test="buyDate != null" >
-        buy_date = #{buyDate,jdbcType=TIMESTAMP},
+        buy_date = #{buyDate,jdbcType=INTEGER},
       </if>
       <if test="carMortgagePaidNum != null" >
         car_mortgage_paid_num = #{carMortgagePaidNum,jdbcType=INTEGER},

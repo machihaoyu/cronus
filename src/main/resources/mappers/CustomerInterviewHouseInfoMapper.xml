@@ -8,7 +8,7 @@
     <result column="house_status" property="houseStatus" jdbcType="VARCHAR" />
     <result column="house_property_type" property="housePropertyType" jdbcType="VARCHAR" />
     <result column="area" property="area" jdbcType="DECIMAL" />
-    <result column="build_date" property="buildDate" jdbcType="TIMESTAMP" />
+    <result column="build_date" property="buildDate" jdbcType="INTEGER" />
     <result column="house_property_rights_num" property="housePropertyRightsNum" jdbcType="INTEGER" />
     <result column="is_child_in_property_rigths" property="isChildInPropertyRigths" jdbcType="VARCHAR" />
     <result column="is_old_in_property_rigths" property="isOldInPropertyRigths" jdbcType="VARCHAR" />
@@ -130,7 +130,7 @@
         #{area,jdbcType=DECIMAL},
       </if>
       <if test="buildDate != null" >
-        #{buildDate,jdbcType=TIMESTAMP},
+        #{buildDate,jdbcType=INTEGER},
       </if>
       <if test="housePropertyRightsNum != null" >
         #{housePropertyRightsNum,jdbcType=INTEGER},
@@ -195,7 +195,7 @@
         area = #{area,jdbcType=DECIMAL},
       </if>
       <if test="buildDate != null" >
-        build_date = #{buildDate,jdbcType=TIMESTAMP},
+        build_date = #{buildDate,jdbcType=INTEGER},
       </if>
       <if test="housePropertyRightsNum != null" >
         house_property_rights_num = #{housePropertyRightsNum,jdbcType=INTEGER},

@@ -38,6 +38,65 @@
       and id = #{id}
     </if>
   </select>
+  <select id="getOcrInfoCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+    select
+    COUNT (*)
+    from ocr_household_register
+    WHERE is_deleted = 0
+    <if test="id != null">
+      and id = #{id}
+    </if>
+    <if test="create_user_id != null and create_user_id !=''" >
+      and create_user =#{create_user_id}
+    </if>
+    <if test="customer_telephone != null and customer_telephone !=''" >
+      and customer_telephone =#{customer_telephone}
+    </if>
+    <if test="customer_name != null and customer_name !=''" >
+      and customer_name  like CONCAT('%', #{customer_name},'%' )
+    </if>
+    <if test="status != null and status !=''" >
+      and status =#{status}
+    </if>
+    <choose>
+      <when test="order != null and order !=''">
+        order by ${order} desc
+      </when>
+      <otherwise>
+        order by create_time desc
+      </otherwise>
+    </choose>
+  </select>
+  <select id="getOcrInfoList" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from ocr_household_register
+    WHERE is_deleted = 0
+    <if test="id != null">
+      and id = #{id}
+    </if>
+    <if test="create_user_id != null and create_user_id !=''" >
+      and create_user =#{create_user_id}
+    </if>
+    <if test="customer_telephone != null and customer_telephone !=''" >
+      and customer_telephone =#{customer_telephone}
+    </if>
+    <if test="customer_name != null and customer_name !=''" >
+      and customer_name  like CONCAT('%', #{customer_name},'%' )
+    </if>
+    <if test="status != null and status !=''" >
+      and status =#{status}
+    </if>
+    <choose>
+      <when test="order != null and order !=''">
+        order by ${order} desc
+      </when>
+      <otherwise>
+        order by create_time desc
+      </otherwise>
+    </choose>
+    limit #{start},#{size}
+  </select>
   <insert id="addHouseHold" parameterType="com.fjs.cronus.model.OcrHouseholdRegister" >
     insert into ocr_household_register
     <trim prefix="(" suffix=")" suffixOverrides="," >

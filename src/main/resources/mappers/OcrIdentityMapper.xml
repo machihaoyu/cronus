@@ -31,6 +31,61 @@
     crm_attach_back_id, crm_attach_face_id, document_category_ids, status, create_time, 
     last_update_time, create_user, last_update_user, is_deleted
   </sql>
+  <select id="getOcrInfoListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+    select
+    count(*)
+    from ocr_identity  ocid
+    WHERE  ocid.is_deleted = 0
+    <if test="create_user_id != null and create_user_id !=''" >
+      and ocid.create_user =#{create_user_id}
+    </if>
+    <if test="customer_telephone != null and customer_telephone !=''" >
+      and ocid.customer_telephone =#{customer_telephone}
+    </if>
+    <if test="customer_name != null and customer_name !=''" >
+      and ocid.customer_name  like CONCAT('%', #{customer_name},'%' )
+    </if>
+    <if test="status != null and status !=''" >
+      and ocid.status =#{status}
+    </if>
+    <choose>
+      <when test="order != null and order !=''">
+        order by ${order} desc
+      </when>
+      <otherwise>
+        order by create_time desc
+      </otherwise>
+    </choose>
+  </select>
+
+  <select id="getOcrInfoList" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from ocr_identity  ocid
+    WHERE  ocid.is_deleted = 0
+    <if test="create_user_id != null and create_user_id !=''" >
+      and ocid.create_user =#{create_user_id}
+    </if>
+    <if test="customer_telephone != null and customer_telephone !=''" >
+      and ocid.customer_telephone =#{customer_telephone}
+    </if>
+    <if test="customer_name != null and customer_name !=''" >
+      and ocid.customer_name  like CONCAT('%', #{customer_name},'%' )
+    </if>
+    <if test="status != null and status !=''" >
+      and ocid.status =#{status}
+    </if>
+    <choose>
+      <when test="order != null and order !=''">
+        order by ${order} desc
+      </when>
+      <otherwise>
+        order by ocid.create_time desc
+      </otherwise>
+    </choose>
+    limit #{start},#{size}
+  </select>
+
   <select id="findByFeild" parameterType="java.util.Map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List"/>

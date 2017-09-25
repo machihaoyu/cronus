@@ -10,4 +10,24 @@
   <sql id="Base_Column_List" >
     id, name, value, parent
   </sql>
+  <select id="getAllPlate" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from license_plate
+    WHERE  1 = 1
+    <if test="parentValue != null and parentValue !=''" >
+      and parent =#{parentValue}
+    </if>
+
+  </select>
+  <select id="getAllparent" parameterType="java.util.Map" resultType="java.lang.String">
+    select
+    parent
+    from license_plate
+    WHERE  1 = 1
+    <if test="parentValue != null and parentValue !=''" >
+      and parent =#{parentValue}
+    </if>
+
+  </select>
 </mapper>

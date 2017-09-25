@@ -34,17 +34,17 @@
     <result column="overdue_amount" property="overdueAmount" jdbcType="INTEGER" />
     <result column="industry" property="industry" jdbcType="VARCHAR" />
     <result column="income_amount" property="incomeAmount" jdbcType="INTEGER" />
-    <result column="social_security_date" property="socialSecurityDate" jdbcType="TIMESTAMP" />
+    <result column="social_security_date" property="socialSecurityDate" jdbcType="INTEGER" />
     <result column="social_security_payment" property="socialSecurityPayment" jdbcType="INTEGER" />
-    <result column="housing_fund_date" property="housingFundDate" jdbcType="TIMESTAMP" />
+    <result column="housing_fund_date" property="housingFundDate" jdbcType="INTEGER" />
     <result column="housing_fund_payment" property="housingFundPayment" jdbcType="INTEGER" />
-    <result column="work_date" property="workDate" jdbcType="TIMESTAMP" />
-    <result column="company_register_date" property="companyRegisterDate" jdbcType="TIMESTAMP" />
+    <result column="work_date" property="workDate" jdbcType="INTEGER" />
+    <result column="company_register_date" property="companyRegisterDate" jdbcType="INTEGER" />
     <result column="share_rate" property="shareRate" jdbcType="DECIMAL" />
     <result column="public_flow_year_amount" property="publicFlowYearAmount" jdbcType="INTEGER" />
     <result column="private_flow_year_amount" property="privateFlowYearAmount" jdbcType="INTEGER" />
     <result column="is_litigation" property="isLitigation" jdbcType="VARCHAR" />
-    <result column="retire_date" property="retireDate" jdbcType="TIMESTAMP" />
+    <result column="retire_date" property="retireDate" jdbcType="INTEGER" />
     <result column="retirement_pay_min_amount" property="retirementPayMinAmount" jdbcType="INTEGER" />
     <result column="is_relative_known" property="isRelativeKnown" jdbcType="VARCHAR" />
     <result column="remark" property="remark" jdbcType="VARCHAR" />
@@ -66,6 +66,47 @@
     is_relative_known, remark, create_time, last_update_time, create_user, last_update_user, 
     is_deleted
   </sql>
+  <select id="customerInterviewListCount"  parameterType="java.util.Map" resultType="java.lang.Integer">
+    select
+    count(*)
+    from customer_interview_base_info  cib
+    WHERE  cib.is_deleted = 0
+    <if test="idList!=null and idList.size>0">
+      AND cib.owner_user_id in
+      <foreach collection="idList" item="idList"
+               index="index" open="(" close=")" separator=",">
+        ${idList}
+      </foreach>
+    </if>
+    <if test="name != null and name !=''" >
+      and cib.name  like CONCAT('%', #{name},'%' )
+    </if>
+    <if test="loanAmount != null and loanAmount !=''" >
+      and cib.loan_amount = #{loanAmount}
+    </if>
+    <if test="industry != null and industry !=''" >
+      and cib.industry  like CONCAT('%', #{industry},'%' )
+    </if>
+    <if test="feeChannelName != null and feeChannelName !=''" >
+      and cib.fee_channel_name  like CONCAT('%', #{feeChannelName},'%' )
+    </if>
+    <if test="productName != null and productName !=''" >
+      and cib.product_name  like CONCAT('%', #{fee_channel_name},'%' )
+    </if>
+    <if test="ownerUserName != null and ownerUserName !=''" >
+      and cib.owner_user_name  like CONCAT('%', #{ownerUserName},'%' )
+    </if>
+    <if test="paramsList!=null and paramsList.size>0">
+      AND cib.telephonenumber in
+      <foreach collection="paramsList" item="paramsList"
+               index="index" open="(" close=")" separator=",">
+        ${paramsList}
+      </foreach>
+    </if>
+    <if test="householdRegister != null and householdRegister !=''" >
+      and cib.household_register  like CONCAT('%', #{householdRegister},'%' )
+    </if>
+  </select>
   <select id="customerInterviewList"  parameterType="java.util.Map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -522,22 +563,22 @@
         #{incomeAmount,jdbcType=INTEGER},
       </if>
       <if test="socialSecurityDate != null" >
-        #{socialSecurityDate,jdbcType=TIMESTAMP},
+        #{socialSecurityDate,jdbcType=INTEGER},
       </if>
       <if test="socialSecurityPayment != null" >
         #{socialSecurityPayment,jdbcType=INTEGER},
       </if>
       <if test="housingFundDate != null" >
-        #{housingFundDate,jdbcType=TIMESTAMP},
+        #{housingFundDate,jdbcType=INTEGER},
       </if>
       <if test="housingFundPayment != null" >
         #{housingFundPayment,jdbcType=INTEGER},
       </if>
       <if test="workDate != null" >
-        #{workDate,jdbcType=TIMESTAMP},
+        #{workDate,jdbcType=INTEGER},
       </if>
       <if test="companyRegisterDate != null" >
-        #{companyRegisterDate,jdbcType=TIMESTAMP},
+        #{companyRegisterDate,jdbcType=INTEGER},
       </if>
       <if test="shareRate != null" >
         #{shareRate,jdbcType=DECIMAL},
@@ -552,7 +593,7 @@
         #{isLitigation,jdbcType=VARCHAR},
       </if>
       <if test="retireDate != null" >
-        #{retireDate,jdbcType=TIMESTAMP},
+        #{retireDate,jdbcType=INTEGER},
       </if>
       <if test="retirementPayMinAmount != null" >
         #{retirementPayMinAmount,jdbcType=INTEGER},
@@ -677,22 +718,22 @@
         income_amount = #{incomeAmount,jdbcType=INTEGER},
       </if>
       <if test="socialSecurityDate != null" >
-        social_security_date = #{socialSecurityDate,jdbcType=TIMESTAMP},
+        social_security_date = #{socialSecurityDate,jdbcType=INTEGER},
       </if>
       <if test="socialSecurityPayment != null" >
         social_security_payment = #{socialSecurityPayment,jdbcType=INTEGER},
       </if>
       <if test="housingFundDate != null" >
-        housing_fund_date = #{housingFundDate,jdbcType=TIMESTAMP},
+        housing_fund_date = #{housingFundDate,jdbcType=INTEGER},
       </if>
       <if test="housingFundPayment != null" >
         housing_fund_payment = #{housingFundPayment,jdbcType=INTEGER},
       </if>
       <if test="workDate != null" >
-        work_date = #{workDate,jdbcType=TIMESTAMP},
+        work_date = #{workDate,jdbcType=INTEGER},
       </if>
       <if test="companyRegisterDate != null" >
-        company_register_date = #{companyRegisterDate,jdbcType=TIMESTAMP},
+        company_register_date = #{companyRegisterDate,jdbcType=INTEGER},
       </if>
       <if test="shareRate != null" >
         share_rate = #{shareRate,jdbcType=DECIMAL},
@@ -707,7 +748,7 @@
         is_litigation = #{isLitigation,jdbcType=VARCHAR},
       </if>
       <if test="retireDate != null" >
-        retire_date = #{retireDate,jdbcType=TIMESTAMP},
+        retire_date = #{retireDate,jdbcType=INTEGER},
       </if>
       <if test="retirementPayMinAmount != null" >
         retirement_pay_min_amount = #{retirementPayMinAmount,jdbcType=INTEGER},
