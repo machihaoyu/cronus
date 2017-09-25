@@ -34,7 +34,8 @@ public class CronusException extends BaseException {
         CRM_OCRDRIVERLICENCE_ERROR("6015","插驾驶证操作失败"),
         CRM_OCRDRIVERLICENCEVEH_ERROR("6016","插行驶证操作失败"),
         CRM_OCRHOUSEREGISTION_ERROR("6017","增加房产证信息失败"),
-        CRM_OCRINFO_ERROR("6018","图文识别非法参数");
+        CRM_OCRINFO_ERROR("6018","图文识别非法参数"),
+        CEM_CUSTOMERBASEINFO_ERROR("6019","不存在该面谈信息"),
         ;
 
         private String status;

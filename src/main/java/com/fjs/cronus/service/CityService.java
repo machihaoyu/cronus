@@ -3,6 +3,7 @@ package com.fjs.cronus.service;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.cronus.PCChrdrenDTO;
 import com.fjs.cronus.dto.cronus.ThreePcLinkAgeDTO;
+import com.fjs.cronus.dto.cronus.ThreelinkageDTO;
 import com.fjs.cronus.mappers.UcAreaMapper;
 import com.fjs.cronus.mappers.UcCityMapper;
 import com.fjs.cronus.mappers.UcProvinceMapper;
@@ -38,41 +39,50 @@ public class CityService {
         List<UcProvince> provinceList = ucProvinceMapper.selectAll();
         //遍历省份得到所属城市
         //所有的省份集合
-        List provenceList = new ArrayList();
-        // List cityList = new ArrayList();
         for (UcProvince province : provinceList) {
+            ThreePcLinkAgeDTO dto = new ThreePcLinkAgeDTO();
+            //判断是否是直辖市
             if (province.getIsDirectly() != 1) {
-                List cityListDTO = new ArrayList<>();
+                    dto.setValue(province.getName());
+                    dto.setLabel(province.getName());
                 //根据城市找到当前的市区
+                List<PCChrdrenDTO> cityListDTO = new ArrayList<>();
                 List<UcCity> citylist = ucCityMapper.findByProviceId(province.getId());
 
                 for (UcCity city : citylist) {
                     //判断是否是直辖市
-                    PCChrdrenDTO dto = new PCChrdrenDTO();
-                    dto.setLabel(province.getName() + "/" + city.getName());
-                    dto.setValue(province.getName() + "/" + city.getName());
+                    PCChrdrenDTO dtocity = new PCChrdrenDTO();
+                    dtocity.setLabel(city.getName());
+                    dtocity.setValue(city.getName());
                     //获取所有的
-                    provenceList.add(dto);
+                     cityListDTO.add(dtocity);
                 }
-
-            } else {
+                dto.setChildren(cityListDTO);
+                resultList.add(dto);
+            }else {
                 List cityListDTO = new ArrayList<>();
+                    dto.setValue(province.getName());
+                    dto.setLabel(province.getName());
                 List<UcArea> listArea = ucAreaMapper.findByProvinceId(province.getId());
-                for (UcArea area : listArea) {
-                    PCChrdrenDTO dto = new PCChrdrenDTO();
-                    dto.setLabel(province.getName() + "/" + area.getAreaName());
-                    dto.setValue(province.getName() + "/" + area.getAreaName());
-                    provenceList.add(dto);
+                for (UcArea area : listArea ) {
+                    PCChrdrenDTO dtoArea = new PCChrdrenDTO();
+                    dtoArea.setLabel(area.getAreaName());
+                    dtoArea.setValue(area.getAreaName());
+                     cityListDTO.add(dtoArea);
                 }
+                  dto.setChildren(cityListDTO);
+
             }
+            resultList.add(dto);
         }
-        resultList.addAll(provenceList);
-        return resultList;
+
+        return  resultList;
     }
 
     public List<ThreePcLinkAgeDTO> getPCCityThreeLinkAge(){
+
         List<ThreePcLinkAgeDTO> resultList = new ArrayList<>();
-        //从缓存中取数据
+       //从缓存中取数据
         List pcCityThreeLinkAgeList = levallinkAgeRedisService.getLevallinkAgeInfo(ResultResource.LEAVELLINKAGE_KEY);
         if ( pcCityThreeLinkAgeList != null){
             return pcCityThreeLinkAgeList;

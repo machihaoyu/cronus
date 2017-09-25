@@ -2,6 +2,7 @@ package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.BaseUcDTO;
 import com.fjs.cronus.dto.cronus.CustomerInterVibaseInfoDTO;
 import com.fjs.cronus.dto.cronus.CustomerInterViewBaseCarHouseInsturDTO;
@@ -43,9 +44,9 @@ public class CustomerInterviewService {
     CustomerInterviewCarInfoMapper customerInterviewCarInfoMapper;
     @Autowired
     CustomerInterviewInsuranceInfoMapper customerInterviewInsuranceInfoMapper;
-    public CronusDto customerInterviewList(String token,String name,String loanAmount,String industry,String feeChannelName,String productName,String ownerUserName,
-                                           String telephonenumber,String householdRegister,Integer page,Integer size){
-        CronusDto resultDto = new CronusDto();
+    public QueryResult customerInterviewList(String token, String name, String loanAmount, String industry, String feeChannelName, String productName, String ownerUserName,
+                                             String telephonenumber, String householdRegister, Integer page, Integer size){
+        QueryResult resultDto = new QueryResult();
         Map<String,Object> paramsMap =  new HashMap<>();
         //TODO 通过token查询到用户的id 查询自己以及下属员工
         String  result = thorInterfaceService.getCurrentUserInfo(token,null);
@@ -91,15 +92,15 @@ public class CustomerInterviewService {
             paramsMap.put("start",(page-1) * size);
             paramsMap.put("size",size);
             List<CustomerInterviewBaseInfo> customerInterviewBaseInfos = customerInterviewBaseInfoMapper.customerInterviewList(paramsMap);
+            Integer count = customerInterviewBaseInfoMapper.customerInterviewListCount(paramsMap);
             List<CustomerInterVibaseInfoDTO> resultList = new ArrayList<>();
             if (customerInterviewBaseInfos !=null && customerInterviewBaseInfos.size() > 0){
                 for (CustomerInterviewBaseInfo customerInterviewBaseInfo : customerInterviewBaseInfos) {
                     CustomerInterVibaseInfoDTO customerInterviewBaseInfoDTO = new CustomerInterVibaseInfoDTO();
                     EntityToDto.CustomerInterviewEntityToCustomerInterviewDto(customerInterviewBaseInfo,customerInterviewBaseInfoDTO);
                 }
-                resultDto.setData(resultList);
-                resultDto.setResult(ResultResource.CODE_SUCCESS);
-                resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+                resultDto.setRows(resultList);
+                resultDto.setTotal(count.toString());
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -213,6 +214,9 @@ public class CustomerInterviewService {
         //TODO 手机号的加密解密
         CustomerInterviewBaseInfo customerInterviewBaseInfo = customerInterviewBaseInfoMapper.customerInterviewByFeild(paramsMap);
         //查找房产信息
+        if (customerInterviewBaseInfo == null){
+            throw new CronusException(CronusException.Type.CEM_CUSTOMERBASEINFO_ERROR);
+        }
         List<CustomerInterviewHouseInfo> customerInterviewHouseInfos = customerInterviewHouseInfoMapper.findByCustomerInterviewByFeild(paramsMap);
         //查找车辆信息
         List<CustomerInterviewCarInfo> customerInterviewCarInfos = customerInterviewCarInfoMapper.findByCustomerInterviewCarByFeild(paramsMap);

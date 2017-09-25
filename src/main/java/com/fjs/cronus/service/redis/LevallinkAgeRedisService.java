@@ -30,13 +30,4 @@ public class LevallinkAgeRedisService {
         return idList;
     }
 
-//    public void setRedisUserInfo(String key, UcUserDto ucUserDto){
-//        ValueOperations<String,Object> redis = valueOperations.opsForValue();
-//        redis.set(key,ucUserDto,30, TimeUnit.SECONDS);
-//    }
-//    public UcUserDto getRedisUserInfo(String key) {
-//        ValueOperations<String,Object> redis = valueOperations.opsForValue();
-//        UcUserDto ucUserDto = (UcUserDto)redis.get(key);
-//        return ucUserDto;
-//    }
 }

@@ -68,17 +68,17 @@ public class CustomerInterviewBaseInfo extends  BaseModel {
 
     private Integer incomeAmount;
 
-    private Date socialSecurityDate;
+    private Integer socialSecurityDate;
 
     private Integer socialSecurityPayment;
 
-    private Date housingFundDate;
+    private Integer housingFundDate;
 
     private Integer housingFundPayment;
 
-    private Date workDate;
+    private Integer workDate;
 
-    private Date companyRegisterDate;
+    private Integer companyRegisterDate;
 
     private BigDecimal shareRate;
 
@@ -88,7 +88,7 @@ public class CustomerInterviewBaseInfo extends  BaseModel {
 
     private String isLitigation;
 
-    private Date retireDate;
+    private Integer retireDate;
 
     private Integer retirementPayMinAmount;
 
@@ -352,11 +352,11 @@ public class CustomerInterviewBaseInfo extends  BaseModel {
         this.incomeAmount = incomeAmount;
     }
 
-    public Date getSocialSecurityDate() {
+    public Integer getSocialSecurityDate() {
         return socialSecurityDate;
     }
 
-    public void setSocialSecurityDate(Date socialSecurityDate) {
+    public void setSocialSecurityDate(Integer socialSecurityDate) {
         this.socialSecurityDate = socialSecurityDate;
     }
 
@@ -368,11 +368,11 @@ public class CustomerInterviewBaseInfo extends  BaseModel {
         this.socialSecurityPayment = socialSecurityPayment;
     }
 
-    public Date getHousingFundDate() {
+    public Integer getHousingFundDate() {
         return housingFundDate;
     }
 
-    public void setHousingFundDate(Date housingFundDate) {
+    public void setHousingFundDate(Integer housingFundDate) {
         this.housingFundDate = housingFundDate;
     }
 
@@ -384,19 +384,19 @@ public class CustomerInterviewBaseInfo extends  BaseModel {
         this.housingFundPayment = housingFundPayment;
     }
 
-    public Date getWorkDate() {
+    public Integer getWorkDate() {
         return workDate;
     }
 
-    public void setWorkDate(Date workDate) {
+    public void setWorkDate(Integer workDate) {
         this.workDate = workDate;
     }
 
-    public Date getCompanyRegisterDate() {
+    public Integer getCompanyRegisterDate() {
         return companyRegisterDate;
     }
 
-    public void setCompanyRegisterDate(Date companyRegisterDate) {
+    public void setCompanyRegisterDate(Integer companyRegisterDate) {
         this.companyRegisterDate = companyRegisterDate;
     }
 
@@ -432,11 +432,11 @@ public class CustomerInterviewBaseInfo extends  BaseModel {
         this.isLitigation = isLitigation;
     }
 
-    public Date getRetireDate() {
+    public Integer getRetireDate() {
         return retireDate;
     }
 
-    public void setRetireDate(Date retireDate) {
+    public void setRetireDate(Integer retireDate) {
         this.retireDate = retireDate;
     }
 

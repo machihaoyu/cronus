@@ -72,18 +72,18 @@ public class CustomerInterVibaseInfoDTO {
     private String industry;
 
     private Integer incomeAmount;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
-    private Date socialSecurityDate;
+
+    private Integer socialSecurityDate;
 
     private Integer socialSecurityPayment;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
-    private Date housingFundDate;
+
+    private Integer housingFundDate;
 
     private Integer housingFundPayment;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
-    private Date workDate;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
-    private Date companyRegisterDate;
+
+    private Integer workDate;
+
+    private Integer companyRegisterDate;
 
     private BigDecimal shareRate;
 
@@ -92,8 +92,8 @@ public class CustomerInterVibaseInfoDTO {
     private Integer privateFlowYearAmount;
 
     private String isLitigation;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
-    private Date retireDate;
+
+    private Integer retireDate;
 
     private Integer retirementPayMinAmount;
 
@@ -370,11 +370,11 @@ public class CustomerInterVibaseInfoDTO {
         this.incomeAmount = incomeAmount;
     }
 
-    public Date getSocialSecurityDate() {
+    public Integer getSocialSecurityDate() {
         return socialSecurityDate;
     }
 
-    public void setSocialSecurityDate(Date socialSecurityDate) {
+    public void setSocialSecurityDate(Integer socialSecurityDate) {
         this.socialSecurityDate = socialSecurityDate;
     }
 
@@ -386,11 +386,11 @@ public class CustomerInterVibaseInfoDTO {
         this.socialSecurityPayment = socialSecurityPayment;
     }
 
-    public Date getHousingFundDate() {
+    public Integer getHousingFundDate() {
         return housingFundDate;
     }
 
-    public void setHousingFundDate(Date housingFundDate) {
+    public void setHousingFundDate(Integer housingFundDate) {
         this.housingFundDate = housingFundDate;
     }
 
@@ -402,19 +402,19 @@ public class CustomerInterVibaseInfoDTO {
         this.housingFundPayment = housingFundPayment;
     }
 
-    public Date getWorkDate() {
+    public Integer getWorkDate() {
         return workDate;
     }
 
-    public void setWorkDate(Date workDate) {
+    public void setWorkDate(Integer workDate) {
         this.workDate = workDate;
     }
 
-    public Date getCompanyRegisterDate() {
+    public Integer getCompanyRegisterDate() {
         return companyRegisterDate;
     }
 
-    public void setCompanyRegisterDate(Date companyRegisterDate) {
+    public void setCompanyRegisterDate(Integer companyRegisterDate) {
         this.companyRegisterDate = companyRegisterDate;
     }
 
@@ -450,11 +450,11 @@ public class CustomerInterVibaseInfoDTO {
         this.isLitigation = isLitigation;
     }
 
-    public Date getRetireDate() {
+    public Integer getRetireDate() {
         return retireDate;
     }
 
-    public void setRetireDate(Date retireDate) {
+    public void setRetireDate(Integer retireDate) {
         this.retireDate = retireDate;
     }
 

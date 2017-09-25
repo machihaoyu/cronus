@@ -12,7 +12,7 @@ public class CustomerInterviewCarInfo extends  BaseModel {
 
     private String licencePlateLocation;
 
-    private Date buyDate;
+    private Integer buyDate;
 
     private Integer carMortgagePaidNum;
 
@@ -54,11 +54,11 @@ public class CustomerInterviewCarInfo extends  BaseModel {
         this.licencePlateLocation = licencePlateLocation;
     }
 
-    public Date getBuyDate() {
+    public Integer getBuyDate() {
         return buyDate;
     }
 
-    public void setBuyDate(Date buyDate) {
+    public void setBuyDate(Integer buyDate) {
         this.buyDate = buyDate;
     }
 

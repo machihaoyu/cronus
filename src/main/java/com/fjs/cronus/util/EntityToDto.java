@@ -1,9 +1,6 @@
 package com.fjs.cronus.util;
 
-import com.fjs.cronus.dto.cronus.CustomerDTO;
-import com.fjs.cronus.dto.cronus.CustomerInterVibaseInfoDTO;
-import com.fjs.cronus.dto.cronus.CustomerInterViewBaseCarHouseInsturDTO;
-import com.fjs.cronus.dto.cronus.OcrSaveBaseInfoDTO;
+import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.ocr.*;
 import com.fjs.cronus.model.*;
 import org.springframework.util.StringUtils;
@@ -975,5 +972,249 @@ public class EntityToDto {
             ocrHouseRegistration.setLastUpdateUser(Integer.parseInt(dto.getUpdate_user_id().toString()));
         }
     }
+     public static  void coptIdCardEntityToDto(OcrIdentity ocrIdentity,OcrIDdentityDTO dto){
 
+        if (!StringUtils.isEmpty(ocrIdentity.getId())){
+            dto.setId(ocrIdentity.getId());
+        }
+         if (!StringUtils.isEmpty(ocrIdentity.getCardName())){
+             dto.setCard_name(ocrIdentity.getCardName());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCardSex())){
+             dto.setCard_sex(ocrIdentity.getCardSex());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCardNation())){
+             dto.setCard_nation(ocrIdentity.getCardNation());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCardBirth())){
+             dto.setCard_birth(ocrIdentity.getCardBirth());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCardAddress())){
+             dto.setCard_address(ocrIdentity.getCardAddress());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCardNum())){
+             dto.setCard_num(ocrIdentity.getCardNum());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCardSignOrg())){
+             dto.setCard_sign_org(ocrIdentity.getCardSignOrg());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCardValidStart())){
+             dto.setCard_valid_start(ocrIdentity.getCardValidStart());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCardValidEnd())){
+             dto.setCard_valid_end(ocrIdentity.getCardValidEnd());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCardNum())){
+             dto.setCard_num(ocrIdentity.getCardNum());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCustomerId())){
+             dto.setCustomer_id(ocrIdentity.getCustomerId());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCustomerName())){
+             dto.setCustomer_name(ocrIdentity.getCustomerName());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCustomerTelephone())){
+             //解密并隐藏
+             String phoneNumber = ocrIdentity.getCustomerTelephone().substring(0, 3) + "****" + ocrIdentity.getCustomerTelephone().substring(7, ocrIdentity.getCustomerTelephone().length());
+             dto.setCustomer_telephone(phoneNumber);
+         }
+
+         if (!StringUtils.isEmpty(ocrIdentity.getCustomerId())){
+             dto.setCustomer_id(ocrIdentity.getCustomerId());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCustomerName())){
+             dto.setCustomer_name(ocrIdentity.getCustomerName());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCreateTime())){
+             dto.setCreate_time(ocrIdentity.getCreateTime());
+         }
+         if (!StringUtils.isEmpty(ocrIdentity.getCreateUser())){
+             dto.setCreate_user_id(ocrIdentity.getCreateUser());
+         }
+     }
+
+    public static void  EntityHOuseRegToDTo(OcrHouseholdRegister dto,HouseholdRegisterDTO ocrHouseholdRegister){
+        ocrHouseholdRegister.setId(Long.parseLong(dto.getId().toString()));
+        if (!StringUtils.isEmpty(dto.getHouseholdBirthday())){
+            ocrHouseholdRegister.setHousehold_birthday(dto.getHouseholdBirthday());
+        }
+
+        if (!StringUtils.isEmpty(dto.getHouseholdName())){
+            ocrHouseholdRegister.setHousehold_name(dto.getHouseholdName());
+        }
+
+        if (!StringUtils.isEmpty(dto.getHouseholdSex())){
+            ocrHouseholdRegister.setHousehold_sex(dto.getHouseholdSex());
+        }
+        if (!StringUtils.isEmpty(dto.getHouseholdNativePlace())){
+            ocrHouseholdRegister.setHousehold_native_place(dto.getHouseholdNativePlace());
+        }
+        if (!StringUtils.isEmpty(dto.getHouseholdIdNumber())){
+            ocrHouseholdRegister.setHousehold_id_number(dto.getHouseholdIdNumber());
+        }
+
+        if (!StringUtils.isEmpty(dto.getHouseholdPeople())){
+            ocrHouseholdRegister.setHousehold_people(dto.getHouseholdPeople());
+        }
+        if (!StringUtils.isEmpty(dto.getHouseholdJob())){
+            ocrHouseholdRegister.setHousehold_job(dto.getHouseholdJob());
+        }
+        if (!StringUtils.isEmpty(dto.getHouseholdMerriage())){
+            ocrHouseholdRegister.setHousehold_merriage(dto.getHouseholdMerriage());
+        }
+
+        if (!StringUtils.isEmpty(dto.getHouseholdEducation())){
+            ocrHouseholdRegister.setHousehold_education(dto.getHouseholdEducation());
+        }
+        if (!StringUtils.isEmpty(dto.getCustomerId())){
+            ocrHouseholdRegister.setCustomer_id(Long.parseLong(dto.getCustomerId().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getCustomerName())){
+            ocrHouseholdRegister.setCustomer_name(dto.getCustomerName());
+        }
+        if (!StringUtils.isEmpty(dto.getCustomerTelephone())){
+            String phoneNumber = dto.getCustomerTelephone().substring(0, 3) + "****" + dto.getCustomerTelephone().substring(7, dto.getCustomerTelephone().length());
+            ocrHouseholdRegister.setCustomer_telephone(phoneNumber);
+        }
+        if (!StringUtils.isEmpty(dto.getDocumentId())){
+            ocrHouseholdRegister.setCrm_attach_id(Long.parseLong(dto.getDocumentId().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getCreateUser())){
+            ocrHouseholdRegister.setCreate_user_id(Long.parseLong(dto.getCreateUser().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getLastUpdateUser())){
+            ocrHouseholdRegister.setUpdate_user_id(Long.parseLong(dto.getLastUpdateUser().toString()));
+        }
+    }
+    public static void copyDtoToDriverLience(OcrDriverLicense dto ,DriverLicenseDTO ocrDriverLicense){
+            ocrDriverLicense.setId(Long.parseLong(dto.getId().toString()));
+        if (!StringUtils.isEmpty(dto.getDriverName())){
+            ocrDriverLicense.setDriver_name(dto.getDriverName());
+        }
+
+        if (!StringUtils.isEmpty(dto.getDriverNum())){
+            ocrDriverLicense.setDriver_num(dto.getDriverNum());
+        }
+
+        if (!StringUtils.isEmpty(dto.getDriverVehicleType())){
+            ocrDriverLicense.setDriver_vehicle_type(dto.getDriverVehicleType());
+        }
+
+        if (!StringUtils.isEmpty(dto.getDriverStartDate())){
+            ocrDriverLicense.setDriver_start_date(dto.getDriverStartDate());
+        }
+
+        if (!StringUtils.isEmpty(dto.getDriverEndDate())){
+            ocrDriverLicense.setDriver_end_date(dto.getDriverEndDate());
+        }
+
+        if (!StringUtils.isEmpty(dto.getCustomerId())){
+            ocrDriverLicense.setCustomer_id(Long.parseLong(dto.getCustomerId().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getCustomerName())){
+            ocrDriverLicense.setCustomer_name(dto.getCustomerName());
+        }
+        if (!StringUtils.isEmpty(dto.getCustomerTelephone())){
+            //TODO 解密
+            String phoneNumber = dto.getCustomerTelephone().substring(0, 3) + "****" + dto.getCustomerTelephone().substring(7, dto.getCustomerTelephone().length());
+            ocrDriverLicense.setCustomer_telephone(phoneNumber);
+        }
+        if (!StringUtils.isEmpty(dto.getDocumentId())){
+            ocrDriverLicense.setCrm_attach_id(Long.parseLong(dto.getDocumentId().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getCreateUserId())){
+            ocrDriverLicense.setCreate_user_id(Long.parseLong(dto.getCreateUserId().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getUpdateUserId())){
+            ocrDriverLicense.setUpdate_user_id(Long.parseLong(dto.getUpdateUserId().toString()));
+        }
+    }
+    public static void copyDtoToEntity(OcrDriverVehicle dto,DriverVehicleDTO ocrDriverVehicle){
+        ocrDriverVehicle.setId(Long.parseLong(dto.getId().toString()));
+        if (!StringUtils.isEmpty(dto.getDriverOwner())){
+            ocrDriverVehicle.setDriver_owner(dto.getDriverOwner());
+        }
+        if (!StringUtils.isEmpty(dto.getDriverPlateNum())){
+            ocrDriverVehicle.setDriver_plate_num(dto.getDriverPlateNum());
+        }
+
+        if (!StringUtils.isEmpty(dto.getDriverVehicleType())){
+            ocrDriverVehicle.setDriver_vehicle_type(dto.getDriverVehicleType());
+        }
+
+        if (!StringUtils.isEmpty(dto.getDriverVin())){
+            ocrDriverVehicle.setDriver_vin(dto.getDriverVin());
+        }
+
+        if (!StringUtils.isEmpty(dto.getDriverEngineNum())){
+            ocrDriverVehicle.setDriver_engine_num(dto.getDriverEngineNum());
+        }
+
+        if (!StringUtils.isEmpty(dto.getDriverRegisterDate())){
+            ocrDriverVehicle.setDriver_register_date(dto.getDriverRegisterDate());
+        }
+        if (!StringUtils.isEmpty(dto.getCustomerId())){
+            ocrDriverVehicle.setCustomer_id(Long.parseLong(dto.getCustomerId().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getCustomerName())){
+            ocrDriverVehicle.setCustomer_name(dto.getCustomerName());
+        }
+        if (!StringUtils.isEmpty(dto.getCustomerTelephone())){
+            String phoneNumber = dto.getCustomerTelephone().substring(0, 3) + "****" + dto.getCustomerTelephone().substring(7, dto.getCustomerTelephone().length());
+            ocrDriverVehicle.setCustomer_telephone(phoneNumber);
+        }
+        if (!StringUtils.isEmpty(dto.getDocumentId())){
+            ocrDriverVehicle.setCrm_attach_id(Long.parseLong(dto.getDocumentId().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getCreateUser())){
+            ocrDriverVehicle.setCreate_user_id(Long.parseLong(dto.getCreateUser().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getLastUpdateUser())){
+            ocrDriverVehicle.setUpdate_user_id(Long.parseLong(dto.getLastUpdateUser().toString()));
+        }
+
+    }
+    public static void copyDtoToHouseReg(OcrHouseRegistration dto, HouseRegisterDTO ocrHouseRegistration) {
+        ocrHouseRegistration.setId(Long.parseLong(dto.getId().toString()));
+        if (StringUtils.isEmpty(dto.getHouseOwnner())){
+            ocrHouseRegistration.setHouse_ownner(dto.getHouseOwnner());
+        }
+        if (StringUtils.isEmpty(dto.getHouseAddress())){
+            ocrHouseRegistration.setHouse_address(dto.getHouseAddress());
+        }
+        if (StringUtils.isEmpty(dto.getHousePurpose())){
+            ocrHouseRegistration.setHouse_purpose(dto.getHousePurpose());
+        }
+        if (StringUtils.isEmpty(dto.getHouseUsageTerm())){
+            ocrHouseRegistration.setHouse_usage_term(dto.getHouseUsageTerm());
+        }
+        if (StringUtils.isEmpty(dto.getHouseArea())){
+            ocrHouseRegistration.setHouse_area(dto.getHouseArea());
+        }
+        if (StringUtils.isEmpty(dto.getHouseType())){
+            ocrHouseRegistration.setHouse_type(dto.getHouseType());
+        }
+        if (StringUtils.isEmpty(dto.getHouseCompletionDate())){
+            ocrHouseRegistration.setHouse_completion_date(dto.getHouseCompletionDate());
+        }
+        if (!StringUtils.isEmpty(dto.getCustomerId())){
+            ocrHouseRegistration.setCustomer_id(Long.parseLong(dto.getCustomerId().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getCustomerName())){
+            ocrHouseRegistration.setCustomer_name(dto.getCustomerName());
+        }
+        if (!StringUtils.isEmpty(dto.getCustomerTelephone())){
+            String phoneNumber = dto.getCustomerTelephone().substring(0, 3) + "****" + dto.getCustomerTelephone().substring(7, dto.getCustomerTelephone().length());
+            ocrHouseRegistration.setCustomer_telephone(phoneNumber);
+        }
+        if (!StringUtils.isEmpty(dto.getDocumentId())){
+            ocrHouseRegistration.setCrm_attach_id(Long.parseLong(dto.getDocumentId().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getCreateUser())){
+            ocrHouseRegistration.setCreate_user_id(Long.parseLong(dto.getCreateUser().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getLastUpdateUser())){
+            ocrHouseRegistration.setUpdate_user_id(Long.parseLong(dto.getLastUpdateUser().toString()));
+        }
+    }
 }

@@ -17,4 +17,5 @@ public interface CustomerInterviewBaseInfoMapper extends MyMapper<CustomerInterv
 
     void updateCustomerInteview(CustomerInterviewBaseInfo customerInterviewBaseInfo);
 
+    Integer customerInterviewListCount(Map<String, Object> paramsMap);
 }

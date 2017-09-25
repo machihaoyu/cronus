@@ -74,18 +74,16 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
     private String industry;
 
     private Integer incomeAmount;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
-    private Date socialSecurityDate;
+
+    private Integer socialSecurityDate;
 
     private Integer socialSecurityPayment;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
-    private Date housingFundDate;
+
+    private Integer housingFundDate;
 
     private Integer housingFundPayment;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
-    private Date workDate;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
-    private Date companyRegisterDate;
+    private Integer workDate;
+    private Integer companyRegisterDate;
 
     private BigDecimal shareRate;
 
@@ -94,8 +92,7 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
     private Integer privateFlowYearAmount;
 
     private String isLitigation;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
-    private Date retireDate;
+    private Integer retireDate;
 
     private Integer retirementPayMinAmount;
 
@@ -113,8 +110,8 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
     private String carType;
 
     private String licencePlateLocation;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
-    private Date buyDate;
+
+    private Integer buyDate;
 
     private Integer carMortgagePaidNum;
 
@@ -136,8 +133,8 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
     private String housePropertyType;
 
     private BigDecimal area;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
-    private Date buildDate;
+
+    private Integer buildDate;
 
     private Integer housePropertyRightsNum;
 
@@ -432,11 +429,11 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
         this.incomeAmount = incomeAmount;
     }
 
-    public Date getSocialSecurityDate() {
+    public Integer getSocialSecurityDate() {
         return socialSecurityDate;
     }
 
-    public void setSocialSecurityDate(Date socialSecurityDate) {
+    public void setSocialSecurityDate(Integer socialSecurityDate) {
         this.socialSecurityDate = socialSecurityDate;
     }
 
@@ -448,11 +445,11 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
         this.socialSecurityPayment = socialSecurityPayment;
     }
 
-    public Date getHousingFundDate() {
+    public Integer getHousingFundDate() {
         return housingFundDate;
     }
 
-    public void setHousingFundDate(Date housingFundDate) {
+    public void setHousingFundDate(Integer housingFundDate) {
         this.housingFundDate = housingFundDate;
     }
 
@@ -464,19 +461,19 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
         this.housingFundPayment = housingFundPayment;
     }
 
-    public Date getWorkDate() {
+    public Integer getWorkDate() {
         return workDate;
     }
 
-    public void setWorkDate(Date workDate) {
+    public void setWorkDate(Integer workDate) {
         this.workDate = workDate;
     }
 
-    public Date getCompanyRegisterDate() {
+    public Integer getCompanyRegisterDate() {
         return companyRegisterDate;
     }
 
-    public void setCompanyRegisterDate(Date companyRegisterDate) {
+    public void setCompanyRegisterDate(Integer companyRegisterDate) {
         this.companyRegisterDate = companyRegisterDate;
     }
 
@@ -512,11 +509,11 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
         this.isLitigation = isLitigation;
     }
 
-    public Date getRetireDate() {
+    public Integer getRetireDate() {
         return retireDate;
     }
 
-    public void setRetireDate(Date retireDate) {
+    public void setRetireDate(Integer retireDate) {
         this.retireDate = retireDate;
     }
 
@@ -576,11 +573,11 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
         this.licencePlateLocation = licencePlateLocation;
     }
 
-    public Date getBuyDate() {
+    public Integer getBuyDate() {
         return buyDate;
     }
 
-    public void setBuyDate(Date buyDate) {
+    public void setBuyDate(Integer buyDate) {
         this.buyDate = buyDate;
     }
 
@@ -656,11 +653,11 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
         this.area = area;
     }
 
-    public Date getBuildDate() {
+    public Integer getBuildDate() {
         return buildDate;
     }
 
-    public void setBuildDate(Date buildDate) {
+    public void setBuildDate(Integer buildDate) {
         this.buildDate = buildDate;
     }
 

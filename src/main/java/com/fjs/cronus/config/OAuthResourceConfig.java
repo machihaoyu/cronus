@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
+import org.springframework.web.cors.CorsUtils;
 
 /**
  * Created by bianxj on 2017/4/27.
@@ -33,7 +34,8 @@ public class OAuthResourceConfig extends ResourceServerConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/uc/api/**", "/saas/api/**", "/ocr/api/**","/php/api/**","/api/v1/**").authenticated();
+      //  http.authorizeRequests().antMatchers("/uc/api/**", "/saas/api/**", "/ocr/api/**","/php/api/**","/api/v1/**").authenticated();
+        http.authorizeRequests().requestMatchers(CorsUtils::isPreFlightRequest).permitAll().antMatchers("/uc/api/**", "/saas/api/**", "/ocr/api/**","/php/api/**","/api/v1/**").authenticated();
         //http.addFilterBefore( new PreAuthFilter(), BasicAuthenticationFilter )
        /* http
                 .authorizeRequests()

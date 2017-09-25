@@ -1,6 +1,8 @@
 package com.fjs.cronus.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.CustomerInterViewBaseCarHouseInsturDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.CustomerInterviewService;
@@ -40,18 +42,18 @@ public class CustomerInterviewController {
     })
     @RequestMapping(value = "/customerInterviewList", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto customerInterviewList(@RequestHeader("Authorization") String token,
-                                           @RequestParam(value = "name",required = false) String name,
-                                           @RequestParam(value = "loanAmount",required = false) String loanAmount,
-                                           @RequestParam(value = "industry",required = false) String industry,
-                                           @RequestParam(value = "feeChannelName",required = false) String feeChannelName,
-                                           @RequestParam(value = "productName",required = false) String productName,
-                                           @RequestParam(value = "ownerUserName",required = false) String ownerUserName,
-                                           @RequestParam(value = "telephonenumber",required = false) String telephonenumber,
-                                           @RequestParam(value = "householdRegister",required = false) String householdRegister,
-                                           @RequestParam(value = "page",required = true) Integer page,
-                                           @RequestParam(value = "size",required = true) Integer size){
-        CronusDto resultDto = new CronusDto();
+    public QueryResult customerInterviewList(@RequestHeader("Authorization") String token,
+                                             @RequestParam(value = "name",required = false) String name,
+                                             @RequestParam(value = "loanAmount",required = false) String loanAmount,
+                                             @RequestParam(value = "industry",required = false) String industry,
+                                             @RequestParam(value = "feeChannelName",required = false) String feeChannelName,
+                                             @RequestParam(value = "productName",required = false) String productName,
+                                             @RequestParam(value = "ownerUserName",required = false) String ownerUserName,
+                                             @RequestParam(value = "telephonenumber",required = false) String telephonenumber,
+                                             @RequestParam(value = "householdRegister",required = false) String householdRegister,
+                                             @RequestParam(value = "page",required = true) Integer page,
+                                             @RequestParam(value = "size",required = true) Integer size){
+        QueryResult resultDto = new QueryResult();
         try {
             resultDto= customerInterviewService.customerInterviewList(token,name,loanAmount,industry,feeChannelName,productName,ownerUserName,telephonenumber,householdRegister,page,size);
 
@@ -121,10 +123,10 @@ public class CustomerInterviewController {
     })
     @RequestMapping(value = "/editCustomerinteView", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto editCustomerinteView(@RequestParam Integer customerid) {
+    public CronusDto editCustomerinteView(@RequestBody JSONObject jsonObject) {
         CronusDto cronusDto = new CronusDto();
         try {
-            //   String customerids = jsonObject.getString("customerids");
+            Integer customerid = jsonObject.getInteger("customerid");
             if (customerid == null || "".equals(customerid)) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
             }
