@@ -23,6 +23,16 @@ public class HouseholdRegisterDTO extends OcrCronusBaseDTO implements Serializab
     private String household_merriage;
     private String household_education;
 
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     private List<OcrDocumentDto> ocrDocumentDto;
 
     public List<OcrDocumentDto> getOcrDocumentDto() {

@@ -187,6 +187,7 @@ public class HouseRegisterService {
         Date date = new Date();
         ocrHouseRegistration.setLastUpdateTime(date);
         ocrHouseRegistration.setLastUpdateUser(user_id);
+        ocrHouseRegistration.setStatus(ResultResource.OCRSTATUS);
         ocrHouseRegistrationMapper.updateHouseRegis(ocrHouseRegistration);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);

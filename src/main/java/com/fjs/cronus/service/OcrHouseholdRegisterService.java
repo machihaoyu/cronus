@@ -196,6 +196,7 @@ public class OcrHouseholdRegisterService {
          Date date = new Date();
          ocrHouseholdRegister.setLastUpdateTime(date);
          ocrHouseholdRegister.setLastUpdateUser(user_id);
+         ocrHouseholdRegister.setStatus(ResultResource.OCRSTATUS);
          ocrHouseholdRegisterMapper.updateHousReg(ocrHouseholdRegister);
          resultDto.setResult(ResultResource.CODE_SUCCESS);
          resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);

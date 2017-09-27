@@ -2,6 +2,7 @@ package com.fjs.cronus.service;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.Common.OcrInfoEnum;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.exception.CronusException;
@@ -31,21 +32,24 @@ public class OcrInfoService {
     public QueryResult getOcrInfoList(Integer create_user_id, String customer_telephone, String customer_name, String status,
                                       Integer ocr_type, Integer page, Integer size, String order){
         QueryResult resultDto = new QueryResult();
-        switch (ocr_type){
+        if (ocr_type == null){
+            ocr_type = 1;
+        }
+        switch (OcrInfoEnum.getByValue(ocr_type)){
             //身份证
-            case 1:
+            case ocr_identity:
                 resultDto = ocrIdentityService.getOcrInfoList(create_user_id,customer_telephone,customer_name,status,page,size,order);
                 break;
-            case 2:
+            case ocr_householdregister:
                 resultDto = ocrHouseholdRegisterService.getOcrInfoList(create_user_id,customer_telephone,customer_name,status,page,size,order);
                 break;
-            case 3:
+            case ocr_driverlicense:
                 resultDto = driverLicenseService.getOcrInfoList(create_user_id,customer_telephone,customer_name,status,page,size,order);
                 break;
-            case 4:
+            case ocr_drivervehicle:
                 resultDto = driverVehicleService.getOcrInfoList(create_user_id,customer_telephone,customer_name,status,page,size,order);
                 break;
-            case 5:
+            case ocr_houseRegister:
                 resultDto = houseRegisterService.getOcrInfoList(create_user_id,customer_telephone,customer_name,status,page,size,order);
                 break;
             default:
@@ -60,21 +64,24 @@ public class OcrInfoService {
            if (id == null){
                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
            }
-           switch (ocr_type){
+           if (ocr_type == null){
+               ocr_type = 1;
+           }
+           switch (OcrInfoEnum.getByValue(ocr_type)){
                //身份证
-               case 1:
+               case ocr_identity:
                    resultDto = ocrIdentityService.editOcrInfo(id);
                    break;
-               case 2:
+               case ocr_householdregister:
                    resultDto = ocrHouseholdRegisterService.editOcrInfo(id);
                    break;
-               case 3:
+               case ocr_driverlicense:
                    resultDto = driverLicenseService.editOcrInfo(id);
                    break;
-               case 4:
+               case ocr_drivervehicle:
                    resultDto = driverVehicleService.editOcrInfo(id);
                    break;
-                     case 5:
+               case ocr_houseRegister:
                    resultDto = houseRegisterService.editOcrInfo(id);
                    break;
                default:
@@ -86,21 +93,24 @@ public class OcrInfoService {
     public CronusDto editOcrInfoOK(JSONObject jsonObject,String token){
         CronusDto resultDto = new CronusDto();
         Integer ocr_type = jsonObject.getInteger("ocr_type");
-        switch (ocr_type){
+        if (ocr_type == null){
+            ocr_type = 1;
+        }
+        switch (OcrInfoEnum.getByValue(ocr_type)){
             //身份证
-            case 1:
+            case ocr_identity:
                 resultDto = ocrIdentityService.editOcrInfoOK(jsonObject,token);
                 break;
-            case 2:
+            case ocr_householdregister:
                 resultDto = ocrHouseholdRegisterService.editOcrInfoOK(jsonObject,token);
                 break;
-            case 3:
+            case ocr_driverlicense:
                 resultDto = driverLicenseService.editOcrInfoOK(jsonObject,token);
                 break;
-              case 4:
+              case ocr_drivervehicle:
                 resultDto = driverVehicleService.editOcrInfoOK(jsonObject,token);
                 break;
-            case 5:
+            case ocr_houseRegister:
                 resultDto = houseRegisterService.editOcrInfoOK(jsonObject,token);
                 break;
             default:

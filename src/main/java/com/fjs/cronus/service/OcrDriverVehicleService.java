@@ -183,6 +183,7 @@ public class OcrDriverVehicleService {
         Date date = new Date();
         ocrDriverVehicle.setLastUpdateTime(date);
         ocrDriverVehicle.setLastUpdateUser(user_id);
+        ocrDriverVehicle.setStatus(ResultResource.OCRSTATUS);
         ocrDriverVehicleMapper.updateDriverVeh(ocrDriverVehicle);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);

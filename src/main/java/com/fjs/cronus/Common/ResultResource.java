@@ -22,4 +22,8 @@ public class ResultResource {
     public static String UPLOAD_ERROR_MESSAGE ="上传图片失败";
 
     public static String THUMP_ERROR_MESSAGE = "图片不需要缩放";
+
+    public static String PHONEKEY = "37mri8MKfMoxjB0g";
+
+    public static String OCRSTATUS = "已校验";
 }

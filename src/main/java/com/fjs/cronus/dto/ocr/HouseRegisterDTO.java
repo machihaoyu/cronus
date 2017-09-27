@@ -19,6 +19,15 @@ public class HouseRegisterDTO extends OcrCronusBaseDTO implements Serializable {
     private String house_type;
     private String house_completion_date;
     private List<OcrDocumentDto> ocrDocumentDto;
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public List<OcrDocumentDto> getOcrDocumentDto() {
         return ocrDocumentDto;

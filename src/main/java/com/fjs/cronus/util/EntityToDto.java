@@ -1031,6 +1031,9 @@ public class EntityToDto {
          if (!StringUtils.isEmpty(ocrIdentity.getCreateUser())){
              dto.setCreate_user_id(ocrIdentity.getCreateUser());
          }
+         if (!StringUtils.isEmpty(ocrIdentity.getStatus())){
+             dto.setStatus(ocrIdentity.getStatus());
+         }
      }
 
     public static void  EntityHOuseRegToDTo(OcrHouseholdRegister dto,HouseholdRegisterDTO ocrHouseholdRegister){
@@ -1085,6 +1088,9 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(dto.getLastUpdateUser())){
             ocrHouseholdRegister.setUpdate_user_id(Long.parseLong(dto.getLastUpdateUser().toString()));
         }
+        if (!StringUtils.isEmpty(dto.getStatus())){
+            ocrHouseholdRegister.setStatus(dto.getStatus());
+        }
     }
     public static void copyDtoToDriverLience(OcrDriverLicense dto ,DriverLicenseDTO ocrDriverLicense){
             ocrDriverLicense.setId(Long.parseLong(dto.getId().toString()));
@@ -1127,6 +1133,9 @@ public class EntityToDto {
         }
         if (!StringUtils.isEmpty(dto.getUpdateUserId())){
             ocrDriverLicense.setUpdate_user_id(Long.parseLong(dto.getUpdateUserId().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getStatus())){
+            ocrDriverLicense.setStatus(dto.getStatus());
         }
     }
     public static void copyDtoToEntity(OcrDriverVehicle dto,DriverVehicleDTO ocrDriverVehicle){
@@ -1172,7 +1181,9 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(dto.getLastUpdateUser())){
             ocrDriverVehicle.setUpdate_user_id(Long.parseLong(dto.getLastUpdateUser().toString()));
         }
-
+        if (!StringUtils.isEmpty(dto.getStatus())){
+            ocrDriverVehicle.setStatus(dto.getStatus());
+        }
     }
     public static void copyDtoToHouseReg(OcrHouseRegistration dto, HouseRegisterDTO ocrHouseRegistration) {
         ocrHouseRegistration.setId(Long.parseLong(dto.getId().toString()));
@@ -1215,6 +1226,9 @@ public class EntityToDto {
         }
         if (!StringUtils.isEmpty(dto.getLastUpdateUser())){
             ocrHouseRegistration.setUpdate_user_id(Long.parseLong(dto.getLastUpdateUser().toString()));
+        }
+        if (!StringUtils.isEmpty(dto.getStatus())){
+            ocrHouseRegistration.setStatus(dto.getStatus());
         }
     }
 }

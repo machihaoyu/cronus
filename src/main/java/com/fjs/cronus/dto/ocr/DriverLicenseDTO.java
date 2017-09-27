@@ -17,6 +17,15 @@ public class DriverLicenseDTO extends OcrCronusBaseDTO implements Serializable{
     private String driver_vehicle_type;
     private String driver_start_date;
     private String driver_end_date;
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     private List<OcrDocumentDto> ocrDocumentDto;
 

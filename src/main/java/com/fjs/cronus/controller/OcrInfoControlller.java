@@ -62,7 +62,8 @@ public class OcrInfoControlller {
     @ApiOperation(value="编辑OCR信息", notes="编辑OCR信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "customerid", value = "1", required = true, paramType = "query", dataType = "int")
+            @ApiImplicitParam(name = "id", value = "1", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "ocr_type", value = "1 身份证,2 户口薄,3 驾驶证,4 行驶证,5 房产证", required = true, paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/editOcrInfo", method = RequestMethod.GET)
     @ResponseBody

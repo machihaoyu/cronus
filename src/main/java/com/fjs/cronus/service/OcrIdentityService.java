@@ -315,6 +315,7 @@ public class OcrIdentityService {
         if (!StringUtils.isEmpty(card_valid_end)){
             ocrIdentity.setCardValidEnd(card_valid_end);
         }
+        ocrIdentity.setStatus(ResultResource.OCRSTATUS);
         ocrIdentity.setLastUpdateUser(user_id);
         ocrIdentity.setLastUpdateTime(date);
         ocrIdentityMapper.updateOcrIdentity(ocrIdentity);

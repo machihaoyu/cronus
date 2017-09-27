@@ -185,6 +185,7 @@ public class DriverLicenseService {
         ocrDriverLicense.setUpdateTime(date);
         ocrDriverLicense.setUpdateUserName(ucUserDTO.getName());
         ocrDriverLicense.setUpdateUserId(user_id);
+        ocrDriverLicense.setStatus(ResultResource.OCRSTATUS);
         ocrDriverLicenseMapper.updateDriverLience(ocrDriverLicense);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
