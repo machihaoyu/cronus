@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
  */
 public class ImageUtil {
     /** * 图片文件读取 * * @param srcImgPath * @return */
+    @SuppressWarnings("uncheck")
     private static BufferedImage InputImage(InputStream inputStream,int new_w, int new_h) {
         BufferedImage srcImage = null;
         try {
@@ -29,6 +30,7 @@ public class ImageUtil {
      * * 将图片按照指定的图片尺寸压缩 * * @param srcImgPath :源图片路径 * @param outImgPath *
      * :输出的压缩图片的路径 * @param new_w * :压缩后的图片宽 * @param new_h * :压缩后的图片高
      */
+    @SuppressWarnings("uncheck")
     public static String  compressImage(InputStream srcImgPath,
                                      int new_w, int new_h) throws Exception{
         BufferedImage src = InputImage(srcImgPath, new_w,  new_h);
@@ -75,6 +77,7 @@ public class ImageUtil {
     }*/
 
     /** * 处理图片 * * @param src * @param outImgPath * @param new_w * @param new_h */
+    @SuppressWarnings("uncheck")
     private synchronized static String disposeImage(BufferedImage src,
                                                     int new_w, int new_h) throws Exception
     {

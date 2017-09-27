@@ -21,7 +21,7 @@ public class MD5Util {
      * @return MD5摘要码
 
      */
-
+    @SuppressWarnings("uncheck")
     public static String getMD5( InputStream fis ) {
 
 
@@ -79,7 +79,7 @@ public class MD5Util {
      * @return 十六进制字符串表示形式
 
      */
-
+    @SuppressWarnings("uncheck")
     private static String byteToHexString(byte[] tmp) {
 
         String s;
@@ -112,7 +112,7 @@ public class MD5Util {
 
     }
 
-
+    @SuppressWarnings("uncheck")
     public static String getMd5Code(String base64Code) {
         try {
             String md5 = getMD5(FileBase64ConvertUitl.decoderBase64File(base64Code));
