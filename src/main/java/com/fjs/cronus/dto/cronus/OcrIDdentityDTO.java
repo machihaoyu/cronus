@@ -33,6 +33,15 @@ public class OcrIDdentityDTO implements Serializable {
     private String create_user_name;// varchar(50) DEFAULT 'OCR' COMMENT '创建人名称',
     private Integer update_user_id;// int(11) NOT NULL COMMENT '更新人ID',
     private String update_user_name;// varchar(50) DEFAULT NULL COMMENT '更新人名称',
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date   create_time;
