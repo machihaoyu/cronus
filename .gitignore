@@ -17,3 +17,5 @@ target/
 /.classpath
 .settings
 /log
+/src/main/java/com/fjs/cronus/config/CorsConfig.java
+/src/main/resources/bootstrap.yml
