@@ -15,12 +15,35 @@
     <result column="create_user" property="createUser" jdbcType="INTEGER" />
     <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
     <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <association property="document" column= "document_id" javaType="com.fjs.cronus.model.Document" select="com.fjs.cronus.mappers.DocumentMapper.selectByKey"/>
+    <association property="documentCategory" column= "document_c_id" javaType="com.fjs.cronus.model.DocumentCategory" select="com.fjs.cronus.mappers.DocumentCategoryMapper.selectByKey"/>
   </resultMap>
   <sql id="Base_Column_List" >
     id, contract_id, customer_id, document_id, creator_id, document_c_id, document_name, 
     rc_document_source, create_time, last_update_time, create_user, last_update_user, 
     is_deleted
   </sql>
+  <sql id="Base_Column" >
+    r.id, r.contract_id, r.customer_id, r.document_id, r.creator_id, r.document_c_id, r.document_name,
+    r.rc_document_source, r.create_time, r.last_update_time, r.create_user, r.last_update_user,
+    r.is_deleted
+  </sql>
+<select id="ocrDocument" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+  <include refid="Base_Column"/>
+    from r_contract_document r
+    left join document d on d.id = r.document_id
+    left join document_category c on r.document_c_id =c.id
+    where r.is_deleted = 0
+  <if test="crm_attach_ids!=null and crm_attach_ids.size>0">
+     and d.id in
+    <foreach collection="crm_attach_ids" item="crm_attach_ids"
+             index="index" open="(" close=")" separator=",">
+      ${crm_attach_ids}
+    </foreach>
+  </if>
+    order by r.last_update_time desc
+  </select>
 
   <select id="findByFeild" parameterType="java.util.Map" resultMap="BaseResultMap">
     select

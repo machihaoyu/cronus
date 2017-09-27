@@ -15,55 +15,22 @@
     <result column="create_user" property="createUser" jdbcType="INTEGER" />
     <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
     <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
-<!--
-    <association property="rContractDocument" javaType="com.fjs.cronus.model.RContractDocument">
-      <id column="id" property="id" jdbcType="INTEGER" />
-      <result column="contract_id" property="contractId" jdbcType="INTEGER" />
-      <result column="customer_id" property="customerId" jdbcType="INTEGER" />
-      <result column="document_id" property="documentId" jdbcType="INTEGER" />
-      <result column="creator_id" property="creatorId" jdbcType="INTEGER" />
-      <result column="document_c_id" property="documentCId" jdbcType="INTEGER" />
-      <result column="document_name" property="documentName" jdbcType="VARCHAR" />
-      <result column="rc_document_source" property="rcDocumentSource" jdbcType="CHAR" />
-      <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
-      <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
-      <result column="create_user" property="createUser" jdbcType="INTEGER" />
-      <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
-      <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
-    </association>
-
-    <association property="documentCategory" javaType="com.fjs.cronus.model.DocumentCategory">
-      <id column="id" property="id" jdbcType="INTEGER" />
-      <result column="document_c_parent_id" property="documentCParentId" jdbcType="INTEGER" />
-      <result column="document_c_level" property="documentCLevel" jdbcType="BIT" />
-      <result column="document_c_level_id" property="documentCLevelId" jdbcType="BIT" />
-      <result column="document_c_name_header" property="documentCNameHeader" jdbcType="VARCHAR" />
-      <result column="document_c_name" property="documentCName" jdbcType="VARCHAR" />
-      <result column="sort" property="sort" jdbcType="INTEGER" />
-      <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
-      <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
-      <result column="create_user" property="createUser" jdbcType="INTEGER" />
-      <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
-      <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
-    </association>-->
+    <!--<association property="documentCategory" javaType="com.fjs.cronus.model.DocumentCategory" select="com.fjs.cronus.mappers.DocumentCategoryMapper"></association>-->
   </resultMap>
   <sql id="Base_Column_List" >
     id, document_name, document_type, document_size, document_ext, document_md5, document_savename, 
     document_savepath, create_time, last_update_time, create_user, last_update_user, 
     is_deleted
   </sql>
-<!--  <select id="ocrDocument" parameterType="java.util.Map" resultMap="BaseResultMap">
+  <select id="selectByKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select
-       d.id,r.document_name,c.document_c_name,c.document_c_name_header,r.id from document d
-       left join r_contract_document r on d.id = r.document_id
-       left join document_category c on r.document_c_id =c.id
-       where r.is_deleted = 0 and d.id in
-       <foreach collection="crm_attach_ids" item="crm_attach_ids"
-             index="index" open="(" close=")" separator=",">
-             ${crm_attach_ids}
-      </foreach>
-       order by r.last_update_time desc
-  </select>-->
+    <include refid="Base_Column_List"/>
+    from document
+    where is_deleted = 0
+    <if test="_parameter != null">
+      and id = #{_parameter}
+    </if>
+  </select>
   <select id="findByFeild" parameterType="java.util.Map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List"/>

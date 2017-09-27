@@ -9,7 +9,7 @@
     <result column="pay_type" property="payType" jdbcType="VARCHAR" />
     <result column="year_pay_amount" property="yearPayAmount" jdbcType="INTEGER" />
     <result column="month_pay_amount" property="monthPayAmount" jdbcType="INTEGER" />
-    <result column="effect_date" property="effectDate" jdbcType="TIMESTAMP" />
+    <result column="effect_date" property="effectDate" jdbcType="INTEGER" />
     <result column="is_suspend" property="isSuspend" jdbcType="VARCHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
@@ -104,7 +104,7 @@
         #{monthPayAmount,jdbcType=INTEGER},
       </if>
       <if test="effectDate != null" >
-        #{effectDate,jdbcType=TIMESTAMP},
+        #{effectDate,jdbcType=INTEGER},
       </if>
       <if test="isSuspend != null" >
         #{isSuspend,jdbcType=VARCHAR},
@@ -148,7 +148,7 @@
         month_pay_amount = #{monthPayAmount,jdbcType=INTEGER},
       </if>
       <if test="effectDate != null" >
-        effect_date = #{effectDate,jdbcType=TIMESTAMP},
+        effect_date = #{effectDate,jdbcType=INTEGER},
       </if>
       <if test="isSuspend != null" >
         is_suspend = #{isSuspend,jdbcType=VARCHAR},

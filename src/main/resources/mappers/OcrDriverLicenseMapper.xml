@@ -29,7 +29,7 @@
   select
   <include refid="Base_Column_List" />
   from ocr_driver_license
-  WHERE is_deleted = 0
+  WHERE 0 = 0
   <if test="id != null">
     and id = #{id}
   </if>
@@ -38,7 +38,7 @@
     select
     <include refid="Base_Column_List" />
     from ocr_driver_license
-    WHERE is_deleted = 0
+    WHERE 0 = 0
     <if test="create_user_id != null and create_user_id !=''" >
       and create_user =#{create_user_id}
     </if>
@@ -65,7 +65,7 @@
     select
     COUNT (*)
     from ocr_driver_license
-    WHERE is_deleted = 0
+    WHERE 0 = 0
     <if test="create_user_id != null and create_user_id !=''" >
       and create_user =#{create_user_id}
     </if>
