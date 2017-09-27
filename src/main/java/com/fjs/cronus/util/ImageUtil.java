@@ -1,6 +1,7 @@
 package com.fjs.cronus.util;
 
 import sun.misc.BASE64Encoder;
+
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;

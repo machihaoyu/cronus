@@ -2,8 +2,6 @@ package com.fjs.cronus.mappers;
 
 import com.fjs.cronus.model.OcrHouseholdRegister;
 import com.fjs.cronus.util.MyMapper;
-import jdk.nashorn.internal.runtime.PrototypeObject;
-
 import java.util.List;
 import java.util.Map;
 
