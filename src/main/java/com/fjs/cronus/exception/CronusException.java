@@ -36,6 +36,7 @@ public class CronusException extends BaseException {
         CRM_OCRHOUSEREGISTION_ERROR("6017","增加房产证信息失败"),
         CRM_OCRINFO_ERROR("6018","图文识别非法参数"),
         CEM_CUSTOMERBASEINFO_ERROR("6019","不存在该面谈信息"),
+        CEM_CUSTOMERIDENTITYINFO_ERROR("6920","查询出错，未查到相关信息");
         ;
 
         private String status;

@@ -1,6 +1,9 @@
 package com.fjs.cronus.dto.ocr;
 
+import com.fjs.cronus.dto.cronus.OcrDocumentDto;
+
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by msi on 2017/9/23.
@@ -15,6 +18,15 @@ public class HouseRegisterDTO extends OcrCronusBaseDTO implements Serializable {
     private String house_area;
     private String house_type;
     private String house_completion_date;
+    private List<OcrDocumentDto> ocrDocumentDto;
+
+    public List<OcrDocumentDto> getOcrDocumentDto() {
+        return ocrDocumentDto;
+    }
+
+    public void setOcrDocumentDto(List<OcrDocumentDto> ocrDocumentDto) {
+        this.ocrDocumentDto = ocrDocumentDto;
+    }
 
     public String getHouse_ownner() {
         return house_ownner;

@@ -31,7 +31,7 @@ public class NewDocumentDTO implements Serializable{
     private String m_name;
 
     private String up_name;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date up_date;
 
     private Integer status;

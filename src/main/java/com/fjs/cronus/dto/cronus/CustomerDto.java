@@ -55,15 +55,15 @@ public class CustomerDTO {
 
     private String callbackStatus;
 
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date callbackTime;
 
     private Integer subCompanyId;
 
     private String perDescription;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date createTime;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date lastUpdateTime;
 
     private Integer createUser;

@@ -18,6 +18,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.InputStream;
@@ -31,12 +32,17 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 public class DocumentService {
 
     private  static  final Logger logger = LoggerFactory.getLogger(DocumentService.class);
-
+   // @Value("${ftp.address}")
     private String FTP_ADDRESS;
+    //@Value("${ftp.port}")
     private Integer FTP_PORT;
+    //@Value("${ftp.username}")
     private String FTP_USERNAME;
+    //@Value("${ftp.password}")
     private String FTP_PASSWORD;
+    //@Value("${ftp.baseUrl}")
     private String FTP_BASE_PATH;
+   // @Value("${ftp.basePath}")
     private String IMAGE_BASE_URL;
 
     @Autowired
@@ -252,7 +258,7 @@ public class DocumentService {
             newDocumentDTO.setS_document(document.getDocumentSavepath() + "_S" + document.getDocumentSavename());
         }
         //根据id查询catory信息
-        DocumentCategory documentCategory = documentCategoryMapper.selectByPrimaryKey(category);
+        DocumentCategory documentCategory = documentCategoryMapper.selectByKey(category);
         newDocumentDTO.setContract_document_id(rContractDocument.getId());
         newDocumentDTO.setCategory_id(category);
         newDocumentDTO.setCategory_name(documentCategory.getDocumentCNameHeader()+ " " +documentCategory.getDocumentCName());
@@ -381,7 +387,7 @@ public class DocumentService {
        paramsMap.put("paramsList",paramsList);
        CustomerInfo customerInfo = customerInfoMapper.fingByFeild(paramsMap);
        //通过$category获取这个图片的分类属性
-       DocumentCategory documentCategory = documentCategoryMapper.selectByPrimaryKey(category);
+       DocumentCategory documentCategory = documentCategoryMapper.selectByKey(category);
        //参数使用json
        JSONObject jsonObject = new JSONObject();
        //OcrSaveBaseInfoDTO ocrSaveBaseInfoDTO = new OcrSaveBaseInfoDTO();

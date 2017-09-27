@@ -17,7 +17,7 @@ public class CustomerInterviewInsuranceInfo extends  BaseModel {
 
     private Integer monthPayAmount;
 
-    private Date effectDate;
+    private Integer effectDate;
 
     private String isSuspend;
 
@@ -77,11 +77,11 @@ public class CustomerInterviewInsuranceInfo extends  BaseModel {
         this.monthPayAmount = monthPayAmount;
     }
 
-    public Date getEffectDate() {
+    public Integer getEffectDate() {
         return effectDate;
     }
 
-    public void setEffectDate(Date effectDate) {
+    public void setEffectDate(Integer effectDate) {
         this.effectDate = effectDate;
     }
 

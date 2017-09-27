@@ -1,6 +1,9 @@
 package com.fjs.cronus.dto.ocr;
 
+import com.fjs.cronus.dto.cronus.OcrDocumentDto;
+
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by chenjie on 2017/8/17.
@@ -19,6 +22,16 @@ public class HouseholdRegisterDTO extends OcrCronusBaseDTO implements Serializab
     private String household_job;
     private String household_merriage;
     private String household_education;
+
+    private List<OcrDocumentDto> ocrDocumentDto;
+
+    public List<OcrDocumentDto> getOcrDocumentDto() {
+        return ocrDocumentDto;
+    }
+
+    public void setOcrDocumentDto(List<OcrDocumentDto> ocrDocumentDto) {
+        this.ocrDocumentDto = ocrDocumentDto;
+    }
 
     public String getHousehold_job() {
         return household_job;

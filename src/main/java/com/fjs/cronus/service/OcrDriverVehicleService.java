@@ -1,13 +1,22 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.Common.ResultResource;
+import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.cronus.OcrDocumentDto;
+import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.ocr.DriverLicenseDTO;
 import com.fjs.cronus.dto.ocr.DriverVehicleDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.OcrDriverVehicleMapper;
+import com.fjs.cronus.mappers.RContractDocumentMapper;
 import com.fjs.cronus.model.OcrDriverLicense;
 import com.fjs.cronus.model.OcrDriverVehicle;
+import com.fjs.cronus.model.RContractDocument;
+import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.EntityToDto;
+import com.sun.org.apache.xerces.internal.impl.io.UCSReader;
 import org.omg.CORBA.INTERNAL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,8 +33,10 @@ public class OcrDriverVehicleService {
 
     @Autowired
     OcrDriverVehicleMapper ocrDriverVehicleMapper;
-
-
+    @Autowired
+    RContractDocumentMapper rContractDocumentMapper;
+    @Autowired
+    UcService ucService;
     @Transactional
     public Integer addOrUpdateDriverVeh(DriverVehicleDTO driverVehicleDTO){
         Date date = new Date();
@@ -97,6 +108,89 @@ public class OcrDriverVehicleService {
             resultDto.setRows(resultList);
             resultDto.setTotal(count.toString());
         }
+        return  resultDto;
+    }
+
+
+    public CronusDto editOcrInfo(Integer id){
+        CronusDto resultDto = new CronusDto();
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("id",id);
+        OcrDriverVehicle ocrDriverVehicle = ocrDriverVehicleMapper.findByFeild(paramsMap);
+        if (ocrDriverVehicle == null){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        DriverVehicleDTO driverVehicleDTO = new DriverVehicleDTO();
+        EntityToDto.copyDtoToEntity(ocrDriverVehicle,driverVehicleDTO);
+        List crm_attach_ids = new ArrayList();
+        if (!StringUtils.isEmpty(ocrDriverVehicle.getDocumentId())){
+            crm_attach_ids.add(ocrDriverVehicle.getDocumentId());
+        }
+        Map<String,Object> requestMap = new HashMap<>();
+        requestMap.put("crm_attach_ids",crm_attach_ids);
+        List<OcrDocumentDto> ocrDocumentDtos =new ArrayList<>();
+        List<RContractDocument> documentList = rContractDocumentMapper.ocrDocument(requestMap);
+        if (documentList != null && documentList.size() > 0) {
+            for (RContractDocument rcdocument : documentList) {
+                OcrDocumentDto ocrDocumentDto = new OcrDocumentDto();
+                ocrDocumentDto.setDocument_id(rcdocument.getDocument().getId());
+                ocrDocumentDto.setDocument_name(rcdocument.getDocumentName());
+                ocrDocumentDto.setDocument_c_name(rcdocument.getDocumentCategory().getDocumentCName());
+                ocrDocumentDto.setDocument_c_name_header(rcdocument.getDocumentCategory().getDocumentCNameHeader());
+                ocrDocumentDto.setRc_document_id(rcdocument.getId());
+                ocrDocumentDtos.add(ocrDocumentDto);
+            }
+            driverVehicleDTO.setOcrDocumentDto(ocrDocumentDtos);
+        }
+        resultDto.setData(driverVehicleDTO);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        return  resultDto;
+    }
+
+    public CronusDto editOcrInfoOK(JSONObject jsonObject, String token) {
+        CronusDto resultDto = new CronusDto();
+        Integer id = jsonObject.getInteger("id");
+        String driver_owner = jsonObject.getString("driver_owner");
+        String driver_plate_num  = jsonObject.getString("driver_plate_num");
+        String driver_vehicle_type= jsonObject.getString("driver_vehicle_type");
+        String driver_vin= jsonObject.getString("driver_vin");
+        String driver_engine_num= jsonObject.getString("driver_engine_num");
+        String driver_register_date= jsonObject.getString("driver_register_date");
+        if(!StringUtils.isEmpty(id)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("id",id);
+        OcrDriverVehicle ocrDriverVehicle = ocrDriverVehicleMapper.findByFeild(paramsMap);
+        if (ocrDriverVehicle == null){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        if (!StringUtils.isEmpty(driver_owner)){
+            ocrDriverVehicle.setDriverOwner(driver_owner);
+        }
+        if (!StringUtils.isEmpty(driver_plate_num)){
+            ocrDriverVehicle.setDriverPlateNum(driver_plate_num);
+        }
+        if (!StringUtils.isEmpty(driver_vehicle_type)){
+            ocrDriverVehicle.setDriverVehicleType(driver_vehicle_type);
+        }
+        if (!StringUtils.isEmpty(driver_vin)){
+            ocrDriverVehicle.setDriverVin(driver_vin);
+        }
+        if (!StringUtils.isEmpty(driver_engine_num)){
+            ocrDriverVehicle.setDriverEngineNum(driver_engine_num);
+        }
+        if (!StringUtils.isEmpty(driver_register_date)){
+            ocrDriverVehicle.setDriverRegisterDate(driver_register_date);
+        }
+        Integer user_id = ucService.getUserIdByToken(token);
+        Date date = new Date();
+        ocrDriverVehicle.setLastUpdateTime(date);
+        ocrDriverVehicle.setLastUpdateUser(user_id);
+        ocrDriverVehicleMapper.updateDriverVeh(ocrDriverVehicle);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         return  resultDto;
     }
 }

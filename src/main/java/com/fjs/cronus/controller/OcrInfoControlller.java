@@ -1,5 +1,6 @@
 package com.fjs.cronus.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.exception.CronusException;
@@ -11,10 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Created by msi on 2017/9/25.
@@ -86,11 +84,34 @@ public class OcrInfoControlller {
                 CronusException thorException = (CronusException)e;
                 throw thorException;
             }
-            logger.error("--------------->editOcrInfo 编辑OCR信息", e);
+            logger.error("--------------->editOcrInfo 编辑OCR信息操作出错", e);
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
 
-
+    @ApiOperation(value="提交编辑OCR信息", notes="提交编辑OCR信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/editOcrInfoOK", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto editOcrInfoOK(@RequestBody JSONObject jsonObject,@RequestHeader("Authorization") String token) {
+        CronusDto cronusDto = new CronusDto();
+        try {
+            Integer id = jsonObject.getInteger("id");
+            if (id == null || "".equals(id)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+            }
+            cronusDto = ocrInfoService.editOcrInfoOK(jsonObject,token);
+            return cronusDto;
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            logger.error("--------------->editOcrInfo 编辑OCR信息操作出错", e);
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
 
 }

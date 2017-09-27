@@ -58,7 +58,6 @@ public class CityService {
                      cityListDTO.add(dtocity);
                 }
                 dto.setChildren(cityListDTO);
-                resultList.add(dto);
             }else {
                 List cityListDTO = new ArrayList<>();
                     dto.setValue(province.getName());

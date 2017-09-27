@@ -24,7 +24,7 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
     private String sex;
 
     private Integer age;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date birthDate;
 
     private String telephonenumber;
@@ -168,8 +168,7 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
     private Integer yearPayAmount;
 
     private Integer monthPayAmount;
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
-    private Date effectDate;
+    private Integer effectDate;
 
     private String isSuspend;
 
@@ -781,11 +780,11 @@ public class CustomerInterViewBaseCarHouseInsturDTO implements Serializable{
         this.monthPayAmount = monthPayAmount;
     }
 
-    public Date getEffectDate() {
+    public Integer getEffectDate() {
         return effectDate;
     }
 
-    public void setEffectDate(Date effectDate) {
+    public void setEffectDate(Integer effectDate) {
         this.effectDate = effectDate;
     }
 

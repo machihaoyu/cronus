@@ -34,7 +34,7 @@ public class OcrIDdentityDTO implements Serializable {
     private Integer update_user_id;// int(11) NOT NULL COMMENT '更新人ID',
     private String update_user_name;// varchar(50) DEFAULT NULL COMMENT '更新人名称',
 
-    @JsonFormat(pattern="yyyy-MM-ddHH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date   create_time;
 
     private List<OcrDocumentDto> ocrDocumentDto;

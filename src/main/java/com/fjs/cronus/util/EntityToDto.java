@@ -518,7 +518,7 @@ public class EntityToDto {
         if (customerInterviewInsuranceInfoList != null && customerInterviewInsuranceInfoList.size() > 0){
             CustomerInterviewInsuranceInfo customerInterviewInsuranceInfo = customerInterviewInsuranceInfoList.get(0);
             if (!StringUtils.isEmpty(customerInterviewInsuranceInfo.getId())){
-                dto.setHouseInfoId(customerInterviewInsuranceInfo.getId());
+                dto.setInsuranceInfoId(customerInterviewInsuranceInfo.getId());
             }
             if(!StringUtils.isEmpty(customerInterviewInsuranceInfo.getEffectDate())){
                 dto.setEffectDate(customerInterviewInsuranceInfo.getEffectDate());

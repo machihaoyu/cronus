@@ -1,6 +1,9 @@
 package com.fjs.cronus.dto.ocr;
 
+import com.fjs.cronus.dto.cronus.OcrDocumentDto;
+
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by chenjie on 2017/8/17.
@@ -14,6 +17,16 @@ public class DriverLicenseDTO extends OcrCronusBaseDTO implements Serializable{
     private String driver_vehicle_type;
     private String driver_start_date;
     private String driver_end_date;
+
+    private List<OcrDocumentDto> ocrDocumentDto;
+
+    public List<OcrDocumentDto> getOcrDocumentDto() {
+        return ocrDocumentDto;
+    }
+
+    public void setOcrDocumentDto(List<OcrDocumentDto> ocrDocumentDto) {
+        this.ocrDocumentDto = ocrDocumentDto;
+    }
 
     public String getDriver_name() {
         return driver_name;

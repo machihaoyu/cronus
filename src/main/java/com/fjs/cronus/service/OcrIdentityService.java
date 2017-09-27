@@ -1,24 +1,28 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
+
 import com.fjs.cronus.dto.cronus.OcrDocumentDto;
 import com.fjs.cronus.dto.cronus.OcrIDdentityDTO;
-import com.fjs.cronus.dto.cronus.OcrSaveBaseInfoDTO;
 import com.fjs.cronus.dto.ocr.IdCardDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.DocumentCategoryMapper;
 import com.fjs.cronus.mappers.DocumentMapper;
 import com.fjs.cronus.mappers.OcrIdentityMapper;
 import com.fjs.cronus.mappers.RContractDocumentMapper;
-import com.fjs.cronus.model.Document;
+
+
 import com.fjs.cronus.model.DocumentCategory;
 import com.fjs.cronus.model.OcrIdentity;
 import com.fjs.cronus.model.RContractDocument;
+import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.EntityToDto;
-import org.omg.CORBA.INTERNAL;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -38,6 +42,10 @@ public class OcrIdentityService {
     DocumentCategoryMapper documentCategoryMapper;
     @Autowired
     DocumentMapper documentMapper;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+    @Autowired
+    UcService ucService;
     @Transactional
     public Integer addOrUpdateOcrInden(IdCardDTO idCardDTO){
         //判断是更新还是插入数据
@@ -81,7 +89,7 @@ public class OcrIdentityService {
             //创建一条新型信息
             OcrIdentity identity = new OcrIdentity();
             String name = null;
-            DocumentCategory documentCategory = documentCategoryMapper.selectByPrimaryKey(idCardDTO.getCategory());
+            DocumentCategory documentCategory = documentCategoryMapper.selectByKey(idCardDTO.getCategory());
             String document_c_name  = documentCategory.getDocumentCName();
             if (idCardDTO.getSide() != null && "face".equals(idCardDTO.getSide())){
                   name = document_c_name.replace("(正)","反");
@@ -216,6 +224,8 @@ public class OcrIdentityService {
         return  resultDto;
     }
     public CronusDto editOcrInfo(Integer id){
+       /* String sql = "select d.id as document_id ,r.document_name as document_name ,c.document_c_name as document_c_name,c.document_c_name_header as document_c_name_header ,r.id as rc_document_id  from document d left join r_contract_document r on d.id = r.document_id left join document_category c on r.document_c_id =c.id" +
+                " where r.is_deleted = 0 and d.id in (:crm_attach_ids) order by r.last_update_time desc";*/
         CronusDto resultDto = new CronusDto();
         Map<String,Object> paramsMap = new HashMap<>();
         paramsMap.put("id",id);
@@ -234,23 +244,82 @@ public class OcrIdentityService {
         }
         Map<String,Object> requestMap = new HashMap<>();
         requestMap.put("crm_attach_ids",crm_attach_ids);
-       /* List<Document> documentList = documentMapper.ocrDocument(requestMap);
-        List<OcrDocumentDto> ocrDocumentDtos = new ArrayList<>();
-        if (documentList != null && documentList.size() > 0){
-           for (Document document : documentList){
-               OcrDocumentDto ocrDocumentDto = new OcrDocumentDto();
-               ocrDocumentDto.setDocument_id(document.getId());
-               ocrDocumentDto.setDocument_name(document.getrContractDocument().getDocumentName());
-               ocrDocumentDto.setDocument_c_name(document.getDocumentCategory().getDocumentCName());
-               ocrDocumentDto.setDocument_c_name_header(document.getDocumentCategory().getDocumentCNameHeader());
-               ocrDocumentDto.setRc_document_id(document.getrContractDocument().getId());
-               ocrDocumentDtos.add(ocrDocumentDto);
-           }
-           dto.setOcrDocumentDto(ocrDocumentDtos);
-        }*/
+        List<OcrDocumentDto> ocrDocumentDtos =new ArrayList<>();
+        List<RContractDocument> documentList = rContractDocumentMapper.ocrDocument(requestMap);
+        if (documentList != null && documentList.size() > 0) {
+            for (RContractDocument rcdocument : documentList) {
+                OcrDocumentDto ocrDocumentDto = new OcrDocumentDto();
+                ocrDocumentDto.setDocument_id(rcdocument.getDocument().getId());
+                ocrDocumentDto.setDocument_name(rcdocument.getDocumentName());
+                ocrDocumentDto.setDocument_c_name(rcdocument.getDocumentCategory().getDocumentCName());
+                ocrDocumentDto.setDocument_c_name_header(rcdocument.getDocumentCategory().getDocumentCNameHeader());
+                ocrDocumentDto.setRc_document_id(rcdocument.getId());
+                ocrDocumentDtos.add(ocrDocumentDto);
+            }
+            dto.setOcrDocumentDto(ocrDocumentDtos);
+        }
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setData(dto);
         return  resultDto;
+    }
+
+    public CronusDto editOcrInfoOK(JSONObject jsonObject,String token){
+        CronusDto resultDto = new CronusDto();
+         Integer id = jsonObject.getInteger("id");
+         String card_name = jsonObject.getString("card_name");
+         String card_sex  = jsonObject.getString("card_sex");
+         String card_nation= jsonObject.getString("card_nation");
+         String card_birth= jsonObject.getString("card_birth");
+         String card_address= jsonObject.getString("card_address");
+         String card_num= jsonObject.getString("card_num");
+         String card_sign_org= jsonObject.getString("card_sign_org");
+         String card_valid_start= jsonObject.getString("card_valid_start");
+         String card_valid_end = jsonObject.getString("card_valid_end");
+         if(!StringUtils.isEmpty(id)){
+             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+         }
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("id",id);
+        OcrIdentity ocrIdentity = ocrIdentityMapper.findByFeild(paramsMap);
+        if (ocrIdentity == null){
+            throw new CronusException(CronusException.Type.CEM_CUSTOMERIDENTITYINFO_ERROR);
+        }
+        //开始更新
+        Integer user_id = ucService.getUserIdByToken(token);
+        Date date = new Date();
+        if (!StringUtils.isEmpty(card_name)){
+            ocrIdentity.setCardName(card_name);
+        }
+        if (!StringUtils.isEmpty(card_sex)){
+            ocrIdentity.setCardSex(card_sex);
+        }
+        if (!StringUtils.isEmpty(card_nation)){
+            ocrIdentity.setCardNation(card_nation);
+        }
+        if (!StringUtils.isEmpty(card_birth)){
+            ocrIdentity.setCardBirth(card_birth);
+        }
+        if (!StringUtils.isEmpty(card_address)){
+            ocrIdentity.setCardAddress(card_address);
+        }
+        if (!StringUtils.isEmpty(card_num)){
+            ocrIdentity.setCardNum(card_num);
+        }
+        if (!StringUtils.isEmpty(card_sign_org)){
+            ocrIdentity.setCardSignOrg(card_sign_org);
+        }
+        if (!StringUtils.isEmpty(card_valid_start)){
+            ocrIdentity.setCardValidStart(card_valid_start);
+        }
+        if (!StringUtils.isEmpty(card_valid_end)){
+            ocrIdentity.setCardValidEnd(card_valid_end);
+        }
+        ocrIdentity.setLastUpdateUser(user_id);
+        ocrIdentity.setLastUpdateTime(date);
+        ocrIdentityMapper.updateOcrIdentity(ocrIdentity);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+       return resultDto;
     }
 }

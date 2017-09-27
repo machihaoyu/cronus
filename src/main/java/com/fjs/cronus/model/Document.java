@@ -1,6 +1,7 @@
 package com.fjs.cronus.model;
 
 
+
 public class Document extends BaseModel {
     private Integer id;
 
@@ -16,27 +17,8 @@ public class Document extends BaseModel {
 
     private String documentSavename;
 
+
     private String documentSavepath;
-
-   /* private RContractDocument rContractDocument;
-
-    private DocumentCategory documentCategory;*/
-
-/*    public RContractDocument getrContractDocument() {
-        return rContractDocument;
-    }
-
-    public void setrContractDocument(RContractDocument rContractDocument) {
-        this.rContractDocument = rContractDocument;
-    }
-
-    public DocumentCategory getDocumentCategory() {
-        return documentCategory;
-    }
-
-    public void setDocumentCategory(DocumentCategory documentCategory) {
-        this.documentCategory = documentCategory;
-    }*/
 
     public Integer getId() {
         return id;

@@ -1,6 +1,6 @@
 package com.fjs.cronus.model;
 
-import java.util.Date;
+
 
 public class RContractDocument extends  BaseModel{
     private Integer id;
@@ -18,6 +18,10 @@ public class RContractDocument extends  BaseModel{
     private String documentName;
 
     private String rcDocumentSource;
+
+    private Document document;
+
+    private DocumentCategory documentCategory;
 
     public Integer getId() {
         return id;
@@ -81,5 +85,21 @@ public class RContractDocument extends  BaseModel{
 
     public void setRcDocumentSource(String rcDocumentSource) {
         this.rcDocumentSource = rcDocumentSource;
+    }
+
+    public Document getDocument() {
+        return document;
+    }
+
+    public void setDocument(Document document) {
+        this.document = document;
+    }
+
+    public DocumentCategory getDocumentCategory() {
+        return documentCategory;
+    }
+
+    public void setDocumentCategory(DocumentCategory documentCategory) {
+        this.documentCategory = documentCategory;
     }
 }

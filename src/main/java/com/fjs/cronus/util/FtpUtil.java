@@ -33,9 +33,10 @@ public class FtpUtil {
 		FTPClient ftp = new FTPClient();
 		try {
 			int reply;
-			ftp.connect(host, port);// 连接FTP服务器
+			ftp.connect(host);// 连接FTP服务器
 			// 如果采用默认端口，可以使用ftp.connect(host)的方式直接连接FTP服务器
 			ftp.login(username, password);// 登录
+			ftp.setFileType(FTP.BINARY_FILE_TYPE);
 			reply = ftp.getReplyCode();
 			if (!FTPReply.isPositiveCompletion(reply)) {
 				ftp.disconnect();
@@ -47,7 +48,8 @@ public class FtpUtil {
 				String[] dirs = filePath.split("/");
 				String tempPath = basePath;
 				for (String dir : dirs) {
-					if (null == dir || "".equals(dir)) continue;
+					if (null == dir || "".equals(dir))
+						continue;
 					tempPath += "/" + dir;
 					if (!ftp.changeWorkingDirectory(tempPath)) {
 						if (!ftp.makeDirectory(tempPath)) {
@@ -97,7 +99,7 @@ public class FtpUtil {
 		FTPClient ftp = new FTPClient();
 		try {
 			int reply;
-			ftp.connect(host, port);
+			ftp.connect(host);
 			// 如果采用默认端口，可以使用ftp.connect(host)的方式直接连接FTP服务器
 			ftp.login(username, password);// 登录
 			reply = ftp.getReplyCode();
@@ -108,9 +110,10 @@ public class FtpUtil {
 			ftp.changeWorkingDirectory(remotePath);// 转移到FTP服务器目录
 			FTPFile[] fs = ftp.listFiles();
 			for (FTPFile ff : fs) {
+				System.out.println(ff.getName());
 				if (ff.getName().equals(fileName)) {
 					File localFile = new File(localPath + "/" + ff.getName());
-
+					ftp.setFileType(FTP.BINARY_FILE_TYPE);
 					OutputStream is = new FileOutputStream(localFile);
 					ftp.retrieveFile(ff.getName(), is);
 					is.close();
@@ -138,9 +141,10 @@ public class FtpUtil {
 		FTPClient ftp = new FTPClient();
 		try {
 			int reply;
-			ftp.connect(host, port);
+			ftp.connect(host);
 			// 如果采用默认端口，可以使用ftp.connect(host)的方式直接连接FTP服务器
 			ftp.login(username, password);// 登录
+			ftp.setFileType(FTP.BINARY_FILE_TYPE);
 			reply = ftp.getReplyCode();
 			if (!FTPReply.isPositiveCompletion(reply)) {
 				ftp.disconnect();
@@ -169,10 +173,12 @@ public class FtpUtil {
 	
 	public static void main(String[] args) {
 		try {  
-	        FileInputStream in=new FileInputStream(new File("D:\\temp\\image\\gaigeming.jpg"));  
-	        boolean flag = uploadFile("192.168.25.133", 21, "ftpuser", "ftpuser", "/home/ftpuser/www/images","/2015/01/21", "gaigeming.jpg", in);
-	        System.out.println(flag);  
-	    } catch (FileNotFoundException e) {  
+	     /*   FileInputStream in=new FileInputStream(new File("D:\\123.jpg"));
+	        boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/","2017/09/26", "123.jpg", in);
+	        System.out.println(flag);*/
+			boolean flag =	downloadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/2017/09/26/","123.jpg", "E:\\");
+			System.out.println(flag);
+		} catch (Exception e) {
 	        e.printStackTrace();  
 	    }  
 	}

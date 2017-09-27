@@ -98,6 +98,7 @@ public class CustomerInterviewService {
                 for (CustomerInterviewBaseInfo customerInterviewBaseInfo : customerInterviewBaseInfos) {
                     CustomerInterVibaseInfoDTO customerInterviewBaseInfoDTO = new CustomerInterVibaseInfoDTO();
                     EntityToDto.CustomerInterviewEntityToCustomerInterviewDto(customerInterviewBaseInfo,customerInterviewBaseInfoDTO);
+                    resultList.add(customerInterviewBaseInfoDTO);
                 }
                 resultDto.setRows(resultList);
                 resultDto.setTotal(count.toString());
@@ -251,13 +252,25 @@ public class CustomerInterviewService {
         }else {
             paramsMap.clear();
         }
-        paramsMap.put("id", customerInterViewBaseCarHouseInsturDTO.getCarInfoid());
-        CustomerInterviewCarInfo customerInterviewCarInfo = customerInterviewCarInfoMapper.findByCustomerByFeild(paramsMap);
-        paramsMap.clear();
-        paramsMap.put("id", customerInterViewBaseCarHouseInsturDTO.getHouseInfoId());
-        CustomerInterviewHouseInfo customerInterviewHouseInfo = customerInterviewHouseInfoMapper.findByFeild(paramsMap);
-        paramsMap.clear();
-        CustomerInterviewInsuranceInfo customerInterviewInsuranceInfo = customerInterviewInsuranceInfoMapper.findByFeild(paramsMap);
+        Map<String,Object> paramsMap1 = new HashMap<>();
+        CustomerInterviewCarInfo customerInterviewCarInfo = null;
+        if (customerInterViewBaseCarHouseInsturDTO.getCarInfoid() != null) {
+            paramsMap1.put("id", customerInterViewBaseCarHouseInsturDTO.getCarInfoid());
+            customerInterviewCarInfo = customerInterviewCarInfoMapper.findByCustomerByFeild(paramsMap1);
+        }
+
+        Map<String,Object> paramsMap2 = new HashMap<>();
+        CustomerInterviewHouseInfo customerInterviewHouseInfo = null;
+        if (customerInterViewBaseCarHouseInsturDTO.getHouseInfoId()!= null) {
+            paramsMap2.put("id", customerInterViewBaseCarHouseInsturDTO.getHouseInfoId());
+             customerInterviewHouseInfo = customerInterviewHouseInfoMapper.findByFeild(paramsMap2);
+        }
+        Map<String,Object> paramsMap3 = new HashMap<>();
+        CustomerInterviewInsuranceInfo customerInterviewInsuranceInfo = null;
+        if (customerInterViewBaseCarHouseInsturDTO.getInsuranceInfoId() != null) {
+            paramsMap3.put("id", customerInterViewBaseCarHouseInsturDTO.getInsuranceInfoId());
+             customerInterviewInsuranceInfo = customerInterviewInsuranceInfoMapper.findByFeild(paramsMap3);
+        }
         //dto 转为实体
         EntityToDto.CustomerInterviewDtoToCustomerInterviewAllInfoEntity(customerInterViewBaseCarHouseInsturDTO,customerInterviewBaseInfo,customerInterviewCarInfo,
                 customerInterviewHouseInfo,customerInterviewInsuranceInfo);

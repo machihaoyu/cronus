@@ -1,12 +1,18 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.cronus.OcrDocumentDto;
 import com.fjs.cronus.dto.ocr.HouseRegisterDTO;
 import com.fjs.cronus.dto.ocr.HouseholdRegisterDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.OcrHouseholdRegisterMapper;
+import com.fjs.cronus.mappers.RContractDocumentMapper;
 import com.fjs.cronus.model.OcrHouseholdRegister;
+import com.fjs.cronus.model.RContractDocument;
+import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.EntityToDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +30,10 @@ public class OcrHouseholdRegisterService {
     @Autowired
     OcrHouseholdRegisterMapper ocrHouseholdRegisterMapper;
 
+    @Autowired
+    RContractDocumentMapper rContractDocumentMapper;
+    @Autowired
+    UcService ucService;
     @Transactional
     public Integer  addOrUpdateHouse(HouseholdRegisterDTO householdRegisterDTO){
         if (householdRegisterDTO.getId() != null){
@@ -100,7 +110,6 @@ public class OcrHouseholdRegisterService {
    }
 
    public CronusDto editOcrInfo(Integer id){
-
        CronusDto resultDto = new CronusDto();
        Map<String,Object> paramsMap = new HashMap<>();
        paramsMap.put("id",id);
@@ -108,7 +117,88 @@ public class OcrHouseholdRegisterService {
        //转换Dto
        HouseholdRegisterDTO householdRegisterDTO = new HouseholdRegisterDTO();
        EntityToDto.EntityHOuseRegToDTo(ocrHouseholdRegister,householdRegisterDTO);
-
+       List crm_attach_ids = new ArrayList();
+       if (!StringUtils.isEmpty(ocrHouseholdRegister.getDocumentId())){
+           crm_attach_ids.add(ocrHouseholdRegister.getDocumentId());
+       }
+       Map<String,Object> requestMap = new HashMap<>();
+       requestMap.put("crm_attach_ids",crm_attach_ids);
+       List<OcrDocumentDto> ocrDocumentDtos =new ArrayList<>();
+       List<RContractDocument> documentList = rContractDocumentMapper.ocrDocument(requestMap);
+       if (documentList != null && documentList.size() > 0) {
+           for (RContractDocument rcdocument : documentList) {
+               OcrDocumentDto ocrDocumentDto = new OcrDocumentDto();
+               ocrDocumentDto.setDocument_id(rcdocument.getDocument().getId());
+               ocrDocumentDto.setDocument_name(rcdocument.getDocumentName());
+               ocrDocumentDto.setDocument_c_name(rcdocument.getDocumentCategory().getDocumentCName());
+               ocrDocumentDto.setDocument_c_name_header(rcdocument.getDocumentCategory().getDocumentCNameHeader());
+               ocrDocumentDto.setRc_document_id(rcdocument.getId());
+               ocrDocumentDtos.add(ocrDocumentDto);
+           }
+           householdRegisterDTO.setOcrDocumentDto(ocrDocumentDtos);
+       }
+       resultDto.setData(householdRegisterDTO);
+       resultDto.setResult(ResultResource.CODE_SUCCESS);
+       resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
        return  resultDto;
    }
+
+     public CronusDto editOcrInfoOK(JSONObject jsonObject, String token){
+         CronusDto resultDto = new CronusDto();
+         Integer id = jsonObject.getInteger("id");
+         String household_name = jsonObject.getString("household_name");
+         String household_sex  = jsonObject.getString("household_sex");
+         String household_native_place= jsonObject.getString("household_native_place");
+         String household_birthday= jsonObject.getString("household_birthday");
+         String household_id_number= jsonObject.getString("household_id_number");
+         String household_people= jsonObject.getString("household_people");
+         String household_job= jsonObject.getString("household_job");
+         String household_merriage= jsonObject.getString("household_merriage");
+         String household_education = jsonObject.getString("household_education");
+         if(!StringUtils.isEmpty(id)){
+             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+         }
+         Map<String,Object> paramsMap = new HashMap<>();
+         paramsMap.put("id",id);
+         OcrHouseholdRegister ocrHouseholdRegister = ocrHouseholdRegisterMapper.findByfeild(paramsMap);
+         if (ocrHouseholdRegister == null){
+             throw new CronusException(CronusException.Type.CEM_CUSTOMERIDENTITYINFO_ERROR);
+         }
+         if (!StringUtils.isEmpty(household_name)){
+             ocrHouseholdRegister.setHouseholdName(household_name);
+         }
+         if (!StringUtils.isEmpty(household_sex)){
+             ocrHouseholdRegister.setHouseholdSex(household_sex);
+         }
+         if (!StringUtils.isEmpty(household_native_place)){
+             ocrHouseholdRegister.setHouseholdNativePlace(household_native_place);
+         }
+         if (!StringUtils.isEmpty(household_birthday)){
+             ocrHouseholdRegister.setHouseholdBirthday(household_birthday);
+         }
+         if (!StringUtils.isEmpty(household_id_number)){
+             ocrHouseholdRegister.setHouseholdIdNumber(household_id_number);
+         }
+         if (!StringUtils.isEmpty(household_people)){
+             ocrHouseholdRegister.setHouseholdPeople(household_people);
+         }
+         if (!StringUtils.isEmpty(household_job)){
+             ocrHouseholdRegister.setHouseholdJob(household_job);
+         }
+         if (!StringUtils.isEmpty(household_merriage)){
+             ocrHouseholdRegister.setHouseholdMerriage(household_merriage);
+         }
+         if (!StringUtils.isEmpty(household_education)){
+             ocrHouseholdRegister.setHouseholdEducation(household_education);
+         }
+         //
+         Integer user_id = ucService.getUserIdByToken(token);
+         Date date = new Date();
+         ocrHouseholdRegister.setLastUpdateTime(date);
+         ocrHouseholdRegister.setLastUpdateUser(user_id);
+         ocrHouseholdRegisterMapper.updateHousReg(ocrHouseholdRegister);
+         resultDto.setResult(ResultResource.CODE_SUCCESS);
+         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+         return  resultDto;
+     }
 }
