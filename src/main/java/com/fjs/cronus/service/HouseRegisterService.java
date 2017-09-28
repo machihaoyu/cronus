@@ -153,7 +153,7 @@ public class HouseRegisterService {
         String house_area= jsonObject.getString("house_area");
         String house_type= jsonObject.getString("house_type");
         String house_completion_date= jsonObject.getString("house_completion_date");
-        if(!StringUtils.isEmpty(id)){
+        if(StringUtils.isEmpty(id)){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
         Map<String,Object> paramsMap = new HashMap<>();

@@ -155,7 +155,7 @@ public class OcrHouseholdRegisterService {
          String household_job= jsonObject.getString("household_job");
          String household_merriage= jsonObject.getString("household_merriage");
          String household_education = jsonObject.getString("household_education");
-         if(!StringUtils.isEmpty(id)){
+         if(StringUtils.isEmpty(id)){
              throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
          }
          Map<String,Object> paramsMap = new HashMap<>();

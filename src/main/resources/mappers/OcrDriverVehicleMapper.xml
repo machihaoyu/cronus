@@ -65,7 +65,7 @@
   </select>
   <select id="getOcrInfoCount" parameterType="java.util.Map" resultType="java.lang.Integer">
     select
-    COUNT (*)
+    COUNT(*)
     from ocr_driver_vehicle
     WHERE is_deleted = 0
     <if test="create_user_id != null and create_user_id !=''" >

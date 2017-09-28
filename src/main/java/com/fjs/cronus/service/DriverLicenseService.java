@@ -152,7 +152,7 @@ public class DriverLicenseService {
         String driver_vehicle_type= jsonObject.getString("driver_vehicle_type");
         String driver_start_date= jsonObject.getString("driver_start_date");
         String driver_end_date= jsonObject.getString("driver_end_date");
-        if(!StringUtils.isEmpty(id)){
+        if(StringUtils.isEmpty(id)){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
         Map<String,Object> paramsMap = new HashMap<>();

@@ -276,7 +276,7 @@ public class OcrIdentityService {
          String card_sign_org= jsonObject.getString("card_sign_org");
          String card_valid_start= jsonObject.getString("card_valid_start");
          String card_valid_end = jsonObject.getString("card_valid_end");
-         if(!StringUtils.isEmpty(id)){
+         if(StringUtils.isEmpty(id)){
              throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
          }
         Map<String,Object> paramsMap = new HashMap<>();

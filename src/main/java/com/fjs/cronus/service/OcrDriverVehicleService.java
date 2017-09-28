@@ -152,7 +152,7 @@ public class OcrDriverVehicleService {
         String driver_vin= jsonObject.getString("driver_vin");
         String driver_engine_num= jsonObject.getString("driver_engine_num");
         String driver_register_date= jsonObject.getString("driver_register_date");
-        if(!StringUtils.isEmpty(id)){
+        if(StringUtils.isEmpty(id)){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
         Map<String,Object> paramsMap = new HashMap<>();

@@ -40,7 +40,7 @@
   </select>
   <select id="getOcrInfoCount" parameterType="java.util.Map" resultType="java.lang.Integer">
     select
-    COUNT (*)
+    COUNT(*)
     from ocr_household_register
     WHERE is_deleted = 0
     <if test="id != null">

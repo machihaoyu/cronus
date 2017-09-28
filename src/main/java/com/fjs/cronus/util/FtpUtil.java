@@ -173,17 +173,17 @@ public class FtpUtil {
 	
 	public static void main(String[] args) {
 		try {  
-	   /*     FileInputStream in=new FileInputStream(new File("D:\\1.xls"));
-	        boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/","2017/09/26", "1.xls", in);
+	   /*     FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
+	        boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/","2017/09/26", "1.jpg", in);
 	        System.out.println(flag);*/
-	/*		boolean flag =	downloadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/2017/09/26/","1.xls", "E:\\");
+			/*boolean flag =	downloadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/2017/09/26/","1.jpg", "E:\\");
 			System.out.println(flag);*/
 	        //缩略图
-			/*FileInputStream in=new FileInputStream(new File("D:\\456.jpg"));
+			/*FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
 			String base64 = ImageUtil.compressImage(in,300,300);
 			InputStream is = FileBase64ConvertUitl.decoderBase64File(base64);
-			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/","2017/09/26", "456.jpg", is);*/
-			boolean flag =	downloadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/2017/09/26/","456.jpg", "E:\\");
+			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/","2017/09/26", "1_S.jpg", is);*/
+			boolean flag =	downloadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/2017/09/26/","1_S.jpg", "E:\\");
 			System.out.println(flag);
 		} catch (Exception e) {
 	        e.printStackTrace();  
