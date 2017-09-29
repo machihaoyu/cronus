@@ -61,7 +61,7 @@ public class DocumentController {
     })
     @RequestMapping(value = "/uploadDocumentOk",method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto uploadDocumentOk(@RequestHeader("Authorization") String token, @RequestBody List<UploadDocumentDto> uploadDocumentDto ){
+    public CronusDto uploadDocumentOk(@RequestHeader("Authorization") String token, @RequestBody UploadDocumentDto uploadDocumentDto ){
 
         CronusDto resultDto = new CronusDto();
         try {

@@ -12,6 +12,7 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.Document;
 import com.fjs.cronus.model.DocumentCategory;
 import com.fjs.cronus.model.RContractDocument;
+import com.fjs.cronus.service.client.TalosService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.*;
 import org.joda.time.DateTime;
@@ -68,9 +69,10 @@ public class DocumentService {
     HouseRegisterService houseRegisterService;
     static final ThreadFactory supplyThreadFactory = new BasicThreadFactory.Builder().namingPattern("tuwenshibie-%d").daemon(true)
             .priority(Thread.MAX_PRIORITY).build();
-
+    @Autowired
+    private TalosService talosService;
     /**
-     * 图文识别程池 用ArrayBlockingQueue比 LinkedBlockingQueue性能要好点。
+     * 图文识别线程池池 用ArrayBlockingQueue比 LinkedBlockingQueue性能要好点。
      */
     public static final ExecutorService es = new ThreadPoolExecutor(100, 200, 0L, TimeUnit.MILLISECONDS,
             new ArrayBlockingQueue<Runnable>(50000), supplyThreadFactory);
@@ -105,10 +107,9 @@ public class DocumentService {
         return  resultDto;
     }
     @Transactional
-    public CronusDto uploadDocumentOk(List<UploadDocumentDto> uploadDocumentDtoList,String token){
+    public CronusDto uploadDocumentOk(UploadDocumentDto uploadDocumentDto,String token){
         CronusDto resultDto = new CronusDto();
         List<NewDocumentDTO> resultList = new ArrayList<>();
-        for (UploadDocumentDto uploadDocumentDto:uploadDocumentDtoList ) {
             Integer category = uploadDocumentDto.getCategory();
             if (category == null){
                 category = 0;
@@ -184,7 +185,7 @@ public class DocumentService {
                 resultDto.setMessage(ResultResource.UPLOAD_ERROR_MESSAGE);
                 resultDto.setResult(ResultResource.UPLOAD_ERROR);
             }
-        }
+
         return  resultDto;
     }
 
@@ -351,7 +352,9 @@ public class DocumentService {
                     long step2Time = System.currentTimeMillis();
                     try {
                         logger.warn("开始通信");
-                        addOcrDealParam(category,customer_id, imageBase64, rc_document_id, user_id, token);
+                        ReqParamDTO reqParamDTO = addOcrDealParam(category,customer_id, imageBase64, rc_document_id, user_id, token);
+                        //调用图文识别接口
+                        talosService.ocrService(reqParamDTO, token);
                     } catch (Exception e) {
                         logger.error("charge error ", e);
                     } finally {

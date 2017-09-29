@@ -6,12 +6,8 @@ import com.fjs.cronus.Common.OcrInfoEnum;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.service.uc.UcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.zip.CRC32;
-
 /**
  * Created by msi on 2017/9/25.
  */
@@ -29,6 +25,7 @@ public class OcrInfoService {
     OcrDriverVehicleService driverVehicleService;
     @Autowired
     HouseRegisterService houseRegisterService;
+
     public QueryResult getOcrInfoList(Integer create_user_id, String customer_telephone, String customer_name, String status,
                                       Integer ocr_type, Integer page, Integer size, String order){
         QueryResult resultDto = new QueryResult();
