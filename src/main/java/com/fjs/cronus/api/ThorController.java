@@ -631,14 +631,14 @@ public class ThorController {
     @ApiImplicitParams({
         @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
         @ApiImplicitParam(name = "user_id", value = "用户编号", required = false, paramType = "query", dataType = "int"),
-        @ApiImplicitParam(name = "data_type", value = "data_type1，2，3，4", required = false, paramType = "query", dataType = "int")
+        @ApiImplicitParam(name = "system", value = "获取哪个系统的下属", required = true, paramType = "query", dataType = "string")
     })
     @RequestMapping(value = "/api/v1/getSubUserByUserId",method = RequestMethod.POST)
     @ResponseBody
     public BaseUcDTO getSubUserByUserId(@RequestHeader String Authorization, @RequestParam(required = false) Integer user_id,
-                                        @RequestParam(required = false) Integer data_type){
+                                        @RequestParam String system){
         try{
-            return thorInterfaceService.getSubUserByUserId(Authorization, user_id, data_type);
+            return thorInterfaceService.getSubUserByUserId(Authorization, user_id, system);
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
             return new BaseUcDTO(9000,  e.getMessage(), null);

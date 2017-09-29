@@ -13,7 +13,7 @@ import java.util.Map;
  * UC用户中心接口
  * Created by Administrator on 2017/7/19 0019. url = "http://192.168.1.124:1120",
  */
-@FeignClient(value = "${client.feign.thor-backend}",  configuration = FeignClientConfig.class)
+@FeignClient(value = "${client.feign.thor-backend}", configuration = FeignClientConfig.class)
 public interface ThorInterfaceService {
 
 
@@ -371,13 +371,13 @@ public interface ThorInterfaceService {
      * @see /swagger-ui.html#!/php-api-user-controller/getSubUserByUserIdUsingPOST
      * @param token
      * @param user_id
-     * @param data_type
+     * @param system
      * @return
      */
     @RequestMapping(value = "/api/v1/getSubUserByUserId",method = RequestMethod.POST)
     BaseUcDTO getSubUserByUserId(@RequestHeader("Authorization") String token,
                                  @RequestParam(value = "user_id") Integer user_id,
-                                 @RequestParam(value = "data_type") Integer data_type);
+                                 @RequestParam(value = "system") String system);
 
 
     /**
