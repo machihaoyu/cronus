@@ -26,6 +26,7 @@ public class CronusException extends BaseException {
         CRM_CUSTOMEINFO_ERROR("6007","该用户不存在"),
         CRM_DATAAUTH_ERROR("6008","当前用户无数据权限"),
         CEM_CUSTOMERINTERVIEW("6009","非法参数"),
+        CRM_NOTNULL_UPLOAD("6921","请添加附件"),
         CRM_MAXSIZE_UPLOAD("6010","附件过大，附件大小不能超过20M"),
         CRM_FILETYPR_UPLOAD("6011","不支持此文件类型上传"),
         CRM_CONTROCTDOCU_ERROR("6012","新增附件客户关系失败"),
@@ -36,7 +37,8 @@ public class CronusException extends BaseException {
         CRM_OCRHOUSEREGISTION_ERROR("6017","增加房产证信息失败"),
         CRM_OCRINFO_ERROR("6018","图文识别非法参数"),
         CEM_CUSTOMERBASEINFO_ERROR("6019","不存在该面谈信息"),
-        CEM_CUSTOMERIDENTITYINFO_ERROR("6920","查询出错，未查到相关信息");
+        CEM_CUSTOMERIDENTITYINFO_ERROR("6920","查询出错，未查到相关信息"),
+        CRM_UPLOADERROR_ERROR("6922","文件上传失败"),
         ;
 
         private String status;

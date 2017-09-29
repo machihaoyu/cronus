@@ -122,10 +122,18 @@ public class MD5Util {
         }
         return null;
     }
-
+    public static String getMd5CodeInputStream(InputStream inputStream) {
+        try {
+            String md5 = getMD5(inputStream);
+            return md5;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
     public static void main(String arg[]) throws Exception {
 
-        String base64Code = FileBase64ConvertUitl.encodeBase64File("d:123.jpg");
+     /*   String base64Code = FileBase64ConvertUitl.encodeBase64File("d:123.jpg");
         String base64Code1 = FileBase64ConvertUitl.encodeBase64File("d:456.jpg");
         String base64Code2 = FileBase64ConvertUitl.encodeBase64File("d:789.jpg");
         String a = getMD5(FileBase64ConvertUitl.decoderBase64File(base64Code));
@@ -165,7 +173,7 @@ public class MD5Util {
             System.out.println("a.txt中的内容与c.txt中的内容不一致");
 
         }
-
+*/
     }
 
 }

@@ -7,11 +7,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Random;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
+import org.joda.time.DateTime;
 
 public class FtpUtil {
 
@@ -172,10 +174,18 @@ public class FtpUtil {
 	}
 	
 	public static void main(String[] args) {
-		try {  
-	   /*     FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
-	        boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/","2017/09/26", "1.jpg", in);
-	        System.out.println(flag);*/
+		try {
+			long millis = System.currentTimeMillis();
+			//long millis = System.nanoTime();
+			//加上三位随机数
+			Random random = new Random();
+			int end3 = random.nextInt(999);
+			//如果不足三位前面补0 图片新名称
+			String name = millis + String.format("%03d", end3) +".jpg";
+	        FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
+			String imagePath = new DateTime().toString("yyyy/MM/dd");
+	        boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/",imagePath, name, in);
+	        System.out.println(flag);
 			/*boolean flag =	downloadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/2017/09/26/","1.jpg", "E:\\");
 			System.out.println(flag);*/
 	        //缩略图
@@ -183,8 +193,8 @@ public class FtpUtil {
 			String base64 = ImageUtil.compressImage(in,300,300);
 			InputStream is = FileBase64ConvertUitl.decoderBase64File(base64);
 			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/","2017/09/26", "1_S.jpg", is);*/
-			boolean flag =	downloadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/2017/09/26/","1_S.jpg", "E:\\");
-			System.out.println(flag);
+	/*		boolean flag =	downloadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/2017/09/26/","1_S.jpg", "E:\\");
+			System.out.println(flag);*/
 		} catch (Exception e) {
 	        e.printStackTrace();  
 	    }  
