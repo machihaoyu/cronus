@@ -41,6 +41,9 @@ public class UcService {
             if (ucUserDTO ==null){
                 throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
             }
+            if (ucUserDTO.getData_type() == null){
+                throw new CronusException(CronusException.Type.CRM_DATAAUTH_ERROR);
+            }
             Integer data_type = Integer.valueOf(ucUserDTO.getData_type());
             if (data_type == 1){
                 //TODO 只能查看自己并把结果存入缓存并设置好失效时间
@@ -49,7 +52,7 @@ public class UcService {
                 ucRedisService.setRedisUcInfo(ResultResource.SUBUSERBYIDS + user_id,idList);
                 return  idList;
             }
-            com.fjs.cronus.dto.uc.BaseUcDTO baseDto = thorInterfaceService.getSubUserByUserId(token,user_id,data_type);
+            com.fjs.cronus.dto.uc.BaseUcDTO baseDto = thorInterfaceService.getSubUserByUserId(token,user_id,ResultResource.SYSTEMNAME);
             if (baseDto.getRetData() != null){
                 //转json
                 String result = FastJsonUtils.obj2JsonString(baseDto.getRetData());

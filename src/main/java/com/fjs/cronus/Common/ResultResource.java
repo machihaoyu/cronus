@@ -26,4 +26,6 @@ public class ResultResource {
     public static String PHONEKEY = "37mri8MKfMoxjB0g";
 
     public static String OCRSTATUS = "已校验";
+
+    public static String SYSTEMNAME ="sale";
 }

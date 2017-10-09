@@ -40,13 +40,18 @@ public class FileBase64ConvertUitl {
      */
 
     public static InputStream decoderBase64File(String base64Code)
-            throws Exception {
-        byte[] buffer = new BASE64Decoder().decodeBuffer(base64Code);
-        InputStream in  = new ByteArrayInputStream(buffer);
+             {
+        try {
+            byte[] buffer = new BASE64Decoder().decodeBuffer(base64Code);
+            InputStream in  = new ByteArrayInputStream(buffer);
+            return in;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
       /*  FileOutputStream out = new FileOutputStream(targetPath);
         out.write(buffer);
         out.close();*/
-        return in;
+      return null;
     }
 
     /**

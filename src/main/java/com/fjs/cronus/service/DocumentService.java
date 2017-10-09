@@ -23,11 +23,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.BufferedOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.*;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.springframework.web.multipart.MultipartFile;
+import sun.misc.BASE64Decoder;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by msi on 2017/9/20.
@@ -154,7 +161,8 @@ public class DocumentService {
                 String thunbPath  = map.get("imagePath").toString();
                 String remotePath = map.get("remotePath").toString();
                 //开始缩放图片
-                InputStream inputStream = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
+                String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
+                InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(bytes);
                 getThumbnail(inputStream,300,300,thumbName,thunbPath,"_S");
                 getThumbnail(inputStream,500,500,thumbName,thunbPath,"_M");
                 //TODO 验证是否生成
@@ -552,7 +560,8 @@ public class DocumentService {
                String remotePath = map.get("remotePath").toString();
                String url =  map.get("url").toString();
                //开始缩放图片
-               InputStream inputStream = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
+               String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
+               InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(bytes);
                getThumbnail(inputStream,300,300,thumbName,thunbPath,"_S");
                getThumbnail(inputStream,500,500,thumbName,thunbPath,"_M");
                //TODO 验证是否生成
@@ -620,4 +629,37 @@ public class DocumentService {
         }
         return  resultDto;
     }
+
+    public void downloadDocument(HttpServletResponse response,String remotePath,String fileName){
+
+        //判断参数
+        if (remotePath == null || "".equals(remotePath)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        if (fileName == null || "".equals(fileName)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        //从ftp服务器获取io
+        try {
+            String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, fileName);
+            byte[] buffer = new BASE64Decoder().decodeBuffer(bytes);
+            if (buffer == null || buffer.length == 0 ) {
+                throw new CronusException(CronusException.Type.CRM_DOWNLOADERROR_ERROR);
+            }
+            // 清空response
+            response.reset();
+            OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
+            response.setContentType("application/octet-stream");
+
+            //如果输出的是中文名的文件，在此处就要用URLEncoder.encode方法进行处理
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
+            toClient.write(buffer);
+            toClient.flush();
+            toClient.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
 }

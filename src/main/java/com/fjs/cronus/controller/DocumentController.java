@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -148,8 +149,39 @@ public class DocumentController {
             }
         } catch (Exception e) {
             logger.error("上传图片失败", e);
-
+            if (e instanceof CronusException) {
+                CronusException cronusException = (CronusException)e;
+                throw cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
         return  resultDto;
+    }
+    @ApiOperation(value="下载附件", notes="下载附件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/downloadDocument",method = RequestMethod.POST)
+    @ResponseBody
+    public void  downloadDocument(HttpServletResponse response,@RequestParam(value = "remotePath",required = true) String remotePath,
+                                      @RequestParam(value = "fileName",required = true) String fileName){
+        logger.info("start downloadDocument!");
+        //校验参数
+        if (remotePath == null || "".equals(remotePath)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        if (fileName == null || "".equals(fileName)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        try {
+            documentService.downloadDocument(response,remotePath,fileName);
+        }catch (Exception e) {
+            logger.error("下载附件", e);
+            if (e instanceof CronusException) {
+                CronusException cronusException = (CronusException)e;
+                throw cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
     }
 }

@@ -1,12 +1,6 @@
 package com.fjs.cronus.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Random;
 
 import org.apache.commons.net.ftp.FTP;
@@ -14,6 +8,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.joda.time.DateTime;
+import sun.misc.BASE64Encoder;
 
 public class FtpUtil {
 
@@ -64,6 +59,9 @@ public class FtpUtil {
 			}
 			//设置上传文件的类型为二进制类型
 			ftp.setFileType(FTP.BINARY_FILE_TYPE);
+			ftp.setBufferSize(1024);
+			ftp.setControlEncoding("utf-8");
+			ftp.enterLocalPassiveMode();
 			//上传文件
 			if (!ftp.storeFile(filename, input)) {
 				return result;
@@ -137,26 +135,33 @@ public class FtpUtil {
 		return result;
 	}
 
-	public static InputStream getInputStream(String host, int port, String username, String password, String remotePath,
+	public static String getInputStream(String host, int port, String username, String password, String remotePath,
 									   String fileName) {
-		InputStream result = null;
 		FTPClient ftp = new FTPClient();
+		InputStream inputStream = null;
+		byte[] bytes = null;
 		try {
 			int reply;
 			ftp.connect(host);
 			// 如果采用默认端口，可以使用ftp.connect(host)的方式直接连接FTP服务器
 			ftp.login(username, password);// 登录
-			ftp.setFileType(FTP.BINARY_FILE_TYPE);
+			ftp.setBufferSize(1024);
+			ftp.setControlEncoding("UTF-8");
 			reply = ftp.getReplyCode();
 			if (!FTPReply.isPositiveCompletion(reply)) {
 				ftp.disconnect();
-				return result;
+				return null;
 			}
 			ftp.changeWorkingDirectory(remotePath);// 转移到FTP服务器目录
+			ftp.enterLocalPassiveMode();
 			FTPFile[] fs = ftp.listFiles();
 			for (FTPFile ff : fs) {
 				if (ff.getName().equals(fileName)) {
-					result = ftp.retrieveFileStream(remotePath);
+					 ftp.setFileType(FTP.BINARY_FILE_TYPE);
+					 inputStream = ftp.retrieveFileStream(ff.getName());
+                    //转byte数组
+					bytes = input2byte(inputStream);
+					inputStream.close();
 				}
 			}
 			ftp.logout();
@@ -170,12 +175,29 @@ public class FtpUtil {
 				}
 			}
 		}
-		return result;
+		return new BASE64Encoder().encode(bytes) ;
 	}
-	
+
+	/**
+	 *  文件转byte
+	 * @param inStream
+	 * @return
+	 * @throws IOException
+	 */
+	public static byte[] input2byte(InputStream inStream) throws IOException {
+		ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
+		byte[] buff = new byte[inStream.available()];
+		int rc = 0;
+		while ((rc = inStream.read(buff, 0, buff.length)) > 0) {
+			swapStream.write(buff, 0, rc);
+		}
+		byte[] in2b = swapStream.toByteArray();
+		swapStream.close();
+		return in2b;
+	}
 	public static void main(String[] args) {
 		try {
-			long millis = System.currentTimeMillis();
+	/*		long millis = System.currentTimeMillis();
 			//long millis = System.nanoTime();
 			//加上三位随机数
 			Random random = new Random();
@@ -185,15 +207,29 @@ public class FtpUtil {
 	        FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
 			String imagePath = new DateTime().toString("yyyy/MM/dd");
 	        boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/",imagePath, name, in);
-	        System.out.println(flag);
-			/*boolean flag =	downloadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/2017/09/26/","1.jpg", "E:\\");
-			System.out.println(flag);*/
+	        System.out.println(flag);*/
+	        for (int i = 0;i<10; i++) {
+		    String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/09/", "4.jpg");
+		    System.out.println(bytes.length());
+	        }
+	     	/*InputStream fis = FileBase64ConvertUitl.decoderBase64File(bytes);
+			long millis = System.currentTimeMillis();
+			//long millis = System.nanoTime();
+			//加上三位随机数
+			Random random = new Random();
+			int end3 = random.nextInt(999);
+			//如果不足三位前面补0 图片新名称
+			String name = millis + String.format("%03d", end3) +".jpg";
+			//FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
+			String imagePath = new DateTime().toString("yyyy/MM/dd");
+			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads",imagePath, name, fis);
 	        //缩略图
-			/*FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
+			*//*FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
 			String base64 = ImageUtil.compressImage(in,300,300);
 			InputStream is = FileBase64ConvertUitl.decoderBase64File(base64);
-			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/","2017/09/26", "1_S.jpg", is);*/
-	/*		boolean flag =	downloadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/2017/09/26/","1_S.jpg", "E:\\");
+			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/","2017/09/26", "1_S.jpg", is);*//**//*
+			//boolean flag1 =	downloadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/09/","1507516521889432.jpg", "E:\\");
+			System.out.println(flag);*//*
 			System.out.println(flag);*/
 		} catch (Exception e) {
 	        e.printStackTrace();  

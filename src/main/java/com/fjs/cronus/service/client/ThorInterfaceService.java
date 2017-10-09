@@ -377,7 +377,7 @@ public interface ThorInterfaceService {
     @RequestMapping(value = "/api/v1/getSubUserByUserId",method = RequestMethod.POST)
     BaseUcDTO getSubUserByUserId(@RequestHeader("Authorization") String token,
                                  @RequestParam(value = "user_id") Integer user_id,
-                                 @RequestParam(value = "data_type") Integer data_type);
+                                 @RequestParam(value = "system") String system);
 
 
     /**

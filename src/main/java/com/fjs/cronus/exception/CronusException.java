@@ -39,6 +39,7 @@ public class CronusException extends BaseException {
         CEM_CUSTOMERBASEINFO_ERROR("6019","不存在该面谈信息"),
         CEM_CUSTOMERIDENTITYINFO_ERROR("6920","查询出错，未查到相关信息"),
         CRM_UPLOADERROR_ERROR("6922","文件上传失败"),
+        CRM_DOWNLOADERROR_ERROR("6923","文件下载失败"),
         ;
 
         private String status;

@@ -636,9 +636,9 @@ public class ThorController {
     @RequestMapping(value = "/api/v1/getSubUserByUserId",method = RequestMethod.POST)
     @ResponseBody
     public BaseUcDTO getSubUserByUserId(@RequestHeader String Authorization, @RequestParam(required = false) Integer user_id,
-                                        @RequestParam(required = false) Integer data_type){
+                                        @RequestParam(required = false) String system){
         try{
-            return thorInterfaceService.getSubUserByUserId(Authorization, user_id, data_type);
+            return thorInterfaceService.getSubUserByUserId(Authorization, user_id, system);
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
             return new BaseUcDTO(9000,  e.getMessage(), null);
