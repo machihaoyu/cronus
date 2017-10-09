@@ -40,6 +40,7 @@ public class CronusException extends BaseException {
         CEM_CUSTOMERIDENTITYINFO_ERROR("6920","查询出错，未查到相关信息"),
         CRM_UPLOADERROR_ERROR("6922","文件上传失败"),
         CRM_DOWNLOADERROR_ERROR("6923","文件下载失败"),
+        CRM_CUSTOMEHOUSE_ERROR("6924","客户房产不能为空"),
         ;
 
         private String status;

@@ -399,7 +399,7 @@ public class DocumentService {
        List paramsList = new ArrayList();
        paramsList.add(customer_id);
        paramsMap.put("paramsList",paramsList);
-       CustomerInfo customerInfo = customerInfoMapper.fingByFeild(paramsMap);
+       CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
        //通过$category获取这个图片的分类属性
        DocumentCategory documentCategory = documentCategoryMapper.selectByKey(category);
        //参数使用json

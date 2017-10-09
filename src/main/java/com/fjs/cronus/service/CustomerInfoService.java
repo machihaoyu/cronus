@@ -8,6 +8,7 @@ import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
+import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.FastJsonUtils;
@@ -26,7 +27,8 @@ public class CustomerInfoService {
 
     @Autowired
     CustomerInfoMapper customerInfoMapper;
-
+    @Autowired
+    UcService ucService;
     public  List<CustomerInfo> findList(){
         List<CustomerInfo> resultList = new ArrayList();
         resultList = customerInfoMapper.selectAll();
@@ -71,44 +73,25 @@ public class CustomerInfoService {
         return  result;
     }
 
-    public CronusDto addCustomer(JSONObject jsonObject){
+    public CronusDto addCustomer(CustomerDTO customerDTO,String token){
         CronusDto cronusDto = new CronusDto();
-        //校验参数
-         /*String telephonenumber = jsonObject.getString("telephonenumber");
-         String customerName = jsonObject.getString("customerName");
-         String customerLevel  = jsonObject.getString("customerName");
-         String sparePhone = jsonObject.getString("customerName");
-         String age = jsonObject.getString("customerName");
-         String marriage = jsonObject.getString("customerName");
-         String idCard = jsonObject.getString("customerName");
-         String provinceHuji = jsonObject.getString("customerName");
-         String sex = jsonObject.getString("customerName");
-         String customerAddress = jsonObject.getString("customerName");
-         String houseStatus = jsonObject.getString("customerName");
-         String houseAmount = jsonObject.getString("customerName");
-         String houseType = jsonObject.getString("customerName");
-         String houseValue = jsonObject.getString("customerName");
-         String houseArea = jsonObject.getString("customerName");
-         String houseAge = jsonObject.getString("customerName");
-         String houseLoan = jsonObject.getString("customerName");
-         String houseAlone = jsonObject.getString("customerName");
-         String houseLocation = jsonObject.getString("customerName");
-         String city = jsonObject.getString("customerName");
-         String customerClassify = jsonObject.getString("customerName");
-         String callbackStatus = jsonObject.getString("customerName");
-         Date callbackTime = jsonObject.getDate("customerName");
-         Integer subCompanyId = jsonObject.getInteger("customerName");
-         String perDescription = jsonObject.getString("customerName");
          //判断必传字段*/
          //json转map 参数，教研参数
-         validAddData(jsonObject);
-         Map<String,Object> paramsMap = FastJsonUtils.json2Map(jsonObject.toJSONString());
-         if (paramsMap.isEmpty()){
-             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
-         }
-         CustomerInfo customerInfo = customerInfoMapper.insertCustomer(paramsMap);
-
-         if (customerInfo == null){
+        Integer user_id = ucService.getUserIdByToken(token);
+        if (user_id == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户面谈信息出错!");
+        }
+         validAddData(customerDTO);
+         //实体与DTO相互转换
+         CustomerInfo customerInfo = new CustomerInfo();
+         EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
+         Date date = new Date();
+         customerInfo.setCreateTime(date);
+         customerInfo.setCreateUser(user_id);
+         customerInfo.setLastUpdateTime(date);
+         customerInfo.setLastUpdateUser(user_id);
+         customerInfoMapper.insertCustomer(customerInfo);
+         if (customerInfo.getId() == null){
              throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
          }
         cronusDto.setResult(ResultResource.CODE_SUCCESS);
@@ -126,7 +109,7 @@ public class CustomerInfoService {
         paramsList.add(encryptTelephone);
         paramsList.add(telephonenumber);
         paramsMap.put("paramsList",paramsList);
-        CustomerInfo customerInfo = customerInfoMapper.fingByFeild(paramsMap);
+        CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
         if (customerInfo == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
@@ -163,10 +146,62 @@ public class CustomerInfoService {
         }
         return  resultDto;
     }
-    public void validAddData(JSONObject jsonObject){
-        String customerName = jsonObject.getString("customerName");
-        String telephonenumber = jsonObject.getString("telephonenumber");
-        Integer customerId = jsonObject.getInteger("id");
+    public CronusDto editCustomer(Integer customerId){
+        CronusDto resultDto = new CronusDto();
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("id",customerId);
+        CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
+        if (customerInfo == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        CustomerDTO customerDto = new CustomerDTO();
+        EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(customerDto);
+        return  resultDto;
+    }
+
+    /**
+     * 提交编辑用户
+     * @return
+     */
+    public CronusDto editCustomerOk(CustomerDTO customerDTO,String token){
+        CronusDto resultDto = new CronusDto();
+        //校验参数手机号不更新
+        Integer user_id = ucService.getUserIdByToken(token);
+        if (user_id == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "编辑客户面谈信息出错!");
+        }
+        Map<String,Object> paramsMap = new HashMap<>();
+        if (customerDTO.getId() == null || "".equals(customerDTO.getId()) ){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        if (customerDTO.getCustomerName() == null || "".equals(customerDTO.getCustomerName()) ){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERNAME_ERROR);
+        }
+        if (customerDTO.getHouseStatus() == null || "".equals(customerDTO.getHouseStatus())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEHOUSE_ERROR);
+        }
+        Integer id = customerDTO.getId();
+        paramsMap.put("id",id);
+        CustomerInfo customerInfo  = customerInfoMapper.findByFeild(paramsMap);
+        if (customerInfo == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        Date date = new Date();
+        EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
+        customerInfo.setLastUpdateTime(date);
+        customerInfo.setLastUpdateUser(user_id);
+        customerInfoMapper.updateCustomer(customerInfo);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        return  resultDto;
+    }
+    public void validAddData(CustomerDTO customerInfo){
+        String customerName = customerInfo.getCustomerName();
+        String telephonenumber = customerInfo.getTelephonenumber();
+        Integer customerId = customerInfo.getId();
 
         if (customerName == null || "".equals(customerName)){
             throw new CronusException(CronusException.Type.CRM_CUSTOMERNAME_ERROR);

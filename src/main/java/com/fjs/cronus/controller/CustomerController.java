@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.CustomerInfoService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -44,8 +46,8 @@ public class CustomerController {
                                   @RequestParam(value = "createTimeStart",required = false) String createTimeStart,
                                   @RequestParam(value = "createTimeEnd",required = false) String createTimeEnd,
                                   @RequestParam(value = "telephonenumber",required = false) String telephonenumber,
-                                  @RequestParam(value = "page",required = true) Integer page,
-                                  @RequestParam(value = "size",required = true) Integer size) {
+                                  @RequestParam(value = "page",required = true,defaultValue = "1") Integer page,
+                                  @RequestParam(value = "size",required = true,defaultValue = "10") Integer size) {
 
 
         CronusDto cronusDto = new CronusDto();
@@ -70,40 +72,14 @@ public class CustomerController {
     @ApiOperation(value="手动添加客户", notes="手动添加客户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "JSONObject", value = "{      \n" +
-                    "        \"telephonenumber\":\"xxxxxxxxxxx\"\n" +
-                    "        \"customerName\":\"xxxxxxxxxxx\"\n" +
-                    "        \"customerLevel\":\"xxxxxxxxxxx\"\n" +
-                    "        \"sparePhone\":\"xxxxxxxxxxx\"\n" +
-                    "        \"age\":\"xxxxxxxxxxx\"\n" +
-                    "        \"marriage\":\"xxxxxxxxxxx\"\n" +
-                    "        \"idCard\":\"xxxxxxxxxxx\"\n" +
-                    "        \"provinceHuji\":\"xxxxxxxxxxx\"\n" +
-                    "        \"sex\":\"xxxxxxxxxxx\"\n" +
-                    "        \"customerAddress\":\"xxxxxxxxxxx\"\n" +
-                    "        \"houseStatus\":\"xxxxxxxxxxx\"\n" +
-                    "        \"houseAmount\":\"xxxxxxxxxxx\"\n" +
-                    "        \"houseType\":\"xxxxxxxxxxx\"\n" +
-                    "        \"houseValue\":\"xxxxxxxxxxx\"\n" +
-                    "        \"houseArea\":\"xxxxxxxxxxx\"\n" +
-                    "        \"houseAge\":\"xxxxxxxxxxx\"\n" +
-                    "        \"houseLoan\":\"xxxxxxxxxxx\"\n" +
-                    "        \"houseAlone\":\"xxxxxxxxxxx\"\n" +
-                    "        \"houseLocation\":\"xxxxxxxxxxx\"\n" +
-                    "        \"city\":\"xxxxxxxxxxx\"\n" +
-                    "        \"customerClassify\":\"xxxxxxxxxxx\"\n" +
-                    "        \"callbackStatus\":\"xxxxxxxxxxx\"\n" +
-                    "        \"callbackTime\":\"xxxxxxxxxxx\"\n" +
-                    "        \"subCompanyId\":\"xxxxxxxxxxx\"\n" +
-                    "        \"perDescription\":\"xxxxxxxxxxx\"\n" +
-                    "}", required = true, paramType = "query", dataType = "JSONObject")
+            @ApiImplicitParam(name = "customerDTO", value = "", required = true, paramType = "body", dataType = "CustomerDTO")
     })
     @RequestMapping(value = "/addCrmCustomer", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto addCrmCustomer(@RequestBody JSONObject jsonObject) {
+    public CronusDto addCrmCustomer(@RequestBody CustomerDTO customerDTO, @RequestHeader("Authorization") String token) {
         CronusDto cronusDto = new CronusDto();
         try {
-            cronusDto = customerInfoService.addCustomer(jsonObject);
+            cronusDto = customerInfoService.addCustomer(customerDTO,token);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->customerList获取列表信息操作失败", e);
@@ -166,4 +142,53 @@ public class CustomerController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
+    @ApiOperation(value="编辑客户信息", notes="编辑客户信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/editCustomer", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto editCustomer(@RequestParam Integer customerId) {
+        CronusDto cronusDto = new CronusDto();
+        try {
+            //   String customerids = jsonObject.getString("customerids");
+            if (customerId == null || "".equals(customerId)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+            }
+            cronusDto = customerInfoService.editCustomer(customerId);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->获取用户信息失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+
+    @ApiOperation(value="提交编辑客户信息", notes="提交编辑客户信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerDTO", value = "", required = true, paramType = "body", dataType = "CustomerDTO")
+    })
+    @RequestMapping(value = "/editCustomerOk", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto editCustomerOk(@RequestBody CustomerDTO customerDTO, @RequestHeader("Authorization") String token) {
+        CronusDto cronusDto = new CronusDto();
+        try {
+            cronusDto = customerInfoService.editCustomerOk(customerDTO,token);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->editCustomerOk提交失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+
+
 }

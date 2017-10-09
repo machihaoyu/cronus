@@ -61,7 +61,7 @@ public class FtpUtil {
 			ftp.setFileType(FTP.BINARY_FILE_TYPE);
 			ftp.setBufferSize(1024);
 			ftp.setControlEncoding("utf-8");
-			ftp.enterLocalPassiveMode();
+			ftp.enterRemotePassiveMode();
 			//上传文件
 			if (!ftp.storeFile(filename, input)) {
 				return result;
@@ -146,24 +146,40 @@ public class FtpUtil {
 			// 如果采用默认端口，可以使用ftp.connect(host)的方式直接连接FTP服务器
 			ftp.login(username, password);// 登录
 			ftp.setBufferSize(1024);
-			ftp.setControlEncoding("UTF-8");
 			reply = ftp.getReplyCode();
 			if (!FTPReply.isPositiveCompletion(reply)) {
 				ftp.disconnect();
 				return null;
 			}
 			ftp.changeWorkingDirectory(remotePath);// 转移到FTP服务器目录
-			ftp.enterLocalPassiveMode();
 			FTPFile[] fs = ftp.listFiles();
-			for (FTPFile ff : fs) {
+			/*for (FTPFile ff : fs) {
 				if (ff.getName().equals(fileName)) {
 					 ftp.setFileType(FTP.BINARY_FILE_TYPE);
-					 inputStream = ftp.retrieveFileStream(ff.getName());
+					 ftp.enterLocalPassiveMode();
+					 inputStream = ftp.retrieveFileStream(new String(ff.getName().getBytes("UTF-8"), "ISO-8859-1"));
                     //转byte数组
+					System.out.println(inputStream.available());
+					System.out.println("*********************");
 					bytes = input2byte(inputStream);
+					//System.out.println(bytes.length);
 					inputStream.close();
 				}
+			}*/
+			ftp.setFileType(FTP.BINARY_FILE_TYPE);
+			ftp.enterLocalPassiveMode();
+			inputStream = ftp.retrieveFileStream(new String(fileName.getBytes("UTF-8"), "ISO-8859-1"));
+			//转byte数组
+			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+			byte[] buf = new byte[inputStream.available()];
+			int bufsize = 0;
+			while ((bufsize = inputStream.read(buf, 0, buf.length)) != -1) {
+				byteOut.write(buf, 0, bufsize);
 			}
+			bytes = byteOut.toByteArray();
+			System.out.println(bytes.length);
+			byteOut.close();
+			inputStream.close();
 			ftp.logout();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -208,10 +224,10 @@ public class FtpUtil {
 			String imagePath = new DateTime().toString("yyyy/MM/dd");
 	        boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/",imagePath, name, in);
 	        System.out.println(flag);*/
-	        for (int i = 0;i<10; i++) {
+	        //for (int i = 0;i<10; i++) {
 		    String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/09/", "4.jpg");
-		    System.out.println(bytes.length());
-	        }
+		   // System.out.println(bytes.length());
+	        //}
 	     	/*InputStream fis = FileBase64ConvertUitl.decoderBase64File(bytes);
 			long millis = System.currentTimeMillis();
 			//long millis = System.nanoTime();

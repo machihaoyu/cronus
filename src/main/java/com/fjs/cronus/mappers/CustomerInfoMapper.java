@@ -10,8 +10,14 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
 
 
     List <CustomerInfo> customerList(Map<String,Object> paramMap);
+
     Integer customerListCount(Map<String,Object> paramMap);
-    CustomerInfo insertCustomer(Map<String,Object> paramMap);
-    CustomerInfo fingByFeild(Map<String,Object> paramMap);
+
+    void insertCustomer(CustomerInfo customerInfo);
+
+    CustomerInfo findByFeild(Map<String,Object> paramMap);
+
     List<CustomerInfo> findCustomerListByFeild(Map<String,Object> paramMap);
+
+    void updateCustomer(CustomerInfo customerInfo);
 }
