@@ -194,6 +194,47 @@ public class FtpUtil {
 		return new BASE64Encoder().encode(bytes) ;
 	}
 
+	public static boolean delete(String host, int port, String username, String password, String remotePath,
+						  String fileName){
+        boolean flag = false;
+		FTPClient ftp = new FTPClient();
+		try {
+			int reply;
+			ftp.connect(host);
+			// 如果采用默认端口，可以使用ftp.connect(host)的方式直接连接FTP服务器
+			ftp.login(username, password);// 登录
+			ftp.setBufferSize(1024);
+			reply = ftp.getReplyCode();
+			if (!FTPReply.isPositiveCompletion(reply)) {
+				ftp.disconnect();
+				return flag;
+			}
+			ftp.changeWorkingDirectory(remotePath);// 转移到FTP服务器目录
+            //开始删除文件名
+			ftp.setFileType(FTP.BINARY_FILE_TYPE);
+			FTPFile[] fs = ftp.listFiles();
+			for (FTPFile ff : fs) {
+				if (ff.getName().equals(fileName)) {
+					ftp.setFileType(FTP.BINARY_FILE_TYPE);
+					flag = ftp.deleteFile(new String(ff.getName().getBytes("UTF-8"), "ISO-8859-1"));
+					return flag;
+				}
+			}
+
+			ftp.logout();
+		}catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (ftp.isConnected()) {
+				try {
+					ftp.disconnect();
+				} catch (IOException ioe) {
+				}
+			}
+		}
+		return  flag;
+	}
+
 	/**
 	 *  文件转byte
 	 * @param inStream
@@ -225,7 +266,7 @@ public class FtpUtil {
 	        boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/",imagePath, name, in);
 	        System.out.println(flag);*/
 	        //for (int i = 0;i<10; i++) {
-		    String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/09/", "4.jpg");
+		    //String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/09/", "4.jpg");
 		   // System.out.println(bytes.length());
 	        //}
 	     	/*InputStream fis = FileBase64ConvertUitl.decoderBase64File(bytes);
@@ -247,6 +288,8 @@ public class FtpUtil {
 			//boolean flag1 =	downloadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/09/","1507516521889432.jpg", "E:\\");
 			System.out.println(flag);*//*
 			System.out.println(flag);*/
+			boolean flag = delete("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/09/", "4.jpg");
+            System.out.println(flag);
 		} catch (Exception e) {
 	        e.printStackTrace();  
 	    }  

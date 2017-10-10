@@ -218,6 +218,21 @@ public class CustomerInfoService {
                 throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONERE_ERROR);
             }
         }
-
     }
+    public CronusDto findCustomerByFeild(Integer customerId){
+        CronusDto resultDto = new CronusDto();
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("id",customerId);
+        CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
+        if (customerInfo == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        CustomerDTO customerDto = new CustomerDTO();
+        EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(customerDto);
+        return  resultDto;
+    }
+
 }

@@ -184,4 +184,34 @@ public class DocumentController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
+
+    @ApiOperation(value="下载附件", notes="下载附件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/deleteDocument",method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto  deleteDocument(  @RequestParam(value = "remotePath",required = true) String remotePath,
+                                  @RequestParam(value = "fileName",required = true) String fileName){
+        logger.info("start deleteDocument!");
+        CronusDto resultDto = new CronusDto();
+        //校验参数
+        if (remotePath == null || "".equals(remotePath)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        if (fileName == null || "".equals(fileName)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        try {
+            resultDto  = documentService.deleteDocument(remotePath,fileName);
+        }catch (Exception e) {
+            logger.error("删除附件", e);
+            if (e instanceof CronusException) {
+                CronusException cronusException = (CronusException)e;
+                throw cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return  resultDto;
+    }
 }

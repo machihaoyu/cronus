@@ -28,4 +28,6 @@ public class ResultResource {
     public static String OCRSTATUS = "已校验";
 
     public static String SYSTEMNAME ="sale";
+
+    public static String DELETEERROR = "删除文件失败！";
 }

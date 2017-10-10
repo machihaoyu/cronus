@@ -1,0 +1,56 @@
+package com.fjs.cronus.controller;
+
+import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.service.RContractDocumentService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+/**
+ * Created by msi on 2017/10/10.
+ */
+
+@RequestMapping("/api/v1")
+@Controller
+public class RContractDocumentController {
+
+    private  static  final Logger logger = LoggerFactory.getLogger(RContractDocumentController.class);
+
+
+    @Autowired
+    RContractDocumentService rContractDocumentService;
+    @ApiOperation(value="根据客户id查找附件信息", notes="根据客户id查找附件信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "String")
+    })
+    @RequestMapping(value = "/findDocByCustomerId", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto findDocByCustomerId(@RequestParam Integer customerId ){
+        CronusDto cronusDto = new CronusDto();
+        try {
+            if (customerId == null || "".equals(customerId)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+            }
+            cronusDto = rContractDocumentService.findDocByCustomerId(customerId);
+
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->findDocByCustomerId获取用户附件信息失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+}

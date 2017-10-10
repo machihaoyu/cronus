@@ -660,6 +660,27 @@ public class DocumentService {
             e.printStackTrace();
         }
     }
+  public CronusDto  deleteDocument(String remotePath,String fileName){
 
-
+      CronusDto resultDto = new CronusDto();
+      //判断参数
+      if (remotePath == null || "".equals(remotePath)){
+          throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+      }
+      if (fileName == null || "".equals(fileName)){
+          throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+      }
+      //开始删除
+      boolean flag= FtpUtil.delete(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, fileName);
+      if (flag == true){
+          resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+          resultDto.setResult(ResultResource.CODE_SUCCESS);
+          resultDto.setData(flag);
+          return  resultDto;
+      }
+      resultDto.setMessage(ResultResource.DELETEERROR);
+      resultDto.setResult(ResultResource.CODE_OTHER_ERROR);
+      resultDto.setData(flag);
+      return  resultDto;
+  }
 }

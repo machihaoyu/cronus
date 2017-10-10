@@ -17,6 +17,36 @@ public class OcrDocumentDto  implements Serializable{
 
     private Integer rc_document_id;
 
+    private String documentSavename;
+
+    private String documentSavepath;
+
+    private String Url;
+
+    public String getUrl() {
+        return Url;
+    }
+
+    public void setUrl(String url) {
+        Url = url;
+    }
+
+    public String getDocumentSavename() {
+        return documentSavename;
+    }
+
+    public void setDocumentSavename(String documentSavename) {
+        this.documentSavename = documentSavename;
+    }
+
+    public String getDocumentSavepath() {
+        return documentSavepath;
+    }
+
+    public void setDocumentSavepath(String documentSavepath) {
+        this.documentSavepath = documentSavepath;
+    }
+
     public Integer getDocument_id() {
         return document_id;
     }
