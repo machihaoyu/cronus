@@ -7,6 +7,7 @@ import com.fjs.cronus.mappers.RContractDocumentMapper;
 import com.fjs.cronus.model.RContractDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +22,6 @@ public class RContractDocumentService {
 
     @Autowired
     RContractDocumentMapper rContractDocumentMapper;
-
 
     public CronusDto findDocByCustomerId(Integer customerId){
         CronusDto resultDto = new CronusDto();
@@ -50,5 +50,27 @@ public class RContractDocumentService {
         return  resultDto;
     }
 
+     public CronusDto checkCustomerIsUpload (Integer customerId){
+         boolean flag = false;
+         CronusDto resultDto = new CronusDto();
+         Map<String,Object> paramsMap = new HashMap<>();
+         //拼接参数
+         if (!StringUtils.isEmpty(customerId)){
+             paramsMap.put("customerId",customerId);
+         }
+         //查询id
 
+         paramsMap.put("identity",ResultResource.INENTITY);
+         paramsMap.put("household",ResultResource.HOUSEHOLD);
+
+         Integer count = rContractDocumentMapper.checkCustomerIsUpload(paramsMap);
+
+         if (count != null && count > 0 ){
+             flag = true;
+         }
+         resultDto.setData(flag);
+         resultDto.setResult(ResultResource.CODE_SUCCESS);
+         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+         return  resultDto;
+     }
 }

@@ -19,6 +19,7 @@ public enum OcrInfoEnum {
     ocr_drivervehicle(4, "drivervehicle"),
     ocr_houseRegister(5, "houseRegister");
 
+
     private int value;
     private String name;
 

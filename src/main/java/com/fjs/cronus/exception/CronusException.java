@@ -41,6 +41,7 @@ public class CronusException extends BaseException {
         CRM_UPLOADERROR_ERROR("6922","文件上传失败"),
         CRM_DOWNLOADERROR_ERROR("6923","文件下载失败"),
         CRM_CUSTOMEHOUSE_ERROR("6924","客户房产不能为空"),
+        CRM_CALLBACKCUSTOMER_ERROR("6925","非法操作"),
         ;
 
         private String status;

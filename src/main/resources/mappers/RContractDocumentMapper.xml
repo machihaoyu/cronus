@@ -47,7 +47,17 @@
   </if>
     order by r.last_update_time desc
   </select>
-
+  <select id="checkCustomerIsUpload" parameterType="java.util.Map" resultType="java.lang.Integer">
+    select
+    COUNT(*)
+    from r_contract_document r
+    left join document d on d.id = r.document_id
+    left join document_category c on r.document_c_id =c.id
+    where r.is_deleted = 0 and (c.document_c_name  = #{identity} or c.document_c_name = #{household})
+    <if test="customerId != null and customerId != ''">
+      and  r.customer_id = #{customerId}
+    </if>
+  </select>
   <select id="findByFeild" parameterType="java.util.Map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List"/>

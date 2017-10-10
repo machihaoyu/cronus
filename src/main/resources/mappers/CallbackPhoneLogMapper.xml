@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fjs.cronus.mappers.CallbackPhoneLogMapper">
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.CallbackPhoneLog">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="operat_user_id" jdbcType="INTEGER" property="operatUserId" />
+    <result column="operat_user_name" jdbcType="VARCHAR" property="operatUserName" />
+    <result column="customer_id" jdbcType="INTEGER" property="customerId" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_user" jdbcType="INTEGER" property="createUser" />
+    <result column="last_update_user" jdbcType="INTEGER" property="lastUpdateUser" />
+    <result column="last_update_time" jdbcType="TIMESTAMP" property="lastUpdateTime" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, operat_user_id, operat_user_name, customer_id, status, description, create_time, 
+    remark, create_user, last_update_user, last_update_time, is_deleted
+  </sql>
+  <select id="getCustomerId" parameterType="java.util.Map"  resultType="java.lang.Integer">
+  select customer_id from callback_phone_log
+  WHERE  is_deleted = 0
+  <if test="callback_user != null and callback_user != ''">
+    AND  operat_user_name = #{callback_user}
+  </if>
+    <if test="createTimeStart!=null and createTimeStart!='' and createTimeEnd!=null and createTimeEnd!=''">
+      and create_time BETWEEN ${createTimeStart} and ${createTimeEnd}
+    </if>
+    <if test="callback_user != null and callback_user != ''">
+      AND  operat_user_name = #{callback_user}
+    </if>
+    group by  customer_id;
+  </select>
+
+
+</mapper>

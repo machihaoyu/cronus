@@ -31,7 +31,7 @@ public class RContractDocumentController {
     @ApiOperation(value="根据客户id查找附件信息", notes="根据客户id查找附件信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "String")
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int")
     })
     @RequestMapping(value = "/findDocByCustomerId", method = RequestMethod.GET)
     @ResponseBody
@@ -46,6 +46,31 @@ public class RContractDocumentController {
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->findDocByCustomerId获取用户附件信息失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+
+    @ApiOperation(value="校验客户是否上传了身份证或者房产证", notes="校验客户是否上传了身份证或者房产证")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/checkCustomer", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto checkCustomer(@RequestParam Integer customerId ){
+        CronusDto cronusDto = new CronusDto();
+        try {
+            if (customerId == null || "".equals(customerId)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+            }
+            cronusDto = rContractDocumentService.checkCustomerIsUpload(customerId);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->checkCustomerIsUpload获取用户附件信息失败", e);
             if (e instanceof CronusException) {
                 CronusException thorException = (CronusException)e;
                 throw thorException;

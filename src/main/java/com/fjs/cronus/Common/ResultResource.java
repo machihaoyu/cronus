@@ -30,4 +30,10 @@ public class ResultResource {
     public static String SYSTEMNAME ="sale";
 
     public static String DELETEERROR = "删除文件失败！";
+
+    public static String INENTITY = "借款人(正)";
+
+    public static String HOUSEHOLD = "房产证";
+
+    public static String[] CITYS = {"北京","深圳","郑州","上海","杭州","苏州"};
 }

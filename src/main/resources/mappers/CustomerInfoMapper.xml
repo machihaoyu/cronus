@@ -46,7 +46,7 @@
   <sql id="Blob_Column_List" >
     per_description
   </sql>
-  <select id="customerListCount" resultType="java.lang.Integer">
+  <select id="customerListCount" parameterType="java.util.Map"  resultType="java.lang.Integer">
     select count(*) from customer_info c
     WHERE  1 = 1
     <if test="customerName !=null and customerName !=''">

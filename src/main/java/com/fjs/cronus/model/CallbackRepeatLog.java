@@ -2,7 +2,7 @@ package com.fjs.cronus.model;
 
 import java.util.Date;
 
-public class CallbackLog {
+public class CallbackRepeatLog extends BaseModel{
     private Integer id;
 
     private Integer customerId;
@@ -11,11 +11,9 @@ public class CallbackLog {
 
     private String createUserName;
 
-    private String question;
+    private String phoneStatus;
 
-    private String answer;
-
-    private Date createTime;
+    private String remark;
 
     public Integer getId() {
         return id;
@@ -49,27 +47,19 @@ public class CallbackLog {
         this.createUserName = createUserName;
     }
 
-    public String getQuestion() {
-        return question;
+    public String getPhoneStatus() {
+        return phoneStatus;
     }
 
-    public void setQuestion(String question) {
-        this.question = question;
+    public void setPhoneStatus(String phoneStatus) {
+        this.phoneStatus = phoneStatus;
     }
 
-    public String getAnswer() {
-        return answer;
+    public String getRemark() {
+        return remark;
     }
 
-    public void setAnswer(String answer) {
-        this.answer = answer;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

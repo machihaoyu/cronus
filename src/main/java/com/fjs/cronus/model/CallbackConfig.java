@@ -1,8 +1,10 @@
 package com.fjs.cronus.model;
 
-import java.util.Date;
 
-public class CallbackConfig extends BaseModel {
+
+
+
+public class CallbackConfig extends BaseModel{
     private Integer confId;
 
     private String cycle;
@@ -22,7 +24,7 @@ public class CallbackConfig extends BaseModel {
     }
 
     public void setCycle(String cycle) {
-        this.cycle = cycle == null ? null : cycle.trim();
+        this.cycle = cycle;
     }
 
     public String getQuestion() {
@@ -30,6 +32,6 @@ public class CallbackConfig extends BaseModel {
     }
 
     public void setQuestion(String question) {
-        this.question = question == null ? null : question.trim();
+        this.question = question;
     }
 }
