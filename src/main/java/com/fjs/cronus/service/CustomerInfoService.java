@@ -206,7 +206,7 @@ public class CustomerInfoService {
         if (customerName == null || "".equals(customerName)){
             throw new CronusException(CronusException.Type.CRM_CUSTOMERNAME_ERROR);
         }
-        if (telephonenumber == null || "".equals(telephonenumber) ||  Pattern.compile("/[0-9]{11}$/").matcher(telephonenumber).find() == false) {
+        if (telephonenumber == null || "".equals(telephonenumber)) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONE_ERROR);
         }
         //判断手机号是否被注册
