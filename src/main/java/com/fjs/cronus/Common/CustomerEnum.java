@@ -44,7 +44,7 @@ public enum CustomerEnum {
     }
     public static CustomerEnum getByIndex(String value) {
         for (CustomerEnum ocrInfoEnum : values()) {
-            if (ocrInfoEnum.getName() == value) {
+            if (ocrInfoEnum.getName() .equals(value)) {
                 return ocrInfoEnum;
             }
         }
@@ -66,7 +66,8 @@ public enum CustomerEnum {
                 break;
         }
 */
-        System.out.println(getByIndex("协议客户").getValue());
+        Integer a = getByIndex("意向客户").getValue();
+        System.out.println(a);
 
     }
 

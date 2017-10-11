@@ -1,5 +1,7 @@
 package com.fjs.cronus.dto.cronus;
 
+import com.alibaba.fastjson.JSONArray;
+
 import java.io.Serializable;
 
 /**
@@ -12,7 +14,7 @@ public class CallbackConfigDTO implements Serializable{
 
     private String cycle;
 
-    private String question;
+    private JSONArray question;
 
     public Integer getConfId() {
         return confId;
@@ -30,11 +32,11 @@ public class CallbackConfigDTO implements Serializable{
         this.cycle = cycle;
     }
 
-    public String getQuestion() {
+    public JSONArray getQuestion() {
         return question;
     }
 
-    public void setQuestion(String question) {
+    public void setQuestion(JSONArray question) {
         this.question = question;
     }
 }

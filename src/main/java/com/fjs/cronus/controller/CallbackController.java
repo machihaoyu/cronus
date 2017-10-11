@@ -28,7 +28,17 @@ public class CallbackController {
     @ApiOperation(value="回访客户列表", notes="回访客户列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "callbackQueryDto", value = "参数", required = true, paramType = "body", dataType = "CallbackQueryDto")
+            @ApiImplicitParam(name = "callback_user", value = "回访人", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "callback_start_time", value = "起始日期", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "callback_end_time", value = "结束日期", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "search_name", value = "客户姓名", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "type", value = "1 意向用户，2 协议用户，3 成交客户", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "search_city", value = "城市", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "search_telephone", value = "手机号", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "search_callback_status", value = "回防状态", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "communication_order", value = "1 从未回访，2 需要重新回访，3已经回访", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "page", value = "查询第几页(从1开始)", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "显示多少件", required = false, paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/callbackCustomerList", method = RequestMethod.GET)
     @ResponseBody
@@ -40,7 +50,7 @@ public class CallbackController {
                                             @RequestParam(value = "search_city",required = false) String search_city,
                                             @RequestParam(value = "search_telephone",required = false) String search_telephone,
                                             @RequestParam(value = "search_callback_status",required = false) String search_callback_status,
-                                            @RequestParam(value = "communication_order",required = false) Integer communication_order,
+                                            @RequestParam(value = "communication_order",required = false,defaultValue = "99") Integer communication_order,
                                             @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
                                             @RequestParam(value = "size",required = false,defaultValue = "20") Integer size,
                                             @RequestHeader("Authorization") String token){
@@ -49,7 +59,7 @@ public class CallbackController {
             queryResult  = callbackService.callbackCustomerList(callback_user,callback_start_time,callback_end_time,search_name,type,search_city,search_telephone,search_callback_status,page,size,communication_order,token);
             return queryResult;
         } catch (Exception e) {
-            logger.error("--------------->callbackCustomerList获取用户附件信息失败", e);
+            logger.error("--------------->callbackCustomerList获取用户信息失败", e);
             if (e instanceof CronusException) {
                 CronusException thorException = (CronusException)e;
                 throw thorException;
@@ -57,5 +67,34 @@ public class CallbackController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
+
+    @ApiOperation(value="打开回访页面", notes="打开回访页面")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+
+    })
+    @RequestMapping(value = "/editCallback", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto editCallback() {
+        CronusDto cronusDto = new CronusDto();
+
+        try {
+
+          //  cronusDto  = callbackService.editCallback();
+
+        } catch (Exception e) {
+            logger.error("--------------->callbackCustomerList获取用户信息失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+
+        return  cronusDto;
+
+
+    }
+
 
 }

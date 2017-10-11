@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.TypeReference;
 
 public class FastJsonUtils {
@@ -74,5 +75,10 @@ public class FastJsonUtils {
 
     public static String obj2JsonString(Object obj){
         return JSON.toJSONString(obj);
+    }
+
+    public static JSONArray stringToJsonArray(String str){
+
+        return  JSONArray.parseArray(str);
     }
 }

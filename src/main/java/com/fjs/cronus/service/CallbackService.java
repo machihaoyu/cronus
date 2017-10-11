@@ -20,6 +20,7 @@ import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.uc.LoaService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DateUtils;
+import com.fjs.cronus.util.FastJsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -55,7 +56,7 @@ public class CallbackService {
         //根据token查询到当前登录用户信息
         Integer user_id = ucService.getUserIdByToken(token);
         if (user_id == null){
-            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户面谈信息出错!");
+            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
         }
         if (type == null || "".equals(type)){
             throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
@@ -84,6 +85,7 @@ public class CallbackService {
 
         List<String> cityList = new ArrayList<>();
          if (!StringUtils.isEmpty(search_city)){
+             search_city="'" + search_city + "'";
              cityList.add(search_city);
              paramsMap.put("cityList",cityList);
          }else {
@@ -143,7 +145,7 @@ public class CallbackService {
         //遍历
         for (CustomerInfo customerInfo : customerInfoList) {
             CallbackCustomerDTO callbackCustomerDTO = new CallbackCustomerDTO();
-            LoanDTO dto  = loaService.selectByCustomerId(token,customerInfo.getId());
+           LoanDTO dto  = loaService.selectByCustomerId(token,customerInfo.getId());
             if (dto == null){
                 throw new CronusException(CronusException.Type.CRM_CUSTOMERLOAN_ERROR);
             }
@@ -191,15 +193,12 @@ public class CallbackService {
             //遍历
             Integer cycle  = null;
             for (CallbackConfigDTO callbackConfigDTO  : resultList) {
-
-                Integer type = CustomerEnum.getByIndex(customerInfo.getCustomerType()).getValue();
-                if (type.toString().equals(callbackConfigDTO.getCycle())){
+                Integer type = (CustomerEnum.getByIndex(customerInfo.getCustomerType())).getValue();
+                if (type == callbackConfigDTO.getConfId()){
                     cycle = Integer.parseInt(callbackConfigDTO.getCycle());
                 }
 
             }
-            //判断是否过回访时间  Long time1=Long.parseLong(DateUtils.format(create_time,DateUtils.FORMAT_FULL_Long));
-           // Long time2=Long.parseLong(DateUtils.format(date,DateUtils.FORMAT_FULL_Long));
             Date date = new Date();
             Date callbakTime = customerInfo.getCallbackTime();
             Long time1=Long.parseLong(DateUtils.format(date,DateUtils.FORMAT_FULL_Long));
@@ -225,8 +224,9 @@ public class CallbackService {
             throw new CronusException(CronusException.Type.CRM_CALLBACK_CONFIG_ERROR);
         }
         for ( CallbackConfigDTO callbackConfigDto : callbackConfigDtos) {
-           if (type == callbackConfigDto.getConfId());
-            cycle = Integer.parseInt(callbackConfigDto.getCycle());
+           if (type == callbackConfigDto.getConfId()) {
+               cycle = Integer.parseInt(callbackConfigDto.getCycle());
+           }
         }
 
     return cycle;
@@ -235,9 +235,9 @@ public class CallbackService {
     public List<CallbackConfigDTO>  getAllCallbackConfig(){
           //从缓存中获取配置
         List<CallbackConfigDTO> resultList = new ArrayList<>();
-        resultList = cronusRedisService.getRedisCronusInfo(ResultResource.CALLBACKCONFIG_KEY);
+        List<CallbackConfigDTO> redisList = cronusRedisService.getRedisCronusInfo(ResultResource.CALLBACKCONFIG_KEY);
     if (resultList != null && resultList.size() >0 ){
-        return  resultList;
+        return  redisList;
     }
     //从库中查询
     List<CallbackConfig> callbackConfigs = callbackConfigMapper.selectAll();
@@ -249,7 +249,7 @@ public class CallbackService {
             CallbackConfigDTO callbackConfigDto = new CallbackConfigDTO();
             callbackConfigDto.setConfId(callbackConfig.getConfId());
             callbackConfigDto.setCycle(callbackConfig.getCycle());
-            callbackConfigDto.setQuestion(callbackConfig.getQuestion());
+            callbackConfigDto.setQuestion(FastJsonUtils.stringToJsonArray(callbackConfig.getQuestion()));
             resultList.add(callbackConfigDto);
         }
         //存入缓存
