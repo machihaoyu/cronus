@@ -43,6 +43,7 @@ public class CronusException extends BaseException {
         CRM_CUSTOMEHOUSE_ERROR("6924","客户房产不能为空"),
         CRM_CALLBACKCUSTOMER_ERROR("6925","非法操作"),
         CRM_CALLBACK_CONFIG_ERROR("6926","获取不到配置信息"),
+        CRM_CUSTOMERLOAN_ERROR("6027","未找到当前客户交易信息"),
         ;
 
         private String status;

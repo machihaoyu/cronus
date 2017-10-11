@@ -1,7 +1,5 @@
 package com.fjs.cronus.service.redis;
 
-import com.fjs.cronus.dto.cronus.CallbackConfigDto;
-import com.fjs.cronus.dto.cronus.UcUserDTO;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;

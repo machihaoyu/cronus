@@ -5,6 +5,7 @@
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="telephonenumber" property="telephonenumber" jdbcType="VARCHAR" />
     <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="customer_type" property="customerType" jdbcType="VARCHAR" />
     <result column="customer_level" property="customerLevel" jdbcType="VARCHAR" />
     <result column="spare_phone" property="sparePhone" jdbcType="VARCHAR" />
     <result column="age" property="age" jdbcType="VARCHAR" />
@@ -37,7 +38,7 @@
     <result column="per_description" property="perDescription" jdbcType="LONGVARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, telephonenumber, customer_name, customer_level, spare_phone, age, marriage, id_card, 
+    id, telephonenumber, customer_name, customer_type, customer_level, spare_phone, age, marriage, id_card,
     province_huji, sex, customer_address, house_status, house_amount, house_type, house_value, 
     house_area, house_age, house_loan, house_alone, house_location, city, customer_classify, 
     callback_status, callback_time, sub_company_id, create_time, last_update_time, create_user, 
@@ -95,6 +96,9 @@
           </if>
           <if test="customerName != null" >
               customer_name,
+          </if>
+          <if test="customerType != null" >
+              customer_type,
           </if>
           <if test="customerLevel != null" >
               customer_level,
@@ -291,6 +295,9 @@
      <if test="id != null and id !=''">
          and c.id = #{id}
      </if>
+     <if test="customerType != null and customerType !=''">
+         and c.customer_type = #{customerType}
+     </if>
 </select>
   <select id="findCustomerListByFeild" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
     select
@@ -318,6 +325,9 @@
             </if>
             <if test="customerName != null" >
                 customer_name = #{customerName,jdbcType=VARCHAR},
+            </if>
+            <if test="customerType != null" >
+                customer_type = #{customerType,jdbcType=VARCHAR},
             </if>
             <if test="customerLevel != null" >
                 customer_level = #{customerLevel,jdbcType=VARCHAR},
@@ -456,5 +466,14 @@
         </choose>
         ORDER BY  c.create_time DESC
         limit #{start},#{size}
+    </select>
+    <select id="findCustomerByType" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select
+        c.id
+        from customer_info  c
+        WHERE  c.is_deleted = 0
+        <if test="customerType != null and customerType !=''">
+            and c.customer_type = #{customerType}
+        </if>
     </select>
 </mapper>

@@ -1,7 +1,6 @@
 package com.fjs.cronus.controller;
 
 import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.cronus.CallbackQueryDto;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.CallbackService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -42,10 +41,11 @@ public class CallbackController {
                                           @RequestParam(value = "search_callback_status",required = false) String search_callback_status,
                                           @RequestParam(value = "communication_order",required = false) Integer communication_order,
                                           @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
-                                          @RequestParam(value = "size",required = false,defaultValue = "20") Integer size){
+                                          @RequestParam(value = "size",required = false,defaultValue = "20") Integer size,
+                                          @RequestHeader("Authorization") String token){
         CronusDto cronusDto = new CronusDto();
         try {
-            cronusDto  = callbackService.callbackCustomerList(callback_user,callback_start_time,callback_end_time,search_name,type,search_city,search_telephone,search_callback_status,page,size,communication_order);
+            cronusDto  = callbackService.callbackCustomerList(callback_user,callback_start_time,callback_end_time,search_name,type,search_city,search_telephone,search_callback_status,page,size,communication_order,token);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->callbackCustomerList获取用户附件信息失败", e);

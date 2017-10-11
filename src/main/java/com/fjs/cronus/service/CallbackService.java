@@ -2,10 +2,12 @@ package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CustomerEnum;
 import com.fjs.cronus.Common.ResultResource;
-import com.fjs.cronus.dto.ConfigFieldDTO;
 import com.fjs.cronus.dto.CronusDto;
 
-import com.fjs.cronus.dto.cronus.CallbackConfigDto;
+import com.fjs.cronus.dto.cronus.CallbackConfigDTO;
+import com.fjs.cronus.dto.cronus.CallbackCustomerDTO;
+import com.fjs.cronus.dto.cronus.CustomerDTO;
+import com.fjs.cronus.dto.loan.LoanDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CallbackConfigMapper;
 import com.fjs.cronus.mappers.CallbackPhoneLogMapper;
@@ -13,10 +15,11 @@ import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CallbackConfig;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.redis.CronusRedisService;
+import com.fjs.cronus.service.uc.LoaService;
+import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -37,13 +40,21 @@ public class CallbackService {
     CallbackConfigMapper callbackConfigMapper;
     @Autowired
     CustomerInfoMapper customerInfoMapper;
-
+    @Autowired
+    LoaService loaService;
+    @Autowired
+    UcService ucService;
     public CronusDto callbackCustomerList(String callback_user,String callback_start_time,String callback_end_time,String search_name,
-                                          Integer type,String search_city,String search_telephone,String search_callback_status,Integer page,Integer size,Integer communication_order){
+                                          Integer type,String search_city,String search_telephone,String search_callback_status,Integer page,Integer size,Integer communication_order,String token){
         CronusDto resultDto = new CronusDto();
         //筛选回访人
         List  customerIdList = new ArrayList();
         Map<String,Object> paramsMap = new HashMap<>();
+        //根据token查询到当前登录用户信息
+        Integer user_id = ucService.getUserIdByToken(token);
+        if (user_id == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户面谈信息出错!");
+        }
         if (type == null || "".equals(type)){
             throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
         }
@@ -125,14 +136,32 @@ public class CallbackService {
         paramsMap.put("start",(page-1) * size);
         paramsMap.put("size",size);
         List<CustomerInfo> customerInfoList = customerInfoMapper.getListByWhere(paramsMap);
+        List<CallbackCustomerDTO> resultList = new ArrayList<>();
         //遍历
         for (CustomerInfo customerInfo : customerInfoList) {
-
-            //LoanService
-
-
+            CallbackCustomerDTO callbackCustomerDTO = new CallbackCustomerDTO();
+            LoanDTO dto  = loaService.selectByCustomerId(token,customerInfo.getId());
+            if (dto == null){
+                throw new CronusException(CronusException.Type.CRM_CUSTOMERLOAN_ERROR);
+            }
+            callbackCustomerDTO.setId(customerInfo.getId());
+            callbackCustomerDTO.setCallbackStatus(customerInfo.getCallbackStatus());
+            if (customerInfo.getCallbackTime() != null) {
+                callbackCustomerDTO.setCallbackTime(customerInfo.getCallbackTime());
+            }
+            callbackCustomerDTO.setCity(customerInfo.getCity());
+            if (customerInfo.getCreateTime() != null){
+                callbackCustomerDTO.setCreateTime(customerInfo.getCreateTime());
+            }
+            String phoneNumber = customerInfo.getTelephonenumber().substring(0, 3) + "****" +customerInfo.getTelephonenumber().substring(7, customerInfo.getTelephonenumber().length());
+            callbackCustomerDTO.setTelephonenumber(phoneNumber);
+            callbackCustomerDTO.setCustomerLevel(customerInfo.getCustomerLevel());
+            callbackCustomerDTO.setCustomerName(customerInfo.getCustomerName());
+            callbackCustomerDTO.setLoanAmount(dto.getMindAmount());
+            callbackCustomerDTO.setOwnUserId(dto.getOwnUserId());
+            callbackCustomerDTO.setOwnUserName(dto.getOwnUserName());
+            resultList.add(callbackCustomerDTO);
         }
-
 
 
 
@@ -141,15 +170,34 @@ public class CallbackService {
         return  resultDto;
 
     }
+    public Integer createOrderWhere(CustomerInfo customerInfo){
+
+        Integer communicationOrder = null;
+        if (customerInfo.getCallbackTime() == null){
+            communicationOrder = 1;
+        }else {
+            List<CallbackConfigDTO> resultList = getAllCallbackConfig();
+            //遍历
+            for (CallbackConfigDTO callbackConfigDTO  : resultList) {
+
+            }
+
+        }
+
+        //
+
+             return  null;
+    }
+
 
     public Integer  getConfigTime(Integer type){
         //从缓存中获取到配置信息
         Integer cycle = null;
-        List<CallbackConfigDto> callbackConfigDtos = getAllCallbackConfig();
+        List<CallbackConfigDTO> callbackConfigDtos = getAllCallbackConfig();
         if (callbackConfigDtos  == null || callbackConfigDtos.size() == 0){
             throw new CronusException(CronusException.Type.CRM_CALLBACK_CONFIG_ERROR);
         }
-        for ( CallbackConfigDto callbackConfigDto : callbackConfigDtos) {
+        for ( CallbackConfigDTO callbackConfigDto : callbackConfigDtos) {
            if (type == callbackConfigDto.getConfId());
             cycle = Integer.parseInt(callbackConfigDto.getCycle());
         }
@@ -157,9 +205,9 @@ public class CallbackService {
     return cycle;
     }
 
-    public List<CallbackConfigDto>  getAllCallbackConfig(){
+    public List<CallbackConfigDTO>  getAllCallbackConfig(){
           //从缓存中获取配置
-        List<CallbackConfigDto> resultList = new ArrayList<>();
+        List<CallbackConfigDTO> resultList = new ArrayList<>();
         resultList = cronusRedisService.getRedisCronusInfo(ResultResource.CALLBACKCONFIG_KEY);
     if (resultList != null && resultList.size() >0 ){
         return  resultList;
@@ -171,7 +219,7 @@ public class CallbackService {
     }
         for (CallbackConfig callbackConfig : callbackConfigs) {
 
-            CallbackConfigDto callbackConfigDto = new CallbackConfigDto();
+            CallbackConfigDTO callbackConfigDto = new CallbackConfigDTO();
             callbackConfigDto.setConfId(callbackConfig.getConfId());
             callbackConfigDto.setCycle(callbackConfig.getCycle());
             callbackConfigDto.setQuestion(callbackConfig.getQuestion());

@@ -42,10 +42,18 @@ public enum CustomerEnum {
         }
         return null;
     }
+    public static CustomerEnum getByIndex(String value) {
+        for (CustomerEnum ocrInfoEnum : values()) {
+            if (ocrInfoEnum.getName() == value) {
+                return ocrInfoEnum;
+            }
+        }
+        return null;
+    }
     public static  void main(String args[]){
-        switch (CustomerEnum.getByValue(1)) {
+       /* switch (CustomerEnum.getByValue(1)) {
             case intentional_customer:
-                System.out.println(CustomerEnum.getByValue(3).getName());
+                System.out.println(CustomerEnum.);
                 break;
             case agreement_customer:
                 System.out.println("456789");
@@ -57,6 +65,8 @@ public enum CustomerEnum {
                 System.out.println("asfasdfdasf");
                 break;
         }
+*/
+        System.out.println(getByIndex("协议客户").getValue());
 
     }
 

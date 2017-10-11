@@ -139,10 +139,10 @@ public class CustomerInfoService {
             //TODO  增加source 调用接口 来源渠道
             customerDtos.add(customerDto);
         }
-        if (customerInfoList != null && customerInfoList.size() > 0) {
+        if (customerDtos != null && customerDtos.size() > 0) {
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDto.setResult(ResultResource.CODE_SUCCESS);
-            resultDto.setData(customerInfoList);
+            resultDto.setData(customerDtos);
         }
         return  resultDto;
     }
@@ -198,6 +198,23 @@ public class CustomerInfoService {
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         return  resultDto;
     }
+    public List findCustomerByType(String customerType){
+        Map<String,Object> paramsMap = new HashMap<>();
+        List<Integer> customerInfoList = new ArrayList<>();
+        if (!StringUtils.isEmpty(customerType)){
+        paramsMap.put("customerType",customerType);
+        }else {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        customerInfoList = customerInfoMapper.findCustomerByType(paramsMap);
+        //遍历
+        if (customerInfoList != null && customerInfoList.size() > 0) {
+           return  customerInfoList;
+        }
+        return  customerInfoList;
+
+    }
+
     public void validAddData(CustomerDTO customerInfo){
         String customerName = customerInfo.getCustomerName();
         String telephonenumber = customerInfo.getTelephonenumber();
@@ -224,7 +241,9 @@ public class CustomerInfoService {
     public CronusDto findCustomerByFeild(Integer customerId){
         CronusDto resultDto = new CronusDto();
         Map<String,Object> paramsMap = new HashMap<>();
-        paramsMap.put("id",customerId);
+        if (!StringUtils.isEmpty(customerId)) {
+            paramsMap.put("id", customerId);
+        }
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
         if (customerInfo == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);

@@ -1,6 +1,7 @@
 package com.fjs.cronus.dto.cronus;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
@@ -9,67 +10,70 @@ import java.util.Date;
  * Created by msi on 2017/9/14.
  */
 public class CustomerDTO {
+    @ApiModelProperty(value = "id")
     private Integer id;
-
+    @ApiModelProperty(value = "手机号码")
     private String telephonenumber;
-
+    @ApiModelProperty(value = "客户姓名")
     private String customerName;
-
+    @ApiModelProperty(value = "客户等级")
     private String customerLevel;
-
+    @ApiModelProperty(value = "备用联系方式")
     private String sparePhone;
-
+    @ApiModelProperty(value = "年龄")
     private String age;
-
+    @ApiModelProperty(value = "婚姻")
     private String marriage;
-
+    @ApiModelProperty(value = "身份证号码")
     private String idCard;
-
+    @ApiModelProperty(value = "户籍")
     private String provinceHuji;
-
+    @ApiModelProperty(value = "性别")
     private String sex;
-
+    @ApiModelProperty(value = "客户地址")
     private String customerAddress;
-
+    @ApiModelProperty(value = "有无房产")
     private String houseStatus;
-
+    @ApiModelProperty(value = "几套房")
     private String houseAmount;
-
+    @ApiModelProperty(value = "房产类型")
     private String houseType;
-
+    @ApiModelProperty(value = "房产估值")
     private String houseValue;
-
+    @ApiModelProperty(value = "房产面积")
     private String houseArea;
-
+    @ApiModelProperty(value = "房龄")
     private String houseAge;
-
+    @ApiModelProperty(value = "是否按揭")
     private String houseLoan;
-
+    @ApiModelProperty(value = "是否备用房")
     private String houseAlone;
-
+    @ApiModelProperty(value = "房产地址")
     private String houseLocation;
-
+    @ApiModelProperty(value = "所在城市")
     private String city;
-
+    @ApiModelProperty(value = "体现客户的状态")
     private String customerClassify;
-
+    @ApiModelProperty(value = "客户回访状态")
     private String callbackStatus;
-
+    @ApiModelProperty(value = "客户回访时间")
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date callbackTime;
-
+    @ApiModelProperty(value = "分公司id")
     private Integer subCompanyId;
-
+    @ApiModelProperty(value = "备注")
     private String perDescription;
+    @ApiModelProperty(value = "创建时间")
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+    @ApiModelProperty(value = "上回更新时间")
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date lastUpdateTime;
-
+    @ApiModelProperty(value = "创建用户")
     private Integer createUser;
-
+    @ApiModelProperty(value = "上回更新用户")
     private Integer lastUpdateUser;
-
+    @ApiModelProperty(value = "是否删除(1:已删除, 0:未删除)'")
     private Integer isDeleted;
     public Date getCreateTime() {
         return createTime;

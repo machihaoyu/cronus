@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * Created by msi on 2017/10/11.
  */
 
-/*@FeignClient(value = "${client.feign.loan-backend}", configuration = FeignClientConfig.class)*/
+@FeignClient(value = "${client.feign.thea-backend}", configuration = FeignClientConfig.class)
 public interface LoanService {
 
 

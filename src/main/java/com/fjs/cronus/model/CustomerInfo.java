@@ -13,6 +13,8 @@ public class CustomerInfo extends BaseModel {
 
     private String customerName;
 
+    private String customerType;
+
     private String customerLevel;
 
     private String sparePhone;
@@ -59,6 +61,14 @@ public class CustomerInfo extends BaseModel {
     private Integer subCompanyId;
 
     private String perDescription;
+
+    public String getCustomerType() {
+        return customerType;
+    }
+
+    public void setCustomerType(String customerType) {
+        this.customerType = customerType;
+    }
 
     public Integer getId() {
         return id;
