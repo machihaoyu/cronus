@@ -32,10 +32,11 @@ public class CallbackCustomerDTO {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date callbackTime;
 
-    private Integer subCompanyId;
-
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
+    private String sub_company;
+
 
     public Integer getId() {
         return id;
@@ -117,12 +118,12 @@ public class CallbackCustomerDTO {
         this.callbackTime = callbackTime;
     }
 
-    public Integer getSubCompanyId() {
-        return subCompanyId;
+    public String getSub_company() {
+        return sub_company;
     }
 
-    public void setSubCompanyId(Integer subCompanyId) {
-        this.subCompanyId = subCompanyId;
+    public void setSub_company(String sub_company) {
+        this.sub_company = sub_company;
     }
 
     public Date getCreateTime() {

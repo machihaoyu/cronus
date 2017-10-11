@@ -90,6 +90,7 @@ public class CustomerInfoService {
          customerInfo.setCreateUser(user_id);
          customerInfo.setLastUpdateTime(date);
          customerInfo.setLastUpdateUser(user_id);
+         customerInfo.setCustomerType(ResultResource.CUSTOMERTYPE);
          customerInfoMapper.insertCustomer(customerInfo);
          if (customerInfo.getId() == null){
              throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);

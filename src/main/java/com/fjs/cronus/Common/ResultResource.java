@@ -38,4 +38,8 @@ public class ResultResource {
     public static String[] CITYS = {"北京","深圳","郑州","上海","杭州","苏州"};
 
     public static  String CALLBACKCONFIG_KEY = "CALLBACJCONFIG";
+
+    public static  String CUSTOMERTYPE = "意向客户";
+
+    public static  String CUSTOMERSTATUS = "正常";
 }

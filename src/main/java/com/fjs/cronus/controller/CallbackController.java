@@ -1,6 +1,7 @@
 package com.fjs.cronus.controller;
 
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.CallbackService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -31,22 +32,22 @@ public class CallbackController {
     })
     @RequestMapping(value = "/callbackCustomerList", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto callbackCustomerList(@RequestParam(value = "callback_user",required = false) String callback_user,
-                                          @RequestParam(value = "callback_start_time",required = false) String callback_start_time,
-                                          @RequestParam(value = "callback_end_time",required = false) String callback_end_time,
-                                          @RequestParam(value = "search_name",required = false) String search_name,
-                                          @RequestParam(value = "type",required = false) Integer type,
-                                          @RequestParam(value = "search_city",required = false) String search_city,
-                                          @RequestParam(value = "search_telephone",required = false) String search_telephone,
-                                          @RequestParam(value = "search_callback_status",required = false) String search_callback_status,
-                                          @RequestParam(value = "communication_order",required = false) Integer communication_order,
-                                          @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
-                                          @RequestParam(value = "size",required = false,defaultValue = "20") Integer size,
-                                          @RequestHeader("Authorization") String token){
-        CronusDto cronusDto = new CronusDto();
+    public QueryResult callbackCustomerList(@RequestParam(value = "callback_user",required = false) String callback_user,
+                                            @RequestParam(value = "callback_start_time",required = false) String callback_start_time,
+                                            @RequestParam(value = "callback_end_time",required = false) String callback_end_time,
+                                            @RequestParam(value = "search_name",required = false) String search_name,
+                                            @RequestParam(value = "type",required = false) Integer type,
+                                            @RequestParam(value = "search_city",required = false) String search_city,
+                                            @RequestParam(value = "search_telephone",required = false) String search_telephone,
+                                            @RequestParam(value = "search_callback_status",required = false) String search_callback_status,
+                                            @RequestParam(value = "communication_order",required = false) Integer communication_order,
+                                            @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
+                                            @RequestParam(value = "size",required = false,defaultValue = "20") Integer size,
+                                            @RequestHeader("Authorization") String token){
+        QueryResult queryResult = new QueryResult();
         try {
-            cronusDto  = callbackService.callbackCustomerList(callback_user,callback_start_time,callback_end_time,search_name,type,search_city,search_telephone,search_callback_status,page,size,communication_order,token);
-            return cronusDto;
+            queryResult  = callbackService.callbackCustomerList(callback_user,callback_start_time,callback_end_time,search_name,type,search_city,search_telephone,search_callback_status,page,size,communication_order,token);
+            return queryResult;
         } catch (Exception e) {
             logger.error("--------------->callbackCustomerList获取用户附件信息失败", e);
             if (e instanceof CronusException) {

@@ -30,8 +30,14 @@ public class CustomerDTO {
     private String provinceHuji;
     @ApiModelProperty(value = "性别")
     private String sex;
+    @ApiModelProperty(value = "客户类型")
+    private String customerType;
+    @ApiModelProperty(value = "客户街道地址")
+    private String customerStreet;
+
     @ApiModelProperty(value = "客户地址")
     private String customerAddress;
+
     @ApiModelProperty(value = "有无房产")
     private String houseStatus;
     @ApiModelProperty(value = "几套房")
@@ -75,8 +81,26 @@ public class CustomerDTO {
     private Integer lastUpdateUser;
     @ApiModelProperty(value = "是否删除(1:已删除, 0:未删除)'")
     private Integer isDeleted;
+
+
+    public String getCustomerStreet() {
+        return customerStreet;
+    }
+
+    public void setCustomerStreet(String customerStreet) {
+        this.customerStreet = customerStreet;
+    }
+
     public Date getCreateTime() {
         return createTime;
+    }
+
+    public String getCustomerType() {
+        return customerType;
+    }
+
+    public void setCustomerType(String customerType) {
+        this.customerType = customerType;
     }
 
     public void setCreateTime(Date createTime) {

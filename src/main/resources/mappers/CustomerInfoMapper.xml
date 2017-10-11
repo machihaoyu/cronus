@@ -13,7 +13,8 @@
     <result column="id_card" property="idCard" jdbcType="VARCHAR" />
     <result column="province_huji" property="provinceHuji" jdbcType="VARCHAR" />
     <result column="sex" property="sex" jdbcType="VARCHAR" />
-    <result column="customer_address" property="customerAddress" jdbcType="VARCHAR" />
+      <result column="customer_street" property="customerStreet" jdbcType="VARCHAR" />
+      <result column="customer_address" property="customerAddress" jdbcType="VARCHAR" />
     <result column="house_status" property="houseStatus" jdbcType="VARCHAR" />
     <result column="house_amount" property="houseAmount" jdbcType="VARCHAR" />
     <result column="house_type" property="houseType" jdbcType="VARCHAR" />
@@ -39,7 +40,7 @@
   </resultMap>
   <sql id="Base_Column_List" >
     id, telephonenumber, customer_name, customer_type, customer_level, spare_phone, age, marriage, id_card,
-    province_huji, sex, customer_address, house_status, house_amount, house_type, house_value, 
+    province_huji, sex,customer_street, customer_address, house_status, house_amount, house_type, house_value,
     house_area, house_age, house_loan, house_alone, house_location, city, customer_classify, 
     callback_status, callback_time, sub_company_id, create_time, last_update_time, create_user, 
     last_update_user, is_deleted
@@ -121,6 +122,9 @@
           <if test="sex != null" >
               sex,
           </if>
+          <if test="customerStreet != null" >
+              customer_street,
+          </if>
           <if test="customerAddress != null" >
               customer_address,
           </if>
@@ -192,6 +196,9 @@
           <if test="customerName != null" >
               #{customerName,jdbcType=VARCHAR},
           </if>
+          <if test="customerType != null" >
+              #{customerType,jdbcType=VARCHAR},
+          </if>
           <if test="customerLevel != null" >
               #{customerLevel,jdbcType=VARCHAR},
           </if>
@@ -212,6 +219,9 @@
           </if>
           <if test="sex != null" >
               #{sex,jdbcType=VARCHAR},
+          </if>
+          <if test="customerStreet != null" >
+              #{customerStreet,jdbcType=VARCHAR},
           </if>
           <if test="customerAddress != null" >
               #{customerAddress,jdbcType=VARCHAR},
@@ -350,6 +360,9 @@
             <if test="sex != null" >
                 sex = #{sex,jdbcType=VARCHAR},
             </if>
+            <if test="customerStreet != null" >
+                customers_street = #{customerStreet,jdbcType=VARCHAR},
+            </if>
             <if test="customerAddress != null" >
                 customer_address = #{customerAddress,jdbcType=VARCHAR},
             </if>
@@ -475,5 +488,52 @@
         <if test="customerType != null and customerType !=''">
             and c.customer_type = #{customerType}
         </if>
+    </select>
+    <select id="getListByWhereCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select
+        COUNT(*)
+        from customer_info  c
+        WHERE  c.is_deleted = 0
+        <if test="customerIdList!=null and customerIdList.size>0">
+            AND c.id in
+            <foreach collection="customerIdList" item="customerIdList"
+                     index="index" open="(" close=")" separator=",">
+                ${customerIdList}
+            </foreach>
+        </if>
+        <if test="customer_type!=null and customer_type!=''">
+            and c.customer_type = #{customer_type}
+        </if>
+        <if test="cityList!=null and cityList.size>0">
+            AND c.id in
+            <foreach collection="cityList" item="cityList"
+                     index="index" open="(" close=")" separator=",">
+                ${cityList}
+            </foreach>
+        </if>
+        <if test="search_name !=null and search_name !=''">
+            and c.customer_name = #{search_name}
+        </if>
+        <if test="search_telephone != null and search_telephone != ''">
+            and c.telephonenumber = #{search_telephone}
+        </if>
+        <if test="search_callback_status != null and search_callback_status != ''">
+            and c.callback_status = #{search_callback_status}
+        </if>
+        <choose>
+            <when test="communication_order != null and order == 1">
+                and c.callback_time is NULL
+            </when>
+            <when test="communication_order != null and order == 2">
+                and c.callback_time is NOT NULL and  c.callback_time &lt;= #{searchTime}
+            </when>
+
+            <when test="communication_order != null and order == 3">
+                and c.callback_time is NOT NULL and  c.callback_time &gt;= #{searchTime} AND c.callback_status=#{callback_status}
+            </when>
+            <otherwise>searchTime
+                and c.callback_time is  NULL or c.callback_time &lt;= #{searchTime}
+            </otherwise>
+        </choose>
     </select>
 </mapper>

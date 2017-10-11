@@ -31,6 +31,8 @@ public class CustomerInfo extends BaseModel {
 
     private String customerAddress;
 
+    private String customerStreet;
+
     private String houseStatus;
 
     private String houseAmount;
@@ -64,6 +66,14 @@ public class CustomerInfo extends BaseModel {
 
     public String getCustomerType() {
         return customerType;
+    }
+
+    public String getCustomerStreet() {
+        return customerStreet;
+    }
+
+    public void setCustomerStreet(String customerStreet) {
+        this.customerStreet = customerStreet;
     }
 
     public void setCustomerType(String customerType) {

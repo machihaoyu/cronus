@@ -4,9 +4,11 @@ import com.fjs.cronus.Common.CustomerEnum;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 
+import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.CallbackConfigDTO;
 import com.fjs.cronus.dto.cronus.CallbackCustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
+import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.loan.LoanDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CallbackConfigMapper;
@@ -44,9 +46,9 @@ public class CallbackService {
     LoaService loaService;
     @Autowired
     UcService ucService;
-    public CronusDto callbackCustomerList(String callback_user,String callback_start_time,String callback_end_time,String search_name,
-                                          Integer type,String search_city,String search_telephone,String search_callback_status,Integer page,Integer size,Integer communication_order,String token){
-        CronusDto resultDto = new CronusDto();
+    public QueryResult callbackCustomerList(String callback_user, String callback_start_time, String callback_end_time, String search_name,
+                                            Integer type, String search_city, String search_telephone, String search_callback_status, Integer page, Integer size, Integer communication_order, String token){
+        QueryResult resultDto = new QueryResult();
         //筛选回访人
         List  customerIdList = new ArrayList();
         Map<String,Object> paramsMap = new HashMap<>();
@@ -136,6 +138,7 @@ public class CallbackService {
         paramsMap.put("start",(page-1) * size);
         paramsMap.put("size",size);
         List<CustomerInfo> customerInfoList = customerInfoMapper.getListByWhere(paramsMap);
+        Integer count = customerInfoMapper.getListByWhereCount(paramsMap);
         List<CallbackCustomerDTO> resultList = new ArrayList<>();
         //遍历
         for (CustomerInfo customerInfo : customerInfoList) {
@@ -154,19 +157,27 @@ public class CallbackService {
                 callbackCustomerDTO.setCreateTime(customerInfo.getCreateTime());
             }
             String phoneNumber = customerInfo.getTelephonenumber().substring(0, 3) + "****" +customerInfo.getTelephonenumber().substring(7, customerInfo.getTelephonenumber().length());
+            Integer communicationOrder = createOrderWhere(customerInfo);
+            callbackCustomerDTO.setCommunicationOrder(communicationOrder);
             callbackCustomerDTO.setTelephonenumber(phoneNumber);
             callbackCustomerDTO.setCustomerLevel(customerInfo.getCustomerLevel());
             callbackCustomerDTO.setCustomerName(customerInfo.getCustomerName());
             callbackCustomerDTO.setLoanAmount(dto.getMindAmount());
-            callbackCustomerDTO.setOwnUserId(dto.getOwnUserId());
-            callbackCustomerDTO.setOwnUserName(dto.getOwnUserName());
+            if (dto.getOwnUserId() != null) {
+                callbackCustomerDTO.setOwnUserId(dto.getOwnUserId());
+            }
+            callbackCustomerDTO.setOwnUserName("无");
+            callbackCustomerDTO.setSub_company("未知");
+            if (dto.getOwnUserId() != null){
+
+                 UcUserDTO ucUserDTO = ucService.getUserInfoByID(token,dto.getOwnUserId());
+                callbackCustomerDTO.setOwnUserName(ucUserDTO.getName());
+                callbackCustomerDTO.setSub_company(ucUserDTO.getSub_company_name());
+            }
             resultList.add(callbackCustomerDTO);
         }
-
-
-
-
-
+        resultDto.setRows(resultList);
+        resultDto.setTotal(count.toString());
         return  resultDto;
 
     }
@@ -178,15 +189,31 @@ public class CallbackService {
         }else {
             List<CallbackConfigDTO> resultList = getAllCallbackConfig();
             //遍历
+            Integer cycle  = null;
             for (CallbackConfigDTO callbackConfigDTO  : resultList) {
 
-            }
+                Integer type = CustomerEnum.getByIndex(customerInfo.getCustomerType()).getValue();
+                if (type.toString().equals(callbackConfigDTO.getCycle())){
+                    cycle = Integer.parseInt(callbackConfigDTO.getCycle());
+                }
 
+            }
+            //判断是否过回访时间  Long time1=Long.parseLong(DateUtils.format(create_time,DateUtils.FORMAT_FULL_Long));
+           // Long time2=Long.parseLong(DateUtils.format(date,DateUtils.FORMAT_FULL_Long));
+            Date date = new Date();
+            Date callbakTime = customerInfo.getCallbackTime();
+            Long time1=Long.parseLong(DateUtils.format(date,DateUtils.FORMAT_FULL_Long));
+            Long time2=Long.parseLong(DateUtils.format(callbakTime,DateUtils.FORMAT_FULL_Long));
+            if (time1 - time2 < (long)cycle*30*24*60*60 && ResultResource.CUSTOMERSTATUS.equals(customerInfo.getCallbackStatus())){
+                communicationOrder = 3;
+            }else {
+                communicationOrder = 2;
+            }
         }
 
         //
 
-             return  null;
+             return  communicationOrder;
     }
 
 
@@ -225,7 +252,6 @@ public class CallbackService {
             callbackConfigDto.setQuestion(callbackConfig.getQuestion());
             resultList.add(callbackConfigDto);
         }
-
         //存入缓存
         cronusRedisService.setRedisCronusInfo(ResultResource.CALLBACKCONFIG_KEY,resultList);
         return resultList;

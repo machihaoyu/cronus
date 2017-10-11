@@ -129,6 +129,12 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getCreateTime())){
             dto.setCreateTime(customerInfo.getCreateTime());
         }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerType())){
+            dto.setCustomerType(customerInfo.getCustomerType());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerStreet())){
+            dto.setCustomerStreet(customerInfo.getCustomerStreet());
+        }
     }
     public static void customerCustomerDtoToEntity(CustomerDTO customerInfo, CustomerInfo dto){
 
@@ -245,6 +251,9 @@ public class EntityToDto {
         }
         if (!StringUtils.isEmpty(customerInfo.getCreateTime())){
             dto.setCreateTime(customerInfo.getCreateTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerStreet())){
+            dto.setCustomerStreet(customerInfo.getCustomerStreet());
         }
     }
 
