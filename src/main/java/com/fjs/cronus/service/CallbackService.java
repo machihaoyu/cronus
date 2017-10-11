@@ -2,14 +2,21 @@ package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CustomerEnum;
 import com.fjs.cronus.Common.ResultResource;
+import com.fjs.cronus.dto.ConfigFieldDTO;
 import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.cronus.CallbackQueryDto;
+
+import com.fjs.cronus.dto.cronus.CallbackConfigDto;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.CallbackConfigMapper;
 import com.fjs.cronus.mappers.CallbackPhoneLogMapper;
+import com.fjs.cronus.mappers.CustomerInfoMapper;
+import com.fjs.cronus.model.CallbackConfig;
+import com.fjs.cronus.model.CustomerInfo;
+import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.util.DateUtils;
-import com.fjs.cronus.util.StringAsciiUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -24,15 +31,18 @@ public class CallbackService {
 
     @Autowired
     CallbackPhoneLogMapper phoneLogMapper;
-
-
-
+    @Autowired
+    CronusRedisService cronusRedisService;
+    @Autowired
+    CallbackConfigMapper callbackConfigMapper;
+    @Autowired
+    CustomerInfoMapper customerInfoMapper;
 
     public CronusDto callbackCustomerList(String callback_user,String callback_start_time,String callback_end_time,String search_name,
                                           Integer type,String search_city,String search_telephone,String search_callback_status,Integer page,Integer size,Integer communication_order){
         CronusDto resultDto = new CronusDto();
         //筛选回访人
-        List  CustomerIdList = new ArrayList();
+        List  customerIdList = new ArrayList();
         Map<String,Object> paramsMap = new HashMap<>();
         if (type == null || "".equals(type)){
             throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
@@ -51,16 +61,20 @@ public class CallbackService {
         }
          if (paramsMap != null && paramsMap.size() > 0 ){
              //从phonelog中查询到customerId
-             CustomerIdList = phoneLogMapper.getCustomerId(paramsMap);
+             customerIdList = phoneLogMapper.getCustomerId(paramsMap);
+             paramsMap.clear();
          }
-         if (CustomerIdList != null  && CustomerIdList.size() > 0){
-             paramsMap.put("CustomerIdList",CustomerIdList);
+         if (customerIdList != null  && customerIdList.size() > 0){
+             paramsMap.put("customerIdList",customerIdList);
          }
          paramsMap.put("customer_type", CustomerEnum.getByValue(type).getName());
+
+        List<String> cityList = new ArrayList<>();
          if (!StringUtils.isEmpty(search_city)){
-             paramsMap.put("search_city",search_city);
+             cityList.add(search_city);
+             paramsMap.put("cityList",cityList);
          }else {
-             List<String> cityList = Arrays.<String> asList(ResultResource.CITYS);
+             cityList = Arrays.<String> asList(ResultResource.CITYS);
              paramsMap.put("cityList",cityList);
          }
          if (!StringUtils.isEmpty(search_name)){
@@ -79,12 +93,46 @@ public class CallbackService {
         }
        //计算分页
         if (communication_order == 1){
+           //从未回访的
+            paramsMap.put("communication_order",communication_order);
+        }else if (communication_order == 2){
+            //需要重新回访的,后去当前系统时间
+            //从缓存中获取配置时间
+            Integer configTime = getConfigTime(type);
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DAY_OF_YEAR,-configTime * 30);
+            Date searchTime = cal.getTime();
+            //不为null
+            paramsMap.put("searchTime",searchTime);
+            paramsMap.put("communication_order",communication_order);
+        }else if (communication_order == 3){
+            Integer configTime = getConfigTime(type);
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DAY_OF_YEAR,-configTime * 30);
+            Date searchTime = cal.getTime();
+            paramsMap.put("searchTime",searchTime);//大于
+            paramsMap.put("callback_status","正常");
+            paramsMap.put("communication_order",communication_order);
+        }else {
+            //默认所有需要回访的
+            Integer configTime = getConfigTime(type);
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DAY_OF_YEAR,-configTime * 30);
+            Date searchTime = cal.getTime();
+            paramsMap.put("searchTime",searchTime);//小与包括时间为null的
+
+        }
+        paramsMap.put("start",(page-1) * size);
+        paramsMap.put("size",size);
+        List<CustomerInfo> customerInfoList = customerInfoMapper.getListByWhere(paramsMap);
+        //遍历
+        for (CustomerInfo customerInfo : customerInfoList) {
+
+            //LoanService
 
 
         }
 
-        paramsMap.put("start",(page-1) * size);
-        paramsMap.put("size",size);
 
 
 
@@ -94,4 +142,44 @@ public class CallbackService {
 
     }
 
+    public Integer  getConfigTime(Integer type){
+        //从缓存中获取到配置信息
+        Integer cycle = null;
+        List<CallbackConfigDto> callbackConfigDtos = getAllCallbackConfig();
+        if (callbackConfigDtos  == null || callbackConfigDtos.size() == 0){
+            throw new CronusException(CronusException.Type.CRM_CALLBACK_CONFIG_ERROR);
+        }
+        for ( CallbackConfigDto callbackConfigDto : callbackConfigDtos) {
+           if (type == callbackConfigDto.getConfId());
+            cycle = Integer.parseInt(callbackConfigDto.getCycle());
+        }
+
+    return cycle;
+    }
+
+    public List<CallbackConfigDto>  getAllCallbackConfig(){
+          //从缓存中获取配置
+        List<CallbackConfigDto> resultList = new ArrayList<>();
+        resultList = cronusRedisService.getRedisCronusInfo(ResultResource.CALLBACKCONFIG_KEY);
+    if (resultList != null && resultList.size() >0 ){
+        return  resultList;
+    }
+    //从库中查询
+    List<CallbackConfig> callbackConfigs = callbackConfigMapper.selectAll();
+    if (callbackConfigs  == null || callbackConfigs.size() == 0){
+        throw new CronusException(CronusException.Type.CRM_CALLBACK_CONFIG_ERROR);
+    }
+        for (CallbackConfig callbackConfig : callbackConfigs) {
+
+            CallbackConfigDto callbackConfigDto = new CallbackConfigDto();
+            callbackConfigDto.setConfId(callbackConfig.getConfId());
+            callbackConfigDto.setCycle(callbackConfig.getCycle());
+            callbackConfigDto.setQuestion(callbackConfig.getQuestion());
+            resultList.add(callbackConfigDto);
+        }
+
+        //存入缓存
+        cronusRedisService.setRedisCronusInfo(ResultResource.CALLBACKCONFIG_KEY,resultList);
+        return resultList;
+    }
 }

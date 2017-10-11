@@ -6,6 +6,7 @@ import com.fjs.cronus.util.FastJsonUtils;
 import org.joda.time.DateTime;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * Created by msi on 2017/9/20.
@@ -40,7 +41,9 @@ public class listContainTest {
        /* String fileName = "121211.jpg";
         String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
         System.out.println(suffix);*/
-        String imagePath = new DateTime().toString("yyyy/MM/dd");
-        System.out.println(imagePath);
+       /* String imagePath = new DateTime().toString("yyyy/MM/dd");
+        System.out.println(imagePath);*/
+        boolean flag = Pattern.compile("/[0-9]{11}$/").matcher("13162706810").find();
+        System.out.println(flag);
     }
 }

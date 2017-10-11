@@ -213,6 +213,8 @@ public class CustomerInfoService {
         if (customerId == null){
             Map<String,Object> paramsMap = new HashMap<>();
             paramsMap.put("telephonenumber",telephonenumber);
+            paramsMap.put("start",0);
+            paramsMap.put("size",10);
             List<CustomerInfo> customerInfos = customerInfoMapper.customerList(paramsMap);
             if (customerInfos.size() > 0){
                 throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONERE_ERROR);

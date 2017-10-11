@@ -20,4 +20,6 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
     List<CustomerInfo> findCustomerListByFeild(Map<String,Object> paramMap);
 
     void updateCustomer(CustomerInfo customerInfo);
+
+    List <CustomerInfo> getListByWhere(Map<String,Object> paramMap);
 }

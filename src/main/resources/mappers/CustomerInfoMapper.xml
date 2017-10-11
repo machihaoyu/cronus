@@ -52,7 +52,7 @@
     <if test="customerName !=null and customerName !=''">
       AND  c.customer_name  like CONCAT('%',#{customerName},'%' )
     </if>
-    <if test="createTimeStart!=null and createTimeStart!='' and createTimeEnd!=null and createTimeEnd!=''">
+    <if test="(createTimeStart!=null and createTimeStart!='') or (createTimeEnd!=null and createTimeEnd!='')">
       and c.create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
     </if>
     <if test="telephonenumber != null and telephonenumber !=''">
@@ -89,9 +89,7 @@
   <insert id="insertCustomer" parameterType="com.fjs.cronus.model.CustomerInfo" useGeneratedKeys="true" keyProperty="id">
     insert into customer_info
       <trim prefix="(" suffix=")" suffixOverrides="," >
-          <if test="id != null" >
-              id,
-          </if>
+
           <if test="telephonenumber != null" >
               telephonenumber,
           </if>
@@ -184,9 +182,6 @@
           </if>
       </trim>
       <trim prefix="values (" suffix=")" suffixOverrides="," >
-          <if test="id != null" >
-              #{id,jdbcType=INTEGER},
-          </if>
           <if test="telephonenumber != null" >
               #{telephonenumber,jdbcType=VARCHAR},
           </if>
@@ -278,7 +273,6 @@
               #{perDescription,jdbcType=LONGVARCHAR},
           </if>
       </trim>
-)
   </insert>
  <select id="findByFeild" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
   select
@@ -412,4 +406,55 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
+    <select id="getListByWhere" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List" />
+        ,
+        <include refid="Blob_Column_List" />
+        from customer_info  c
+        WHERE  c.is_deleted = 0
+        <if test="customerIdList!=null and customerIdList.size>0">
+            AND c.id in
+            <foreach collection="customerIdList" item="customerIdList"
+                     index="index" open="(" close=")" separator=",">
+                ${customerIdList}
+            </foreach>
+        </if>
+        <if test="customer_type!=null and customer_type!=''">
+            and c.customer_type = #{customer_type}
+        </if>
+        <if test="cityList!=null and cityList.size>0">
+            AND c.id in
+            <foreach collection="cityList" item="cityList"
+                     index="index" open="(" close=")" separator=",">
+                ${cityList}
+            </foreach>
+        </if>
+        <if test="search_name !=null and search_name !=''">
+            and c.customer_name = #{search_name}
+        </if>
+        <if test="search_telephone != null and search_telephone != ''">
+            and c.telephonenumber = #{search_telephone}
+        </if>
+        <if test="search_callback_status != null and search_callback_status != ''">
+            and c.callback_status = #{search_callback_status}
+        </if>
+        <choose>
+            <when test="communication_order != null and order == 1">
+              and c.callback_time is NULL
+            </when>
+            <when test="communication_order != null and order == 2">
+                and c.callback_time is NOT NULL and  c.callback_time &lt;= #{searchTime}
+            </when>
+
+            <when test="communication_order != null and order == 3">
+                and c.callback_time is NOT NULL and  c.callback_time &gt;= #{searchTime} AND c.callback_status=#{callback_status}
+            </when>
+            <otherwise>searchTime
+                and c.callback_time is  NULL or c.callback_time &lt;= #{searchTime}
+            </otherwise>
+        </choose>
+        ORDER BY  c.create_time DESC
+        limit #{start},#{size}
+    </select>
 </mapper>
