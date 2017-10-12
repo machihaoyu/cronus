@@ -5,10 +5,7 @@ import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 
 import com.fjs.cronus.dto.QueryResult;
-import com.fjs.cronus.dto.cronus.CallbackConfigDTO;
-import com.fjs.cronus.dto.cronus.CallbackCustomerDTO;
-import com.fjs.cronus.dto.cronus.CustomerDTO;
-import com.fjs.cronus.dto.cronus.UcUserDTO;
+import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.loan.LoanDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CallbackConfigMapper;
@@ -20,6 +17,7 @@ import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.uc.LoaService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DateUtils;
+import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.FastJsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -183,6 +181,35 @@ public class CallbackService {
         return  resultDto;
 
     }
+
+    public CronusDto editCallback(Integer customerId,String token){
+        //根据id查询到所有相关信息
+        CronusDto cronusDto = new CronusDto();
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("id",customerId);
+        CallbackCusLoanDTO dto = findCustomerByWhere(paramsMap,token);
+        dto.setRel_telephonenumber(dto.getTelephonenumber());
+        dto.setTelephonenumber(dto.getTelephonenumber().substring(0, 3) + "****" + dto.getTelephonenumber().substring(7,dto.getTelephonenumber().length()));
+        cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        cronusDto.setResult(ResultResource.CODE_SUCCESS);
+        cronusDto.setData(dto);
+        return  cronusDto;
+    }
+
+    public CronusDto getCalledRecordInclude(Integer customerId,String token){
+        CronusDto cronusDto = new CronusDto();
+
+
+        return cronusDto;
+
+    }
+
+
+
+
+
+
+
     public Integer createOrderWhere(CustomerInfo customerInfo){
 
         Integer communicationOrder = null;
@@ -255,5 +282,24 @@ public class CallbackService {
         //存入缓存
         cronusRedisService.setRedisCronusInfo(ResultResource.CALLBACKCONFIG_KEY,resultList);
         return resultList;
+    }
+    public CallbackCusLoanDTO findCustomerByWhere(Map<String,Object> paramsMap,String token){
+        CallbackCusLoanDTO dto = new CallbackCusLoanDTO();
+
+        CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
+        EntityToDto.customerEntityToCallbackCustomerDto(customerInfo,dto);
+        if (dto.getCustomerId() == 279717){
+            dto.setTelephonenumber("1861689****");
+        }
+        LoanDTO loanDTO = loaService.selectByCustomerId(token,customerInfo.getId());
+        // 拼装交易参数
+        dto.setCooperationStatus(loanDTO.getCooperationStatus());
+        dto.setMindLamount(loanDTO.getMindAmount());
+        dto.setOwnUserId(loanDTO.getOwnUserId());
+        dto.setOwnUserName(loanDTO.getOwnUserName());
+        dto.setCustomerSource(loanDTO.getCustomerSource());
+        dto.setUtmSource(loanDTO.getUtmSource());
+        return  dto;
+
     }
 }

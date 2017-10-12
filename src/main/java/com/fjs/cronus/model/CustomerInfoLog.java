@@ -7,6 +7,8 @@ import java.util.Date;
 public class CustomerInfoLog extends BaseModel {
     private Integer id;
 
+    private Integer customerId;
+
     private String telephonenumber;
 
     private String customerName;
@@ -62,6 +64,14 @@ public class CustomerInfoLog extends BaseModel {
     private String logDescription;
 
     private String perDescription;
+
+    public Integer getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Integer customerId) {
+        this.customerId = customerId;
+    }
 
     public Integer getId() {
         return id;

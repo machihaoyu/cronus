@@ -1357,4 +1357,245 @@ public class EntityToDto {
             ocrHouseRegistration.setStatus(dto.getStatus());
         }
     }
+
+    public static void customerEntityToCustomerLog(CustomerInfo customerInfo, CustomerInfoLog log){
+
+
+        log.setCustomerId(customerInfo.getId());
+
+        if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
+            log.setTelephonenumber(customerInfo.getTelephonenumber());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerName())){
+            log.setCustomerName(customerInfo.getCustomerName());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerLevel())){
+            log.setCustomerLevel(customerInfo.getCustomerLevel());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getSparePhone())){
+            log.setSparePhone(customerInfo.getSparePhone());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getAge())){
+            log.setAge(customerInfo.getAge());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getMarriage())){
+            log.setMarriage(customerInfo.getMarriage());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIdCard())){
+            log.setIdCard(customerInfo.getIdCard());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getProvinceHuji())){
+            log.setProvinceHuji(customerInfo.getProvinceHuji());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getSex())){
+            log.setSex(customerInfo.getSex());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCustomerAddress())){
+            log.setCustomerAddress(customerInfo.getCustomerAddress());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getPerDescription())){
+            log.setPerDescription(customerInfo.getPerDescription());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseStatus())){
+            log.setHouseStatus(customerInfo.getHouseStatus());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseAmount())){
+            log.setHouseAmount(customerInfo.getHouseAmount());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseType())){
+            log.setHouseType(customerInfo.getHouseType());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseValue())){
+            log.setHouseValue(customerInfo.getHouseValue());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseArea())){
+            log.setHouseArea(customerInfo.getHouseArea());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseAge())){
+            log.setHouseAge(customerInfo.getHouseAge());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseLoan())){
+            log.setHouseLoan(customerInfo.getHouseLoan());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseLocation())){
+            log.setHouseLocation(customerInfo.getHouseLocation());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCity())){
+            log.setCity(customerInfo.getCity());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerClassify())){
+            log.setCustomerClassify(customerInfo.getCustomerClassify());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCallbackStatus())){
+            log.setCallbackStatus(customerInfo.getCallbackStatus());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCallbackTime())){
+            //date 转
+            log.setCallbackTime(customerInfo.getCallbackTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getSubCompanyId())){
+            log.setSubCompanyId(customerInfo.getSubCompanyId());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCreateTime())){
+            log.setCreateTime(customerInfo.getCreateTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getLastUpdateTime())){
+            log.setLastUpdateTime(customerInfo.getLastUpdateTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCreateUser())){
+            log.setCreateUser(customerInfo.getCreateUser());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getLastUpdateUser())){
+            log.setLastUpdateUser(customerInfo.getLastUpdateUser());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIsDeleted())){
+            log.setIsDeleted(customerInfo.getIsDeleted());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHouseAlone())){
+            log.setHouseAlone(customerInfo.getHouseAlone());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCreateTime())){
+            log.setCreateTime(customerInfo.getCreateTime());
+        }
+    }
+
+    public static void customerEntityToCallbackCustomerDto(CustomerInfo customerInfo, CallbackCusLoanDTO dto){
+
+        dto.setCustomerId(customerInfo.getId());
+        if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
+            dto.setTelephonenumber(customerInfo.getTelephonenumber());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerName())){
+            dto.setCustomerName(customerInfo.getCustomerName());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerLevel())){
+            dto.setCustomerLevel(customerInfo.getCustomerLevel());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getSparePhone())){
+            dto.setSparePhone(customerInfo.getSparePhone());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getAge())){
+            dto.setAge(customerInfo.getAge());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getMarriage())){
+            dto.setMarriage(customerInfo.getMarriage());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIdCard())){
+            dto.setIdCard(customerInfo.getIdCard());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getProvinceHuji())){
+            dto.setProvinceHuji(customerInfo.getProvinceHuji());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getSex())){
+            dto.setSex(customerInfo.getSex());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCustomerAddress())){
+            dto.setCustomerAddress(customerInfo.getCustomerAddress());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getPerDescription())){
+            dto.setPerDescription(customerInfo.getPerDescription());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseStatus())){
+            dto.setHouseStatus(customerInfo.getHouseStatus());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseAmount())){
+            dto.setHouseAmount(customerInfo.getHouseAmount());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseType())){
+            dto.setHouseType(customerInfo.getHouseType());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseValue())){
+            dto.setHouseValue(customerInfo.getHouseValue());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseArea())){
+            dto.setHouseArea(customerInfo.getHouseArea());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseAge())){
+            dto.setHouseAge(customerInfo.getHouseAge());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseLoan())){
+            dto.setHouseLoan(customerInfo.getHouseLoan());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getHouseLocation())){
+            dto.setHouseLocation(customerInfo.getHouseLocation());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCity())){
+            dto.setCity(customerInfo.getCity());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerClassify())){
+            dto.setCustomerClassify(customerInfo.getCustomerClassify());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCallbackStatus())){
+            dto.setCallbackStatus(customerInfo.getCallbackStatus());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCallbackTime())){
+            //date 转
+            dto.setCallbackTime(customerInfo.getCallbackTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getSubCompanyId())){
+            dto.setSubCompanyId(customerInfo.getSubCompanyId());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCreateTime())){
+            dto.setCreateTime(customerInfo.getCreateTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getLastUpdateTime())){
+            dto.setLastUpdateTime(customerInfo.getLastUpdateTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCreateUser())){
+            dto.setCreateUser(customerInfo.getCreateUser());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getLastUpdateUser())){
+            dto.setLastUpdateUser(customerInfo.getLastUpdateUser());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHouseAlone())){
+            dto.setHouseAlone(customerInfo.getHouseAlone());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCreateTime())){
+            dto.setCreateTime(customerInfo.getCreateTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerType())){
+            dto.setCustomerType(customerInfo.getCustomerType());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerStreet())){
+            dto.setCustomerStreet(customerInfo.getCustomerStreet());
+        }
+    }
 }

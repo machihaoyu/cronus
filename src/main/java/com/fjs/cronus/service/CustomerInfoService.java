@@ -1,19 +1,23 @@
 package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.Common.CustomerEnum;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
+import com.fjs.cronus.model.CustomerInfoLog;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.FastJsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -29,6 +33,9 @@ public class CustomerInfoService {
     CustomerInfoMapper customerInfoMapper;
     @Autowired
     UcService ucService;
+    @Autowired
+    CustomerInfoLogMapper customerInfoLogMapper;
+
     public  List<CustomerInfo> findList(){
         List<CustomerInfo> resultList = new ArrayList();
         resultList = customerInfoMapper.selectAll();
@@ -97,6 +104,7 @@ public class CustomerInfoService {
          }
         cronusDto.setResult(ResultResource.CODE_SUCCESS);
         cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        cronusDto.setData(customerInfo.getId());
         return  cronusDto;
     }
 
@@ -197,6 +205,7 @@ public class CustomerInfoService {
         customerInfoMapper.updateCustomer(customerInfo);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(customerInfo.getId());
         return  resultDto;
     }
     public List findCustomerByType(String customerType){
@@ -257,4 +266,37 @@ public class CustomerInfoService {
         return  resultDto;
     }
 
+    @Transactional
+    public CronusDto editCustomerType(Integer customer_id ,Integer user_id,String customerTypeSta,String customerTypeEnd){
+        CronusDto resultDto = new CronusDto();
+        //根据uid查询到客户相关信息
+        boolean flag = false;
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("id",customer_id);
+        CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
+        if (customerInfo == null){
+            throw new CronusException(CronusException.Type.CEM_CUSTOMERIDENTITYINFO_ERROR);
+        }
+        //开始更改信息由意向客户改为协议客户
+        String customerType = customerInfo.getCustomerType();
+        if (customerType.equals(CustomerEnum.intentional_customer.getName())){
+            //改成协议客户
+            customerInfo.setCustomerType(CustomerEnum.agreement_customer.getName());
+        }
+        //开始更新
+        customerInfoMapper.updateCustomer(customerInfo);
+        //生成日志记录
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        Date date = new Date();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription("签章协议");
+        customerInfoLog.setLogUserId(user_id);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        flag = true;
+        resultDto.setData(flag);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+     return resultDto;
+    }
 }

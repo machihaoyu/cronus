@@ -71,30 +71,52 @@ public class CallbackController {
     @ApiOperation(value="打开回访页面", notes="打开回访页面")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int"),
 
     })
     @RequestMapping(value = "/editCallback", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto editCallback() {
+    public CronusDto editCallback(@RequestParam Integer customerId, @RequestHeader("Authorization") String token) {
         CronusDto cronusDto = new CronusDto();
 
+        if (customerId == null){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
         try {
 
-          //  cronusDto  = callbackService.editCallback();
+            cronusDto  = callbackService.editCallback(customerId,token);
 
         } catch (Exception e) {
-            logger.error("--------------->callbackCustomerList获取用户信息失败", e);
+            logger.error("--------------->editCallback打开回访页面失败", e);
             if (e instanceof CronusException) {
                 CronusException thorException = (CronusException)e;
                 throw thorException;
             }
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
-
         return  cronusDto;
 
-
     }
-
+    @ApiOperation(value="获取回访信息详情", notes="获取回访信息详情")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    public CronusDto getCalledRecordInclude(@RequestParam Integer customerId, @RequestHeader("Authorization") String token){
+        CronusDto cronusDto = new CronusDto();
+        if (customerId == null){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        try {
+            cronusDto  = callbackService.getCalledRecordInclude(customerId,token);
+        } catch (Exception e) {
+            logger.error("--------------->editCallback打开回访页面失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return  cronusDto;
+    }
 
 }

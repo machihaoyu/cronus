@@ -3,6 +3,7 @@
 <mapper namespace="com.fjs.cronus.mappers.CustomerInfoLogMapper" >
   <resultMap id="BaseResultMap" type="com.fjs.cronus.model.CustomerInfoLog" >
     <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customer_id" property="customerId" jdbcType="VARCHAR" />
     <result column="telephonenumber" property="telephonenumber" jdbcType="VARCHAR" />
     <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
     <result column="customer_level" property="customerLevel" jdbcType="VARCHAR" />
@@ -40,7 +41,7 @@
     <result column="per_description" property="perDescription" jdbcType="LONGVARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, telephonenumber, customer_name, customer_level, spare_phone, age, marriage, id_card, 
+    id, customer_id,telephonenumber, customer_name, customer_level, spare_phone, age, marriage, id_card,
     province_huji, sex, customer_address, house_status, house_amount, house_type, house_value, 
     house_area, house_age, house_loan, house_alone, house_location, city, customer_classify, 
     callback_status, callback_time, sub_company_id, create_time, last_update_time, create_user, 
@@ -49,4 +50,217 @@
   <sql id="Blob_Column_List" >
     per_description
   </sql>
+  <insert id="addCustomerLog" parameterType="com.fjs.cronus.model.CustomerInfoLog" useGeneratedKeys="true" keyProperty="id">
+    insert into customer_info_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+
+      <if test="customer_id != null" >
+        customer_id,
+      </if>
+      <if test="telephonenumber != null" >
+        telephonenumber,
+      </if>
+      <if test="customerName != null" >
+        customer_name,
+      </if>
+      <if test="customerLevel != null" >
+        customer_level,
+      </if>
+      <if test="sparePhone != null" >
+        spare_phone,
+      </if>
+      <if test="age != null" >
+        age,
+      </if>
+      <if test="marriage != null" >
+        marriage,
+      </if>
+      <if test="idCard != null" >
+        id_card,
+      </if>
+      <if test="provinceHuji != null" >
+        province_huji,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="customerAddress != null" >
+        customer_address,
+      </if>
+      <if test="houseStatus != null" >
+        house_status,
+      </if>
+      <if test="houseAmount != null" >
+        house_amount,
+      </if>
+      <if test="houseType != null" >
+        house_type,
+      </if>
+      <if test="houseValue != null" >
+        house_value,
+      </if>
+      <if test="houseArea != null" >
+        house_area,
+      </if>
+      <if test="houseAge != null" >
+        house_age,
+      </if>
+      <if test="houseLoan != null" >
+        house_loan,
+      </if>
+      <if test="houseAlone != null" >
+        house_alone,
+      </if>
+      <if test="houseLocation != null" >
+        house_location,
+      </if>
+      <if test="city != null" >
+        city,
+      </if>
+      <if test="customerClassify != null" >
+        customer_classify,
+      </if>
+      <if test="callbackStatus != null" >
+        callback_status,
+      </if>
+      <if test="callbackTime != null" >
+        callback_time,
+      </if>
+      <if test="subCompanyId != null" >
+        sub_company_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="logUserId != null" >
+        log_user_id,
+      </if>
+      <if test="logCreateTime != null" >
+        log_create_time,
+      </if>
+      <if test="logDescription != null" >
+        log_description,
+      </if>
+      <if test="perDescription != null" >
+        per_description,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+
+      <if test="customerId != null" >
+        #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="telephonenumber != null" >
+        #{telephonenumber,jdbcType=VARCHAR},
+      </if>
+      <if test="customerName != null" >
+        #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerLevel != null" >
+        #{customerLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="sparePhone != null" >
+        #{sparePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null" >
+        #{age,jdbcType=VARCHAR},
+      </if>
+      <if test="marriage != null" >
+        #{marriage,jdbcType=VARCHAR},
+      </if>
+      <if test="idCard != null" >
+        #{idCard,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceHuji != null" >
+        #{provinceHuji,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="customerAddress != null" >
+        #{customerAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="houseStatus != null" >
+        #{houseStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="houseAmount != null" >
+        #{houseAmount,jdbcType=VARCHAR},
+      </if>
+      <if test="houseType != null" >
+        #{houseType,jdbcType=VARCHAR},
+      </if>
+      <if test="houseValue != null" >
+        #{houseValue,jdbcType=VARCHAR},
+      </if>
+      <if test="houseArea != null" >
+        #{houseArea,jdbcType=VARCHAR},
+      </if>
+      <if test="houseAge != null" >
+        #{houseAge,jdbcType=VARCHAR},
+      </if>
+      <if test="houseLoan != null" >
+        #{houseLoan,jdbcType=VARCHAR},
+      </if>
+      <if test="houseAlone != null" >
+        #{houseAlone,jdbcType=VARCHAR},
+      </if>
+      <if test="houseLocation != null" >
+        #{houseLocation,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="customerClassify != null" >
+        #{customerClassify,jdbcType=VARCHAR},
+      </if>
+      <if test="callbackStatus != null" >
+        #{callbackStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="callbackTime != null" >
+        #{callbackTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="subCompanyId != null" >
+        #{subCompanyId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="logUserId != null" >
+        #{logUserId,jdbcType=INTEGER},
+      </if>
+      <if test="logCreateTime != null" >
+        #{logCreateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="logDescription != null" >
+        #{logDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="perDescription != null" >
+        #{perDescription,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
 </mapper>

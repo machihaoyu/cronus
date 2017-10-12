@@ -447,7 +447,7 @@
             and c.customer_type = #{customer_type}
         </if>
         <if test="cityList!=null and cityList.size>0">
-            AND c.id in
+            AND c.city in
             <foreach collection="cityList" item="cityList"
                      index="index" open="(" close=")" separator=",">
                 ${cityList}
@@ -473,7 +473,7 @@
             <when test="communication_order != null and order == 3">
                 and c.callback_time is NOT NULL and  c.callback_time &gt;= #{searchTime} AND c.callback_status=#{callback_status}
             </when>
-            <otherwise>searchTime
+            <otherwise>
                 and c.callback_time is  NULL or c.callback_time &lt;= #{searchTime}
             </otherwise>
         </choose>
@@ -508,7 +508,7 @@
             AND c.id in
             <foreach collection="cityList" item="cityList"
                      index="index" open="(" close=")" separator=",">
-                ${cityList}
+                #{cityList}
             </foreach>
         </if>
         <if test="search_name !=null and search_name !=''">
@@ -531,7 +531,7 @@
             <when test="communication_order != null and order == 3">
                 and c.callback_time is NOT NULL and  c.callback_time &gt;= #{searchTime} AND c.callback_status=#{callback_status}
             </when>
-            <otherwise>searchTime
+            <otherwise>
                 and c.callback_time is  NULL or c.callback_time &lt;= #{searchTime}
             </otherwise>
         </choose>
