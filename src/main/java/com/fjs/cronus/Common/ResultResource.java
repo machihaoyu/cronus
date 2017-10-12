@@ -42,4 +42,6 @@ public class ResultResource {
     public static  String CUSTOMERTYPE = "意向客户";
 
     public static  String CUSTOMERSTATUS = "正常";
+
+    public static String[] CALLBACKSTATUS ={"'正常'","'未接'","'待联系'","'空号'","'拒接'","'拒访'","'其他'"};
 }

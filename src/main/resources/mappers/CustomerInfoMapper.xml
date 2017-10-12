@@ -326,6 +326,10 @@
       <if test="id != null and id !=''">
           and c.id = #{id}
       </if>
+      <if test="customerName != null and customerName !=''">
+          and c.customer_name = #{customerName}
+      </if>
+
   </select>
     <update id="updateCustomer" parameterType="com.fjs.cronus.model.CustomerInfo" >
         update customer_info

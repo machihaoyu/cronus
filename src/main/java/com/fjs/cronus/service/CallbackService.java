@@ -1,17 +1,20 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.fjs.cronus.Common.CustomerEnum;
 import com.fjs.cronus.Common.ResultResource;
-import com.fjs.cronus.dto.CronusDto;
-
-import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.*;
 import com.fjs.cronus.dto.cronus.*;
+import com.fjs.cronus.dto.cronus.CallbackLogDTO;
 import com.fjs.cronus.dto.loan.LoanDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CallbackConfigMapper;
+import com.fjs.cronus.mappers.CallbackLogMapper;
 import com.fjs.cronus.mappers.CallbackPhoneLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CallbackConfig;
+import com.fjs.cronus.model.CallbackLog;
+import com.fjs.cronus.model.CallbackPhoneLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.uc.LoaService;
@@ -21,7 +24,9 @@ import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.FastJsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
 
 import java.util.*;
 
@@ -45,6 +50,11 @@ public class CallbackService {
     LoaService loaService;
     @Autowired
     UcService ucService;
+    @Autowired
+    CallbackPhoneLogMapper callbackPhoneLogMapper;
+    @Autowired
+    CallbackLogMapper callbackLogMapper;
+
     public QueryResult callbackCustomerList(String callback_user, String callback_start_time, String callback_end_time, String search_name,
                                             Integer type, String search_city, String search_telephone, String search_callback_status, Integer page, Integer size, Integer communication_order, String token){
         QueryResult resultDto = new QueryResult();
@@ -198,17 +208,171 @@ public class CallbackService {
 
     public CronusDto getCalledRecordInclude(Integer customerId,String token){
         CronusDto cronusDto = new CronusDto();
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("customerId",customerId);
 
-
+        List<String> statusList =  Arrays.<String> asList(ResultResource.CALLBACKSTATUS);
+        paramsMap.put("statusList",statusList);
+        List<CallbackPhoneLog> callbackPhoneLogList = callbackPhoneLogMapper.findByFeild(paramsMap);
+        List<PhoneLogDTO> resultList = new ArrayList<>();
+        if (callbackPhoneLogList != null && callbackPhoneLogList.size() > 0){
+            for (CallbackPhoneLog callbackPhoneLog : callbackPhoneLogList) {
+                PhoneLogDTO dto = new PhoneLogDTO();
+                dto.setCustomerId(callbackPhoneLog.getCustomerId());
+                dto.setCreateTime(callbackPhoneLog.getCreateTime());
+                dto.setDescription(callbackPhoneLog.getDescription());
+                dto.setId(callbackPhoneLog.getId());
+                dto.setOperatUserId(callbackPhoneLog.getOperatUserId());
+                dto.setOperatUserName(callbackPhoneLog.getOperatUserName());
+                dto.setStatus(callbackPhoneLog.getStatus());
+                resultList.add(dto);
+            }
+            cronusDto.setData(resultList);
+            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            cronusDto.setResult(ResultResource.CODE_SUCCESS);
+            return cronusDto;
+        }
+        cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        cronusDto.setResult(ResultResource.CODE_SUCCESS);
         return cronusDto;
 
     }
 
+    public CronusDto getOneQuestion(Integer id,String token){
+        //根据id找到当前日志
+        CronusDto resultDto =new CronusDto();
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("id",id);
+        List<CallbackPhoneLog> callbackPhoneLogList = callbackPhoneLogMapper.findByFeild(paramsMap);
+        if (callbackPhoneLogList == null || callbackPhoneLogList.size()  == 0){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERBAXKLOG_ERROR);
+        }
+        CallbackPhoneLog callbackPhoneLog = callbackPhoneLogList.get(0);
+        Date createTime = callbackPhoneLog.getCreateTime();//获取创建时间
+        paramsMap.clear();
+        paramsMap.put("createTime",createTime);
+        List<CallbackLog>  callbackLogList= callbackLogMapper.findByFeild(paramsMap);
+        List<CallbackLogDTO> resultList = new ArrayList<>();
+        if (callbackLogList != null && callbackLogList.size() > 0){
+            for (CallbackLog callbackLog : callbackLogList) {
+                CallbackLogDTO callbackLogDTO = new CallbackLogDTO();
+                callbackLogDTO.setId(callbackLog.getId());
+                callbackLogDTO.setCustomerId(callbackLog.getCustomerId());
+                callbackLogDTO.setQuestion(callbackLog.getQuestion());
+                callbackLogDTO.setAnswer(callbackLog.getAnswer());
+                callbackLogDTO.setCreateTime(callbackLog.getCreateTime());
+                callbackLogDTO.setCreateUserName(callbackLog.getCreateUserName());
+                callbackLogDTO.setCreateUserId(callbackLog.getCreateUserId());
+                resultList.add(callbackLogDTO);
+            }
+            resultDto.setData(resultList);
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            return resultDto;
+        }
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        return resultDto;
 
+    }
 
+    public CronusDto getQuestion(Integer customerId,String token){
+        CronusDto resultDto = new CronusDto();
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("id",customerId);
+        CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
+        if(customerInfo == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERUNFIND_ERROR);
+        }
+        String customerType = customerInfo.getCustomerType();
+        //获取所有的问题信息
+        JSONArray qusetions = null;
+        List<CallbackConfigDTO> callbackConfigDTOS = getAllCallbackConfig();
+        if (callbackConfigDTOS != null && callbackConfigDTOS.size() >0 ){
+            for (CallbackConfigDTO callbackConfigDTO: callbackConfigDTOS) {
+                if (callbackConfigDTO.getConfId() == CustomerEnum.getByIndex(customerType).getValue()){
+                    qusetions = callbackConfigDTO.getQuestion();
+                }
+            }
+            resultDto.setData(qusetions);
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            return resultDto;
+        }
+        resultDto.setData(qusetions);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        return resultDto;
+    }
 
+    @Transactional
+   public CronusDto  editCallbackOk(CallbackDTO callbackDTO,String token){
+        CronusDto resultDto = new CronusDto();
+        Date date = new Date();
+        Map<String,Object> paramsMap = new HashMap<>();
+        if (StringUtils.isEmpty(callbackDTO.getCallbackStatus())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMCALLSTATUS_ERROR);
+        }
+        //获取当前登录用户的信息
+        Integer user_id = ucService.getUserIdByToken(token);
+        if (user_id == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        UcUserDTO userDTO = ucService.getUserInfoByID(token,user_id);
+        if (userDTO == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        //
+        //正常状态需回答完问题并生成callbacklog数据
+        if (ResultResource.CUSTOMERSTATUS.equals(callbackDTO.getCallbackStatus())){
+            boolean flag = true;
+            //获取所有的问题
+            List<QuestionsDTO> questionsDTOS = callbackDTO.getQuestion();
+            if (questionsDTOS == null || questionsDTOS.size() == 0 ){
+                throw new CronusException(CronusException.Type.CRM_CUSTOMQUESTION_ERROR);
+            }
+            List<CallbackLog> callbackLogList = null;
+            for (QuestionsDTO questionsDTO : questionsDTOS) {
+                 if (StringUtils.isEmpty(questionsDTO.getAnswer())){
+                     callbackLogList.clear();
+                     throw new CronusException(CronusException.Type.CRM_CUSTOANSWER_ERROR);
+                 }
+                CallbackLog callbackLog = new CallbackLog();
+                callbackLog.setCustomerId(callbackDTO.getCustomerId());
+                callbackLog.setCreateUserId(user_id);
+                callbackLog.setCreateUserName(userDTO.getName());
+                callbackLog.setQuestion(questionsDTO.getName());
+                callbackLog.setAnswer(questionsDTO.getName());
+                callbackLog.setCreateTime(date);
+                callbackLogList.add(callbackLog);
+            }
+            //批量插入数据
+            paramsMap.put("list",callbackLogList);
+            try {
+                callbackLogMapper.adCallbackLog(paramsMap);
+            }catch (Exception e){
+                throw new CronusException(CronusException.Type.CRM_CUSTOMERLOG_ERROR);
+            }
 
+        }
+        //开始写入手机号日志
+        CallbackPhoneLog callbackPhoneLog = new CallbackPhoneLog();
+        callbackPhoneLog.setCustomerId(callbackDTO.getCustomerId());
+        callbackPhoneLog.setOperatUserId(user_id);
+        callbackPhoneLog.setCreateUser(user_id);
+        callbackPhoneLog.setCreateTime(date);
+        callbackPhoneLog.setOperatUserName(userDTO.getName());
+        callbackPhoneLog.setDescription(callbackDTO.getCallbackDescription());
+        callbackPhoneLog.setStatus(callbackDTO.getCallbackStatus());
+        callbackPhoneLog.setRemark(callbackDTO.getCallbackRemark());
+        callbackPhoneLog.setLastUpdateTime(date);
+        callbackPhoneLog.setLastUpdateUser(user_id);
+        callbackPhoneLog.setIsDeleted(0);
+        callbackPhoneLogMapper.addCallbackPhoneLog(callbackPhoneLog);
+        //更新客户的回访时间和回访状态,注意异常回访的情况下不更新回访时间
 
+        return  resultDto;
+
+   }
 
     public Integer createOrderWhere(CustomerInfo customerInfo){
 
@@ -236,10 +400,7 @@ public class CallbackService {
                 communicationOrder = 2;
             }
         }
-
-        //
-
-             return  communicationOrder;
+        return  communicationOrder;
     }
 
 

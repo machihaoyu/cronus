@@ -13,4 +13,23 @@
   <sql id="Base_Column_List">
     id, customer_id, create_user_id, create_user_name, question, answer, create_time
   </sql>
+  <select id="findByFeild" parameterType="java.util.Map"  resultMap="BaseResultMap">
+  select
+  <include refid="Base_Column_List" />
+    from callback_log WHERE 1 = 1
+    AND  create_time = #{createTime}
+    ORDER BY create_time DESC
+  </select>
+  <insert id="adCallbackLog" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id">
+    insert into callback_log (customer_id, create_user_id,
+    create_user_name, question, answer,
+    create_time)
+    values
+    <foreach collection="list" item="callbacklog" index="index" separator="," >
+    (#{callbacklog.customerId,jdbcType=INTEGER}, #{callbacklog.createUserId,jdbcType=INTEGER},
+    #{callbacklog.createUserName,jdbcType=VARCHAR}, #{callbacklog.question,jdbcType=VARCHAR}, #{callbacklog.answer,jdbcType=VARCHAR},
+    #{callbacklog.createTime,jdbcType=TIMESTAMP})
+    </foreach>
+  </insert>
+
 </mapper>

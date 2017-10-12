@@ -121,14 +121,15 @@ public class CustomerController {
     @ApiOperation(value="根据客户id查找客户信息", notes="根据客户id查找客户信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "customerids", value = "1,2,3", required = true, paramType = "query", dataType = "String")
+            @ApiImplicitParam(name = "customerids", value = "1,2,3", required = false, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "customerName", value = "XXXXXX", required = false, paramType = "query", dataType = "String")
     })
     @RequestMapping(value = "/findCustomerListByIds", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto findCustomerListByIds(@RequestParam String customerids) {
+    public CronusDto findCustomerListByIds(@RequestParam(required = false) String customerids,@RequestParam(required = false) String customerName ) {
         CronusDto cronusDto = new CronusDto();
         try {
-            cronusDto = customerInfoService.findCustomerListByIds(customerids);
+            cronusDto = customerInfoService.findCustomerListByIds(customerids,customerName);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->fingBytelephone获取用户信息失败", e);

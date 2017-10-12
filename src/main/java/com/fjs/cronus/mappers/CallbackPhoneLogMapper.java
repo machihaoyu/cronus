@@ -11,4 +11,8 @@ public interface CallbackPhoneLogMapper {
 
 
     List  getCustomerId(Map<String,Object> paramsMap);
+
+   List<CallbackPhoneLog> findByFeild(Map<String,Object> paramsMap);
+
+   void addCallbackPhoneLog(CallbackPhoneLog callbackPhoneLog);
 }

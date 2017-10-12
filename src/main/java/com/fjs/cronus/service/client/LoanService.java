@@ -18,6 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface LoanService {
 
 
-    @RequestMapping(value = " /loan/v1/selectByCustomerId", method = RequestMethod.GET)
+    @RequestMapping(value = " loan/v1/selectByCustomerId", method = RequestMethod.GET)
     public TheaApiDTO<LoanDTO> selectByCustomerId(@RequestHeader("Authorization") String token, @RequestParam(value = "customerId") Integer customerId);
 }

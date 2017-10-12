@@ -44,6 +44,12 @@ public class CronusException extends BaseException {
         CRM_CALLBACKCUSTOMER_ERROR("6925","非法操作"),
         CRM_CALLBACK_CONFIG_ERROR("6926","获取不到配置信息"),
         CRM_CUSTOMERLOAN_ERROR("6027","未找到当前客户交易信息"),
+        CRM_CUSTOMERBAXKLOG_ERROR("6028","未找到该日志信息"),
+        CRM_CUSTOMERUNFIND_ERROR("6029","未找到该客户信息"),
+        CRM_CUSTOMCALLSTATUS_ERROR("6030","请选择回访状态"),
+        CRM_CUSTOMQUESTION_ERROR("6031","回防状态正常请提交问题"),
+        CRM_CUSTOANSWER_ERROR("6032","请回答所有的问题"),
+        CRM_CUSTOMERLOG_ERROR("6033","插入日志失败"),
         ;
 
         private String status;

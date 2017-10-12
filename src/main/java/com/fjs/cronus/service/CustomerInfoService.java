@@ -128,17 +128,22 @@ public class CustomerInfoService {
         resultDto.setData(customerInfo.getId());
         return  resultDto;
     }
-    public CronusDto findCustomerListByIds (String customerids){
+    public CronusDto findCustomerListByIds (String customerids,String customerName){
         CronusDto resultDto = new CronusDto();
         Map<String,Object> paramsMap = new HashMap<>();
         List paramsList = new ArrayList();
         //截取逗号
-        String[] strArray = null;
-        strArray = customerids.split(",");
-        for (int i= 0;i<strArray.length;i++){
-            paramsList.add(Integer.parseInt(strArray[i]));
+        if (customerids != null && !"".equals(customerids)) {
+            String[] strArray = null;
+            strArray = customerids.split(",");
+            for (int i = 0; i < strArray.length; i++) {
+                paramsList.add(Integer.parseInt(strArray[i]));
+            }
+            paramsMap.put("paramsList", paramsList);
         }
-        paramsMap.put("paramsList",paramsList);
+        if (!StringUtils.isEmpty(customerName)){
+            paramsMap.put("customerName",customerName);
+        }
         List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerListByFeild(paramsMap);
         //遍历
         List<CustomerDTO> customerDtos = new ArrayList<>();
