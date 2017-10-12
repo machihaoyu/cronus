@@ -368,9 +368,19 @@ public class CallbackService {
         callbackPhoneLog.setLastUpdateUser(user_id);
         callbackPhoneLog.setIsDeleted(0);
         callbackPhoneLogMapper.addCallbackPhoneLog(callbackPhoneLog);
-        //更新客户的回访时间和回访状态,注意异常回访的情况下不更新回访时间
-
-        return  resultDto;
+        //更新客户的回访时间
+        //根据id找到客户
+        paramsMap.put("id",callbackDTO.getCustomerId());
+        CustomerInfo updatecustomerInfo = customerInfoMapper.findByFeild(paramsMap);
+        //更改状态和时间、
+        updatecustomerInfo.setCallbackStatus(callbackDTO.getCallbackStatus());
+        updatecustomerInfo.setCallbackTime(date);
+        updatecustomerInfo.setLastUpdateUser(user_id);
+        updatecustomerInfo.setLastUpdateTime(date);
+        customerInfoMapper.updateCustomer(updatecustomerInfo);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        return resultDto;
 
    }
 

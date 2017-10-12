@@ -50,6 +50,7 @@ public class CronusException extends BaseException {
         CRM_CUSTOMQUESTION_ERROR("6031","回防状态正常请提交问题"),
         CRM_CUSTOANSWER_ERROR("6032","请回答所有的问题"),
         CRM_CUSTOMERLOG_ERROR("6033","插入日志失败"),
+        CRM_PHONEAREA_ERROR("6035","查询手机归属地失败"),
         ;
 
         private String status;
