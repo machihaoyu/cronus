@@ -19,4 +19,47 @@
   <sql id="Blob_Column_List">
     question
   </sql>
+  <select id="findByFeild" parameterType="java.util.Map"  resultMap="ResultMapWithBLOBs">
+    SELECT
+    <include refid="Base_Column_List"/>,
+    <include refid="Blob_Column_List"/>
+    FROM
+    callback_config
+    WHERE is_deleted = 0 AND conf_id = #{confId}
+  </select>
+  <update id="updateCallbackConfig" parameterType="com.fjs.cronus.model.CallbackConfig">
+    update callback_config
+    <set>
+      <if test="cycle != null">
+        cycle = #{cycle,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateUser != null">
+        last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateTime != null">
+        last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="question != null">
+        question = #{question,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where conf_id = #{confId,jdbcType=INTEGER}
+  </update>
+  <select id="findAll" resultMap="ResultMapWithBLOBs">
+    SELECT
+    <include refid="Base_Column_List"/>,
+    <include refid="Blob_Column_List"/>
+    FROM
+    callback_config
+    WHERE is_deleted = 0
+  </select>
 </mapper>

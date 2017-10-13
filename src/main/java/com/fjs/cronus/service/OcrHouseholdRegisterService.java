@@ -161,6 +161,7 @@ public class OcrHouseholdRegisterService {
          if(StringUtils.isEmpty(id)){
              throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
          }
+         validateParams(household_name, household_sex, household_native_place,  household_birthday,  household_id_number,  household_people);
          Map<String,Object> paramsMap = new HashMap<>();
          paramsMap.put("id",id);
          OcrHouseholdRegister ocrHouseholdRegister = ocrHouseholdRegisterMapper.findByfeild(paramsMap);
@@ -205,4 +206,27 @@ public class OcrHouseholdRegisterService {
          resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
          return  resultDto;
      }
+
+    public void  validateParams(String household_name,String household_sex,String household_native_place, String household_birthday, String household_id_number, String household_people){
+
+        if (StringUtils.isEmpty(household_name)){
+             throw new CronusException(CronusException.Type.CRM_HOUSEHOLDREGNAME_ERROR);
+        }
+        if (StringUtils.isEmpty(household_sex)){
+            throw new CronusException(CronusException.Type.CRM_HOUSEHOLDRESEX_ERROR);
+        }
+        if (StringUtils.isEmpty(household_native_place)){
+            throw new CronusException(CronusException.Type.CRM_HOUSEHOLDREPLACE_ERROR);
+        }
+        if (StringUtils.isEmpty(household_birthday)){
+            throw new CronusException(CronusException.Type.CRM_HOUSEHOLDREBIRTH_ERROR);
+        }
+        if (StringUtils.isEmpty(household_id_number)){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERINENTITYNUMBER_ERROR);
+        }
+        if (StringUtils.isEmpty(household_people)){
+            throw new CronusException(CronusException.Type.CRM_HOUSEHOLDREPEOPLE_ERROR);
+        }
+
+    }
 }

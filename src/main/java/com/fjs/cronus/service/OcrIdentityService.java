@@ -92,9 +92,9 @@ public class OcrIdentityService {
             DocumentCategory documentCategory = documentCategoryMapper.selectByKey(idCardDTO.getCategory());
             String document_c_name  = documentCategory.getDocumentCName();
             if (idCardDTO.getSide() != null && "face".equals(idCardDTO.getSide())){
-                  name = document_c_name.replace("(正)","反");
+                  name = document_c_name.replace("(正)","(反)");
             }else {
-                  name = document_c_name.replace("(反)","正");
+                  name = document_c_name.replace("(反)","(正)");
             }
             //根据名称查询到附件类型
             Map<String,Object> map = new HashMap<>();
@@ -224,8 +224,6 @@ public class OcrIdentityService {
         return  resultDto;
     }
     public CronusDto editOcrInfo(Integer id){
-       /* String sql = "select d.id as document_id ,r.document_name as document_name ,c.document_c_name as document_c_name,c.document_c_name_header as document_c_name_header ,r.id as rc_document_id  from document d left join r_contract_document r on d.id = r.document_id left join document_category c on r.document_c_id =c.id" +
-                " where r.is_deleted = 0 and d.id in (:crm_attach_ids) order by r.last_update_time desc";*/
         CronusDto resultDto = new CronusDto();
         Map<String,Object> paramsMap = new HashMap<>();
         paramsMap.put("id",id);
@@ -282,6 +280,7 @@ public class OcrIdentityService {
          if(StringUtils.isEmpty(id)){
              throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
          }
+        vallidataParams(card_name,card_sex,card_nation,card_birth,card_address,card_num,card_sign_org);
         Map<String,Object> paramsMap = new HashMap<>();
         paramsMap.put("id",id);
         OcrIdentity ocrIdentity = ocrIdentityMapper.findByFeild(paramsMap);
@@ -325,5 +324,32 @@ public class OcrIdentityService {
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
        return resultDto;
+    }
+
+
+    public void vallidataParams(String card_name,String card_sex,String card_nation,String card_birth,String card_address,String card_num,String card_sign_org){
+
+        if (StringUtils.isEmpty(card_name)){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERINENTITYNAME_ERROR);
+        }
+        if (StringUtils.isEmpty(card_sex)){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERINENTITYSEX_ERROR);
+        }
+        if (StringUtils.isEmpty(card_nation)){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERINENTITYNATION_ERROR);
+        }
+        if (StringUtils.isEmpty(card_birth)){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERINENTITYBIRTH_ERROR);
+        }
+        if (StringUtils.isEmpty(card_address)){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERINENTITYADDRESS_ERROR);
+        }
+        if (StringUtils.isEmpty(card_num)){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERINENTITYNUMBER_ERROR);
+        }
+        if (StringUtils.isEmpty(card_sign_org)){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERINENTITYSIGNORG_ERROR);
+        }
+
     }
 }

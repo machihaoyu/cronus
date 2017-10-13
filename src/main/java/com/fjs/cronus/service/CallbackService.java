@@ -1,6 +1,7 @@
 package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CustomerEnum;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.*;
@@ -291,7 +292,12 @@ public class CallbackService {
         if (callbackConfigDTOS != null && callbackConfigDTOS.size() >0 ){
             for (CallbackConfigDTO callbackConfigDTO: callbackConfigDTOS) {
                 if (callbackConfigDTO.getConfId() == CustomerEnum.getByIndex(customerType).getValue()){
-                    qusetions = callbackConfigDTO.getQuestion();
+                     List<QuestionsDTO> questionsDTOS = callbackConfigDTO.getQuestion();
+                     if (questionsDTOS != null && questionsDTOS.size() > 0) {
+                         for (QuestionsDTO questionsDTO : questionsDTOS ) {
+                             qusetions.add(questionsDTO);
+                         }
+                     }
                 }
             }
             resultDto.setData(qusetions);
@@ -447,7 +453,17 @@ public class CallbackService {
             CallbackConfigDTO callbackConfigDto = new CallbackConfigDTO();
             callbackConfigDto.setConfId(callbackConfig.getConfId());
             callbackConfigDto.setCycle(callbackConfig.getCycle());
-            callbackConfigDto.setQuestion(FastJsonUtils.stringToJsonArray(callbackConfig.getQuestion()));
+            JSONArray jsonArray = FastJsonUtils.stringToJsonArray(callbackConfig.getQuestion());
+            //遍历
+            List<QuestionsDTO>  questionsDTOS = new ArrayList<>();
+            for (int i = 0; i < jsonArray.size(); i++){
+                QuestionsDTO questionsDTO = new QuestionsDTO();
+                JSONObject jsonObject=jsonArray.getJSONObject(i);
+                questionsDTO.setName(jsonObject.getString("name"));
+                questionsDTO.setAnswer(jsonObject.getString("answer"));
+                questionsDTOS.add(questionsDTO);
+            }
+            callbackConfigDto.setQuestion(questionsDTOS);
             resultList.add(callbackConfigDto);
         }
         //存入缓存

@@ -185,7 +185,7 @@ public class DocumentController {
         }
     }
 
-    @ApiOperation(value="下载附件", notes="下载附件")
+    @ApiOperation(value="删除附件", notes="删除附件")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
     })

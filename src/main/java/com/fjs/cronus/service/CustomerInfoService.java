@@ -15,6 +15,7 @@ import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.FastJsonUtils;
+import com.fjs.cronus.util.PhoneFormatCheckUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -98,10 +99,19 @@ public class CustomerInfoService {
          customerInfo.setLastUpdateTime(date);
          customerInfo.setLastUpdateUser(user_id);
          customerInfo.setCustomerType(ResultResource.CUSTOMERTYPE);
+         customerInfo.setIsDeleted(0);
          customerInfoMapper.insertCustomer(customerInfo);
          if (customerInfo.getId() == null){
              throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
          }
+         //开始插入log表
+        //生成日志记录
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription("增加一条客户记录");
+        customerInfoLog.setLogUserId(user_id);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
         cronusDto.setResult(ResultResource.CODE_SUCCESS);
         cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         cronusDto.setData(customerInfo.getId());
@@ -208,6 +218,13 @@ public class CustomerInfoService {
         customerInfo.setLastUpdateTime(date);
         customerInfo.setLastUpdateUser(user_id);
         customerInfoMapper.updateCustomer(customerInfo);
+        //生成日志记录
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription("编辑交易信息");
+        customerInfoLog.setLogUserId(user_id);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerInfo.getId());
@@ -239,6 +256,9 @@ public class CustomerInfoService {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERNAME_ERROR);
         }
         if (telephonenumber == null || "".equals(telephonenumber)) {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONE_ERROR);
+        }
+        if (PhoneFormatCheckUtils.isChinaPhoneLegal(telephonenumber) == false){
             throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONE_ERROR);
         }
         //判断手机号是否被注册

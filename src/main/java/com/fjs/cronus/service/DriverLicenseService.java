@@ -158,6 +158,7 @@ public class DriverLicenseService {
         if(StringUtils.isEmpty(id)){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
+        validateParams(driver_name,driver_num,driver_vehicle_type,driver_start_date,driver_end_date);
         Map<String,Object> paramsMap = new HashMap<>();
         paramsMap.put("id",id);
         OcrDriverLicense ocrDriverLicense  = ocrDriverLicenseMapper.findByFeild(paramsMap);
@@ -193,8 +194,25 @@ public class DriverLicenseService {
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         return  resultDto;
+    }
 
+    public void  validateParams(String driver_name,String driver_num,String driver_vehicle_type, String driver_start_date, String driver_end_date){
 
+        if (StringUtils.isEmpty(driver_name)){
+            throw new CronusException(CronusException.Type.CRM_DRIVERLIENCENAME_ERROR);
+        }
+        if (StringUtils.isEmpty(driver_num)){
+            throw new CronusException(CronusException.Type.CRM_DRIVERLIENCENUM_ERROR);
+        }
+        if (StringUtils.isEmpty(driver_vehicle_type)){
+            throw new CronusException(CronusException.Type.CRM_DRIVERLIEVELICHRTYPE_ERROR);
+        }
+        if (StringUtils.isEmpty(driver_start_date)){
+            throw new CronusException(CronusException.Type.CRM_DRIVERLIEVESTARTDATE_ERROR);
+        }
+        if (StringUtils.isEmpty(driver_end_date)){
+            throw new CronusException(CronusException.Type.CRM_DRIVERLIEVEENDATE_ERROR);
+        }
     }
 
 }

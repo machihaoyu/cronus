@@ -145,6 +145,8 @@ public class CustomerInterviewService {
         if (user_id == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户面谈信息出错!");
         }
+        //教研参数
+        validParamsInteview(customerInterViewBaseCarHouseInsturDTO);
         //json 转为Dto
      /*   System.out.println(jsonObject.toString());
         CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto = FastJsonUtils.getSingleBean(jsonObject.toJSONString(),CustomerInterViewBaseCarHouseInsturDto.class);*/
@@ -243,7 +245,7 @@ public class CustomerInterviewService {
         }
         //json转成dto
        // CustomerInterViewBaseCarHouseInsturDto customerInterViewBaseCarHouseInsturDto = FastJsonUtils.getSingleBean(jsonObject.toString(),CustomerInterViewBaseCarHouseInsturDto.class);
-
+        validParamsInteview(customerInterViewBaseCarHouseInsturDTO);
         Map<String,Object> paramsMap = new HashMap<>();
         paramsMap.put("customerInterviewBaseInfoId", customerInterViewBaseCarHouseInsturDTO.getId());
         CustomerInterviewBaseInfo customerInterviewBaseInfo = customerInterviewBaseInfoMapper.customerInterviewByFeild(paramsMap);
@@ -310,5 +312,46 @@ public class CustomerInterviewService {
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         return  resultDto;
+    }
+
+
+    public void validParamsInteview(CustomerInterViewBaseCarHouseInsturDTO customerInterViewBaseCarHouseInsturDTO){
+
+        if (StringUtils.isEmpty(customerInterViewBaseCarHouseInsturDTO.getName())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERNAME_ERROR);
+        }
+        if (StringUtils.isEmpty(customerInterViewBaseCarHouseInsturDTO.getSex())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERSEX_ERROR);
+        }
+        if (StringUtils.isEmpty(customerInterViewBaseCarHouseInsturDTO.getAge())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERAGE_ERROR);
+        }
+        if (StringUtils.isEmpty(customerInterViewBaseCarHouseInsturDTO.getMaritalStatus())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERMERAEATATUS_ERROR);
+        }
+        if (StringUtils.isEmpty(customerInterViewBaseCarHouseInsturDTO.getEducation())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEREDUCATION_ERROR);
+        }
+        if (StringUtils.isEmpty(customerInterViewBaseCarHouseInsturDTO.getLoanAmount())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERLOANMOUNT_ERROR);
+        }
+        if (StringUtils.isEmpty(customerInterViewBaseCarHouseInsturDTO.getLoanTime())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERLOANTIME_ERROR);
+        }
+        if (StringUtils.isEmpty(customerInterViewBaseCarHouseInsturDTO.getLoanUseTime())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERLOANUSETIME_ERROR);
+        }
+        if (StringUtils.isEmpty(customerInterViewBaseCarHouseInsturDTO.getLoanPurpose())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERLOANPURPOSE_ERROR);
+        }
+        if (StringUtils.isEmpty(customerInterViewBaseCarHouseInsturDTO.getCreditRecord())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERCREATERECORD_ERROR);
+        }
+        if (StringUtils.isEmpty(customerInterViewBaseCarHouseInsturDTO.getDebtAmount())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERCDEBETAMOUNT_ERROR);
+        }
+        if (StringUtils.isEmpty(customerInterViewBaseCarHouseInsturDTO.getIsOverdue())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERISOVER_ERROR);
+        }
     }
 }
