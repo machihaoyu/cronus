@@ -22,7 +22,7 @@ public class CustomerInterVibaseInfoDTO {
     private String sex;
 
     private Integer age;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date birthDate;
 
     private String telephonenumber;
@@ -100,9 +100,9 @@ public class CustomerInterVibaseInfoDTO {
     private String isRelativeKnown;
 
     private String remark;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date lastUpdateTime;
 
     private Integer createUser;

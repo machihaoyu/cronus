@@ -43,7 +43,7 @@ public class OcrIDdentityDTO implements Serializable {
         this.status = status;
     }
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date   create_time;
 
     private List<OcrDocumentDto> ocrDocumentDto;

@@ -322,6 +322,6 @@ public class CustomerInfoService {
         resultDto.setData(flag);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
-     return resultDto;
+        return resultDto;
     }
 }
