@@ -28,7 +28,7 @@
     <result column="callback_status" property="callbackStatus" jdbcType="VARCHAR" />
     <result column="callback_time" property="callbackTime" jdbcType="TIMESTAMP" />
     <result column="sub_company_id" property="subCompanyId" jdbcType="INTEGER" />
-    <result column="house_loanv_alue" property="houseLoanValue" jdbcType="VARCHAR" />
+    <result column="house_loan_value" property="houseLoanValue" jdbcType="VARCHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
     <result column="create_user" property="createUser" jdbcType="INTEGER" />
