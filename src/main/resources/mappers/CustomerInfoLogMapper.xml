@@ -54,7 +54,7 @@
     insert into customer_info_log
     <trim prefix="(" suffix=")" suffixOverrides="," >
 
-      <if test="customer_id != null" >
+      <if test="customerId != null" >
         customer_id,
       </if>
       <if test="telephonenumber != null" >

@@ -43,7 +43,10 @@ public class listContainTest {
         System.out.println(suffix);*/
        /* String imagePath = new DateTime().toString("yyyy/MM/dd");
         System.out.println(imagePath);*/
-        boolean flag = Pattern.compile("/[0-9]{11}$/").matcher("13162706810").find();
-        System.out.println(flag);
+        String str ="2017";
+        String[]  strs=str.split("-");
+        System.out.println(strs.length);
+        System.out.println(strs[0]);
+        System.out.println(strs[1]);
     }
 }
