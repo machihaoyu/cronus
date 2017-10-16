@@ -43,7 +43,7 @@ public class CustomerInfoService {
         return  resultList;
     }
 
-    public QueryResult customerList(String customerName,String createTimeStart,String createTimeEnd,String telephonenumber,Integer page,Integer size){
+    public QueryResult customerList(String customerName,String telephonenumber,Integer page,Integer size){
         QueryResult result = new QueryResult();
         Map<String,Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
@@ -51,14 +51,14 @@ public class CustomerInfoService {
         if (!StringUtils.isEmpty(customerName)){
             paramsMap.put("customerName",customerName);
         }
-        if (!StringUtils.isEmpty(createTimeStart)){
+      /*  if (!StringUtils.isEmpty(createTimeStart)){
             Date startDate = DateUtils.parse(createTimeStart,DateUtils.FORMAT_LONG);
             paramsMap.put("createTimeStart",startDate);
         }
         if (!StringUtils.isEmpty(createTimeEnd)){
             Date startEnd = DateUtils.parse(createTimeEnd,DateUtils.FORMAT_LONG);
             paramsMap.put("createTimeEnd",startEnd);
-        }
+        }*/
         if (!StringUtils.isEmpty(telephonenumber)){
             paramsMap.put("telephonenumber",telephonenumber);
         }
