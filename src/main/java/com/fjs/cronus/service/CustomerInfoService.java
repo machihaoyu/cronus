@@ -86,11 +86,10 @@ public class CustomerInfoService {
         CronusDto cronusDto = new CronusDto();
          //判断必传字段*/
          //json转map 参数，教研参数
-        Integer user_id = 1;
-        /*Integer user_id = ucService.getUserIdByToken(token);
+        Integer user_id = ucService.getUserIdByToken(token);
         if (user_id == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户面谈信息出错!");
-        }*/
+        }
          validAddData(customerDTO);
          //实体与DTO相互转换
          CustomerInfo customerInfo = new CustomerInfo();
