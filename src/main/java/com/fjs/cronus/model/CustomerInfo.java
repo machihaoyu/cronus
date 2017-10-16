@@ -62,7 +62,17 @@ public class CustomerInfo extends BaseModel {
 
     private Integer subCompanyId;
 
+    private String houseLoanValue;
+
     private String perDescription;
+
+    public String getHouseLoanValue() {
+        return houseLoanValue;
+    }
+   
+    public void setHouseLoanValue(String houseLoanValue) {
+        this.houseLoanValue = houseLoanValue;
+    }
 
     public String getCustomerType() {
         return customerType;

@@ -136,6 +136,10 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getCustomerStreet())){
             dto.setCustomerStreet(customerInfo.getCustomerStreet());
         }
+        if (!StringUtils.isEmpty(customerInfo.getHouseLoanValue())){
+            dto.setHouseLoanValue(customerInfo.getHouseLoanValue());
+        }
+
     }
     public static void customerCustomerDtoToEntity(CustomerDTO customerInfo, CustomerInfo dto){
 
@@ -255,6 +259,9 @@ public class EntityToDto {
         }
         if (!StringUtils.isEmpty(customerInfo.getCustomerStreet())){
             dto.setCustomerStreet(customerInfo.getCustomerStreet());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHouseLoanValue())){
+            dto.setHouseLoanValue(customerInfo.getHouseLoanValue());
         }
     }
 
@@ -1476,6 +1483,9 @@ public class EntityToDto {
         }
         if (!StringUtils.isEmpty(customerInfo.getCreateTime())){
             log.setCreateTime(customerInfo.getCreateTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHouseLoanValue())){
+            log.setHouseLoanValue(customerInfo.getHouseLoanValue());
         }
     }
 

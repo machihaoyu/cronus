@@ -28,6 +28,7 @@
     <result column="callback_status" property="callbackStatus" jdbcType="VARCHAR" />
     <result column="callback_time" property="callbackTime" jdbcType="TIMESTAMP" />
     <result column="sub_company_id" property="subCompanyId" jdbcType="INTEGER" />
+    <result column="house_loanv_alue" property="houseLoanValue" jdbcType="VARCHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
     <result column="create_user" property="createUser" jdbcType="INTEGER" />
@@ -44,7 +45,7 @@
     id, customer_id,telephonenumber, customer_name, customer_level, spare_phone, age, marriage, id_card,
     province_huji, sex, customer_address, house_status, house_amount, house_type, house_value, 
     house_area, house_age, house_loan, house_alone, house_location, city, customer_classify, 
-    callback_status, callback_time, sub_company_id, create_time, last_update_time, create_user, 
+    callback_status, callback_time, sub_company_id,house_loanv_alue,create_time, last_update_time, create_user,
     last_update_user, is_deleted, log_user_id, log_create_time, log_description
   </sql>
   <sql id="Blob_Column_List" >
@@ -128,6 +129,9 @@
       </if>
       <if test="subCompanyId != null" >
         sub_company_id,
+      </if>
+      <if test="houseLoanValue != null" >
+        house_loan_value,
       </if>
       <if test="createTime != null" >
         create_time,
@@ -233,6 +237,9 @@
       </if>
       <if test="subCompanyId != null" >
         #{subCompanyId,jdbcType=INTEGER},
+      </if>
+      <if test="houseLoanValue != null" >
+        #{houseLoanValue,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null" >
         #{createTime,jdbcType=TIMESTAMP},

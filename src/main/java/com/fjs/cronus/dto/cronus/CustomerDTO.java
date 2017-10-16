@@ -69,6 +69,8 @@ public class CustomerDTO {
     private Integer subCompanyId;
     @ApiModelProperty(value = "备注")
     private String perDescription;
+    @ApiModelProperty(value = "可贷金额")
+    private String houseLoanValue;
     @ApiModelProperty(value = "创建时间")
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
@@ -82,6 +84,13 @@ public class CustomerDTO {
     @ApiModelProperty(value = "是否删除(1:已删除, 0:未删除)'")
     private Integer isDeleted;
 
+    public String getHouseLoanValue() {
+        return houseLoanValue;
+    }
+
+    public void setHouseLoanValue(String houseLoanValue) {
+        this.houseLoanValue = houseLoanValue;
+    }
 
     public String getCustomerStreet() {
         return customerStreet;

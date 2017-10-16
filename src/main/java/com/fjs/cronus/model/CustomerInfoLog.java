@@ -57,6 +57,8 @@ public class CustomerInfoLog extends BaseModel {
 
     private Integer subCompanyId;
 
+    private String houseLoanValue;
+
     private Integer logUserId;
 
     private Date logCreateTime;
@@ -64,6 +66,14 @@ public class CustomerInfoLog extends BaseModel {
     private String logDescription;
 
     private String perDescription;
+
+    public String getHouseLoanValue() {
+        return houseLoanValue;
+    }
+
+    public void setHouseLoanValue(String houseLoanValue) {
+        this.houseLoanValue = houseLoanValue;
+    }
 
     public Integer getCustomerId() {
         return customerId;
