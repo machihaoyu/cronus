@@ -5,7 +5,9 @@ import com.fjs.cronus.dto.ocr.IdCardDTO;
 import com.fjs.cronus.util.FastJsonUtils;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -43,10 +45,10 @@ public class listContainTest {
         System.out.println(suffix);*/
        /* String imagePath = new DateTime().toString("yyyy/MM/dd");
         System.out.println(imagePath);*/
-        String str ="2017";
-        String[]  strs=str.split("-");
-        System.out.println(strs.length);
-        System.out.println(strs[0]);
-        System.out.println(strs[1]);
+//        String str ="2017";
+//        String[]  strs=str.split("-");
+//        System.out.println(strs.length);
+//        System.out.println(strs[0]);
+//        System.out.println(strs[1]);
     }
 }

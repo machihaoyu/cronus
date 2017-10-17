@@ -9,6 +9,7 @@ import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.CustomerInfoService;
+import com.fjs.cronus.service.DocumentService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -31,7 +32,8 @@ public class CustomerController {
     private  static  final Logger logger = LoggerFactory.getLogger(CustomerController.class);
     @Autowired
     CustomerInfoService customerInfoService;
-
+    @Autowired
+    DocumentService documentService;
     @ApiOperation(value="获取客户列表", notes="获取客户列表信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
@@ -270,4 +272,36 @@ public class CustomerController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
+    @ApiOperation(value="判断客户的附件上传情况", notes="判断客户的附件上传情况")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "productType", value = "产品类型1：信用，2：抵押，3：赎楼", required = true, paramType = "query", dataType = "String")
+    })
+    @RequestMapping(value = "/validDocumentToContract", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto validDocumentToContract(@RequestParam Integer customerId,@RequestParam Integer productType,@RequestHeader("Authorization") String token) {
+        CronusDto cronusDto = new CronusDto();
+        //教研参数
+        if (customerId == null || customerId == 0 ){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        if (productType == null || productType == 0 ){
+            throw new CronusException(CronusException.Type.CRM_VALIDAOCUMENRTOCON_ERROR);
+        }
+        try {
+            cronusDto = documentService.validDocumentToContract(customerId,productType,token);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->获取用户信息失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+
+
+
 }

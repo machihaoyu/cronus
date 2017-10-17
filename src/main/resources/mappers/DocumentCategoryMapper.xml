@@ -48,4 +48,17 @@
       and document_c_name = #{document_c_name}
     </if>
   </select>
+  <select id="findListByFeild" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from document_category
+    where is_deleted = 0
+    <if test="document_c_names!=null and document_c_names.size>0">
+      AND document_c_name in
+      <foreach collection="document_c_names" item="document_c_names"
+               index="index" open="(" close=")" separator=",">
+        ${document_c_names}
+      </foreach>
+    </if>
+  </select>
 </mapper>

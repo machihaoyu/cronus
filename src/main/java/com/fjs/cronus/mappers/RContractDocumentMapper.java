@@ -18,4 +18,6 @@ public interface RContractDocumentMapper{
     List<RContractDocument> ocrDocument(Map<String,Object> paramsMap);
 
     Integer checkCustomerIsUpload(Map<String,Object> paramsMap);
+
+    List<Integer> findListByFeild(Map<String,Object> paramsMap);
 }

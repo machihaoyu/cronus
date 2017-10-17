@@ -16,4 +16,6 @@ public interface DocumentCategoryMapper {
     DocumentCategory   findByFeild(Map<String,Object> paraMap);
 
     DocumentCategory selectByKey(@Param(value = "id") Integer id);
+
+    List<DocumentCategory> findListByFeild(Map<String,Object> paraMap);
 }

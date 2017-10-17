@@ -2,6 +2,7 @@ package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.OcrInfoEnum;
+import com.fjs.cronus.Common.ProductTyoeEnum;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.UploadDocumentDto;
@@ -34,6 +35,7 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.springframework.web.multipart.MultipartFile;
 import sun.misc.BASE64Decoder;
 
+import javax.jws.Oneway;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -683,4 +685,78 @@ public class DocumentService {
       resultDto.setData(flag);
       return  resultDto;
   }
+    public CronusDto validDocumentToContract(Integer customerId,Integer productType,String token){
+        CronusDto resultDto = new CronusDto();
+        //搜索检索的附件标示
+        Map<String,Object> paramsMap = new HashMap<>();
+        List<String> document_c_names = Arrays.<String> asList(ResultResource.DOCUMENT_C_NAMES);
+        paramsMap.put("document_c_names",document_c_names);
+        List<DocumentCategory> documentCategoryList = documentCategoryMapper.findListByFeild(paramsMap);
+        //遍历存入
+        Map<String,Integer> map = new HashMap<>();
+
+        for (DocumentCategory documentCategory :  documentCategoryList) {
+            map.put(documentCategory.getDocumentCName(),documentCategory.getId());
+        }
+        if (documentCategoryList == null){
+            throw new CronusException(CronusException.Type.CRM_VALIDAOCUMENRCOUNT_ERROR);
+        }
+        if (document_c_names.size() != documentCategoryList.size()){
+            throw new CronusException(CronusException.Type.CRM_VALIDAOCUMENRCOUNT_ERROR);
+        }
+        //下面找出客户上传了哪些附件
+        //根据客户id查询出上传了哪些附件customer_id
+        paramsMap.clear();
+        paramsMap.put("customerId",customerId);
+        List<Integer> documentCids = rContractDocumentMapper.findListByFeild(paramsMap);
+        //
+        String message ="";
+        switch (ProductTyoeEnum.getByValue(productType)){
+
+            case producttype_credit:
+                //判断是否含有身份证正面信息
+               if(!documentCids.contains(map.get(ResultResource.INENTITY))){
+                    message = "【借款人身份证】";
+               }
+                if(!documentCids.contains(map.get(ResultResource.HOUSEHOLD)) && !documentCids.contains(map.get(ResultResource.ACCUMULATION)) && !documentCids.contains(map.get(ResultResource.BACKDEBUT))
+                        && !documentCids.contains(map.get(ResultResource.PROOFPOLICY))  && !documentCids.contains(map.get(ResultResource.CERTIFICATE))){
+                    message = message + "【借款人银行流水/房产证/公积金证明/保单证明/行驶证证明 至少需一】";
+                }
+                break;
+            case producttype_mortgage:
+                if(!documentCids.contains(map.get(ResultResource.INENTITY))){
+                    message = "【借款人身份证】";
+                }
+                if(!documentCids.contains(map.get(ResultResource.HOUSEHOLD)) && !documentCids.contains(map.get(ResultResource.CERTIFICATE))){
+                    message = message + "【房产证/行驶证证明 至少需一】";
+                }
+                break;
+            case producttype_ransomfloor:
+                if(!documentCids.contains(map.get(ResultResource.INENTITY))){
+                    message = "【借款人身份证】";
+                }
+                if(!documentCids.contains(map.get(ResultResource.HOUSEHOLD))){
+                    message =message + "【房产证】";
+                }
+                if(!documentCids.contains(map.get(ResultResource.HOUSEREGISTER))){
+                    message = message +"【借款人户口簿】";
+                }
+                break;
+                default:
+                    message = "参数错误";
+                    break;
+        }
+        if (!"".equals(message)){
+            message = "请上传附件" + message;
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            resultDto.setData(message);
+            return  resultDto;
+        }
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(true);
+        return  resultDto;
+
+    }
 }

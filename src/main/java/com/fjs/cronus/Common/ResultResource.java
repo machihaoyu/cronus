@@ -44,4 +44,17 @@ public class ResultResource {
     public static  String CUSTOMERSTATUS = "正常";
 
     public static String[] CALLBACKSTATUS ={"'正常'","'未接'","'待联系'","'空号'","'拒接'","'拒访'","'其他'"};
+
+    public static String[] DOCUMENT_C_NAMES = {"'借款人(正)'","'房产证'","'借款人户口簿'","'借款人银行流水'","'公积金证明'","'保单证明'","'行驶证证明'"};
+
+    public static String HOUSEREGISTER = "借款人户口簿";
+
+    public static String BACKDEBUT = "借款人银行流水";
+
+    public static String ACCUMULATION = "公积金证明";
+
+    public static String PROOFPOLICY = "保单证明";
+
+    public static String CERTIFICATE = "行驶证证明";
+
 }

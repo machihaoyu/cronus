@@ -38,7 +38,7 @@ public class PhoneFormatCheckUtils {
 
     public static void main(String args[]){
 
-        boolean flag = isChinaPhoneLegal("16005030505");
+        boolean flag = isChinaPhoneLegal("18703622712");
         if (flag == false){
 
             System.out.println(21515);

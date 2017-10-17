@@ -520,7 +520,7 @@
             and c.customer_type = #{customer_type}
         </if>
         <if test="cityList!=null and cityList.size>0">
-            AND c.id in
+            AND c.city in
             <foreach collection="cityList" item="cityList"
                      index="index" open="(" close=")" separator=",">
                 #{cityList}

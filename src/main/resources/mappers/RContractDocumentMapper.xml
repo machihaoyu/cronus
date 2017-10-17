@@ -66,6 +66,9 @@
     <if test="rc_document_id != null">
       and id = #{rc_document_id}
     </if>
+    <if test="customerId != null">
+      and customer_id = #{customerId}
+    </if>
   </select>
   <insert id="addConDocument" parameterType="com.fjs.cronus.model.RContractDocument" >
     insert into r_contract_document
@@ -146,4 +149,17 @@
       </if>
     </trim>
   </insert>
+
+  <select id="findListByFeild" parameterType="java.util.Map" resultType="java.lang.Integer">
+    select
+    DISTINCT(document_c_id)
+    from r_contract_document
+    where is_deleted = 0
+    <if test="rc_document_id != null">
+      and id = #{rc_document_id}
+    </if>
+    <if test="customerId != null">
+      and customer_id = #{customerId}
+    </if>
+  </select>
 </mapper>

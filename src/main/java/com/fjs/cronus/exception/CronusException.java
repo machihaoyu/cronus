@@ -153,9 +153,11 @@ public class CronusException extends BaseException {
 
         CRM_DRIVERVEGHICLEENGINENUM_ERROR("6069","发动机型号不能为空"),
 
-        CRM_DRIVERVEGHICLEREGIST_ERROR("6070","注册日期"),
+        CRM_DRIVERVEGHICLEREGIST_ERROR("6070","注册日期不能为空"),
 
+        CRM_VALIDAOCUMENRTOCON_ERROR("6071","productType不能为空"),
 
+        CRM_VALIDAOCUMENRCOUNT_ERROR("6072","获取附件分类信息出错,请联系管理员"),
         ;
         private String status;
         private String error;
