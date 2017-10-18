@@ -20,7 +20,7 @@ services:
     ports:
       - "1100:8010"
     environment:
-      - CONFIG_PROFILE=sit
+      - CONFIG_PROFILE=uat
       - CONFIG_PASSWORD=123456
       - CONFIG_SERVER_ADDRESS=zues
       - CONFIG_SERVER_PORT=6020
