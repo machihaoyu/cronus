@@ -34,7 +34,7 @@ services:
       - '-Xmx2000M'
       - '-XX:+UseParallelGC'
       - '-jar'
-      - /opt/master-cronus-1.0.0.war
+      - /opt/master-cronus-uat-1.0.0.war
 networks:
   fjs_overlay_master:
     external:
