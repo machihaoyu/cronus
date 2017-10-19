@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -289,6 +290,7 @@ public class CustomerController {
         if (productType == null || productType == 0 ){
             throw new CronusException(CronusException.Type.CRM_VALIDAOCUMENRTOCON_ERROR);
         }
+        Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
         try {
             cronusDto = documentService.validDocumentToContract(customerId,productType,token);
             return cronusDto;

@@ -146,6 +146,7 @@ public class OcrHouseholdRegisterService {
        return  resultDto;
    }
 
+     @Transactional
      public CronusDto editOcrInfoOK(JSONObject jsonObject, String token){
          CronusDto resultDto = new CronusDto();
          Integer id = jsonObject.getInteger("id");

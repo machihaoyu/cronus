@@ -385,7 +385,7 @@ public class DocumentService {
        }
      return  true;
    }
-
+   @Transactional
    public ReqParamDTO addOcrDealParam(Integer category,Integer customer_id,String imageBase64,Integer rc_document_id,Integer user_id,String token){
 
        ReqParamDTO reqParamDTO = new ReqParamDTO();
@@ -463,6 +463,7 @@ public class DocumentService {
        return  reqParamDTO;
    }
 
+   @Transactional
    public Integer addOrSaveInfo(JSONObject jsonObject){
        ReqParamDTO resultDto = new ReqParamDTO();
     if (jsonObject == null){

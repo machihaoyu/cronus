@@ -8,6 +8,8 @@ import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.exception.CronusException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * Created by msi on 2017/9/25.
  */
@@ -87,7 +89,8 @@ public class OcrInfoService {
            }
             return  resultDto;
        }
-    public CronusDto editOcrInfoOK(JSONObject jsonObject,String token){
+       @Transactional
+       public CronusDto editOcrInfoOK(JSONObject jsonObject,String token){
         CronusDto resultDto = new CronusDto();
         Integer ocr_type = jsonObject.getInteger("ocr_type");
         if (ocr_type == null){

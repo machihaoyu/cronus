@@ -112,6 +112,7 @@ public class CustomerInfoService {
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription("增加一条客户记录");
         customerInfoLog.setLogUserId(user_id);
+        customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
         cronusDto.setResult(ResultResource.CODE_SUCCESS);
         cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
@@ -226,6 +227,7 @@ public class CustomerInfoService {
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription("编辑交易信息");
         customerInfoLog.setLogUserId(user_id);
+        customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
@@ -319,6 +321,7 @@ public class CustomerInfoService {
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription("签章协议");
         customerInfoLog.setLogUserId(user_id);
+        customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
         flag = true;
         resultDto.setData(flag);
