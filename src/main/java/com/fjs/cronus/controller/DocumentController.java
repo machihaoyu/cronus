@@ -88,7 +88,7 @@ public class DocumentController {
     @ApiOperation(value="获取附件三价联动的信息", notes="获取附件三价联动的信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "cateGoryParentId", value = "父级id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "cateGoryParentId", value = "父级id第一次初始化参数传0", required = true, paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/getNextCategoryCrm", method = RequestMethod.GET)
     @ResponseBody
@@ -106,6 +106,10 @@ public class DocumentController {
     @ApiOperation(value="Pc端提交上传附件", notes="Pc端提交上传附件")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "contractId", value = "合同id，非必传上传合同需要", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "category", value = "附件类型", required = true, paramType = "query",  dataType = "int"),
+            @ApiImplicitParam(name = "source", value = "来源pc端传'PC'", required = false, paramType = "query",  dataType = "String"),
     })
     @RequestMapping(value = "/uploadPcDocumentOk",method = RequestMethod.POST)
     @ResponseBody
