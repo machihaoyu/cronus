@@ -86,8 +86,8 @@ public class DocumentService {
     /**
      * 图文识别线程池池 用ArrayBlockingQueue比 LinkedBlockingQueue性能要好点。
      */
-    public static final ExecutorService es = new ThreadPoolExecutor(100, 200, 0L, TimeUnit.MILLISECONDS,
-            new ArrayBlockingQueue<Runnable>(50000), supplyThreadFactory);
+    public static final ExecutorService es = new ThreadPoolExecutor(2, 4, 0L, TimeUnit.MILLISECONDS,
+            new ArrayBlockingQueue<Runnable>(5), supplyThreadFactory);
     public CronusDto uploadDocument(Integer customerId){
 
         //TODO 查询客户的基础信息
@@ -299,7 +299,7 @@ public class DocumentService {
             //文件路径
             String imagePath = new DateTime().toString("yyyy/MM/dd");
            InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(imageBase64);
-           boolean flag=FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, FTP_BASE_PATH, imagePath, name, inputStream);
+           boolean flag=FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL, imagePath, name, inputStream);
             if(!flag) {
                 resultDto.setResult(ResultResource.UPLOAD_ERROR);
                 resultDto.setMessage(ResultResource.UPLOAD_ERROR_MESSAGE);
@@ -333,7 +333,7 @@ public class DocumentService {
             String imagePath =thunbPath;
             String name = flag + thumbName;
             InputStream is = FileBase64ConvertUitl.decoderBase64File(base64);
-            boolean result=FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, FTP_BASE_PATH, imagePath, name, is);
+            boolean result=FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL, imagePath, name, is);
             if(!result) {
                 resultDto.setResult(ResultResource.UPLOAD_ERROR);
                 resultDto.setMessage(ResultResource.UPLOAD_ERROR_MESSAGE);
@@ -353,7 +353,7 @@ public class DocumentService {
         }
     return resultDto;
     }
-   public boolean addOcrInfo(Integer category,Integer customer_id,String imageBase64,Integer rc_document_id,Integer user_id,String token){
+   public boolean addOcrInfo (Integer category,Integer customer_id,String imageBase64,Integer rc_document_id,Integer user_id,String token){
        final long step1Time = System.currentTimeMillis();
        try {
             es.execute(new Runnable() {
@@ -611,7 +611,7 @@ public class DocumentService {
         try{
             //文件路径
             String imagePath = new DateTime().toString("yyyy/MM/dd");
-            boolean flag=FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, FTP_BASE_PATH, imagePath, name, inputStream);
+            boolean flag=FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL, imagePath, name, inputStream);
             if(!flag) {
                 resultDto.setResult(ResultResource.UPLOAD_ERROR);
                 resultDto.setMessage(ResultResource.UPLOAD_ERROR_MESSAGE);
@@ -619,7 +619,7 @@ public class DocumentService {
             }
             //上传成功
             resultMap.put("url", IMAGE_BASE_URL + imagePath + "/" + name);
-            resultMap.put("remotePath",IMAGE_BASE_URL + imagePath + "/");//相对路径
+            resultMap.put("remotePath",IMAGE_BASE_URL + "/"+ imagePath + "/");//相对路径
             resultMap.put("name",name);//文件名
             resultMap.put("imagePath",IMAGE_BASE_URL+imagePath + "/");
 

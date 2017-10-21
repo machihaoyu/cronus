@@ -40,7 +40,7 @@ public class FtpUtil {
 				return result;
 			}
 			//切换到上传目录
-			if (!ftp.changeWorkingDirectory(basePath+filePath)) {
+			if (!ftp.changeWorkingDirectory(basePath+"/"+filePath)) {
 				//如果目录不存在创建目录
 				String[] dirs = filePath.split("/");
 				String tempPath = basePath;
@@ -61,7 +61,7 @@ public class FtpUtil {
 			ftp.setFileType(FTP.BINARY_FILE_TYPE);
 			ftp.setBufferSize(1024);
 			ftp.setControlEncoding("utf-8");
-			ftp.enterRemotePassiveMode();
+			//ftp.enterRemotePassiveMode();
 			//上传文件
 			if (!ftp.storeFile(filename, input)) {
 				return result;
@@ -288,8 +288,14 @@ public class FtpUtil {
 			//boolean flag1 =	downloadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/09/","1507516521889432.jpg", "E:\\");
 			System.out.println(flag);*//*
 			System.out.println(flag);*/
-			boolean flag = delete("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/09/", "4.jpg");
-            System.out.println(flag);
+			//boolean flag = delete("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/09/", "4.jpg");
+			/*FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
+			String imagePath = new DateTime().toString("yyyy/MM/dd");
+			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads",imagePath, "dsf.jpg", in);
+            System.out.println(flag);*/
+
+			String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/21/", "1508572674522267.jpg");
+			System.out.println(bytes.length());
 		} catch (Exception e) {
 	        e.printStackTrace();  
 	    }  
