@@ -97,7 +97,7 @@
     </choose>
     limit #{start},#{size}
   </select>
-  <insert id="addHouseHold" parameterType="com.fjs.cronus.model.OcrHouseholdRegister" >
+  <insert id="addHouseHold" parameterType="com.fjs.cronus.model.OcrHouseholdRegister" useGeneratedKeys="true" keyProperty="id">
     insert into ocr_household_register
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="customerId != null" >

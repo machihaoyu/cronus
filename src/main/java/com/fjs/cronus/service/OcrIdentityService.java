@@ -171,6 +171,7 @@ public class OcrIdentityService {
                 identity.setCreateUser(Integer.parseInt(idCardDTO.getCreate_user_id().toString()));
                 identity.setLastUpdateTime(date);
                 identity.setLastUpdateUser(Integer.parseInt(idCardDTO.getUpdate_user_id().toString()));
+                identity.setStatus("草稿");
                 identity.setIsDeleted(0);
                 //开始插入数据
                 ocrIdentityMapper.addOcrIdentity(identity);

@@ -167,18 +167,18 @@ public class DocumentController {
     })
     @RequestMapping(value = "/downloadDocument",method = RequestMethod.POST)
     @ResponseBody
-    public void  downloadDocument(HttpServletResponse response,@RequestParam(value = "remotePath",required = true) String remotePath,
-                                      @RequestParam(value = "fileName",required = true) String fileName){
+    public void  downloadDocument(HttpServletResponse response,@RequestParam(value = "documentSavepath",required = true) String documentSavepath,
+                                      @RequestParam(value = "documentSavename",required = true) String documentSavename){
         logger.info("start downloadDocument!");
         //校验参数
-        if (remotePath == null || "".equals(remotePath)){
+        if (documentSavepath == null || "".equals(documentSavepath)){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
-        if (fileName == null || "".equals(fileName)){
+        if (documentSavename == null || "".equals(documentSavename)){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
         try {
-            documentService.downloadDocument(response,remotePath,fileName);
+            documentService.downloadDocument(response,documentSavepath,documentSavename);
         }catch (Exception e) {
             logger.error("下载附件", e);
             if (e instanceof CronusException) {

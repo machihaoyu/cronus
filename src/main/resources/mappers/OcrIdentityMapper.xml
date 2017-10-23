@@ -98,7 +98,7 @@
       and customer_id = #{customer_id}
     </if>
     <if test="create_user_id != null">
-      and create_user_id = #{create_user_id}
+      and create_user = #{create_user_id}
     </if>
     <if test="document_category_ids != null and document_category_ids !=''" >
       and document_category_ids  like CONCAT('%', #{document_category_ids},'%' )
@@ -181,7 +181,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <insert id="addOcrIdentity" parameterType="com.fjs.cronus.model.OcrIdentity" >
+  <insert id="addOcrIdentity" parameterType="com.fjs.cronus.model.OcrIdentity" useGeneratedKeys="true" keyProperty="id">
     insert into ocr_identity
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="customerId != null" >

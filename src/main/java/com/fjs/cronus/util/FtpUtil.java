@@ -1,13 +1,12 @@
 package com.fjs.cronus.util;
 
 import java.io.*;
-import java.util.Random;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
-import org.joda.time.DateTime;
+
 import sun.misc.BASE64Encoder;
 
 public class FtpUtil {
@@ -138,7 +137,9 @@ public class FtpUtil {
 	public static String getInputStream(String host, int port, String username, String password, String remotePath,
 									   String fileName) {
 		FTPClient ftp = new FTPClient();
-		InputStream inputStream = null;
+		//InputStream inputStream = null;
+	/*	ftp.setDefaultTimeout(3*1000);
+        ftp.setDataTimeout(3*1000);*/
 		byte[] bytes = null;
 		try {
 			int reply;
@@ -168,18 +169,23 @@ public class FtpUtil {
 			}*/
 			ftp.setFileType(FTP.BINARY_FILE_TYPE);
 			ftp.enterLocalPassiveMode();
-			inputStream = ftp.retrieveFileStream(new String(fileName.getBytes("UTF-8"), "ISO-8859-1"));
+			String file = new String(fileName.getBytes("UTF-8"), "ISO-8859-1");
+
+			//inputStream = ftp.retrieveFileStream(file);
 			//转byte数组
-			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-			byte[] buf = new byte[inputStream.available()];
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			ftp.retrieveFile(file, outputStream);
+			//InputStream inputstream = new ByteArrayInputStream(outputStream.toByteArray());
+			//System.out.println(inputStream.available());
+			/*byte[] buf = new byte[inputStream.available()];
 			int bufsize = 0;
 			while ((bufsize = inputStream.read(buf, 0, buf.length)) != -1) {
 				byteOut.write(buf, 0, bufsize);
-			}
-			bytes = byteOut.toByteArray();
+			}*/
+			bytes = outputStream.toByteArray();
 			System.out.println(bytes.length);
-			byteOut.close();
-			inputStream.close();
+			outputStream.close();
+			//inputStream.close();
 			ftp.logout();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -187,7 +193,8 @@ public class FtpUtil {
 			if (ftp.isConnected()) {
 				try {
 					ftp.disconnect();
-				} catch (IOException ioe) {
+				}catch (IOException e){
+
 				}
 			}
 		}
@@ -300,4 +307,6 @@ public class FtpUtil {
 	        e.printStackTrace();  
 	    }  
 	}
+
+
 }

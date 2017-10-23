@@ -17,6 +17,7 @@ import com.fjs.cronus.model.RContractDocument;
 import com.fjs.cronus.service.client.TalosService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.*;
+import io.swagger.models.auth.In;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,15 +80,15 @@ public class DocumentService {
     OcrDriverVehicleService driverVehicleService;
     @Autowired
     HouseRegisterService houseRegisterService;
-    static final ThreadFactory supplyThreadFactory = new BasicThreadFactory.Builder().namingPattern("tuwenshibie-%d").daemon(true)
-            .priority(Thread.MAX_PRIORITY).build();
+   /* static final ThreadFactory supplyThreadFactory = new BasicThreadFactory.Builder().namingPattern("tuwenshibie-%d").daemon(true)
+            .priority(Thread.MAX_PRIORITY).build();*/
     @Autowired
     private TalosService talosService;
-    /**
+  /*  *//**
      * 图文识别线程池池 用ArrayBlockingQueue比 LinkedBlockingQueue性能要好点。
-     */
+     *//*
     public static final ExecutorService es = new ThreadPoolExecutor(2, 4, 0L, TimeUnit.MILLISECONDS,
-            new ArrayBlockingQueue<Runnable>(5), supplyThreadFactory);
+            new ArrayBlockingQueue<Runnable>(5), supplyThreadFactory);*/
     public CronusDto uploadDocument(Integer customerId){
 
         //TODO 查询客户的基础信息
@@ -333,7 +334,7 @@ public class DocumentService {
             String imagePath =thunbPath;
             String name = flag + thumbName;
             InputStream is = FileBase64ConvertUitl.decoderBase64File(base64);
-            boolean result=FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL, imagePath, name, is);
+            boolean result=FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL+"/", imagePath, name, is);
             if(!result) {
                 resultDto.setResult(ResultResource.UPLOAD_ERROR);
                 resultDto.setMessage(ResultResource.UPLOAD_ERROR_MESSAGE);
@@ -356,13 +357,13 @@ public class DocumentService {
    public boolean addOcrInfo (Integer category,Integer customer_id,String imageBase64,Integer rc_document_id,Integer user_id,String token){
        final long step1Time = System.currentTimeMillis();
        try {
-            es.execute(new Runnable() {
+          /*  es.execute(new Runnable() {
                 @Override
-                public void run() {
-                    final Thread currentThread = Thread.currentThread();
+                public void run() {*/
+                /*    final Thread currentThread = Thread.currentThread();
                     final String oldName = currentThread.getName();
                     currentThread.setName(String.format(currentThread.getName() + "图文识别线程"));
-                    long step2Time = System.currentTimeMillis();
+                    long step2Time = System.currentTimeMillis();*/
                     try {
                         logger.warn("开始通信");
                         ReqParamDTO reqParamDTO = addOcrDealParam(category,customer_id, imageBase64, rc_document_id, user_id, token);
@@ -371,13 +372,13 @@ public class DocumentService {
                     } catch (Exception e) {
                         logger.error("charge error ", e);
                     } finally {
-                        logger.warn("通信完成,总耗时: " + (System.currentTimeMillis() - step1Time) + "ms 上游通信耗时:"
+                       /* logger.warn("通信完成,总耗时: " + (System.currentTimeMillis() - step1Time) + "ms 上游通信耗时:"
                                 + (System.currentTimeMillis() - step2Time) + "ms");
-                        currentThread.setName(oldName);
+                        currentThread.setName(oldName);*/
                     }
 
-                }
-            });
+            /*    }
+            });*/
 
        }catch (RejectedExecutionException e){
          logger.error("线程池已满",e);
@@ -399,8 +400,9 @@ public class DocumentService {
        Integer document_id = rContractDocument.getDocumentId();
        //根据customer_id获取客户信息
        List paramsList = new ArrayList();
-       paramsList.add(customer_id);
-       paramsMap.put("paramsList",paramsList);
+      /* paramsList.add(customer_id);
+       paramsMap.put("paramsList",paramsList);*/
+       paramsMap.put("id",customer_id);
        CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
        //通过$category获取这个图片的分类属性
        DocumentCategory documentCategory = documentCategoryMapper.selectByKey(category);
@@ -427,7 +429,7 @@ public class DocumentService {
            jsonObject.put("type",5);
        }
        else {
-           jsonObject.put("type",0);
+           jsonObject.put("type",null);
        }
        UcUserDTO userInfo = ucService.getUserInfoByID(token,user_id);
      /*  ocrSaveBaseInfoDTO.setR_contract_document(rContractDocument);
@@ -566,7 +568,8 @@ public class DocumentService {
                String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
                InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(bytes);
                getThumbnail(inputStream,300,300,thumbName,thunbPath,"_S");
-               getThumbnail(inputStream,500,500,thumbName,thunbPath,"_M");
+               InputStream inputStream1 = FileBase64ConvertUitl.decoderBase64File(bytes);
+               getThumbnail(inputStream1,500,500,thumbName,thunbPath,"_M");
                //TODO 验证是否生成
                if (contractId != null && !"".equals(contractId)){
                    Integer contratId = Integer.valueOf(contractId);
@@ -611,17 +614,17 @@ public class DocumentService {
         try{
             //文件路径
             String imagePath = new DateTime().toString("yyyy/MM/dd");
-            boolean flag=FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL, imagePath, name, inputStream);
+            boolean flag=FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL+"/", imagePath, name, inputStream);
             if(!flag) {
                 resultDto.setResult(ResultResource.UPLOAD_ERROR);
                 resultDto.setMessage(ResultResource.UPLOAD_ERROR_MESSAGE);
                 return resultDto;
             }
             //上传成功
-            resultMap.put("url", IMAGE_BASE_URL + imagePath + "/" + name);
+            resultMap.put("url", IMAGE_BASE_URL +"/"+ imagePath + "/" + name);
             resultMap.put("remotePath",IMAGE_BASE_URL + "/"+ imagePath + "/");//相对路径
             resultMap.put("name",name);//文件名
-            resultMap.put("imagePath",IMAGE_BASE_URL+imagePath + "/");
+            resultMap.put("imagePath",imagePath);
 
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);

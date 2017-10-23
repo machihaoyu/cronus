@@ -142,7 +142,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
-  <insert id="addDriverLience" parameterType="com.fjs.cronus.model.OcrDriverLicense" >
+  <insert id="addDriverLience" parameterType="com.fjs.cronus.model.OcrDriverLicense" useGeneratedKeys="true" keyProperty="id">
     insert into ocr_driver_license
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="customerId != null" >

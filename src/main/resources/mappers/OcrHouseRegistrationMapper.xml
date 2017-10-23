@@ -152,7 +152,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <insert id="addHouseRegis" parameterType="com.fjs.cronus.model.OcrHouseRegistration" >
+  <insert id="addHouseRegis" parameterType="com.fjs.cronus.model.OcrHouseRegistration" useGeneratedKeys="true" keyProperty="id">
     insert into ocr_house_registration
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
