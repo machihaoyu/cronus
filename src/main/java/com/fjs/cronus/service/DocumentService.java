@@ -310,7 +310,7 @@ public class DocumentService {
             resultMap.put("url", IMAGE_BASE_URL + imagePath + "/" + name);
             resultMap.put("remotePath",IMAGE_BASE_URL + imagePath + "/");//相对路径
             resultMap.put("name",name);//文件名
-            resultMap.put("imagePath",IMAGE_BASE_URL+imagePath + "/");
+            resultMap.put("imagePath",imagePath + "/");
 
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
@@ -567,9 +567,9 @@ public class DocumentService {
                //开始缩放图片
                String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
                InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(bytes);
-               getThumbnail(inputStream,300,300,thumbName,thunbPath,"_S");
+               getThumbnail(inputStream,300,300,thumbName,remotePath,"_S");
                InputStream inputStream1 = FileBase64ConvertUitl.decoderBase64File(bytes);
-               getThumbnail(inputStream1,500,500,thumbName,thunbPath,"_M");
+               getThumbnail(inputStream1,500,500,thumbName,remotePath,"_M");
                //TODO 验证是否生成
                if (contractId != null && !"".equals(contractId)){
                    Integer contratId = Integer.valueOf(contractId);
