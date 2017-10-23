@@ -14,6 +14,7 @@ import com.fjs.cronus.model.RContractDocument;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.EntityToDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -32,6 +33,8 @@ public class OcrDriverVehicleService {
     RContractDocumentMapper rContractDocumentMapper;
     @Autowired
     UcService ucService;
+    @Value("${ftp.viewUrl}")
+    private String viewUrl;
     @Transactional
     public Integer addOrUpdateDriverVeh(DriverVehicleDTO driverVehicleDTO){
         Date date = new Date();
@@ -135,7 +138,7 @@ public class OcrDriverVehicleService {
                 ocrDocumentDto.setRc_document_id(rcdocument.getId());
                 ocrDocumentDto.setDocumentSavename(rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDto.setDocumentSavepath(rcdocument.getDocument().getDocumentSavepath());
-                ocrDocumentDto.setUrl(rcdocument.getDocument().getDocumentSavepath()  + rcdocument.getDocument().getDocumentSavename());
+                ocrDocumentDto.setUrl(viewUrl + rcdocument.getDocument().getDocumentSavepath() + "/" + rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDtos.add(ocrDocumentDto);
             }
             driverVehicleDTO.setOcrDocumentDto(ocrDocumentDtos);

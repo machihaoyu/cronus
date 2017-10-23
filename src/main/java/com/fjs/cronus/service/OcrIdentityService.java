@@ -22,6 +22,7 @@ import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.EntityToDto;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +47,9 @@ public class OcrIdentityService {
     JdbcTemplate jdbcTemplate;
     @Autowired
     UcService ucService;
+
+    @Value("${ftp.viewUrl}")
+    private String viewUrl;
     @Transactional
     public Integer addOrUpdateOcrInden(IdCardDTO idCardDTO){
         //判断是更新还是插入数据
@@ -255,7 +259,7 @@ public class OcrIdentityService {
                 ocrDocumentDto.setRc_document_id(rcdocument.getId());
                 ocrDocumentDto.setDocumentSavename(rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDto.setDocumentSavepath(rcdocument.getDocument().getDocumentSavepath());
-                ocrDocumentDto.setUrl(rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
+                ocrDocumentDto.setUrl(viewUrl + rcdocument.getDocument().getDocumentSavepath() + "/" + rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDtos.add(ocrDocumentDto);
             }
             dto.setOcrDocumentDto(ocrDocumentDtos);
