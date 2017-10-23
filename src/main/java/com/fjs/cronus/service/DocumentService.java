@@ -332,7 +332,7 @@ public class DocumentService {
                 return  resultDto;
             }
             String imagePath =thunbPath;
-            String name = flag + thumbName;
+            String name = thumbName + flag;
             InputStream is = FileBase64ConvertUitl.decoderBase64File(base64);
             boolean result=FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL+"/", imagePath, name, is);
             if(!result) {
