@@ -44,6 +44,7 @@ public class ImageUtil {
             }
         }
         String  base64Code = disposeImage(src, new_w, new_h);
+        srcImgPath.close();
         return  base64Code;
     }
 

@@ -27,16 +27,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedOutputStream;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.*;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+
 import org.springframework.web.multipart.MultipartFile;
 import sun.misc.BASE64Decoder;
 
-import javax.jws.Oneway;
+
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -165,9 +166,14 @@ public class DocumentService {
                 String remotePath = map.get("remotePath").toString();
                 //开始缩放图片
                 String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
-                InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(bytes);
-                getThumbnail(inputStream,300,300,thumbName,thunbPath,"_S");
-                getThumbnail(inputStream,500,500,thumbName,thunbPath,"_M");
+                try {
+                    InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(bytes);
+                    getThumbnail(inputStream, 300, 300, thumbName, thunbPath, "_S");
+                    InputStream inputStream1 = FileBase64ConvertUitl.decoderBase64File(bytes);
+                    getThumbnail(inputStream1, 500, 500, thumbName, thunbPath, "_M");
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
                 //TODO 验证是否生成
                 if (uploadDocumentDto.getContractId() != null && uploadDocumentDto.getContractId() > 0){
                     Integer contratId = uploadDocumentDto.getContractId();
@@ -566,10 +572,14 @@ public class DocumentService {
                String url =  map.get("url").toString();
                //开始缩放图片
                String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
-               InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(bytes);
-               getThumbnail(inputStream,300,300,thumbName,remotePath,"_S");
-               InputStream inputStream1 = FileBase64ConvertUitl.decoderBase64File(bytes);
-               getThumbnail(inputStream1,500,500,thumbName,remotePath,"_M");
+               try {
+                   InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(bytes);
+                   getThumbnail(inputStream, 300, 300, thumbName, remotePath, "_S");
+                   InputStream inputStream1 = FileBase64ConvertUitl.decoderBase64File(bytes);
+                   getThumbnail(inputStream1, 500, 500, thumbName, remotePath, "_M");
+               }catch (Exception e){
+                   e.printStackTrace();
+               }
                //TODO 验证是否生成
                if (contractId != null && !"".equals(contractId)){
                    Integer contratId = Integer.valueOf(contractId);

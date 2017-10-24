@@ -266,7 +266,7 @@ public class CustomerInfoService {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONE_ERROR);
         }
         //判断手机号是否被注册
-        if (customerId == null){
+     /*   if (customerId == null){
             Map<String,Object> paramsMap = new HashMap<>();
             paramsMap.put("telephonenumber",telephonenumber);
             paramsMap.put("start",0);
@@ -275,7 +275,7 @@ public class CustomerInfoService {
             if (customerInfos.size() > 0){
                 throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONERE_ERROR);
             }
-        }
+        }*/
     }
     public CronusDto findCustomerByFeild(Integer customerId){
         CronusDto resultDto = new CronusDto();

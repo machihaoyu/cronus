@@ -6,6 +6,7 @@ import com.fjs.cronus.dto.cronus.OcrDocumentDto;
 import com.fjs.cronus.mappers.RContractDocumentMapper;
 import com.fjs.cronus.model.RContractDocument;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -22,7 +23,8 @@ public class RContractDocumentService {
 
     @Autowired
     RContractDocumentMapper rContractDocumentMapper;
-
+    @Value("${ftp.viewUrl}")
+    private String viewUrl;
     public CronusDto findDocByCustomerId(Integer customerId){
         CronusDto resultDto = new CronusDto();
         Map<String,Object> paramsMap = new HashMap<>();
@@ -40,7 +42,7 @@ public class RContractDocumentService {
                 ocrDocumentDto.setRc_document_id(rcdocument.getId());
                 ocrDocumentDto.setDocumentSavename(rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDto.setDocumentSavepath(rcdocument.getDocument().getDocumentSavepath());
-                ocrDocumentDto.setUrl(rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
+                ocrDocumentDto.setUrl(viewUrl + rcdocument.getDocument().getDocumentSavepath() + "/" + rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDtos.add(ocrDocumentDto);
             }
             resultDto.setData(ocrDocumentDtos);
