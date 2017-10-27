@@ -26,4 +26,6 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
     List<Integer> findCustomerByType(Map<String,Object> paramMap);
 
     Integer getListByWhereCount(Map<String,Object> paramMap);
+
+    List<CustomerInfo> findCustomerByOtherCity(Map<String,Object> paramMap);
 }

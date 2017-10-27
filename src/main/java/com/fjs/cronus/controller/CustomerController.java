@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -304,6 +305,52 @@ public class CustomerController {
         }
     }
 
+    @ApiOperation(value="根据城市获取所有的客户的ids", notes="根据城市获取所有的客户的ids")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "city", value = "城市名", required = false, paramType = "query", dataType = "string"),
 
+    })
+    @RequestMapping(value = "/findCustomerByCity", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto findCustomerByCity(@RequestParam(required = false) String city) {
+        CronusDto cronusDto = new CronusDto();
+        try {
+            cronusDto = customerInfoService.findCustomerByCity(city);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->findCustomerByCity根据城市获取所有的客户的ids查询失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
 
+    @ApiOperation(value="获取其他城市的客户ids", notes="获取其他城市的客户ids")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "citys", value = "城市名,逗号隔开", required = true, paramType = "query", dataType = "string"),
+
+    })
+    @RequestMapping(value = "/findCustomerByOtherCity", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto findCustomerByOtherCity(@RequestParam(required = true) String citys) {
+        CronusDto cronusDto = new CronusDto();
+        if (StringUtils.isEmpty(citys)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        try {
+            cronusDto = customerInfoService.findCustomerByOtherCity(citys);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->findCustomerByCity获取其他城市的客户ids查询失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
 }

@@ -294,7 +294,47 @@ public class CustomerInfoService {
         resultDto.setData(customerDto);
         return  resultDto;
     }
-
+    public  CronusDto findCustomerByCity(String city){
+        CronusDto resultDto = new CronusDto();
+        Map<String,Object> paramsMap = new HashMap<>();
+        if (!StringUtils.isEmpty(city)){
+            paramsMap.put("city",city);
+        }
+        List<Integer> customerIds = new ArrayList<>();
+        List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerListByFeild(paramsMap);
+        if (customerInfoList != null && customerInfoList.size() > 0) {
+            for (CustomerInfo customerInfo : customerInfoList) {
+                customerIds.add(customerInfo.getId());
+            }
+        }
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(customerIds);
+        return  resultDto;
+    }
+    public  CronusDto findCustomerByOtherCity(String citys){
+        CronusDto resultDto = new CronusDto();
+        //处理参数
+        String[] strArray = null;
+        strArray = citys.split(",");
+        List<String> list = new ArrayList();
+        for (int i= 0;i<strArray.length;i++){
+            list.add("'"+ strArray[i] + "'");
+        }
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("cityList",list);
+        List<Integer> customerIds = new ArrayList<>();
+        List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerByOtherCity(paramsMap);
+        if (customerInfoList != null && customerInfoList.size() > 0) {
+            for (CustomerInfo customerInfo : customerInfoList) {
+                customerIds.add(customerInfo.getId());
+            }
+        }
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(customerIds);
+        return  resultDto;
+    }
     @Transactional
     public CronusDto editCustomerType(Integer customer_id ,Integer user_id,String customerTypeSta,String customerTypeEnd){
         CronusDto resultDto = new CronusDto();

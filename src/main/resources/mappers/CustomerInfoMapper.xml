@@ -336,8 +336,24 @@
       <if test="customerName != null and customerName !=''">
           and c.customer_name = #{customerName}
       </if>
+      <if test="city != null and city !=''">
+          and c.city = #{city}
+      </if>
 
   </select>
+    <select id="findCustomerByOtherCity" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List" />
+        ,
+        <include refid="Blob_Column_List" />
+        from customer_info  c
+        WHERE  c.is_deleted = 0
+            AND c.city in
+            <foreach collection="cityList" item="cityList"
+                     index="index" open="(" close=")" separator=",">
+                ${cityList}
+            </foreach>
+    </select>
     <update id="updateCustomer" parameterType="com.fjs.cronus.model.CustomerInfo" >
         update customer_info
         <set >
