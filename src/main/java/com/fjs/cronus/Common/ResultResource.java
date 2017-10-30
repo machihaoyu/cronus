@@ -57,4 +57,8 @@ public class ResultResource {
 
     public static String CERTIFICATE = "行驶证证明";
 
+    public static String DOWNLOADFOOTPATH = "/Uploads/";
+
+    public static String DOWNLOADSUFFX = "/";
+
 }

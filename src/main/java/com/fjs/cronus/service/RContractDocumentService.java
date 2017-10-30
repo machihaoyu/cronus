@@ -41,8 +41,8 @@ public class RContractDocumentService {
                 ocrDocumentDto.setDocument_c_name_header(rcdocument.getDocumentCategory().getDocumentCNameHeader());
                 ocrDocumentDto.setRc_document_id(rcdocument.getId());
                 ocrDocumentDto.setDocumentSavename(rcdocument.getDocument().getDocumentSavename());
-                ocrDocumentDto.setDocumentSavepath(rcdocument.getDocument().getDocumentSavepath());
-                ocrDocumentDto.setUrl(viewUrl + rcdocument.getDocument().getDocumentSavepath() + "/" + rcdocument.getDocument().getDocumentSavename());
+                ocrDocumentDto.setDocumentSavepath(ResultResource.DOWNLOADFOOTPATH + rcdocument.getDocument().getDocumentSavepath());
+                ocrDocumentDto.setUrl(viewUrl + rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDtos.add(ocrDocumentDto);
             }
             resultDto.setData(ocrDocumentDtos);
