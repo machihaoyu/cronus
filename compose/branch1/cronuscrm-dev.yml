@@ -20,7 +20,7 @@ services:
     ports:
       - "1280:8220"
     environment:
-      - CONFIG_PROFILE=dev
+      - CONFIG_PROFILE=devcrm
       - CONFIG_PASSWORD=123456
       - CONFIG_SERVER_ADDRESS=zues
       - CONFIG_SERVER_PORT=6020
