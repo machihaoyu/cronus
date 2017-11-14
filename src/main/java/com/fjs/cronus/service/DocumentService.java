@@ -340,7 +340,7 @@ public class DocumentService {
             String imagePath =thunbPath;
             String name = thumbName + flag;
             InputStream is = FileBase64ConvertUitl.decoderBase64File(base64);
-            boolean result=FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL+"/", imagePath, name, is);
+            boolean result=FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL, imagePath, name, is);
             if(!result) {
                 resultDto.setResult(ResultResource.UPLOAD_ERROR);
                 resultDto.setMessage(ResultResource.UPLOAD_ERROR_MESSAGE);
@@ -574,9 +574,9 @@ public class DocumentService {
                String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
                try {
                    InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(bytes);
-                   getThumbnail(inputStream, 300, 300, thumbName, remotePath, "_S");
+                   getThumbnail(inputStream, 300, 300, thumbName, thunbPath, "_S");
                    InputStream inputStream1 = FileBase64ConvertUitl.decoderBase64File(bytes);
-                   getThumbnail(inputStream1, 500, 500, thumbName, remotePath, "_M");
+                   getThumbnail(inputStream1, 500, 500, thumbName, thunbPath, "_M");
                }catch (Exception e){
                    e.printStackTrace();
                }
@@ -591,7 +591,7 @@ public class DocumentService {
                paramsDto.setExt(suffix);
                paramsDto.setMd5(md5);
                paramsDto.setSavename(thumbName);
-               paramsDto.setSavepath(thunbPath);
+               paramsDto.setSavepath(thunbPath+"/");
                paramsDto.setSize(Integer.parseInt(size.toString()));
                paramsDto.setSource(source);
                paramsDto.setType(suffix);

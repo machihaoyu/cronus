@@ -1,12 +1,14 @@
 package com.fjs.cronus.util;
 
 import java.io.*;
+import java.util.Random;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
+import org.joda.time.DateTime;
 import sun.misc.BASE64Encoder;
 
 public class FtpUtil {
@@ -301,8 +303,17 @@ public class FtpUtil {
 			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads",imagePath, "dsf.jpg", in);
             System.out.println(flag);*/
 
-			String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/21/", "1508572674522267.jpg");
-			System.out.println(bytes.length());
+			/*String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/21/", "1508572674522267.jpg");
+			System.out.println(bytes.length());*/
+			long millis = System.currentTimeMillis();
+			Random random = new Random();
+			int end3 = random.nextInt(999);
+			//如果不足三位前面补0 图片新名称
+			String name = millis + String.format("%03d", end3) +".jpg";
+			FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
+			String imagePath = new DateTime().toString("yyyy/MM/dd");
+			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/",imagePath, name, in);
+			System.out.println(flag);
 		} catch (Exception e) {
 	        e.printStackTrace();  
 	    }  
