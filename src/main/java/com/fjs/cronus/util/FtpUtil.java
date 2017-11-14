@@ -35,6 +35,7 @@ public class FtpUtil {
 			// 如果采用默认端口，可以使用ftp.connect(host)的方式直接连接FTP服务器
 			ftp.login(username, password);// 登录
 			ftp.setFileType(FTP.BINARY_FILE_TYPE);
+			ftp.setRemoteVerificationEnabled(false);
 			reply = ftp.getReplyCode();
 			if (!FTPReply.isPositiveCompletion(reply)) {
 				ftp.disconnect();
@@ -305,7 +306,7 @@ public class FtpUtil {
 
 			/*String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/21/", "1508572674522267.jpg");
 			System.out.println(bytes.length());*/
-			long millis = System.currentTimeMillis();
+			/*long millis = System.currentTimeMillis();
 			Random random = new Random();
 			int end3 = random.nextInt(999);
 			//如果不足三位前面补0 图片新名称
@@ -313,7 +314,11 @@ public class FtpUtil {
 			FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
 			String imagePath = new DateTime().toString("yyyy/MM/dd");
 			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/",imagePath, name, in);
-			System.out.println(flag);
+			System.out.println(flag);*/
+			FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
+			String image64 = FileBase64ConvertUitl.encodeBase64File(in);
+			System.out.println(image64);
+
 		} catch (Exception e) {
 	        e.printStackTrace();  
 	    }  
