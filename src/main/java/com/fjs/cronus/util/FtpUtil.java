@@ -156,7 +156,7 @@ public class FtpUtil {
 				return null;
 			}
 			ftp.changeWorkingDirectory(remotePath);// 转移到FTP服务器目录
-			FTPFile[] fs = ftp.listFiles();
+			//FTPFile[] fs = ftp.listFiles();
 			/*for (FTPFile ff : fs) {
 				if (ff.getName().equals(fileName)) {
 					 ftp.setFileType(FTP.BINARY_FILE_TYPE);
