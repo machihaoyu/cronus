@@ -172,6 +172,7 @@ public class FtpUtil {
 			}*/
 			ftp.setFileType(FTP.BINARY_FILE_TYPE);
 			ftp.enterLocalPassiveMode();
+			ftp.setRemoteVerificationEnabled(false);
 			String file = new String(fileName.getBytes("UTF-8"), "ISO-8859-1");
 
 			//inputStream = ftp.retrieveFileStream(file);
@@ -315,10 +316,11 @@ public class FtpUtil {
 			String imagePath = new DateTime().toString("yyyy/MM/dd");
 			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/",imagePath, name, in);
 			System.out.println(flag);*/
-			FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
+		/*	FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
 			String image64 = FileBase64ConvertUitl.encodeBase64File(in);
-			System.out.println(image64);
-
+			System.out.println(image64);*/
+			String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/11/14/", "1510653839270371.png");
+			System.out.println(bytes.length());
 		} catch (Exception e) {
 	        e.printStackTrace();  
 	    }  
