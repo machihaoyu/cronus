@@ -140,6 +140,113 @@ public class EntityToDto {
             dto.setHouseLoanValue(customerInfo.getHouseLoanValue());
         }
 
+        //新版新增加字段
+        if (!StringUtils.isEmpty(customerInfo.getExpectMoneyTime())){
+            dto.setExpectMoneyTime(customerInfo.getExpectMoneyTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getExpectLoanTime())){
+            dto.setExpectLoanTime(customerInfo.getExpectLoanTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getExpectRepaymentWay())){
+            dto.setExpectRepaymentWay(customerInfo.getExpectRepaymentWay());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHouseClear())){
+            dto.setHouseClear(customerInfo.getHouseClear());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHouseOwner())){
+            dto.setHouseOwner(customerInfo.getHouseOwner());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getMortgageAmount())){
+            dto.setMortgageAmount(customerInfo.getMortgageAmount());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getMortgaeMonth())){
+            dto.setMortgaeMonth(customerInfo.getMortgaeMonth());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIsHavaCar())){
+            dto.setIsHavaCar(customerInfo.getIsHavaCar());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCarWorth())){
+            dto.setCarWorth(customerInfo.getCarWorth());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCarAge())){
+            dto.setCarAge(customerInfo.getCarAge());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIsHavaInsurance())){
+            dto.setIsHavaInsurance(customerInfo.getIsHavaInsurance());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getYearPayAmount())){
+            dto.setYearPayAmount(customerInfo.getYearPayAmount());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getInsuranceTime())){
+            dto.setInsuranceTime(customerInfo.getInsuranceTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIsHavaDebt())){
+            dto.setIsHavaDebt(customerInfo.getIsHavaDebt());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getDebtMoney())){
+            dto.setDebtMoney(customerInfo.getDebtMoney());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getDebtMonth())){
+            dto.setDebtMonth(customerInfo.getDebtMonth());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getDebtOverdue())){
+            dto.setDebtOverdue(customerInfo.getDebtOverdue());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getDebtOverdueMoney())){
+            dto.setDebtOverdueMoney(customerInfo.getDebtOverdueMoney());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getDebtTime())){
+            dto.setDebtTime(customerInfo.getDebtTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getWorkStatus())){
+            dto.setWorkStatus(customerInfo.getWorkStatus());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getWagerCard())){
+            dto.setWagerCard(customerInfo.getWagerCard());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getEntryTime())){
+            dto.setEntryTime(customerInfo.getEntryTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCompanyType())){
+            dto.setCompanyType(customerInfo.getCompanyType());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getSocialSecurity())){
+            dto.setSocialSecurity(customerInfo.getSocialSecurity());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getSocialMoney())){
+            dto.setSocialMoney(customerInfo.getSocialMoney());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getSocialTime())){
+            dto.setSocialTime(customerInfo.getSocialTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getProvidentFund())){
+            dto.setProvidentFund(customerInfo.getProvidentFund());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getProvidentMoney())){
+            dto.setProvidentMoney(customerInfo.getProvidentMoney());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getProvidentTime())){
+            dto.setProvidentTime(customerInfo.getProvidentTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCompnyName())){
+            dto.setCompnyName(customerInfo.getCompnyName());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getFixedPhone())){
+            dto.setFixedPhone(customerInfo.getFixedPhone());
+        }
+
+
     }
     public static void customerCustomerDtoToEntity(CustomerDTO customerInfo, CustomerInfo dto){
 
@@ -263,6 +370,113 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getHouseLoanValue())){
             dto.setHouseLoanValue(customerInfo.getHouseLoanValue());
         }
+
+        //新版新增加字段
+        if (!StringUtils.isEmpty(customerInfo.getExpectMoneyTime())){
+            dto.setExpectMoneyTime(customerInfo.getExpectMoneyTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getExpectLoanTime())){
+            dto.setExpectLoanTime(customerInfo.getExpectLoanTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getExpectRepaymentWay())){
+            dto.setExpectRepaymentWay(customerInfo.getExpectRepaymentWay());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHouseClear())){
+            dto.setHouseClear(customerInfo.getHouseClear());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHouseOwner())){
+            dto.setHouseOwner(customerInfo.getHouseOwner());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getMortgageAmount())){
+            dto.setMortgageAmount(customerInfo.getMortgageAmount());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getMortgaeMonth())){
+            dto.setMortgaeMonth(customerInfo.getMortgaeMonth());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIsHavaCar())){
+            dto.setIsHavaCar(customerInfo.getIsHavaCar());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCarWorth())){
+            dto.setCarWorth(customerInfo.getCarWorth());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCarAge())){
+            dto.setCarAge(customerInfo.getCarAge());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIsHavaInsurance())){
+            dto.setIsHavaInsurance(customerInfo.getIsHavaInsurance());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getYearPayAmount())){
+            dto.setYearPayAmount(customerInfo.getYearPayAmount());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getInsuranceTime())){
+            dto.setInsuranceTime(customerInfo.getInsuranceTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIsHavaDebt())){
+            dto.setIsHavaDebt(customerInfo.getIsHavaDebt());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getDebtMoney())){
+            dto.setDebtMoney(customerInfo.getDebtMoney());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getDebtMonth())){
+            dto.setDebtMonth(customerInfo.getDebtMonth());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getDebtOverdue())){
+            dto.setDebtOverdue(customerInfo.getDebtOverdue());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getDebtOverdueMoney())){
+            dto.setDebtOverdueMoney(customerInfo.getDebtOverdueMoney());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getDebtTime())){
+            dto.setDebtTime(customerInfo.getDebtTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getWorkStatus())){
+            dto.setWorkStatus(customerInfo.getWorkStatus());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getWagerCard())){
+            dto.setWagerCard(customerInfo.getWagerCard());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getEntryTime())){
+            dto.setEntryTime(customerInfo.getEntryTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCompanyType())){
+            dto.setCompanyType(customerInfo.getCompanyType());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getSocialSecurity())){
+            dto.setSocialSecurity(customerInfo.getSocialSecurity());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getSocialMoney())){
+            dto.setSocialMoney(customerInfo.getSocialMoney());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getSocialTime())){
+            dto.setSocialTime(customerInfo.getSocialTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getProvidentFund())){
+            dto.setProvidentFund(customerInfo.getProvidentFund());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getProvidentMoney())){
+            dto.setProvidentMoney(customerInfo.getProvidentMoney());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getProvidentTime())){
+            dto.setProvidentTime(customerInfo.getProvidentTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCompnyName())){
+            dto.setCompnyName(customerInfo.getCompnyName());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getFixedPhone())){
+            dto.setFixedPhone(customerInfo.getFixedPhone());
+        }
+
     }
 
     public static void CustomerInterviewEntityToCustomerInterviewDto(CustomerInterviewBaseInfo customerInfo, CustomerInterVibaseInfoDTO dto){
@@ -1487,6 +1701,112 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getHouseLoanValue())){
             log.setHouseLoanValue(customerInfo.getHouseLoanValue());
         }
+        //新版新增加字段
+        if (!StringUtils.isEmpty(customerInfo.getExpectMoneyTime())){
+            log.setExpectMoneyTime(customerInfo.getExpectMoneyTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getExpectLoanTime())){
+            log.setExpectLoanTime(customerInfo.getExpectLoanTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getExpectRepaymentWay())){
+            log.setExpectRepaymentWay(customerInfo.getExpectRepaymentWay());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHouseClear())){
+            log.setHouseClear(customerInfo.getHouseClear());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHouseOwner())){
+            log.setHouseOwner(customerInfo.getHouseOwner());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getMortgageAmount())){
+            log.setMortgageAmount(customerInfo.getMortgageAmount());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getMortgaeMonth())){
+            log.setMortgaeMonth(customerInfo.getMortgaeMonth());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIsHavaCar())){
+            log.setIsHavaCar(customerInfo.getIsHavaCar());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCarWorth())){
+            log.setCarWorth(customerInfo.getCarWorth());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCarAge())){
+            log.setCarAge(customerInfo.getCarAge());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIsHavaInsurance())){
+            log.setIsHavaInsurance(customerInfo.getIsHavaInsurance());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getYearPayAmount())){
+            log.setYearPayAmount(customerInfo.getYearPayAmount());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getInsuranceTime())){
+            log.setInsuranceTime(customerInfo.getInsuranceTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getIsHavaDebt())){
+            log.setIsHavaDebt(customerInfo.getIsHavaDebt());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getDebtMoney())){
+            log.setDebtMoney(customerInfo.getDebtMoney());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getDebtMonth())){
+            log.setDebtMonth(customerInfo.getDebtMonth());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getDebtOverdue())){
+            log.setDebtOverdue(customerInfo.getDebtOverdue());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getDebtOverdueMoney())){
+            log.setDebtOverdueMoney(customerInfo.getDebtOverdueMoney());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getDebtTime())){
+            log.setDebtTime(customerInfo.getDebtTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getWorkStatus())){
+            log.setWorkStatus(customerInfo.getWorkStatus());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getWagerCard())){
+            log.setWagerCard(customerInfo.getWagerCard());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getEntryTime())){
+            log.setEntryTime(customerInfo.getEntryTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCompanyType())){
+            log.setCompanyType(customerInfo.getCompanyType());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getSocialSecurity())){
+            log.setSocialSecurity(customerInfo.getSocialSecurity());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getSocialMoney())){
+            log.setSocialMoney(customerInfo.getSocialMoney());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getSocialTime())){
+            log.setSocialTime(customerInfo.getSocialTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getProvidentFund())){
+            log.setProvidentFund(customerInfo.getProvidentFund());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getProvidentMoney())){
+            log.setProvidentMoney(customerInfo.getProvidentMoney());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getProvidentTime())){
+            log.setProvidentTime(customerInfo.getProvidentTime());
+        }
+
+        if (!StringUtils.isEmpty(customerInfo.getCompnyName())){
+            log.setCompnyName(customerInfo.getCompnyName());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getFixedPhone())){
+            log.setFixedPhone(customerInfo.getFixedPhone());
+        }
+
     }
 
     public static void customerEntityToCallbackCustomerDto(CustomerInfo customerInfo, CallbackCusLoanDTO dto){

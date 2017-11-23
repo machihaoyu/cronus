@@ -319,8 +319,28 @@ public class FtpUtil {
 		/*	FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
 			String image64 = FileBase64ConvertUitl.encodeBase64File(in);
 			System.out.println(image64);*/
-			String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/11/14/", "1510653839270371.png");
-			System.out.println(bytes.length());
+			/*String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/11/14/", "1510653839270371.png");
+			System.out.println(bytes.length());*/
+		/*	String base64="R0lGODlhoAAyAPIAAAAAADeF+Ge1il/moIpTx////wAAAAAAACwAAAAAoAAyAEII/wABCBxIsKDB\n" +
+					"gwgTKlzIsKHDhxAjIixAsaLFiwEyYtRYcYDHjwMEXiwgoOTIkQRSWgSQksDJigBeypxJs2aBmDZn\n" +
+					"irSJE2fOmz1//tx5kqjQiz6PKq25MynMpVChDoxKtepSozKdWo2qdavXr1m7jhR7letNpGB1qh2q\n" +
+					"dCpVrGm/ko17dO5KuxYzBti4t6NHv39HlhxM2GLLi4fppsVLES5MxhT19i0g2eJHwCcHX9RMsaXL\n" +
+					"zofFQl6ruO7ot0jdlvZ6milBoURFrzZ9sKhqtLPB3lbcOuzT3HZb9z7reCzQ3Km7Dt8avG7O4sij\n" +
+					"S89KE/rdn3r5Tr1cgLtgkxULg//+jDPxy+V00T/GzrFidsADugd+zJkkYQEVzY8nPT3s7uenSSbg\n" +
+					"RR8F5V1499U3nmcq/dYUc/35xlZZ6rkmYVkRjlXhcxnq1uF1jRX1oYgjdhiTdb+VeNZiGyKHYoom\n" +
+					"rthiVb2p9yJrFWI1Y3UMwXbVjTvSGGKEzbUFIE+pffgahx6ydqSKUJZG1o2Njfaee+3JFx98L92H\n" +
+					"UoP5gRnleRbqZGWWlGXp3YEIJgjefoaJaRyUpzlGZZqTRdYeAAWy2eZ3cX52ln5zwnbnhG+dmSee\n" +
+					"MIEEElA71ZdgmILCSSadh9rG3qJXaonZZm9Oaul4U1q1Y44BCtiplj356aZ4CzKo+JRRLQaZaF0D\n" +
+					"jnTZiZ5mBuuXLUGXKXWYImrainEJm2OxwEFqa7M0/jfUsySOaWSJDxZq7bbSZautiqJJy61UPiln\n" +
+					"LWPDjnsXXtRK9aOm6mqIJJ28xbvevEoSBy6R7cKIWlD7OkeuixCuRDB/+LKVrllmJdUvbpcaCyC6\n" +
+					"TVIYI7FMTksxvcj2V6SPPG18nMdLPlxdxTxyZTLKBZs6sUQwxyzzzDTXvFBAADs=";
+			InputStream is = FileBase64ConvertUitl.decoderBase64File(base64);
+			//InputStream is = FileBase64ConvertUitl.decoderBase64File(base64);
+			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads","2017/11/22", "zhanglei.jpg", is);
+			System.out.println(flag);*/
+			FileInputStream in=new FileInputStream(new File("D:\\441876515053529363.png"));
+		    String base64File= FileBase64ConvertUitl.encodeBase64File(in);
+		    System.out.println(base64File);
 		} catch (Exception e) {
 	        e.printStackTrace();  
 	    }  

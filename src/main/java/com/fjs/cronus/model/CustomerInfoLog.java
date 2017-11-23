@@ -67,6 +67,317 @@ public class CustomerInfoLog extends BaseModel {
 
     private String perDescription;
 
+    //新版本添加字段
+    private Date expectMoneyTime;
+
+    private String expectLoanTime;
+
+    private Integer expectRepaymentWay;
+
+    private Integer houseClear;
+
+    private String houseOwner;
+
+    private String mortgageAmount;
+
+    private String mortgaeMonth;
+
+    private Integer isHavaCar;
+
+    private String carWorth;
+
+    private Integer carAge;
+
+    private Integer isHavaInsurance;
+
+    private String yearPayAmount;
+
+    private Integer insuranceTime;
+
+    private Integer isHavaDebt;
+
+    private String debtMoney;
+
+    private Integer debtMonth;
+
+    private Integer debtOverdue;
+
+    private String debtOverdueMoney;
+
+    private Integer debtTime;
+
+    private Integer workStatus;
+
+    private String wagerCard;
+
+    private Integer entryTime;
+
+    private Integer companyType;
+
+    private Integer socialSecurity;
+
+    private String socialMoney;
+
+    private Integer socialTime;
+
+    private Integer providentFund;
+
+    private String providentMoney;
+
+    private Integer providentTime;
+
+    private String compnyName;
+
+    private Integer fixedPhone;
+
+    public Date getExpectMoneyTime() {
+        return expectMoneyTime;
+    }
+
+    public void setExpectMoneyTime(Date expectMoneyTime) {
+        this.expectMoneyTime = expectMoneyTime;
+    }
+
+    public String getExpectLoanTime() {
+        return expectLoanTime;
+    }
+
+    public void setExpectLoanTime(String expectLoanTime) {
+        this.expectLoanTime = expectLoanTime;
+    }
+
+    public Integer getExpectRepaymentWay() {
+        return expectRepaymentWay;
+    }
+
+    public void setExpectRepaymentWay(Integer expectRepaymentWay) {
+        this.expectRepaymentWay = expectRepaymentWay;
+    }
+
+    public Integer getHouseClear() {
+        return houseClear;
+    }
+
+    public void setHouseClear(Integer houseClear) {
+        this.houseClear = houseClear;
+    }
+
+    public String getHouseOwner() {
+        return houseOwner;
+    }
+
+    public void setHouseOwner(String houseOwner) {
+        this.houseOwner = houseOwner;
+    }
+
+    public String getMortgageAmount() {
+        return mortgageAmount;
+    }
+
+    public void setMortgageAmount(String mortgageAmount) {
+        this.mortgageAmount = mortgageAmount;
+    }
+
+    public String getMortgaeMonth() {
+        return mortgaeMonth;
+    }
+
+    public void setMortgaeMonth(String mortgaeMonth) {
+        this.mortgaeMonth = mortgaeMonth;
+    }
+
+    public Integer getIsHavaCar() {
+        return isHavaCar;
+    }
+
+    public void setIsHavaCar(Integer isHavaCar) {
+        this.isHavaCar = isHavaCar;
+    }
+
+    public String getCarWorth() {
+        return carWorth;
+    }
+
+    public void setCarWorth(String carWorth) {
+        this.carWorth = carWorth;
+    }
+
+    public Integer getCarAge() {
+        return carAge;
+    }
+
+    public void setCarAge(Integer carAge) {
+        this.carAge = carAge;
+    }
+
+    public Integer getIsHavaInsurance() {
+        return isHavaInsurance;
+    }
+
+    public void setIsHavaInsurance(Integer isHavaInsurance) {
+        this.isHavaInsurance = isHavaInsurance;
+    }
+
+    public String getYearPayAmount() {
+        return yearPayAmount;
+    }
+
+    public void setYearPayAmount(String yearPayAmount) {
+        this.yearPayAmount = yearPayAmount;
+    }
+
+    public Integer getInsuranceTime() {
+        return insuranceTime;
+    }
+
+    public void setInsuranceTime(Integer insuranceTime) {
+        this.insuranceTime = insuranceTime;
+    }
+
+    public Integer getIsHavaDebt() {
+        return isHavaDebt;
+    }
+
+    public void setIsHavaDebt(Integer isHavaDebt) {
+        this.isHavaDebt = isHavaDebt;
+    }
+
+    public String getDebtMoney() {
+        return debtMoney;
+    }
+
+    public void setDebtMoney(String debtMoney) {
+        this.debtMoney = debtMoney;
+    }
+
+    public Integer getDebtMonth() {
+        return debtMonth;
+    }
+
+    public void setDebtMonth(Integer debtMonth) {
+        this.debtMonth = debtMonth;
+    }
+
+    public Integer getDebtOverdue() {
+        return debtOverdue;
+    }
+
+    public void setDebtOverdue(Integer debtOverdue) {
+        this.debtOverdue = debtOverdue;
+    }
+
+    public String getDebtOverdueMoney() {
+        return debtOverdueMoney;
+    }
+
+    public void setDebtOverdueMoney(String debtOverdueMoney) {
+        this.debtOverdueMoney = debtOverdueMoney;
+    }
+
+    public Integer getDebtTime() {
+        return debtTime;
+    }
+
+    public void setDebtTime(Integer debtTime) {
+        this.debtTime = debtTime;
+    }
+
+    public Integer getWorkStatus() {
+        return workStatus;
+    }
+
+    public void setWorkStatus(Integer workStatus) {
+        this.workStatus = workStatus;
+    }
+
+    public String getWagerCard() {
+        return wagerCard;
+    }
+
+    public void setWagerCard(String wagerCard) {
+        this.wagerCard = wagerCard;
+    }
+
+    public Integer getEntryTime() {
+        return entryTime;
+    }
+
+    public void setEntryTime(Integer entryTime) {
+        this.entryTime = entryTime;
+    }
+
+    public Integer getCompanyType() {
+        return companyType;
+    }
+
+    public void setCompanyType(Integer companyType) {
+        this.companyType = companyType;
+    }
+
+    public Integer getSocialSecurity() {
+        return socialSecurity;
+    }
+
+    public void setSocialSecurity(Integer socialSecurity) {
+        this.socialSecurity = socialSecurity;
+    }
+
+    public String getSocialMoney() {
+        return socialMoney;
+    }
+
+    public void setSocialMoney(String socialMoney) {
+        this.socialMoney = socialMoney;
+    }
+
+    public Integer getSocialTime() {
+        return socialTime;
+    }
+
+    public void setSocialTime(Integer socialTime) {
+        this.socialTime = socialTime;
+    }
+
+    public Integer getProvidentFund() {
+        return providentFund;
+    }
+
+    public void setProvidentFund(Integer providentFund) {
+        this.providentFund = providentFund;
+    }
+
+    public String getProvidentMoney() {
+        return providentMoney;
+    }
+
+    public void setProvidentMoney(String providentMoney) {
+        this.providentMoney = providentMoney;
+    }
+
+    public Integer getProvidentTime() {
+        return providentTime;
+    }
+
+    public void setProvidentTime(Integer providentTime) {
+        this.providentTime = providentTime;
+    }
+
+    public String getCompnyName() {
+        return compnyName;
+    }
+
+    public void setCompnyName(String compnyName) {
+        this.compnyName = compnyName;
+    }
+
+    public Integer getFixedPhone() {
+        return fixedPhone;
+    }
+
+    public void setFixedPhone(Integer fixedPhone) {
+        this.fixedPhone = fixedPhone;
+    }
+
     public String getHouseLoanValue() {
         return houseLoanValue;
     }

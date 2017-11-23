@@ -26,7 +26,7 @@ public class listContainTest {
         String oldName = "12324.jpg";
         String newname= oldName.substring(oldName.lastIndexOf("."));
         System.out.println(newname);*/
-/*        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject = new JSONObject();
         jsonObject.put("customer_telephone","122151idCardDTO121");
         jsonObject.put("crm_attach_id",1);
         jsonObject.put("create_user_id",1);
@@ -35,7 +35,7 @@ public class listContainTest {
         jsonObject.put("update_user_name","dsfdasfdasf");
         jsonObject.put("category",1);
         IdCardDTO idCardDTO = FastJsonUtils.getSingleBean(jsonObject.toString(), IdCardDTO.class);
-        System.out.println(idCardDTO.getCategory());*/
+        System.out.println(idCardDTO.getCategory());
         // TODO 生成对应的ocr信息
       /*  String str = "借款人配偶(反)";
         str.replace("(反)","(正)");
