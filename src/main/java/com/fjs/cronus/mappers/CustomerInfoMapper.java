@@ -28,4 +28,11 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
     Integer getListByWhereCount(Map<String,Object> paramMap);
 
     List<CustomerInfo> findCustomerByOtherCity(Map<String,Object> paramMap);
+
+    /**
+     * 根据电话号码查找
+     * @param paramMap
+     * @return
+     */
+    List <CustomerInfo> selectByPhone(Map<String,Object> paramMap);
 }
