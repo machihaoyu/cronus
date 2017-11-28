@@ -1,11 +1,13 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.fjs.cronus.Common.CustomerEnum;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
+import com.fjs.cronus.dto.cronus.EmplouInfo;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
@@ -13,6 +15,7 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerInfoLog;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.EntityToDto;
+import com.fjs.cronus.util.FastJsonUtils;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -96,6 +99,14 @@ public class CustomerInfoService {
          //实体与DTO相互转换
          CustomerInfo customerInfo = new CustomerInfo();
          EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
+         //新加字段
+         List<EmplouInfo> emplouInfos = customerDTO.getEmployedInfo();
+        //转Json在转String
+        if (emplouInfos != null && emplouInfos.size() > 0) {
+            String jsonString = JSONArray.toJSONString(emplouInfos);
+            customerInfo.setEmployedInfo(jsonString);
+        }
+         customerInfo.setRetirementWages(customerDTO.getRetirementWages());
          Date date = new Date();
          customerInfo.setCreateTime(date);
          customerInfo.setCreateUser(user_id);
@@ -184,6 +195,14 @@ public class CustomerInfoService {
         }
         CustomerDTO customerDto = new CustomerDTO();
         EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
+        customerDto.setRetirementWages(customerInfo.getRetirementWages());
+        String employedInfo = customerInfo.getEmployedInfo();
+        List<EmplouInfo> emplouInfos = new ArrayList<>();
+        if (!StringUtils.isEmpty(employedInfo)){
+            JSONArray jsonArray = JSONArray.parseArray(employedInfo);
+            emplouInfos = jsonArray.toJavaList(EmplouInfo.class);
+            customerDto.setEmployedInfo(emplouInfos);
+        }
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerDto);

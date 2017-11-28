@@ -3,7 +3,9 @@ package com.fjs.cronus.dto.cronus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by msi on 2017/9/14.
@@ -178,7 +180,11 @@ public class CustomerDTO {
     @ApiModelProperty(value = "固定电话(0无，1有)",notes = "固定电话(0无，1有)")
     private Integer fixedPhone;
 
+    @ApiModelProperty(value = "自雇信息",notes = "自雇信息")
+    private List<EmplouInfo> employedInfo;
 
+    @ApiModelProperty(value = "退休金",notes = "退休金")
+    private String retirementWages;
 
     public Date getExpectMoneyTime() {
         return expectMoneyTime;
@@ -698,5 +704,21 @@ public class CustomerDTO {
 
     public void setPerDescription(String perDescription) {
         this.perDescription = perDescription;
+    }
+
+    public List<EmplouInfo> getEmployedInfo() {
+        return employedInfo;
+    }
+
+    public void setEmployedInfo(List<EmplouInfo> employedInfo) {
+        this.employedInfo = employedInfo;
+    }
+
+    public String getRetirementWages() {
+        return retirementWages;
+    }
+
+    public void setRetirementWages(String retirementWages) {
+        this.retirementWages = retirementWages;
     }
 }

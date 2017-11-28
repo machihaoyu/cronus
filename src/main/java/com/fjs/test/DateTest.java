@@ -23,7 +23,7 @@ public class DateTest {
         cal.add(Calendar.DAY_OF_YEAR, -100);//取当前日期的后一天.
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         System.out.println(cal.getTime());*/
-     /*   List<QuestionsDTO> questionsDTOS = new ArrayList<>();
+        List<QuestionsDTO> questionsDTOS = new ArrayList<>();
         QuestionsDTO questionsDTO = new QuestionsDTO();
         QuestionsDTO questionsDTO2 = new QuestionsDTO();
         QuestionsDTO questionsDTO3 = new QuestionsDTO();
@@ -39,11 +39,12 @@ public class DateTest {
         //
         JSONArray jsonArray = new JSONArray();
 
-        jsonArray.add(questionsDTO);
+       /* jsonArray.add(questionsDTO);
         jsonArray.add(questionsDTO2);
         jsonArray.add(questionsDTO3);
-        System.out.println(questionsDTOS.toString());
-        System.out.println(jsonArray.toString());*/
+        System.out.println(questionsDTOS.toString());*/
+        String string = jsonArray.toJSONString(questionsDTOS);
+        System.out.println(string);
    /*     List<Integer> list = new ArrayList();
         list.add(1);
         list.add(2);
