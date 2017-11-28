@@ -1,190 +1,184 @@
-package com.fjs.cronus.model;
+package com.fjs.cronus.dto.cronus;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 
-public class CustomerInfo extends BaseModel {
+/**
+ * Created by msi on 2017/9/14.
+ */
+public class CustomerDTO2 {
+    @ApiModelProperty(value = "id")
     private Integer id;
-
+    @ApiModelProperty(value = "手机号码")
     private String telephonenumber;
-
+    @ApiModelProperty(value = "客户姓名")
     private String customerName;
-
-    private String customerType;
-
+    @ApiModelProperty(value = "客户等级")
     private String customerLevel;
-
+    @ApiModelProperty(value = "备用联系方式")
     private String sparePhone;
-
+    @ApiModelProperty(value = "年龄")
     private String age;
-
+    @ApiModelProperty(value = "婚姻")
     private String marriage;
-
+    @ApiModelProperty(value = "身份证号码")
     private String idCard;
-
+    @ApiModelProperty(value = "户籍")
     private String provinceHuji;
-
+    @ApiModelProperty(value = "性别")
     private String sex;
-
-    private String customerAddress;
-
+    @ApiModelProperty(value = "客户类型")
+    private String customerType;
+    @ApiModelProperty(value = "客户街道地址")
     private String customerStreet;
 
+    @ApiModelProperty(value = "客户地址")
+    private String customerAddress;
+
+    @ApiModelProperty(value = "有无房产")
     private String houseStatus;
-
+    @ApiModelProperty(value = "几套房")
     private String houseAmount;
-
+    @ApiModelProperty(value = "房产类型")
     private String houseType;
-
+    @ApiModelProperty(value = "房产估值")
     private String houseValue;
-
+    @ApiModelProperty(value = "房产面积")
     private String houseArea;
-
+    @ApiModelProperty(value = "房龄")
     private String houseAge;
-
+    @ApiModelProperty(value = "是否按揭")
     private String houseLoan;
-
+    @ApiModelProperty(value = "是否备用房")
     private String houseAlone;
-
+    @ApiModelProperty(value = "房产地址")
     private String houseLocation;
-
+    @ApiModelProperty(value = "所在城市")
     private String city;
-
+    @ApiModelProperty(value = "体现客户的状态")
     private String customerClassify;
-
+    @ApiModelProperty(value = "客户回访状态")
     private String callbackStatus;
-
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "客户回访时间")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date callbackTime;
-
+    @ApiModelProperty(value = "分公司id")
     private Integer subCompanyId;
-
-    private String houseLoanValue;
-
+    @ApiModelProperty(value = "备注")
     private String perDescription;
+    @ApiModelProperty(value = "可贷金额")
+    private String houseLoanValue;
+    @ApiModelProperty(value = "创建时间")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    private Date createTime;
+    @ApiModelProperty(value = "上回更新时间")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    private Date lastUpdateTime;
+    @ApiModelProperty(value = "创建用户")
+    private Integer createUser;
+    @ApiModelProperty(value = "上回更新用户")
+    private Integer lastUpdateUser;
+    @ApiModelProperty(value = "是否删除(1:已删除, 0:未删除)'")
+    private Integer isDeleted;
 
     //新版本添加字段
+    @ApiModelProperty(value = "期望用款时间",notes = "期望用款时间")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date expectMoneyTime;
 
+    @ApiModelProperty(value = "期望贷款期限",notes = "期望贷款期限")
     private String expectLoanTime;
 
+    @ApiModelProperty(value = "期望还款方式 0其他 1等额本息 2先息后本 3 等额本金",notes = "期望还款方式 0其他 1等额本息 2先息后本 3 等额本金")
     private Integer expectRepaymentWay;
 
+    @ApiModelProperty(value = "是否清房 0否 1是",notes = "是否清房 0否 1是")
     private Integer houseClear;
 
+    @ApiModelProperty(value = "产权人",notes = "产权人")
     private String houseOwner;
 
+    @ApiModelProperty(value = "按揭金额",notes = "按揭金额")
     private String mortgageAmount;
 
+    @ApiModelProperty(value = "按揭月供",notes = "按揭月供")
     private String mortgaeMonth;
 
+    @ApiModelProperty(value = "是否有车(0:无，1有)",notes = "是否有车(0:无，1有)")
     private Integer isHavaCar;
 
+    @ApiModelProperty(value = "车辆价值",notes = "车辆价值")
     private String carWorth;
 
+    @ApiModelProperty(value = "车龄",notes = "车龄")
     private Integer carAge;
 
+    @ApiModelProperty(value = "是否有保险(0:无，1有)",notes = "是否有保险(0:无，1有)")
     private Integer isHavaInsurance;
 
+    @ApiModelProperty(value = "年缴费金额",notes = "年缴费金额")
     private String yearPayAmount;
 
+    @ApiModelProperty(value = "已缴费时长",notes = "已缴费时长")
     private Integer insuranceTime;
 
+    @ApiModelProperty(value = "是否负债(0无 1有)",notes = "是否负债(0无 1有)")
     private Integer isHavaDebt;
 
+    @ApiModelProperty(value = "负债金额",notes = "负债金额")
     private String debtMoney;
 
+    @ApiModelProperty(value = "负债月供",notes = "负债月供")
     private Integer debtMonth;
 
+    @ApiModelProperty(value = "当前逾期(0 无 1 有）",notes = "当前逾期(0 无 1 有）")
     private Integer debtOverdue;
 
+    @ApiModelProperty(value = "逾期金额",notes = "逾期金额")
     private String debtOverdueMoney;
 
+    @ApiModelProperty(value = "负债时长",notes = "负债时长")
     private Integer debtTime;
 
+    @ApiModelProperty(value = "工作状态(0：其他，1：授薪，2：自供，3：退休)",notes = "工作状态(0：其他，1：授薪，2：自供，3：退休)")
     private Integer workStatus;
 
+    @ApiModelProperty(value = "打卡工资",notes = "打卡工资")
     private String wagerCard;
 
+    @ApiModelProperty(value = "入职时长",notes = "入职时长")
     private Integer entryTime;
 
+    @ApiModelProperty(value = "公司性质(0:一般，1：优质)",notes = "公司性质(0:一般，1：优质)")
     private Integer companyType;
 
+    @ApiModelProperty(value = "社保(1有，0无)",notes = "社保(1有，0无)")
     private Integer socialSecurity;
 
+    @ApiModelProperty(value = "每月缴多少",notes = "每月缴多少")
     private String socialMoney;
 
+    @ApiModelProperty(value = "持续时间（月）",notes = "持续时间（月）")
     private Integer socialTime;
 
+    @ApiModelProperty(value = "公积金(1有，0无)",notes = "公积金(1有，0无)")
     private Integer providentFund;
 
+    @ApiModelProperty(value = "每月缴多少",notes = "每月缴多少")
     private String providentMoney;
 
+    @ApiModelProperty(value = "持续时间（月）",notes = "持续时间（月）")
     private Integer providentTime;
 
+    @ApiModelProperty(value = "公司名称",notes = "公司名称")
     private String compnyName;
 
+    @ApiModelProperty(value = "固定电话(0无，1有)",notes = "固定电话(0无，1有)")
     private Integer fixedPhone;
-    private BigDecimal loanAmount;
-    private String customerSource;
-    private String utmSource;
-    private Integer ownUserId;
-    private String ownUserName;
-    private Date receiveTime;
-    private Integer circle;
 
-    public Integer getCircle() {
-        return circle;
-    }
 
-    public void setCircle(Integer circle) {
-        this.circle = circle;
-    }
-
-    public Integer getOwnUserId() {
-        return ownUserId;
-    }
-
-    public void setOwnUserId(Integer ownUserId) {
-        this.ownUserId = ownUserId;
-    }
-
-    public String getOwnUserName() {
-        return ownUserName;
-    }
-
-    public void setOwnUserName(String ownUserName) {
-        this.ownUserName = ownUserName;
-    }
-
-    public Date getReceiveTime() {
-        return receiveTime;
-    }
-
-    public void setReceiveTime(Date receiveTime) {
-        this.receiveTime = receiveTime;
-    }
-
-    public String getCustomerSource() {
-        return customerSource;
-    }
-
-    public void setCustomerSource(String customerSource) {
-        this.customerSource = customerSource;
-    }
-
-    public String getUtmSource() {
-        return utmSource;
-    }
-
-    public void setUtmSource(String utmSource) {
-        this.utmSource = utmSource;
-    }
 
     public Date getExpectMoneyTime() {
         return expectMoneyTime;
@@ -437,13 +431,9 @@ public class CustomerInfo extends BaseModel {
     public String getHouseLoanValue() {
         return houseLoanValue;
     }
-   
+
     public void setHouseLoanValue(String houseLoanValue) {
         this.houseLoanValue = houseLoanValue;
-    }
-
-    public String getCustomerType() {
-        return customerType;
     }
 
     public String getCustomerStreet() {
@@ -454,8 +444,52 @@ public class CustomerInfo extends BaseModel {
         this.customerStreet = customerStreet;
     }
 
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public String getCustomerType() {
+        return customerType;
+    }
+
     public void setCustomerType(String customerType) {
         this.customerType = customerType;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
+    public void setLastUpdateTime(Date lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
+    }
+
+    public Integer getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(Integer createUser) {
+        this.createUser = createUser;
+    }
+
+    public Integer getLastUpdateUser() {
+        return lastUpdateUser;
+    }
+
+    public void setLastUpdateUser(Integer lastUpdateUser) {
+        this.lastUpdateUser = lastUpdateUser;
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
     }
 
     public Integer getId() {
@@ -664,13 +698,5 @@ public class CustomerInfo extends BaseModel {
 
     public void setPerDescription(String perDescription) {
         this.perDescription = perDescription;
-    }
-
-    public BigDecimal getLoanAmount() {
-        return loanAmount;
-    }
-
-    public void setLoanAmount(BigDecimal loanAmount) {
-        this.loanAmount = loanAmount;
     }
 }

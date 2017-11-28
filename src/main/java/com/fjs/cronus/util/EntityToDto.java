@@ -3,6 +3,8 @@ package com.fjs.cronus.util;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.ocr.*;
 import com.fjs.cronus.model.*;
+import com.github.pagehelper.StringUtil;
+import org.springframework.security.access.method.P;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -16,7 +18,36 @@ public class EntityToDto {
 
     public static void customerEntityToCustomerDto(CustomerInfo customerInfo, CustomerDTO dto){
 
-            dto.setId(customerInfo.getId());
+        dto.setId(customerInfo.getId());
+        if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
+            dto.setTelephonenumber(customerInfo.getTelephonenumber());
+        }
+        if (customerInfo.getLoanAmount() != null){
+            dto.setLoanAmount(customerInfo.getLoanAmount());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHouseStatus())){
+            dto.setHouseStatus(customerInfo.getHouseStatus());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerSource())){
+            dto.setCustomerSource(customerInfo.getCustomerSource());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getUtmSource())){
+            dto.setUtmSource(customerInfo.getUtmSource());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCity())){
+            dto.setCity(customerInfo.getCity());
+        }
+        if (!StringUtil.isEmpty(customerInfo.getOwnUserName())){
+            dto.setOwnUserName(customerInfo.getOwnUserName());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCreateTime())){
+            dto.setCreateTime(customerInfo.getCreateTime());
+        }
+    }
+
+    /*public static void customerEntityToCustomerDto(CustomerInfo customerInfo, CustomerDTO dto){
+
+        dto.setId(customerInfo.getId());
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
             dto.setTelephonenumber(customerInfo.getTelephonenumber());
         }
@@ -139,7 +170,6 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getHouseLoanValue())){
             dto.setHouseLoanValue(customerInfo.getHouseLoanValue());
         }
-
         //新版新增加字段
         if (!StringUtils.isEmpty(customerInfo.getExpectMoneyTime())){
             dto.setExpectMoneyTime(customerInfo.getExpectMoneyTime());
@@ -147,7 +177,6 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getExpectLoanTime())){
             dto.setExpectLoanTime(customerInfo.getExpectLoanTime());
         }
-
         if (!StringUtils.isEmpty(customerInfo.getExpectRepaymentWay())){
             dto.setExpectRepaymentWay(customerInfo.getExpectRepaymentWay());
         }
@@ -157,7 +186,6 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getHouseOwner())){
             dto.setHouseOwner(customerInfo.getHouseOwner());
         }
-
         if (!StringUtils.isEmpty(customerInfo.getMortgageAmount())){
             dto.setMortgageAmount(customerInfo.getMortgageAmount());
         }
@@ -167,7 +195,6 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getIsHavaCar())){
             dto.setIsHavaCar(customerInfo.getIsHavaCar());
         }
-
         if (!StringUtils.isEmpty(customerInfo.getCarWorth())){
             dto.setCarWorth(customerInfo.getCarWorth());
         }
@@ -177,7 +204,6 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getIsHavaInsurance())){
             dto.setIsHavaInsurance(customerInfo.getIsHavaInsurance());
         }
-
         if (!StringUtils.isEmpty(customerInfo.getYearPayAmount())){
             dto.setYearPayAmount(customerInfo.getYearPayAmount());
         }
@@ -188,7 +214,6 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getIsHavaDebt())){
             dto.setIsHavaDebt(customerInfo.getIsHavaDebt());
         }
-
         if (!StringUtils.isEmpty(customerInfo.getDebtMoney())){
             dto.setDebtMoney(customerInfo.getDebtMoney());
         }
@@ -198,7 +223,6 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getDebtOverdue())){
             dto.setDebtOverdue(customerInfo.getDebtOverdue());
         }
-
         if (!StringUtils.isEmpty(customerInfo.getDebtOverdueMoney())){
             dto.setDebtOverdueMoney(customerInfo.getDebtOverdueMoney());
         }
@@ -208,7 +232,6 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getWorkStatus())){
             dto.setWorkStatus(customerInfo.getWorkStatus());
         }
-
         if (!StringUtils.isEmpty(customerInfo.getWagerCard())){
             dto.setWagerCard(customerInfo.getWagerCard());
         }
@@ -218,7 +241,6 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getCompanyType())){
             dto.setCompanyType(customerInfo.getCompanyType());
         }
-
         if (!StringUtils.isEmpty(customerInfo.getSocialSecurity())){
             dto.setSocialSecurity(customerInfo.getSocialSecurity());
         }
@@ -228,7 +250,6 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getSocialTime())){
             dto.setSocialTime(customerInfo.getSocialTime());
         }
-
         if (!StringUtils.isEmpty(customerInfo.getProvidentFund())){
             dto.setProvidentFund(customerInfo.getProvidentFund());
         }
@@ -238,19 +259,17 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getProvidentTime())){
             dto.setProvidentTime(customerInfo.getProvidentTime());
         }
-
         if (!StringUtils.isEmpty(customerInfo.getCompnyName())){
             dto.setCompnyName(customerInfo.getCompnyName());
         }
         if (!StringUtils.isEmpty(customerInfo.getFixedPhone())){
             dto.setFixedPhone(customerInfo.getFixedPhone());
         }
+    }*/
 
-
-    }
     public static void customerCustomerDtoToEntity(CustomerDTO customerInfo, CustomerInfo dto){
 
-        dto.setId(customerInfo.getId());
+        /*dto.setId(customerInfo.getId());
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
             dto.setTelephonenumber(customerInfo.getTelephonenumber());
         }
@@ -475,7 +494,7 @@ public class EntityToDto {
         }
         if (!StringUtils.isEmpty(customerInfo.getFixedPhone())){
             dto.setFixedPhone(customerInfo.getFixedPhone());
-        }
+        }*/
 
     }
 

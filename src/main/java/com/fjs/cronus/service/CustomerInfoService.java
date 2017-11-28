@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -43,7 +44,8 @@ public class CustomerInfoService {
         return  resultList;
     }
 
-    public QueryResult customerList(String customerName,String telephonenumber,Integer page,Integer size){
+    public QueryResult customerList(String customerName,String telephonenumber,String utmSource, String ownUserName,
+                                    String customerSource, Integer circle, Integer companyId,Integer page,Integer size){
         QueryResult result = new QueryResult();
         Map<String,Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
@@ -51,16 +53,20 @@ public class CustomerInfoService {
         if (!StringUtils.isEmpty(customerName)){
             paramsMap.put("customerName",customerName);
         }
-      /*  if (!StringUtils.isEmpty(createTimeStart)){
-            Date startDate = DateUtils.parse(createTimeStart,DateUtils.FORMAT_LONG);
-            paramsMap.put("createTimeStart",startDate);
+        if (!StringUtils.isEmpty(utmSource)){
+            paramsMap.put("utmSource",utmSource);
         }
-        if (!StringUtils.isEmpty(createTimeEnd)){
-            Date startEnd = DateUtils.parse(createTimeEnd,DateUtils.FORMAT_LONG);
-            paramsMap.put("createTimeEnd",startEnd);
-        }*/
-        if (!StringUtils.isEmpty(telephonenumber)){
-            paramsMap.put("telephonenumber",telephonenumber);
+        if (!StringUtils.isEmpty(ownUserName)){
+            paramsMap.put("ownUserName",ownUserName);
+        }
+        if (!StringUtils.isEmpty(customerSource)){
+            paramsMap.put("customerSource",customerSource);
+        }
+        if (circle != null){
+            paramsMap.put("circle",circle);
+        }
+        if (companyId != null){
+            paramsMap.put("companyId",companyId);
         }
         paramsMap.put("start",(page-1) * size);
         paramsMap.put("size",size);

@@ -10,6 +10,7 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.DocumentService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -29,6 +30,7 @@ import java.util.regex.Pattern;
  * Created by msi on 2017/9/13.
  */
 @RestController
+@Api(description = "客户控制器")
 @RequestMapping(value = "/api/v1")
 public class CustomerController {
     private  static  final Logger logger = LoggerFactory.getLogger(CustomerController.class);
@@ -41,6 +43,11 @@ public class CustomerController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "telephonenumber", value = "电话号码", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "utmSource", value = "渠道", paramType = "query",  dataType = "int"),
+            @ApiImplicitParam(name = "ownUserName", value = "负责人", required = false, paramType = "query",  dataType = "string"),
+            @ApiImplicitParam(name = "customerSource", value = "客户来源", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "circle", value = "客户周期 1新分配 2已领取 3待见面 4已签约", required = false, paramType = "query",  dataType = "int"),
+            @ApiImplicitParam(name = "companyId", value = "公司id", required = false, paramType = "query",  dataType = "int"),
             @ApiImplicitParam(name = "page", value = "查询第几页(从1开始)", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少件", required = false, paramType = "query", dataType = "int"),
     })
@@ -48,13 +55,19 @@ public class CustomerController {
     @ResponseBody
     public CronusDto customerList(@RequestParam(value = "customerName",required = false) String customerName,
                                   @RequestParam(value = "telephonenumber",required = false) String telephonenumber,
+                                  @RequestParam(value = "utmSource",required = false) String utmSource,
+                                  @RequestParam(value = "ownUserName",required = false) String ownUserName,
+                                  @RequestParam(value = "customerSource",required = false) String customerSource,
+                                  @RequestParam(value = "circle",required = false) Integer circle,
+                                  @RequestParam(value = "companyId",required = false) Integer companyId,
                                   @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
                                   @RequestParam(value = "size",required = false,defaultValue = "10") Integer size) {
 
 
         CronusDto cronusDto = new CronusDto();
         try {
-            QueryResult queryResult = customerInfoService.customerList(customerName,telephonenumber,page,size);
+            QueryResult queryResult = customerInfoService.customerList(customerName,telephonenumber,
+                    utmSource, ownUserName, customerSource, circle,companyId,page,size);
             cronusDto.setData(queryResult);
             cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             cronusDto.setResult(ResultResource.CODE_SUCCESS);

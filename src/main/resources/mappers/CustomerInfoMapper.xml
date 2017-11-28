@@ -66,6 +66,14 @@
       <result column="provident_time" property="providentTime" jdbcType="INTEGER" />
       <result column="compny_name" property="compnyName" jdbcType="VARCHAR" />
       <result column="fixed_phone" property="fixedPhone" jdbcType="INTEGER" />
+      <result column="loan_amount" property="loanAmount" jdbcType="DECIMAL" />
+      <result column="customer_source" property="customerSource" jdbcType="VARCHAR" />
+      <result column="utm_source" property="utmSource" jdbcType="VARCHAR" />
+      <result column="own_user_id" property="ownUserId" jdbcType="INTEGER" />
+      <result column="own_user_name" property="ownUserName" jdbcType="VARCHAR" />
+      <result column="receive_time" property="receiveTime" jdbcType="TIMESTAMP" />
+      <result column="circle" property="circle" jdbcType="INTEGER" />
+      <result column="company_id" property="companyId" jdbcType="INTEGER" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.fjs.cronus.model.CustomerInfo" extends="BaseResultMap" >
     <result column="per_description" property="perDescription" jdbcType="LONGVARCHAR" />
@@ -80,7 +88,7 @@
     year_pay_amount, insurance_time, is_hava_debt, debt_money, debt_month, debt_overdue,
     debt_overdue_money, debt_time, work_status, wager_card, entry_time, company_type,
     social_security, social_money, social_time, provident_fund, provident_money, provident_time,
-    compny_name, fixed_phone
+    compny_name, fixed_phone,loan_amount,customer_source,utm_source,own_user_id,own_user_name,receive_time,circle,company_id
   </sql>
   <sql id="Blob_Column_List" >
     per_description
@@ -91,12 +99,25 @@
     <if test="customerName !=null and customerName !=''">
       AND  c.customer_name  like CONCAT('%',#{customerName},'%' )
     </if>
-    <if test="(createTimeStart!=null and createTimeStart!='') or (createTimeEnd!=null and createTimeEnd!='')">
-      and c.create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
-    </if>
+
     <if test="telephonenumber != null and telephonenumber !=''">
       and c.telephonenumber like CONCAT('%',#{telephonenumber},'%' )
     </if>
+      <if test="utmSource != null and utmSource != '' ">
+          and c.utm_source = #{utmSource}
+      </if>
+      <if test="ownUserName != null and ownUserName != '' ">
+          and c.own_user_name = #{ownUserName}
+      </if>
+      <if test="customerSource != null and customerSource != '' ">
+          and c.customer_source = #{customerSource}
+      </if>
+      <if test="circle != null  ">
+          and c.circle = #{circle,}
+      </if>
+      <if test="companyId != null ">
+          and c.company_id = #{companyId}
+      </if>
   </select>
 
   <select id="customerList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
@@ -109,12 +130,26 @@
     <if test="customerName !=null and customerName !=''">
       and c.customer_name  like CONCAT('%', #{customerName},'%' )
     </if>
-     <if test="createTimeStart!=null and createTimeStart!='' and createTimeEnd!=null and createTimeEnd!=''">
-      and c.create_time BETWEEN ${createTimeStart} and ${createTimeEnd}
-     </if>
     <if test="telephonenumber != null and telephonenumber != ''">
       and c.telephonenumber like CONCAT('%',${telephonenumber},'%' )
     </if>
+
+      <if test="utmSource != null and utmSource != '' ">
+          and c.utm_source = #{utmSource}
+      </if>
+      <if test="ownUserName != null and ownUserName != '' ">
+          and c.own_user_name = #{ownUserName}
+      </if>
+      <if test="customerSource != null and customerSource != '' ">
+          and c.customer_source = #{customerSource}
+      </if>
+      <if test="circle != null  ">
+          and c.circle = #{circle,}
+      </if>
+      <if test="companyId != null ">
+          and c.company_id = #{companyId}
+      </if>
+
     <choose>
       <when test="order != null and order !=''">
         order by ${order} desc
