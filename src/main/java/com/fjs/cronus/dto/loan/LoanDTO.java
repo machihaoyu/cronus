@@ -1,7 +1,6 @@
 package com.fjs.cronus.dto.loan;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 
 import javax.persistence.Transient;

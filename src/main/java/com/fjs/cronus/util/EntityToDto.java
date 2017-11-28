@@ -4,10 +4,8 @@ import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.ocr.*;
 import com.fjs.cronus.model.*;
 import com.github.pagehelper.StringUtil;
-import org.springframework.security.access.method.P;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,7 +14,7 @@ import java.util.List;
 public class EntityToDto {
 
 
-    public static void customerEntityToCustomerDto(CustomerInfo customerInfo, CustomerDTO dto){
+    public static void customerEntityToCustomerListDto(CustomerInfo customerInfo, CustomerListDTO dto){
 
         dto.setId(customerInfo.getId());
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
@@ -45,7 +43,7 @@ public class EntityToDto {
         }
     }
 
-    /*public static void customerEntityToCustomerDto(CustomerInfo customerInfo, CustomerDTO dto){
+    public static void customerEntityToCustomerDto(CustomerInfo customerInfo, CustomerDTO dto){
 
         dto.setId(customerInfo.getId());
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
@@ -265,11 +263,11 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getFixedPhone())){
             dto.setFixedPhone(customerInfo.getFixedPhone());
         }
-    }*/
+    }
 
     public static void customerCustomerDtoToEntity(CustomerDTO customerInfo, CustomerInfo dto){
 
-        /*dto.setId(customerInfo.getId());
+        dto.setId(customerInfo.getId());
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
             dto.setTelephonenumber(customerInfo.getTelephonenumber());
         }
@@ -494,7 +492,7 @@ public class EntityToDto {
         }
         if (!StringUtils.isEmpty(customerInfo.getFixedPhone())){
             dto.setFixedPhone(customerInfo.getFixedPhone());
-        }*/
+        }
 
     }
 

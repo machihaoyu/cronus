@@ -5,9 +5,7 @@ import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
-import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.DocumentService;
 import io.swagger.annotations.Api;
@@ -19,12 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Created by msi on 2017/9/13.

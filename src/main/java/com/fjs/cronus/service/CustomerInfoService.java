@@ -1,29 +1,25 @@
 package com.fjs.cronus.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CustomerEnum;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
+import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerInfoLog;
 import com.fjs.cronus.service.uc.UcService;
-import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
-import com.fjs.cronus.util.FastJsonUtils;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * Created by msi on 2017/9/13.
@@ -49,7 +45,7 @@ public class CustomerInfoService {
         QueryResult result = new QueryResult();
         Map<String,Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
-        List<CustomerDTO> dtoList = new ArrayList<>();
+        List<CustomerListDTO> dtoList = new ArrayList<>();
         if (!StringUtils.isEmpty(customerName)){
             paramsMap.put("customerName",customerName);
         }
@@ -73,8 +69,8 @@ public class CustomerInfoService {
         resultList = customerInfoMapper.customerList(paramsMap);
         if (resultList != null && resultList.size() > 0){
             for (CustomerInfo customerInfo : resultList) {
-                CustomerDTO customerDto = new CustomerDTO();
-                EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
+                CustomerListDTO customerDto = new CustomerListDTO();
+                EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto);
                 dtoList.add(customerDto);
             }
             Integer count = customerInfoMapper.customerListCount(paramsMap);
@@ -88,7 +84,7 @@ public class CustomerInfoService {
     }
 
     @Transactional
-    public CronusDto addCustomer(CustomerDTO customerDTO,String token){
+    public CronusDto addCustomer(CustomerDTO customerDTO, String token){
         CronusDto cronusDto = new CronusDto();
          //判断必传字段*/
          //json转map 参数，教研参数
@@ -199,7 +195,7 @@ public class CustomerInfoService {
      * @return
      */
     @Transactional
-    public CronusDto editCustomerOk(CustomerDTO customerDTO,String token){
+    public CronusDto editCustomerOk(CustomerDTO customerDTO, String token){
         CronusDto resultDto = new CronusDto();
         //校验参数手机号不更新
         Integer user_id = ucService.getUserIdByToken(token);
