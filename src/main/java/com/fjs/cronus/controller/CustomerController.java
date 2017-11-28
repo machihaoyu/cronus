@@ -5,6 +5,7 @@ import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
+import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.DocumentService;
@@ -49,7 +50,7 @@ public class CustomerController {
     })
     @RequestMapping(value = "/customerList", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto customerList(@RequestParam(value = "customerName",required = false) String customerName,
+    public CronusDto<QueryResult<CustomerListDTO>> customerList(@RequestParam(value = "customerName",required = false) String customerName,
                                   @RequestParam(value = "telephonenumber",required = false) String telephonenumber,
                                   @RequestParam(value = "utmSource",required = false) String utmSource,
                                   @RequestParam(value = "ownUserName",required = false) String ownUserName,
@@ -60,7 +61,7 @@ public class CustomerController {
                                   @RequestParam(value = "size",required = false,defaultValue = "10") Integer size) {
 
 
-        CronusDto cronusDto = new CronusDto();
+        CronusDto<QueryResult<CustomerListDTO>> cronusDto = new CronusDto();
         try {
             QueryResult queryResult = customerInfoService.customerList(customerName,telephonenumber,
                     utmSource, ownUserName, customerSource, circle,companyId,page,size);

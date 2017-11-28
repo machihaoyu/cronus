@@ -130,13 +130,41 @@ public class CustomerInfo extends BaseModel {
     private String compnyName;
 
     private Integer fixedPhone;
+
     private BigDecimal loanAmount;
+
     private String customerSource;
+
     private String utmSource;
+
     private Integer ownUserId;
+
     private String ownUserName;
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date receiveTime;
+
     private Integer circle;
+
+    private String employedInfo;
+
+    private String retirementWages;
+
+    public String getEmployedInfo() {
+        return employedInfo;
+    }
+
+    public void setEmployedInfo(String employedInfo) {
+        this.employedInfo = employedInfo;
+    }
+
+    public String getRetirementWages() {
+        return retirementWages;
+    }
+
+    public void setRetirementWages(String retirementWages) {
+        this.retirementWages = retirementWages;
+    }
 
     public Integer getCircle() {
         return circle;
@@ -673,4 +701,7 @@ public class CustomerInfo extends BaseModel {
     public void setLoanAmount(BigDecimal loanAmount) {
         this.loanAmount = loanAmount;
     }
+
+
+
 }

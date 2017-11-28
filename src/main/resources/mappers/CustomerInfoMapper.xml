@@ -74,6 +74,8 @@
       <result column="receive_time" property="receiveTime" jdbcType="TIMESTAMP" />
       <result column="circle" property="circle" jdbcType="INTEGER" />
       <result column="company_id" property="companyId" jdbcType="INTEGER" />
+      <result column="employed_info" property="employedInfo" jdbcType="VARCHAR" />
+      <result column="retirement_wages" property="retirementWages" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.fjs.cronus.model.CustomerInfo" extends="BaseResultMap" >
     <result column="per_description" property="perDescription" jdbcType="LONGVARCHAR" />
@@ -88,7 +90,7 @@
     year_pay_amount, insurance_time, is_hava_debt, debt_money, debt_month, debt_overdue,
     debt_overdue_money, debt_time, work_status, wager_card, entry_time, company_type,
     social_security, social_money, social_time, provident_fund, provident_money, provident_time,
-    compny_name, fixed_phone,loan_amount,customer_source,utm_source,own_user_id,own_user_name,receive_time,circle,company_id
+    compny_name, fixed_phone,loan_amount,customer_source,utm_source,own_user_id,own_user_name,receive_time,circle,company_id,employed_info,retirement_wages
   </sql>
   <sql id="Blob_Column_List" >
     per_description
@@ -356,6 +358,36 @@
           <if test="perDescription != null" >
               per_description,
           </if>
+          <if test="loanAmount != null" >
+              loan_amount,
+          </if>
+          <if test="customerSource != null" >
+              customer_source,
+          </if>
+          <if test="utmSource != null" >
+              utm_source,
+          </if>
+          <if test="ownUserId != null" >
+              own_user_id,
+          </if>
+          <if test="ownUserName != null" >
+              own_user_name,
+          </if>
+          <if test="receiveTime != null" >
+              receive_time,
+          </if>
+          <if test="circle != null" >
+              circle,
+          </if>
+          <if test="companyId != null" >
+              company_id,
+          </if>
+          <if test="employedInfo != null" >
+              employed_info,
+          </if>
+          <if test="retirementWages != null" >
+              retirement_wages,
+          </if>
       </trim>
       <trim prefix="values (" suffix=")" suffixOverrides="," >
           <if test="telephonenumber != null" >
@@ -549,6 +581,36 @@
           </if>
           <if test="perDescription != null" >
               #{perDescription,jdbcType=LONGVARCHAR},
+          </if>
+          <if test="loanAmount != null" >
+              #{loan_amount,jdbcType=DECIMAL},
+          </if>
+          <if test="customerSource != null" >
+              #{customer_source,jdbcType=VARCHAR},
+          </if>
+          <if test="utmSource != null" >
+              #{utm_source,jdbcType=VARCHAR},
+          </if>
+          <if test="ownUserId != null" >
+              #{own_user_id,jdbcType=VARCHAR},
+          </if>
+          <if test="ownUserName != null" >
+              #{receive_time,jdbcType=DECIMAL},
+          </if>
+          <if test="receiveTime != null" >
+              #{receive_time,jdbcType=VARCHAR},
+          </if>
+          <if test="circle != null" >
+              #{circle,jdbcType=VARCHAR},
+          </if>
+          <if test="companyId != null" >
+              #{company_id,jdbcType=VARCHAR},
+          </if>
+          <if test="employedInfo != null" >
+              #{employed_info,jdbcType=VARCHAR},
+          </if>
+          <if test="retirementWages != null" >
+              #{retirement_wages,jdbcType=VARCHAR},
           </if>
       </trim>
   </insert>
@@ -806,6 +868,36 @@
             </if>
             <if test="perDescription != null" >
                 per_description = #{perDescription,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="loanAmount != null" >
+                loan_amount = #{loanAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="customerSource != null" >
+                customer_source = #{customerSource,jdbcType=VARCHAR},
+            </if>
+            <if test="utmSource != null" >
+                utm_source = #{utmSource,jdbcType=VARCHAR},
+            </if>
+            <if test="ownUserId != null" >
+                own_user_id = #{ownUserId,jdbcType=INTEGER},
+            </if>
+            <if test="ownUserName != null" >
+                own_user_name = #{ownUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="receiveTime != null" >
+                receive_time = #{receiveTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="circle != null" >
+                circle = #{circle,jdbcType=INTEGER},
+            </if>
+            <if test="companyId != null" >
+                company_id = #{companyId,jdbcType=INTEGER},
+            </if>
+            <if test="employedInfo != null" >
+                employed_info = #{employedInfo,jdbcType=VARCHAR},
+            </if>
+            <if test="retirementWages != null" >
+                retirement_wages = #{retirementWages,jdbcType=VARCHAR},
             </if>
         </set>
         where id = #{id,jdbcType=INTEGER}
