@@ -4,10 +4,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CustomerEnum;
 import com.fjs.cronus.Common.ResultResource;
+import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.*;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.cronus.CallbackLogDTO;
-import com.fjs.cronus.dto.loan.LoanDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CallbackConfigMapper;
 import com.fjs.cronus.mappers.CallbackLogMapper;
@@ -173,18 +173,18 @@ public class CallbackService {
             callbackCustomerDTO.setTelephonenumber(phoneNumber);
             callbackCustomerDTO.setCustomerLevel(customerInfo.getCustomerLevel());
             callbackCustomerDTO.setCustomerName(customerInfo.getCustomerName());
-            callbackCustomerDTO.setLoanAmount(dto.getMindAmount());
-            if (dto.getOwnUserId() != null) {
-                callbackCustomerDTO.setOwnUserId(dto.getOwnUserId());
-            }
+            callbackCustomerDTO.setLoanAmount(dto.getLoanAmount());
+//            if (dto.getOwnUserId() != null) {
+//                callbackCustomerDTO.setOwnUserId(dto.getOwnUserId());
+//            }
             callbackCustomerDTO.setOwnUserName("无");
             callbackCustomerDTO.setSub_company("未知");
-            if (dto.getOwnUserId() != null){
-
-                 UcUserDTO ucUserDTO = ucService.getUserInfoByID(token,dto.getOwnUserId());
-                callbackCustomerDTO.setOwnUserName(ucUserDTO.getName());
-                callbackCustomerDTO.setSub_company(ucUserDTO.getSub_company_name());
-            }
+//            if (dto.getOwnUserId() != null){
+//
+//                 UcUserDTO ucUserDTO = ucService.getUserInfoByID(token,dto.getOwnUserId());
+//                callbackCustomerDTO.setOwnUserName(ucUserDTO.getName());
+//                callbackCustomerDTO.setSub_company(ucUserDTO.getSub_company_name());
+//            }
             resultList.add(callbackCustomerDTO);
         }
         resultDto.setRows(resultList);
@@ -470,6 +470,7 @@ public class CallbackService {
         cronusRedisService.setRedisCronusInfo(ResultResource.CALLBACKCONFIG_KEY,resultList);
         return resultList;
     }
+
     public CallbackCusLoanDTO findCustomerByWhere(Map<String,Object> paramsMap,String token){
         CallbackCusLoanDTO dto = new CallbackCusLoanDTO();
 
@@ -480,12 +481,12 @@ public class CallbackService {
         }
         LoanDTO loanDTO = loaService.selectByCustomerId(token,customerInfo.getId());
         // 拼装交易参数
-        dto.setCooperationStatus(loanDTO.getCooperationStatus());
-        dto.setMindLamount(loanDTO.getMindAmount());
-        dto.setOwnUserId(loanDTO.getOwnUserId());
+//        dto.setCooperationStatus(loanDTO.getCooperationStatus());
+        dto.setMindLamount(loanDTO.getLoanAmount());
+//        dto.setOwnUserId(loanDTO.getOwnUserId());
         dto.setOwnUserName(loanDTO.getOwnUserName());
-        dto.setCustomerSource(loanDTO.getCustomerSource());
-        dto.setUtmSource(loanDTO.getUtmSource());
+//        dto.setCustomerSource(loanDTO.getCustomerSource());
+//        dto.setUtmSource(loanDTO.getUtmSource());
         return  dto;
 
     }

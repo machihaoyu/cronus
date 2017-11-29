@@ -1,6 +1,8 @@
 package com.fjs.cronus.service.client;
 
 import com.fjs.cronus.config.FeignClientConfig;
+import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.uc.*;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
@@ -293,7 +295,7 @@ public interface ThorInterfaceService {
      * @return
      */
     @RequestMapping(value = "/api/v1/getUserInfoByField", method = RequestMethod.POST)
-    BaseUcDTO getUserInfoByField(@RequestHeader("Authorization") String token,
+    BaseUcDTO<UserInfoDTO> getUserInfoByField(@RequestHeader("Authorization") String token,
                                  @RequestParam(value = "telephone",required = false) String telephone,
                                  @RequestParam(value = "user_id",required = false) Integer user_id,
                                  @RequestParam(value = "name",required = false) String name);
@@ -410,5 +412,15 @@ public interface ThorInterfaceService {
     @RequestMapping(value = "/api/v1/getCurrentUserInfo",method = RequestMethod.GET)
     String getCurrentUserInfo(@RequestHeader("Authorization") String Authorization,
                               @RequestParam(value = "systemName") String systemName);
+
+    /**
+     * 根据userId获取用户的基本信息
+     *
+     * @param token
+     * @param userId
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getSystemUserInfo", method = RequestMethod.GET)
+    CronusDto<SimpleUserInfoDTO> getUserInfoById(@RequestHeader("Authorization") String token, @RequestParam(value = "userId") Integer userId);
 }
 

@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -23,8 +24,8 @@ import java.util.Map;
  *
  * Created by feng on 2017/7/14.
  */
-@RestController
-@RequestMapping(value = "/ocdc/api/v1")
+@Controller
+@RequestMapping(value = "/api/v1/ocdc")
 public class OcdcController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -68,8 +69,8 @@ public class OcdcController {
 
     @ApiOperation(value="OCDC推送", notes="OCDC推送客户信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "jsonObject", value = "JSON推送数据",
-                    required = true, paramType = "body", dataType = "JSONObject")
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "jsonObject", value = "JSON推送数据", required = true, paramType = "body", dataType = "JSONObject")
     })
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody

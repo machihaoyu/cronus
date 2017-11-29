@@ -1021,4 +1021,16 @@
             and c.telephonenumber like CONCAT('%',${telephonenumber},'%' )
         </if>
     </select>
+
+    <select id="selectByOCDCPhone" parameterType="String" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List" />
+        ,
+        <include refid="Blob_Column_List" />
+        from customer_info  c
+        WHERE  c.is_deleted = 0
+        <if test=" _parameter != null and  _parameter != ''">
+            and c.telephonenumber like CONCAT('%',${ _parameter},'%' )
+        </if>
+    </select>
 </mapper>

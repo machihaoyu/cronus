@@ -5,17 +5,23 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
+import com.fjs.cronus.api.thea.ConfigDTO;
+import com.fjs.cronus.api.thea.LoanDTO;
+import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerSalePushLog;
-import com.fjs.cronus.service.client.LoanService;
+import com.fjs.cronus.service.client.TheaService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
@@ -33,7 +39,7 @@ public class OcdcService {
 //    private ConfigRedisService configRedisService;
 
     @Autowired
-    private LoanService loanService;
+    private TheaService theaService;
 
     @Autowired
     private CustomerSalePushLogService customerSalePushLogService;
@@ -60,15 +66,50 @@ public class OcdcService {
         List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<CustomerSalePushLog>();
         for (Map<String, Object> map : listObj) {
             CustomerSalePushLog customerSalePushLog = this.queryCustomerSalePushLogByOcdcPushData(map);
+            //判断是不是重复客户
+            List<CustomerInfo> customerInfoList = customerInfoMapper.selectByOCDCPhone(customerSalePushLog.getTelephonenumber());
+            if ( CollectionUtils.isEmpty(customerInfoList)){
+                //判断是不是主动申请
+                if (customerSalePushLog.getUtmSource().equals("自申请")){
+                    //有无负责人
+                    if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0){
+                        //自动分配
+
+                    }
+                    //有负责人分给对应的业务员
+                    queryLoanListByOcdcPushData(customerSalePushLog);
+                }
+                //是不是三无客户
+                else{
+                    if (isThree(customerSalePushLog)){
+                        return;
+                    }else{
+                        //有无负责人,有负责人跟进，没有自动分配
+                        if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0){
+                            //自动分配
+                        }
+                        else{
+                            //发消息业务员，提醒跟进
+                        }
+                    }
+                }
+            }
             customerSalePushLogList.add(customerSalePushLog);
         }
+
+
+
         //保存OCDC推送日志
         customerSalePushLogService.insertList(customerSalePushLogList);
         //获取主要城市及异地城市配置
-//        String mainCityStr = configRedisService.getConfigValue(CommonConst.MAIN_CITY);
-//        String remoteCityStr = configRedisService.getConfigValue(CommonConst.REMOTE_CITY);
-        String mainCityStr = "";
-        String remoteCityStr = "";
+        TheaApiDTO<ConfigDTO> theaApiDTO = theaService.getConfigByName(CommonConst.MAIN_CITY);
+        ConfigDTO configDTO = theaApiDTO.getData();
+        String mainCityStr = configDTO.getValue();
+
+        theaApiDTO = theaService.getConfigByName(CommonConst.REMOTE_CITY);
+        configDTO = theaApiDTO.getData();
+        String remoteCityStr = configDTO.getValue();
+
         String mainAndRemoteCityStr = mainCityStr + remoteCityStr;
         List<CustomerSalePushLog> theaCustomerPushList = new ArrayList<>();
         List<CustomerSalePushLog> serviceCustomerPushList = new ArrayList<>();
@@ -101,58 +142,58 @@ public class OcdcService {
     public void addLoanByOcdcPush(List<CustomerSalePushLog> customerSalePushLogList) {
         //先判断输入的数据对象是否已经存在交易
         //根据电话号码查询交易系统数据
-        String telListStr = customerSalePushLogList.get(0).getTelephonenumber();
-        for (int i = 1; i < customerSalePushLogList.size(); i++) {
-            telListStr += "," + customerSalePushLogList.get(i).getTelephonenumber();
-        }
-        List<CustomerInfo> ocdcPushLoanList = this.queryLoanListByOcdcPushData(customerSalePushLogList);
-        Map<String, Object> map = new HashMap<>();
-        map.put("inPhone",telListStr);
-        List<CustomerInfo> customerInfoList = customerInfoMapper.selectByPhone(map);
-        String loanListTelStr = "";
-        //系统已存在的交易电话号码集合
-        if (null != customerInfoList && customerInfoList.size() > 0) {
-            loanListTelStr = customerInfoList.get(0).getTelephonenumber();
-            for (int i = 1; i < customerInfoList.size(); i++) {
-                loanListTelStr += "," + customerInfoList.get(i).getTelephonenumber();
-            }
-        }
-        List<CustomerInfo> newList = new ArrayList<>();//新客户
-        List<CustomerInfo> oldList = new ArrayList<>();//老客户
-
-        for (CustomerInfo customerInfo : ocdcPushLoanList) {
-            if (StringUtils.contains(loanListTelStr, customerInfo.getTelephonenumber())) {
-                oldList.add(customerInfo);
-            } else {
-                newList.add(customerInfo);
-            }
-        }
-
-
-        //批量处理重复客户申请
-        List<Integer> successIds = new ArrayList<>();
-        List<Integer> failIds = new ArrayList<>();
-        if ((null != customerInfoList && customerInfoList.size() > 0) && (null != oldList && oldList.size() > 0)) {
-            //两组集合对比，规划出对应的比例
-//            for (Loan ocdcLoan : oldLoanList) {
-//                for (Loan loan : loanList) {
+//        String telListStr = customerSalePushLogList.get(0).getTelephonenumber();
+//        for (int i = 1; i < customerSalePushLogList.size(); i++) {
+//            telListStr += "," + customerSalePushLogList.get(i).getTelephonenumber();
+//        }
+//        List<CustomerInfo> ocdcPushLoanList = this.queryLoanListByOcdcPushData(customerSalePushLogList);
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("inPhone",telListStr);
+//        List<CustomerInfo> customerInfoList = customerInfoMapper.selectByPhone(map);
+//        String loanListTelStr = "";
+//        //系统已存在的交易电话号码集合
+//        if (null != customerInfoList && customerInfoList.size() > 0) {
+//            loanListTelStr = customerInfoList.get(0).getTelephonenumber();
+//            for (int i = 1; i < customerInfoList.size(); i++) {
+//                loanListTelStr += "," + customerInfoList.get(i).getTelephonenumber();
+//            }
+//        }
+//        List<CustomerInfo> newList = new ArrayList<>();//新客户
+//        List<CustomerInfo> oldList = new ArrayList<>();//老客户
 //
-//                }
+//        for (CustomerInfo customerInfo : ocdcPushLoanList) {
+//            if (StringUtils.contains(loanListTelStr, customerInfo.getTelephonenumber())) {
+//                oldList.add(customerInfo);
+//            } else {
+//                newList.add(customerInfo);
 //            }
-        }
-        //批量处理新客户
-        if (null != newList && newList.size() > 0) {
-//            for (Loan loan : newLoanList) {
-//                loan.setOwnUserId(0);
-//                loan.setFirstAllocateTime(new Date());
-//                Boolean falge =  autoAllocateService.autoAllocate(loan);
-//                if (falge) {
-//                    successIds.add(loan.getOcdcDataId());
-//                } else {
-//                    failIds.add(loan.getOcdcDataId());
-//                }
-//            }
-        }
+//        }
+//
+//
+//        //批量处理重复客户申请
+//        List<Integer> successIds = new ArrayList<>();
+//        List<Integer> failIds = new ArrayList<>();
+//        if ((null != customerInfoList && customerInfoList.size() > 0) && (null != oldList && oldList.size() > 0)) {
+//            //两组集合对比，规划出对应的比例
+////            for (Loan ocdcLoan : oldLoanList) {
+////                for (Loan loan : loanList) {
+////
+////                }
+////            }
+//        }
+//        //批量处理新客户
+//        if (null != newList && newList.size() > 0) {
+////            for (Loan loan : newLoanList) {
+////                loan.setOwnUserId(0);
+////                loan.setFirstAllocateTime(new Date());
+////                Boolean falge =  autoAllocateService.autoAllocate(loan);
+////                if (falge) {
+////                    successIds.add(loan.getOcdcDataId());
+////                } else {
+////                    failIds.add(loan.getOcdcDataId());
+////                }
+////            }
+//        }
         //回调OCDC
 
     }
@@ -160,19 +201,19 @@ public class OcdcService {
     /**
      * OCDC推送开关
      */
-    public void ocdcPushLock() {
+/*    public void ocdcPushLock() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                /*String value = configRedisService.getConfigValue(CommonRedisConst.OCDC_PUSH_LOCK);
+                *//*String value = configRedisService.getConfigValue(CommonRedisConst.OCDC_PUSH_LOCK);
                 if (value.equals(CommonRedisConst.OCDC_PUSH_LOCK_1)) {//向OCDC发送推送延时请求(系统正在处理上一次的数据)
-                }*/
+                }*//*
             }
         }
 
         ).start();
 
-    }
+    }*/
 
 
     /**
@@ -216,65 +257,36 @@ public class OcdcService {
 
 
     /**
-     * 根据OCDC推送数据生成交易原始数据
+     * 根据OCDC推送数据生成交易数据
      *
-     * @param customerSalePushLogList
+     * @param customerSalePushLog
      * @return
      */
-    public List<CustomerInfo> queryLoanListByOcdcPushData(List<CustomerSalePushLog> customerSalePushLogList) {
-        List<CustomerInfo> customerInfoList = new ArrayList<>();
-        /*for (CustomerSalePushLog customerSalePushLog : customerSalePushLogList) {
-            Loan loan = new Loan();
-            if (null != customerSalePushLog.getCustomerId()) {
-                loan.setCustomerId(customerSalePushLog.getCustomerId());
-            }
-            loan.setStatus(CommonEnum.LOAN_STATUE_1.getCode());
-            if (null != customerSalePushLog.getLoanAmount()) {
-                loan.setLoanAmount(customerSalePushLog.getLoanAmount());
-            }
-            if (null != customerSalePushLog.getTelephonenumber()) {
-                loan.setTelephonenumber(customerSalePushLog.getTelephonenumber());
-            }
-            if (null != customerSalePushLog.getCustomerName()) {
-                loan.setCustomerName(customerSalePushLog.getCustomerName());
-            }
-            if (null != customerSalePushLog.getCustomerLevel()) {
-                loan.setLevel(customerSalePushLog.getCustomerLevel());
-            } else {
-                loan.setLevel(CommonEnum.CUSTOMER_LEVEL_0.getCodeDesc());
-            }
-            if (null != customerSalePushLog.getHouseStatus()) {
-                loan.setHouseStatus(customerSalePushLog.getHouseStatus());
-            }
-            if (null != customerSalePushLog.getRetain()) {
-                loan.setRemain(customerSalePushLog.getRetain());
-            }
-            loan.setIsLock(CommonEnum.NO.getCode());
-            loan.setAutostatus(CommonEnum.YES.getCode());
-            if (null != customerSalePushLog.getCustomerSource()) {
-                loan.setCustomerSource(customerSalePushLog.getCustomerSource());
-            }
-            if (null != customerSalePushLog.getUtmSource()) {
-                loan.setUtmSource(customerSalePushLog.getUtmSource());
-            }
-            if (null != customerSalePushLog.getCustomerClassify()) {
-                loan.setCustomerClassify(customerSalePushLog.getCustomerClassify());
-            }
-            if (null != customerSalePushLog.getCity()) {
-                loan.setCity(customerSalePushLog.getCity());
-            }
-            loan.setClickCommunicateButton(CommonEnum.NO.getCode());
-            loan.setCreateTime(new Date());
-            loan.setLastUpdateTime(new Date());
-            if (null != customerSalePushLog.getExt()) {
-                loan.setExt(customerSalePushLog.getExt());
-            }
-            if(null != customerSalePushLog.getOcdcId()){
-                loan.setOcdcDataId(customerSalePushLog.getOcdcId());
-            }
-            loanList.add(loan);
-        }*/
-        return customerInfoList;
+    public Integer queryLoanListByOcdcPushData(CustomerSalePushLog customerSalePushLog) {
+        CustomerInfo customerInfo = new CustomerInfo();
+        LoanDTO loan = new LoanDTO();
+        if (null != customerSalePushLog.getCustomerId()) {
+            loan.setCustomerId(customerSalePushLog.getCustomerId());
+        }
+        if (null != customerSalePushLog.getLoanAmount()) {
+            loan.setLoanAmount(customerSalePushLog.getLoanAmount());
+        }
+        if (StringUtils.isNotEmpty(customerSalePushLog.getTelephonenumber())){
+            loan.setTelephonenumber(customerSalePushLog.getTelephonenumber());
+        }
+        if (StringUtils.isNotEmpty(customerSalePushLog.getCustomerName()) ) {
+            loan.setCustomerName(customerSalePushLog.getCustomerName());
+        }
+        if (null != customerSalePushLog.getCreateTime()){
+            loan.setCreateTime(customerSalePushLog.getCreateTime());
+        }
+        TheaApiDTO theaApiDTO = theaService.inserLoan(loan);
+        if (theaApiDTO != null && theaApiDTO.getResult() == 0){
+            return 1;
+        }
+        else{
+            return 0;
+        }
     }
 
     /**
@@ -446,6 +458,21 @@ public class OcdcService {
         return customerSalePushLog;
     }
 
+    /**
+     * 判断是否是三无客户
+     * @param customerSalePushLog
+     * @return
+     */
+    public Boolean isThree(CustomerSalePushLog customerSalePushLog){
+        if (customerSalePushLog != null &&
+                (customerSalePushLog.getCustomerClassify().equals("空号") ||
+                customerSalePushLog.getCustomerClassify().equals("同业") ||
+                customerSalePushLog.getCustomerClassify().equals("内部员工"))){
+            return true;
+        }
+        return false;
+    }
+
     public static void main(String[] args) {
 //        JSONObject json = new JSONObject();
 //        json.put("customer_source","qudao");
@@ -474,16 +501,19 @@ public class OcdcService {
 //
 //        System.out.println(json1.toString());
 
-        String test = "{\"data\":[{\"telephonenumber\":\"13866549800\",\"city\":\"上海\",\"name\":\"dng\",\"customer_source\":\"qudao\",\"loan_amount\":\"1000\",\"id\":10001,\"utm_source\":\"juhkl\"}," +
-                "{\"telephonenumber\":\"13866549801\",\"city\":\"上海\",\"name\":\"dng\",\"customer_source\":\"qudao\",\"loan_amount\":\"1000\",\"id\":10002,\"utm_source\":\"juhkl\"}]}";
-        JSONObject jsonObject = JSON.parseObject(test);
-        String list = jsonObject.get("data").toString();
-        JSONArray jarr=JSONArray.parseArray(list);
+//        String test = "{\"data\":[{\"telephonenumber\":\"13866549800\",\"city\":\"上海\",\"name\":\"dng\",\"customer_source\":\"qudao\",\"loan_amount\":\"1000\",\"id\":10001,\"utm_source\":\"juhkl\"}," +
+//                "{\"telephonenumber\":\"13866549801\",\"city\":\"上海\",\"name\":\"dng\",\"customer_source\":\"qudao\",\"loan_amount\":\"1000\",\"id\":10002,\"utm_source\":\"juhkl\"}]}";
+//        JSONObject jsonObject = JSON.parseObject(test);
+//        String list = jsonObject.get("data").toString();
+//        JSONArray jarr=JSONArray.parseArray(list);
 //        System.out.println(jarr);
-        int arraySize = jarr.size();
-        for (int i = 0 ;i < arraySize;i++){
-            String jsonObject1 = jarr.get(i).toString();
-            System.out.println(jsonObject1);
-        }
+//        int arraySize = jarr.size();
+//        for (int i = 0 ;i < arraySize;i++){
+//            String jsonObject1 = jarr.get(i).toString();
+//            System.out.println(jsonObject1);
+//        }
+        String mainAndRemoteCityStr ="上海,郑州,北京,杭州,深圳,武汉,天津,海口,台湾";
+        Boolean b =  StringUtils.contains(mainAndRemoteCityStr, "上海");
+        System.out.println(b);
     }
 }

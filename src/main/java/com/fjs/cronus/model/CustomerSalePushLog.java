@@ -13,35 +13,20 @@ public class CustomerSalePushLog {
     private static final long serialVersionUID = 1L;
 
     private Integer id;
-
     private Integer loanId;
-
     private Integer customerId;
-
     private Integer ocdcId;
-
     private String telephonenumber;
-
     private String customerName;
-
     private Integer ownerUserId;
-
     private String ownerUserName;
-
     private Integer createrUserId;
-
     private String customerLevel;
-
     private BigDecimal loanAmount;
-
     private String sparePhone;
-
     private String age;
-
     private String marriage;
-
     private String idCard;
-
     private String provinceHuji;
 
     private String sex;

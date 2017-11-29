@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.CustomerSalePushLogMapper">
+    <resultMap id="BaseResultMap" type="com.fjs.cronus.model.CustomerSalePushLog">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="ocdc_id" property="ocdcId" jdbcType="INTEGER"/>
+        <result column="customer_id" property="customerId" jdbcType="INTEGER"/>
+        <result column="loan_id" property="loanId" jdbcType="INTEGER"/>
+        <result column="telephonenumber" property="telephonenumber" jdbcType="VARCHAR"/>
+        <result column="customer_name" property="customerName" jdbcType="VARCHAR"/>
+        <result column="owner_user_id" property="ownerUserId" jdbcType="INTEGER"/>
+        <result column="owner_user_name" property="ownerUserName" jdbcType="VARCHAR"/>
+        <result column="creater_user_id" property="createrUserId" jdbcType="INTEGER"/>
+        <result column="customer_level" property="customerLevel" jdbcType="VARCHAR"/>
+        <result column="loan_amount" property="loanAmount" jdbcType="DECIMAL"/>
+        <result column="spare_phone" property="sparePhone" jdbcType="VARCHAR"/>
+        <result column="age" property="age" jdbcType="VARCHAR"/>
+        <result column="marriage" property="marriage" jdbcType="VARCHAR"/>
+        <result column="id_card" property="idCard" jdbcType="VARCHAR"/>
+        <result column="province_huji" property="provinceHuji" jdbcType="VARCHAR"/>
+        <result column="sex" property="sex" jdbcType="VARCHAR"/>
+        <result column="customer_address" property="customerAddress" jdbcType="VARCHAR"/>
+        <result column="per_description" property="perDescription" jdbcType="LONGVARCHAR"/>
+        <result column="house_amount" property="houseAmount" jdbcType="VARCHAR"/>
+        <result column="house_type" property="houseType" jdbcType="VARCHAR"/>
+        <result column="house_value" property="houseValue" jdbcType="VARCHAR"/>
+        <result column="house_area" property="houseArea" jdbcType="VARCHAR"/>
+        <result column="house_age" property="houseAge" jdbcType="VARCHAR"/>
+        <result column="house_loan" property="houseLoan" jdbcType="VARCHAR"/>
+        <result column="house_alone" property="houseAlone" jdbcType="VARCHAR"/>
+        <result column="house_location" property="houseLocation" jdbcType="VARCHAR"/>
+        <result column="city" property="city" jdbcType="VARCHAR"/>
+        <result column="retain" property="retain" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="receive_time" property="receiveTime" jdbcType="TIMESTAMP"/>
+        <result column="is_lock" property="isLock" jdbcType="INTEGER"/>
+        <result column="phone_view_time" property="phoneViewTime" jdbcType="TIMESTAMP"/>
+        <result column="phone_view_uid" property="phoneViewUid" jdbcType="INTEGER"/>
+        <result column="phone_view_count" property="phoneViewCount" jdbcType="INTEGER"/>
+        <result column="autostatus" property="autostatus" jdbcType="INTEGER"/>
+        <result column="utm_source" property="utmSource" jdbcType="VARCHAR"/>
+        <result column="customer_source" property="customerSource" jdbcType="VARCHAR"/>
+        <result column="customer_classify" property="customerClassify" jdbcType="VARCHAR"/>
+        <result column="laiyuan" property="laiyuan" jdbcType="INTEGER"/>
+        <result column="ext" property="ext" jdbcType="LONGVARCHAR"/>
+        <result column="repeat_callback_time" property="repeatCallbackTime" jdbcType="TIMESTAMP"/>
+        <result column="house_status" property="houseStatus" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <!--基础表字段-->
+    <sql id="base_column">
+        id,ocdc_id,customer_id,loan_id,telephonenumber,customer_name,owner_user_id,owner_user_name,
+        creater_user_id,customer_level,loan_amount,spare_phone,age,marriage,id_card,province_huji,
+        sex,customer_address,per_description,house_amount,house_type,house_value,house_area,house_age,
+        house_loan,house_alone,house_location,city,retain,create_time,update_time,receive_time,is_lock,
+        phone_view_time,phone_view_uid,phone_view_count,autostatus,utm_source,customer_source,
+        customer_classify,laiyuan,ext,repeat_callback_time,house_status
+    </sql>
+    <!--批量添加数据-->
+    <insert id="insertList" parameterType="java.util.List" useGeneratedKeys="true">
+        INSERT INTO customer_sale_push_log
+        (ocdc_id,customer_id,loan_id,telephonenumber,customer_name,owner_user_id,owner_user_name,
+        creater_user_id,customer_level,loan_amount,spare_phone,age,marriage,id_card,province_huji,
+        sex,customer_address,per_description,house_amount,house_type,house_value,house_area,house_age,
+        house_loan,house_alone,house_location,city,retain,create_time,update_time,receive_time,is_lock,
+        phone_view_time,phone_view_uid,phone_view_count,autostatus,utm_source,customer_source,
+        customer_classify,laiyuan,ext,repeat_callback_time,house_status)
+        values
+        <foreach collection="list" item="customerSalePushLog" index="index" separator=",">
+            (
+            #{customerSalePushLog.ocdcId},
+            #{customerSalePushLog.customerId},
+            #{customerSalePushLog.loanId},
+            #{customerSalePushLog.telephonenumber},
+            #{customerSalePushLog.customerName},
+            #{customerSalePushLog.ownerUserId},
+            #{customerSalePushLog.ownerUserName},
+            #{customerSalePushLog.createrUserId},
+            #{customerSalePushLog.customerLevel},
+            #{customerSalePushLog.loanAmount},
+            #{customerSalePushLog.sparePhone},
+            #{customerSalePushLog.age},
+            #{customerSalePushLog.marriage},
+            #{customerSalePushLog.idCard},
+            #{customerSalePushLog.provinceHuji},
+            #{customerSalePushLog.sex},
+            #{customerSalePushLog.customerAddress},
+            #{customerSalePushLog.perDescription},
+            #{customerSalePushLog.houseAmount},
+            #{customerSalePushLog.houseType},
+            #{customerSalePushLog.houseValue},
+            #{customerSalePushLog.houseArea},
+            #{customerSalePushLog.houseAge},
+            #{customerSalePushLog.houseLoan},
+            #{customerSalePushLog.houseAlone},
+            #{customerSalePushLog.houseLocation},
+            #{customerSalePushLog.city},
+            #{customerSalePushLog.retain},
+            #{customerSalePushLog.createTime},
+            #{customerSalePushLog.updateTime},
+            #{customerSalePushLog.receiveTime},
+            #{customerSalePushLog.isLock},
+            #{customerSalePushLog.phoneViewTime},
+            #{customerSalePushLog.phoneViewUid},
+            #{customerSalePushLog.phoneViewCount},
+            #{customerSalePushLog.autostatus},
+            #{customerSalePushLog.utmSource},
+            #{customerSalePushLog.customerSource},
+            #{customerSalePushLog.customerClassify},
+            #{customerSalePushLog.laiyuan},
+            #{customerSalePushLog.ext},
+            #{customerSalePushLog.repeatCallbackTime},
+            #{customerSalePushLog.houseStatus}
+            )
+        </foreach>
+    </insert>
+</mapper>
