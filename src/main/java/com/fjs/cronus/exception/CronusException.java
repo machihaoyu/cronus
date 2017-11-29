@@ -11,6 +11,7 @@ import com.fjs.framework.exception.ResponseError;
 public class CronusException extends BaseException {
 
     public enum Type {
+        THEA_SYSTEM_ERROR("9999","系统异常"),
 
         /**
          * 短息发送失败

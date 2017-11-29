@@ -2,6 +2,7 @@ package com.fjs.cronus.mappers;
 
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.util.MyMapper;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -28,4 +29,18 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
     Integer getListByWhereCount(Map<String,Object> paramMap);
 
     List<CustomerInfo> findCustomerByOtherCity(Map<String,Object> paramMap);
+
+    /**
+     * 根据电话号码查找
+     * @param paramMap
+     * @return
+     */
+    List <CustomerInfo> selectByPhone(Map<String,Object> paramMap);
+
+    /**
+     * 根据OCDC电话号码查找
+     * @param phone
+     * @return
+     */
+    List <CustomerInfo> selectByOCDCPhone(@Param("telephonenumber") String telephonenumber);
 }

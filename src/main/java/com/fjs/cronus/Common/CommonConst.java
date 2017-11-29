@@ -73,10 +73,9 @@ public class CommonConst {
             "repeat_callback_time"};
 
     //默认客户名
-    public static String DEFAULT_CUSTOMER_NAME = "客户";
-
     //客户来源
     public static Integer LAI_YUAN_OCDC = 0;
+
 
     //主要城市配置名
     public static String MAIN_CITY = "MainCity";
@@ -124,6 +123,9 @@ public class CommonConst {
 
     //原始盘转入交易
     public static String TRANSFER_PULL_CUSTOMER_URL=SYSTEMNAME+"pullCustomer/transfer";
+    //默认客户名
+    public static String DEFAULT_CUSTOMER_NAME = "客户";
+
 
     //不参加分配的权限（房速贷）
     public static String CUSTOMER_SOURCE_FANGSUDAI = "fangsudai";
@@ -218,4 +220,5 @@ public class CommonConst {
     public static String USE_TIME_NULL = "期望用款时间为空";
     public static String DEADLINE_NULL = "期望贷款期限为空";
     public static String REPAYMENT_TYPE_NULL = "期望还款方式为空";
+
 }
