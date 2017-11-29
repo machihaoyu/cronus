@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.PrdCustomerMapper">
+	<resultMap id="BaseResultMap" type="com.fjs.cronus.model.PrdCustomer">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="customer_id" property="customerId" jdbcType="INTEGER" />
+		<result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="CHAR" />
+		<result column="customer_type" property="customerType" jdbcType="VARCHAR" />
+		<result column="telephonenumber" property="telephonenumber" jdbcType="VARCHAR" />
+		<result column="loan_amount" property="loanAmount" jdbcType="INTEGER" />
+		<result column="city" property="city" jdbcType="VARCHAR" />
+		<result column="house_status" property="houseStatus" jdbcType="CHAR" />
+		<result column="level" property="level" jdbcType="CHAR" />
+		<result column="customer_source" property="customerSource" jdbcType="VARCHAR" />
+		<result column="utm_source" property="utmSource" jdbcType="VARCHAR" />
+		<result column="view_time" property="viewTime" jdbcType="TIMESTAMP" />
+		<result column="view_uid" property="viewUid" jdbcType="INTEGER" />
+		<result column="communit_time" property="communitTime" jdbcType="TIMESTAMP" />
+		<result column="communit_content" property="communitContent" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="create_user" property="createUser" jdbcType="INTEGER" />
+		<result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+		<result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id,customer_id,customer_name,sex
+		,customer_type,telephonenumber,loan_amount
+		,city,house_status,level,customer_source
+		,utm_source,view_time,view_uid,communit_time
+		,communit_content,status,
+		create_user,last_update_user,create_time,last_update_time,is_deleted
+	</sql>
+	
+	<select id="listByCondition" resultMap="BaseResultMap" parameterType="com.fjs.cronus.model.PrdCustomer">
+		select
+		<include refid="Base_Column_List" />
+		from prd_customer
+		where 1=1
+		<if test="customerName != null and '' != customerName">  
+			and customer_name = #{customerName,jdbcType=VARCHAR}
+		</if>
+		<if test="customerType != null and '' != customerType">  
+			and customer_type = #{customerType,jdbcType=VARCHAR}
+		</if>
+		<if test="telephonenumber != null and '' != telephonenumber">  
+			and telephonenumber = #{telephonenumber,jdbcType=VARCHAR}
+		</if>
+		<if test="city != null and '' != city">  
+			and city = #{city,jdbcType=VARCHAR}
+		</if>
+		<if test="houseStatus != null and '' != houseStatus">  
+			and house_status = #{houseStatus,jdbcType=CHAR}
+		</if>
+		<if test="level != null and '' != level">  
+			and level = #{level,jdbcType=CHAR}
+		</if>
+		<if test="customerSource != null and '' != customerSource">  
+			and customer_source = #{customerSource,jdbcType=VARCHAR}
+		</if>
+		<if test="communitTime != null ">
+			and communit_time = #{communitTime,jdbcType=TIMESTAMP}
+		</if>
+		<if test="communicationOrder != null ">
+			and communit_time is not null
+		</if>
+		<if test="createTimeBegin != null and createTimeEnd !=null ">
+			and date(create_time) between #{createTimeBegin} and #{createTimeEnd}
+		</if>
+		<if test="createTimeBegin != null and createTimeEnd ==null">
+			and date(create_time) &lt; #{createTimeBegin}
+		</if>
+		<if test="status != null and '' != status">  
+			and status = #{status,jdbcType=INTEGER}
+		</if>
+		and is_deleted=0
+		<if test="orderFields != null and '' != orderFields">
+           	order by ${orderFields} ${order}
+		</if>
+		limit ${startNum},${size}
+	</select>
+
+	<select id="countByCondition" resultType="Integer" parameterType="com.fjs.cronus.model.PrdCustomer">
+		select count(1)
+		from prd_customer
+		where 1=1
+		<if test="customerName != null and '' != customerName">
+			and customer_name = #{customerName,jdbcType=VARCHAR}
+		</if>
+		<if test="customerType != null and '' != customerType">
+			and customer_type = #{customerType,jdbcType=VARCHAR}
+		</if>
+		<if test="telephonenumber != null and '' != telephonenumber">
+			and telephonenumber = #{telephonenumber,jdbcType=VARCHAR}
+		</if>
+		<if test="city != null and '' != city">
+			and city = #{city,jdbcType=VARCHAR}
+		</if>
+		<if test="houseStatus != null and '' != houseStatus">
+			and house_status = #{houseStatus,jdbcType=CHAR}
+		</if>
+		<if test="level != null and '' != level">
+			and level = #{level,jdbcType=CHAR}
+		</if>
+		<if test="customerSource != null and '' != customerSource">
+			and customer_source = #{customerSource,jdbcType=VARCHAR}
+		</if>
+		<if test="communitTime != null and '' != communitTime">
+			and communit_time = #{communitTime,jdbcType=TIMESTAMP}
+		</if>
+		<if test="status != null and '' != status">
+			and status = #{status,jdbcType=INTEGER}
+		</if>
+		and is_deleted=0
+		<if test="orderFields != null and '' != orderFields">
+			order by ${orderFields} ${order}
+		</if>
+		limit ${startNum},${size}
+	</select>
+
+	
+	<update id="update" parameterType="com.fjs.cronus.model.PrdCustomer">
+		update prd_customer
+		<set>
+			<if test="customerName != null and '' != customerName">
+				customer_name = #{customerName,jdbcType=VARCHAR},
+			</if>
+			<if test="sex != null and '' != sex">
+				sex = #{sex,jdbcType=CHAR},
+			</if>
+			<if test="customerType != null and '' != customerType">
+				customer_type = #{customerType,jdbcType=VARCHAR},
+			</if>
+			<if test="loanAmount != null ">
+				loan_amount = #{loanAmount,jdbcType=INTEGER},
+			</if>
+			<if test="city != null and '' != city">
+				city = #{city,jdbcType=VARCHAR},
+			</if>
+			<if test="houseStatus != null and '' != houseStatus">
+				house_status = #{houseStatus,jdbcType=CHAR},
+			</if>
+			<if test="communitTime != null ">
+				communit_time = #{communitTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="communitContent != null and '' != communitContent">
+				communit_content = #{communitContent,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null ">
+				status = #{status,jdbcType=INTEGER},
+			</if>
+			<if test="lastUpdateUser != null ">
+				last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+			</if>
+			<if test="lastUpdateTime != null ">
+				last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDeleted != null ">
+				is_deleted = #{isDeleted,jdbcType=INTEGER}
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

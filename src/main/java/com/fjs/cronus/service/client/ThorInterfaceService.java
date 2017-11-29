@@ -1,6 +1,8 @@
 package com.fjs.cronus.service.client;
 
 import com.fjs.cronus.config.FeignClientConfig;
+import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.uc.*;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
@@ -410,5 +412,20 @@ public interface ThorInterfaceService {
     @RequestMapping(value = "/api/v1/getCurrentUserInfo",method = RequestMethod.GET)
     String getCurrentUserInfo(@RequestHeader("Authorization") String Authorization,
                               @RequestParam(value = "systemName") String systemName);
+
+    @RequestMapping(value = "/api/v1/getAllUserInfo",method = RequestMethod.GET)
+    String getAllUserInfo(@RequestHeader("Authorization") String token, @RequestParam("system") String system);
+
+
+    /**
+     * 根据userId获取用户的基本信息
+     *
+     * @param token
+     * @param userId
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getSystemUserInfo", method = RequestMethod.GET)
+   String  getSystemUserInfo(@RequestHeader("Authorization") String token, @RequestParam(value = "userId") Integer userId);
+
 }
 

@@ -133,7 +133,7 @@ public class CustomerInfoService {
         return  cronusDto;
     }
 
-    public CronusDto fingBytelephone(String telephonenumber){
+    public CronusDto<Integer> fingBytelephone(String telephonenumber){
         CronusDto resultDto =  new CronusDto();
         //手机需要加密
         Map<String,Object> paramsMap = new HashMap<>();
@@ -298,7 +298,7 @@ public class CustomerInfoService {
             }
         }*/
     }
-    public CronusDto findCustomerByFeild(Integer customerId){
+    public CronusDto<CustomerDTO> findCustomerByFeild(Integer customerId){
         CronusDto resultDto = new CronusDto();
         Map<String,Object> paramsMap = new HashMap<>();
         if (!StringUtils.isEmpty(customerId)) {
@@ -389,5 +389,18 @@ public class CustomerInfoService {
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         return resultDto;
+    }
+
+    public CustomerInfo findCustomerById(Integer customerId) {
+
+        Map<String, Object> paramsMap = new HashMap<>();
+        if (!StringUtils.isEmpty(customerId)) {
+            paramsMap.put("id", customerId);
+        }
+        CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
+        if (customerInfo == null) {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        return customerInfo;
     }
 }

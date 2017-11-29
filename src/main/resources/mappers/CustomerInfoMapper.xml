@@ -74,26 +74,42 @@
       <result column="receive_time" property="receiveTime" jdbcType="TIMESTAMP" />
       <result column="circle" property="circle" jdbcType="INTEGER" />
       <result column="company_id" property="companyId" jdbcType="INTEGER" />
-      <result column="employed_info" property="employedInfo" jdbcType="VARCHAR" />
       <result column="retirement_wages" property="retirementWages" jdbcType="VARCHAR" />
+      <result column="level" jdbcType="VARCHAR" property="level" />
+      <result column="remain" jdbcType="INTEGER" property="remain" />
+      <result column="view_time" jdbcType="TIMESTAMP" property="viewTime" />
+      <result column="view_uid" jdbcType="INTEGER" property="viewUid" />
+      <result column="view_count" jdbcType="INTEGER" property="viewCount" />
+      <result column="autostatus" jdbcType="INTEGER" property="autostatus" />
+      <result column="first_communicate_time" jdbcType="TIMESTAMP" property="firstCommunicateTime" />
+      <result column="first_allocate_time" jdbcType="TIMESTAMP" property="firstAllocateTime" />
+      <result column="cooperation_status" jdbcType="VARCHAR" property="cooperationStatus" />
+      <result column="confirm" jdbcType="INTEGER" property="confirm" />
+      <result column="click_communicate_button" jdbcType="INTEGER" property="clickCommunicateButton" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.fjs.cronus.model.CustomerInfo" extends="BaseResultMap" >
-    <result column="per_description" property="perDescription" jdbcType="LONGVARCHAR" />
+      <result column="per_description" jdbcType="LONGVARCHAR" property="perDescription" />
+      <result column="employed_info" jdbcType="LONGVARCHAR" property="employedInfo" />
+      <result column="ext" jdbcType="LONGVARCHAR" property="ext" />
   </resultMap>
-  <sql id="Base_Column_List" >
-    id, telephonenumber, customer_name, customer_type, customer_level, spare_phone, age, marriage, id_card,
-    province_huji, sex,customer_street, customer_address, house_status, house_amount, house_type, house_value,
-    house_area, house_age, house_loan, house_alone, house_location, city, customer_classify, 
-    callback_status, callback_time, sub_company_id,house_loan_value,create_time, last_update_time, create_user,
-    last_update_user, is_deleted ,  expect_money_time, expect_loan_time, expect_repayment_way, house_clear, house_owner,
-    mortgage_amount, mortgae_month, is_hava_car, car_worth, car_age, is_hava_insurance,
-    year_pay_amount, insurance_time, is_hava_debt, debt_money, debt_month, debt_overdue,
-    debt_overdue_money, debt_time, work_status, wager_card, entry_time, company_type,
-    social_security, social_money, social_time, provident_fund, provident_money, provident_time,
-    compny_name, fixed_phone,loan_amount,customer_source,utm_source,own_user_id,own_user_name,receive_time,circle,company_id,employed_info,retirement_wages
-  </sql>
-  <sql id="Blob_Column_List" >
-    per_description
+    <sql id="Base_Column_List">
+        id, telephonenumber, customer_name, customer_type, customer_level, spare_phone, age,
+        marriage, id_card, province_huji, sex, customer_address, customer_street, house_status,
+        house_amount, house_type, house_value, house_area, house_age, house_loan, house_alone,
+        house_location, city, customer_classify, callback_status, callback_time, sub_company_id,
+        house_loan_value, create_time, last_update_time, create_user, last_update_user, is_deleted,
+        expect_money_time, expect_loan_time, expect_repayment_way, house_clear, house_owner,
+        mortgage_amount, mortgae_month, is_hava_car, car_worth, car_age, is_hava_insurance,
+        year_pay_amount, insurance_time, is_hava_debt, debt_money, debt_month, debt_overdue,
+        debt_overdue_money, debt_time, work_status, wager_card, entry_time, company_type,
+        social_security, social_money, social_time, provident_fund, provident_money, provident_time,
+        compny_name, fixed_phone, loan_amount, customer_source, utm_source, own_user_id,
+        own_user_name, receive_time, circle, company_id, retirement_wages, level, remain,
+        view_time, view_uid, view_count, autostatus, first_communicate_time, first_allocate_time,
+        cooperation_status, confirm, click_communicate_button
+    </sql>
+    <sql id="Blob_Column_List">
+    per_description, employed_info, ext
   </sql>
   <select id="customerListCount" parameterType="java.util.Map"  resultType="java.lang.Integer">
     select count(*) from customer_info c
@@ -388,6 +404,42 @@
           <if test="retirementWages != null" >
               retirement_wages,
           </if>
+          <if test="ext != null" >
+              ext,
+          </if>
+          <if test="level != null">
+              level,
+          </if>
+          <if test="remain != null">
+              remain,
+          </if>
+          <if test="viewTime != null">
+              view_time,
+          </if>
+          <if test="viewUid != null">
+              view_uid,
+          </if>
+          <if test="viewCount != null">
+              view_count,
+          </if>
+          <if test="autostatus != null">
+              autostatus,
+          </if>
+          <if test="firstCommunicateTime != null">
+              first_communicate_time,
+          </if>
+          <if test="firstAllocateTime != null">
+              first_allocate_time,
+          </if>
+          <if test="cooperationStatus != null">
+              cooperation_status,
+          </if>
+          <if test="confirm != null">
+              confirm,
+          </if>
+          <if test="clickCommunicateButton != null">
+              click_communicate_button,
+          </if>
       </trim>
       <trim prefix="values (" suffix=")" suffixOverrides="," >
           <if test="telephonenumber != null" >
@@ -607,10 +659,46 @@
               #{company_id,jdbcType=VARCHAR},
           </if>
           <if test="employedInfo != null" >
-              #{employed_info,jdbcType=VARCHAR},
+              #{employed_info,jdbcType=LONGVARCHAR},
           </if>
           <if test="retirementWages != null" >
               #{retirement_wages,jdbcType=VARCHAR},
+          </if>
+          <if test="ext != null" >
+              #{ext,jdbcType=LONGVARCHAR},
+          </if>
+          <if test="level != null">
+              #{level,jdbcType=VARCHAR},
+          </if>
+          <if test="remain != null">
+              #{remain,jdbcType=INTEGER},
+          </if>
+          <if test="viewTime != null">
+              #{viewTime,jdbcType=TIMESTAMP},
+          </if>
+          <if test="viewUid != null">
+              #{viewUid,jdbcType=INTEGER},
+          </if>
+          <if test="viewCount != null">
+              #{viewCount,jdbcType=INTEGER},
+          </if>
+          <if test="autostatus != null">
+              #{autostatus,jdbcType=INTEGER},
+          </if>
+          <if test="firstCommunicateTime != null">
+              #{firstCommunicateTime,jdbcType=TIMESTAMP},
+          </if>
+          <if test="firstAllocateTime != null">
+              #{firstAllocateTime,jdbcType=TIMESTAMP},
+          </if>
+          <if test="cooperationStatus != null">
+              #{cooperationStatus,jdbcType=VARCHAR},
+          </if>
+          <if test="confirm != null">
+              #{confirm,jdbcType=INTEGER},
+          </if>
+          <if test="clickCommunicateButton != null">
+              #{clickCommunicateButton,jdbcType=INTEGER},
           </if>
       </trim>
   </insert>
@@ -894,10 +982,47 @@
                 company_id = #{companyId,jdbcType=INTEGER},
             </if>
             <if test="employedInfo != null" >
-                employed_info = #{employedInfo,jdbcType=VARCHAR},
+                employed_info = #{employedInfo,jdbcType=LONGVARCHAR},
             </if>
             <if test="retirementWages != null" >
                 retirement_wages = #{retirementWages,jdbcType=VARCHAR},
+            </if>
+            <if test="ext != null" >
+                ext = #{ext,jdbcType=LONGVARCHAR},
+            </if>
+
+            <if test="level != null">
+                level = #{level,jdbcType=VARCHAR},
+            </if>
+            <if test="remain != null">
+                remain = #{remain,jdbcType=INTEGER},
+            </if>
+            <if test="viewTime != null">
+                view_time = #{viewTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="viewUid != null">
+                view_uid = #{viewUid,jdbcType=INTEGER},
+            </if>
+            <if test="viewCount != null">
+                view_count = #{viewCount,jdbcType=INTEGER},
+            </if>
+            <if test="autostatus != null">
+                autostatus = #{autostatus,jdbcType=INTEGER},
+            </if>
+            <if test="firstCommunicateTime != null">
+                first_communicate_time = #{firstCommunicateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="firstAllocateTime != null">
+                first_allocate_time = #{firstAllocateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="cooperationStatus != null">
+                cooperation_status = #{cooperationStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="confirm != null">
+                confirm = #{confirm,jdbcType=INTEGER},
+            </if>
+            <if test="clickCommunicateButton != null">
+                click_communicate_button = #{clickCommunicateButton,jdbcType=INTEGER},
             </if>
         </set>
         where id = #{id,jdbcType=INTEGER}

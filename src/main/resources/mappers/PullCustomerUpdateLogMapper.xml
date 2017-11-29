@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.thea.mappers.PullCustomerUpdateLogMapper">
+	<resultMap id="BaseResultMap" type="com.fjs.cronus.model.PullCustomerUpdateLog">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="operation" property="operation" jdbcType="VARCHAR" />
+		<result column="pull_cust_id" property="pullCustId" jdbcType="INTEGER" />
+		<result column="sale_id" property="saleId" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="telephone" property="telephone" jdbcType="VARCHAR" />
+		<result column="loan_amount" property="loanAmount" jdbcType="INTEGER" />
+		<result column="city" property="city" jdbcType="VARCHAR" />
+		<result column="customer_source" property="customerSource" jdbcType="VARCHAR" />
+		<result column="utm_source" property="utmSource" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="exend_text" property="exendText" jdbcType="VARCHAR" />
+		<result column="create_user" property="createUser" jdbcType="INTEGER" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id,operation,pull_cust_id,sale_id,name,telephone
+		,loan_amount,city,customer_source,utm_source,status
+		,exend_text,create_user,create_time
+	</sql>
+</mapper>

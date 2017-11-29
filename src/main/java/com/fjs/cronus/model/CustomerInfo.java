@@ -150,6 +150,126 @@ public class CustomerInfo extends BaseModel {
 
     private String retirementWages;
 
+    private String ext;
+
+    private String level;
+
+    private Integer remain;
+
+    private Date viewTime;
+
+    private Integer viewUid;
+
+    private Integer viewCount;
+
+    private Integer autostatus;
+
+    private Date firstCommunicateTime;
+
+    private Date firstAllocateTime;
+
+    private String  cooperationStatus;
+
+    private Integer  confirm;
+
+    private Integer clickCommunicateButton;
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public Integer getRemain() {
+        return remain;
+    }
+
+    public void setRemain(Integer remain) {
+        this.remain = remain;
+    }
+
+    public Date getViewTime() {
+        return viewTime;
+    }
+
+    public void setViewTime(Date viewTime) {
+        this.viewTime = viewTime;
+    }
+
+    public Integer getViewUid() {
+        return viewUid;
+    }
+
+    public void setViewUid(Integer viewUid) {
+        this.viewUid = viewUid;
+    }
+
+    public Integer getViewCount() {
+        return viewCount;
+    }
+
+    public void setViewCount(Integer viewCount) {
+        this.viewCount = viewCount;
+    }
+
+    public Integer getAutostatus() {
+        return autostatus;
+    }
+
+    public void setAutostatus(Integer autostatus) {
+        this.autostatus = autostatus;
+    }
+
+    public Date getFirstCommunicateTime() {
+        return firstCommunicateTime;
+    }
+
+    public void setFirstCommunicateTime(Date firstCommunicateTime) {
+        this.firstCommunicateTime = firstCommunicateTime;
+    }
+
+    public Date getFirstAllocateTime() {
+        return firstAllocateTime;
+    }
+
+    public void setFirstAllocateTime(Date firstAllocateTime) {
+        this.firstAllocateTime = firstAllocateTime;
+    }
+
+    public String getCooperationStatus() {
+        return cooperationStatus;
+    }
+
+    public void setCooperationStatus(String cooperationStatus) {
+        this.cooperationStatus = cooperationStatus;
+    }
+
+    public Integer getConfirm() {
+        return confirm;
+    }
+
+    public void setConfirm(Integer confirm) {
+        this.confirm = confirm;
+    }
+
+    public Integer getClickCommunicateButton() {
+        return clickCommunicateButton;
+    }
+
+    public void setClickCommunicateButton(Integer clickCommunicateButton) {
+        this.clickCommunicateButton = clickCommunicateButton;
+    }
+
+    public String getExt() {
+        return ext;
+    }
+
+    public void setExt(String ext) {
+        this.ext = ext;
+    }
+
     public String getEmployedInfo() {
         return employedInfo;
     }

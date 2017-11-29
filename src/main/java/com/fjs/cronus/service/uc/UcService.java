@@ -2,6 +2,9 @@ package com.fjs.cronus.service.uc;
 
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.UserInfoDTO;
+import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.cronus.BaseUcDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.exception.CronusException;
@@ -98,5 +101,33 @@ public class UcService {
             user_id  = Integer.valueOf(userDTO.getUser_id());
         }
         return  user_id;
+    }
+
+    public com.fjs.cronus.dto.uc.UserInfoDTO getUserIdByToken(String token, String systemName){
+        Integer user_id = null;
+        CronusDto resultDto = new CronusDto();
+        //根据token查询当前用户id
+        String result = thorInterfaceService.getCurrentUserInfo(token,systemName);
+        BaseUcDTO dto = FastJsonUtils.getSingleBean(result,BaseUcDTO.class);
+        System.out.println(dto.getData().toString());
+        com.fjs.cronus.dto.uc.UserInfoDTO userDTO = FastJsonUtils.getSingleBean(dto.getData().toString(),com.fjs.cronus.dto.uc.UserInfoDTO.class);
+        return userDTO;
+    }
+
+
+    public PHPLoginDto getAllUserInfo(String token,String systemName ){
+        PHPLoginDto phpLoginDto = new PHPLoginDto();
+
+
+        return  phpLoginDto;
+    }
+
+
+    public SimpleUserInfoDTO getSystemUserInfo(String token, Integer userId){
+        SimpleUserInfoDTO userInfoDTO = new SimpleUserInfoDTO();
+        String result= thorInterfaceService.getSystemUserInfo(token,userId);
+        BaseUcDTO dto = FastJsonUtils.getSingleBean(result,BaseUcDTO.class);
+        userInfoDTO = FastJsonUtils.getSingleBean(dto.getData().toString(),SimpleUserInfoDTO.class);
+        return  userInfoDTO;
     }
 }

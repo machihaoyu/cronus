@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.CommunicationLogMapper">
+	<resultMap id="BaseResultMap" type="com.fjs.cronus.model.CommunicationLog">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="loan_id" property="loanId" jdbcType="INTEGER" />
+		<result column="customer_id" property="customerId" jdbcType="INTEGER" />
+		<result column="create_user" property="createUser" jdbcType="INTEGER" />
+		<result column="type" property="type" jdbcType="INTEGER" />
+		<result column="content" property="content" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="house_status" property="houseStatus" jdbcType="VARCHAR" />
+		<result column="loan_amount" property="loanAmount" jdbcType="INTEGER" />
+	</resultMap>
+
+	<!--客户id-->
+	<resultMap id="ResultMap2" type="com.fjs.cronus.model.CommunicationLog">
+		<result column="loan_id" property="loanId" jdbcType="INTEGER" />
+		<result column="customer_id" property="customerId" jdbcType="INTEGER" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id,loan_id,customer_id,create_user,type
+		,content,create_time,house_status,loan_amount,
+		is_deleted
+	</sql>
+
+	<!--统计今天的沟通数-->
+	<select id="selectToday" resultType="Integer" parameterType="Map">
+		SELECT count(1) from communication_log
+		where 1=1
+		<if test="null != list and list.size() > 0">
+			and create_user IN
+			<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		and DATE(create_time)=date(now())
+	</select>
+
+	<!--统计今天的沟通客户数-->
+	<select id="selectTodayCustomer" resultMap="ResultMap2" parameterType="Map">
+		SELECT DISTINCT customer_id from communication_log
+		where 1=1
+		<if test="null != list and list.size() > 0">
+			and create_user IN
+			<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		and DATE(create_time)=date(now())
+	</select>
+
+	<!--统计历史的沟通客户数-->
+	<select id="selectHistoryCustomer" resultMap="ResultMap2" parameterType="Map">
+		SELECT DISTINCT customer_id from communication_log
+		where 1=1
+		<if test="null != list and list.size() > 0">
+			and create_user IN
+			<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="createTimeBegin != null and createTimeEnd !=null ">
+			and date(create_time) between #{createTimeBegin} and #{createTimeEnd}
+		</if>
+	</select>
+</mapper>
