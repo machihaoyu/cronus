@@ -86,6 +86,7 @@
       <result column="cooperation_status" jdbcType="VARCHAR" property="cooperationStatus" />
       <result column="confirm" jdbcType="INTEGER" property="confirm" />
       <result column="click_communicate_button" jdbcType="INTEGER" property="clickCommunicateButton" />
+      <result column="communicate_time" jdbcType="TIMESTAMP" property="communicateTime" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.fjs.cronus.model.CustomerInfo" extends="BaseResultMap" >
       <result column="per_description" jdbcType="LONGVARCHAR" property="perDescription" />
@@ -106,7 +107,7 @@
         compny_name, fixed_phone, loan_amount, customer_source, utm_source, own_user_id,
         own_user_name, receive_time, circle, company_id, retirement_wages, level, remain,
         view_time, view_uid, view_count, autostatus, first_communicate_time, first_allocate_time,
-        cooperation_status, confirm, click_communicate_button
+        cooperation_status, confirm, click_communicate_button,communicate_time
     </sql>
     <sql id="Blob_Column_List">
     per_description, employed_info, ext
@@ -136,6 +137,19 @@
       <if test="companyId != null ">
           and c.company_id = #{companyId}
       </if>
+      <if test="remain != null ">
+          and c.remain = #{remain}
+      </if>
+      <if test="level != null ">
+          and c.level = #{level}
+      </if>
+      <if test="owerId!=null and owerId.size>0">
+          AND c.own_user_id in
+          <foreach collection="owerId" item="owerId"
+                   index="index" open="(" close=")" separator=",">
+              ${owerId}
+          </foreach>
+      </if>
   </select>
 
   <select id="customerList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
@@ -146,7 +160,7 @@
     from customer_info  c
     WHERE  c.is_deleted = 0
     <if test="customerName !=null and customerName !=''">
-      and c.customer_name  like CONCAT('%', #{customerName},'%' )
+      and (c.customer_name  like CONCAT('%', #{customerName},'%' )
     </if>
     <if test="telephonenumber != null and telephonenumber != ''">
       and c.telephonenumber like CONCAT('%',${telephonenumber},'%' )
@@ -167,7 +181,19 @@
       <if test="companyId != null ">
           and c.company_id = #{companyId}
       </if>
-
+      <if test="remain != null ">
+          and c.remain = #{remain}
+      </if>
+      <if test="level != null ">
+          and c.level = #{level}
+      </if>
+      <if test="owerId!=null and owerId.size>0">
+          AND c.own_user_id in
+          <foreach collection="owerId" item="owerId"
+                   index="index" open="(" close=")" separator=",">
+              ${owerId}
+          </foreach>
+      </if>
     <choose>
       <when test="order != null and order !=''">
         order by ${order} desc
@@ -440,6 +466,9 @@
           <if test="clickCommunicateButton != null">
               click_communicate_button,
           </if>
+          <if test="communicateTime != null">
+              communicate_time,
+          </if>
       </trim>
       <trim prefix="values (" suffix=")" suffixOverrides="," >
           <if test="telephonenumber != null" >
@@ -699,6 +728,9 @@
           </if>
           <if test="clickCommunicateButton != null">
               #{clickCommunicateButton,jdbcType=INTEGER},
+          </if>
+          <if test="communicateTime != null">
+              #{communicateTime,jdbcType=TIMESTAMP},
           </if>
       </trim>
   </insert>
@@ -1024,6 +1056,9 @@
             <if test="clickCommunicateButton != null">
                 click_communicate_button = #{clickCommunicateButton,jdbcType=INTEGER},
             </if>
+            <if test="communicateTime != null">
+                communicate_time = #{communicateTime,jdbcType=TIMESTAMP},
+            </if>
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
@@ -1157,5 +1192,305 @@
         <if test=" _parameter != null and  _parameter != ''">
             and c.telephonenumber like CONCAT('%',${ _parameter},'%' )
         </if>
+    </select>
+    <select id="allocationCustomerList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List" />
+        ,
+        <include refid="Blob_Column_List" />
+        from customer_info  c
+        WHERE  c.is_deleted = 0
+        <if test="customerName !=null and customerName !=''">
+            and (c.customer_name  like CONCAT('%', #{customerName},'%' )
+        </if>
+
+        <if test="utmSource != null and utmSource != '' ">
+            and c.utm_source = #{utmSource}
+        </if>
+        <if test="autostatus != null and autostatus != '' ">
+            and c.autostatus = #{autostatus}
+        </if>
+        <if test="level != null and level != '' ">
+            and c.level = #{level}
+        </if>
+        <choose>
+            <when test="order != null and order !=''">
+                order by ${order} desc
+            </when>
+            <otherwise>
+                order by c.create_time DESC
+            </otherwise>
+        </choose>
+        limit #{start},#{size}
+    </select>
+    <select id="allocationCustomerListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select
+       COUNT(*)
+        from customer_info  c
+        WHERE  c.is_deleted = 0
+        <if test="customerName !=null and customerName !=''">
+            and (c.customer_name  like CONCAT('%', #{customerName},'%' )
+        </if>
+
+        <if test="utmSource != null and utmSource != '' ">
+            and c.utm_source = #{utmSource}
+        </if>
+        <if test="autostatus != null and autostatus != '' ">
+            and c.autostatus = #{autostatus}
+        </if>
+        <if test="level != null and level != '' ">
+            and c.level = #{level}
+        </if>
+    </select>
+
+
+    <select id="communicatedList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List" />
+        ,
+        <include refid="Blob_Column_List" />
+        from customer_info  c
+        WHERE  c.is_deleted = 0
+         AND  c.communicate_time IS NOT NULL
+        <if test="customerName !=null and customerName !=''">
+            and (c.customer_name  like CONCAT('%', #{customerName},'%' )
+        </if>
+
+        <if test="utmSource != null and utmSource != '' ">
+            and c.utm_source = #{utmSource}
+        </if>
+        <if test="autostatus != null and autostatus != '' ">
+            and c.autostatus = #{autostatus}
+        </if>
+        <if test="level != null and level != '' ">
+            and c.level = #{level}
+        </if>
+        <choose>
+            <when test="order != null and order !=''">
+                order by ${order} desc
+            </when>
+            <otherwise>
+                order by c.create_time DESC
+            </otherwise>
+        </choose>
+        limit #{start},#{size}
+    </select>
+    <select id="communicatedListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select
+        COUNT(*)
+        from customer_info  c
+        WHERE  c.is_deleted = 0
+        AND  c.communicate_time IS NOT NULL
+        <if test="customerName !=null and customerName !=''">
+            and (c.customer_name  like CONCAT('%', #{customerName},'%' )
+        </if>
+
+        <if test="utmSource != null and utmSource != '' ">
+            and c.utm_source = #{utmSource}
+        </if>
+        <if test="autostatus != null and autostatus != '' ">
+            and c.autostatus = #{autostatus}
+        </if>
+        <if test="level != null and level != '' ">
+            and c.level = #{level}
+        </if>
+    </select>
+
+
+    <select id="publicOfferList" resultMap="BaseResultMap" parameterType="Map">
+        select
+        <include refid="Base_Column_List" />
+        ,
+        <include refid="Blob_Column_List" />
+        from customer_info
+        where 1=1
+        <if test="telephonenumber != null and '' != telephonenumber">
+            and telephonenumber = #{telephonenumber,jdbcType=VARCHAR}
+        </if>
+        <if test="customerName != null and '' != customerName">
+            and customer_name = #{customerName,jdbcType=VARCHAR}
+        </if>
+        <if test="customerSource != null and '' != customerSource">
+            and customer_source = #{customerSource,jdbcType=VARCHAR}
+        </if>
+        <if test="utmSource != null and '' != utmSource">
+            and utm_source = #{utmSource,jdbcType=VARCHAR}
+        </if>
+
+        <if test="customerClassify != null and '' != customerClassify">
+            and customer_classify = #{customerClassify,jdbcType=VARCHAR}
+        </if>
+        <if test="companyId != null and '' != companyId">
+            and company_id = #{companyId,jdbcType=INTEGER}
+        </if>
+        <if test="createTimeBegin != null and createTimeEnd !=null ">
+            and date(create_time) between #{createTimeBegin} and #{createTimeEnd}
+        </if>
+        <if test="lastUpdateTime != null and '' != lastUpdateTime">
+            and last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="createUser != null and '' != createUser">
+            and create_user = #{createUser,jdbcType=INTEGER}
+        </if>
+        <if test="lastUpdateUser != null and '' != lastUpdateUser">
+            and last_update_user = #{lastUpdateUser,jdbcType=INTEGER}
+        </if>
+        <if test="mountLevle != null">
+            <choose>
+                <when test="mountLevle == 1">
+                    and (loan_amount  &gt; 0 and  loan_amount &lt; 20)
+                </when>
+                <when test="mountLevle == 2">
+                    and (loan_amount  &gt; 20 and  loan_amount &lt; 50)
+                </when>
+
+                <when test="mountLevle == 3">
+                    and (loan_amount  &gt; 50 and  loan_amount &lt; 100)
+                </when>
+                <when test="mountLevle == 4">
+                    and (loan_amount  &gt; 100 and  loan_amount &lt; 500)
+                </when>
+                <when test="mountLevle == 5">
+                    and (loan_amount  &gt; 500 )
+                </when>
+            </choose>
+        </if>
+        <if test="mainCitys != null and mainCitys.size() > 0
+			and subCompanyIds != null and subCompanyIds.size() > 0
+			and type== null">
+            and city in
+            <foreach item="item" index="index" collection="mainCitys" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+            OR
+            company_id in
+            <foreach item="item" index="index" collection="subCompanyIds" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="mainCitys != null and mainCitys.size() > 0
+			and subCompanyIds != null and subCompanyIds.size() > 0
+			and type != null">
+            and city not in
+            <foreach item="item" index="index" collection="mainCitys" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+            and company_id not in
+            <foreach item="item" index="index" collection="subCompanyIds" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        and (own_user_id is null or own_user_id =0)
+        <if test="utmList != null and utmList.size() > 0">
+            and utm_source not IN
+            <foreach item="item" index="index" collection="utmList" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        and is_deleted=0
+        ORDER BY last_update_time DESC
+        limit ${start},${size}
+    </select>
+
+    <select id="publicOfferCount" resultType="Integer" parameterType="Map">
+        select
+        COUNT(*)
+        from customer_info
+        where 1=1
+        <if test="telephonenumber != null and '' != telephonenumber">
+            and telephonenumber = #{telephonenumber,jdbcType=VARCHAR}
+        </if>
+        <if test="customerName != null and '' != customerName">
+            and customer_name = #{customerName,jdbcType=VARCHAR}
+        </if>
+        <if test="customerSource != null and '' != customerSource">
+            and customer_source = #{customerSource,jdbcType=VARCHAR}
+        </if>
+        <if test="utmSource != null and '' != utmSource">
+            and utm_source = #{utmSource,jdbcType=VARCHAR}
+        </if>
+
+        <if test="customerClassify != null and '' != customerClassify">
+            and customer_classify = #{customerClassify,jdbcType=VARCHAR}
+        </if>
+        <if test="companyId != null and '' != companyId">
+            and company_id = #{companyId,jdbcType=INTEGER}
+        </if>
+        <if test="createTimeBegin != null and createTimeEnd !=null ">
+            and date(create_time) between #{createTimeBegin} and #{createTimeEnd}
+        </if>
+        <if test="lastUpdateTime != null and '' != lastUpdateTime">
+            and last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="createUser != null and '' != createUser">
+            and create_user = #{createUser,jdbcType=INTEGER}
+        </if>
+        <if test="lastUpdateUser != null and '' != lastUpdateUser">
+            and last_update_user = #{lastUpdateUser,jdbcType=INTEGER}
+        </if>
+        <if test="mountLevle != null">
+            <choose>
+                <when test="mountLevle == 1">
+                    and (loan_amount  &gt; 0 and  loan_amount &lt; 20)
+                </when>
+                <when test="mountLevle == 2">
+                    and (loan_amount  &gt; 20 and  loan_amount &lt; 50)
+                </when>
+
+                <when test="mountLevle == 3">
+                    and (loan_amount  &gt; 50 and  loan_amount &lt; 100)
+                </when>
+                <when test="mountLevle == 4">
+                    and (loan_amount  &gt; 100 and  loan_amount &lt; 500)
+                </when>
+                <when test="mountLevle == 5">
+                    and (loan_amount  &gt; 500 )
+                </when>
+            </choose>
+        </if>
+        <if test="mainCitys != null and mainCitys.size() > 0
+			and subCompanyIds != null and subCompanyIds.size() > 0
+			and type== null">
+            and city in
+            <foreach item="item" index="index" collection="mainCitys" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+            OR
+            company_id in
+            <foreach item="item" index="index" collection="subCompanyIds" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="mainCitys != null and mainCitys.size() > 0
+			and subCompanyIds != null and subCompanyIds.size() > 0
+			and type != null">
+            and city not in
+            <foreach item="item" index="index" collection="mainCitys" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+            and company_id not in
+            <foreach item="item" index="index" collection="subCompanyIds" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        and (own_user_id is null or own_user_id =0)
+        <if test="utmList != null and utmList.size() > 0">
+            and utm_source not IN
+            <foreach item="item" index="index" collection="utmList" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        and is_deleted=0
     </select>
 </mapper>

@@ -37,6 +37,47 @@ public class CustomerListDTO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date receiveTime;
 
+    @ApiModelProperty(value = "是否保留  0不保留1保留2已签合同", required = false)
+    private Integer remain;
+
+    @ApiModelProperty(value = "客户状态 意向客户 协议客户 成交客户", required = false)
+    private  String level;
+
+    @ApiModelProperty(value = "跟进时间", required = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    private Date last_update_time;//跟进时间
+
+    @ApiModelProperty(value = "确认状态(1-没有确认,2-有效客户,3-无效客户,4-老客户无需确认)", required = false)
+    private Integer confirm;
+
+    @ApiModelProperty(value = "沟通时间 为null就是没有沟通", required = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    private Date communicateTime;
+
+    public Date getLast_update_time() {
+        return last_update_time;
+    }
+
+    public void setLast_update_time(Date last_update_time) {
+        this.last_update_time = last_update_time;
+    }
+
+    public Integer getConfirm() {
+        return confirm;
+    }
+
+    public void setConfirm(Integer confirm) {
+        this.confirm = confirm;
+    }
+
+    public Date getCommunicateTime() {
+        return communicateTime;
+    }
+
+    public void setCommunicateTime(Date communicateTime) {
+        this.communicateTime = communicateTime;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -124,4 +165,22 @@ public class CustomerListDTO {
     public void setReceiveTime(Date receiveTime) {
         this.receiveTime = receiveTime;
     }
+
+    public Integer getRemain() {
+        return remain;
+    }
+
+    public void setRemain(Integer remain) {
+        this.remain = remain;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+
 }

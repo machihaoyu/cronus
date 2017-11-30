@@ -13,8 +13,6 @@
 		<result column="utm_source" property="utmSource" jdbcType="VARCHAR" />
 		<result column="status" property="status" jdbcType="INTEGER" />
 		<result column="extend_text" property="extendText" jdbcType="VARCHAR" />
-
-
 		<result column="create_user" property="createUser" jdbcType="INTEGER" />
 		<result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
 		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
@@ -45,16 +43,44 @@
 		<if test="status != null ">
 			and status = #{status,jdbcType=INTEGER}
 		</if>
-		<if test="createTimeBegin != null and createTimeEnd !=null ">
-			and date(create_time) between #{createTimeBegin} and #{createTimeEnd}
+		<if test="createTime != null and createTime !=null ">
+			and create_time > #{createTime}
+		</if>
+		<if test="owerId!=null and owerId.size>0">
+			AND sale_id in
+			<foreach collection="saleIds" item="saleIds"
+					 index="index" open="(" close=")" separator=",">
+				${saleIds}
+			</foreach>
+		</if>
+		<if test="mountLevle != null">
+			<choose>
+				<when test="mountLevle == 1">
+					and (loan_amount  &gt; 0 and  loan_amount &lt; 200000)
+				</when>
+				<when test="mountLevle == 2">
+					and (loan_amount  &gt; 200000 and  loan_amount &lt; 500000)
+				</when>
+
+				<when test="mountLevle == 3">
+					and (loan_amount  &gt; 500000 and  loan_amount &lt; 1000000)
+				</when>
+				<when test="mountLevle == 4">
+					and (loan_amount  &gt; 1000000 and  loan_amount &lt; 5000000)
+				</when>
+				<when test="mountLevle == 5">
+					and (loan_amount  &gt; 5000000 )
+				</when>
+			</choose>
 		</if>
         and is_deleted=0
         order by create_time desc
-		limit ${startNum},${size}
+		limit ${start},${size}
 	</select>
 
 	<select id="countByCondition" resultType="Integer" parameterType="com.fjs.cronus.model.PullCustomer">
-		select count(1)
+		select
+	    COUNT(*)
 		from pull_customer
 		where 1=1
 		<if test="name != null and '' != name">
@@ -68,6 +94,36 @@
 		</if>
 		<if test="status != null ">
 			and status = #{status,jdbcType=INTEGER}
+		</if>
+		<if test="createTime != null and createTime !=null ">
+			and create_time > #{createTime}
+		</if>
+		<if test="owerId!=null and owerId.size>0">
+			AND sale_id in
+			<foreach collection="saleIds" item="saleIds"
+					 index="index" open="(" close=")" separator=",">
+				${saleIds}
+			</foreach>
+		</if>
+		<if test="mountLevle != null">
+			<choose>
+				<when test="mountLevle == 1">
+					and (loan_amount  &gt; 0 and  loan_amount &lt; 200000)
+				</when>
+				<when test="mountLevle == 2">
+					and (loan_amount  &gt; 200000 and  loan_amount &lt; 500000)
+				</when>
+
+				<when test="mountLevle == 3">
+					and (loan_amount  &gt; 500000 and  loan_amount &lt; 1000000)
+				</when>
+				<when test="mountLevle == 4">
+					and (loan_amount  &gt; 1000000 and  loan_amount &lt; 5000000)
+				</when>
+				<when test="mountLevle == 5">
+					and (loan_amount  &gt; 5000000 )
+				</when>
+			</choose>
 		</if>
 		and is_deleted=0
 	</select>

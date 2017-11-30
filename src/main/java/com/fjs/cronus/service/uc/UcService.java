@@ -1,18 +1,23 @@
 package com.fjs.cronus.service.uc;
 
 import com.fjs.cronus.Common.ResultResource;
+import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.UserInfoDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
+import com.fjs.cronus.dto.api.uc.CityDto;
 import com.fjs.cronus.dto.cronus.BaseUcDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
+import com.fjs.cronus.dto.uc.CrmCitySubCompanyDto;
+import com.fjs.cronus.dto.uc.SubCompanyCityDto;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import com.fjs.cronus.service.redis.UcRedisService;
 import com.fjs.cronus.util.FastJsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,8 +122,8 @@ public class UcService {
 
     public PHPLoginDto getAllUserInfo(String token,String systemName ){
         PHPLoginDto phpLoginDto = new PHPLoginDto();
-
-
+        String result = thorInterfaceService.getAllUserInfo(token,systemName);
+        phpLoginDto = FastJsonUtils.getSingleBean(result,PHPLoginDto.class);
         return  phpLoginDto;
     }
 
@@ -129,5 +134,35 @@ public class UcService {
         BaseUcDTO dto = FastJsonUtils.getSingleBean(result,BaseUcDTO.class);
         userInfoDTO = FastJsonUtils.getSingleBean(dto.getData().toString(),SimpleUserInfoDTO.class);
         return  userInfoDTO;
+    }
+
+    public List<CityDto> getSubcompanyByUserId( String token,Integer userId,String systemName){
+
+        List<CityDto> resultList = new ArrayList<>();
+        PhpApiDto<List<CityDto>> resultDto  = thorInterfaceService.getSubcompanyByUserId(token,userId,systemName);
+        if (resultDto.getRetData() != null){
+            resultList = resultDto.getRetData();
+        }
+        return  resultList;
+    }
+
+    public List<CrmCitySubCompanyDto> getSubCompanyByCitys(String token,String citys){
+
+        List<CrmCitySubCompanyDto> resultList = new ArrayList<>();
+        CronusDto<List<CrmCitySubCompanyDto>> resultDto  = thorInterfaceService.getSubCompanyByCitys(token,citys);
+        if (resultDto.getData() != null){
+            resultList = resultDto.getData();
+        }
+        return  resultList;
+    }
+
+    public List<SubCompanyCityDto> getAllSubCompanyByUserId(String token, Integer userId, String systemName){
+
+        List<SubCompanyCityDto> resultList = new ArrayList<>();
+        PhpApiDto<List<SubCompanyCityDto>> resultDto  = thorInterfaceService.getAllSubCompanyByUserId(token,userId,systemName);
+        if (resultDto.getRetData() != null){
+            resultList = resultDto.getRetData();
+        }
+        return  resultList;
     }
 }

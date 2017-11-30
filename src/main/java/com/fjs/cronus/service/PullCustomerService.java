@@ -18,6 +18,7 @@ import com.fjs.cronus.mappers.PullCustomerMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.PullCustomer;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DateUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,47 +71,45 @@ public class PullCustomerService {
         return pullCustomerDTO;
     }
 
-    public QueryResult<PullCustomerDTO> listByCondition(PullCustomer pullCustomer, UserInfoDTO userInfoDTO, String token, String system, Integer pageNum, Integer size) {
-        Integer userId = null;
+    public QueryResult<PullCustomerDTO> listByCondition(String telephonenumber,Integer status, String name, String token,String systemName,String city,Integer mountLevle,String createTime,Integer page, Integer size,Integer userId) {
         Integer companyId = null;
         Integer total = null;
-        //公司
-//        if (StringUtils.isNotEmpty(userInfoDTO.getCompany_id())) {
-//            companyId = Integer.parseInt(userInfoDTO.getCompany_id());
-//            pullCustomer.setCompanyId(companyId);
-//        }
         QueryResult<PullCustomerDTO> pullCustomerQueryResult = null;
         List<PullCustomer> pullCustomerList = null;
         List<PullCustomerDTO> pullCustomerDTOList=new ArrayList<PullCustomerDTO>();
         Map<String,Object> map=new HashedMap();
-        if (pullCustomer != null){
-            if (StringUtils.isNotEmpty(pullCustomer.getName())){
-                map.put("name",pullCustomer.getName());
+        //获取下属id
+        List<Integer> ids = thorUcService.getSubUserByUserId(token,userId);
+        map.put("saleIds",ids);
+            if (StringUtils.isNotEmpty(name)){
+                map.put("name",name);
             }
-            if (StringUtils.isNotEmpty(pullCustomer.getCreateTimeBegin())){
-                map.put("createTimeBegin",pullCustomer.getCreateTimeBegin());
+            if (StringUtils.isNotEmpty(createTime)){
+                //转时间格式
+                Date date = DateUtils.parse(createTime,DateUtils.FORMAT_LONG);
+                map.put("createTime",date);
             }
-            if (StringUtils.isNotEmpty(pullCustomer.getCreateTimeEnd())){
-                map.put("createTimeEnd",pullCustomer.getCreateTimeEnd());
+            if (StringUtils.isNotEmpty(telephonenumber)){
+                map.put("telephone",telephonenumber);
             }
-            if (StringUtils.isNotEmpty(pullCustomer.getTelephone())){
-                map.put("telephone",pullCustomer.getTelephone());
+            if (status!=null){
+                map.put("status",status);
             }
-            if (pullCustomer.getStatus()!=null){
-                map.put("status",pullCustomer.getStatus());
+            if (StringUtils.isNotEmpty(city)){
+                map.put("city",city);
             }
-            if (StringUtils.isNotEmpty(pullCustomer.getCity())){
-                map.put("city",pullCustomer.getCity());
+            if (mountLevle != null){
+                map.put("mountLevle",mountLevle);
             }
-            map.put("startNum",(pageNum-1)*size);
+            map.put("start",(page-1)*size);
             map.put("size",size);
             pullCustomerList=pullCustomerMapper.listByCondition(map);
             for (PullCustomer selectPull:pullCustomerList){
                 Integer saleId=selectPull.getSaleId();
                 SimpleUserInfoDTO simpleUserInfoDTO =thorUcService.getSystemUserInfo(token,saleId);
-                String name=simpleUserInfoDTO.getName();
+                String saleManName=simpleUserInfoDTO.getName();
                 PullCustomerDTO pullCustomerDTO=copyProperty(selectPull);
-                pullCustomerDTO.setOwnUserName(name);
+                pullCustomerDTO.setOwnUserName(saleManName);
                 pullCustomerDTOList.add(pullCustomerDTO);
             }
             // 总数
@@ -119,7 +118,6 @@ public class PullCustomerService {
             pullCustomerQueryResult = new QueryResult<PullCustomerDTO>();
             pullCustomerQueryResult.setRows(pullCustomerDTOList);
             pullCustomerQueryResult.setTotal(total + "");
-        }
         return pullCustomerQueryResult;
     }
 

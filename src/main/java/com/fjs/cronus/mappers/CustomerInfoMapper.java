@@ -30,6 +30,17 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
 
     List<CustomerInfo> findCustomerByOtherCity(Map<String,Object> paramMap);
 
+    List<CustomerInfo> allocationCustomerList(Map<String,Object> paramsMap);
+
+    Integer  allocationCustomerListCount(Map<String,Object> paramsMap);
+
+    List<CustomerInfo> communicatedList(Map<String,Object> paramsMap); //已沟通客户
+
+    Integer communicatedListCount(Map<String,Object> paramsMap);
+
+    List<CustomerInfo> publicOfferList(Map<String,Object> parmsMap);
+
+    Integer publicOfferCount(Map<String,Object> parmsMap);
     /**
      * 根据电话号码查找
      * @param paramMap

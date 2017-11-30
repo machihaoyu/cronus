@@ -1,26 +1,33 @@
 package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONArray;
+import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.Common.CustomerEnum;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.uc.UserInfoDTO;
+import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.dto.cronus.EmplouInfo;
+import com.fjs.cronus.dto.thea.AllocateDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerInfoLog;
+import com.fjs.cronus.model.CustomerUseful;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.EntityToDto;
-import com.fjs.cronus.util.FastJsonUtils;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.w3c.dom.ls.LSInput;
 
 import java.util.*;
 
@@ -43,8 +50,8 @@ public class CustomerInfoService {
         return  resultList;
     }
 
-    public QueryResult customerList(String customerName,String telephonenumber,String utmSource, String ownUserName,
-                                    String customerSource, Integer circle, Integer companyId,Integer page,Integer size){
+    public QueryResult customerList(Integer  userId,String customerName,String telephonenumber,String utmSource, String ownUserName,
+                                    String customerSource, Integer circle, Integer companyId,Integer page,Integer size,Integer remain,String level,String token){
         QueryResult result = new QueryResult();
         Map<String,Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
@@ -67,6 +74,18 @@ public class CustomerInfoService {
         if (companyId != null){
             paramsMap.put("companyId",companyId);
         }
+        if (remain != null){
+            paramsMap.put("remain",remain);
+        }
+        if (level != null){
+            paramsMap.put("level",level);
+        }
+        if (telephonenumber != null){
+            paramsMap.put("telephonenumber",telephonenumber);
+        }
+        //获取下属员工
+        List<Integer> ids = ucService.getSubUserByUserId(token,userId);
+        paramsMap.put("owerId",ids);
         paramsMap.put("start",(page-1) * size);
         paramsMap.put("size",size);
         resultList = customerInfoMapper.customerList(paramsMap);
@@ -185,8 +204,8 @@ public class CustomerInfoService {
         }
         return  resultDto;
     }
-    public CronusDto editCustomer(Integer customerId){
-        CronusDto resultDto = new CronusDto();
+    public CronusDto<CustomerDTO> editCustomer(Integer customerId){
+        CronusDto<CustomerDTO> resultDto = new CronusDto();
         Map<String,Object> paramsMap = new HashMap<>();
         paramsMap.put("id",customerId);
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
@@ -216,10 +235,22 @@ public class CustomerInfoService {
     @Transactional
     public CronusDto editCustomerOk(CustomerDTO customerDTO, String token){
         CronusDto resultDto = new CronusDto();
+        //校验权限
+
+        PHPLoginDto userInfo = ucService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
+        String[] authority=userInfo.getAuthority();
+        if(authority.length>0){
+            List<String> authList= Arrays.asList(authority);
+            if (authList.contains(CommonConst.UPDATE_LOAN_URL)){
+                resultDto.setResult(CommonMessage.UPDATE_FAIL.getCode());
+                resultDto.setMessage(CommonConst.NO_AUTHORIZE);
+                return resultDto;
+            }
+        }
         //校验参数手机号不更新
         Integer user_id = ucService.getUserIdByToken(token);
         if (user_id == null){
-            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "编辑客户面谈信息出错!");
+            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "信息出错!");
         }
         Map<String,Object> paramsMap = new HashMap<>();
         if (customerDTO.getId() == null || "".equals(customerDTO.getId()) ){
@@ -239,6 +270,12 @@ public class CustomerInfoService {
         }
         Date date = new Date();
         EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
+        customerInfo.setRetirementWages(customerInfo.getRetirementWages());
+        List<EmplouInfo> emplouInfos= customerDTO.getEmployedInfo();
+        if (emplouInfos != null && emplouInfos.size() > 0) {
+            String jsonString = JSONArray.toJSONString(emplouInfos);
+            customerInfo.setEmployedInfo(jsonString);
+        }
         customerInfo.setLastUpdateTime(date);
         customerInfo.setLastUpdateUser(user_id);
         customerInfoMapper.updateCustomer(customerInfo);
@@ -402,5 +439,46 @@ public class CustomerInfoService {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
         return customerInfo;
+    }
+
+    public QueryResult<CustomerListDTO> allocationCustomerList(String customerName,String utmSource,String customerSource,Integer autostatus,Integer page,Integer size,Integer type){
+        List<CustomerInfo> resultList = new ArrayList<>();
+        Map<String,Object> paramsMap = new HashMap<>();
+        List<CustomerListDTO> doList = new ArrayList<>();
+        QueryResult<CustomerListDTO> result = new QueryResult<>();
+        Integer count = null;
+        if (!StringUtils.isEmpty(customerName)){
+            paramsMap.put("customerName",customerName);
+        }
+        if (!StringUtils.isEmpty(utmSource)){
+            paramsMap.put("utmSource",utmSource);
+        }
+        if (!StringUtils.isEmpty(customerSource)){
+            paramsMap.put("customerSource",customerSource);
+        }
+        if (autostatus != null){
+            paramsMap.put("autostatus",autostatus);
+        }
+        paramsMap.put("start",(page-1) * size);
+        paramsMap.put("size",size);
+        if (type == 1){//已沟通客户 判断沟通时间不为null;
+            resultList = customerInfoMapper.communicatedList(paramsMap);
+            count = customerInfoMapper.communicatedListCount(paramsMap);
+        }else {
+            resultList = customerInfoMapper.allocationCustomerList(paramsMap);
+            count = customerInfoMapper.allocationCustomerListCount(paramsMap);
+        }
+        if (resultList != null && resultList.size() > 0){
+            for (CustomerInfo customerInfo : resultList) {
+                CustomerListDTO customerDto = new CustomerListDTO();
+                EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto);
+                doList.add(customerDto);
+            }
+            result.setRows(doList);
+            result.setTotal(count.toString());
+        }
+        result.setRows(doList);
+        result.setTotal(count.toString());
+        return  result;
     }
 }

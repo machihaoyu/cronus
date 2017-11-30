@@ -1,10 +1,12 @@
 package com.fjs.cronus.service.client;
 
+import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.config.FeignClientConfig;
 
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.CronusDto;
 
+import com.fjs.cronus.dto.api.uc.CityDto;
 import com.fjs.cronus.dto.uc.*;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
@@ -432,5 +434,36 @@ public interface ThorInterfaceService {
 
     @RequestMapping(value = "/api/v1/getSystemUserInfo", method = RequestMethod.GET)
     CronusDto<SimpleUserInfoDTO> getUserInfoById(@RequestHeader("Authorization") String token, @RequestParam(value = "userId") Integer userId);
+
+    /**
+     * 根据用户id获取下属所在的城市名称
+     * @param token
+     * @param userId
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getSubcompanyByUserId",method = RequestMethod.GET)
+    PhpApiDto<List<CityDto>> getSubcompanyByUserId(@RequestHeader("Authorization") String token, @RequestParam(value = "userId") Integer userId,
+                                                   @RequestParam(value = "systemName") String systemName);
+
+    /**
+     * 根据城市获取所在的分公司
+     * @param token
+     * @param citys
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getSubCompanyByCitys",method = RequestMethod.GET)
+    /*PhpApiDto<List<CrmCitySubCompanyDto>> getSubCompanyByCitys(@RequestHeader("Authorization") String token, @RequestParam(value = "citys") String citys);*/
+    CronusDto<List<CrmCitySubCompanyDto>> getSubCompanyByCitys(@RequestHeader("Authorization") String token, @RequestParam(value = "citys") String citys);
+
+    /**
+     * 根据用户id获取下属所有分公司信息
+     * @param token
+     * @param userId
+     * @param systemName
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getAllSubCompanyByUserId", method = RequestMethod.GET)
+    PhpApiDto<List<SubCompanyCityDto>> getAllSubCompanyByUserId(@RequestHeader("Authorization") String token, @RequestParam(value = "userId") Integer userId,
+                                                                @RequestParam(value = "systemName") String systemName);
 }
 

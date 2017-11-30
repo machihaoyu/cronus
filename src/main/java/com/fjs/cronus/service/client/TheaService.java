@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
  * Created by msi on 2017/10/11.
  */
 
-@FeignClient(value = "${client.feign.thea-backend}", url = "http://192.168.3.135:8010")
+@FeignClient(value = "THEA-BACKEND-ZSC", url = "http://192.168.2.79:8093")
 //@FeignClient(value = "${client.feign.thea-backend}", url = "http://192.168.1.124:1240")
 public interface TheaService {
 
@@ -23,4 +23,8 @@ public interface TheaService {
 
     @RequestMapping(value = "/loan/v1/insertLoan", method = RequestMethod.POST)
     public TheaApiDTO inserLoan(LoanDTO loanDTO);
+
+    @RequestMapping(value = "/config/v1/name",method = RequestMethod.GET)
+
+    public TheaApiDTO<String> findValueByName(@RequestHeader("Authorization") String token,@RequestParam(value = "name")String name);
 }

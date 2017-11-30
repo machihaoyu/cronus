@@ -41,6 +41,26 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getCreateTime())){
             dto.setCreateTime(customerInfo.getCreateTime());
         }
+        if (!StringUtils.isEmpty(customerInfo.getReceiveTime())){
+            dto.setReceiveTime(customerInfo.getReceiveTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getRemain())){
+            dto.setRemain(customerInfo.getRemain());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getLevel())){
+            dto.setLevel(customerInfo.getLevel());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getLastUpdateTime())){
+            dto.setLast_update_time(customerInfo.getLastUpdateTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getConfirm())){
+            dto.setConfirm(customerInfo.getConfirm());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCommunicateTime())){
+            dto.setCommunicateTime(customerInfo.getCommunicateTime());
+        }
+
+
     }
 
     public static void customerEntityToCustomerDto(CustomerInfo customerInfo, CustomerDTO dto){
@@ -263,6 +283,8 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getFixedPhone())){
             dto.setFixedPhone(customerInfo.getFixedPhone());
         }
+
+
     }
 
     public static void customerCustomerDtoToEntity(CustomerDTO customerInfo, CustomerInfo dto){

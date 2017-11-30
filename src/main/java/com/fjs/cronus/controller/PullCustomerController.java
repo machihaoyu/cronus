@@ -11,6 +11,7 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.model.PullCustomer;
 import com.fjs.cronus.service.PullCustomerService;
 import com.fjs.cronus.service.uc.UcService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -18,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +35,8 @@ import java.util.List;
  * Created by yinzf on 2017/10/24.
  */
 @Controller
-@RequestMapping("/pullCustomer/v1")
+@Api(description = "海贷魔方盘")
+@RequestMapping("/api/v1")
 public class PullCustomerController {
     private  static  final Logger logger = LoggerFactory.getLogger(PullCustomerController.class);
 
@@ -48,42 +51,34 @@ public class PullCustomerController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "name", value = "姓名", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "createTimeBegin",value =  "创建起始时间",required  = false, paramType = "query",dataType = "string"),
-            @ApiImplicitParam(name = "createTimeEnd",value =  "创建结束时间",required  = false, paramType = "query",dataType = "string"),
             @ApiImplicitParam(name = "telephonenumber", value = "手机号码", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "status", value = "状态", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "city", value = "城市", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "mountLevle", value = "1：0-20万，2：20-50万，3:50-100万，4:100-500万，5：大于五百万 ", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "createTime", value = "创建时间", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "page", value = "查询第几页", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少", required = true, paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/pullCustomerList", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<QueryResult<PullCustomerDTO>> listPullCustomer(HttpServletRequest request, @RequestParam(required = false) String createTimeBegin,
-                                                                    @RequestParam(required = false) String createTimeEnd,
+    public CronusDto<QueryResult<PullCustomerDTO>> listPullCustomer(
                                                                     @RequestParam(required = false) String telephonenumber,
                                                                     @RequestParam(required = false) Integer status,
                                                                     @RequestParam(required = false) String name,
-                                                                    @RequestParam String page,
-                                                                    @RequestParam String size){
+                                                                    @RequestParam(required = false) String city,
+                                                                    @RequestParam(required = false) Integer mountLevle,
+                                                                    @RequestParam(required = false) String createTime,
+                                                                    @RequestParam Integer page,
+                                                                    @RequestParam Integer size,
+                                                                    @RequestHeader("Authorization")String token){
         CronusDto cronusDto=new CronusDto();
         QueryResult<PullCustomerDTO> pullCustomerDTOQueryResult=new QueryResult<PullCustomerDTO>();
+        Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (userId == null){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
         try{
-            PullCustomer pullCustomer=new PullCustomer();
-            String token=request.getHeader("Authorization");
-            UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
-            pullCustomer.setName(name);
-            pullCustomer.setCreateTimeBegin(createTimeBegin);
-            pullCustomer.setCreateTimeEnd(createTimeEnd);
-            pullCustomer.setTelephone(telephonenumber);
-            pullCustomer.setStatus(status);
-            Integer pageNum=1;
-            Integer sizeNum=20;
-            if(StringUtils.isNotEmpty(page)){
-                pageNum=Integer.parseInt(page);
-            }
-            if (StringUtils.isNotEmpty(size)){
-                sizeNum=Integer.parseInt(size);
-            }
-            pullCustomerDTOQueryResult = pullCustomerService.listByCondition(pullCustomer,userInfoDTO, token, CommonConst.SYSTEMNAME, pageNum, sizeNum);
+            pullCustomerDTOQueryResult = pullCustomerService.listByCondition(telephonenumber,status,name, token, CommonConst.SYSTEMNAME,city,mountLevle,createTime, page, size,userId);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
         }catch (Exception e){

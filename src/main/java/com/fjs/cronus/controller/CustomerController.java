@@ -6,6 +6,7 @@ import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
+import com.fjs.cronus.dto.thea.AllocateDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.DocumentService;
@@ -19,8 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -45,6 +51,8 @@ public class CustomerController {
             @ApiImplicitParam(name = "customerSource", value = "客户来源", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "circle", value = "客户周期 1新分配 2已领取 3待见面 4已签约", required = false, paramType = "query",  dataType = "int"),
             @ApiImplicitParam(name = "companyId", value = "公司id", required = false, paramType = "query",  dataType = "int"),
+            @ApiImplicitParam(name = "remain", value = "是否保留  0不保留1保留2已签合同", required = false, paramType = "query",  dataType = "int"),
+            @ApiImplicitParam(name = "level", value = "客户状态 意向客户 协议客户 成交客户", required = false, paramType = "query",  dataType = "string"),
             @ApiImplicitParam(name = "page", value = "查询第几页(从1开始)", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少件", required = false, paramType = "query", dataType = "int"),
     })
@@ -57,14 +65,22 @@ public class CustomerController {
                                   @RequestParam(value = "customerSource",required = false) String customerSource,
                                   @RequestParam(value = "circle",required = false) Integer circle,
                                   @RequestParam(value = "companyId",required = false) Integer companyId,
+                                  @RequestParam(value = "remain",required = false) Integer remain,
+                                  @RequestParam(value = "level",required = false) String level,
                                   @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
-                                  @RequestParam(value = "size",required = false,defaultValue = "10") Integer size) {
+                                  @RequestParam(value = "size",required = false,defaultValue = "10") Integer size,
+                                  @RequestHeader("Authorization")String token) {
 
 
         CronusDto<QueryResult<CustomerListDTO>> cronusDto = new CronusDto();
+        //获取当前用户登录的id
+        Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (userId == null){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
         try {
-            QueryResult queryResult = customerInfoService.customerList(customerName,telephonenumber,
-                    utmSource, ownUserName, customerSource, circle,companyId,page,size);
+            QueryResult queryResult = customerInfoService.customerList(userId,customerName,telephonenumber,
+                    utmSource, ownUserName, customerSource, circle,companyId,page,size, remain,level,token);
             cronusDto.setData(queryResult);
             cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             cronusDto.setResult(ResultResource.CODE_SUCCESS);
@@ -158,10 +174,9 @@ public class CustomerController {
     })
     @RequestMapping(value = "/editCustomer", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto editCustomer(@RequestParam Integer customerId) {
-        CronusDto cronusDto = new CronusDto();
+    public CronusDto<CustomerDTO> editCustomer(@RequestParam Integer customerId) {
+        CronusDto<CustomerDTO> cronusDto = new CronusDto();
         try {
-            //   String customerids = jsonObject.getString("customerids");
             if (customerId == null || "".equals(customerId)) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
             }
@@ -356,6 +371,55 @@ public class CustomerController {
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->findCustomerByCity获取其他城市的客户ids查询失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+
+
+    @ApiOperation(value="获取分配客户列表", notes="获取分配客户列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "utmSource", value = "渠道 自申请客户传入'自申请'", paramType = "query",  dataType = "int"),
+            @ApiImplicitParam(name = "customerSource", value = "客户来源 ", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "autostatus", value = "1 新分配客户", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "type", value = "1已沟通客户，2 ：else", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "查询第几页(从1开始)", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "显示多少件", required = false, paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/AllocationCustomerList", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<QueryResult<CustomerListDTO>>  AllocationCustomerList(@RequestParam(value = "customerName",required = false) String customerName,
+                                                                           @RequestParam(value = "utmSource",required = false) String utmSource,
+                                                                           @RequestParam(value = "customerSource",required = false) String customerSource,
+                                                                           @RequestParam(value = "autostatus",required = false) Integer autostatus,
+                                                                           @RequestParam(value = "type",required = true) Integer type,
+                                                                           @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
+                                                                           @RequestParam(value = "size",required = false,defaultValue = "10") Integer size,
+                                                                           @RequestHeader("Authorization")String token) {
+
+
+        CronusDto<QueryResult<CustomerListDTO>> cronusDto = new CronusDto();
+        //获取当前用户登录的id
+      /*  Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (userId == null){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }*/
+      if (type == null){
+          throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+      }
+        try {
+            QueryResult<CustomerListDTO> queryResult  = customerInfoService.allocationCustomerList(customerName,utmSource,customerSource,autostatus,page,size,type);
+            cronusDto.setData(queryResult);
+            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            cronusDto.setResult(ResultResource.CODE_SUCCESS);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->customerList获取列表信息操作失败",e);
             if (e instanceof CronusException) {
                 CronusException thorException = (CronusException)e;
                 throw thorException;

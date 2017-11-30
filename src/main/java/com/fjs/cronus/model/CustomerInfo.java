@@ -174,6 +174,16 @@ public class CustomerInfo extends BaseModel {
 
     private Integer clickCommunicateButton;
 
+    private Date communicateTime;
+
+    public Date getCommunicateTime() {
+        return communicateTime;
+    }
+
+    public void setCommunicateTime(Date communicateTime) {
+        this.communicateTime = communicateTime;
+    }
+
     public String getLevel() {
         return level;
     }

@@ -186,6 +186,150 @@ public class CustomerDTO {
     @ApiModelProperty(value = "退休金",notes = "退休金")
     private String retirementWages;
 
+ /*   @ApiModelProperty(value = "海贷魔方 扩展字段",notes = "海贷魔方 扩展字段")
+    private String ext;
+
+    @ApiModelProperty(value = "客户状态 意向客户 协议客户 成交客户",notes = "客户状态 意向客户 协议客户 成交客户")
+    private String level;
+
+    @ApiModelProperty(value = "是否保留  0不保留1保留2已签合同",notes = "是否保留  0不保留1保留2已签合同")
+    private Integer remain;
+
+    @ApiModelProperty(value = "被查看的最后时间",notes = "被查看的最后时间")
+    private Date viewTime;
+
+    @ApiModelProperty(value = "最后查看的人",notes = "最后查看的人")
+    private Integer viewUid;
+
+    @ApiModelProperty(value = "被查看的次数",notes = "被查看的次数")
+    private Integer viewCount;
+
+    @ApiModelProperty(value = "是否自动分配：1自动分配，0没有自动分配",notes = "是否自动分配：1自动分配，0没有自动分配")
+    private Integer autostatus;
+
+    @ApiModelProperty(value = "首次沟通时间",notes = "首次沟通时间")
+    private Date firstCommunicateTime;
+
+    @ApiModelProperty(value = "首次分配时间",notes = "首次分配时间")
+    private Date firstAllocateTime;
+
+    @ApiModelProperty(value = "合作状态(暂未接通 无意向 有意向待跟踪 资质差无法操作 空号 外地 同行 内部员工 其他)",notes = "合作状态(暂未接通 无意向 有意向待跟踪 资质差无法操作 空号 外地 同行 内部员工 其他)")
+    private String  cooperationStatus;
+
+    @ApiModelProperty(value = "确认状态(1-没有确认,2-有效客户,3-无效客户,4-老客户无需确认)",notes = "确认状态(1-没有确认,2-有效客户,3-无效客户,4-老客户无需确认)")
+    private Integer  confirm;
+
+    @ApiModelProperty(value = "有没有点击沟通按钮(1-点击了  0-没有)",notes = "有没有点击沟通按钮(1-点击了  0-没有)")
+    private Integer clickCommunicateButton;
+
+    @ApiModelProperty(value = "沟通时间",notes = "沟通时间")
+    private Date communicateTime;*/
+
+
+  /*  public String getExt() {
+        return ext;
+    }
+
+    public void setExt(String ext) {
+        this.ext = ext;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public Integer getRemain() {
+        return remain;
+    }
+
+    public void setRemain(Integer remain) {
+        this.remain = remain;
+    }
+
+    public Date getViewTime() {
+        return viewTime;
+    }
+
+    public void setViewTime(Date viewTime) {
+        this.viewTime = viewTime;
+    }
+
+    public Integer getViewUid() {
+        return viewUid;
+    }
+
+    public void setViewUid(Integer viewUid) {
+        this.viewUid = viewUid;
+    }
+
+    public Integer getViewCount() {
+        return viewCount;
+    }
+
+    public void setViewCount(Integer viewCount) {
+        this.viewCount = viewCount;
+    }
+
+    public Integer getAutostatus() {
+        return autostatus;
+    }
+
+    public void setAutostatus(Integer autostatus) {
+        this.autostatus = autostatus;
+    }
+
+    public Date getFirstCommunicateTime() {
+        return firstCommunicateTime;
+    }
+
+    public void setFirstCommunicateTime(Date firstCommunicateTime) {
+        this.firstCommunicateTime = firstCommunicateTime;
+    }
+
+    public Date getFirstAllocateTime() {
+        return firstAllocateTime;
+    }
+
+    public void setFirstAllocateTime(Date firstAllocateTime) {
+        this.firstAllocateTime = firstAllocateTime;
+    }
+
+    public String getCooperationStatus() {
+        return cooperationStatus;
+    }
+
+    public void setCooperationStatus(String cooperationStatus) {
+        this.cooperationStatus = cooperationStatus;
+    }
+
+    public Integer getConfirm() {
+        return confirm;
+    }
+
+    public void setConfirm(Integer confirm) {
+        this.confirm = confirm;
+    }
+
+    public Integer getClickCommunicateButton() {
+        return clickCommunicateButton;
+    }
+
+    public void setClickCommunicateButton(Integer clickCommunicateButton) {
+        this.clickCommunicateButton = clickCommunicateButton;
+    }
+
+    public Date getCommunicateTime() {
+        return communicateTime;
+    }
+
+    public void setCommunicateTime(Date communicateTime) {
+        this.communicateTime = communicateTime;
+    }
+*/
     public Date getExpectMoneyTime() {
         return expectMoneyTime;
     }
