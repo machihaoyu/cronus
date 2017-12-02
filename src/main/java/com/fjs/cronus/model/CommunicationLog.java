@@ -38,6 +38,9 @@ public class CommunicationLog implements Serializable{
 	@ApiModelProperty(value = "意向贷款金额", required = false)
 	private BigDecimal loanAmount;
 
+	@ApiModelProperty(value = "下次沟通时间", required = false)
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+	private Date nextContactTime;
 	public Integer getId() {
 		return id;
 	}
@@ -108,6 +111,14 @@ public class CommunicationLog implements Serializable{
 
 	public void setLoanAmount(BigDecimal loanAmount) {
 		this.loanAmount = loanAmount;
+	}
+
+	public Date getNextContactTime() {
+		return nextContactTime;
+	}
+
+	public void setNextContactTime(Date nextContactTime) {
+		this.nextContactTime = nextContactTime;
 	}
 
 	@Override

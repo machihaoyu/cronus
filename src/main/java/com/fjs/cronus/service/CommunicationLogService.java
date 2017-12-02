@@ -1,20 +1,26 @@
 package com.fjs.cronus.service;
 
 
+import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.thea.CommunicationLogDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 
 import com.fjs.cronus.dto.thea.CustomerUsefulDTO;
 import com.fjs.cronus.mappers.CommunicationLogMapper;
+import com.fjs.cronus.mappers.CustomerInfoLogMapper;
+import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.CustomerMeetMapper;
-import com.fjs.cronus.model.CommunicationLog;
-import com.fjs.cronus.model.CustomerInfo;
-import com.fjs.cronus.model.CustomerUseful;
+import com.fjs.cronus.model.*;
+import com.fjs.cronus.util.EntityToDto;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,24 +35,26 @@ public class CommunicationLogService {
 /*    @Autowired
     private LoanService loanService;*/
     @Autowired
-    private CustomerInfoService iCustomerService;
+    private CustomerInfoService customerService;
     @Autowired
     private CustomerUsefulService customerUsefulService;
     @Autowired
     private CustomerMeetMapper customerMeetMapper;
+    @Autowired
+    CustomerInfoMapper customerInfoMapper;
+    @Autowired
+    CustomerInfoLogMapper customerInfoLogMapper;
 
     //添加
     @Transactional
     public Integer addLog(CustomerUsefulDTO customerUsefulDTO, CustomerInfo customerDto, UserInfoDTO userInfoDTO, String token){
-    /*    Date date=new Date();
+        Date date=new Date();
         //修改客户
         customerUsefulDTO.setHouseStatus(customerUsefulDTO.getHouseStatus());
-        CronusDto<CustomerDTO> cronusDto=iCustomerService.findCustomerByFeild(token,customerUsefulDTO.getCustomerId());
-        //交易修改
-        Loan loan=loanService.getByPrimaryKey(customerUsefulDTO.getLoanId());
+        //修改客户
         //有效客户
         if(customerUsefulDTO.getLoanAmount() != null){
-            CustomerUseful customerUseful = customerUsefulService.selectByLoanId(customerUsefulDTO.getLoanId());
+            CustomerUseful customerUseful = customerUsefulService.selectByCustomerId(customerUsefulDTO.getCustomerId());
             if (customerUseful == null){
                 customerUseful=customerUsefulService.copyProperty(customerUsefulDTO);
                 customerUseful.setUsefulTime(date);
@@ -62,41 +70,49 @@ public class CommunicationLogService {
         }
         CustomerMeet customerMeet=new CustomerMeet();
         if (StringUtils.isNotEmpty(userInfoDTO.getUser_id() )){
-            loan.setLastUpdateUser(Integer.parseInt(userInfoDTO.getUser_id()));
+            customerDto.setLastUpdateUser(Integer.parseInt(userInfoDTO.getUser_id()));
 
             customerMeet.setCreateUser(Integer.parseInt(userInfoDTO.getUser_id()));
             customerMeet.setLastUpdateUser(Integer.parseInt(userInfoDTO.getUser_id()));
         }
-        loan.setLoanAmount(customerUsefulDTO.getLoanAmount());
-        loan.setHouseStatus(customerUsefulDTO.getHouseStatus());
-        loan.setCooperationStatus(customerUsefulDTO.getCooperationStatus());
+        customerDto.setLoanAmount(customerUsefulDTO.getLoanAmount());
+        customerDto.setHouseStatus(customerUsefulDTO.getHouseStatus());
+        customerDto.setCooperationStatus(customerUsefulDTO.getCooperationStatus());
         //判断是否是首次沟通
-        List<CommunicationLog> communicationLogList = listByLoanId(customerUsefulDTO.getLoanId(),token);
+        List<CommunicationLog> communicationLogList = listByCustomerId(customerUsefulDTO.getCustomerId(),token);
         if (communicationLogList.size() == 0){
-            loan.setFirstCommunicateTime(date);
+            customerDto.setFirstCommunicateTime(date);
         }
-        loan.setCommunicateTime(date);
+        customerDto.setCommunicateTime(date);
         //确认状态
         if (customerUsefulDTO.getLoanAmount() != null && customerUsefulDTO.getLoanAmount().intValue() > 0){
-            loan.setConfirm(CommonConst.CONFIRM__STATUS_EFFECT);
+            customerDto.setConfirm(CommonConst.CONFIRM__STATUS_EFFECT);
         }
         if (customerUsefulDTO.getLoanAmount() != null && customerUsefulDTO.getLoanAmount().intValue() == 0){
-            loan.setConfirm(CommonConst.CONFIRM__STATUS_NO);
+            customerDto.setConfirm(CommonConst.CONFIRM__STATUS_NO);
         }
 //        loan.setStatus(CommonConst.LOAN_STATUS_COMMUNICATION);
-        loan.setLastUpdateTime(date);
-        loanService.update(loan,userInfoDTO);
+        customerDto.setLastUpdateTime(date);
+        customerDto.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
+        customerInfoMapper.updateCustomer(customerDto);
+        //插入客户日志表
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerDto,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription("编辑交易信息");
+        customerInfoLog.setLogUserId(Integer.valueOf(userInfoDTO.getUser_id()));
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
 
         //面见
         if (customerUsefulDTO.getIsMeet() != null && customerUsefulDTO.getIsMeet() == CommonConst.IS_MEET__YES){
-            customerMeet.setLoanId(customerUsefulDTO.getLoanId());
             customerMeet.setCustomerId(customerUsefulDTO.getCustomerId());
             customerMeet.setMeetTime(customerUsefulDTO.getMeetTime());
             customerMeet.setCreateTime(date);
             customerMeet.setLastUpdateTime(date);
             customerMeet.setIsDeleted(CommonConst.DATA_NORMAIL);
             customerMeetMapper.insert(customerMeet);
-            //发送消息
+            //发送一条短信
         }
 
         //沟通日志
@@ -105,7 +121,6 @@ public class CommunicationLogService {
         if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
             userId=Integer.parseInt(userInfoDTO.getUser_id());
         }
-        communicationLog.setLoanId(loan.getId());
         communicationLog.setCustomerId(customerDto.getId());
         communicationLog.setHouseStatus(customerUsefulDTO.getHouseStatus());
         communicationLog.setLoanAmount(customerUsefulDTO.getLoanAmount());
@@ -113,15 +128,59 @@ public class CommunicationLogService {
         communicationLog.setContent(customerUsefulDTO.getContent());
         communicationLog.setCreateUser(userId);
         communicationLog.setCreateTime(date);
-        return communicationLogMapper.insert(communicationLog);*/
-    return  null;
+        communicationLog.setNextContactTime(customerUsefulDTO.getNextContactTime());
+        return communicationLogMapper.insert(communicationLog);
+
     }
+
+    public CustomerUsefulDTO findByCustomerId(Integer customerId){
+        Map<String,Object> paramsMap = new HashMap<>();
+        Example example=new Example(CommunicationLog.class);
+        CustomerUsefulDTO customerUsefulDTO = new CustomerUsefulDTO();
+        CommunicationLog communicationLog = new CommunicationLog();
+        Example.Criteria criteria=example.createCriteria();
+        criteria.andEqualTo("customerId",customerId);
+        example.setOrderByClause("create_time desc");
+        List<CommunicationLog> communicationLogList = communicationLogMapper.selectByExample(example);
+        //取最近的一次
+        if (communicationLogList != null && communicationLogList.size() > 0){
+            communicationLog = communicationLogList.get(0);
+        }
+        CustomerInfo customerInfo = customerService.findCustomerById(customerId);
+        //查询userful
+        CustomerUseful customerUseful = customerUsefulService.selectByCustomerId(customerId);
+        customerUsefulDTO.setId(communicationLog.getId());
+        customerUsefulDTO.setContent(communicationLog.getContent());
+        customerUsefulDTO.setCooperationStatus(customerInfo.getCooperationStatus());
+        customerUsefulDTO.setCreateTime(communicationLog.getCreateTime());
+        customerUsefulDTO.setCustomerId(customerId);
+        customerUsefulDTO.setHouseStatus(customerUseful.getHouseStatus());
+        //查询面见表 最新的一条
+        paramsMap.put("customerId",customerId);
+        List<CustomerMeet> customerMeets = customerMeetMapper.findByFeild(paramsMap);
+        if (customerMeets == null || customerMeets.size() == 0){
+            customerUsefulDTO.setIsMeet(CommonConst.IS_MEET_NO);
+        }else {
+            CustomerMeet customerMeet = customerMeets.get(0);
+            customerUsefulDTO.setIsMeet(CommonConst.IS_MEET__YES);
+            customerUsefulDTO.setMeetTime(customerMeet.getMeetTime());
+        }
+
+        customerUsefulDTO.setTelephonenumber(customerInfo.getTelephonenumber());
+        customerUsefulDTO.setLoanAmount(customerUseful.getLoanAmount());
+        customerUsefulDTO.setNextContactTime(communicationLog.getNextContactTime());
+        customerUsefulDTO.setPurpose(customerUseful.getPurpose());
+        customerUsefulDTO.setPurposeDescribe(customerUseful.getPurposeDescribe());
+
+        return customerUsefulDTO;
+    }
+
     /**
      * 根据客户id查找沟通日志
      * @param
      * @return
      */
-    public List<CommunicationLog> listByLoanId(Integer customerId, String token){
+    public List<CommunicationLog> listByCustomerId(Integer customerId, String token){
         Example example=new Example(CommunicationLog.class);
         Example.Criteria criteria=example.createCriteria();
         criteria.andEqualTo("customerId",customerId);
@@ -129,22 +188,15 @@ public class CommunicationLogService {
         return communicationLogMapper.selectByExample(example);
     }
 
-
-    /**
-     * 根据交易id和用户查找
-     * @param loanId
-     * @param usertId
-     * @param token
-     * @return
-     */
-    public List<CommunicationLog> listByLoanId(Integer loanId, Integer usertId,String token){
+    public List<CommunicationLog> listByCustomerIdAndUserId(Integer customerId, Integer usertId,String token){
         Example example=new Example(CommunicationLog.class);
         Example.Criteria criteria=example.createCriteria();
-        criteria.andEqualTo("loanId",loanId);
+        criteria.andEqualTo("customerId",customerId);
         criteria.andEqualTo("createUser",usertId);
         example.setOrderByClause("create_time desc");
         return communicationLogMapper.selectByExample(example);
     }
+
 
     public CommunicationLogDTO copyProperty(CommunicationLog communicationLog , CustomerUseful customerUseful){
         CommunicationLogDTO communicationLogDTO=new CommunicationLogDTO();

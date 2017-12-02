@@ -16,6 +16,7 @@ import com.fjs.cronus.model.PrdCustomer;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.PrdCustomerService;
 import com.fjs.cronus.service.uc.UcService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -37,7 +38,8 @@ import java.util.List;
  */
 
 @Controller
-@RequestMapping("/prdCustomer/v1")
+@RequestMapping("/api/v1")
+@Api(description = "市场推广盘")
 public class PrdCustomerController {
     private  static  final Logger logger = LoggerFactory.getLogger(PrdCustomerController.class);
 
@@ -70,7 +72,7 @@ public class PrdCustomerController {
                 return theaApiDTO;
             }
         }
-        UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token,CommonConst.SYSTEM_NAME);
+        UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
         try{
             CronusDto<CustomerDTO> cronusDto=iCustomerService.findCustomerByFeild(prdCustomerDTO.getC_id());
             CustomerDTO customerDto=cronusDto.getData();
@@ -149,7 +151,8 @@ public class PrdCustomerController {
             @ApiImplicitParam(name = "telephonenumber", value = "电话号码", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "houseStatus", value = "有无房产", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "level", value = "等级", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "communicationOrder", value = "跟踪状态", required = false,paramType = "query",  dataType = "int"),
+            @ApiImplicitParam(name = "city", value = "城市", required = false,paramType = "query",  dataType = "string"),
+            @ApiImplicitParam(name = "mountLevle", value = "1：0-20万，2：20-50万，3:50-100万，4:100-500万，5：大于五百万 ", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "type", value = "市场推广盘类型,工作盘传1，沉淀盘传2", paramType = "query", required = true, dataType = "int"),
             @ApiImplicitParam(name = "page", value = "查询第几页", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少", required = false, paramType = "query", dataType = "int"),
@@ -161,40 +164,25 @@ public class PrdCustomerController {
                                                                  @RequestParam(required = false) String customerType,
                                                                  @RequestParam(required = false) String level,
                                                                  @RequestParam(required = false) String houseStatus,
-                                                                 @RequestParam(required = false) Integer communicationOrder,
+                                                                 @RequestParam(required = false) String city,
                                                                  @RequestParam(required = true) Integer type,
-                                                                 @RequestParam(required = false) String page,
-                                                                 @RequestParam(required = false) String size){
-        CronusDto<QueryResult<PrdCustomerDTO>> theaApiDTO=new CronusDto<QueryResult<PrdCustomerDTO>>();
+                                                                 @RequestParam(required = false) Integer mountLevle,
+                                                                 @RequestParam(required = false,defaultValue = "1") Integer page,
+                                                                 @RequestParam(required = false,defaultValue = "10") Integer size,
+                                                                 @RequestHeader("Authorization")String token){
+        CronusDto<QueryResult<PrdCustomerDTO>> cronusDto=new CronusDto<QueryResult<PrdCustomerDTO>>();
         QueryResult<PrdCustomerDTO> result=null;
         try{
-            PrdCustomer prdCustomer=new PrdCustomer();
-            String token=request.getHeader("Authorization");
-            UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
-            prdCustomer.setCustomerName(customerName);
-            prdCustomer.setCustomerType(customerType);
-            prdCustomer.setTelephonenumber(telephonenumber);
-            prdCustomer.setHouseStatus(houseStatus);
-            prdCustomer.setLevel(level);
-            Integer pageNum=1;
-            Integer sizeNum=20;
-            if(StringUtils.isNotEmpty(page)){
-                pageNum=Integer.parseInt(page);
-            }
-            if (StringUtils.isNotEmpty(size)){
-                sizeNum=Integer.parseInt(size);
-            }
-
-            result = prdCustomerService.listByCondition(prdCustomer,userInfoDTO,token,pageNum,sizeNum,communicationOrder,type);
-            theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
-            theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+            result = prdCustomerService.listByCondition(customerName,telephonenumber,customerType,level,houseStatus,city,type,mountLevle,page,size,token);
+            cronusDto.setResult(CommonMessage.SUCCESS.getCode());
+            cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
         }catch (Exception e){
             logger.error("获取市场推广盘列表失败",e);
-            theaApiDTO.setResult(CommonMessage.FAIL.getCode());
-            theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc());
+            cronusDto.setResult(CommonMessage.FAIL.getCode());
+            cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
         }
-        theaApiDTO.setData(result);
+        cronusDto.setData(result);
 
-        return theaApiDTO;
+        return cronusDto;
     }
 }

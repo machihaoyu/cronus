@@ -37,14 +37,12 @@ import java.util.List;
  */
 @Controller
 @Api(description = "沟通记录控制器")
-@RequestMapping("communicationLog/v1")
+@RequestMapping("/api/v1")
 public class CommunicationLogController {
     private  static  final Logger logger = LoggerFactory.getLogger(CommunicationLogController.class);
 
     @Autowired
     private CommunicationLogService communicationLogService;
-//    @Autowired
-//    private LoanService loanService;
     @Autowired
     private UcService thorUcService;
     @Autowired
@@ -57,19 +55,13 @@ public class CommunicationLogController {
     })
     @RequestMapping(value = "/selectByCustomerId", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<CommunicationLog> selectByCustomerId(@RequestParam(required = true) Integer customerId, HttpServletRequest request){
+    public CronusDto<CustomerUsefulDTO> selectByCustomerId(@RequestParam(required = true) Integer customerId, HttpServletRequest request){
         CronusDto theaApiDTO=new CronusDto<>();
-        List<CommunicationLog> communicationLogList=null;
+        CustomerUsefulDTO customerUsefulDTO =null;
         String token=request.getHeader("Authorization");
-        com.fjs.cronus.dto.uc.UserInfoDTO userInfoDTO =thorUcService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
         try{
             if (customerId != null){
-              /*  Loan loan=loanService.getByCustomerId(customerId);
-                if(loan == null){
-                    logger.error("该交易不存在");
-                    throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
-                }*/
-                communicationLogList=communicationLogService.listByLoanId(customerId,token);
+                customerUsefulDTO=communicationLogService.findByCustomerId(customerId);
                 theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
             }else{
@@ -81,13 +73,14 @@ public class CommunicationLogController {
             theaApiDTO.setResult(CommonMessage.FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc());
         }
-        theaApiDTO.setData(communicationLogList);
+        theaApiDTO.setData(customerUsefulDTO);
         return theaApiDTO;
     }
 
     @ApiOperation(value="新增沟通日志", notes="新增沟通日志")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")})
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerUsefulDTO", value = "customerUsefulDTO", required = true, paramType = "body", dataType = "CustomerUsefulDTO")})
     @RequestMapping(value = "/insertLog", method = RequestMethod.POST)
     @ResponseBody
     public CronusDto inserLog(@Valid @RequestBody CustomerUsefulDTO customerUsefulDTO, BindingResult result, HttpServletRequest request){
@@ -95,11 +88,6 @@ public class CommunicationLogController {
         CronusDto theaApiDTO=new CronusDto ();
         if(result.hasErrors()){
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
-        }
-        if (customerUsefulDTO.getLoanId() == null){
-            theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
-            theaApiDTO.setMessage("loanId不能为空");
-            return theaApiDTO;
         }
         if (customerUsefulDTO.getCustomerId() == null){
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
@@ -150,8 +138,8 @@ public class CommunicationLogController {
             return theaApiDTO;
         }
         try{
-            CustomerInfo customer=iCustomerService.findCustomerById(customerUsefulDTO.getCustomerId());
-            int createResult = communicationLogService.addLog(customerUsefulDTO,customer,userInfoDTO,token);
+            //CustomerInfo customer=iCustomerService.findCustomerById(customerUsefulDTO.getCustomerId());
+            int createResult = communicationLogService.addLog(customerUsefulDTO,customerInfo,userInfoDTO,token);
             if (createResult >0) {
                 theaApiDTO.setResult(CommonMessage.ADD_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());

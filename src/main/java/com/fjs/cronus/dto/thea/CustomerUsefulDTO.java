@@ -11,13 +11,11 @@ import java.util.Date;
  */
 public class CustomerUsefulDTO {
     private Integer id;
-    @ApiModelProperty(value = "交易id", required = false)
-    private Integer loanId;
     @ApiModelProperty(value = "客户id（必填）", required = false)
     private Integer customerId;
     @ApiModelProperty(value = "有无房产", required = false)
     private String houseStatus;
-    @ApiModelProperty(value = "确认贷款金额", required = false)
+    @ApiModelProperty(value = "拟贷款金额", required = false)
     private BigDecimal loanAmount;
     @ApiModelProperty(value = "资金用途", required = false)
     private String purpose;
@@ -35,6 +33,20 @@ public class CustomerUsefulDTO {
     @ApiModelProperty(value = "面见时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date meetTime;
+
+    @ApiModelProperty(value = "下次沟通时间", required = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    private Date nextContactTime;
+    @ApiModelProperty(value = "用户的资金用途", required = false)
+    private String purposeDescribe;
+
+    public String getPurposeDescribe() {
+        return purposeDescribe;
+    }
+
+    public void setPurposeDescribe(String purposeDescribe) {
+        this.purposeDescribe = purposeDescribe;
+    }
 
     public BigDecimal getLoanAmount() {
         return loanAmount;
@@ -58,14 +70,6 @@ public class CustomerUsefulDTO {
 
     public void setCooperationStatus(String cooperationStatus) {
         this.cooperationStatus = cooperationStatus;
-    }
-
-    public Integer getLoanId() {
-        return loanId;
-    }
-
-    public void setLoanId(Integer loanId) {
-        this.loanId = loanId;
     }
 
     public String getHouseStatus() {
@@ -132,11 +136,18 @@ public class CustomerUsefulDTO {
         this.meetTime = meetTime;
     }
 
+    public Date getNextContactTime() {
+        return nextContactTime;
+    }
+
+    public void setNextContactTime(Date nextContactTime) {
+        this.nextContactTime = nextContactTime;
+    }
+
     @Override
     public String toString() {
         return "CustomerUsefulDTO{" +
                 "id=" + id +
-                ", loanId=" + loanId +
                 ", customerId=" + customerId +
                 ", houseStatus='" + houseStatus + '\'' +
                 ", loanAmount=" + loanAmount +

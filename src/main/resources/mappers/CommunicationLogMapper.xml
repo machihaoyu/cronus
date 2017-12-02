@@ -11,11 +11,12 @@
 		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
 		<result column="house_status" property="houseStatus" jdbcType="VARCHAR" />
 		<result column="loan_amount" property="loanAmount" jdbcType="INTEGER" />
+		<result column="next_contact_time" property="nextContactTime" jdbcType="TIMESTAMP" />
+		<result column="next_contact_time" property="nextContactTime" jdbcType="TIMESTAMP" />
 	</resultMap>
 
 	<!--客户id-->
 	<resultMap id="ResultMap2" type="com.fjs.cronus.model.CommunicationLog">
-		<result column="loan_id" property="loanId" jdbcType="INTEGER" />
 		<result column="customer_id" property="customerId" jdbcType="INTEGER" />
 	</resultMap>
 

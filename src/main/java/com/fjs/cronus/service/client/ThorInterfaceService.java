@@ -3,10 +3,12 @@ package com.fjs.cronus.service.client;
 import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.config.FeignClientConfig;
 
+import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.CronusDto;
 
 import com.fjs.cronus.dto.api.uc.CityDto;
+import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.uc.*;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
@@ -465,5 +467,25 @@ public interface ThorInterfaceService {
     @RequestMapping(value = "/api/v1/getAllSubCompanyByUserId", method = RequestMethod.GET)
     PhpApiDto<List<SubCompanyCityDto>> getAllSubCompanyByUserId(@RequestHeader("Authorization") String token, @RequestParam(value = "userId") Integer userId,
                                                                 @RequestParam(value = "systemName") String systemName);
+
+    /**
+     * \根据用户id获取下属所有总公司信息
+     * @param token
+     * @param userId
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getAllCompanyByUserId", method = RequestMethod.GET)
+    PhpApiDto<List<SubCompanyDto>> getAllCompanyByUserId(@RequestHeader("Authorization") String token, @RequestParam(value = "userId") Integer userId,
+                                                         @RequestParam(value = "systemName") String systemName);
+
+    @RequestMapping(value = "/api/v1/getUserInfoByIds", method = RequestMethod.POST)
+    ThorQueryDto<List<PHPUserDto>> getUserByIds(@RequestHeader("Authorization") String token, @RequestParam(value = "user_ids") String user_ids,
+                                                    @RequestParam(value = "department_ids") String department_ids,
+                                                    @RequestParam(value = "sub_company_id") Integer sub_company_id,
+                                                    @RequestParam(value = "flag") String flag,
+                                                    @RequestParam(value = "page") Integer page,
+                                                    @RequestParam(value = "size") Integer size,
+                                                    @RequestParam(value = "name") String name,
+                                                    @RequestParam(value = "status") Integer status);
 }
 

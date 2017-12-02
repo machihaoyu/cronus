@@ -1,494 +1,655 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.fjs.cronus.mappers.CustomerInfoLogMapper" >
-  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.CustomerInfoLog" >
-    <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="customer_id" property="customerId" jdbcType="VARCHAR" />
-    <result column="telephonenumber" property="telephonenumber" jdbcType="VARCHAR" />
-    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
-    <result column="customer_level" property="customerLevel" jdbcType="VARCHAR" />
-    <result column="spare_phone" property="sparePhone" jdbcType="VARCHAR" />
-    <result column="age" property="age" jdbcType="VARCHAR" />
-    <result column="marriage" property="marriage" jdbcType="VARCHAR" />
-    <result column="id_card" property="idCard" jdbcType="VARCHAR" />
-    <result column="province_huji" property="provinceHuji" jdbcType="VARCHAR" />
-    <result column="sex" property="sex" jdbcType="VARCHAR" />
-    <result column="customer_address" property="customerAddress" jdbcType="VARCHAR" />
-    <result column="house_status" property="houseStatus" jdbcType="VARCHAR" />
-    <result column="house_amount" property="houseAmount" jdbcType="VARCHAR" />
-    <result column="house_type" property="houseType" jdbcType="VARCHAR" />
-    <result column="house_value" property="houseValue" jdbcType="VARCHAR" />
-    <result column="house_area" property="houseArea" jdbcType="VARCHAR" />
-    <result column="house_age" property="houseAge" jdbcType="VARCHAR" />
-    <result column="house_loan" property="houseLoan" jdbcType="VARCHAR" />
-    <result column="house_alone" property="houseAlone" jdbcType="VARCHAR" />
-    <result column="house_location" property="houseLocation" jdbcType="VARCHAR" />
-    <result column="city" property="city" jdbcType="VARCHAR" />
-    <result column="customer_classify" property="customerClassify" jdbcType="VARCHAR" />
-    <result column="callback_status" property="callbackStatus" jdbcType="VARCHAR" />
-    <result column="callback_time" property="callbackTime" jdbcType="TIMESTAMP" />
-    <result column="sub_company_id" property="subCompanyId" jdbcType="INTEGER" />
-    <result column="house_loan_value" property="houseLoanValue" jdbcType="VARCHAR" />
-    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
-    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
-    <result column="create_user" property="createUser" jdbcType="INTEGER" />
-    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
-    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
-    <result column="log_user_id" property="logUserId" jdbcType="INTEGER" />
-    <result column="log_create_time" property="logCreateTime" jdbcType="TIMESTAMP" />
-    <result column="log_description" property="logDescription" jdbcType="VARCHAR" />
-    <result column="expect_money_time" property="expectMoneyTime" jdbcType="TIMESTAMP" />
-    <result column="expect_loan_time" property="expectLoanTime" jdbcType="VARCHAR" />
-    <result column="expect_repayment_way" property="expectRepaymentWay" jdbcType="INTEGER" />
-    <result column="house_clear" property="houseClear" jdbcType="INTEGER" />
-    <result column="house_owner" property="houseOwner" jdbcType="VARCHAR" />
-    <result column="mortgage_amount" property="mortgageAmount" jdbcType="VARCHAR" />
-    <result column="mortgae_month" property="mortgaeMonth" jdbcType="VARCHAR" />
-    <result column="is_hava_car" property="isHavaCar" jdbcType="INTEGER" />
-    <result column="car_worth" property="carWorth" jdbcType="VARCHAR" />
-    <result column="car_age" property="carAge" jdbcType="INTEGER" />
-    <result column="is_hava_insurance" property="isHavaInsurance" jdbcType="INTEGER" />
-    <result column="year_pay_amount" property="yearPayAmount" jdbcType="VARCHAR" />
-    <result column="insurance_time" property="insuranceTime" jdbcType="INTEGER" />
-    <result column="is_hava_debt" property="isHavaDebt" jdbcType="INTEGER" />
-    <result column="debt_money" property="debtMoney" jdbcType="VARCHAR" />
-    <result column="debt_month" property="debtMonth" jdbcType="INTEGER" />
-    <result column="debt_overdue" property="debtOverdue" jdbcType="INTEGER" />
-    <result column="debt_overdue_money" property="debtOverdueMoney" jdbcType="VARCHAR" />
-    <result column="debt_time" property="debtTime" jdbcType="INTEGER" />
-    <result column="work_status" property="workStatus" jdbcType="INTEGER" />
-    <result column="wager_card" property="wagerCard" jdbcType="VARCHAR" />
-    <result column="entry_time" property="entryTime" jdbcType="INTEGER" />
-    <result column="company_type" property="companyType" jdbcType="INTEGER" />
-    <result column="social_security" property="socialSecurity" jdbcType="INTEGER" />
-    <result column="social_money" property="socialMoney" jdbcType="VARCHAR" />
-    <result column="social_time" property="socialTime" jdbcType="INTEGER" />
-    <result column="provident_fund" property="providentFund" jdbcType="INTEGER" />
-    <result column="provident_money" property="providentMoney" jdbcType="VARCHAR" />
-    <result column="provident_time" property="providentTime" jdbcType="INTEGER" />
-    <result column="compny_name" property="compnyName" jdbcType="VARCHAR" />
-    <result column="fixed_phone" property="fixedPhone" jdbcType="INTEGER" />
-  </resultMap>
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.CustomerInfoLog">
+  <id column="id" jdbcType="INTEGER" property="id" />
+  <result column="customer_id" jdbcType="INTEGER" property="customerId" />
+  <result column="telephonenumber" jdbcType="VARCHAR" property="telephonenumber" />
+  <result column="customer_name" jdbcType="VARCHAR" property="customerName" />
+  <result column="customer_level" jdbcType="VARCHAR" property="customerLevel" />
+  <result column="spare_phone" jdbcType="VARCHAR" property="sparePhone" />
+  <result column="age" jdbcType="VARCHAR" property="age" />
+  <result column="marriage" jdbcType="VARCHAR" property="marriage" />
+  <result column="id_card" jdbcType="VARCHAR" property="idCard" />
+  <result column="province_huji" jdbcType="VARCHAR" property="provinceHuji" />
+  <result column="sex" jdbcType="VARCHAR" property="sex" />
+  <result column="customer_address" jdbcType="VARCHAR" property="customerAddress" />
+  <result column="house_status" jdbcType="VARCHAR" property="houseStatus" />
+  <result column="house_amount" jdbcType="VARCHAR" property="houseAmount" />
+  <result column="house_type" jdbcType="VARCHAR" property="houseType" />
+  <result column="house_value" jdbcType="VARCHAR" property="houseValue" />
+  <result column="house_area" jdbcType="VARCHAR" property="houseArea" />
+  <result column="house_age" jdbcType="VARCHAR" property="houseAge" />
+  <result column="house_loan" jdbcType="VARCHAR" property="houseLoan" />
+  <result column="house_alone" jdbcType="VARCHAR" property="houseAlone" />
+  <result column="house_location" jdbcType="VARCHAR" property="houseLocation" />
+  <result column="city" jdbcType="VARCHAR" property="city" />
+  <result column="customer_classify" jdbcType="VARCHAR" property="customerClassify" />
+  <result column="callback_status" jdbcType="VARCHAR" property="callbackStatus" />
+  <result column="callback_time" jdbcType="TIMESTAMP" property="callbackTime" />
+  <result column="sub_company_id" jdbcType="INTEGER" property="subCompanyId" />
+  <result column="house_loan_value" jdbcType="VARCHAR" property="houseLoanValue" />
+  <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  <result column="last_update_time" jdbcType="TIMESTAMP" property="lastUpdateTime" />
+  <result column="create_user" jdbcType="INTEGER" property="createUser" />
+  <result column="last_update_user" jdbcType="INTEGER" property="lastUpdateUser" />
+  <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+  <result column="log_user_id" jdbcType="INTEGER" property="logUserId" />
+  <result column="log_create_time" jdbcType="TIMESTAMP" property="logCreateTime" />
+  <result column="log_description" jdbcType="VARCHAR" property="logDescription" />
+  <result column="expect_money_time" jdbcType="TIMESTAMP" property="expectMoneyTime" />
+  <result column="expect_loan_time" jdbcType="VARCHAR" property="expectLoanTime" />
+  <result column="expect_repayment_way" jdbcType="INTEGER" property="expectRepaymentWay" />
+  <result column="house_clear" jdbcType="INTEGER" property="houseClear" />
+  <result column="house_owner" jdbcType="VARCHAR" property="houseOwner" />
+  <result column="mortgage_amount" jdbcType="VARCHAR" property="mortgageAmount" />
+  <result column="mortgae_month" jdbcType="VARCHAR" property="mortgaeMonth" />
+  <result column="is_hava_car" jdbcType="INTEGER" property="isHavaCar" />
+  <result column="car_worth" jdbcType="VARCHAR" property="carWorth" />
+  <result column="car_age" jdbcType="INTEGER" property="carAge" />
+  <result column="is_hava_insurance" jdbcType="INTEGER" property="isHavaInsurance" />
+  <result column="year_pay_amount" jdbcType="VARCHAR" property="yearPayAmount" />
+  <result column="insurance_time" jdbcType="INTEGER" property="insuranceTime" />
+  <result column="is_hava_debt" jdbcType="INTEGER" property="isHavaDebt" />
+  <result column="debt_money" jdbcType="VARCHAR" property="debtMoney" />
+  <result column="debt_month" jdbcType="INTEGER" property="debtMonth" />
+  <result column="debt_overdue" jdbcType="INTEGER" property="debtOverdue" />
+  <result column="debt_overdue_money" jdbcType="VARCHAR" property="debtOverdueMoney" />
+  <result column="debt_time" jdbcType="INTEGER" property="debtTime" />
+  <result column="work_status" jdbcType="INTEGER" property="workStatus" />
+  <result column="wager_card" jdbcType="VARCHAR" property="wagerCard" />
+  <result column="entry_time" jdbcType="INTEGER" property="entryTime" />
+  <result column="company_type" jdbcType="INTEGER" property="companyType" />
+  <result column="social_security" jdbcType="INTEGER" property="socialSecurity" />
+  <result column="social_money" jdbcType="VARCHAR" property="socialMoney" />
+  <result column="social_time" jdbcType="INTEGER" property="socialTime" />
+  <result column="provident_fund" jdbcType="INTEGER" property="providentFund" />
+  <result column="provident_money" jdbcType="VARCHAR" property="providentMoney" />
+  <result column="provident_time" jdbcType="INTEGER" property="providentTime" />
+  <result column="compny_name" jdbcType="VARCHAR" property="compnyName" />
+  <result column="fixed_phone" jdbcType="INTEGER" property="fixedPhone" />
+  <result column="loan_amount" jdbcType="DECIMAL" property="loanAmount" />
+  <result column="customer_source" jdbcType="VARCHAR" property="customerSource" />
+  <result column="utm_source" jdbcType="VARCHAR" property="utmSource" />
+  <result column="own_user_id" jdbcType="INTEGER" property="ownUserId" />
+  <result column="own_user_name" jdbcType="VARCHAR" property="ownUserName" />
+  <result column="receive_time" jdbcType="TIMESTAMP" property="receiveTime" />
+  <result column="circle" jdbcType="INTEGER" property="circle" />
+  <result column="company_id" jdbcType="INTEGER" property="companyId" />
+  <result column="retirement_wages" jdbcType="VARCHAR" property="retirementWages" />
+  <result column="level" jdbcType="VARCHAR" property="level" />
+  <result column="remain" jdbcType="INTEGER" property="remain" />
+  <result column="view_time" jdbcType="TIMESTAMP" property="viewTime" />
+  <result column="view_uid" jdbcType="INTEGER" property="viewUid" />
+  <result column="view_count" jdbcType="INTEGER" property="viewCount" />
+  <result column="autostatus" jdbcType="INTEGER" property="autostatus" />
+  <result column="first_communicate_time" jdbcType="TIMESTAMP" property="firstCommunicateTime" />
+  <result column="first_allocate_time" jdbcType="TIMESTAMP" property="firstAllocateTime" />
+  <result column="cooperation_status" jdbcType="VARCHAR" property="cooperationStatus" />
+  <result column="confirm" jdbcType="INTEGER" property="confirm" />
+  <result column="click_communicate_button" jdbcType="INTEGER" property="clickCommunicateButton" />
+  <result column="communicate_time" jdbcType="TIMESTAMP" property="communicateTime" />
+</resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.fjs.cronus.model.CustomerInfoLog" extends="BaseResultMap" >
-    <result column="per_description" property="perDescription" jdbcType="LONGVARCHAR" />
+    <result column="per_description" jdbcType="LONGVARCHAR" property="perDescription" />
+    <result column="employed_info" jdbcType="LONGVARCHAR" property="employedInfo" />
+    <result column="ext" jdbcType="LONGVARCHAR" property="ext" />
   </resultMap>
-  <sql id="Base_Column_List" >
-    id, customer_id,telephonenumber, customer_name, customer_level, spare_phone, age, marriage, id_card,
-    province_huji, sex, customer_address, house_status, house_amount, house_type, house_value, 
-    house_area, house_age, house_loan, house_alone, house_location, city, customer_classify, 
-    callback_status, callback_time, sub_company_id,house_loan_value,create_time, last_update_time, create_user,
-    last_update_user, is_deleted, log_user_id, log_create_time, log_description,  expect_money_time, expect_loan_time, expect_repayment_way, house_clear, house_owner,
-    mortgage_amount, mortgae_month, is_hava_car, car_worth, car_age, is_hava_insurance,
-    year_pay_amount, insurance_time, is_hava_debt, debt_money, debt_month, debt_overdue,
-    debt_overdue_money, debt_time, work_status, wager_card, entry_time, company_type,
-    social_security, social_money, social_time, provident_fund, provident_money, provident_time,
-    compny_name, fixed_phone
-  </sql>
-  <sql id="Blob_Column_List" >
-    per_description
+<sql id="Base_Column_List">
+    id, customer_id, telephonenumber, customer_name, customer_level, spare_phone, age,
+    marriage, id_card, province_huji, sex, customer_address, house_status, house_amount,
+    house_type, house_value, house_area, house_age, house_loan, house_alone, house_location,
+    city, customer_classify, callback_status, callback_time, sub_company_id, house_loan_value,
+    create_time, last_update_time, create_user, last_update_user, is_deleted, log_user_id,
+    log_create_time, log_description, expect_money_time, expect_loan_time, expect_repayment_way,
+    house_clear, house_owner, mortgage_amount, mortgae_month, is_hava_car, car_worth,
+    car_age, is_hava_insurance, year_pay_amount, insurance_time, is_hava_debt, debt_money,
+    debt_month, debt_overdue, debt_overdue_money, debt_time, work_status, wager_card,
+    entry_time, company_type, social_security, social_money, social_time, provident_fund,
+    provident_money, provident_time, compny_name, fixed_phone, loan_amount, customer_source,
+    utm_source, own_user_id, own_user_name, receive_time, circle, company_id, retirement_wages,
+    level, remain, view_time, view_uid, view_count, autostatus, first_communicate_time,
+    first_allocate_time, cooperation_status, confirm, click_communicate_button, communicate_time
   </sql>
   <insert id="addCustomerLog" parameterType="com.fjs.cronus.model.CustomerInfoLog" useGeneratedKeys="true" keyProperty="id">
     insert into customer_info_log
     <trim prefix="(" suffix=")" suffixOverrides="," >
-
-      <if test="customerId != null" >
+      <if test="customerId != null">
         customer_id,
       </if>
-      <if test="telephonenumber != null" >
+      <if test="telephonenumber != null">
         telephonenumber,
       </if>
-      <if test="customerName != null" >
+      <if test="customerName != null">
         customer_name,
       </if>
-      <if test="customerLevel != null" >
+      <if test="customerLevel != null">
         customer_level,
       </if>
-      <if test="sparePhone != null" >
+      <if test="sparePhone != null">
         spare_phone,
       </if>
-      <if test="age != null" >
+      <if test="age != null">
         age,
       </if>
-      <if test="marriage != null" >
+      <if test="marriage != null">
         marriage,
       </if>
-      <if test="idCard != null" >
+      <if test="idCard != null">
         id_card,
       </if>
-      <if test="provinceHuji != null" >
+      <if test="provinceHuji != null">
         province_huji,
       </if>
-      <if test="sex != null" >
+      <if test="sex != null">
         sex,
       </if>
-      <if test="customerAddress != null" >
+      <if test="customerAddress != null">
         customer_address,
       </if>
-      <if test="houseStatus != null" >
+      <if test="houseStatus != null">
         house_status,
       </if>
-      <if test="houseAmount != null" >
+      <if test="houseAmount != null">
         house_amount,
       </if>
-      <if test="houseType != null" >
+      <if test="houseType != null">
         house_type,
       </if>
-      <if test="houseValue != null" >
+      <if test="houseValue != null">
         house_value,
       </if>
-      <if test="houseArea != null" >
+      <if test="houseArea != null">
         house_area,
       </if>
-      <if test="houseAge != null" >
+      <if test="houseAge != null">
         house_age,
       </if>
-      <if test="houseLoan != null" >
+      <if test="houseLoan != null">
         house_loan,
       </if>
-      <if test="houseAlone != null" >
+      <if test="houseAlone != null">
         house_alone,
       </if>
-      <if test="houseLocation != null" >
+      <if test="houseLocation != null">
         house_location,
       </if>
-      <if test="city != null" >
+      <if test="city != null">
         city,
       </if>
-      <if test="customerClassify != null" >
+      <if test="customerClassify != null">
         customer_classify,
       </if>
-      <if test="callbackStatus != null" >
+      <if test="callbackStatus != null">
         callback_status,
       </if>
-      <if test="callbackTime != null" >
+      <if test="callbackTime != null">
         callback_time,
       </if>
-      <if test="subCompanyId != null" >
+      <if test="subCompanyId != null">
         sub_company_id,
       </if>
-      <if test="houseLoanValue != null" >
+      <if test="houseLoanValue != null">
         house_loan_value,
       </if>
-      <if test="createTime != null" >
+      <if test="createTime != null">
         create_time,
       </if>
-      <if test="lastUpdateTime != null" >
+      <if test="lastUpdateTime != null">
         last_update_time,
       </if>
-      <if test="createUser != null" >
+      <if test="createUser != null">
         create_user,
       </if>
-      <if test="lastUpdateUser != null" >
+      <if test="lastUpdateUser != null">
         last_update_user,
       </if>
-      <if test="isDeleted != null" >
+      <if test="isDeleted != null">
         is_deleted,
       </if>
-      <if test="logUserId != null" >
+      <if test="logUserId != null">
         log_user_id,
       </if>
-      <if test="logCreateTime != null" >
+      <if test="logCreateTime != null">
         log_create_time,
       </if>
-      <if test="logDescription != null" >
+      <if test="logDescription != null">
         log_description,
       </if>
-    <if test="expectMoneyTime != null" >
-      expect_money_time,
-    </if>
-    <if test="expectLoanTime != null" >
-      expect_loan_time,
-    </if>
-    <if test="expectRepaymentWay != null" >
-      expect_repayment_way,
-    </if>
-    <if test="houseClear != null" >
-      house_clear,
-    </if>
-    <if test="houseOwner != null" >
-      house_owner,
-    </if>
-    <if test="mortgageAmount != null" >
-      mortgage_amount,
-    </if>
-    <if test="mortgaeMonth != null" >
-      mortgae_month,
-    </if>
-    <if test="isHavaCar != null" >
-      is_hava_car,
-    </if>
-    <if test="carWorth != null" >
-      car_worth,
-    </if>
-    <if test="carAge != null" >
-      car_age,
-    </if>
-    <if test="isHavaInsurance != null" >
-      is_hava_insurance,
-    </if>
-    <if test="yearPayAmount != null" >
-      year_pay_amount,
-    </if>
-    <if test="insuranceTime != null" >
-      insurance_time,
-    </if>
-    <if test="isHavaDebt != null" >
-      is_hava_debt,
-    </if>
-    <if test="debtMoney != null" >
-      debt_money,
-    </if>
-    <if test="debtMonth != null" >
-      debt_month,
-    </if>
-    <if test="debtOverdue != null" >
-      debt_overdue,
-    </if>
-    <if test="debtOverdueMoney != null" >
-      debt_overdue_money,
-    </if>
-    <if test="debtTime != null" >
-      debt_time,
-    </if>
-    <if test="workStatus != null" >
-      work_status,
-    </if>
-    <if test="wagerCard != null" >
-      wager_card,
-    </if>
-    <if test="entryTime != null" >
-      entry_time,
-    </if>
-    <if test="companyType != null" >
-      company_type,
-    </if>
-    <if test="socialSecurity != null" >
-      social_security,
-    </if>
-    <if test="socialMoney != null" >
-      social_money,
-    </if>
-    <if test="socialTime != null" >
-      social_time,
-    </if>
-    <if test="providentFund != null" >
-      provident_fund,
-    </if>
-    <if test="providentMoney != null" >
-      provident_money,
-    </if>
-    <if test="providentTime != null" >
-      provident_time,
-    </if>
-    <if test="compnyName != null" >
-      compny_name,
-    </if>
-    <if test="fixedPhone != null" >
-      fixed_phone,
-    </if>
-      <if test="perDescription != null" >
+      <if test="expectMoneyTime != null">
+        expect_money_time,
+      </if>
+      <if test="expectLoanTime != null">
+        expect_loan_time,
+      </if>
+      <if test="expectRepaymentWay != null">
+        expect_repayment_way,
+      </if>
+      <if test="houseClear != null">
+        house_clear,
+      </if>
+      <if test="houseOwner != null">
+        house_owner,
+      </if>
+      <if test="mortgageAmount != null">
+        mortgage_amount,
+      </if>
+      <if test="mortgaeMonth != null">
+        mortgae_month,
+      </if>
+      <if test="isHavaCar != null">
+        is_hava_car,
+      </if>
+      <if test="carWorth != null">
+        car_worth,
+      </if>
+      <if test="carAge != null">
+        car_age,
+      </if>
+      <if test="isHavaInsurance != null">
+        is_hava_insurance,
+      </if>
+      <if test="yearPayAmount != null">
+        year_pay_amount,
+      </if>
+      <if test="insuranceTime != null">
+        insurance_time,
+      </if>
+      <if test="isHavaDebt != null">
+        is_hava_debt,
+      </if>
+      <if test="debtMoney != null">
+        debt_money,
+      </if>
+      <if test="debtMonth != null">
+        debt_month,
+      </if>
+      <if test="debtOverdue != null">
+        debt_overdue,
+      </if>
+      <if test="debtOverdueMoney != null">
+        debt_overdue_money,
+      </if>
+      <if test="debtTime != null">
+        debt_time,
+      </if>
+      <if test="workStatus != null">
+        work_status,
+      </if>
+      <if test="wagerCard != null">
+        wager_card,
+      </if>
+      <if test="entryTime != null">
+        entry_time,
+      </if>
+      <if test="companyType != null">
+        company_type,
+      </if>
+      <if test="socialSecurity != null">
+        social_security,
+      </if>
+      <if test="socialMoney != null">
+        social_money,
+      </if>
+      <if test="socialTime != null">
+        social_time,
+      </if>
+      <if test="providentFund != null">
+        provident_fund,
+      </if>
+      <if test="providentMoney != null">
+        provident_money,
+      </if>
+      <if test="providentTime != null">
+        provident_time,
+      </if>
+      <if test="compnyName != null">
+        compny_name,
+      </if>
+      <if test="fixedPhone != null">
+        fixed_phone,
+      </if>
+      <if test="loanAmount != null">
+        loan_amount,
+      </if>
+      <if test="customerSource != null">
+        customer_source,
+      </if>
+      <if test="utmSource != null">
+        utm_source,
+      </if>
+      <if test="ownUserId != null">
+        own_user_id,
+      </if>
+      <if test="ownUserName != null">
+        own_user_name,
+      </if>
+      <if test="receiveTime != null">
+        receive_time,
+      </if>
+      <if test="circle != null">
+        circle,
+      </if>
+      <if test="companyId != null">
+        company_id,
+      </if>
+      <if test="retirementWages != null">
+        retirement_wages,
+      </if>
+      <if test="level != null">
+        level,
+      </if>
+      <if test="remain != null">
+        remain,
+      </if>
+      <if test="viewTime != null">
+        view_time,
+      </if>
+      <if test="viewUid != null">
+        view_uid,
+      </if>
+      <if test="viewCount != null">
+        view_count,
+      </if>
+      <if test="autostatus != null">
+        autostatus,
+      </if>
+      <if test="firstCommunicateTime != null">
+        first_communicate_time,
+      </if>
+      <if test="firstAllocateTime != null">
+        first_allocate_time,
+      </if>
+      <if test="cooperationStatus != null">
+        cooperation_status,
+      </if>
+      <if test="confirm != null">
+        confirm,
+      </if>
+      <if test="clickCommunicateButton != null">
+        click_communicate_button,
+      </if>
+      <if test="communicateTime != null">
+        communicate_time,
+      </if>
+      <if test="perDescription != null">
         per_description,
       </if>
+      <if test="employedInfo != null">
+        employed_info,
+      </if>
+      <if test="ext != null">
+        ext,
+      </if>
     </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
 
-      <if test="customerId != null" >
+      <if test="customerId != null">
         #{customerId,jdbcType=INTEGER},
       </if>
-      <if test="telephonenumber != null" >
+      <if test="telephonenumber != null">
         #{telephonenumber,jdbcType=VARCHAR},
       </if>
-      <if test="customerName != null" >
+      <if test="customerName != null">
         #{customerName,jdbcType=VARCHAR},
       </if>
-      <if test="customerLevel != null" >
+      <if test="customerLevel != null">
         #{customerLevel,jdbcType=VARCHAR},
       </if>
-      <if test="sparePhone != null" >
+      <if test="sparePhone != null">
         #{sparePhone,jdbcType=VARCHAR},
       </if>
-      <if test="age != null" >
+      <if test="age != null">
         #{age,jdbcType=VARCHAR},
       </if>
-      <if test="marriage != null" >
+      <if test="marriage != null">
         #{marriage,jdbcType=VARCHAR},
       </if>
-      <if test="idCard != null" >
+      <if test="idCard != null">
         #{idCard,jdbcType=VARCHAR},
       </if>
-      <if test="provinceHuji != null" >
+      <if test="provinceHuji != null">
         #{provinceHuji,jdbcType=VARCHAR},
       </if>
-      <if test="sex != null" >
+      <if test="sex != null">
         #{sex,jdbcType=VARCHAR},
       </if>
-      <if test="customerAddress != null" >
+      <if test="customerAddress != null">
         #{customerAddress,jdbcType=VARCHAR},
       </if>
-      <if test="houseStatus != null" >
+      <if test="houseStatus != null">
         #{houseStatus,jdbcType=VARCHAR},
       </if>
-      <if test="houseAmount != null" >
+      <if test="houseAmount != null">
         #{houseAmount,jdbcType=VARCHAR},
       </if>
-      <if test="houseType != null" >
+      <if test="houseType != null">
         #{houseType,jdbcType=VARCHAR},
       </if>
-      <if test="houseValue != null" >
+      <if test="houseValue != null">
         #{houseValue,jdbcType=VARCHAR},
       </if>
-      <if test="houseArea != null" >
+      <if test="houseArea != null">
         #{houseArea,jdbcType=VARCHAR},
       </if>
-      <if test="houseAge != null" >
+      <if test="houseAge != null">
         #{houseAge,jdbcType=VARCHAR},
       </if>
-      <if test="houseLoan != null" >
+      <if test="houseLoan != null">
         #{houseLoan,jdbcType=VARCHAR},
       </if>
-      <if test="houseAlone != null" >
+      <if test="houseAlone != null">
         #{houseAlone,jdbcType=VARCHAR},
       </if>
-      <if test="houseLocation != null" >
+      <if test="houseLocation != null">
         #{houseLocation,jdbcType=VARCHAR},
       </if>
-      <if test="city != null" >
+      <if test="city != null">
         #{city,jdbcType=VARCHAR},
       </if>
-      <if test="customerClassify != null" >
+      <if test="customerClassify != null">
         #{customerClassify,jdbcType=VARCHAR},
       </if>
-      <if test="callbackStatus != null" >
+      <if test="callbackStatus != null">
         #{callbackStatus,jdbcType=VARCHAR},
       </if>
-      <if test="callbackTime != null" >
+      <if test="callbackTime != null">
         #{callbackTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="subCompanyId != null" >
+      <if test="subCompanyId != null">
         #{subCompanyId,jdbcType=INTEGER},
       </if>
-      <if test="houseLoanValue != null" >
+      <if test="houseLoanValue != null">
         #{houseLoanValue,jdbcType=VARCHAR},
       </if>
-      <if test="createTime != null" >
+      <if test="createTime != null">
         #{createTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="lastUpdateTime != null" >
+      <if test="lastUpdateTime != null">
         #{lastUpdateTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="createUser != null" >
+      <if test="createUser != null">
         #{createUser,jdbcType=INTEGER},
       </if>
-      <if test="lastUpdateUser != null" >
+      <if test="lastUpdateUser != null">
         #{lastUpdateUser,jdbcType=INTEGER},
       </if>
-      <if test="isDeleted != null" >
+      <if test="isDeleted != null">
         #{isDeleted,jdbcType=INTEGER},
       </if>
-      <if test="logUserId != null" >
+      <if test="logUserId != null">
         #{logUserId,jdbcType=INTEGER},
       </if>
-      <if test="logCreateTime != null" >
+      <if test="logCreateTime != null">
         #{logCreateTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="logDescription != null" >
+      <if test="logDescription != null">
         #{logDescription,jdbcType=VARCHAR},
       </if>
-      <if test="expectMoneyTime != null" >
+      <if test="expectMoneyTime != null">
         #{expectMoneyTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="expectLoanTime != null" >
+      <if test="expectLoanTime != null">
         #{expectLoanTime,jdbcType=VARCHAR},
       </if>
-      <if test="expectRepaymentWay != null" >
+      <if test="expectRepaymentWay != null">
         #{expectRepaymentWay,jdbcType=INTEGER},
       </if>
-      <if test="houseClear != null" >
+      <if test="houseClear != null">
         #{houseClear,jdbcType=INTEGER},
       </if>
-      <if test="houseOwner != null" >
+      <if test="houseOwner != null">
         #{houseOwner,jdbcType=VARCHAR},
       </if>
-      <if test="mortgageAmount != null" >
+      <if test="mortgageAmount != null">
         #{mortgageAmount,jdbcType=VARCHAR},
       </if>
-      <if test="mortgaeMonth != null" >
+      <if test="mortgaeMonth != null">
         #{mortgaeMonth,jdbcType=VARCHAR},
       </if>
-      <if test="isHavaCar != null" >
+      <if test="isHavaCar != null">
         #{isHavaCar,jdbcType=INTEGER},
       </if>
-      <if test="carWorth != null" >
+      <if test="carWorth != null">
         #{carWorth,jdbcType=VARCHAR},
       </if>
-      <if test="carAge != null" >
+      <if test="carAge != null">
         #{carAge,jdbcType=INTEGER},
       </if>
-      <if test="isHavaInsurance != null" >
+      <if test="isHavaInsurance != null">
         #{isHavaInsurance,jdbcType=INTEGER},
       </if>
-      <if test="yearPayAmount != null" >
+      <if test="yearPayAmount != null">
         #{yearPayAmount,jdbcType=VARCHAR},
       </if>
-      <if test="insuranceTime != null" >
+      <if test="insuranceTime != null">
         #{insuranceTime,jdbcType=INTEGER},
       </if>
-      <if test="isHavaDebt != null" >
+      <if test="isHavaDebt != null">
         #{isHavaDebt,jdbcType=INTEGER},
       </if>
-      <if test="debtMoney != null" >
+      <if test="debtMoney != null">
         #{debtMoney,jdbcType=VARCHAR},
       </if>
-      <if test="debtMonth != null" >
+      <if test="debtMonth != null">
         #{debtMonth,jdbcType=INTEGER},
       </if>
-      <if test="debtOverdue != null" >
+      <if test="debtOverdue != null">
         #{debtOverdue,jdbcType=INTEGER},
       </if>
-      <if test="debtOverdueMoney != null" >
+      <if test="debtOverdueMoney != null">
         #{debtOverdueMoney,jdbcType=VARCHAR},
       </if>
-      <if test="debtTime != null" >
+      <if test="debtTime != null">
         #{debtTime,jdbcType=INTEGER},
       </if>
-      <if test="workStatus != null" >
+      <if test="workStatus != null">
         #{workStatus,jdbcType=INTEGER},
       </if>
-      <if test="wagerCard != null" >
+      <if test="wagerCard != null">
         #{wagerCard,jdbcType=VARCHAR},
       </if>
-      <if test="entryTime != null" >
+      <if test="entryTime != null">
         #{entryTime,jdbcType=INTEGER},
       </if>
-      <if test="companyType != null" >
+      <if test="companyType != null">
         #{companyType,jdbcType=INTEGER},
       </if>
-      <if test="socialSecurity != null" >
+      <if test="socialSecurity != null">
         #{socialSecurity,jdbcType=INTEGER},
       </if>
-      <if test="socialMoney != null" >
+      <if test="socialMoney != null">
         #{socialMoney,jdbcType=VARCHAR},
       </if>
-      <if test="socialTime != null" >
+      <if test="socialTime != null">
         #{socialTime,jdbcType=INTEGER},
       </if>
-      <if test="providentFund != null" >
+      <if test="providentFund != null">
         #{providentFund,jdbcType=INTEGER},
       </if>
-      <if test="providentMoney != null" >
+      <if test="providentMoney != null">
         #{providentMoney,jdbcType=VARCHAR},
       </if>
-      <if test="providentTime != null" >
+      <if test="providentTime != null">
         #{providentTime,jdbcType=INTEGER},
       </if>
-      <if test="compnyName != null" >
+      <if test="compnyName != null">
         #{compnyName,jdbcType=VARCHAR},
       </if>
-      <if test="fixedPhone != null" >
+      <if test="fixedPhone != null">
         #{fixedPhone,jdbcType=INTEGER},
       </if>
-      <if test="perDescription != null" >
+      <if test="loanAmount != null">
+        #{loanAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="customerSource != null">
+        #{customerSource,jdbcType=VARCHAR},
+      </if>
+      <if test="utmSource != null">
+        #{utmSource,jdbcType=VARCHAR},
+      </if>
+      <if test="ownUserId != null">
+        #{ownUserId,jdbcType=INTEGER},
+      </if>
+      <if test="ownUserName != null">
+        #{ownUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveTime != null">
+        #{receiveTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="circle != null">
+        #{circle,jdbcType=INTEGER},
+      </if>
+      <if test="companyId != null">
+        #{companyId,jdbcType=INTEGER},
+      </if>
+      <if test="retirementWages != null">
+        #{retirementWages,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null">
+        #{level,jdbcType=VARCHAR},
+      </if>
+      <if test="remain != null">
+        #{remain,jdbcType=INTEGER},
+      </if>
+      <if test="viewTime != null">
+        #{viewTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="viewUid != null">
+        #{viewUid,jdbcType=INTEGER},
+      </if>
+      <if test="viewCount != null">
+        #{viewCount,jdbcType=INTEGER},
+      </if>
+      <if test="autostatus != null">
+        #{autostatus,jdbcType=INTEGER},
+      </if>
+      <if test="firstCommunicateTime != null">
+        #{firstCommunicateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="firstAllocateTime != null">
+        #{firstAllocateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cooperationStatus != null">
+        #{cooperationStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="confirm != null">
+        #{confirm,jdbcType=INTEGER},
+      </if>
+      <if test="clickCommunicateButton != null">
+        #{clickCommunicateButton,jdbcType=INTEGER},
+      </if>
+      <if test="communicateTime != null">
+        #{communicateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="perDescription != null">
         #{perDescription,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="employedInfo != null">
+        #{employedInfo,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="ext != null">
+        #{ext,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>

@@ -1,12 +1,12 @@
 package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONArray;
-import com.fjs.cronus.Common.CommonConst;
-import com.fjs.cronus.Common.CommonMessage;
-import com.fjs.cronus.Common.CustomerEnum;
-import com.fjs.cronus.Common.ResultResource;
+import com.fjs.cronus.Common.*;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.api.PHPUserDto;
+import com.fjs.cronus.dto.api.uc.SubCompanyDto;
+import com.fjs.cronus.dto.cronus.CustomerSourceDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 import org.w3c.dom.ls.LSInput;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by msi on 2017/9/13.
@@ -480,5 +481,168 @@ public class CustomerInfoService {
         result.setRows(doList);
         result.setTotal(count.toString());
         return  result;
+    }
+    //不分页查询客户
+    public List<CustomerInfo> listByCondition(CustomerInfo customerInfo,UserInfoDTO userInfoDTO,String token,String systemName){
+
+        List<CustomerInfo> resultList = new ArrayList<>();
+        Map<String,Object> paramsMap = new HashMap<>();
+        //判断当前登录用户所属公司
+        Integer companyId = null;
+        if (!StringUtils.isEmpty(userInfoDTO.getCompany_id())) {
+            companyId = Integer.parseInt(userInfoDTO.getCompany_id());
+            customerInfo.setCompanyId(companyId);
+        }
+        //得到下属员工
+        Integer userId = Integer.parseInt(userInfoDTO.getUser_id());
+        List<Integer> ids = ucService.getSubUserByUserId(token,userId);
+        paramsMap.put("owerId",ids);
+        if (customerInfo != null) {
+            if (customerInfo.getRemain() != null) {
+                paramsMap.put("remain", customerInfo.getRemain());
+            }
+            if (customerInfo.getCompanyId() != null) {
+                paramsMap.put("companyId", companyId);
+            }
+        }
+        resultList = customerInfoMapper.findCustomerListByFeild(paramsMap);
+        return  resultList;
+    }
+
+    @Transactional
+    public boolean keepCustomer(Integer customerId,UserInfoDTO userInfoDTO){
+        boolean flag = false;
+        Integer userId = null;
+        if (!StringUtils.isEmpty(userInfoDTO.getUser_id())) {
+            userId = Integer.parseInt(userInfoDTO.getUser_id());
+        }
+        //根据id查询到
+        Map<String, Object> paramsMap = new HashMap<>();
+        if (!StringUtils.isEmpty(customerId)) {
+            paramsMap.put("id", customerId);
+        }
+        CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
+        if (customerInfo == null) {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        customerInfo.setOwnUserId(userId);
+        customerInfo.setOwnUserName(userInfoDTO.getName());
+        customerInfo.setRemain(CommonConst.REMAIN_STATUS_YES);
+        customerInfo.setLastUpdateUser(userId);
+        Date date = new Date();
+        customerInfo.setLastUpdateTime(date);
+        //开始更新
+        customerInfoMapper.updateCustomer(customerInfo);
+        //插入日志
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription(CommonEnum.LOAN_OPERATION_TYPE_11.getCodeDesc());
+        customerInfoLog.setLogUserId(userId);
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        flag = true;
+        return flag;
+    }
+
+    public CustomerSourceDTO quitCustomerSource(Integer userId,String token){
+        //查询数据库中所有的组
+        CustomerSourceDTO customerSourceDTO = new CustomerSourceDTO();
+        List<String> customerSourceByGroup = customerInfoMapper.customerSourceByGroup();
+        //获取当前登录用户能管理的总公司
+
+        List<SubCompanyDto> companys = ucService.getAllCompanyByUserId(token,userId,CommonConst.SYSTEM_NAME_ENGLISH);
+
+        customerSourceDTO.setCompanyDtos(companys);
+        customerSourceDTO.setSource(customerSourceByGroup);
+        return  customerSourceDTO;
+    }
+
+    public QueryResult<CustomerListDTO> resignCustomerList(String token,String customerName,String telephonenumber,String utmSource,String ownUserName,String customerSource,
+                                                           String level,Integer companyId,Integer page,Integer size){
+        QueryResult<CustomerListDTO> queryResult = new  QueryResult();
+        List<CustomerListDTO> resultList = new ArrayList<>();
+        Map<String,Object> paramMap = new HashMap<>();
+        List<Integer> ids = new ArrayList<>();
+        //获取离职员工的ids
+        List<PHPUserDto> userDtos = ucService.getUserByIds(token,null,null,null,"eq",null,null,null,3);
+        if (userDtos != null && userDtos.size() > 0){
+            for (PHPUserDto userDto : userDtos) {
+                ids.add(Integer.valueOf(userDto.getUser_id()));
+            }
+            paramMap.put("owerId",ids);
+            if (!StringUtils.isEmpty(customerName)){
+                paramMap.put("customerName",customerName);
+            }
+            if (!StringUtils.isEmpty(telephonenumber)){
+                paramMap.put("telephonenumber",telephonenumber);
+            }
+            if (!StringUtils.isEmpty(utmSource)){
+                paramMap.put("utmSource",utmSource);
+            }
+            if (!StringUtils.isEmpty(ownUserName)){
+                paramMap.put("ownUserName",ownUserName);
+            }
+            if (!StringUtils.isEmpty(customerSource)){
+                paramMap.put("customerSource",customerSource);
+            }
+            if (!StringUtils.isEmpty(level)){
+                paramMap.put("level",level);
+            }
+            if (!StringUtils.isEmpty(companyId)){
+                paramMap.put("companyId",companyId);
+            }
+            paramMap.put("start",(page-1) * size);
+            paramMap.put("size",size);
+            List<CustomerInfo> customerInfoList = customerInfoMapper.customerList(paramMap);
+            if (customerInfoList != null && customerInfoList.size() > 0){
+
+                for (CustomerInfo customerInfo : customerInfoList) {
+                    CustomerListDTO customerDto = new CustomerListDTO();
+                    EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto);
+                    resultList.add(customerDto);
+                }
+                queryResult.setRows(resultList);
+                Integer count = customerInfoMapper.customerListCount(paramMap);
+                queryResult.setTotal(count.toString());
+            }
+
+        }
+
+        return queryResult;
+    }
+
+    public boolean cancelkeepCustomer(Integer customerId,UserInfoDTO userInfoDTO){
+           boolean flag = false;
+        Integer userId = null;
+        if (org.apache.commons.lang3.StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
+            userId = Integer.parseInt(userInfoDTO.getUser_id());
+        }
+        Map<String, Object> paramsMap = new HashMap<>();
+        if (!StringUtils.isEmpty(customerId)) {
+            paramsMap.put("id", customerId);
+        }
+        CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
+        if (customerInfo == null) {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        customerInfo.setOwnUserId(null);
+        customerInfo.setOwnUserName(null);
+        customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
+        customerInfo.setLastUpdateUser(userId);
+        Date date = new Date();
+        customerInfo.setLastUpdateTime(date);
+        customerInfoMapper.updateCustomer(customerInfo);
+
+        //插入日志
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription(CommonEnum.LOAN_OPERATION_TYPE_12.getCodeDesc());
+        customerInfoLog.setLogUserId(userId);
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        flag = true;
+        return flag;
     }
 }

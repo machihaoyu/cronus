@@ -778,6 +778,19 @@
       <if test="city != null and city !=''">
           and c.city = #{city}
       </if>
+      <if test="companyId != null ">
+          and c.company_id = #{companyId}
+      </if>
+      <if test="remain != null ">
+          and c.remain = #{remain}
+      </if>
+      <if test="owerId!=null and owerId.size>0">
+          AND c.own_user_id in
+          <foreach collection="owerId" item="owerId"
+                   index="index" open="(" close=")" separator=",">
+              ${owerId}
+          </foreach>
+      </if>
 
   </select>
     <select id="findCustomerByOtherCity" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
@@ -1493,4 +1506,11 @@
         </if>
         and is_deleted=0
     </select>
+    <select id="customerSourceByGroup" resultType="String" parameterType="Map">
+        select
+        customer_source
+        from customer_info
+        where is_deleted = 0 GROUP BY customer_source
+    </select>
+
 </mapper>

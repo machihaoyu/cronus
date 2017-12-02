@@ -3,14 +3,17 @@ package com.fjs.cronus.service.uc;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.UserInfoDTO;
+
 import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.api.uc.CityDto;
+import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.BaseUcDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.uc.CrmCitySubCompanyDto;
 import com.fjs.cronus.dto.uc.SubCompanyCityDto;
+import com.fjs.cronus.dto.uc.ThorQueryDto;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import com.fjs.cronus.service.redis.UcRedisService;
@@ -163,6 +166,35 @@ public class UcService {
         if (resultDto.getRetData() != null){
             resultList = resultDto.getRetData();
         }
+        return  resultList;
+    }
+
+    public List<SubCompanyDto> getAllCompanyByUserId(String token, Integer userId, String systemName){
+        List<SubCompanyDto> resultList = new ArrayList<>();
+        PhpApiDto<List<SubCompanyDto>>resultDto =  thorInterfaceService.getAllCompanyByUserId(token,userId,systemName);
+        if (resultDto.getRetData() != null){
+            resultList = resultDto.getRetData();
+        }
+        return  resultList;
+    }
+
+    public List<PHPUserDto>  getUserByIds(String token,  String user_ids,
+                                          String department_ids,
+                                          Integer sub_company_id,
+                                          String flag,
+                                          Integer page,
+                                          Integer size,
+                                          String name,
+                                          Integer status){
+
+        List<PHPUserDto> resultList = new ArrayList<>();
+
+        ThorQueryDto< List<PHPUserDto>> resultDto = thorInterfaceService.getUserByIds(token,user_ids,department_ids,sub_company_id,flag,page,size,name,status);
+
+        if (resultDto.getRetData() != null){
+            resultList = resultDto.getRetData();
+        }
+
         return  resultList;
     }
 }

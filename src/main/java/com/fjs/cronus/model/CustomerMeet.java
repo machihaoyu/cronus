@@ -33,6 +33,7 @@ public class CustomerMeet implements Serializable{
 	private Integer isDeleted;
 	private String content;
 
+
 	public Integer getId() {
 		return id;
 	}

@@ -3,16 +3,15 @@ package com.fjs.cronus.dto.thea;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * 客户面谈DTO
- * Created by yinzf on 2017/10/14.
+ * Created by zl on 2017/10/14.
  */
-public class CustomerMeetDTO {
+public class CustomerMeetDTO implements Serializable {
     private Integer id;
-    @ApiModelProperty(value = "交易id", required = false)
-    private Integer loanId;
     @ApiModelProperty(value = "客户id", required = false)
     private Integer customerId;
     @ApiModelProperty(value = "业务员id", required = false)
@@ -42,14 +41,6 @@ public class CustomerMeetDTO {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Integer getLoanId() {
-        return loanId;
-    }
-
-    public void setLoanId(Integer loanId) {
-        this.loanId = loanId;
     }
 
     public Integer getCustomerId() {
@@ -96,7 +87,6 @@ public class CustomerMeetDTO {
     public String toString() {
         return "CustomerMeetDTO{" +
                 "id=" + id +
-                ", loanId=" + loanId +
                 ", customerId=" + customerId +
                 ", userId=" + userId +
                 ", userName='" + userName + '\'' +

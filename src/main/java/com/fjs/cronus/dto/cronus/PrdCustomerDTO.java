@@ -43,6 +43,17 @@ public class PrdCustomerDTO {
     @ApiModelProperty(value = "性别")
     private String sex;
 
+    @ApiModelProperty(value = "创建时间")
+    private Date createTime;
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
     public Integer getId() {
         return id;
     }

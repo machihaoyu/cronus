@@ -3,6 +3,7 @@ package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.PrdCustomerDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
@@ -11,6 +12,7 @@ import com.fjs.cronus.mappers.PrdCustomerMapper;
 import com.fjs.cronus.model.CommunicationLog;
 import com.fjs.cronus.model.PrdCustomer;
 import com.fjs.cronus.model.PrdOperationLog;
+import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +36,8 @@ public class PrdCustomerService {
     private UcService thorUcService;
     @Autowired
     private CommunicationLogMapper communicationLogMapper;
+    @Autowired
+    TheaClientService theaClientService;
 //    @Autowired
 //    private LoanService loanService;
 
@@ -191,39 +195,65 @@ public class PrdCustomerService {
         prdCustomerDTO.setLoanAmount(prdCustomer.getLoanAmount());
         prdCustomerDTO.setCity(prdCustomer.getCity());
         prdCustomerDTO.setCustomerSource(prdCustomer.getCustomerSource());
+        prdCustomerDTO.setUtmSource(prdCustomer.getUtmSource());
         prdCustomerDTO.setHouseStatus(prdCustomer.getHouseStatus());
         prdCustomerDTO.setLevel(prdCustomer.getLevel());
         prdCustomerDTO.setCommunicateTime(prdCustomer.getCommunitTime());
-
+        prdCustomerDTO.setCreateTime(prdCustomer.getCreateTime());
         return prdCustomerDTO;
     }
 
-    public QueryResult<PrdCustomerDTO> listByCondition(PrdCustomer prdCustomer, UserInfoDTO userInfoDTO, String token, Integer pageNum, Integer size,
-                                                       Integer communicationOrder, Integer type) {
-        Integer userId = null;
-        Integer companyId = null;
+    public QueryResult<PrdCustomerDTO> listByCondition(String customerName,String telephonenumber,String customerType,String level,String houseStatus,
+                                                       String citySearch,Integer type,Integer mountLevle,Integer page,Integer size,String token) {
         Integer total = null;
         QueryResult<PrdCustomerDTO> prdCustomerQueryResult = null;
         List<PrdCustomer> prdCustomerList = null;
         List<PrdCustomerDTO> prdCustomerDTOList = new ArrayList<>();
         Map<String,Object> map=new HashedMap();
-        List<String> idList = new ArrayList<String>();
+        List<String> citys = new ArrayList<>();
+        //判断权限
+        PHPLoginDto phpLoginDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
+        //判断data_type
 
-        if (prdCustomer != null) {
-            if (StringUtils.isNotEmpty(prdCustomer.getCustomerName())){
-                map.put("customerName",prdCustomer.getCustomerName());
+        Integer date_type =Integer.valueOf(phpLoginDto.getUser_info().getData_type());
+        if (date_type != 4){
+           String city = phpLoginDto.getUser_info().getRedis_city();
+           if (!StringUtils.isEmpty(city)) {
+               map.put("city", city);
+           }else {
+               //查询出异地城市和只要城市以外的
+               String mainCity= theaClientService.findValueByName(token,CommonConst.MAIN_CITY);
+               String remoteCity = theaClientService.findValueByName(token,CommonConst.REMOTE_CITY);
+               String[] mainCityArray=mainCity.split(",");
+               int mainCitySize=mainCityArray.length;
+               for (int i=0;i<mainCitySize;i++){
+                   citys.add(mainCityArray[i]);
+               }
+               String [] remoteCityArray = remoteCity.split(",");
+               for (int i=0;i<remoteCityArray.length;i++){
+                   citys.add(remoteCityArray[i]);
+               }
+               map.put("citys", citys);
+           }
+        }else {
+            if (!StringUtils.isEmpty(citySearch)) {
+                map.put("city", citySearch);
             }
-            if (StringUtils.isNotEmpty(prdCustomer.getCustomerType())){
-                map.put("customerType",prdCustomer.getCustomerType());
+        }
+            if (StringUtils.isNotEmpty(customerName)){
+                map.put("customerName",customerName);
             }
-            if (StringUtils.isNotEmpty(prdCustomer.getTelephonenumber())){
-                map.put("telephonenumber",prdCustomer.getTelephonenumber());
+            if (StringUtils.isNotEmpty(customerType)){
+                map.put("customerType",customerType);
             }
-            if (StringUtils.isNotEmpty(prdCustomer.getHouseStatus())){
-                map.put("houseStatus",prdCustomer.getHouseStatus());
+            if (StringUtils.isNotEmpty(telephonenumber)){
+                map.put("telephonenumber",telephonenumber);
             }
-            if (StringUtils.isNotEmpty(prdCustomer.getLevel())){
-                map.put("level",prdCustomer.getLevel());
+            if (StringUtils.isNotEmpty(houseStatus)){
+                map.put("houseStatus",houseStatus);
+            }
+            if (StringUtils.isNotEmpty(level)){
+                map.put("level",level);
             }
             if (type==1){
                 map.put("createTimeBegin", getMonthAgo(new Date(),1));
@@ -232,31 +262,22 @@ public class PrdCustomerService {
             if (type == 2){
                 map.put("createTimeBegin", getMonthAgo(new Date(),1));
             }
-            if (communicationOrder !=null) {
-                if (1 == communicationOrder) {
-                    //沟通时间
-                    map.put("communicationOrder", new Date());
-                }
+            if (mountLevle != null){
+                map.put("mountLevle",mountLevle);
             }
-
-            map.put("orderFields","last_update_time");
-            map.put("order","desc");
-
-            map.put("startNum",(pageNum-1)*size);
+            map.put("start",(page-1)*size);
             map.put("size",size);
             prdCustomerList = prdCustomerMapper.listByCondition(map);
             for (PrdCustomer prdCustomer1:prdCustomerList){
                 PrdCustomerDTO prdCustomerDTO=copyProperty(prdCustomer1);
                 prdCustomerDTOList.add(prdCustomerDTO);
             }
-
             // 总数
             total = prdCustomerMapper.countByCondition(map);
 
              prdCustomerQueryResult = new QueryResult<PrdCustomerDTO>();
             prdCustomerQueryResult.setRows(prdCustomerDTOList);
             prdCustomerQueryResult.setTotal(total + "");
-        }
         return prdCustomerQueryResult;
     }
 
@@ -273,7 +294,7 @@ public class PrdCustomerService {
         //过去一月
         if (type !=null){
             c.setTime(date);
-            c.add(Calendar.MONTH, -1);
+            c.add(Calendar.MONTH, -3);
         }
 
         Date m = c.getTime();

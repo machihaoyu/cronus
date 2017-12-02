@@ -5,11 +5,14 @@ import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 
+import com.fjs.cronus.dto.cronus.AddCustomerMeetDTO;
 import com.fjs.cronus.dto.thea.CustomerMeetDTO;
 
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerMeet;
+import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.CustomerMeetService;
 import com.fjs.cronus.service.uc.UcService;
 import io.swagger.annotations.Api;
@@ -35,7 +38,7 @@ import java.util.List;
  */
 @Controller
 @Api(description = "面见控制器")
-@RequestMapping("customerMeet/v1")
+@RequestMapping("/api/v1")
 public class CustomerMeetController {
     private  static  final Logger logger = LoggerFactory.getLogger(CustomerMeetController.class);
 
@@ -43,34 +46,31 @@ public class CustomerMeetController {
     private CustomerMeetService customerMeetService;
     @Autowired
     private UcService thorUcService;
-   /* @Autowired
-    private LoanService loanService;*/
+    @Autowired
+    CustomerInfoService customerInfoService;
 
-
-    @ApiOperation(value="根据交易id获取面见记录", notes="根据交易id获取面见记录")
+    @ApiOperation(value="根据客户id获取面见记录", notes="根据客户id获取面见记录")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "loanId", value = "交易id", required = true, paramType = "query",  dataType = "int"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query",  dataType = "int"),
     })
-    @RequestMapping(value = "/selectByLoanId", method = RequestMethod.GET)
+    @RequestMapping(value = "/selectCustomerMeetByCustomerId", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<CustomerMeetDTO> selectByLoanId(@RequestParam(required = true) Integer loanId, HttpServletRequest request){
+    public CronusDto<CustomerMeetDTO> selectByCustomerId(@RequestParam(required = true) Integer customerId,@RequestHeader("Authorization")String token){
         CronusDto theaApiDTO=new CronusDto<>();
         List<CustomerMeet> customerMeetList=null;
         List<CustomerMeetDTO> customerMeetDTOList=new ArrayList<CustomerMeetDTO>();
-        String token=request.getHeader("Authorization");
-        UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
-        /*try{
-            if (loanId != null){
-                Loan loan=loanService.getByPrimaryKey(loanId);
-                if(loan == null){
-                    logger.error("该交易不存在");
-                    throw new TheaException(TheaException.Type.MESSAGE_NOT_EXIST_LOAN);
+        try{
+            if (customerId != null){
+                CustomerInfo customerInfo=customerInfoService.findCustomerById(customerId);
+                if(customerId == null){
+                    logger.error("该客户不存在");
+                    throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
                 }
-                customerMeetList = customerMeetService.listByLoanId(loanId,token);
+                customerMeetList = customerMeetService.listByCustomerId(customerId,token);
                 for (CustomerMeet customerMeet:customerMeetList){
                     CustomerMeetDTO customerMeetDTO=new CustomerMeetDTO();
-                    customerMeetDTO=customerMeetService.copyProperty(customerMeet);
+                    customerMeetDTO=customerMeetService.copyProperty(customerMeet,token);
                     if (customerMeetDTO != null){
                         customerMeetDTOList.add(customerMeetDTO);
                     }
@@ -86,7 +86,7 @@ public class CustomerMeetController {
             theaApiDTO.setResult(CommonMessage.FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc());
         }
-        theaApiDTO.setData(customerMeetDTOList);*/
+        theaApiDTO.setData(customerMeetDTOList);
         return theaApiDTO;
     }
 
@@ -96,14 +96,14 @@ public class CustomerMeetController {
     @RequestMapping(value = "/insertCustomerMeet", method = RequestMethod.POST)
     @ResponseBody
     @Transactional
-    public CronusDto inserCustomerMeet(@Valid @RequestBody CustomerMeetDTO customerMeetDTO, BindingResult result, HttpServletRequest request){
+    public CronusDto inserCustomerMeet(@Valid @RequestBody AddCustomerMeetDTO customerMeetDTO, BindingResult result, HttpServletRequest request){
         logger.info("新增面见的数据：" + customerMeetDTO.toString());
         CronusDto theaApiDTO=new CronusDto();
         if(result.hasErrors()){
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
         }
         String token=request.getHeader("Authorization");
-        UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
+      //  UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
         String[] authority=resultDto.getAuthority();
         if(authority.length>0){
@@ -115,23 +115,19 @@ public class CustomerMeetController {
             }
         }
         try{
-            if (customerMeetDTO.getLoanId() == null){
+            if (customerMeetDTO.getCustomerId() == null){
                 theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
-                theaApiDTO.setMessage("交易id不能为空");
+                theaApiDTO.setMessage("客户id不能为空");
                 return theaApiDTO;
             }
-            //Loan loan = loanService.getByPrimaryKey(customerMeetDTO.getLoanId());
-         /*   if (loan == null){
+            CustomerInfo customerInfo = customerInfoService.findCustomerById(customerMeetDTO.getCustomerId());
+            if (customerInfo == null){
                 theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
-                theaApiDTO.setMessage("交易id对应的交易不存在");
+                theaApiDTO.setMessage("客户不存在");
                 return theaApiDTO;
             }
-            //权限控制
-//            if (! loan.getOwnUserId().toString().equals(userInfoDTO.getUser_id())){
-//
-//            }
-            customerMeetDTO.setCustomerId(loan.getCustomerId());
-            int createResult = customerMeetService.addCustomerMeet(customerMeetDTO,userInfoDTO,loan);
+            customerMeetDTO.setCustomerId(customerInfo.getId());
+            int createResult = customerMeetService.addCustomerMeet(customerMeetDTO,resultDto,customerInfo);
             if (createResult >0) {
                 theaApiDTO.setResult(CommonMessage.ADD_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
@@ -139,8 +135,8 @@ public class CustomerMeetController {
                 logger.error("-------------->insertCustomerMeet创建面见失败");
                 theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
                 theaApiDTO.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
-                throw new TheaException(TheaException.Type.MESSAGE_OTHER_ERROR);
-            }*/
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+            }
         }catch (Exception e){
             logger.error("-------------->insertCustomerMeet创建面见失败",e);
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());

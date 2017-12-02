@@ -1,15 +1,23 @@
 package com.fjs.cronus.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.dto.thea.AllocateDTO;
+import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.model.CommunicationLog;
+import com.fjs.cronus.model.CustomerInfo;
+import com.fjs.cronus.service.CommunicationLogService;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.DocumentService;
+import com.fjs.cronus.service.uc.UcService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -41,6 +49,10 @@ public class CustomerController {
     CustomerInfoService customerInfoService;
     @Autowired
     DocumentService documentService;
+    @Autowired
+    UcService thorUcService;
+    @Autowired
+    CommunicationLogService communicationLogService;
     @ApiOperation(value="获取客户列表", notes="获取客户列表信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
@@ -427,4 +439,139 @@ public class CustomerController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
+
+    @ApiOperation(value="保留客户", notes="保留客户")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/keepCustomer", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto keepLoan(@RequestParam(required = true) Integer customerId, HttpServletRequest request){
+        CronusDto  theaApiDTO=new CronusDto ();
+        String token=request.getHeader("Authorization");
+        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
+        String[] authority=resultDto.getAuthority();
+        if(authority.length>0){
+            List<String> authList= Arrays.asList(authority);
+            if (authList.contains(CommonConst.KEEP_LOAN_URL)){
+                theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
+                theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
+                return theaApiDTO;
+            }
+        }
+        UserInfoDTO userInfoDTO = thorUcService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
+        CustomerInfo customerInfo = new CustomerInfo();
+        try{
+            customerInfo.setRemain(CommonConst.REMAIN_STATUS_YES);
+            if (org.apache.commons.lang3.StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
+                customerInfo.setOwnUserId(Integer.parseInt(userInfoDTO.getUser_id()));
+            }
+            List<CustomerInfo> customerInfoList = customerInfoService.listByCondition(customerInfo,userInfoDTO,token,CommonConst.SYSTEMNAME);
+            if (customerInfoList.size() > CommonConst.REMAIN_MAX_NUM){
+                theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
+                theaApiDTO.setMessage("您保留的客户已满，不能保留");
+                return theaApiDTO;
+            }
+            customerInfo = customerInfoService.findCustomerById(customerId);
+            if (customerInfo == null){
+                theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
+                theaApiDTO.setMessage(CronusException.Type.CRM_CUSTOMEINFO_ERROR.toString());
+                throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+            }
+            if (org.apache.commons.lang3.StringUtils.isNotEmpty(userInfoDTO.getUser_id()) && customerInfo.getOwnUserId() != Integer.parseInt(userInfoDTO.getUser_id())){
+                theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+                theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
+                return theaApiDTO;
+            }
+
+            //刚分配未沟通的客户不能保留
+            List<CommunicationLog> communicationLog=new ArrayList<CommunicationLog>();
+            if (org.apache.commons.lang3.StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
+                if (customerInfo.getRemain() == CommonConst.REMAIN_STATUS_YES){
+                    theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
+                    theaApiDTO.setMessage("该客户已保留，不能重复保留");
+                    return theaApiDTO;
+                }
+                communicationLog=communicationLogService.listByCustomerIdAndUserId(customerInfo.getId(),Integer.parseInt(userInfoDTO.getUser_id()),token);
+            }
+            if (communicationLog.size() == 0){
+                theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
+                theaApiDTO.setMessage("刚分配未沟通的客户不能保留");
+                return theaApiDTO;
+            }
+
+            boolean updateResult = customerInfoService.keepCustomer(customerId,userInfoDTO);
+            if (updateResult == true) {
+                theaApiDTO.setResult(CommonMessage.KEEP_SUCCESS.getCode());
+                theaApiDTO.setMessage(CommonMessage.KEEP_SUCCESS.getCodeDesc());
+            } else {
+                logger.error("-------------->keepLoan保留失败");
+                theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
+                theaApiDTO.setMessage(CommonMessage.KEEP_FAIL.getCodeDesc());
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+            }
+        }catch (Exception e){
+            logger.error("-------------->keepLoan保留失败",e);
+            theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
+            theaApiDTO.setMessage(CommonMessage.KEEP_FAIL.getCodeDesc());
+        }
+
+        return theaApiDTO;
+    }
+
+    @ApiOperation(value="取消保留客户", notes="取消保留客户")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerId", value = "交易id", required = true, paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/cancelkeepCustomer", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto cancelkeepCustomer(@RequestParam(required = true) Integer customerId,@RequestHeader("Authorization")String token){
+        CronusDto theaApiDTO=new CronusDto();
+        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
+        String[] authority=resultDto.getAuthority();
+        if(authority.length>0){
+            List<String> authList= Arrays.asList(authority);
+            if (authList.contains(CommonConst.CANCEL_LOAN_URL)){
+                theaApiDTO.setResult(CommonMessage.CANCEL_FAIL.getCode());
+                theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
+                return theaApiDTO;
+            }
+        }
+        UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
+
+        CustomerInfo customerInfo=null;
+        try{
+            customerInfo = customerInfoService.findCustomerById(customerId);
+            if (customerInfo == null){
+                theaApiDTO.setResult(CommonMessage.CANCEL_FAIL.getCode());
+                theaApiDTO.setMessage(CronusException.Type.CRM_CUSTOMEINFO_ERROR.toString());
+                throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+            }
+            if (org.apache.commons.lang3.StringUtils.isNotEmpty(userInfoDTO.getUser_id()) && customerInfo.getOwnUserId() != Integer.parseInt(userInfoDTO.getUser_id())){
+                theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+                theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
+                return theaApiDTO;
+            }
+            boolean updateResult = customerInfoService.cancelkeepCustomer(customerId,userInfoDTO);
+            if (updateResult == true) {
+                theaApiDTO.setResult(CommonMessage.CANCEL_SUCCESS.getCode());
+                theaApiDTO.setMessage(CommonMessage.CANCEL_SUCCESS.getCodeDesc());
+            } else {
+                logger.error("-------------->cancelLoan取消保留失败");
+                theaApiDTO.setResult(CommonMessage.CANCEL_FAIL.getCode());
+                theaApiDTO.setMessage(CommonMessage.CANCEL_FAIL.getCodeDesc());
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+            }
+        }catch (Exception e){
+            logger.error("-------------->cancelLoan取消保留失败",e);
+            theaApiDTO.setResult(CommonMessage.CANCEL_FAIL.getCode());
+            theaApiDTO.setMessage(CommonMessage.CANCEL_FAIL.getCodeDesc());
+        }
+
+        return theaApiDTO;
+    }
+
+
 }

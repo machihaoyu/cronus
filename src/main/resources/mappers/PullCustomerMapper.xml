@@ -37,7 +37,7 @@
 		<if test="telephone != null and '' != telephone">  
 			and telephone = #{telephone,jdbcType=VARCHAR}
 		</if>
-		<if test="city != null and '' != city">  
+		<if test="city != null and '' != city">
 			and city = #{city,jdbcType=VARCHAR}
 		</if>
 		<if test="status != null ">
@@ -56,20 +56,20 @@
 		<if test="mountLevle != null">
 			<choose>
 				<when test="mountLevle == 1">
-					and (loan_amount  &gt; 0 and  loan_amount &lt; 200000)
+					and (loan_amount  &gt; 0 and  loan_amount &lt; 20)
 				</when>
 				<when test="mountLevle == 2">
-					and (loan_amount  &gt; 200000 and  loan_amount &lt; 500000)
+					and (loan_amount  &gt; 20 and  loan_amount &lt; 50)
 				</when>
 
 				<when test="mountLevle == 3">
-					and (loan_amount  &gt; 500000 and  loan_amount &lt; 1000000)
+					and (loan_amount  &gt; 50 and  loan_amount &lt; 100)
 				</when>
 				<when test="mountLevle == 4">
-					and (loan_amount  &gt; 1000000 and  loan_amount &lt; 5000000)
+					and (loan_amount  &gt; 100 and  loan_amount &lt; 500)
 				</when>
 				<when test="mountLevle == 5">
-					and (loan_amount  &gt; 5000000 )
+					and (loan_amount  &gt; 500 )
 				</when>
 			</choose>
 		</if>
@@ -108,20 +108,20 @@
 		<if test="mountLevle != null">
 			<choose>
 				<when test="mountLevle == 1">
-					and (loan_amount  &gt; 0 and  loan_amount &lt; 200000)
+					and (loan_amount  &gt; 0 and  loan_amount &lt; 20)
 				</when>
 				<when test="mountLevle == 2">
-					and (loan_amount  &gt; 200000 and  loan_amount &lt; 500000)
+					and (loan_amount  &gt; 20 and  loan_amount &lt; 50)
 				</when>
 
 				<when test="mountLevle == 3">
-					and (loan_amount  &gt; 500000 and  loan_amount &lt; 1000000)
+					and (loan_amount  &gt; 50 and  loan_amount &lt; 100)
 				</when>
 				<when test="mountLevle == 4">
-					and (loan_amount  &gt; 1000000 and  loan_amount &lt; 5000000)
+					and (loan_amount  &gt; 100 and  loan_amount &lt; 500)
 				</when>
 				<when test="mountLevle == 5">
-					and (loan_amount  &gt; 5000000 )
+					and (loan_amount  &gt; 500 )
 				</when>
 			</choose>
 		</if>

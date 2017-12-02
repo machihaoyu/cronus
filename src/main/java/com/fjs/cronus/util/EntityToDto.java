@@ -1845,6 +1845,73 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getFixedPhone())){
             log.setFixedPhone(customerInfo.getFixedPhone());
         }
+        if (!StringUtils.isEmpty(customerInfo.getLoanAmount())){
+            log.setLoanAmount(customerInfo.getLoanAmount());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerSource())){
+            log.setCustomerSource(customerInfo.getCustomerSource());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getUtmSource())){
+            log.setUtmSource(customerInfo.getUtmSource());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getOwnUserId())){
+            log.setOwnUserId(customerInfo.getOwnUserId());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getOwnUserName())){
+            log.setOwnUserName(customerInfo.getOwnUserName());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getReceiveTime())){
+            log.setReceiveTime(customerInfo.getReceiveTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCircle())){
+            log.setCircle(customerInfo.getCircle());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getEmployedInfo())){
+            log.setEmployedInfo(customerInfo.getEmployedInfo());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getRetirementWages())){
+            log.setRetirementWages(customerInfo.getRetirementWages());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getExt())){
+            log.setExt(customerInfo.getExt());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getLevel())){
+            log.setLevel(customerInfo.getLevel());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getRemain())){
+            log.setRemain(customerInfo.getRemain());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getViewTime())){
+            log.setViewTime(customerInfo.getViewTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getViewUid())){
+            log.setViewUid(customerInfo.getViewUid());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getViewCount())){
+            log.setViewCount(customerInfo.getViewCount());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getAutostatus())){
+            log.setAutostatus(customerInfo.getAutostatus());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getFirstCommunicateTime())){
+            log.setFirstCommunicateTime(customerInfo.getFirstCommunicateTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getFirstAllocateTime())){
+            log.setFirstAllocateTime(customerInfo.getFirstAllocateTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCooperationStatus())){
+            log.setCooperationStatus(customerInfo.getCooperationStatus());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getConfirm())){
+            log.setConfirm(customerInfo.getConfirm());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getClickCommunicateButton())){
+            log.setClickCommunicateButton(customerInfo.getClickCommunicateButton());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCommunicateTime())){
+            log.setCommunicateTime(customerInfo.getCommunicateTime());
+        }
+
 
     }
 

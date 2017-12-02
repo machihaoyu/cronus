@@ -54,4 +54,10 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
      * @return
      */
     List <CustomerInfo> selectByOCDCPhone(@Param("telephonenumber") String telephonenumber);
+
+    /**
+     * 分组获取客户来源
+     * @return
+     */
+    List<String> customerSourceByGroup();
 }

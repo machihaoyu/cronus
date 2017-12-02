@@ -29,6 +29,16 @@ public class CustomerUseful implements Serializable{
 	private Integer lastUpdateUser;
 	private Integer isDeleted;
 
+	private String purposeDescribe;
+
+	public String getPurposeDescribe() {
+		return purposeDescribe;
+	}
+
+	public void setPurposeDescribe(String purposeDescribe) {
+		this.purposeDescribe = purposeDescribe;
+	}
+
 	public Integer getId() {
 		return id;
 	}

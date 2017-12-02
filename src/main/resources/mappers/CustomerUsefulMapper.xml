@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.CustomerUsefulMapper">
+	<resultMap id="BaseResultMap" type="com.fjs.cronus.model.CustomerUseful">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="loan_id" property="loanId" jdbcType="INTEGER" />
+		<result column="customer_id" property="customerId" jdbcType="INTEGER" />
+		<result column="house_status" property="houseStatus" jdbcType="VARCHAR" />
+		<result column="loan_amount" property="loanAmount" jdbcType="INTEGER" />
+		<result column="useful_time" property="usefulTime" jdbcType="INTEGER" />
+		<result column="create_user" property="createUser" jdbcType="INTEGER" />
+		<result column="purpose" property="purpose" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+		<result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+		<result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+		<result column="purpose_describe" jdbcType="LONGVARCHAR" property="purposeDescribe" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id,loan_id,customer_id,house_status
+		,loan_amount,useful_time,create_user
+		,purpose,create_time,last_update_time
+		,last_update_user,is_deleted,purpose_describe
+	</sql>
+	
+	<select id="listByCondition" resultMap="BaseResultMap" parameterType="com.fjs.cronus.model.CustomerUseful">
+		select
+		<include refid="Base_Column_List" />
+		from customer_useful
+		where 1=1
+		<if test="id != null and '' != id">  
+			and id = #{id,jdbcType=INTEGER}
+		</if>
+		<if test="loanId != null and '' != loanId">  
+			and loan_id = #{loanId,jdbcType=INTEGER}
+		</if>
+		<if test="customerId != null and '' != customerId">  
+			and customer_id = #{customerId,jdbcType=INTEGER}
+		</if>
+		<if test="houseStatus != null and '' != houseStatus">  
+			and house_status = #{houseStatus,jdbcType=VARCHAR}
+		</if>
+		<if test="loanAmount != null and '' != loanAmount">  
+			and loan_amount = #{loanAmount,jdbcType=INTEGER}
+		</if>
+		<if test="usefulTime != null and '' != usefulTime">  
+			and useful_time = #{usefulTime,jdbcType=INTEGER}
+		</if>
+		<if test="createUser != null and '' != createUser">  
+			and create_user = #{createUser,jdbcType=INTEGER}
+		</if>
+		<if test="purpose != null and '' != purpose">  
+			and purpose = #{purpose,jdbcType=VARCHAR}
+		</if>
+		<if test="createTime != null and '' != createTime">  
+			and create_time = #{createTime,jdbcType=TIMESTAMP}
+		</if>
+		<if test="lastUpdateTime != null and '' != lastUpdateTime">  
+			and last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP}
+		</if>
+		<if test="lastUpdateUser != null and '' != lastUpdateUser">  
+			and last_update_user = #{lastUpdateUser,jdbcType=INTEGER}
+		</if>
+		<if test="isDeleted != null and '' != isDeleted">  
+			and is_deleted = #{isDeleted,jdbcType=INTEGER}
+		</if>
+				<if test="orderFields != null and '' != orderFields">  
+           	order by ${orderFields} ${order}
+         	</if>
+	</select>
+
+	<update id="update" parameterType="com.fjs.cronus.model.CustomerUseful">
+		update customer_useful  set
+		ID= #{id,jdbcType=INTEGER}
+		,loan_id = #{loanId,jdbcType=INTEGER}
+		,customer_id = #{customerId,jdbcType=INTEGER}
+		,house_status = #{houseStatus,jdbcType=VARCHAR}
+		,loan_amount = #{loanAmount,jdbcType=INTEGER}
+		,useful_time = #{usefulTime,jdbcType=INTEGER}
+		,create_user = #{createUser,jdbcType=INTEGER}
+		,purpose = #{purpose,jdbcType=VARCHAR}
+		,create_time = #{createTime,jdbcType=TIMESTAMP}
+		,last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP}
+		,last_update_user = #{lastUpdateUser,jdbcType=INTEGER}
+		,is_deleted = #{isDeleted,jdbcType=INTEGER}
+		,purpose_describe = #{purposeDescribe,jdbcType=LONGVARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<select id="countByMap" parameterType="map" resultMap="BaseResultMap">
+		SELECT * FROM customer_useful
+		<where>
+			<if test="inCreateUserId != null">
+				AND  create_user IN (#{inCreateUserId})
+			</if>
+			<if test="beginDate != null">
+				<![CDATA[	and create_time >=  #{beginDate }  ]]>
+			</if>
+			<if test="endDate != null">
+				<![CDATA[	and create_time <=  #{endDate }  ]]>
+			</if>
+			<if test="loanAmountMin != null">
+				<![CDATA[	and loan_amount >  #{loanAmountMin }  ]]>
+			</if>
+			<if test="inLoanId != null">
+				AND loan_id in (#{inLoanId})
+			</if>
+		</where>
+	</select>
+</mapper>

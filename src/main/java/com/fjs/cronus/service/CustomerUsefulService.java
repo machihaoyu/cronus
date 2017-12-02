@@ -21,12 +21,12 @@ public class CustomerUsefulService {
 
     /**
      * 根据交易id获取客户有效信息
-     * @param loanId
+     * @param customerId
      * @return
      */
-    public CustomerUseful selectByLoanId(Integer loanId){
+    public CustomerUseful selectByCustomerId(Integer customerId){
         CustomerUseful customerUseful=new CustomerUseful();
-        customerUseful.setLoanId(loanId);
+        customerUseful.setCustomerId(customerId);
         return customerUsefulMapper.selectOne(customerUseful);
     }
 
@@ -51,11 +51,11 @@ public class CustomerUsefulService {
     public CustomerUseful copyProperty(CustomerUsefulDTO customerUsefulDTO){
         CustomerUseful customerUseful=new CustomerUseful();
         customerUseful.setId(customerUsefulDTO.getId());
-        customerUseful.setLoanId(customerUsefulDTO.getLoanId());
         customerUseful.setCustomerId(customerUsefulDTO.getCustomerId());
         customerUseful.setHouseStatus(customerUsefulDTO.getHouseStatus());
         customerUseful.setLoanAmount(customerUsefulDTO.getLoanAmount());
         customerUseful.setPurpose(customerUsefulDTO.getPurpose());
+        customerUseful.setPurposeDescribe(customerUsefulDTO.getPurposeDescribe());
         return customerUseful;
     }
 

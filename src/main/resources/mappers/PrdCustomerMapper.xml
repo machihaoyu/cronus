@@ -48,9 +48,18 @@
 		<if test="telephonenumber != null and '' != telephonenumber">  
 			and telephonenumber = #{telephonenumber,jdbcType=VARCHAR}
 		</if>
-		<if test="city != null and '' != city">  
-			and city = #{city,jdbcType=VARCHAR}
-		</if>
+		<choose>
+			<when test="city != null and '' != city">
+				and city = #{city,jdbcType=VARCHAR}
+			</when>
+	        <otherwise>
+				and city not in
+				<foreach item="item" index="index" collection="citys" open="("
+						 separator="," close=")">
+					#{item}
+				</foreach>
+			</otherwise>
+		</choose>
 		<if test="houseStatus != null and '' != houseStatus">  
 			and house_status = #{houseStatus,jdbcType=CHAR}
 		</if>
@@ -67,23 +76,41 @@
 			and communit_time is not null
 		</if>
 		<if test="createTimeBegin != null and createTimeEnd !=null ">
-			and date(create_time) between #{createTimeBegin} and #{createTimeEnd}
+			and date(last_update_time) between #{createTimeBegin} and #{createTimeEnd}
 		</if>
 		<if test="createTimeBegin != null and createTimeEnd ==null">
-			and date(create_time) &lt; #{createTimeBegin}
+			and date(last_update_time) &lt; #{createTimeBegin}
 		</if>
 		<if test="status != null and '' != status">  
 			and status = #{status,jdbcType=INTEGER}
 		</if>
-		and is_deleted=0
-		<if test="orderFields != null and '' != orderFields">
-           	order by ${orderFields} ${order}
+		<if test="mountLevle != null">
+			<choose>
+				<when test="mountLevle == 1">
+					and (loan_amount  &gt; 0 and  loan_amount &lt; 20)
+				</when>
+				<when test="mountLevle == 2">
+					and (loan_amount  &gt; 20 and  loan_amount &lt; 50)
+				</when>
+
+				<when test="mountLevle == 3">
+					and (loan_amount  &gt; 50 and  loan_amount &lt; 100)
+				</when>
+				<when test="mountLevle == 4">
+					and (loan_amount  &gt; 100 and  loan_amount &lt; 500)
+				</when>
+				<when test="mountLevle == 5">
+					and (loan_amount  &gt; 500 )
+				</when>
+			</choose>
 		</if>
-		limit ${startNum},${size}
+		and is_deleted=0
+		order BY  last_update_time DESC
+		limit ${start},${size}
 	</select>
 
 	<select id="countByCondition" resultType="Integer" parameterType="com.fjs.cronus.model.PrdCustomer">
-		select count(1)
+		select count(*)
 		from prd_customer
 		where 1=1
 		<if test="customerName != null and '' != customerName">
@@ -95,9 +122,18 @@
 		<if test="telephonenumber != null and '' != telephonenumber">
 			and telephonenumber = #{telephonenumber,jdbcType=VARCHAR}
 		</if>
-		<if test="city != null and '' != city">
-			and city = #{city,jdbcType=VARCHAR}
-		</if>
+		<choose>
+			<when test="city != null and '' != city">
+				and city = #{city,jdbcType=VARCHAR}
+			</when>
+			<otherwise>
+				and city not in
+				<foreach item="item" index="index" collection="citys" open="("
+						 separator="," close=")">
+					#{item}
+				</foreach>
+			</otherwise>
+		</choose>
 		<if test="houseStatus != null and '' != houseStatus">
 			and house_status = #{houseStatus,jdbcType=CHAR}
 		</if>
@@ -107,17 +143,42 @@
 		<if test="customerSource != null and '' != customerSource">
 			and customer_source = #{customerSource,jdbcType=VARCHAR}
 		</if>
-		<if test="communitTime != null and '' != communitTime">
+		<if test="communitTime != null ">
 			and communit_time = #{communitTime,jdbcType=TIMESTAMP}
+		</if>
+		<if test="communicationOrder != null ">
+			and communit_time is not null
+		</if>
+		<if test="createTimeBegin != null and createTimeEnd !=null ">
+			and date(last_update_time) between #{createTimeBegin} and #{createTimeEnd}
+		</if>
+		<if test="createTimeBegin != null and createTimeEnd ==null">
+			and date(last_update_time) &lt; #{createTimeBegin}
 		</if>
 		<if test="status != null and '' != status">
 			and status = #{status,jdbcType=INTEGER}
 		</if>
-		and is_deleted=0
-		<if test="orderFields != null and '' != orderFields">
-			order by ${orderFields} ${order}
+		<if test="mountLevle != null">
+			<choose>
+				<when test="mountLevle == 1">
+					and (loan_amount  &gt; 0 and  loan_amount &lt; 20)
+				</when>
+				<when test="mountLevle == 2">
+					and (loan_amount  &gt; 20 and  loan_amount &lt; 50)
+				</when>
+
+				<when test="mountLevle == 3">
+					and (loan_amount  &gt; 50 and  loan_amount &lt; 100)
+				</when>
+				<when test="mountLevle == 4">
+					and (loan_amount  &gt; 100 and  loan_amount &lt; 500)
+				</when>
+				<when test="mountLevle == 5">
+					and (loan_amount  &gt; 500 )
+				</when>
+			</choose>
 		</if>
-		limit ${startNum},${size}
+		and is_deleted=0
 	</select>
 
 	

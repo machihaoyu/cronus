@@ -1,7 +1,9 @@
 package com.fjs.cronus.model;
 
-import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
+
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class CustomerInfoLog extends BaseModel {
@@ -130,6 +132,61 @@ public class CustomerInfoLog extends BaseModel {
 
     private Integer fixedPhone;
 
+    private BigDecimal loanAmount;
+
+    private String customerSource;
+
+    private String utmSource;
+
+    private Integer ownUserId;
+
+    private String ownUserName;
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private Date receiveTime;
+
+    private Integer circle;
+
+    private String employedInfo;
+
+    private String retirementWages;
+
+    private String ext;
+
+    private String level;
+
+    private Integer remain;
+
+    private Date viewTime;
+
+    private Integer viewUid;
+
+    private Integer viewCount;
+
+    private Integer autostatus;
+
+    private Date firstCommunicateTime;
+
+    private Date firstAllocateTime;
+
+    private String  cooperationStatus;
+
+    private Integer  confirm;
+
+    private Integer clickCommunicateButton;
+
+    private Date communicateTime;
+
+    private Integer companyId;
+
+
+    public Integer getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(Integer companyId) {
+        this.companyId = companyId;
+    }
     public Date getExpectMoneyTime() {
         return expectMoneyTime;
     }
@@ -624,5 +681,181 @@ public class CustomerInfoLog extends BaseModel {
 
     public void setPerDescription(String perDescription) {
         this.perDescription = perDescription;
+    }
+
+    public BigDecimal getLoanAmount() {
+        return loanAmount;
+    }
+
+    public void setLoanAmount(BigDecimal loanAmount) {
+        this.loanAmount = loanAmount;
+    }
+
+    public String getCustomerSource() {
+        return customerSource;
+    }
+
+    public void setCustomerSource(String customerSource) {
+        this.customerSource = customerSource;
+    }
+
+    public String getUtmSource() {
+        return utmSource;
+    }
+
+    public void setUtmSource(String utmSource) {
+        this.utmSource = utmSource;
+    }
+
+    public Integer getOwnUserId() {
+        return ownUserId;
+    }
+
+    public void setOwnUserId(Integer ownUserId) {
+        this.ownUserId = ownUserId;
+    }
+
+    public String getOwnUserName() {
+        return ownUserName;
+    }
+
+    public void setOwnUserName(String ownUserName) {
+        this.ownUserName = ownUserName;
+    }
+
+    public Date getReceiveTime() {
+        return receiveTime;
+    }
+
+    public void setReceiveTime(Date receiveTime) {
+        this.receiveTime = receiveTime;
+    }
+
+    public Integer getCircle() {
+        return circle;
+    }
+
+    public void setCircle(Integer circle) {
+        this.circle = circle;
+    }
+
+    public String getEmployedInfo() {
+        return employedInfo;
+    }
+
+    public void setEmployedInfo(String employedInfo) {
+        this.employedInfo = employedInfo;
+    }
+
+    public String getRetirementWages() {
+        return retirementWages;
+    }
+
+    public void setRetirementWages(String retirementWages) {
+        this.retirementWages = retirementWages;
+    }
+
+    public String getExt() {
+        return ext;
+    }
+
+    public void setExt(String ext) {
+        this.ext = ext;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public Integer getRemain() {
+        return remain;
+    }
+
+    public void setRemain(Integer remain) {
+        this.remain = remain;
+    }
+
+    public Date getViewTime() {
+        return viewTime;
+    }
+
+    public void setViewTime(Date viewTime) {
+        this.viewTime = viewTime;
+    }
+
+    public Integer getViewUid() {
+        return viewUid;
+    }
+
+    public void setViewUid(Integer viewUid) {
+        this.viewUid = viewUid;
+    }
+
+    public Integer getViewCount() {
+        return viewCount;
+    }
+
+    public void setViewCount(Integer viewCount) {
+        this.viewCount = viewCount;
+    }
+
+    public Integer getAutostatus() {
+        return autostatus;
+    }
+
+    public void setAutostatus(Integer autostatus) {
+        this.autostatus = autostatus;
+    }
+
+    public Date getFirstCommunicateTime() {
+        return firstCommunicateTime;
+    }
+
+    public void setFirstCommunicateTime(Date firstCommunicateTime) {
+        this.firstCommunicateTime = firstCommunicateTime;
+    }
+
+    public Date getFirstAllocateTime() {
+        return firstAllocateTime;
+    }
+
+    public void setFirstAllocateTime(Date firstAllocateTime) {
+        this.firstAllocateTime = firstAllocateTime;
+    }
+
+    public String getCooperationStatus() {
+        return cooperationStatus;
+    }
+
+    public void setCooperationStatus(String cooperationStatus) {
+        this.cooperationStatus = cooperationStatus;
+    }
+
+    public Integer getConfirm() {
+        return confirm;
+    }
+
+    public void setConfirm(Integer confirm) {
+        this.confirm = confirm;
+    }
+
+    public Integer getClickCommunicateButton() {
+        return clickCommunicateButton;
+    }
+
+    public void setClickCommunicateButton(Integer clickCommunicateButton) {
+        this.clickCommunicateButton = clickCommunicateButton;
+    }
+
+    public Date getCommunicateTime() {
+        return communicateTime;
+    }
+
+    public void setCommunicateTime(Date communicateTime) {
+        this.communicateTime = communicateTime;
     }
 }
