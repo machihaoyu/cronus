@@ -325,7 +325,7 @@ public class CustomerInfoService {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONE_ERROR);
         }
         //判断手机号是否被注册
-     /*   if (customerId == null){
+        if (customerId == null){
             Map<String,Object> paramsMap = new HashMap<>();
             paramsMap.put("telephonenumber",telephonenumber);
             paramsMap.put("start",0);
@@ -334,7 +334,7 @@ public class CustomerInfoService {
             if (customerInfos.size() > 0){
                 throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONERE_ERROR);
             }
-        }*/
+        }
     }
     public CronusDto<CustomerDTO> findCustomerByFeild(Integer customerId){
         CronusDto resultDto = new CronusDto();
@@ -429,6 +429,40 @@ public class CustomerInfoService {
         return resultDto;
     }
 
+    @Transactional
+    public CronusDto editCustomerTypeTOConversion(Integer customer_id ,Integer user_id){
+        CronusDto resultDto = new CronusDto();
+        //根据uid查询到客户相关信息
+        boolean flag = false;
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("id",customer_id);
+        CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
+        if (customerInfo == null){
+            throw new CronusException(CronusException.Type.CEM_CUSTOMERIDENTITYINFO_ERROR);
+        }
+        //协议客户改为成交用户
+        String customerType = customerInfo.getCustomerType();
+        if (customerType.equals(CustomerEnum.agreement_customer.getName())){
+            //成交用户
+            customerInfo.setCustomerType(CustomerEnum.conversion_customer.getName());
+        }
+        //开始更新
+        customerInfoMapper.updateCustomer(customerInfo);
+        //生成日志记录
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        Date date = new Date();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription("成交用户");
+        customerInfoLog.setLogUserId(user_id);
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        flag = true;
+        resultDto.setData(flag);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        return resultDto;
+    }
     public CustomerInfo findCustomerById(Integer customerId) {
 
         Map<String, Object> paramsMap = new HashMap<>();
@@ -644,5 +678,22 @@ public class CustomerInfoService {
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
         flag = true;
         return flag;
+    }
+
+    public List<CustomerInfo> getByIds(String ids){
+        List<CustomerInfo> resultList = new ArrayList<>();
+        Map<String,Object> paramsMap = new HashMap<>();
+        List<Integer> paramsList = new ArrayList<>();
+        if (ids != null && !"".equals(ids)) {
+            String[] strArray = null;
+            strArray = ids.split(",");
+            for (int i = 0; i < strArray.length; i++) {
+                paramsList.add(Integer.parseInt(strArray[i]));
+            }
+            paramsMap.put("paramsList", paramsList);
+        }
+        resultList = customerInfoMapper.findCustomerListByFeild(paramsMap);
+
+        return  resultList;
     }
 }

@@ -8,6 +8,7 @@ import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.api.uc.CityDto;
+import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.BaseUcDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
@@ -20,7 +21,7 @@ import com.fjs.cronus.service.redis.UcRedisService;
 import com.fjs.cronus.util.FastJsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -196,5 +197,13 @@ public class UcService {
         }
 
         return  resultList;
+    }
+
+    public List<PhpDepartmentModel> getSubCompanys(String token, Integer companyId) {
+        List<PhpDepartmentModel> phpDepartmentModelList = new ArrayList<PhpDepartmentModel>();
+        PhpApiDto<List<PhpDepartmentModel>> phpApiDto = thorInterfaceService.getSubCompany(token, null,1, null,companyId);
+        System.out.println(phpApiDto.getRetData());
+        phpDepartmentModelList = phpApiDto.getRetData();
+        return phpDepartmentModelList;
     }
 }

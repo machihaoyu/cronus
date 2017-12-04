@@ -221,4 +221,14 @@ public class CommonConst {
     public static String DEADLINE_NULL = "期望贷款期限为空";
     public static String REPAYMENT_TYPE_NULL = "期望还款方式为空";
 
+
+    public static String  OPERARIONAll = "自动分配";
+
+    public static String OPERARIONNO = "未沟通分配";
+
+    public static String REMOVECUSTOMERALL ="removeCustomerAll";
+
+    public static String ALLOCATEALL ="allocateAll";
+
+
 }

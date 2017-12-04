@@ -159,6 +159,9 @@ public class CronusException extends BaseException {
         CRM_VALIDAOCUMENRTOCON_ERROR("6071","productType不能为空"),
 
         CRM_VALIDAOCUMENRCOUNT_ERROR("6072","获取附件分类信息出错,请联系管理员"),
+
+        CRM_CUSOMERALLACATE_ERROR("6073","存在新分配未沟通客户,不允许此操作"),
+
         ;
         private String status;
         private String error;

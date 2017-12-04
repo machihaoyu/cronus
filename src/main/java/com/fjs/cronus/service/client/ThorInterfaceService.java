@@ -8,6 +8,7 @@ import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.CronusDto;
 
 import com.fjs.cronus.dto.api.uc.CityDto;
+import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.uc.*;
 import org.springframework.cloud.netflix.feign.FeignClient;
@@ -487,5 +488,14 @@ public interface ThorInterfaceService {
                                                     @RequestParam(value = "size") Integer size,
                                                     @RequestParam(value = "name") String name,
                                                     @RequestParam(value = "status") Integer status);
+
+
+    @RequestMapping(value = "/api/v1/getSubCompanys",method = RequestMethod.POST)
+    PhpApiDto<List<PhpDepartmentModel>> getSubCompany(@RequestHeader("Authorization") String token,
+                                                       @RequestParam(value = "where") String where,
+                                                       @RequestParam(value = "type") Integer type,
+                                                       @RequestParam(value = "city") String city,
+                                                       @RequestParam(value = "company_id") Integer company_id);
+
 }
 

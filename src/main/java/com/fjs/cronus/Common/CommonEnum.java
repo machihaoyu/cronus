@@ -63,7 +63,7 @@ public enum CommonEnum {
     LOAN_OPERATION_TYPE_4(4, "未沟通分配"),
     LOAN_OPERATION_TYPE_5(5, "添加客户到公盘"),
     LOAN_OPERATION_TYPE_6(6, "新增交易"),
-    LOAN_OPERATION_TYPE_7(7, "修改交易"),
+    LOAN_OPERATION_TYPE_7(7, "修改客户"),
     LOAN_OPERATION_TYPE_8(8, "自动清洗"),
     LOAN_OPERATION_TYPE_9(9, "扔回公盘"),
     LOAN_OPERATION_TYPE_10(10, "删除交易"),

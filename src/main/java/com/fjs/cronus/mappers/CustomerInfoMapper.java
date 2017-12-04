@@ -60,4 +60,7 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
      * @return
      */
     List<String> customerSourceByGroup();
+
+    public void batchAllocate(Map<String, Object> map);
+
 }

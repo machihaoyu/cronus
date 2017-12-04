@@ -23,4 +23,6 @@ public interface AllocateLogMapper extends MyMapper<AllocateLog> {
     public Integer selectCommunicateToday(Map<String, Object> map);
 
     public Integer selectCommunicateHistory(Map<String, Object> map);
+
+    public List<AllocateLog> getNewestAllocateLogByCustomerIds(Map<String,Object> paramsMap);
 }

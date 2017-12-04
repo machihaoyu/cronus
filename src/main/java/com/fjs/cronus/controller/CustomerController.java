@@ -273,12 +273,12 @@ public class CustomerController {
         }
     }
 
-    @ApiOperation(value="更改客户状态", notes="更改客户状态")
+    @ApiOperation(value="改为为协议状态", notes="改为为协议状态")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "JSONObject", value = "{'customer_id':'客户id','user_id':'操作人id','customerTypeSta':'','customerTypeEnd':''}", required = true, paramType = "body", dataType = "JSONObject")
     })
-    @RequestMapping(value = "/editCustomerType", method = RequestMethod.POST)
+    @RequestMapping(value = "/改为为协议状态", method = RequestMethod.POST)
     @ResponseBody
     public CronusDto editCustomerType(@RequestBody JSONObject jsonObject) {
         CronusDto cronusDto = new CronusDto();
@@ -301,6 +301,44 @@ public class CustomerController {
 
         try {
             cronusDto = customerInfoService.editCustomerType(customer_id,user_id,customerTypeSta,customerTypeEnd);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->editCustomerOk提交失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+    @ApiOperation(value="协议状态TO成交状态", notes="协议状态TO成交状态")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "JSONObject", value = "{'customer_id':'客户id','user_id':'操作人id','customerTypeSta':'','customerTypeEnd':''}", required = true, paramType = "body", dataType = "JSONObject")
+    })
+    @RequestMapping(value = "/editCustomerTypeTOCon", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto editCustomerTypeTOCon(@RequestBody JSONObject jsonObject) {
+        CronusDto cronusDto = new CronusDto();
+        Integer customer_id = jsonObject.getInteger("customer_id");
+        Integer user_id = jsonObject.getInteger("user_id");
+        String customerTypeSta = jsonObject.getString("customerTypeSta");
+        String customerTypeEnd = jsonObject.getString("customerTypeEnd");
+        if (customer_id == null){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        if (user_id == null){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        if (customerTypeSta == null || "".equals(customerTypeSta)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        if (customerTypeEnd == null || "".equals(customerTypeEnd)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+
+        try {
+            cronusDto = customerInfoService.editCustomerTypeTOConversion(customer_id,user_id);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->editCustomerOk提交失败", e);

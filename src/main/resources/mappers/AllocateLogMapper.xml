@@ -140,4 +140,17 @@
             and date(c.create_time) between #{createTimeBegin} and #{createTimeEnd}
         </if>
     </select>
+
+    <select id="getNewestAllocateLogByCustomerIds" resultMap="BaseResultMap" parameterType="Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM allocate_log cl
+        INNER JOIN (
+        select MAX(allocate_id) mid FROM allocate_log where customer_id
+        <foreach item="paramsList" index="index" collection="paramsList" open="(" separator="," close=")">
+            #{paramsList}
+        </foreach>
+        group by customer_id
+        ) clt on cl.allocate_id=clt.mid
+    </select>
 </mapper>
