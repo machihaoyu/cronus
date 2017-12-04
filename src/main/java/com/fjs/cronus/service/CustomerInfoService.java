@@ -893,14 +893,13 @@ public class CustomerInfoService {
                         List<ContracrLogDTO> contracrLogDTOS2 = new ArrayList<>();//第二种种合同
                         serviceLogDTOS.add(serviceLogDTO);
                         for (ContracrLogDTO contracrLogDTO : contractInfo) {
-
                             if (contracrLogDTO.getStatus() == 0){//合同的状态为进行中 还没有提交申请
+                                contracrLogDTOS1.add(contracrLogDTO);
+                                mustUpAgreementIds.add(agreementIds);
+                                mustUpContractIds1.add(contracrLogDTO.getContractId());
+                            }/*else if (){
 
-
-
-
-
-                            }
+                            }*/
 
                         }
 
