@@ -6,6 +6,8 @@ import com.fjs.cronus.dto.ContractDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPUserDto;
+import com.fjs.cronus.dto.api.crius.Contract;
+import com.fjs.cronus.dto.api.crius.ServiceContract;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.thea.ServiceContractDTO;
@@ -897,9 +899,13 @@ public class CustomerInfoService {
                                 contracrLogDTOS1.add(contracrLogDTO);
                                 mustUpAgreementIds.add(agreementIds);
                                 mustUpContractIds1.add(contracrLogDTO.getContractId());
-                            }/*else if (){
+                            }else if (contracrLogDTO.getStatus() == 1){////正在结案中
+                                mustUpAgreementIds.add(agreementIds);
+                                contracrLogDTOS2.add(contracrLogDTO);
+                                mustUpContractIds2.add(contracrLogDTO.getContractId());
+                                //修改合同的负责人,将合同的状态变成进行中,审核流程变成还未审核,审核状态变成默认
 
-                            }*/
+                            }
 
                         }
 
@@ -911,15 +917,114 @@ public class CustomerInfoService {
 
 
             }
-
+            logarr.add(logArrDTO);
 
         }
+        //
+        List<ReturnLogArrDTO> returnLogArrDTOS = selectUseToLog(logarr);
 
 
         return  false;
 
     }
 
+
+    public List<ReturnLogArrDTO> selectUseToLog(List<LogArrDTO> logarr){
+        List<ReturnLogArrDTO> resultList = new ArrayList<>();
+        //遍历
+        if (logarr != null && logarr.size() > 0){
+            for (LogArrDTO logArrDTO : logarr) {
+                //找出客户的信息
+               ReturnLogArrDTO returnLogArrDTO = new ReturnLogArrDTO();
+               CustomerInfo customerInfo = findCustomerById(logArrDTO.getCustomerId());
+               returnLogArrDTO.setCustomerInfo(customerInfo);
+
+                List<Integer> serviceIds = new ArrayList<>();
+                List<Integer> contract1 = new ArrayList<>();
+                List<Integer> contract2 = new ArrayList<>();
+                if (logArrDTO.getServiceLogDTOS()!= null && logArrDTO.getServiceLogDTOS().size() > 0){
+                   List<ServiceLogDTO> serviceContract = logArrDTO.getServiceLogDTOS();
+                   for (ServiceLogDTO serviceLogDTO : serviceContract) {
+                       serviceIds.add(serviceLogDTO.getServiceContracrId());
+                       List<ContracrLogDTO> contracrLogDTOS1 = serviceLogDTO.getContracrLogDTOS();
+                       List<ContracrLogDTO> contractLogDTOS2 = serviceLogDTO.getContracrLogDTOS2();
+
+                       for (ContracrLogDTO contracrLogDTO :contracrLogDTOS1 ) {
+
+                           contract1.add(contracrLogDTO.getContractId());
+                       }
+                       for (ContracrLogDTO contracrLogDTO1 :contractLogDTOS2 ) {
+
+                           contract2.add(contracrLogDTO1.getContractId());
+                       }
+                   }
+
+
+               }
+
+               //TODO 调用交易系统开始填写信息
+
+                List<ServiceContract> serviceContracts = null;
+
+                List<Contract> contracts1 = null;
+
+                List<Contract> contracts2 = null;
+
+                returnLogArrDTO.setAgreementInfos(serviceContracts);
+                returnLogArrDTO.setContractInfos1(contracts1);
+                returnLogArrDTO.setContractInfos2(contracts2);
+
+                resultList.add(returnLogArrDTO);
+            }
+
+        }
+        return  resultList;
+
+    }
+
+    /**
+     *
+     * @param mustUpAgreementIds
+     * @param mustUpCustomerIds
+     * @param mustUpContractIds1
+     * @param mustUpContractIds2
+     * @param toUser
+     * @param toUserName
+     * @return
+     */
+    @Transactional
+    public boolean saveRemoveInfo(List<Integer> mustUpAgreementIds,List<Integer> mustUpCustomerIds,
+                                  List<Integer> mustUpContractIds1,List<Integer> mustUpContractIds2,
+                                  Integer toUser,String toUserName,String token){
+
+        boolean flag = false;
+        Date date = new Date();
+        //如果客户为要修改的状态,修改客户信
+        if (mustUpCustomerIds != null && mustUpCustomerIds.size() > 0){
+           //处理
+           // String customerIds = listToString(mustUpCustomerIds);
+            //查询到这些用户信息
+            UcUserDTO userDTO = ucService.getUserInfoByID(token,toUser);
+            //开始更新
+            Map<String,Object> paramsMap = new HashMap<>();
+            //获取当前登录用户信息
+            Integer userId = ucService.getUserIdByToken(token);
+
+            paramsMap.put("paramsList",mustUpCustomerIds);
+            paramsMap.put("subcompanyId",userDTO.getSub_company_id());
+            paramsMap.put("ownerUserId",toUser);
+            paramsMap.put("receiveTime",date);
+            paramsMap.put("lastUpdateTime",date);
+            paramsMap.put("lastUpdateUser",userId);
+            customerInfoMapper.batchUpdate(paramsMap);
+        }
+
+         // TODO 修改进行中的合同
+
+
+
+        return  flag;
+    }
 
     public String listToString(List list){
 
