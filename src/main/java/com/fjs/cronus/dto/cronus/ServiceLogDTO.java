@@ -12,6 +12,16 @@ public class ServiceLogDTO implements Serializable {
 
     private List<ContracrLogDTO> contracrLogDTOS;
 
+    private List<ContracrLogDTO> contracrLogDTOS2;//对应合同的状态
+
+    public List<ContracrLogDTO> getContracrLogDTOS2() {
+        return contracrLogDTOS2;
+    }
+
+    public void setContracrLogDTOS2(List<ContracrLogDTO> contracrLogDTOS2) {
+        this.contracrLogDTOS2 = contracrLogDTOS2;
+    }
+
     public Integer getServiceContracrId() {
         return serviceContracrId;
     }

@@ -889,7 +889,8 @@ public class CustomerInfoService {
                         //遍历合同的信息
                         logArrDTO.setCustomerId(customerId);
                         serviceLogDTO.setServiceContracrId(agreementIds);
-                        //List<ContracrLogDTO>
+                        List<ContracrLogDTO> contracrLogDTOS1 = new ArrayList<>();//第一种合同
+                        List<ContracrLogDTO> contracrLogDTOS2 = new ArrayList<>();//第二种种合同
                         serviceLogDTOS.add(serviceLogDTO);
                         for (ContracrLogDTO contracrLogDTO : contractInfo) {
 

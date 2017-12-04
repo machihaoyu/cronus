@@ -279,7 +279,7 @@ public class CustomerController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "JSONObject", value = "{'customer_id':'客户id','user_id':'操作人id','customerTypeSta':'','customerTypeEnd':''}", required = true, paramType = "body", dataType = "JSONObject")
     })
-    @RequestMapping(value = "/改为为协议状态", method = RequestMethod.POST)
+    @RequestMapping(value = "/editCustomerType", method = RequestMethod.POST)
     @ResponseBody
     public CronusDto editCustomerType(@RequestBody JSONObject jsonObject) {
         CronusDto cronusDto = new CronusDto();
@@ -482,13 +482,15 @@ public class CustomerController {
     @ApiOperation(value="保留客户", notes="保留客户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "jsonObject", value = "{'customerId':'customerId'}", required = true, paramType = "body", dataType = "JSONObject"),
+
     })
     @RequestMapping(value = "/keepCustomer", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto keepLoan(@RequestParam(required = true,value = "customerId") Integer customerId, HttpServletRequest request){
+    public CronusDto keepLoan(@RequestBody JSONObject jsonObject, HttpServletRequest request){
         CronusDto  theaApiDTO=new CronusDto ();
         String token=request.getHeader("Authorization");
+        Integer customerId = jsonObject.getInteger("customerId");
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
         String[] authority=resultDto.getAuthority();
         if(authority.length>0){
@@ -562,12 +564,13 @@ public class CustomerController {
     @ApiOperation(value="取消保留客户", notes="取消保留客户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "customerId", value = "交易id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "jsonObject", value = "{'customerId':'customerId'}", required = true, paramType = "body", dataType = "JSONObject"),
     })
     @RequestMapping(value = "/cancelkeepCustomer", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto cancelkeepCustomer(@RequestParam(required = true,value = "customerId") Integer customerId,@RequestHeader("Authorization")String token){
+    public CronusDto cancelkeepCustomer(@RequestBody JSONObject jsonObject,@RequestHeader("Authorization")String token){
         CronusDto theaApiDTO=new CronusDto();
+        Integer customerId = jsonObject.getInteger("customerId");
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
         String[] authority=resultDto.getAuthority();
         if(authority.length>0){
@@ -614,15 +617,19 @@ public class CustomerController {
 
     @ApiOperation(value="批量扔回公盘", notes="批量扔回公盘")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")})
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "jsonObject", value = "{'ids':'1,3,4'}", required = true, paramType = "body", dataType = "JSONObject"),
+
+    })
+
     @RequestMapping(value = "/briefCustomer", method = RequestMethod.POST)
     @ResponseBody
-
-    public CronusDto briefCustomer(@RequestParam(required = true) String ids,
+    public CronusDto briefCustomer(@RequestBody JSONObject jsonObject,
                                     @RequestHeader("Authorization")String token){
 
         CronusDto cronusDto = new CronusDto();
         //校验权限
+        String ids = jsonObject.getString("ids");
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
         String[] authority=resultDto.getAuthority();
         if(authority.length>0){
