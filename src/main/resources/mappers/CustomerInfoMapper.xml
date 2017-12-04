@@ -1514,7 +1514,7 @@
     </select>
 
     <update id="batchAllocate" parameterType="Map">
-        update loan
+        update customer_info
         <set>
             <if test="lastUpdateUser != null and '' != lastUpdateUser">
                 last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
@@ -1523,6 +1523,23 @@
                 last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
             </if>
             own_user_id = #{ownUserId,jdbcType=INTEGER}
+        </set>
+        where id in
+        <foreach collection="paramsList" index="index" item="paramsList" open="(" separator="," close=")">
+            #{paramsList}
+        </foreach>
+    </update>
+
+    <update id="batchRemove" parameterType="Map">
+        update customer_info
+        <set>
+            <if test="lastUpdateUser != null and '' != lastUpdateUser">
+                last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+            </if>
+            <if test="lastUpdateTime != null ">
+                last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+            </if>
+            own_user_id=null
         </set>
         where id in
         <foreach collection="paramsList" index="index" item="paramsList" open="(" separator="," close=")">

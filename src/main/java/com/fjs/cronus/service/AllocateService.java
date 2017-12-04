@@ -115,12 +115,12 @@ public class AllocateService {
                 userId = Integer.parseInt(userInfoDTO.getUser_id());
             }
             map.put("ownUserId",empId);
-            map.put("idList",paramsList);
+            map.put("idList",uniqueList);
             map.put("lastUpdateUser",userId);
             map.put("lastUpdateTime",date);
             //判断是否是首次分配
             Map<String,Object> idMap=new HashMap<>();
-            idMap.put("paramsList",paramsList);
+            idMap.put("paramsList",uniqueList);
             List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerListByFeild(idMap);
             if (customerInfoList.size() > 0){
                 for (CustomerInfo customerInfo: customerInfoList){

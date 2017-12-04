@@ -2,35 +2,34 @@ package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.fjs.cronus.Common.*;
+import com.fjs.cronus.dto.ContractDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
-import com.fjs.cronus.dto.cronus.CustomerSourceDTO;
+import com.fjs.cronus.dto.cronus.*;
+import com.fjs.cronus.dto.thea.ServiceContractDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
-import com.fjs.cronus.dto.cronus.CustomerDTO;
-import com.fjs.cronus.dto.cronus.CustomerListDTO;
-import com.fjs.cronus.dto.cronus.EmplouInfo;
-import com.fjs.cronus.dto.thea.AllocateDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
+import com.fjs.cronus.model.CommunicationLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerInfoLog;
-import com.fjs.cronus.model.CustomerUseful;
+
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
+
 import org.springframework.util.StringUtils;
-import org.w3c.dom.ls.LSInput;
+
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+
 
 /**
  * Created by msi on 2017/9/13.
@@ -44,6 +43,11 @@ public class CustomerInfoService {
     UcService ucService;
     @Autowired
     CustomerInfoLogMapper customerInfoLogMapper;
+    @Autowired
+    CommunicationLogService communicationLogService;
+    @Autowired
+    AllocateService allocateService;
+
 
     public  List<CustomerInfo> findList(){
         List<CustomerInfo> resultList = new ArrayList();
@@ -695,5 +699,241 @@ public class CustomerInfoService {
         resultList = customerInfoMapper.findCustomerListByFeild(paramsMap);
 
         return  resultList;
+    }
+
+    @Transactional
+    public CronusDto removeCustomer(String ids,String token){
+        boolean flag = false;
+        CronusDto cronusDto = new CronusDto();
+        if (StringUtils.isEmpty(ids)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        UserInfoDTO userInfoDTO=ucService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
+        //根据编号查询到客户
+        List<CustomerInfo> customerInfoList = getByIds(ids);
+        if (customerInfoList == null || customerInfoList.size() == 0){
+            throw new CronusException(CronusException.Type.MESSAGE_NOT_EXIST_LOAN);
+        }
+        for (CustomerInfo customerInfo : customerInfoList) {
+            if (customerInfo.getRemain() == CommonConst.CONFIRM__STATUS_NO){
+                cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
+                cronusDto.setMessage("" + customerInfo.getId() + "请先确认客户");
+                return cronusDto;
+            }
+            //判断是否是意向客户
+            if (!customerInfo.getCustomerType().equals(CommonConst.CUSTOMER_TYPE_MIND) ){
+                cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
+                cronusDto.setMessage("" + customerInfo.getId() + "该客户不是意向客户");
+                return cronusDto;
+            }
+            //负责人是不是自己
+            if (!StringUtils.isEmpty(userInfoDTO.getUser_id()) && customerInfo.getOwnUserId() != Integer.parseInt(userInfoDTO.getUser_id())){
+                cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
+                cronusDto.setMessage("" + customerInfo.getId() + "该客户负责人不是本人");
+                return cronusDto;
+            }
+            //是否沟通过
+            List<CommunicationLog> communicationLogList= new ArrayList<CommunicationLog>();
+            if (!StringUtils.isEmpty(userInfoDTO.getUser_id())){
+                communicationLogList=communicationLogService.listByCustomerIdAndUserId(customerInfo.getId(),Integer.parseInt(userInfoDTO.getUser_id()),token);
+            }
+            if (communicationLogList.size() == 0){
+                cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
+                cronusDto.setMessage("" + customerInfo.getId() + "请先沟通该客户");
+                return cronusDto;
+            }
+
+        }
+        //开始批量移除客户到公盘
+        batchRemove(ids,Integer.valueOf(userInfoDTO.getUser_id()));
+        flag = true;
+        cronusDto.setResult(CommonMessage.REMOVE_SUCCESS.getCode());
+        cronusDto.setMessage(CommonMessage.REMOVE_SUCCESS.getCodeDesc());
+        cronusDto.setData(flag);
+        return  cronusDto;
+    }
+
+    @Transactional
+    public void batchRemove(String ids,Integer userId){
+        Date date = new Date();
+        String[] arr = ids.split(",");
+        Map<String,Object> paramsMap = new HashMap<>();
+        List<Integer> paramsList = new ArrayList<>();
+        if (ids != null && !"".equals(ids)) {
+            String[] strArray = null;
+            strArray = ids.split(",");
+            for (int i = 0; i < strArray.length; i++) {
+                paramsList.add(Integer.parseInt(strArray[i]));
+            }
+        }
+        if (paramsList != null && paramsList.size() > 0){
+            //开始插入日志
+            for (Integer id : paramsList) {
+                //查询到此客户
+                CustomerInfo customerInfo = findCustomerById(id);
+                if (customerInfo != null){
+                    //开始插入日志
+                    CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+                    EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+                    customerInfoLog.setLogCreateTime(date);
+                    customerInfoLog.setLogDescription(CommonEnum.LOAN_OPERATION_TYPE_9.getCodeDesc());
+                    customerInfoLog.setLogUserId(userId);
+                    customerInfoLog.setIsDeleted(0);
+                    customerInfoLogMapper.addCustomerLog(customerInfoLog);
+                }
+            }
+
+            //开始移除公盘
+            paramsMap.put("paramsList",paramsList);
+            paramsMap.put("lastUpdateUser",userId);
+            paramsMap.put("lastUpdateTime",date);
+            customerInfoMapper.batchRemove(paramsMap);
+        }
+    }
+
+    public boolean removeCustomerAll(RemoveDTO removeDTO,String token){
+            boolean flag = false;
+            //判断有没有选择负责人
+            Map<String,Object> paramMap = new HashMap<>();
+            List<Integer> ownIds = null;//负责人
+            if (StringUtils.isEmpty(removeDTO.getEmpId())){
+                throw new CronusException(CronusException.Type.MESSAGE_REMOVECUSTOERAll_ERROR);
+            }
+            //判断这个负责人是不是在职的
+            UcUserDTO userInfoDTO = ucService.getUserInfoByID(token,removeDTO.getEmpId());
+            Integer status = Integer.parseInt(userInfoDTO.getStatus());
+            if (status != 1){
+                throw new CronusException(CronusException.Type.MESSAGE_REMOVECUSTOERSTATUS_ERROR);
+            }
+            if (StringUtils.isEmpty(removeDTO.getIds())){
+                throw new CronusException(CronusException.Type.MESSAGE_REMOVECUSTNOTNULL_ERROR);
+            }
+            //
+        List<Integer> paramsList = new ArrayList<>();
+        if (removeDTO.getIds() != null && !"".equals(removeDTO.getIds())) {
+            String[] strArray = null;
+            strArray = removeDTO.getIds().split(",");
+            for (int i = 0; i < strArray.length; i++) {
+                paramsList.add(Integer.parseInt(strArray[i]));
+            }
+        }
+        //去重复操作
+        List<Integer> uniqueList = new ArrayList<Integer>(new HashSet<>(paramsList));
+        //判断客户存在不存在首次分配未处理的的
+        boolean result = allocateService.validCustomerAllIsOperate(removeDTO.getIds());
+        if (result == false){
+            throw new CronusException(CronusException.Type.CRM_CUSOMERALLACATE_ERROR);
+        }
+        //查询这些客户的信息
+        paramMap.put("paramsList",uniqueList);
+        List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerListByFeild(paramMap);
+        //得到这些业务员的负责人
+        if (customerInfoList != null && customerInfoList.size() > 0) {
+            for (CustomerInfo customerInfo : customerInfoList) {
+                ownIds.add(customerInfo.getOwnUserId());
+            }
+           //对负责人去除操作
+            ownIds =  new ArrayList<Integer>(new HashSet<>(ownIds));
+            //得到用户的信息逗号隔开
+            String strIds  = listToString(ownIds);
+            List<PHPUserDto> userList = ucService.getUserByIds(token,strIds,null,null,null,null,null,null,null);
+            // TODO 下面开始更改这些客户的信息
+            removeToUser(uniqueList,removeDTO.getEmpId(),userInfoDTO.getName());
+
+
+
+        }
+            return  flag;
+    }
+
+    public boolean removeToUser(List<Integer> customerids,Integer touser,String touserName){
+        boolean flag = false;
+        //循环每一个客户,对每一个客户进行处理
+
+
+        List mustUpAgreementIds= new ArrayList();
+        List mustUpCustomerIds=new ArrayList();
+
+        List mustUpContractIds1=new ArrayList();//进行中的合同 主键
+        List mustUpContractIds2=new ArrayList();//正在结案中的合同 主键
+
+        List<LogArrDTO> logarr = new ArrayList();
+
+        //开始遍历
+        for (Integer customerId : customerids) {
+            LogArrDTO logArrDTO = new LogArrDTO();
+            List<ServiceLogDTO> serviceLogDTOS = new ArrayList<>();
+            mustUpCustomerIds.add(customerId);
+            //TODO 通过客户id获取他的服务合同 调用交易系统
+            List<Integer> serviceContractDTOS = null;//每一个客户对应的居间协议/服务合同的id
+            //判断如果没有服务合同
+            if (serviceContractDTOS == null || serviceContractDTOS.size() == 0){
+                logArrDTO.setCustomerId(customerId);
+            }else {//服务合同不为空的话
+                for (Integer agreementIds : serviceContractDTOS) {
+                    //取得当前服务合同对应的合同信息
+                    //TODO  根据服务合同id 获取所有的合同
+                    ServiceLogDTO serviceLogDTO = new ServiceLogDTO();
+                    List<ContracrLogDTO> contractInfo = null;
+                    if (contractInfo == null || contractInfo.size() == 0){
+                        logArrDTO.setCustomerId(customerId);
+                        serviceLogDTO.setServiceContracrId(agreementIds);
+                        serviceLogDTOS.add(serviceLogDTO);
+                        mustUpAgreementIds.add(agreementIds);
+                    }else {//此条信息有合同的时候
+                         /*
+                         * 3种类型：已结案：不做任何处理
+                         * 结案中：合同的负责人设为被转移人；合同状态变为进行中；审批流程重置；协议的负责人设为被转移人；
+                         * 进行中（未申请结案）：合同的负责人设为被转移人；协议的负责人设为被转移人；
+                         */
+                        //遍历合同的信息
+                        logArrDTO.setCustomerId(customerId);
+                        serviceLogDTO.setServiceContracrId(agreementIds);
+                        //List<ContracrLogDTO>
+                        serviceLogDTOS.add(serviceLogDTO);
+                        for (ContracrLogDTO contracrLogDTO : contractInfo) {
+
+                            if (contracrLogDTO.getStatus() == 0){//合同的状态为进行中 还没有提交申请
+
+
+
+
+
+                            }
+
+                        }
+
+
+                    }
+
+                }
+
+
+
+            }
+
+
+        }
+
+
+        return  false;
+
+    }
+
+
+    public String listToString(List list){
+
+        StringBuilder str = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            if (i == list.size() - 1)//当循环到最后一个的时候 就不添加逗号,
+            {
+                str.append(list.get(i));
+            } else {
+                str.append(list.get(i));
+                str.append(",");
+            }
+
+        }
+        return  str.toString();
     }
 }

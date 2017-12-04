@@ -63,4 +63,6 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
 
     public void batchAllocate(Map<String, Object> map);
 
+    public void batchRemove(Map<String, Object> map);
+
 }

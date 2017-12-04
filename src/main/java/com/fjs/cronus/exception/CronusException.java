@@ -32,7 +32,7 @@ public class CronusException extends BaseException {
 
         CRM_CUSTOMERPHONERE_ERROR("6006","该手机号已存在"),
 
-        CRM_CUSTOMEINFO_ERROR("6007","该用户不存在"),
+        CRM_CUSTOMEINFO_ERROR("6007","客户不存在"),
 
         CRM_DATAAUTH_ERROR("6008","当前用户无数据权限"),
 
@@ -161,6 +161,14 @@ public class CronusException extends BaseException {
         CRM_VALIDAOCUMENRCOUNT_ERROR("6072","获取附件分类信息出错,请联系管理员"),
 
         CRM_CUSOMERALLACATE_ERROR("6073","存在新分配未沟通客户,不允许此操作"),
+
+        MESSAGE_NOT_EXIST_LOAN("6074", "参数存在错误,不允许此操作"),
+
+        MESSAGE_REMOVECUSTOERAll_ERROR("6075", "请选择要转的负责人"),
+
+        MESSAGE_REMOVECUSTOERSTATUS_ERROR("6076", "请选择在职的负责人"),
+
+        MESSAGE_REMOVECUSTNOTNULL_ERROR("6077","请先选择客户"),
 
         ;
         private String status;

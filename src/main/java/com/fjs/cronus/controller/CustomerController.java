@@ -9,6 +9,7 @@ import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
+import com.fjs.cronus.dto.cronus.RemoveDTO;
 import com.fjs.cronus.dto.thea.AllocateDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
@@ -485,7 +486,7 @@ public class CustomerController {
     })
     @RequestMapping(value = "/keepCustomer", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto keepLoan(@RequestParam(required = true) Integer customerId, HttpServletRequest request){
+    public CronusDto keepLoan(@RequestParam(required = true,value = "customerId") Integer customerId, HttpServletRequest request){
         CronusDto  theaApiDTO=new CronusDto ();
         String token=request.getHeader("Authorization");
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
@@ -565,7 +566,7 @@ public class CustomerController {
     })
     @RequestMapping(value = "/cancelkeepCustomer", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto cancelkeepCustomer(@RequestParam(required = true) Integer customerId,@RequestHeader("Authorization")String token){
+    public CronusDto cancelkeepCustomer(@RequestParam(required = true,value = "customerId") Integer customerId,@RequestHeader("Authorization")String token){
         CronusDto theaApiDTO=new CronusDto();
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
         String[] authority=resultDto.getAuthority();
@@ -609,6 +610,76 @@ public class CustomerController {
         }
 
         return theaApiDTO;
+    }
+
+    @ApiOperation(value="批量扔回公盘", notes="批量扔回公盘")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")})
+    @RequestMapping(value = "/briefCustomer", method = RequestMethod.POST)
+    @ResponseBody
+
+    public CronusDto briefCustomer(@RequestParam(required = true) String ids,
+                                    @RequestHeader("Authorization")String token){
+
+        CronusDto cronusDto = new CronusDto();
+        //校验权限
+        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
+        String[] authority=resultDto.getAuthority();
+        if(authority.length>0){
+            List<String> authList= Arrays.asList(authority);
+            if (authList.contains(CommonConst.REMOVE_LOAN_URL)){
+                cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
+                cronusDto.setMessage(CommonConst.NO_AUTHORIZE);
+                return cronusDto;
+            }
+        }
+        try {
+            cronusDto  = customerInfoService.removeCustomer(ids,token);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->removeCustomer批量扔回公盘操作失败",e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+
+    }
+
+    @ApiOperation(value="离职员工批量转移", notes="离职员工批量转移")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")})
+    @RequestMapping(value = "/removeCustomerAll", method = RequestMethod.POST)
+    @ResponseBody
+
+    public CronusDto removeCustomerAll(@RequestBody RemoveDTO removeDTO,
+                                   @RequestHeader("Authorization")String token){
+
+        CronusDto cronusDto = new CronusDto();
+        //校验权限
+        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
+        String[] authority=resultDto.getAuthority();
+        if(authority.length>0){
+            List<String> authList= Arrays.asList(authority);
+            if (authList.contains(CommonConst.REMOVE_LOAN_URL)){
+                cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
+                cronusDto.setMessage(CommonConst.NO_AUTHORIZE);
+                return cronusDto;
+            }
+        }
+        try {
+            boolean result  = customerInfoService.removeCustomerAll(removeDTO,token);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->removeCustomer批量扔回公盘操作失败",e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+
     }
 
 
