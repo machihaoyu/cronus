@@ -3,7 +3,6 @@
 <mapper namespace="com.fjs.cronus.mappers.PrdCustomerMapper">
 	<resultMap id="BaseResultMap" type="com.fjs.cronus.model.PrdCustomer">
 		<id column="id" property="id" jdbcType="INTEGER" />
-		<result column="customer_id" property="customerId" jdbcType="INTEGER" />
 		<result column="customer_name" property="customerName" jdbcType="VARCHAR" />
 		<result column="sex" property="sex" jdbcType="CHAR" />
 		<result column="customer_type" property="customerType" jdbcType="VARCHAR" />
@@ -26,7 +25,7 @@
 		<result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
 	</resultMap>
 	<sql id="Base_Column_List">
-		id,customer_id,customer_name,sex
+		id,customer_name,sex
 		,customer_type,telephonenumber,loan_amount
 		,city,house_status,level,customer_source
 		,utm_source,view_time,view_uid,communit_time

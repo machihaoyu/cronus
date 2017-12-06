@@ -60,7 +60,7 @@ public class PrdCustomerService {
 
         PrdOperationLog prdOperationLog=new PrdOperationLog();
         prdOperationLog.setOperation(CommonConst.IMPORT_PRD_CUSTOMER);
-        prdOperationLog.setPrdCustomerId(prdCustomer.getCustomerId());
+        prdOperationLog.setPrdCustomerId(prdCustomer.getId());
         prdOperationLog.setResult(CommonConst.IMPORT_PRD_RESULT);
         prdOperationLog.setCreateUser(userId);
         prdOperationLog.setCreateTime(date);

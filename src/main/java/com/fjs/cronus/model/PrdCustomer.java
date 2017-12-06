@@ -17,11 +17,6 @@ public class PrdCustomer implements Serializable{
 	private Integer id;
 
 	/**
-	 * 客户ID
-	 */
-	private Integer customerId;
-
-	/**
 	 * 客户姓名
 	 */
 	private String customerName;
@@ -116,14 +111,6 @@ public class PrdCustomer implements Serializable{
 
 	public void setId(Integer id) {
 		this.id = id;
-	}
-
-	public Integer getCustomerId() {
-		return customerId;
-	}
-
-	public void setCustomerId(Integer customerId) {
-		this.customerId = customerId;
 	}
 
 	public String getCustomerName() {
@@ -290,7 +277,6 @@ public class PrdCustomer implements Serializable{
 	public String toString() {
 		return "PrdCustomer{" +
 				"id=" + id +
-				", customerId=" + customerId +
 				", customerName='" + customerName + '\'' +
 				", sex='" + sex + '\'' +
 				", customerType='" + customerType + '\'' +
