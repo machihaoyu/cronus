@@ -728,6 +728,9 @@ public class CustomerController {
         }
         try {
             List<SubCompanyDto> companyDtos = customerInfoService.getAllCompany(token,userId);
+            cronusDto.setResult(ResultResource.CODE_SUCCESS);
+            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            cronusDto.setData(companyDtos);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->customerList获取列表信息操作失败", e);
