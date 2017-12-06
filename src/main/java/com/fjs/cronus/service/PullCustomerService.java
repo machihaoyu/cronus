@@ -185,14 +185,7 @@ public class PullCustomerService {
     }
 
     /**
-     *  $data['telephonenumber']=$info['telephone'];
-     $data['customer_name']=$info['name'];
-     $data['house_status']='无';
-     $data['loan_amount']=$info['loan_amount'];
-     $data['city']=$info['city'];
-     $data['customer_source']=$info['customer_source'];
-     $data['utm_source']=$info['utm_source'];
-     $data['owner_user_id']=$user_id;
+     *
      * @param pullCustomer
      * @param userInfoDTO
      * @param token

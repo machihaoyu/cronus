@@ -718,10 +718,10 @@ public class CustomerController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
     })
-    @RequestMapping(value = "/getAllCompany", method = RequestMethod.POST)
+    @RequestMapping(value = "/getAllCompany", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto getAllCompany(@RequestHeader("Authorization") String token) {
-        CronusDto cronusDto = new CronusDto();
+    public CronusDto<List<SubCompanyDto>> getAllCompany(@RequestHeader("Authorization") String token) {
+        CronusDto<List<SubCompanyDto>> cronusDto = new CronusDto();
         Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
         if (userId == null){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
