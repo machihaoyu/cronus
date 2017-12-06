@@ -286,7 +286,12 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getFixedPhone())){
             dto.setFixedPhone(customerInfo.getFixedPhone());
         }
-
+        if (!StringUtils.isEmpty(customerInfo.getOwnUserId())){
+            dto.setOwnerUserId(customerInfo.getOwnUserId());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getOwnUserName())){
+            dto.setOwnUserName(customerInfo.getOwnUserName());
+        }
 
     }
 
@@ -518,7 +523,12 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getFixedPhone())){
             dto.setFixedPhone(customerInfo.getFixedPhone());
         }
-
+        if (!StringUtils.isEmpty(customerInfo.getOwnerUserId())){
+            dto.setOwnUserId(customerInfo.getOwnerUserId());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getOwnUserName())){
+            dto.setOwnUserName(customerInfo.getOwnUserName());
+        }
     }
 
     public static void CustomerInterviewEntityToCustomerInterviewDto(CustomerInterviewBaseInfo customerInfo, CustomerInterVibaseInfoDTO dto){

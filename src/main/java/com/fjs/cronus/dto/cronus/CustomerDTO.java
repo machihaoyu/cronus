@@ -196,6 +196,28 @@ public class CustomerDTO {
     public void setUtmSource(String utmSource) {
         this.utmSource = utmSource;
     }
+
+    @ApiModelProperty(value = "负责人id",notes = "负责人id")
+    private Integer ownerUserId;
+
+    @ApiModelProperty(value = "负责人姓名",notes = "负责人姓名")
+    private String ownUserName;
+
+    public String getOwnUserName() {
+        return ownUserName;
+    }
+
+    public void setOwnUserName(String ownUserName) {
+        this.ownUserName = ownUserName;
+    }
+
+    public Integer getOwnerUserId() {
+        return ownerUserId;
+    }
+
+    public void setOwnerUserId(Integer ownerUserId) {
+        this.ownerUserId = ownerUserId;
+    }
     /*   @ApiModelProperty(value = "海贷魔方 扩展字段",notes = "海贷魔方 扩展字段")
     private String ext;
 
