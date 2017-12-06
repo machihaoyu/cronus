@@ -7,6 +7,7 @@ import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.AddCustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
@@ -703,6 +704,30 @@ public class CustomerController {
         CronusDto cronusDto = new CronusDto();
         try {
             cronusDto = customerInfoService.addCRMCustomer(customerDTO,token);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->customerList获取列表信息操作失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+    @ApiOperation(value="获取当前登录客户的所有总公司", notes="获取当前登录客户的所有总公司")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/getAllCompany", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto getAllCompany(@RequestHeader("Authorization") String token) {
+        CronusDto cronusDto = new CronusDto();
+        Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (userId == null){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        try {
+            List<SubCompanyDto> companyDtos = customerInfoService.getAllCompany(token,userId);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->customerList获取列表信息操作失败", e);

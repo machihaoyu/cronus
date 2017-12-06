@@ -137,5 +137,9 @@ public class HttpsClientUtil
         phoneAreaDTO = json.toJavaObject(PhoneAreaDTO.class);
         System.out.println(string);
         System.out.println(phoneAreaDTO.getCity() + phoneAreaDTO.getIsp());
+
+
+      /*  String result =  HttpsClientUtil.sendHttps("http://beta-base.fang-crm.com/Api/Index/newGetBrand?key=356o192c191db04c54513b0lc28d46ee63954iab");
+        System.out.println(result);*/
     }
 }

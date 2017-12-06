@@ -232,16 +232,7 @@ public class PullCustomerController {
                 theaApiDTO.setMessage(CommonConst.OBJECT_NULL);
                 return theaApiDTO;
             }
-            int createResult = pullCustomerService.transfer(pullCustomer,userInfoDTO,token);
-            if (createResult >0) {
-                theaApiDTO.setResult(CommonMessage.TRANSFER_SUCCESS.getCode());
-                theaApiDTO.setMessage(CommonMessage.TRANSFER_SUCCESS.getCodeDesc());
-            } else {
-                logger.error("-------------->transferPullCustomer更新原始盘失败");
-                theaApiDTO.setResult(CommonMessage.TRANSFER_FAIL.getCode());
-                theaApiDTO.setMessage(CommonMessage.TRANSFER_FAIL.getCodeDesc());
-                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
-            }
+            theaApiDTO = pullCustomerService.transfer(pullCustomer,userInfoDTO,token);
         }catch (Exception e){
             logger.error("-------------->transferPullCustomer更新原始盘失败",e);
             theaApiDTO.setResult(CommonMessage.TRANSFER_FAIL.getCode());

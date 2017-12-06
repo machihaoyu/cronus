@@ -3,6 +3,8 @@ package com.fjs.cronus.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.Common.ResultResource;
+import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.AddPullCustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
@@ -13,12 +15,17 @@ import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 
 
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.PullCustomerMapper;
 import com.fjs.cronus.model.CustomerInfo;
+import com.fjs.cronus.model.CustomerInfoLog;
+import com.fjs.cronus.model.CustomerUseful;
 import com.fjs.cronus.model.PullCustomer;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DateUtils;
+import com.fjs.cronus.util.EntityToDto;
+import com.fjs.cronus.util.HttpClientHelper;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +49,10 @@ public class PullCustomerService {
     private PullCustomerUpdateLogService pullCustomerUpdateLogService;
     @Autowired
     CustomerInfoMapper customerInfoMapper;
+    @Autowired
+    CustomerInfoService customerInfoService;
+    @Autowired
+    CustomerInfoLogMapper customerInfoLogMapper;
     public PullCustomerDTO copyProperty(PullCustomer pullCustomer){
         PullCustomerDTO pullCustomerDTO=new PullCustomerDTO();
         pullCustomerDTO.setId(pullCustomer.getId());
@@ -173,11 +184,31 @@ public class PullCustomerService {
         return pullCustomerMapper.update(pullCustomer);
     }
 
+    /**
+     *  $data['telephonenumber']=$info['telephone'];
+     $data['customer_name']=$info['name'];
+     $data['house_status']='无';
+     $data['loan_amount']=$info['loan_amount'];
+     $data['city']=$info['city'];
+     $data['customer_source']=$info['customer_source'];
+     $data['utm_source']=$info['utm_source'];
+     $data['owner_user_id']=$user_id;
+     * @param pullCustomer
+     * @param userInfoDTO
+     * @param token
+     * @return
+     */
     @Transactional
-    public Integer transfer(PullCustomer pullCustomer, com.fjs.cronus.dto.uc.UserInfoDTO userInfoDTO, String token){
+    public CronusDto transfer(PullCustomer pullCustomer, com.fjs.cronus.dto.uc.UserInfoDTO userInfoDTO, String token){
         Map<String,Object> paramsMap = new HashMap<>();
+        boolean flag = false;
+        String operationReturn="转入成功";
+        CronusDto resultDto = new CronusDto();
+        Date date = new Date();
+        if (pullCustomer.getStatus() != 0){
+            throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
+        }
         if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
-            Date date=new Date();
             pullCustomer.setLastUpdateTime(date);
             pullCustomer.setLastUpdateUser(Integer.parseInt(userInfoDTO.getUser_id()));
             pullCustomer.setStatus(CommonConst.PULL_CUSTOMER_STASTUS_TRANSFER);
@@ -190,15 +221,43 @@ public class PullCustomerService {
             userId=Integer.parseInt(userInfoDTO.getUser_id());
         }
         pullCustomerUpdateLogService.addLog(pullCustomer,userId,CommonConst.TRANSFER_PULL_CUSTOMER1);
-        //转入交易
+        //转入客户现根据手机号判断是否包含此信息
         String encryptTelephone = "";//加密后的
         List paramsList = new ArrayList();
         paramsList.add(encryptTelephone);
         paramsList.add(pullCustomer.getTelephone());
         paramsMap.put("paramsList",paramsList);
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
-
-        return result;
+        if (customerInfo != null){
+            //开始更新客户信息
+            flag= updateCustomer(customerInfo,pullCustomer,userId);
+        }else {
+            //新增一条客户信息
+            CustomerInfo customer = new CustomerInfo();
+            flag = addCustomer(customer,pullCustomer,userId);
+        }
+        if (flag == true){
+            //修改客户的状态
+            pullCustomer.setStatus(1);
+            pullCustomer.setLastUpdateTime(date);
+            pullCustomer.setLastUpdateUser(userId);
+            pullCustomerMapper.update(pullCustomer);
+            //插入日志
+            pullCustomerUpdateLogService.addLog(pullCustomer,userId,CommonConst.UPDATE_PULL_CUSTOMER);
+            //TODO 通知海贷魔方
+            Integer haidairesult = publicToHaidai(pullCustomer,1);
+            if (haidairesult != 0){
+                operationReturn ="转入成功,但推送到海贷魔方失败";
+                resultDto.setData(operationReturn);
+                resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+                resultDto.setResult(ResultResource.CODE_SUCCESS);
+                return resultDto;
+            }
+        }
+        resultDto.setData(operationReturn);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        return resultDto;
     }
 
     @Transactional
@@ -229,6 +288,8 @@ public class PullCustomerService {
         customerDTO.setCustomerName(pullCustomer.getName());
         customerDTO.setTelephonenumber(pullCustomer.getTelephone());
         customerDTO.setCity(pullCustomer.getCity());
+        customerDTO.setHouseStatus("无");
+        //customerDTO.setLoa
         return customerDTO;
     }
     public CustomerInfo copyProperty(CustomerInfo loan, PullCustomer pullCustomer){
@@ -244,5 +305,85 @@ public class PullCustomerService {
         loan.setUtmSource(pullCustomer.getUtmSource());
         loan.setExt(pullCustomer.getExtendText());
         return loan;
+    }
+
+    @Transactional
+    public boolean updateCustomer(CustomerInfo customerInfo,PullCustomer pullCustomer, Integer userId){
+        boolean flag = false;
+        Date date = new Date();
+        customerInfo.setTelephonenumber(pullCustomer.getTelephone());
+        customerInfo.setCustomerName(pullCustomer.getName());
+        customerInfo.setHouseStatus("无");
+        customerInfo.setLoanAmount(pullCustomer.getLoanAmount());
+        customerInfo.setCity(pullCustomer.getCity());
+        customerInfo.setCustomerSource(pullCustomer.getCustomerSource());
+        customerInfo.setUtmSource(pullCustomer.getUtmSource());
+        customerInfo.setOwnUserId(userId);
+        customerInfo.setLastUpdateTime(date);
+        customerInfo.setLastUpdateUser(userId);
+        customerInfoMapper.updateCustomer(customerInfo);
+        //插入日志
+        //生成日志记录
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription("编辑客户信息");
+        customerInfoLog.setLogUserId(userId);
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        flag = true;
+        return  flag;
+    }
+    @Transactional
+    public boolean addCustomer(CustomerInfo customerInfo,PullCustomer pullCustomer, Integer userId){
+        boolean flag = false;
+        Date date = new Date();
+        customerInfo.setTelephonenumber(pullCustomer.getTelephone());
+        customerInfo.setCustomerName(pullCustomer.getName());
+        customerInfo.setHouseStatus("无");
+        customerInfo.setLoanAmount(pullCustomer.getLoanAmount());
+        customerInfo.setCity(pullCustomer.getCity());
+        customerInfo.setCustomerSource(pullCustomer.getCustomerSource());
+        customerInfo.setUtmSource(pullCustomer.getUtmSource());
+        customerInfo.setOwnUserId(userId);
+        customerInfo.setLastUpdateTime(date);
+        customerInfo.setLastUpdateUser(userId);
+        customerInfo.setCreateTime(date);
+        customerInfo.setCreateUser(userId);
+        customerInfoMapper.insertCustomer(customerInfo);
+        //插入日志
+        //生成日志记录
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription("新增一条客户信息");
+        customerInfoLog.setLogUserId(userId);
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        flag = true;
+        return  flag;
+    }
+    public Integer publicToHaidai(PullCustomer pullCustomer,Integer status){
+
+        Integer result = null;
+        JSONObject jsonObject = new JSONObject();
+        String extendText = pullCustomer.getExtendText();
+        String orderID = null;
+        if (StringUtils.isNotEmpty(extendText)){
+            JSONObject   json= JSON.parseObject(extendText);
+            if (json.containsKey("loan_id")){
+                 orderID=json.get("loan_id").toString();
+            }
+        }
+        jsonObject.put("orderID",orderID);
+        jsonObject.put("phone",pullCustomer.getTelephone());
+        jsonObject.put("status",status);
+        //发送post请求
+        HttpClientHelper httpClientHelper = HttpClientHelper.getInstance();
+        String res  = httpClientHelper.sendJsonHttpPost(CommonConst.HaiDai_ChangPhone,jsonObject.toJSONString());
+        if (!StringUtils.isEmpty(res)){
+            result = Integer.parseInt(res);
+        }
+        return  result;
     }
 }

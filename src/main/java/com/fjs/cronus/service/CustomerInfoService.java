@@ -124,7 +124,7 @@ public class CustomerInfoService {
          //json转map 参数，教研参数
         Integer user_id = ucService.getUserIdByToken(token);
         if (user_id == null){
-            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户面谈信息出错!");
+            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户信息出错!");
         }
          validAddData(customerDTO);
          //实体与DTO相互转换
@@ -1137,7 +1137,10 @@ public class CustomerInfoService {
             }
         }
     }
-
+    public  List<SubCompanyDto>  getAllCompany(String token,Integer userId){
+        List<SubCompanyDto> companys = ucService.getAllCompanyByUserId(token,userId,CommonConst.SYSTEM_NAME_ENGLISH);
+        return companys;
+    }
     public String listToString(List list){
 
         StringBuilder str = new StringBuilder();

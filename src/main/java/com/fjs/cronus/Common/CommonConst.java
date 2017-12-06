@@ -234,5 +234,7 @@ public class CommonConst {
     public static String OPERATION = "领取客户";
 
     public static String OPERATIONSUCESS = "领取成功";
+
+    public static String HaiDai_ChangPhone ="http://192.168.1.90/interface/changeCustPhone.do";
 }
 

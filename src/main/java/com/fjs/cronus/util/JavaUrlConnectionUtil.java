@@ -32,8 +32,10 @@ public class JavaUrlConnectionUtil {
 
     public static void main(String args[]){
         String url = "https://api.fangjinsuo.com/phonearea/get/" + "13162706810";
-         String str = getReturnData(url);
-         System.out.println(str);
+         //String str = getReturnData(url);
+         String result = getReturnData("http://beta-base.fang-crm.com/Api/Index/newGetBrand?key=356o192c191db04c54513b0lc28d46ee63954iab");
+
+         System.out.println(result);
 
     }
 }
