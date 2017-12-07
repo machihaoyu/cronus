@@ -2,11 +2,13 @@ package com.fjs.cronus.controller;
 
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
+import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 
+import com.fjs.cronus.dto.cronus.AddPrdCustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 
 import com.fjs.cronus.dto.cronus.PrdCustomerDTO;
@@ -56,7 +58,7 @@ public class PrdCustomerController {
     })
     @RequestMapping(value = "/updatePrdCustomer", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto updatePrdCustomer(@Valid @RequestBody PrdCustomerDTO prdCustomerDTO, BindingResult result, HttpServletRequest request){
+    public CronusDto updatePrdCustomer(@Valid @RequestBody AddPrdCustomerDTO prdCustomerDTO, BindingResult result, HttpServletRequest request){
        CronusDto theaApiDTO=new CronusDto();
          if(result.hasErrors()){
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
@@ -195,9 +197,17 @@ public class PrdCustomerController {
             throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
         }
         try{
-             prdCustomerService.decayPrdCustomer(id,Integer.valueOf(userInfoDTO.getUser_id()));
+            PrdCustomerDTO prdCustomerDTO =  prdCustomerService.decayPrdCustomer(id,Integer.valueOf(userInfoDTO.getUser_id()),token);
+            theaApiDTO.setData(prdCustomerDTO);
+            theaApiDTO.setMessage(ResultResource.MESSAGE_SUCCESS);
+            theaApiDTO.setResult(ResultResource.CODE_SUCCESS);
         }catch (Exception e){
             logger.error("-------------->获取信息失败:"+e);
+                if (e instanceof CronusException) {
+                    CronusException thorException = (CronusException)e;
+                    throw thorException;
+
+            }
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
         return theaApiDTO;

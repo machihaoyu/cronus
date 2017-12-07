@@ -38,7 +38,16 @@ public class PrdCustomerDTO {
     private Date createTime;
 
     @ApiModelProperty(value = "沟通记录")
-    List<PrdComunicationDTO> comunication;
+    private String comunication;
+
+    public String getComunication() {
+        return comunication;
+    }
+
+    public void setComunication(String comunication) {
+        this.comunication = comunication;
+    }
+
     public Date getCreateTime() {
         return createTime;
     }
@@ -137,13 +146,13 @@ public class PrdCustomerDTO {
         this.sex = sex;
     }
 
-    public List<PrdComunicationDTO> getComunication() {
+  /*  public List<PrdComunicationDTO> getComunication() {
         return comunication;
     }
 
     public void setComunication(List<PrdComunicationDTO> comunication) {
         this.comunication = comunication;
-    }
+    }*/
 
     @Override
     public String toString() {

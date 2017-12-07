@@ -6,8 +6,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.cronus.AddPrdCustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
-import com.fjs.cronus.dto.cronus.PrdComunicationDTO;
 import com.fjs.cronus.dto.cronus.PrdCustomerDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
@@ -89,7 +89,7 @@ public class PrdCustomerService {
     }
 
     @Transactional
-    public Integer updatePrdCustomer(PrdCustomerDTO prdCustomerDTO, UserInfoDTO userInfoDTO){
+    public Integer updatePrdCustomer(AddPrdCustomerDTO prdCustomerDTO, UserInfoDTO userInfoDTO){
         Integer userId = null;
         if (userInfoDTO !=null){
             if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
@@ -98,16 +98,9 @@ public class PrdCustomerService {
         }
         Date date=new Date();
         PrdCustomer prdCustomer=getByPrimary(prdCustomerDTO.getId());
-        if (prdCustomer != null){
-            prdCustomer=copyProperty(prdCustomer,prdCustomerDTO);
-        }
+        //实体转换
         if (StringUtils.isNotEmpty(prdCustomer.getCommunitContent())){
-            prdCustomer.setCommunitTime(date);
-            //加入到沟通日志
-            CommunicationLog communicationLog=copyProperty(prdCustomerDTO);
-            communicationLog.setCreateUser(userId);
-            communicationLog.setCreateTime(date);
-            communicationLogMapper.insert(communicationLog);
+
         }
         prdCustomer.setLastUpdateUser(userId);
         prdCustomer.setLastUpdateTime(date);
@@ -130,44 +123,6 @@ public class PrdCustomerService {
         prdCustomer.setId(id);
         return prdCustomerMapper.selectOne(prdCustomer);
     }
-
-    /**
-     * 拷贝市场推广盘到客户
-     * @param customerDTO
-     * @param prdCustomerDTO
-     * @return
-     */
-    public CustomerDTO copyProperty(CustomerDTO customerDTO, PrdCustomerDTO prdCustomerDTO){
-        customerDTO.setCustomerName(prdCustomerDTO.getCustomerName());
-        customerDTO.setCustomerType(prdCustomerDTO.getCustomerType());
-
-        customerDTO.setCity(prdCustomerDTO.getCity());
-        customerDTO.setHouseStatus(prdCustomerDTO.getHouseStatus());
-
-        return customerDTO;
-    }
-
-    public CommunicationLog copyProperty(PrdCustomerDTO prdCustomerDTO){
-        CommunicationLog communicationLog=new CommunicationLog();
-        communicationLog.setHouseStatus(prdCustomerDTO.getHouseStatus());
-        communicationLog.setLoanAmount(prdCustomerDTO.getLoanAmount());
-        return communicationLog;
-    }
-
-    /*public Loan copyProperty2Loan(PrdCustomerDTO prdCustomerDTO){
-        Loan loan=new Loan();
-        loan.setCustomerId(prdCustomerDTO.getC_id());
-        loan.setCustomerName(prdCustomerDTO.getCustomerName());
-        loan.setTelephonenumber(prdCustomerDTO.getTelephonenumber());
-        loan.setLoanAmount(prdCustomerDTO.getLoanAmount());
-        loan.setCity(prdCustomerDTO.getCity());
-        loan.setHouseStatus(prdCustomerDTO.getHouseStatus());
-        loan.setCustomerSource(prdCustomerDTO.getCustomerSource());
-        loan.setUtmSource(prdCustomerDTO.getUtmSource());
-        loan.setCommunicateTime(new Date());
-        return loan;
-    }*/
-
     /**
      * 删除
      * @param id
@@ -185,7 +140,7 @@ public class PrdCustomerService {
         return prdCustomerMapper.update(prdCustomer);
     }
 
-    public PrdCustomerDTO copyProperty(PrdCustomer prdCustomer){
+    public PrdCustomerDTO copyProperty(PrdCustomer prdCustomer,String token){
         PrdCustomerDTO prdCustomerDTO=new PrdCustomerDTO();
         prdCustomerDTO.setId(prdCustomer.getId());
         prdCustomerDTO.setCustomerName(prdCustomer.getCustomerName());
@@ -201,13 +156,15 @@ public class PrdCustomerService {
         prdCustomerDTO.setCreateTime(prdCustomer.getCreateTime());
         String result = prdCustomer.getCommunitContent();
         if (!StringUtils.isEmpty(result)){
-            List<PrdComunicationDTO> comunicationDTOS = new ArrayList<>();
            JSONArray jsonArray=  FastJsonUtils.stringToJsonArray(result);
            //遍历
             for (int i = 0; i < jsonArray.size();i++){
                 JSONObject jsonObject = (JSONObject)jsonArray.get(i);
-                PrdComunicationDTO prdComunicationDTO = new PrdComunicationDTO();
+                //加入姓名
+                UserInfoDTO userInfoDTO = thorUcService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
+                jsonObject.put("create_user_name",userInfoDTO.getName());
             }
+            prdCustomerDTO.setComunication(jsonArray.toJSONString());
         }
         return prdCustomerDTO;
     }
@@ -278,7 +235,7 @@ public class PrdCustomerService {
             map.put("size",size);
             prdCustomerList = prdCustomerMapper.listByCondition(map);
             for (PrdCustomer prdCustomer1:prdCustomerList){
-                PrdCustomerDTO prdCustomerDTO=copyProperty(prdCustomer1);
+                PrdCustomerDTO prdCustomerDTO=copyProperty(prdCustomer1,token);
                 prdCustomerDTOList.add(prdCustomerDTO);
             }
             // 总数
@@ -290,7 +247,7 @@ public class PrdCustomerService {
         return prdCustomerQueryResult;
     }
 
-    public  PrdCustomerDTO decayPrdCustomer(Integer id,Integer userId){
+    public  PrdCustomerDTO decayPrdCustomer(Integer id,Integer userId,String token){
         PrdCustomerDTO prdCustomerDTO = new PrdCustomerDTO();
         Map<String,Object> paramsMap = new HashMap<>();
         paramsMap.put("id",id);
@@ -300,7 +257,7 @@ public class PrdCustomerService {
         if (false == false){
             throw new CronusException(CronusException.Type.MESSAGE_PRDCUSTOMER_ERROR);
         }
-        //prdCustomerDTO.
+        prdCustomerDTO = copyProperty(prdCustomer,token);
         return  prdCustomerDTO;
     }
 
@@ -327,6 +284,47 @@ public class PrdCustomerService {
            prdCustomerMapper.update(prdCustomer);
            flag = true;
         return  flag;
+
+    }
+
+    /**
+     * @param addPrdCustomerDTO
+     * @param prdCustomer
+     */
+    public void dtoTOEntity(AddPrdCustomerDTO addPrdCustomerDTO,PrdCustomer prdCustomer){
+        if (!StringUtils.isEmpty(addPrdCustomerDTO.getCustomerName())){
+            prdCustomer.setCustomerName(addPrdCustomerDTO.getCustomerName());
+        }
+        if (!StringUtils.isEmpty(addPrdCustomerDTO.getCustomerType())){
+            prdCustomer.setCustomerType(addPrdCustomerDTO.getCustomerType());
+        }
+        if (!StringUtils.isEmpty(addPrdCustomerDTO.getSex())){
+            prdCustomer.setSex(addPrdCustomerDTO.getSex());
+        }
+        if (!StringUtils.isEmpty(addPrdCustomerDTO.getHouseStatus())){
+            prdCustomer.setHouseStatus(addPrdCustomerDTO.getHouseStatus());
+        }
+        if (!StringUtils.isEmpty(addPrdCustomerDTO.getCity())){
+            prdCustomer.setCity(addPrdCustomerDTO.getCity());
+        }
+        if (addPrdCustomerDTO.getLoanAmount() != null){
+            prdCustomer.setLoanAmount(addPrdCustomerDTO.getLoanAmount());
+        }
+        if (!StringUtils.isEmpty(addPrdCustomerDTO.getContent())){
+            //查询当前是否有沟通记录
+            String result = prdCustomer.getCommunitContent();
+
+            if (!StringUtils.isEmpty(result)){
+            JSONArray jsonArray = FastJsonUtils.stringToJsonArray(result);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("","");
+            //jsonArray
+
+            }
+
+
+        }
+
 
     }
     /**
