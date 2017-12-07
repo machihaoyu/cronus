@@ -15,8 +15,6 @@ public class PrdCustomerDTO {
     private String customerName;
     @ApiModelProperty(value = "客户类型")
     private String customerType;
-    @ApiModelProperty(value = "性别")
-    private String c_sex;
     @ApiModelProperty(value = "手机号码")
     private String telephonenumber;
     @ApiModelProperty(value = "意向金额")
@@ -36,14 +34,13 @@ public class PrdCustomerDTO {
     @ApiModelProperty(value = "跟进时间", required = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date communicateTime;
-    @ApiModelProperty(value = "客户id")
-    private Integer c_id;
     @ApiModelProperty(value = "转入标识（0不转入 1转入）")
     private Integer type;
     @ApiModelProperty(value = "性别")
     private String sex;
 
     @ApiModelProperty(value = "创建时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date createTime;
 
     public Date getCreateTime() {
@@ -78,13 +75,7 @@ public class PrdCustomerDTO {
         this.customerType = customerType;
     }
 
-    public String getC_sex() {
-        return c_sex;
-    }
 
-    public void setC_sex(String c_sex) {
-        this.c_sex = c_sex;
-    }
 
     public String getTelephonenumber() {
         return telephonenumber;
@@ -158,13 +149,6 @@ public class PrdCustomerDTO {
         this.communicateTime = communicateTime;
     }
 
-    public Integer getC_id() {
-        return c_id;
-    }
-
-    public void setC_id(Integer c_id) {
-        this.c_id = c_id;
-    }
 
     public Integer getType() {
         return type;
@@ -188,7 +172,6 @@ public class PrdCustomerDTO {
                 "id=" + id +
                 ", customerName='" + customerName + '\'' +
                 ", customerType='" + customerType + '\'' +
-                ", c_sex='" + c_sex + '\'' +
                 ", telephonenumber='" + telephonenumber + '\'' +
                 ", loanAmount=" + loanAmount +
                 ", city='" + city + '\'' +
@@ -198,7 +181,6 @@ public class PrdCustomerDTO {
                 ", level='" + level + '\'' +
                 ", content='" + content + '\'' +
                 ", communicateTime=" + communicateTime +
-                ", c_id=" + c_id +
                 ", type=" + type +
                 ", sex='" + sex + '\'' +
                 '}';

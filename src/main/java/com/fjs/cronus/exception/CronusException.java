@@ -179,6 +179,9 @@ public class CronusException extends BaseException {
         MESSAGE_PULLCUSTOMEROWNER_ERROR("6081","此客户已经有负责人"),
 
         MESSAGE_PULLCUSTOMERUPPDATE_ERROR("6082","已转入成功的客户不能再更改"),
+
+        MESSAGE_PRDCUSTOMER_ERROR("6083","这个客户正在被别人操作中"),
+
         ;
         private String status;
         private String error;

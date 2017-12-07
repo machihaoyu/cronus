@@ -61,8 +61,7 @@ public class PrdCustomer implements Serializable{
 	/**
 	 * 被查看时间
 	 */
-	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
-	private Date viewTime;
+	private Integer viewTime;
 
 	/**
 	 * 查看人
@@ -193,11 +192,11 @@ public class PrdCustomer implements Serializable{
 		this.utmSource = utmSource;
 	}
 
-	public Date getViewTime() {
+	public Integer getViewTime() {
 		return viewTime;
 	}
 
-	public void setViewTime(Date viewTime) {
+	public void setViewTime(Integer viewTime) {
 		this.viewTime = viewTime;
 	}
 

@@ -223,4 +223,14 @@
 		</set>
 		where id = #{id,jdbcType=INTEGER}
 	</update>
+
+	<select id="findById" resultMap="BaseResultMap" parameterType="com.fjs.cronus.model.PrdCustomer">
+		select
+		<include refid="Base_Column_List" />
+		from prd_customer
+		where 1=1
+		AND id = #{id}
+		and is_deleted=0
+	</select>
+
 </mapper>

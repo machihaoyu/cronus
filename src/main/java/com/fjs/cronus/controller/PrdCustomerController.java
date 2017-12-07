@@ -57,8 +57,8 @@ public class PrdCustomerController {
     @RequestMapping(value = "/updatePrdCustomer", method = RequestMethod.POST)
     @ResponseBody
     public CronusDto updatePrdCustomer(@Valid @RequestBody PrdCustomerDTO prdCustomerDTO, BindingResult result, HttpServletRequest request){
-        CronusDto theaApiDTO=new CronusDto();
-        if(result.hasErrors()){
+       CronusDto theaApiDTO=new CronusDto();
+         if(result.hasErrors()){
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
         }
         String token=request.getHeader("Authorization");
@@ -74,12 +74,7 @@ public class PrdCustomerController {
         }
         UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
         try{
-            CronusDto<CustomerDTO> cronusDto=iCustomerService.findCustomerByFeild(prdCustomerDTO.getC_id());
-            CustomerDTO customerDto=cronusDto.getData();
-            logger.info("保存客户系统的jsonString:" + customerDto);
-            if (customerDto!=null){
-                cronusDto = iCustomerService.editCustomerOk(customerDto,token);
-            }
+
 
             int createResult = prdCustomerService.updatePrdCustomer(prdCustomerDTO,userInfoDTO);
             if (createResult >0) {
@@ -185,4 +180,27 @@ public class PrdCustomerController {
 
         return cronusDto;
     }
+
+
+    @ApiOperation(value="跟进", notes="跟进")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/decayPrdCustomer", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto decayPrdCustomer(@RequestParam Integer id, @RequestHeader("Authorization")String token){
+        CronusDto theaApiDTO=new CronusDto();
+        UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO == null){
+            throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
+        }
+        try{
+             prdCustomerService.decayPrdCustomer(id,Integer.valueOf(userInfoDTO.getUser_id()));
+        }catch (Exception e){
+            logger.error("-------------->获取信息失败:"+e);
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return theaApiDTO;
+    }
+
 }

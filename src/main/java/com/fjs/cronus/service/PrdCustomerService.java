@@ -7,6 +7,7 @@ import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.PrdCustomerDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
+import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CommunicationLogMapper;
 import com.fjs.cronus.mappers.PrdCustomerMapper;
 import com.fjs.cronus.model.CommunicationLog;
@@ -77,7 +78,6 @@ public class PrdCustomerService {
     public PrdCustomer copyProperty(PrdCustomer prdCustomer,PrdCustomerDTO prdCustomerDTO){
         prdCustomer.setCustomerName(prdCustomerDTO.getCustomerName());
         prdCustomer.setCustomerType(prdCustomerDTO.getCustomerType());
-        prdCustomer.setSex(prdCustomerDTO.getC_sex());
         prdCustomer.setLoanAmount(prdCustomerDTO.getLoanAmount());
         prdCustomer.setCity(prdCustomerDTO.getCity());
         prdCustomer.setHouseStatus(prdCustomerDTO.getHouseStatus());
@@ -138,7 +138,7 @@ public class PrdCustomerService {
     public CustomerDTO copyProperty(CustomerDTO customerDTO, PrdCustomerDTO prdCustomerDTO){
         customerDTO.setCustomerName(prdCustomerDTO.getCustomerName());
         customerDTO.setCustomerType(prdCustomerDTO.getCustomerType());
-        customerDTO.setSex(prdCustomerDTO.getC_sex());
+
         customerDTO.setCity(prdCustomerDTO.getCity());
         customerDTO.setHouseStatus(prdCustomerDTO.getHouseStatus());
 
@@ -147,7 +147,6 @@ public class PrdCustomerService {
 
     public CommunicationLog copyProperty(PrdCustomerDTO prdCustomerDTO){
         CommunicationLog communicationLog=new CommunicationLog();
-        communicationLog.setCustomerId(prdCustomerDTO.getC_id());
         communicationLog.setContent(prdCustomerDTO.getContent());
         communicationLog.setHouseStatus(prdCustomerDTO.getHouseStatus());
         communicationLog.setLoanAmount(prdCustomerDTO.getLoanAmount());
@@ -200,6 +199,7 @@ public class PrdCustomerService {
         prdCustomerDTO.setLevel(prdCustomer.getLevel());
         prdCustomerDTO.setCommunicateTime(prdCustomer.getCommunitTime());
         prdCustomerDTO.setCreateTime(prdCustomer.getCreateTime());
+        prdCustomerDTO.setContent(prdCustomer.getCommunitContent());
         return prdCustomerDTO;
     }
 
@@ -281,6 +281,42 @@ public class PrdCustomerService {
         return prdCustomerQueryResult;
     }
 
+    public  PrdCustomerDTO decayPrdCustomer(Integer id,Integer userId){
+        PrdCustomerDTO prdCustomerDTO = new PrdCustomerDTO();
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("id",id);
+        PrdCustomer prdCustomer = prdCustomerMapper.findById(paramsMap);
+        //判断客户有没有查看权限
+        validUserAndTime(prdCustomer,userId);
+
+        return  prdCustomerDTO;
+    }
+
+
+    @Transactional
+    public boolean validUserAndTime(PrdCustomer prdCustomer,Integer userId){
+           boolean flag = false;
+           //需要判这个人十五分钟被人沟通了没
+           Date date = new Date();
+           Integer time =Integer.parseInt(String.valueOf(Calendar.getInstance().getTimeInMillis()));
+           Integer hasTime =prdCustomer.getViewTime() + 15 * 60 -  time;
+           if ((prdCustomer.getViewUid() != 0) && (!((prdCustomer.getViewUid() == userId) && hasTime > 0))){
+               if (hasTime > 0) {
+                   throw new CronusException(CronusException.Type.MESSAGE_PRDCUSTOMER_ERROR);
+               }
+           }
+           //可以操作
+
+           prdCustomer.setViewTime(time);
+           prdCustomer.setViewUid(userId);
+           prdCustomer.setLastUpdateTime(date);
+           prdCustomer.setLastUpdateUser(userId);
+
+           prdCustomerMapper.update(prdCustomer);
+           flag = true;
+        return  flag;
+
+    }
     /**
      * 日期转为String
      * @param date

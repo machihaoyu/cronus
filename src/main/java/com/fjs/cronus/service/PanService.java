@@ -2,11 +2,13 @@ package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
+import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.dto.cronus.PanParamDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
+import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.AllocateLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
@@ -14,6 +16,7 @@ import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerInfoLog;
+import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DateUtils;
@@ -45,6 +48,8 @@ public class PanService {
     UcService ucService;
     @Autowired
     CustomerInfoLogMapper customerInfoLogMapper;
+    @Autowired
+    TheaService theaService;
     public QueryResult<CustomerListDTO> listByOffer(PanParamDTO pan, Integer userId, Integer companyId , String token, String system,
                                                 Integer page, Integer size, List<String> mainCitys, List<Integer> subCompanyIds, Integer type,Integer mountLevle) {
 
@@ -147,7 +152,18 @@ public class PanService {
         if (null == insertAllocateLog) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERLOG_ERROR);
         }
-        flag = true;
+        //领取开始生成一笔交易
+        LoanDTO loanDTO = new LoanDTO();
+        loanDTO.setCustomerId(customerId);
+        loanDTO.setCustomerName(customerInfo.getCustomerName());
+        loanDTO.setLoanAmount(customerInfo.getLoanAmount());
+        loanDTO.setOwnUserName(customerInfo.getOwnUserName());
+        loanDTO.setOwnUserId(customerInfo.getOwnUserId());
+        loanDTO.setTelephonenumber(customerInfo.getTelephonenumber());
+        TheaApiDTO resultDto = theaService.inserLoan(loanDTO);
+        if (resultDto != null && resultDto.getResult() == 0){
+            flag = true;
+        }
         return flag;
 
     }

@@ -31,6 +31,16 @@ public class LoanDTO {
     private String telephonenumber;
     @ApiModelProperty(value = "负责人", required = false)
     private String ownUserName;
+    @ApiModelProperty(value = "负责人id", required = false)
+    private Integer ownUserId;
+
+    public Integer getOwnUserId() {
+        return ownUserId;
+    }
+
+    public void setOwnUserId(Integer ownUserId) {
+        this.ownUserId = ownUserId;
+    }
 
     public Integer getLoanId() {
         return loanId;

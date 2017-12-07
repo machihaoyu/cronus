@@ -3,7 +3,6 @@ package com.fjs.cronus.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.*;
-import com.fjs.cronus.dto.ContractDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPUserDto;
@@ -11,7 +10,7 @@ import com.fjs.cronus.dto.api.crius.Contract;
 import com.fjs.cronus.dto.api.crius.ServiceContract;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
-import com.fjs.cronus.dto.thea.ServiceContractDTO;
+import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.exception.CronusException;
@@ -23,9 +22,9 @@ import com.fjs.cronus.model.CommunicationLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerInfoLog;
 
+import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.EntityToDto;
-import com.fjs.cronus.util.FastJsonUtils;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,7 +54,8 @@ public class CustomerInfoService {
     AllocateService allocateService;
     @Autowired
     AllocateLogMapper allocateLogMapper;
-
+    @Autowired
+    TheaService theaService;
     public  List<CustomerInfo> findList(){
         List<CustomerInfo> resultList = new ArrayList();
         resultList = customerInfoMapper.selectAll();
@@ -818,10 +818,14 @@ public class CustomerInfoService {
         }
         //开始批量移除客户到公盘
         batchRemove(ids,Integer.valueOf(userInfoDTO.getUser_id()));
-        flag = true;
+        //开始废弃交易
+        TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token,ids);
+        if (resultDto != null && resultDto.getResult() == 0){
+            flag = true;
+        }
+        cronusDto.setData(flag);
         cronusDto.setResult(CommonMessage.REMOVE_SUCCESS.getCode());
         cronusDto.setMessage(CommonMessage.REMOVE_SUCCESS.getCodeDesc());
-        cronusDto.setData(flag);
         return  cronusDto;
     }
 

@@ -28,4 +28,7 @@ public interface PrdCustomerMapper extends MyMapper<PrdCustomer> {
      * @return
      */
     public Integer countByCondition(Map<String, Object> map);
+
+
+    public PrdCustomer findById(Map<String, Object> map);
 }
