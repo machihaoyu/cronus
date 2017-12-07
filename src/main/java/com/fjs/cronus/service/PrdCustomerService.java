@@ -4,6 +4,7 @@ package com.fjs.cronus.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.AddPrdCustomerDTO;
@@ -14,6 +15,7 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CommunicationLogMapper;
 import com.fjs.cronus.mappers.PrdCustomerMapper;
 import com.fjs.cronus.model.CommunicationLog;
+import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.PrdCustomer;
 import com.fjs.cronus.model.PrdOperationLog;
 import com.fjs.cronus.service.thea.TheaClientService;
@@ -43,6 +45,8 @@ public class PrdCustomerService {
     private CommunicationLogMapper communicationLogMapper;
     @Autowired
     TheaClientService theaClientService;
+    @Autowired
+    CustomerInfoService customerInfoService;
 //    @Autowired
 //    private LoanService loanService;
 
@@ -99,11 +103,23 @@ public class PrdCustomerService {
         Date date=new Date();
         PrdCustomer prdCustomer=getByPrimary(prdCustomerDTO.getId());
         //实体转换
-        if (StringUtils.isNotEmpty(prdCustomer.getCommunitContent())){
-
-        }
+        dtoTOEntity(prdCustomerDTO,prdCustomer,Integer.valueOf(userInfoDTO.getUser_id()));
         prdCustomer.setLastUpdateUser(userId);
         prdCustomer.setLastUpdateTime(date);
+        //开始更新数据
+        Integer result = prdCustomerMapper.update(prdCustomer);
+        if (result == null){
+            throw new CronusException(CronusException.Type.MESSAGE_UPDATEPRDCUSTOMER_ERROR);
+        }
+        //更新成功 判断需要不需要转入到我们自己的客户表
+        if (prdCustomerDTO.getType() == 1){
+            //将客户信息装入到我们自己的
+           //首先查询这个手机号存在么
+
+
+
+        }
+
        /* if (prdCustomerDTO.getType() != null && prdCustomerDTO.getType() ==1 ){
           *//*  Loan loan=copyProperty2Loan(prdCustomerDTO);
             loan.setTelephonenumber(prdCustomer.getTelephonenumber());
@@ -291,7 +307,9 @@ public class PrdCustomerService {
      * @param addPrdCustomerDTO
      * @param prdCustomer
      */
-    public void dtoTOEntity(AddPrdCustomerDTO addPrdCustomerDTO,PrdCustomer prdCustomer){
+    public void dtoTOEntity(AddPrdCustomerDTO addPrdCustomerDTO,PrdCustomer prdCustomer,Integer userId){
+        Integer time =Integer.parseInt(String.valueOf(Calendar.getInstance().getTimeInMillis()));
+        Date date = new Date();
         if (!StringUtils.isEmpty(addPrdCustomerDTO.getCustomerName())){
             prdCustomer.setCustomerName(addPrdCustomerDTO.getCustomerName());
         }
@@ -317,15 +335,15 @@ public class PrdCustomerService {
             if (!StringUtils.isEmpty(result)){
             JSONArray jsonArray = FastJsonUtils.stringToJsonArray(result);
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("","");
+            jsonObject.put("content",addPrdCustomerDTO.getContent());
+            jsonObject.put("create_user_id",userId);
+            jsonObject.put("create_time",time);
+            jsonArray.add(jsonObject);
             //jsonArray
-
+            prdCustomer.setCommunitContent(jsonArray.toJSONString());
+                prdCustomer.setCommunitTime(date);
             }
-
-
         }
-
-
     }
     /**
      * 日期转为String

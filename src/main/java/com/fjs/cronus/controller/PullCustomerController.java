@@ -251,9 +251,6 @@ public class PullCustomerController {
         }
         String token=request.getHeader("Authorization");
         UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
-        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
-        //判断当前用户能否操作
-        //判断是否全是下属
         try{
             if (pullCustomerDTO.getId() == null){
                 theaApiDTO.setResult(CommonMessage.CHANGE_FAIL.getCode());

@@ -182,6 +182,9 @@ public class CronusException extends BaseException {
 
         MESSAGE_PRDCUSTOMER_ERROR("6083","这个客户正在被别人操作中"),
 
+        MESSAGE_UPDATEPRDCUSTOMER_ERROR("6084","更新客户失败"),
+
+
         ;
         private String status;
         private String error;
