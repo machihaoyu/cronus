@@ -3,6 +3,7 @@ package com.fjs.cronus.service;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
+import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.thea.TheaClientService;
@@ -66,7 +67,7 @@ public class LookPoolService {
             }
             paramMap.put("customerClassify", paramsList);
         }else {
-
+            throw new CronusException(CronusException.Type.MESSAGE_CONNECTTHEASYSTEM_ERROR);
         }
         paramMap.put("start",(page-1) * size);
         paramMap.put("size",size);
@@ -83,5 +84,52 @@ public class LookPoolService {
             queryResult.setTotal(count.toString());
         }
         return  queryResult;
+    }
+
+    public  QueryResult<CustomerListDTO> allPool(String token, String customerName, String telephonenumber, String utmSource, String ownUserName, String customerSource,
+                                                 String level, Integer companyId, Integer page, Integer size){
+
+        QueryResult<CustomerListDTO> queryResult = new  QueryResult();
+        List<CustomerListDTO> resultList = new ArrayList<>();
+        List<String> paramsList = new ArrayList<>();
+        Map<String,Object> paramMap = new HashMap<>();
+        if (!StringUtils.isEmpty(customerName)){
+            paramMap.put("customerName",customerName);
+        }
+        if (!StringUtils.isEmpty(telephonenumber)){
+            paramMap.put("telephonenumber",telephonenumber);
+        }
+        if (!StringUtils.isEmpty(utmSource)){
+            paramMap.put("utmSource",utmSource);
+        }
+        if (!StringUtils.isEmpty(ownUserName)){
+            paramMap.put("ownUserName",ownUserName);
+        }
+        if (!StringUtils.isEmpty(customerSource)){
+            paramMap.put("customerSource",customerSource);
+        }
+        if (!StringUtils.isEmpty(level)){
+            paramMap.put("level",level);
+        }
+        if (!StringUtils.isEmpty(companyId)){
+            paramMap.put("companyId",companyId);
+        }
+        //获取三无客户盘的状态
+        paramMap.put("start",(page-1) * size);
+        paramMap.put("size",size);
+        List<CustomerInfo> customerInfoList = customerInfoMapper.customerList(paramMap);
+        if (customerInfoList != null && customerInfoList.size() > 0){
+
+            for (CustomerInfo customerInfo : customerInfoList) {
+                CustomerListDTO customerDto = new CustomerListDTO();
+                EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto);
+                resultList.add(customerDto);
+            }
+            queryResult.setRows(resultList);
+            Integer count = customerInfoMapper.customerListCount(paramMap);
+            queryResult.setTotal(count.toString());
+        }
+        return  queryResult;
+
     }
 }

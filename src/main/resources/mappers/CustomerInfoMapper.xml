@@ -152,9 +152,9 @@
       </if>
       <if test="customerClassify!=null and customerClassify.size>0">
           AND c.customer_classify in
-          <foreach collection="customerClassify" item="customerClassify"
-                   index="index" open="(" close=")" separator=",">
-              ${customerClassify}
+          <foreach item="item" index="index" collection="customerClassify" open="("
+                   separator="," close=")">
+              #{item}
           </foreach>
       </if>
   </select>
@@ -203,9 +203,9 @@
       </if>
       <if test="customerClassify!=null and customerClassify.size>0">
           AND c.customer_classify in
-          <foreach collection="customerClassify" item="customerClassify"
-                   index="index" open="(" close=")" separator=",">
-              ${customerClassify}
+          <foreach item="item" index="index" collection="customerClassify" open="("
+                   separator="," close=")">
+              #{item}
           </foreach>
       </if>
     <choose>

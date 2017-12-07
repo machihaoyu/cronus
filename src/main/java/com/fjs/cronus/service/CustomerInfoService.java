@@ -1175,4 +1175,30 @@ public class CustomerInfoService {
         }
         return  str.toString();
     }
+
+    @Transactional
+    public void insertLog(CustomerInfo customerInfo,Integer userId){
+        //生成日志记录
+        Date date = new Date();
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription("编辑交易信息");
+        customerInfoLog.setLogUserId(userId);
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+    }
+
+    @Transactional
+    public void insertAddCustomerLog(CustomerInfo customerInfo,Integer userId){
+        //生成日志记录
+        Date date = new Date();
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription("新增客户信息");
+        customerInfoLog.setLogUserId(userId);
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+    }
 }

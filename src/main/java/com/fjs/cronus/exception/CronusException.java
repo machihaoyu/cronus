@@ -184,7 +184,7 @@ public class CronusException extends BaseException {
 
         MESSAGE_UPDATEPRDCUSTOMER_ERROR("6084","更新客户失败"),
 
-
+        MESSAGE_CONNECTTHEASYSTEM_ERROR("6805","链接交易系统获取配置信息出错"),
         ;
         private String status;
         private String error;

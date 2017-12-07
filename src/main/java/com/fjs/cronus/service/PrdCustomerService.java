@@ -4,17 +4,17 @@ package com.fjs.cronus.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
-import com.fjs.cronus.dto.CronusDto;
+
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.AddPrdCustomerDTO;
-import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.PrdCustomerDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CommunicationLogMapper;
+import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.PrdCustomerMapper;
-import com.fjs.cronus.model.CommunicationLog;
+
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.PrdCustomer;
 import com.fjs.cronus.model.PrdOperationLog;
@@ -45,6 +45,8 @@ public class PrdCustomerService {
     private CommunicationLogMapper communicationLogMapper;
     @Autowired
     TheaClientService theaClientService;
+    @Autowired
+    CustomerInfoMapper customerInfoMapper;
     @Autowired
     CustomerInfoService customerInfoService;
 //    @Autowired
@@ -115,9 +117,40 @@ public class PrdCustomerService {
         if (prdCustomerDTO.getType() == 1){
             //将客户信息装入到我们自己的
            //首先查询这个手机号存在么
+            Map<String,Object> params = new HashMap<>();
+            String encryptTelephone = "";//加密后的
+            List paramsList = new ArrayList();
+            paramsList.add(encryptTelephone);
+            paramsList.add(prdCustomerDTO.getTelephonenumber());
+            params.put("paramsList",paramsList);
+            CustomerInfo customerInfo = customerInfoMapper.findByFeild(params);
+            //判断有没有负责人
+            if (customerInfo != null) {
+                if (customerInfo.getOwnUserId() != null && customerInfo.getOwnUserId() > 0) {
+                    //有负责人 抛异常
+                    throw new CronusException(CronusException.Type.MESSAGE_PRDCUSTOMER_ERROR);
+                }
+                //m没有负责人更新time
+                customerInfo.setOwnUserId(Integer.valueOf(userInfoDTO.getUser_id()));
+                customerInfo.setOwnUserName(userInfoDTO.getName());
+                customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
+                customerInfo.setLastUpdateTime(date);
+                //开始gengxin
+                customerInfoMapper.updateCustomer(customerInfo);
+                //log
+                customerInfoService.insertLog(customerInfo, Integer.valueOf(userInfoDTO.getUser_id()));
+            }else {
+                 //新插入一条
+                CustomerInfo customerInfo1 = new CustomerInfo();
+                copyPropertyToCustomer(prdCustomer,userInfoDTO,customerInfo);
+                customerInfoMapper.insertCustomer(customerInfo1);
+                //插入日志
+                customerInfoService.insertAddCustomerLog(customerInfo1,Integer.valueOf(userInfoDTO.getUser_id()));
+                //TODO 像ocdc同步数据
 
 
 
+            }
         }
 
        /* if (prdCustomerDTO.getType() != null && prdCustomerDTO.getType() ==1 ){
@@ -183,6 +216,26 @@ public class PrdCustomerService {
             prdCustomerDTO.setComunication(jsonArray.toJSONString());
         }
         return prdCustomerDTO;
+    }
+
+    public void copyPropertyToCustomer(PrdCustomer prdCustomer,UserInfoDTO userInfoDTO,CustomerInfo customerInfo){
+        Date date = new Date();
+        Integer userId =Integer.parseInt(userInfoDTO.getUser_id());
+        customerInfo.setCustomerName(prdCustomer.getCustomerName());
+        customerInfo.setSex(prdCustomer.getSex());
+        customerInfo.setCustomerType(prdCustomer.getCustomerType());
+        customerInfo.setTelephonenumber(prdCustomer.getTelephonenumber());
+        customerInfo.setLoanAmount(prdCustomer.getLoanAmount());
+        customerInfo.setCity(prdCustomer.getCity());
+        customerInfo.setCustomerSource(prdCustomer.getCustomerSource());
+        customerInfo.setUtmSource(prdCustomer.getUtmSource());
+        customerInfo.setHouseStatus(prdCustomer.getHouseStatus());
+        customerInfo.setLevel(prdCustomer.getLevel());
+        customerInfo.setCreateTime(date);
+        customerInfo.setCreateUser(userId);
+        customerInfo.setLastUpdateTime(date);
+        customerInfo.setLastUpdateUser(userId);
+        customerInfo.setIsDeleted(0);
     }
 
     public QueryResult<PrdCustomerDTO> listByCondition(String customerName,String telephonenumber,String customerType,String level,String houseStatus,
