@@ -152,18 +152,7 @@ public class PanService {
         if (null == insertAllocateLog) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERLOG_ERROR);
         }
-        //领取开始生成一笔交易
-        LoanDTO loanDTO = new LoanDTO();
-        loanDTO.setCustomerId(customerId);
-        loanDTO.setCustomerName(customerInfo.getCustomerName());
-        loanDTO.setLoanAmount(customerInfo.getLoanAmount());
-        loanDTO.setOwnUserName(customerInfo.getOwnUserName());
-        loanDTO.setOwnUserId(customerInfo.getOwnUserId());
-        loanDTO.setTelephonenumber(customerInfo.getTelephonenumber());
-        TheaApiDTO resultDto = theaService.inserLoan(loanDTO);
-        if (resultDto != null && resultDto.getResult() == 0){
-            flag = true;
-        }
+        flag = true;
         return flag;
 
     }

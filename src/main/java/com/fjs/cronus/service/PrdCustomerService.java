@@ -1,10 +1,13 @@
 package com.fjs.cronus.service;
 
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
+import com.fjs.cronus.dto.cronus.PrdComunicationDTO;
 import com.fjs.cronus.dto.cronus.PrdCustomerDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
@@ -15,6 +18,7 @@ import com.fjs.cronus.model.PrdCustomer;
 import com.fjs.cronus.model.PrdOperationLog;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.FastJsonUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,8 +85,6 @@ public class PrdCustomerService {
         prdCustomer.setLoanAmount(prdCustomerDTO.getLoanAmount());
         prdCustomer.setCity(prdCustomerDTO.getCity());
         prdCustomer.setHouseStatus(prdCustomerDTO.getHouseStatus());
-        prdCustomer.setCommunitContent(prdCustomerDTO.getContent());
-
         return prdCustomer;
     }
 
@@ -109,11 +111,11 @@ public class PrdCustomerService {
         }
         prdCustomer.setLastUpdateUser(userId);
         prdCustomer.setLastUpdateTime(date);
-        if (prdCustomerDTO.getType() != null && prdCustomerDTO.getType() ==1 ){
-          /*  Loan loan=copyProperty2Loan(prdCustomerDTO);
+       /* if (prdCustomerDTO.getType() != null && prdCustomerDTO.getType() ==1 ){
+          *//*  Loan loan=copyProperty2Loan(prdCustomerDTO);
             loan.setTelephonenumber(prdCustomer.getTelephonenumber());
-            loanService.add(loan,userInfoDTO);*/
-        }
+            loanService.add(loan,userInfoDTO);*//*
+        }*/
 
         return prdCustomerMapper.update(prdCustomer);
     }
@@ -147,7 +149,6 @@ public class PrdCustomerService {
 
     public CommunicationLog copyProperty(PrdCustomerDTO prdCustomerDTO){
         CommunicationLog communicationLog=new CommunicationLog();
-        communicationLog.setContent(prdCustomerDTO.getContent());
         communicationLog.setHouseStatus(prdCustomerDTO.getHouseStatus());
         communicationLog.setLoanAmount(prdCustomerDTO.getLoanAmount());
         return communicationLog;
@@ -197,9 +198,17 @@ public class PrdCustomerService {
         prdCustomerDTO.setUtmSource(prdCustomer.getUtmSource());
         prdCustomerDTO.setHouseStatus(prdCustomer.getHouseStatus());
         prdCustomerDTO.setLevel(prdCustomer.getLevel());
-        prdCustomerDTO.setCommunicateTime(prdCustomer.getCommunitTime());
         prdCustomerDTO.setCreateTime(prdCustomer.getCreateTime());
-        prdCustomerDTO.setContent(prdCustomer.getCommunitContent());
+        String result = prdCustomer.getCommunitContent();
+        if (!StringUtils.isEmpty(result)){
+            List<PrdComunicationDTO> comunicationDTOS = new ArrayList<>();
+           JSONArray jsonArray=  FastJsonUtils.stringToJsonArray(result);
+           //遍历
+            for (int i = 0; i < jsonArray.size();i++){
+                JSONObject jsonObject = (JSONObject)jsonArray.get(i);
+                PrdComunicationDTO prdComunicationDTO = new PrdComunicationDTO();
+            }
+        }
         return prdCustomerDTO;
     }
 
@@ -287,8 +296,11 @@ public class PrdCustomerService {
         paramsMap.put("id",id);
         PrdCustomer prdCustomer = prdCustomerMapper.findById(paramsMap);
         //判断客户有没有查看权限
-        validUserAndTime(prdCustomer,userId);
-
+        boolean flag= validUserAndTime(prdCustomer,userId);
+        if (false == false){
+            throw new CronusException(CronusException.Type.MESSAGE_PRDCUSTOMER_ERROR);
+        }
+        //prdCustomerDTO.
         return  prdCustomerDTO;
     }
 

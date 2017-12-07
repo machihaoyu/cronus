@@ -28,5 +28,5 @@ public interface TheaService {
     public TheaApiDTO<String> findValueByName(@RequestHeader("Authorization") String token,@RequestParam(value = "name")String name);
 
     @RequestMapping(value = "/loan/v1/cancelLoanByCustomerId",method = RequestMethod.GET)
-    public TheaApiDTO  cancelLoanByCustomerId(@RequestHeader("Authorization") String token,@RequestParam(value = "customerIds")String customerIds);
+    public TheaApiDTO  cancelLoanByCustomerId(@RequestHeader("Authorization") String token,@RequestParam(value = "customerId")Integer customerId);
 }

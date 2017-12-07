@@ -3,6 +3,7 @@ package com.fjs.cronus.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.*;
+import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPUserDto;
@@ -33,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 
+import java.beans.Transient;
 import java.util.*;
 
 
@@ -651,7 +653,19 @@ public class CustomerInfoService {
         customerInfoLog.setLogUserId(userId);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
-        flag = true;
+
+        //领取开始生成一笔交易
+        LoanDTO loanDTO = new LoanDTO();
+        loanDTO.setCustomerId(customerId);
+        loanDTO.setCustomerName(customerInfo.getCustomerName());
+        loanDTO.setLoanAmount(customerInfo.getLoanAmount());
+        loanDTO.setOwnUserName(customerInfo.getOwnUserName());
+        loanDTO.setOwnUserId(customerInfo.getOwnUserId());
+        loanDTO.setTelephonenumber(customerInfo.getTelephonenumber());
+        TheaApiDTO resultDto = theaService.inserLoan(loanDTO);
+        if (resultDto != null && resultDto.getResult() == 0){
+            flag = true;
+        }
         return flag;
     }
 
@@ -722,7 +736,8 @@ public class CustomerInfoService {
         return queryResult;
     }
 
-    public boolean cancelkeepCustomer(Integer customerId,UserInfoDTO userInfoDTO){
+    @Transactional
+    public boolean cancelkeepCustomer(Integer customerId,UserInfoDTO userInfoDTO,String token){
            boolean flag = false;
         Integer userId = null;
         if (org.apache.commons.lang3.StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
@@ -752,7 +767,10 @@ public class CustomerInfoService {
         customerInfoLog.setLogUserId(userId);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
-        flag = true;
+        TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token,customerId);
+        if (resultDto != null && resultDto.getResult() == 0){
+            flag = true;
+        }
         return flag;
     }
 
@@ -819,10 +837,7 @@ public class CustomerInfoService {
         //开始批量移除客户到公盘
         batchRemove(ids,Integer.valueOf(userInfoDTO.getUser_id()));
         //开始废弃交易
-        TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token,ids);
-        if (resultDto != null && resultDto.getResult() == 0){
-            flag = true;
-        }
+        flag = true;
         cronusDto.setData(flag);
         cronusDto.setResult(CommonMessage.REMOVE_SUCCESS.getCode());
         cronusDto.setMessage(CommonMessage.REMOVE_SUCCESS.getCodeDesc());

@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by yinzf on 2017/11/1.
@@ -29,13 +30,6 @@ public class PrdCustomerDTO {
     private String utmSource;
     @ApiModelProperty(value = "优先级别")
     private String level;
-    @ApiModelProperty(value = "沟通内容")
-    private String content;
-    @ApiModelProperty(value = "跟进时间", required = false)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
-    private Date communicateTime;
-    @ApiModelProperty(value = "转入标识（0不转入 1转入）")
-    private Integer type;
     @ApiModelProperty(value = "性别")
     private String sex;
 
@@ -43,6 +37,8 @@ public class PrdCustomerDTO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date createTime;
 
+    @ApiModelProperty(value = "沟通记录")
+    List<PrdComunicationDTO> comunication;
     public Date getCreateTime() {
         return createTime;
     }
@@ -133,37 +129,20 @@ public class PrdCustomerDTO {
         this.level = level;
     }
 
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Date getCommunicateTime() {
-        return communicateTime;
-    }
-
-    public void setCommunicateTime(Date communicateTime) {
-        this.communicateTime = communicateTime;
-    }
-
-
-    public Integer getType() {
-        return type;
-    }
-
-    public void setType(Integer type) {
-        this.type = type;
-    }
-
     public String getSex() {
         return sex;
     }
 
     public void setSex(String sex) {
         this.sex = sex;
+    }
+
+    public List<PrdComunicationDTO> getComunication() {
+        return comunication;
+    }
+
+    public void setComunication(List<PrdComunicationDTO> comunication) {
+        this.comunication = comunication;
     }
 
     @Override
@@ -179,9 +158,6 @@ public class PrdCustomerDTO {
                 ", customerSource='" + customerSource + '\'' +
                 ", utmSource='" + utmSource + '\'' +
                 ", level='" + level + '\'' +
-                ", content='" + content + '\'' +
-                ", communicateTime=" + communicateTime +
-                ", type=" + type +
                 ", sex='" + sex + '\'' +
                 '}';
     }

@@ -1,4 +1,5 @@
 package com.fjs.cronus.controller;
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.CronusDto;
@@ -194,12 +195,19 @@ public class PullCustomerController {
     @ApiOperation(value="将原始盘转入客户表", notes="将原始盘转入客户表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "jsonObject", value = "{'id','12'}", required = true, paramType = "body", dataType = "JSONObject"),
     })
     @RequestMapping(value = "/transferLoan", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto transferLoan(@Valid @RequestBody PullCustomerDTO pullCustomerDTO, BindingResult result, HttpServletRequest request){
-        logger.info("转入原始盘的数据："+pullCustomerDTO.toString());
+    public CronusDto transferLoan(@RequestBody JSONObject jsonObject, BindingResult result, HttpServletRequest request){
+        Integer id = jsonObject.getInteger("id");
         CronusDto theaApiDTO =new CronusDto();
+        PullCustomer pullCustomer=pullCustomerService.selectById(id);
+        if (pullCustomer == null){
+            theaApiDTO.setResult(CommonMessage.TRANSFER_FAIL.getCode());
+            theaApiDTO.setMessage(CommonConst.OBJECT_NULL);
+            return theaApiDTO;
+        }
         if(result.hasErrors()){
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
         }
@@ -216,22 +224,11 @@ public class PullCustomerController {
             }
         }
         //判断是否是其下属
-        List<Integer> ids = thorUcService.getSubUserByUserId(token,Integer.valueOf(pullCustomerDTO.getSaleId()));
+        List<Integer> ids = thorUcService.getSubUserByUserId(token,Integer.valueOf(pullCustomer.getSaleId()));
         if (!ids.contains(userInfoDTO.getUser_id())){
             throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
         }
         try{
-            if (pullCustomerDTO.getId() == null){
-                theaApiDTO.setResult(CommonMessage.TRANSFER_FAIL.getCode());
-                theaApiDTO.setMessage(CommonConst.ID_NULL);
-                return theaApiDTO;
-            }
-            PullCustomer pullCustomer=pullCustomerService.selectById(pullCustomerDTO.getId());
-            if (pullCustomer == null){
-                theaApiDTO.setResult(CommonMessage.TRANSFER_FAIL.getCode());
-                theaApiDTO.setMessage(CommonConst.OBJECT_NULL);
-                return theaApiDTO;
-            }
             theaApiDTO = pullCustomerService.transfer(pullCustomer,userInfoDTO,token);
         }catch (Exception e){
             logger.error("-------------->transferPullCustomer更新原始盘失败",e);

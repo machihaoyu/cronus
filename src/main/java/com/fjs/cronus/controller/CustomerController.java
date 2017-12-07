@@ -598,7 +598,7 @@ public class CustomerController {
                 theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
                 return theaApiDTO;
             }
-            boolean updateResult = customerInfoService.cancelkeepCustomer(customerId,userInfoDTO);
+            boolean updateResult = customerInfoService.cancelkeepCustomer(customerId,userInfoDTO,token);
             if (updateResult == true) {
                 theaApiDTO.setResult(CommonMessage.CANCEL_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.CANCEL_SUCCESS.getCodeDesc());
