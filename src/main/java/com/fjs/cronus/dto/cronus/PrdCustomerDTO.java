@@ -38,13 +38,13 @@ public class PrdCustomerDTO {
     private Date createTime;
 
     @ApiModelProperty(value = "沟通记录")
-    private String comunication;
+    private List comunication;
 
-    public String getComunication() {
+    public List getComunication() {
         return comunication;
     }
 
-    public void setComunication(String comunication) {
+    public void setComunication(List comunication) {
         this.comunication = comunication;
     }
 

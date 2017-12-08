@@ -8,6 +8,7 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.AddPrdCustomerDTO;
+import com.fjs.cronus.dto.cronus.PrdComuniDTO;
 import com.fjs.cronus.dto.cronus.PrdCustomerDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
@@ -210,13 +211,19 @@ public class PrdCustomerService {
         if (!StringUtils.isEmpty(result)){
            JSONArray jsonArray=  FastJsonUtils.stringToJsonArray(result);
            //遍历
+            List list = new ArrayList();
             for (int i = 0; i < jsonArray.size();i++){
                 JSONObject jsonObject = (JSONObject)jsonArray.get(i);
                 //加入姓名
+                PrdComuniDTO prdComuniDTO = new PrdComuniDTO();
                 UserInfoDTO userInfoDTO = thorUcService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
-                jsonObject.put("create_user_name",userInfoDTO.getName());
+                prdComuniDTO.setCreate_user_name(userInfoDTO.getName());
+                prdComuniDTO.setContent(jsonObject.get("content").toString());
+                prdComuniDTO.setCreate_user_id(jsonObject.getInteger("create_user_id"));
+                prdComuniDTO.setCreate_time(jsonObject.getInteger("create_time"));
+                list.add(prdComuniDTO);
             }
-            prdCustomerDTO.setComunication(jsonArray.toJSONString());
+            prdCustomerDTO.setComunication(list);
         }
         return prdCustomerDTO;
     }
