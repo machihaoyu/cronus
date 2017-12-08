@@ -7,15 +7,19 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.thea.ConfigDTO;
 import com.fjs.cronus.api.thea.LoanDTO;
+import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
+import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerSalePushLog;
 import com.fjs.cronus.service.client.TheaService;
+import com.fjs.cronus.util.EntityToDto;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,86 +54,104 @@ public class OcdcService {
 //    @Autowired
 //    private AllocateLogService allocateLogService;
 
-//    @Autowired
-//    private AutoAllocateService autoAllocateService;
+    @Autowired
+    private AutoAllocateService autoAllocateService;
+
     @Autowired
     private CustomerInfoMapper customerInfoMapper;
+
+
+    @Autowired
+    private CustomerInfoService customerInfoService;
 
     /**
      * 添加OCDC推送客户信息
      */
     @Transactional
     public void addOcdcCustomer(List<Map<String, Object>> listObj) {
+
+
         //获取推送数据字段信息
 //        String[] logArray = CommonConst.CUSTOMER_SALE_PUSH_LOG;
         //遍历OCDC数据信息
         List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<CustomerSalePushLog>();
         for (Map<String, Object> map : listObj) {
             CustomerSalePushLog customerSalePushLog = this.queryCustomerSalePushLogByOcdcPushData(map);
-            //判断是不是重复客户
-            List<CustomerInfo> customerInfoList = customerInfoMapper.selectByOCDCPhone(customerSalePushLog.getTelephonenumber());
-            if ( CollectionUtils.isEmpty(customerInfoList)){
-                //判断是不是主动申请
-                if (customerSalePushLog.getUtmSource().equals("自申请")){
-                    //有无负责人
-                    if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0){
-                        //自动分配
 
+            List<CustomerInfo> customerInfoList = customerInfoMapper.selectByOCDCPhone(customerSalePushLog.getTelephonenumber());
+            if (CollectionUtils.isEmpty(customerInfoList) && customerInfoList.size()>0) { //重复客户
+
+                if (isActiveApplicationChannel(customerSalePushLog)) {//主动申请
+                    //无负责人
+                    if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0) {
+                        //自动分配
+                        CustomerDTO customerDTO = new CustomerDTO();
+                        EntityToDto.customerEntityToCustomerDto(customerInfoList.get(0),customerDTO);
+                        autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC);
                     }
                     //有负责人分给对应的业务员
-                    queryLoanListByOcdcPushData(customerSalePushLog);
+                    else {
+                        queryLoanListByOcdcPushData(customerSalePushLog);
+                    }
                 }
                 //是不是三无客户
-                else{
-                    if (isThree(customerSalePushLog)){
+                else {
+                    if (isThreeNonCustomer(customerSalePushLog) || isRepeatPushInTime(customerSalePushLog)) {
                         return;
-                    }else{
+                    } else {
                         //有无负责人,有负责人跟进，没有自动分配
-                        if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0){
+                        if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0) {
                             //自动分配
-                        }
-                        else{
+                            CustomerDTO customerDTO = new CustomerDTO();
+                            EntityToDto.customerEntityToCustomerDto(customerInfoList.get(0),customerDTO);
+                            autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC);
+                        } else {
                             //发消息业务员，提醒跟进
                         }
                     }
                 }
             }
+            else
+            {
+                CustomerDTO customerDTO = new CustomerDTO();
+                BeanUtils.copyProperties(customerSalePushLog,customerDTO);
+                autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC);
+            }
             customerSalePushLogList.add(customerSalePushLog);
         }
-
 
 
         //保存OCDC推送日志
         customerSalePushLogService.insertList(customerSalePushLogList);
         //获取主要城市及异地城市配置
-        TheaApiDTO<ConfigDTO> theaApiDTO = theaService.getConfigByName(CommonConst.MAIN_CITY);
-        ConfigDTO configDTO = theaApiDTO.getData();
-        String mainCityStr = configDTO.getValue();
+//        TheaApiDTO<ConfigDTO> theaApiDTO = theaService.getConfigByName(CommonConst.MAIN_CITY);
+//        ConfigDTO configDTO = theaApiDTO.getData();
+//        String mainCityStr = configDTO.getValue();
 
-        theaApiDTO = theaService.getConfigByName(CommonConst.REMOTE_CITY);
-        configDTO = theaApiDTO.getData();
-        String remoteCityStr = configDTO.getValue();
-
-        String mainAndRemoteCityStr = mainCityStr + remoteCityStr;
-        List<CustomerSalePushLog> theaCustomerPushList = new ArrayList<>();
-        List<CustomerSalePushLog> serviceCustomerPushList = new ArrayList<>();
-        //将推送的列表分成两部分，客户系统（crm）和客服系统
-        for (CustomerSalePushLog customerSalePushLog : customerSalePushLogList) {
-            if (StringUtils.isNotBlank(customerSalePushLog.getCity())) {
-                if (StringUtils.contains(mainAndRemoteCityStr, customerSalePushLog.getCity())) {
-                    theaCustomerPushList.add(customerSalePushLog);
-                } else {
-                    serviceCustomerPushList.add(customerSalePushLog);
-                }
-            } else {
-                serviceCustomerPushList.add(customerSalePushLog);
-            }
-        }
-        //将需要推送至Thea系统的集合转换为Loan集合
-//        if (null != theaCustomerPushList && theaCustomerPushList.size() > 0) {
-//            List<Loan> ocdcPushList = this.queryLoanListByOcdcPushData(theaCustomerPushList);
+//        theaApiDTO = theaService.getConfigByName(CommonConst.REMOTE_CITY);
+//        configDTO = theaApiDTO.getData();
+//        String remoteCityStr = configDTO.getValue();
+//
+//        String mainAndRemoteCityStr = mainCityStr + remoteCityStr;
+//        List<CustomerSalePushLog> theaCustomerPushList = new ArrayList<>();
+//        List<CustomerSalePushLog> serviceCustomerPushList = new ArrayList<>();
+//        //将推送的列表分成两部分，客户系统（crm）和客服系统
+//        for (CustomerSalePushLog customerSalePushLog : customerSalePushLogList) {
+//            if (StringUtils.isNotBlank(customerSalePushLog.getCity())) {
+//                if (StringUtils.contains(mainAndRemoteCityStr, customerSalePushLog.getCity())) {
+//                    theaCustomerPushList.add(customerSalePushLog);
+//                } else {
+//                    serviceCustomerPushList.add(customerSalePushLog);
+//                }
+//            } else {
+//                serviceCustomerPushList.add(customerSalePushLog);
+//            }
 //        }
-        this.addLoanByOcdcPush(theaCustomerPushList);
+//        //将需要推送至Thea系统的集合转换为Loan集合
+////        if (null != theaCustomerPushList && theaCustomerPushList.size() > 0) {
+////            List<Loan> ocdcPushList = this.queryLoanListByOcdcPushData(theaCustomerPushList);
+////        }
+//        this.addLoanByOcdcPush(theaCustomerPushList);
 
     }
 
@@ -271,26 +293,25 @@ public class OcdcService {
         if (null != customerSalePushLog.getLoanAmount()) {
             loan.setLoanAmount(customerSalePushLog.getLoanAmount());
         }
-        if (StringUtils.isNotEmpty(customerSalePushLog.getTelephonenumber())){
+        if (StringUtils.isNotEmpty(customerSalePushLog.getTelephonenumber())) {
             loan.setTelephonenumber(customerSalePushLog.getTelephonenumber());
         }
-        if (StringUtils.isNotEmpty(customerSalePushLog.getCustomerName()) ) {
+        if (StringUtils.isNotEmpty(customerSalePushLog.getCustomerName())) {
             loan.setCustomerName(customerSalePushLog.getCustomerName());
         }
-        if (null != customerSalePushLog.getCreateTime()){
+        if (null != customerSalePushLog.getCreateTime()) {
             loan.setCreateTime(customerSalePushLog.getCreateTime());
         }
         TheaApiDTO theaApiDTO = theaService.inserLoan(loan);
-        if (theaApiDTO != null && theaApiDTO.getResult() == 0){
+        if (theaApiDTO != null && theaApiDTO.getResult() == 0) {
             return 1;
-        }
-        else{
+        } else {
             return 0;
         }
     }
 
     /**
-     * OCDC推送对象转换
+     * OCDC推送对象转换成本地推送日志
      *
      * @param map
      * @return
@@ -368,7 +389,7 @@ public class OcdcService {
             if (null != map.get("house_amount") && StringUtils.isNotBlank(map.get("house_amount").toString())) {
                 customerSalePushLog.setHouseAmount(map.get("house_amount").toString());
             }
-            if (null != map.get("house_type") && StringUtils.isNotEmpty(map.get("house_type").toString())){
+            if (null != map.get("house_type") && StringUtils.isNotEmpty(map.get("house_type").toString())) {
                 customerSalePushLog.setHouseType(map.get("house_type").toString());
             }
             if (null != map.get("house_value") && StringUtils.isNotBlank(map.get("house_value").toString())) {
@@ -458,62 +479,119 @@ public class OcdcService {
         return customerSalePushLog;
     }
 
+
     /**
      * 判断是否是三无客户
+     *
      * @param customerSalePushLog
      * @return
      */
-    public Boolean isThree(CustomerSalePushLog customerSalePushLog){
+    public Boolean isThreeNonCustomer(CustomerSalePushLog customerSalePushLog) {
         if (customerSalePushLog != null &&
                 (customerSalePushLog.getCustomerClassify().equals("空号") ||
-                customerSalePushLog.getCustomerClassify().equals("同业") ||
-                customerSalePushLog.getCustomerClassify().equals("内部员工"))){
+                        customerSalePushLog.getCustomerClassify().equals("同业") ||
+                        customerSalePushLog.getCustomerClassify().equals("内部员工"))) {
             return true;
         }
         return false;
     }
 
-    public static void main(String[] args) {
-//        JSONObject json = new JSONObject();
-//        json.put("customer_source","qudao");
-//        json.put("utm_source","juhkl");
-//        json.put("id",10001);
-//        json.put("telephonenumber","13866549800");
-//        json.put("name","dng");
-//        json.put("loan_amount","1000");
-//        json.put("city","上海");
-//
-//        JSONObject json2 = new JSONObject();
-//        json2.put("customer_source","qudao");
-//        json2.put("utm_source","juhkl");
-//        json2.put("id",10002);
-//        json2.put("telephonenumber","13866549801");
-//        json2.put("name","dng");
-//        json2.put("loan_amount","1000");
-//        json2.put("city","上海");
-//
-//        JSONArray jsonArray = new JSONArray();
-//        jsonArray.add(json);
-//        jsonArray.add(json2);
-//
-//        JSONObject json1= new JSONObject();
-//        json1.put("data",jsonArray);
-//
-//        System.out.println(json1.toString());
-
-//        String test = "{\"data\":[{\"telephonenumber\":\"13866549800\",\"city\":\"上海\",\"name\":\"dng\",\"customer_source\":\"qudao\",\"loan_amount\":\"1000\",\"id\":10001,\"utm_source\":\"juhkl\"}," +
-//                "{\"telephonenumber\":\"13866549801\",\"city\":\"上海\",\"name\":\"dng\",\"customer_source\":\"qudao\",\"loan_amount\":\"1000\",\"id\":10002,\"utm_source\":\"juhkl\"}]}";
-//        JSONObject jsonObject = JSON.parseObject(test);
-//        String list = jsonObject.get("data").toString();
-//        JSONArray jarr=JSONArray.parseArray(list);
-//        System.out.println(jarr);
-//        int arraySize = jarr.size();
-//        for (int i = 0 ;i < arraySize;i++){
-//            String jsonObject1 = jarr.get(i).toString();
-//            System.out.println(jsonObject1);
-//        }
-        String mainAndRemoteCityStr ="上海,郑州,北京,杭州,深圳,武汉,天津,海口,台湾";
-        Boolean b =  StringUtils.contains(mainAndRemoteCityStr, "上海");
-        System.out.println(b);
+    /**
+     * 判断是不是客户主动申请渠道
+     *
+     * @param customerSalePushLog
+     * @return
+     */
+    public Boolean isActiveApplicationChannel(CustomerSalePushLog customerSalePushLog) {
+        TheaApiDTO<ConfigDTO> theaApiDTO = theaService.getConfigByName("activeApplicationChannel");
+        ConfigDTO configDTO = theaApiDTO.getData();
+        String activeApplicationChannel = configDTO.getValue();
+        if (activeApplicationChannel.contains(customerSalePushLog.getUtmSource()))
+            return true;
+        else
+            return false;
     }
+
+    /**
+     * 判断有无负责人
+     *
+     * @param customerSalePushLog
+     * @return
+     */
+    public Boolean hasOwnerUser(CustomerSalePushLog customerSalePushLog) {
+        if (customerSalePushLog != null && customerSalePushLog.getOwnerUserId() != null && customerSalePushLog.getOwnerUserId() > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 渠道是不是属于直接进公盘渠道
+     *
+     * @return
+     */
+    public boolean isPublicOffer(CustomerSalePushLog customerSalePushLog) {
+        TheaApiDTO<ConfigDTO> theaApiDTO = theaService.getConfigByName("allocateToNoUserPool");
+        ConfigDTO configDTO = theaApiDTO.getData();
+        String activeApplicationChannel = configDTO.getValue();
+        if (activeApplicationChannel.contains(customerSalePushLog.getUtmSource()))
+            return true;
+        else
+            return false;
+    }
+
+    /**
+     * 判断是不是分配城市
+     *
+     * @return
+     */
+    public boolean isDistributeCity(CustomerSalePushLog customerSalePushLog) {
+        TheaApiDTO<ConfigDTO> theaApiDTO = theaService.getConfigByName("canAllocateCity");
+        ConfigDTO configDTO = theaApiDTO.getData();
+        String activeApplicationChannel = configDTO.getValue();
+        if (activeApplicationChannel.contains(customerSalePushLog.getCity()))
+            return true;
+        else
+            return false;
+    }
+
+    /**
+     * 判断是不是客服推送过来的
+     *
+     * @return
+     */
+    public boolean isCustomerServicePush(CustomerSalePushLog customerSalePushLog) {
+        if (customerSalePushLog.getLaiyuan() != null && customerSalePushLog.getLaiyuan().equals(1))
+            return true;
+        else return false;
+    }
+
+    /**
+     * 判断是不是待分配推送
+     *
+     * @return
+     */
+    public boolean isPendingPush() {
+        return false;
+    }
+
+    /**
+     * 是不是设定时间段内不能重复推入客户
+     *
+     * @return
+     */
+    public boolean isRepeatPushInTime(CustomerSalePushLog customerSalePushLog) {
+        TheaApiDTO<ConfigDTO> theaApiDTO = theaService.getConfigByName("CanNotAllocateCustomerClassify");
+        ConfigDTO configDTO = theaApiDTO.getData();
+        String configValue = configDTO.getValue();
+        //时间小于配置中的推送时间间隔
+        if ((System.currentTimeMillis() - customerSalePushLog.getCreateTime().getTime())
+                <= Integer.valueOf(configValue) * 1000) {
+            return true;
+        }
+        else
+            return false;
+    }
+
+
 }

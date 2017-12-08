@@ -1201,4 +1201,20 @@ public class CustomerInfoService {
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
     }
+
+    public CronusDto<CustomerDTO> fingByphone(String telephonenumber){
+        CronusDto resultDto =  new CronusDto();
+        //手机需要加密
+        CustomerDTO dto= new CustomerDTO();
+        String encryptTelephone = "";//加密后的
+        List <CustomerInfo> customerInfos = customerInfoMapper.selectByOCDCPhone(encryptTelephone);
+        if (customerInfos == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        EntityToDto.customerEntityToCustomerDto(customerInfos.get(0),dto);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(dto);
+        return  resultDto;
+    }
 }

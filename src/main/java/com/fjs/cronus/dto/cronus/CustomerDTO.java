@@ -218,6 +218,10 @@ public class CustomerDTO {
     public void setOwnerUserId(Integer ownerUserId) {
         this.ownerUserId = ownerUserId;
     }
+
+    @ApiModelProperty(value = "海贷魔方 扩展字段",notes = "海贷魔方 扩展字段")
+    private String ext;
+
     /*   @ApiModelProperty(value = "海贷魔方 扩展字段",notes = "海贷魔方 扩展字段")
     private String ext;
 
@@ -258,13 +262,15 @@ public class CustomerDTO {
     private Date communicateTime;*/
 
 
-  /*  public String getExt() {
+    public String getExt() {
         return ext;
     }
 
     public void setExt(String ext) {
         this.ext = ext;
     }
+
+  /*
 
     public String getLevel() {
         return level;
