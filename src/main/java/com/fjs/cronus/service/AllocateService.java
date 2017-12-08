@@ -120,6 +120,7 @@ public class AllocateService {
             map.put("idList",uniqueList);
             map.put("lastUpdateUser",userId);
             map.put("lastUpdateTime",date);
+            map.put("paramsList",uniqueList);
             //判断是否是首次分配
             Map<String,Object> idMap=new HashMap<>();
             idMap.put("paramsList",uniqueList);
