@@ -225,6 +225,7 @@ public class CommonConst {
 
     public static String  OPERARIONAll = "自动分配";
 
+    public static String HANDOPERATION = "手动分配";
     public static String OPERARIONNO = "未沟通分配";
 
     public static String REMOVECUSTOMERALL ="removeCustomerAll";

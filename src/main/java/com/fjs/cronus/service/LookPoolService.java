@@ -7,7 +7,9 @@ import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.dto.cronus.ImportInfoDTO;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.AllocateLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
+import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
@@ -33,6 +35,8 @@ public class LookPoolService {
     CustomerInfoService customerInfoService;
     @Autowired
     UcService ucService;
+    @Autowired
+    AllocateLogMapper allocateLogMapper;
     public QueryResult<CustomerListDTO> unablePool(String token, String customerName, String telephonenumber, String utmSource, String ownUserName, String customerSource,
                                                            String level, Integer companyId, Integer page, Integer size){
 
@@ -175,6 +179,7 @@ public class LookPoolService {
 
     public boolean allocateToCompany(String token,String customer_ids,Integer sub_company){
         boolean flag = false;
+        Date date = new Date();
         Map<String,Object> paramsMap = new HashMap<>();
         List list = new ArrayList();
         //paramsList
@@ -186,11 +191,32 @@ public class LookPoolService {
             }
             paramsMap.put("paramsList", list);
         }
+        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
         List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerListByFeild(paramsMap);
         if (customerInfoList != null && customerInfoList.size() > 0){
             for (CustomerInfo customerInfo : customerInfoList) {
 
-
+                //添加分配日志
+                AllocateLog allocateLog = new AllocateLog();
+                allocateLog.setOperation(CommonConst.HANDOPERATION);
+                allocateLog.setCustomerId(customerInfo.getId());
+                /*
+                   'customer_name'=>$customerInfos[$customer_id]['customer_name'],
+                    'old_owner_id'=>$customerInfos[$customer_id]['owner_user_id'],
+                    'new_owner_id' =>0,
+                    'create_user_id' =>session("user_info.user_id"),
+                    'create_user_name'=>(new UserModel())->getUserInfoByID(session("user_info.user_id"))['name'],
+                    'create_time' =>time(),
+                 */
+                allocateLog.setOldOwnerId(customerInfo.getOwnUserId());
+                allocateLog.setNewOwnerId(0);
+                allocateLog.setCreateUserId(Integer.valueOf(userInfoDTO.getUser_id()));
+                allocateLog.setCreateUserName(userInfoDTO.getName());
+                allocateLog.setCreateTime(date);
+                //
+                allocateLogMapper.insert(allocateLog);
+                //开始转移客户
+         ///       customerInfo.set
             }
 
         }
