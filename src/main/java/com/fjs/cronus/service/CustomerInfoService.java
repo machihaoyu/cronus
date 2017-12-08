@@ -362,7 +362,7 @@ public class CustomerInfoService {
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
         EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
-        customerInfoLog.setLogDescription("编辑交易信息");
+        customerInfoLog.setLogDescription("编辑客户信息");
         customerInfoLog.setLogUserId(user_id);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
@@ -1183,7 +1183,7 @@ public class CustomerInfoService {
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
         EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
-        customerInfoLog.setLogDescription("编辑交易信息");
+        customerInfoLog.setLogDescription("编辑客户信息");
         customerInfoLog.setLogUserId(userId);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);

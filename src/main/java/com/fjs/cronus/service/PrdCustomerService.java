@@ -20,6 +20,7 @@ import com.fjs.cronus.model.PrdCustomer;
 import com.fjs.cronus.model.PrdOperationLog;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.FastJsonUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -159,7 +162,7 @@ public class PrdCustomerService {
             loanService.add(loan,userInfoDTO);*//*
         }*/
 
-        return prdCustomerMapper.update(prdCustomer);
+        return result;
     }
 
     /**
@@ -323,7 +326,7 @@ public class PrdCustomerService {
         PrdCustomer prdCustomer = prdCustomerMapper.findById(paramsMap);
         //判断客户有没有查看权限
         boolean flag= validUserAndTime(prdCustomer,userId);
-        if (false == false){
+        if (flag == false){
             throw new CronusException(CronusException.Type.MESSAGE_PRDCUSTOMER_ERROR);
         }
         prdCustomerDTO = copyProperty(prdCustomer,token);
@@ -336,7 +339,11 @@ public class PrdCustomerService {
            boolean flag = false;
            //需要判这个人十五分钟被人沟通了没
            Date date = new Date();
-           Integer time =Integer.parseInt(String.valueOf(Calendar.getInstance().getTimeInMillis()));
+           Date result = DateUtils.parse(DateUtils.format(date,DateUtils.FORMAT_LONG),DateUtils.FORMAT_LONG);
+           long ts = result.getTime()/1000;
+          String res = String.valueOf(ts);
+
+           Integer time =Integer.parseInt(res.toString());
            Integer hasTime =prdCustomer.getViewTime() + 15 * 60 -  time;
            if ((prdCustomer.getViewUid() != 0) && (!((prdCustomer.getViewUid() == userId) && hasTime > 0))){
                if (hasTime > 0) {
