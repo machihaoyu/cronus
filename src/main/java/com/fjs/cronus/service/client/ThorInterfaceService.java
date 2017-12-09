@@ -8,6 +8,7 @@ import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.CronusDto;
 
 import com.fjs.cronus.dto.api.uc.CityDto;
+import com.fjs.cronus.dto.api.uc.CompanyDto;
 import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.uc.*;
@@ -496,6 +497,12 @@ public interface ThorInterfaceService {
                                                        @RequestParam(value = "type") Integer type,
                                                        @RequestParam(value = "city") String city,
                                                        @RequestParam(value = "company_id") Integer company_id);
+
+
+    @RequestMapping(value = "/api/v1/listAllEnableCompany",method = RequestMethod.GET)
+    CronusDto<List<CompanyDto>> listAllEnableCompany(@RequestHeader("Authorization") String token);
+
+
 
 }
 

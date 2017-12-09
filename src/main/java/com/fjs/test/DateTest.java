@@ -68,65 +68,24 @@ public class DateTest {
         questionsDTOS.add(questionsDTO2);
         questionsDTOS.add(questionsDTO3);
         //*/
-        List<EmplouInfo> list = new ArrayList<>();
-        EmplouInfo emplouInfo = new EmplouInfo();
-        emplouInfo.setCompanyName("上海房金所");
-        emplouInfo.setYears("10");
-        emplouInfo.setTurnover("1000");
-        emplouInfo.setRegisterMoney("1000");
-        emplouInfo.setSubscribedMoney("1000");
-        emplouInfo.setRoles(1);
-        emplouInfo.setStatus(1);
-        EmplouInfo emplouInfo1 = new EmplouInfo();
-        emplouInfo1.setCompanyName("上海房金所");
-        emplouInfo1.setYears("10");
-        emplouInfo1.setTurnover("1000");
-        emplouInfo1.setRegisterMoney("1000");
-        emplouInfo1.setSubscribedMoney("1000");
-        emplouInfo1.setRoles(2);
-        emplouInfo1.setShares("50");
-        emplouInfo1.setStatus(1);
+        JSONObject jsonObject = new JSONObject();
 
+       // a:1:{i:0;a:3:{s:7:"content";s:12:"按规定发";s:14:"create_user_id";s:1:"1";s:11:"create_time";i:1512095726;}}
+        jsonObject.put("content","按规定发");
+        jsonObject.put("create_user_id","1");
+        jsonObject.put("create_time","1512095726");
+
+
+        // a:1:{i:0;a:3:{s:7:"content";s:12:"按规定发";s:14:"create_user_id";s:1:"1";s:11:"create_time";i:1512095726;}}
+        JSONObject jsonObject1 = new JSONObject();
+        jsonObject1.put("content","sdaadsfasdfasf");
+        jsonObject1.put("create_user_id","1");
+        jsonObject1.put("create_time","1512095726");
         JSONArray jsonArray = new JSONArray();
-        list.add(emplouInfo1);
-        list.add(emplouInfo);
-       /* jsonArray.add(questionsDTO);
-        jsonArray.add(questionsDTO2);
-        jsonArray.add(questionsDTO3);
-        System.out.println(questionsDTOS.toString());*/
-        String string = jsonArray.toJSONString(list);
-        System.out.println(string);
-   /*     List<Integer> list = new ArrayList();
-        list.add(1);
-        list.add(2);
-        list.add(3);
-        list.add(5);
-        list.add(4);
-        list.add(7);
-        list.add(6);
-        list.add(8);
-        list.add(9);
-        Integer a = 0;
-        for (Integer i: list) {
-            if (i-1 > a){
-                a= i-1;
-            }
-        }
-       System.out.println();*/
-   /*     JSONObject jsonObject = new JSONObject();
-        jsonObject.put("a",1);
-        jsonObject.put("a",2);
-        System.out.println(jsonObject.toJSONString());*/
-      /*  String[] ALLUSERROLE ={"","业务员","团队长","分公司经理","分公司财务" };
-        List<String> roleList = Arrays.<String> asList(ALLUSERROLE);
-        for (int i = 0; i < roleList.size(); i++){
-             System.out.println(roleList.get(i));
-        }
+        jsonArray.add(jsonObject);
+        jsonArray.add(jsonObject1);
 
-        System.out.println(roleList.size());*/
-        BigDecimal a = new BigDecimal(1.456);
-        BigDecimal b = new BigDecimal(1.789);
-        int result = a.compareTo(b);
-        System.out.println(result);
+        System.out.println(jsonArray.toString());
+
     }
 }

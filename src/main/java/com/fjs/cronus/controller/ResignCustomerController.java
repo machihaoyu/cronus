@@ -1,13 +1,17 @@
 package com.fjs.cronus.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.api.uc.CompanyDto;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.dto.cronus.CustomerSourceDTO;
+import com.fjs.cronus.dto.cronus.ImportInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.LookPoolService;
+import com.fjs.cronus.service.uc.UcService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -17,7 +21,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Created by msi on 2017/12/1.
@@ -32,6 +39,9 @@ public class ResignCustomerController {
     CustomerInfoService customerInfoService;
     @Autowired
     LookPoolService lookPoolService;
+
+    @Autowired
+    UcService ucService;
     @ApiOperation(value="获取客户来源", notes="获取客户来源")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
@@ -182,4 +192,113 @@ public class ResignCustomerController {
         return  resultDto;
     }
 
+    @ApiOperation(value="获取重要修改信息", notes="获取重要修改信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "id", value = "客户id", required = false, paramType = "query",  dataType = "int"),
+    })
+    @RequestMapping(value = "/editImportInfo",method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<ImportInfoDTO> editImportInfo(@RequestHeader("Authorization")String token,
+                                                   @RequestParam(required = false) Integer id){
+        CronusDto resultDto = new CronusDto();
+        ImportInfoDTO importInfoDTO = new ImportInfoDTO();
+        try{
+            importInfoDTO  = lookPoolService.editImportInfo(id,token);
+            resultDto.setData(importInfoDTO);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        }catch (Exception e){
+            logger.error("-------------->获取重要修改信息失败",e);
+            if (e instanceof CronusException){
+                CronusException cronusException = (CronusException)e;
+                throw  cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return  resultDto;
+    }
+    @ApiOperation(value="获取重要修改信息", notes="获取重要修改信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "importInfoDTO", value = "importInfoDTO", required = false, paramType = "body",  dataType = "ImportInfoDTO"),
+    })
+    @RequestMapping(value = "/editImportInfoOk",method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto editImportInfoOk(@RequestHeader("Authorization")String token,
+                                                     @RequestBody ImportInfoDTO importInfoDTO){
+        CronusDto resultDto = new CronusDto();
+        try{
+            boolean flag  = lookPoolService.editImportInfoOk(importInfoDTO,token);
+            resultDto.setData(flag);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        }catch (Exception e){
+            logger.error("-------------->重要修改信息失败修改",e);
+            if (e instanceof CronusException){
+                CronusException cronusException = (CronusException)e;
+                throw  cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return  resultDto;
+    }
+
+    @ApiOperation(value="获取所有的总公司", notes="获取所有的总公司")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/listAllEnableCompany",method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto listAllEnableCompany(@RequestHeader("Authorization")String token){
+        CronusDto resultDto = new CronusDto();
+        try{
+            List<CompanyDto> companyDtos= ucService.listAllEnableCompany(token);
+            resultDto.setData(companyDtos);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        }catch (Exception e){
+            logger.error("-------------->重要修改信息失败修改",e);
+            if (e instanceof CronusException){
+                CronusException cronusException = (CronusException)e;
+                throw  cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return  resultDto;
+    }
+
+    @ApiOperation(value="公司间用户转移", notes="公司间用户转移")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "jsonObject", value = "{'customer_ids':'1,2,3','sub_company':'12'}", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/allocateToCompany",method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto allocateToCompany(@RequestHeader("Authorization")String token, @RequestBody JSONObject jsonObject){
+        CronusDto resultDto = new CronusDto();
+        //教研参数
+        String customer_ids = jsonObject.getString("customer_ids");
+        Integer sub_company = jsonObject.getInteger("sub_company");
+        if (StringUtils.isEmpty(customer_ids)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        if (StringUtils.isEmpty(sub_company)){
+            throw new CronusException(CronusException.Type.CRM_LOSESUBCOMPANTID_ERROR);
+        }
+        try{
+            boolean flag = lookPoolService.allocateToCompany(token,customer_ids,sub_company);
+            resultDto.setData(flag);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        }catch (Exception e){
+            logger.error("-------------->重要修改信息失败修改",e);
+            if (e instanceof CronusException){
+                CronusException cronusException = (CronusException)e;
+                throw  cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return  resultDto;
+    }
 }

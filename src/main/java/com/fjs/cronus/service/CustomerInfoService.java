@@ -362,7 +362,7 @@ public class CustomerInfoService {
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
         EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
-        customerInfoLog.setLogDescription("编辑交易信息");
+        customerInfoLog.setLogDescription("编辑客户信息");
         customerInfoLog.setLogUserId(user_id);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
@@ -1183,7 +1183,7 @@ public class CustomerInfoService {
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
         EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
-        customerInfoLog.setLogDescription("编辑交易信息");
+        customerInfoLog.setLogDescription("编辑客户信息");
         customerInfoLog.setLogUserId(userId);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
@@ -1200,5 +1200,21 @@ public class CustomerInfoService {
         customerInfoLog.setLogUserId(userId);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
+    }
+
+    public CronusDto<CustomerDTO> fingByphone(String telephonenumber){
+        CronusDto resultDto =  new CronusDto();
+        //手机需要加密
+        CustomerDTO dto= new CustomerDTO();
+        String encryptTelephone = "";//加密后的
+        List <CustomerInfo> customerInfos = customerInfoMapper.selectByOCDCPhone(encryptTelephone);
+        if (customerInfos == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        EntityToDto.customerEntityToCustomerDto(customerInfos.get(0),dto);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(dto);
+        return  resultDto;
     }
 }

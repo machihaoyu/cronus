@@ -1,5 +1,7 @@
 package com.fjs.cronus.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -238,6 +240,113 @@ public final class DateUtils {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public static Date Str2Date(String str) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd ");
+        Date date = null;
+        try {
+            date = sdf.parse(str);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return date;
+    }
+
+    //计算两个时间相差的秒数
+    public static long comparDateInSecond(Date a, Date b) {
+        long n = 0;
+        //获取各自的时间戳
+
+        return n;
+    }
+
+
+    /**
+     * 获取当前的年月
+     *
+     * @return
+     */
+    public static String getyyyyMMForThisMonth() {
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH) + 1;
+        String str = "";
+        String monthStr = "";
+        if (month < 10) {
+            monthStr = "0" + String.valueOf(month);
+        } else {
+            monthStr = String.valueOf(month);
+        }
+        return String.valueOf(year) + monthStr;
+    }
+
+
+    /**
+     * 获取当前月的开始时间
+     *
+     * @return
+     */
+    public static Date getStartTimeOfThisMonth() {
+        Calendar begin = Calendar.getInstance();
+        begin.set(Calendar.DAY_OF_MONTH, begin.getActualMinimum(Calendar.DAY_OF_MONTH));
+        begin.set(Calendar.SECOND, 0);
+        begin.set(Calendar.HOUR_OF_DAY, 0);
+        begin.set(Calendar.MINUTE, 0);
+        Date beginDate = begin.getTime();
+        System.out.println(beginDate);
+        return beginDate;
+    }
+
+    /**
+     * 获取下个月的开始时间(当前月的结束时间)
+     *
+     * @return
+     */
+    public static Date getStartTimeOfNextMonth() {
+        Calendar end = Calendar.getInstance();
+        end.set(Calendar.DAY_OF_MONTH, end.getActualMaximum(Calendar.DAY_OF_MONTH));
+        end.set(Calendar.SECOND, 59);
+        end.set(Calendar.HOUR_OF_DAY, 23);
+        end.set(Calendar.MINUTE, 59);
+        Date endDate = end.getTime();
+        return endDate;
+    }
+
+    /**
+     * 获取给定的月份的起始时间
+     * @param yyyyMM
+     * @return
+     * @throws Exception
+     */
+    public static Date getBeginDateByStr(String yyyyMM) throws Exception {
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+        date = sdf.parse(yyyyMM);
+        return date;
+    }
+
+    /**
+     * 获取给定的月份的结束时间
+     * @param yyyyMM
+     * @return
+     * @throws Exception
+     */
+    public static Date getEndDateByStr(String yyyyMM) throws Exception {
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+        date = sdf.parse(yyyyMM);
+        int year = Integer.valueOf(StringUtils.substring(yyyyMM,0,4));
+        int month = Integer.valueOf(StringUtils.substring(yyyyMM,4,6));
+        if ( 12 == month) {
+            year++;
+            month = 01;
+        } else {
+            month ++;
+        }
+        String time = year+""+month;
+        date = sdf.parse(time);
+        return date;
     }
 
     public static void main(String [] args){

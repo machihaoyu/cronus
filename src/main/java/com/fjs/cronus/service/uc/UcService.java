@@ -8,6 +8,7 @@ import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.api.uc.CityDto;
+import com.fjs.cronus.dto.api.uc.CompanyDto;
 import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.BaseUcDTO;
@@ -206,4 +207,18 @@ public class UcService {
         phpDepartmentModelList = phpApiDto.getRetData();
         return phpDepartmentModelList;
     }
+
+    public List<CompanyDto> listAllEnableCompany(String token){
+
+        List<CompanyDto> companyDtos = new ArrayList<>();
+        CronusDto<List<CompanyDto>> resultDto  = thorInterfaceService.listAllEnableCompany(token);
+
+        if (resultDto.getData() != null){
+            companyDtos = resultDto.getData();
+        }
+
+        return  companyDtos;
+    }
+
+
 }
