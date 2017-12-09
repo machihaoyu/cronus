@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.fjs.thea.mappers.AgainAllocateCustomerMapper">
-    <resultMap id="BaseResultMap" type="com.fjs.thea.model.AgainAllocateCustomer">
+<mapper namespace="com.fjs.cronus.mappers.AgainAllocateCustomerMapper">
+    <resultMap id="BaseResultMap" type="com.fjs.cronus.model.AgainAllocateCustomer">
         <id column="id" property="id" jdbcType="INTEGER" />
         <result column="data_id" property="dataId" jdbcType="INTEGER" />
         <result column="json_data" property="jsonData" jdbcType="VARCHAR" />
@@ -12,7 +12,7 @@
     <sql id="Base_Column_List">
         id,data_id,json_data,status,update_time,create_time
     </sql>
-    <update id="saveStatusByDataId" parameterType="com.fjs.thea.model.AgainAllocateCustomer">
+    <update id="saveStatusByDataId" parameterType="com.fjs.cronus.model.AgainAllocateCustomer">
         UPDATE again_allocate_customer
         <set>
             <!--<if test="id != null">
