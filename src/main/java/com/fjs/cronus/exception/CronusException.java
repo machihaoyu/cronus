@@ -184,17 +184,13 @@ public class CronusException extends BaseException {
 
         MESSAGE_UPDATEPRDCUSTOMER_ERROR("6084","更新客户失败"),
 
-<<<<<<< HEAD
         MESSAGE_CONNECTTHEASYSTEM_ERROR("6805","链接交易系统获取配置信息出错"),
 
         MESSAGE_PARAM_ERROR("90002", "参数异常!"),
-=======
-        MESSAGE_CONNECTTHEASYSTEM_ERROR("6085","链接交易系统获取配置信息出错"),
 
         MESSAGE_PARAMSCUSTOMER_ERROR("6086","请完善信息"),
 
         CRM_LOSESUBCOMPANTID_ERROR("6089","请选择分公司"),
->>>>>>> b31220fb8d95000057dead0b43a9a2a7eb928f0f
         ;
         private String status;
         private String error;
