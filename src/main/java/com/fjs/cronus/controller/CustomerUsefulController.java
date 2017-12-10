@@ -72,8 +72,8 @@ public class CustomerUsefulController {
                     CustomerDTO customerDto=cronusDto.getData();
                     customerUsefulDTO.setTelephonenumber(customerDto.getTelephonenumber());
                 }
-                theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
-                theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+                theaApiDTO.setResult(CommonMessage.PUBLIC.getCode());
+                theaApiDTO.setMessage(CommonMessage.PUBLIC.getCodeDesc());
             }
         }catch(Exception e){
             logger.error("根据交易id获取确认信息",e);

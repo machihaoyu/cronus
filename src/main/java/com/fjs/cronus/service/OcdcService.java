@@ -7,8 +7,10 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.thea.ConfigDTO;
 import com.fjs.cronus.api.thea.LoanDTO;
+import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
+import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
@@ -16,14 +18,17 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerSalePushLog;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.util.EntityToDto;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
@@ -39,8 +44,10 @@ public class OcdcService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-//    @Autowired
+    //    @Autowired
 //    private ConfigRedisService configRedisService;
+    @Autowired
+    private AgainAllocateCustomerService againAllocateCustomerService;
 
     @Autowired
     private TheaService theaService;
@@ -68,91 +75,102 @@ public class OcdcService {
      * 添加OCDC推送客户信息
      */
     @Transactional
-    public void addOcdcCustomer(List<Map<String, Object>> listObj) {
+    public List<String> addOcdcCustomer(List<Map<String, Object>> listObj) {
 
-
+        List<String> successlist = new ArrayList<>();
         //获取推送数据字段信息
 //        String[] logArray = CommonConst.CUSTOMER_SALE_PUSH_LOG;
         //遍历OCDC数据信息
         List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<CustomerSalePushLog>();
         for (Map<String, Object> map : listObj) {
             CustomerSalePushLog customerSalePushLog = this.queryCustomerSalePushLogByOcdcPushData(map);
+            try {
+                AllocateEntity allocateEntity = new AllocateEntity();
+                Map<String, Object> mapc = new HashedMap();
+                mapc.put("telephonenumber", customerSalePushLog.getTelephonenumber());
+                List<CustomerInfo> customerInfoList = customerInfoMapper.selectByOCDCPhone(mapc);
+                if (!CollectionUtils.isEmpty(customerInfoList) && customerInfoList.size() > 0) { //重复客户
 
-            List<CustomerInfo> customerInfoList = customerInfoMapper.selectByOCDCPhone(customerSalePushLog.getTelephonenumber());
-            if (CollectionUtils.isEmpty(customerInfoList) && customerInfoList.size()>0) { //重复客户
-
-                if (isActiveApplicationChannel(customerSalePushLog)) {//主动申请
-                    //无负责人
-                    if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0) {
-                        //自动分配
-                        CustomerDTO customerDTO = new CustomerDTO();
-                        EntityToDto.customerEntityToCustomerDto(customerInfoList.get(0),customerDTO);
-                        autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC);
-                    }
-                    //有负责人分给对应的业务员
-                    else {
-                        queryLoanListByOcdcPushData(customerSalePushLog);
-                    }
-                }
-                //是不是三无客户
-                else {
-                    if (isThreeNonCustomer(customerSalePushLog) || isRepeatPushInTime(customerSalePushLog)) {
-                        return;
-                    } else {
-                        //有无负责人,有负责人跟进，没有自动分配
+                    if (isActiveApplicationChannel(customerSalePushLog)) {//主动申请
+                        //无负责人
                         if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0) {
                             //自动分配
                             CustomerDTO customerDTO = new CustomerDTO();
-                            EntityToDto.customerEntityToCustomerDto(customerInfoList.get(0),customerDTO);
-                            autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC);
-                        } else {
-                            //发消息业务员，提醒跟进
+                            EntityToDto.customerEntityToCustomerDto(customerInfoList.get(0), customerDTO);
+                            allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC);
+                        }
+                        //有负责人分给对应的业务员
+                        else {
+                            queryLoanListByOcdcPushData(customerSalePushLog);
                         }
                     }
+                    //是不是三无客户
+                    else {
+                        if (isThreeNonCustomer(customerSalePushLog) || isRepeatPushInTime(customerSalePushLog)) {
+                            ;
+                        } else {
+                            //有无负责人,有负责人跟进，没有自动分配
+                            if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0) {
+                                //自动分配
+                                CustomerDTO customerDTO = new CustomerDTO();
+                                BeanUtils.copyProperties(customerInfoList.get(0),customerDTO);
+//                                EntityToDto.customerEntityToCustomerDto(customerInfoList.get(0), customerDTO);
+                                allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC);
+                            } else {
+                                //发消息业务员，提醒跟进
+                            }
+                        }
+                    }
+                } else {
+                    CustomerDTO customerDTO = new CustomerDTO();
+                    BeanUtils.copyProperties(customerSalePushLog, customerDTO);
+                    allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC);
                 }
-            }
-            else
-            {
-                CustomerDTO customerDTO = new CustomerDTO();
-                BeanUtils.copyProperties(customerSalePushLog,customerDTO);
-                autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC);
+                if (allocateEntity.getAllocateStatus() != null) {
+                    switch (allocateEntity.getAllocateStatus().getCode()) {
+                        case "0":
+                            break;
+                        case "1":
+                            break;
+                        case "2":
+                            //未分配，添加到待分配池//todo
+                            againAllocateCustomerService.saveStatusByDataId(map);
+                            break;
+                    }
+                }
+                successlist.add(customerSalePushLog.getOcdcId().toString());
+            } catch (RuntimeException E) {
+
             }
             customerSalePushLogList.add(customerSalePushLog);
         }
 
-
         //保存OCDC推送日志
         customerSalePushLogService.insertList(customerSalePushLogList);
-        //获取主要城市及异地城市配置
-//        TheaApiDTO<ConfigDTO> theaApiDTO = theaService.getConfigByName(CommonConst.MAIN_CITY);
-//        ConfigDTO configDTO = theaApiDTO.getData();
-//        String mainCityStr = configDTO.getValue();
+        return successlist;
+    }
 
-//        theaApiDTO = theaService.getConfigByName(CommonConst.REMOTE_CITY);
-//        configDTO = theaApiDTO.getData();
-//        String remoteCityStr = configDTO.getValue();
-//
-//        String mainAndRemoteCityStr = mainCityStr + remoteCityStr;
-//        List<CustomerSalePushLog> theaCustomerPushList = new ArrayList<>();
-//        List<CustomerSalePushLog> serviceCustomerPushList = new ArrayList<>();
-//        //将推送的列表分成两部分，客户系统（crm）和客服系统
-//        for (CustomerSalePushLog customerSalePushLog : customerSalePushLogList) {
-//            if (StringUtils.isNotBlank(customerSalePushLog.getCity())) {
-//                if (StringUtils.contains(mainAndRemoteCityStr, customerSalePushLog.getCity())) {
-//                    theaCustomerPushList.add(customerSalePushLog);
-//                } else {
-//                    serviceCustomerPushList.add(customerSalePushLog);
-//                }
-//            } else {
-//                serviceCustomerPushList.add(customerSalePushLog);
-//            }
-//        }
-//        //将需要推送至Thea系统的集合转换为Loan集合
-////        if (null != theaCustomerPushList && theaCustomerPushList.size() > 0) {
-////            List<Loan> ocdcPushList = this.queryLoanListByOcdcPushData(theaCustomerPushList);
-////        }
-//        this.addLoanByOcdcPush(theaCustomerPushList);
+    /**
+     * 客服推送客户
+     *
+     * @param customerDTO
+     */
+    public void serviceAllocate(CustomerDTO customerDTO) {
 
+        AllocateEntity allocateEntity = new AllocateEntity();
+        if (customerDTO.getId() > 0) {
+            allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.SERVICES);
+        }
+    }
+
+    /**
+     * 待分配池定时分配
+     */
+    //@Scheduled()
+    public void waitingPoolAllocate() {
+
+        AllocateEntity allocateEntity = new AllocateEntity();
+        allocateEntity = autoAllocateService.autoAllocate(null, AllocateSource.WAITING);
     }
 
 
@@ -487,13 +505,11 @@ public class OcdcService {
      * @return
      */
     public Boolean isThreeNonCustomer(CustomerSalePushLog customerSalePushLog) {
-        if (customerSalePushLog != null &&
-                (customerSalePushLog.getCustomerClassify().equals("空号") ||
-                        customerSalePushLog.getCustomerClassify().equals("同业") ||
-                        customerSalePushLog.getCustomerClassify().equals("内部员工"))) {
+        String configValue = theaService.getConfigByName("CanNotAllocateCustomerClassify").getData();
+        if (StringUtils.isNotEmpty(configValue) && configValue.contains(customerSalePushLog.getCustomerClassify()))
             return true;
-        }
-        return false;
+        else
+            return false;
     }
 
     /**
@@ -503,10 +519,8 @@ public class OcdcService {
      * @return
      */
     public Boolean isActiveApplicationChannel(CustomerSalePushLog customerSalePushLog) {
-        TheaApiDTO<ConfigDTO> theaApiDTO = theaService.getConfigByName("activeApplicationChannel");
-        ConfigDTO configDTO = theaApiDTO.getData();
-        String activeApplicationChannel = configDTO.getValue();
-        if (activeApplicationChannel.contains(customerSalePushLog.getUtmSource()))
+        String activeApplicationChannel = theaService.getConfigByName("activeApplicationChannel").getData();
+        if (StringUtils.isNotEmpty(activeApplicationChannel) && activeApplicationChannel.contains(customerSalePushLog.getUtmSource()))
             return true;
         else
             return false;
@@ -531,9 +545,7 @@ public class OcdcService {
      * @return
      */
     public boolean isPublicOffer(CustomerSalePushLog customerSalePushLog) {
-        TheaApiDTO<ConfigDTO> theaApiDTO = theaService.getConfigByName("allocateToNoUserPool");
-        ConfigDTO configDTO = theaApiDTO.getData();
-        String activeApplicationChannel = configDTO.getValue();
+        String activeApplicationChannel = theaService.getConfigByName("allocateToNoUserPool").getData();
         if (activeApplicationChannel.contains(customerSalePushLog.getUtmSource()))
             return true;
         else
@@ -546,9 +558,7 @@ public class OcdcService {
      * @return
      */
     public boolean isDistributeCity(CustomerSalePushLog customerSalePushLog) {
-        TheaApiDTO<ConfigDTO> theaApiDTO = theaService.getConfigByName("canAllocateCity");
-        ConfigDTO configDTO = theaApiDTO.getData();
-        String activeApplicationChannel = configDTO.getValue();
+        String activeApplicationChannel = theaService.getConfigByName("canAllocateCity").getData();
         if (activeApplicationChannel.contains(customerSalePushLog.getCity()))
             return true;
         else
@@ -581,15 +591,12 @@ public class OcdcService {
      * @return
      */
     public boolean isRepeatPushInTime(CustomerSalePushLog customerSalePushLog) {
-        TheaApiDTO<ConfigDTO> theaApiDTO = theaService.getConfigByName("CanNotAllocateCustomerClassify");
-        ConfigDTO configDTO = theaApiDTO.getData();
-        String configValue = configDTO.getValue();
+        String configValue = theaService.getConfigByName("RCustomerCannotIntoSaleTime").getData();//CanNotAllocateCustomerClassify
         //时间小于配置中的推送时间间隔
         if ((System.currentTimeMillis() - customerSalePushLog.getCreateTime().getTime())
                 <= Integer.valueOf(configValue) * 1000) {
             return true;
-        }
-        else
+        } else
             return false;
     }
 

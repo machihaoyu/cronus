@@ -27,6 +27,7 @@ import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
+import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -1207,11 +1208,12 @@ public class CustomerInfoService {
         //手机需要加密
         CustomerDTO dto= new CustomerDTO();
         String encryptTelephone = "";//加密后的
-        List <CustomerInfo> customerInfos = customerInfoMapper.selectByOCDCPhone(encryptTelephone);
-        if (customerInfos == null){
-            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        Map<String,Object> mapc=new HashedMap();
+        mapc.put("telephonenumber",telephonenumber);
+        List <CustomerInfo> customerInfos = customerInfoMapper.selectByOCDCPhone(mapc);
+        if (customerInfos != null && customerInfos.size() >0 ) {
+            EntityToDto.customerEntityToCustomerDto(customerInfos.get(0), dto);
         }
-        EntityToDto.customerEntityToCustomerDto(customerInfos.get(0),dto);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(dto);

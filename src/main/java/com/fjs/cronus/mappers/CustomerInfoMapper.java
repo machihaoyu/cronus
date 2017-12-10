@@ -46,14 +46,14 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
      * @param paramMap
      * @return
      */
-    List <CustomerInfo> selectByPhone(Map<String,Object> paramMap);
+//    List <CustomerInfo> selectByPhone(Map<String,Object> paramMap);
 
     /**
      * 根据OCDC电话号码查找
      * @param phone
      * @return
      */
-    List <CustomerInfo> selectByOCDCPhone(@Param("telephonenumber") String telephonenumber);
+    List <CustomerInfo> selectByOCDCPhone(Map<String,Object> parmsMap);
 
     /**
      * 分组获取客户来源

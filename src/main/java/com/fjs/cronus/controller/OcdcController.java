@@ -2,6 +2,7 @@ package com.fjs.cronus.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.service.OcdcService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -81,6 +82,12 @@ public class OcdcController {
         List<Map<String, Object>> listObj = new ArrayList<>();
         listObj = (ArrayList)list;
         ocdcService.addOcdcCustomer(listObj);
+        return resultDto;
+    }
+
+    public CronusDto serviceAllocate(@RequestBody CustomerDTO customerDTO){
+        CronusDto resultDto = new CronusDto();
+//        ocdcService.addOcdcCustomer(customerDTO);
         return resultDto;
     }
 

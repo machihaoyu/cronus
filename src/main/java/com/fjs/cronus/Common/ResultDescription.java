@@ -5,12 +5,12 @@ package com.fjs.cronus.Common;
  */
 public class ResultDescription {
 
-    // SUCCESS
+    // PUBLIC
     public static int CODE_SUCCESS = 0;
     public static String MESSAGE_SUCCESS = "成功";
 
 
-    // SUCCESS
+    // PUBLIC
     public static int CODE_FAIL = 1;
     public static String MESSAGE_FAIL = "失败";
 

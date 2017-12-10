@@ -2,11 +2,11 @@ package com.fjs.cronus.enums;
 
 public enum AllocateEnum {
 
-    SUCCESS("0","公盘"),
+    PUBLIC("0","公盘"),
 
-    CRM_DATA_SUCCESS("1", "分配到负责人"),
+    ALLOCATE_TO_OWNER("1", "分配到负责人"),
 
-    CRM_FILE_DATA_SUCCESS("2", "进入待分配池");
+    WAITING_POOL("2", "进入待分配池");
 
 
     private String code;
