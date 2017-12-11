@@ -1,6 +1,7 @@
 package com.fjs.cronus.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonRawValue;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -83,6 +84,7 @@ public class CustomerSalePushLog {
 
     private Integer laiyuan;
 
+    @JsonRawValue
     private String ext;
 
     private String houseStatus;
