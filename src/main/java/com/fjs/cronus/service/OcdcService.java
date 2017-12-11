@@ -3,17 +3,22 @@ package com.fjs.cronus.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.thea.ConfigDTO;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.crm.OcdcData;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
+import com.fjs.cronus.model.AgainAllocateCustomer;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerSalePushLog;
 import com.fjs.cronus.service.client.TheaService;
@@ -35,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -75,14 +81,90 @@ public class OcdcService {
     /**
      * 添加OCDC推送客户信息
      */
-    @Transactional
-    public List<String> addOcdcCustomer(List<Map<String, Object>> listObj) {
+//    @Transactional
+//    public List<String> addOcdcCustomer(List<Map<String, Object>> listObj) {
+//
+//        List<String> successlist = new ArrayList<>();
+//        //获取推送数据字段信息
+////        String[] logArray = CommonConst.CUSTOMER_SALE_PUSH_LOG;
+//        //遍历OCDC数据信息
+//        List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<CustomerSalePushLog>();
+//        for (Map<String, Object> map : listObj) {
+//            CustomerSalePushLog customerSalePushLog = null;//this.queryCustomerSalePushLogByOcdcPushData(map);
+//            try {
+//                AllocateEntity allocateEntity = new AllocateEntity();
+//                Map<String, Object> mapc = new HashedMap();
+//                mapc.put("telephonenumber", customerSalePushLog.getTelephonenumber());
+//                List<CustomerInfo> customerInfoList = customerInfoMapper.selectByOCDCPhone(mapc);
+//                if (!CollectionUtils.isEmpty(customerInfoList) && customerInfoList.size() > 0) { //重复客户
+//
+//                    if (isActiveApplicationChannel(customerSalePushLog)) {//主动申请
+//                        //无负责人
+//                        if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0) {
+//                            //自动分配
+//                            CustomerDTO customerDTO = new CustomerDTO();
+//                            EntityToDto.customerEntityToCustomerDto(customerInfoList.get(0), customerDTO);
+//                            allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC);
+//                        }
+//                        //有负责人分给对应的业务员
+//                        else {
+//                            queryLoanListByOcdcPushData(customerSalePushLog);
+//                        }
+//                    }
+//                    //是不是三无客户
+//                    else {
+//                        if (isThreeNonCustomer(customerSalePushLog) || isRepeatPushInTime(customerSalePushLog)) {
+//                            ;
+//                        } else {
+//                            //有无负责人,有负责人跟进，没有自动分配
+//                            if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0) {
+//                                //自动分配
+//                                CustomerDTO customerDTO = new CustomerDTO();
+//                                BeanUtils.copyProperties(customerInfoList.get(0),customerDTO);
+////                                EntityToDto.customerEntityToCustomerDto(customerInfoList.get(0), customerDTO);
+//                                allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC);
+//                            } else {
+//                                //发消息业务员，提醒跟进
+//                            }
+//                        }
+//                    }
+//                } else {
+//                    CustomerDTO customerDTO = new CustomerDTO();
+//                    BeanUtils.copyProperties(customerSalePushLog, customerDTO);
+//                    allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC);
+//                }
+//                if (allocateEntity.getAllocateStatus() != null) {
+//                    switch (allocateEntity.getAllocateStatus().getCode()) {
+//                        case "0":
+//                            break;
+//                        case "1":
+//                            break;
+//                        case "2":
+//                            //未分配，添加到待分配池//todo
+//                            againAllocateCustomerService.saveStatusByDataId(map);
+//                            break;
+//                    }
+//                }
+//                successlist.add(customerSalePushLog.getOcdcId().toString());
+//            } catch (RuntimeException E) {
+//
+//            }
+//            customerSalePushLogList.add(customerSalePushLog);
+//        }
+//
+//        //保存OCDC推送日志
+//        customerSalePushLogService.insertList(customerSalePushLogList);
+//        return successlist;
+//    }
+
+
+    public List<String> addOcdcCustomerNew(OcdcData ocdcData,String token) {
 
         List<String> successlist = new ArrayList<>();
-        //获取推送数据字段信息
-//        String[] logArray = CommonConst.CUSTOMER_SALE_PUSH_LOG;
         //遍历OCDC数据信息
         List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<CustomerSalePushLog>();
+/*
+<<<<<<< HEAD
         for (Map<String, Object> map : listObj) {
             CustomerSalePushLog customerSalePushLog = this.queryCustomerSalePushLogByOcdcPushData(map);
             try {
@@ -116,40 +198,84 @@ public class OcdcService {
                             ;
                         } else {
                             //有无负责人,有负责人跟进，没有自动分配
+=======
+*/
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+        try {
+            for (String map : ocdcData.getData()) {
+                JsonNode node = objectMapper.readValue(map, JsonNode.class);
+                CustomerSalePushLog customerSalePushLog = this.queryCustomerSalePushLogByOcdcPushData(node);
+
+                try {
+                    AllocateEntity allocateEntity = new AllocateEntity();
+                    Map<String, Object> mapc = new HashedMap();
+                    mapc.put("telephonenumber", customerSalePushLog.getTelephonenumber());
+                    List<CustomerInfo> customerInfoList = customerInfoMapper.selectByOCDCPhone(mapc);
+                    if (!CollectionUtils.isEmpty(customerInfoList) && customerInfoList.size() > 0) { //重复客户
+
+                        if (isActiveApplicationChannel(customerSalePushLog)) {//主动申请
+                            //无负责人
                             if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0) {
                                 //自动分配
                                 CustomerDTO customerDTO = new CustomerDTO();
-                                BeanUtils.copyProperties(customerInfoList.get(0),customerDTO);
-//                                EntityToDto.customerEntityToCustomerDto(customerInfoList.get(0), customerDTO);
-                                allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC);
-                            } else {
-                                //发消息业务员，提醒跟进
+                                EntityToDto.customerEntityToCustomerDto(customerInfoList.get(0), customerDTO);
+                                allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC,token);
+                            }
+                            //有负责人分给对应的业务员
+                            else {
+                                queryLoanListByOcdcPushData(customerSalePushLog);
                             }
                         }
+                        //是不是三无客户
+                        else {
+                            if (isThreeNonCustomer(customerSalePushLog) || isRepeatPushInTime(customerSalePushLog)) {
+                                ;
+                            } else {
+                                //有无负责人,有负责人跟进，没有自动分配
+                                if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0) {
+                                    //自动分配
+                                    CustomerDTO customerDTO = new CustomerDTO();
+                                    BeanUtils.copyProperties(customerInfoList.get(0), customerDTO);
+//                                EntityToDto.customerEntityToCustomerDto(customerInfoList.get(0), customerDTO);
+                                    allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC,token);
+                                } else {
+                                    //发消息业务员，提醒跟进
+                                }
+                            }
+                        }
+                    } else {
+                        CustomerDTO customerDTO = new CustomerDTO();
+                        BeanUtils.copyProperties(customerSalePushLog, customerDTO);
+                        allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC,token);
                     }
-                } else {
-                    CustomerDTO customerDTO = new CustomerDTO();
-                    BeanUtils.copyProperties(customerSalePushLog, customerDTO);
-                    allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC);
-                }
-                if (allocateEntity.getAllocateStatus() != null) {
-                    switch (allocateEntity.getAllocateStatus().getCode()) {
-                        case "0":
-                            break;
-                        case "1":
-                            break;
-                        case "2":
-                            //未分配，添加到待分配池//todo
-                            againAllocateCustomerService.saveStatusByDataId(map);
-                            break;
+                    if (allocateEntity.getAllocateStatus() != null) {
+                        switch (allocateEntity.getAllocateStatus().getCode()) {
+                            case "0":
+                                break;
+                            case "1":
+                                break;
+                            case "2":
+                                //未分配，添加到待分配池//todo
+                                AgainAllocateCustomer againAllocateCustomer = new AgainAllocateCustomer();
+                                againAllocateCustomer.setDataId(customerSalePushLog.getId());
+                                againAllocateCustomer.setJsonData(map);
+                                againAllocateCustomer.setCreateTime(new Date());
+                                againAllocateCustomer.setUpdataTime(new Date());
+                                againAllocateCustomerService.addAgainAllocateCustomer(againAllocateCustomer);
+                                break;
+                        }
                     }
-                }
-                successlist.add(customerSalePushLog.getOcdcId().toString());
-            } catch (RuntimeException E) {
+                    successlist.add(customerSalePushLog.getOcdcId().toString());
+                } catch (RuntimeException E) {
 
+                }
+                customerSalePushLogList.add(customerSalePushLog);
             }
-            customerSalePushLogList.add(customerSalePushLog);
         }
+        catch (Exception e)
+        {}
 
         //保存OCDC推送日志
         customerSalePushLogService.insertList(customerSalePushLogList);
@@ -163,10 +289,10 @@ public class OcdcService {
      */
     public void serviceAllocate(CustomerDTO customerDTO) {
 
-        AllocateEntity allocateEntity = new AllocateEntity();
-        if (customerDTO.getId() > 0) {
-            allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.SERVICES);
-        }
+//        AllocateEntity allocateEntity = new AllocateEntity();
+//        if (customerDTO.getId() > 0) {
+//            allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.SERVICES);
+//        }
     }
 
     /**
@@ -175,8 +301,8 @@ public class OcdcService {
     //@Scheduled()
     public void waitingPoolAllocate() {
 
-        AllocateEntity allocateEntity = new AllocateEntity();
-        allocateEntity = autoAllocateService.autoAllocate(null, AllocateSource.WAITING);
+//        AllocateEntity allocateEntity = new AllocateEntity();
+//        allocateEntity = autoAllocateService.autoAllocate(null, AllocateSource.WAITING);
     }
 
 
@@ -340,109 +466,110 @@ public class OcdcService {
      * @param map
      * @return
      */
-    public CustomerSalePushLog queryCustomerSalePushLogByOcdcPushData(Map<String, Object> map) {
+    public CustomerSalePushLog queryCustomerSalePushLogByOcdcPushData(JsonNode map) {
         CustomerSalePushLog customerSalePushLog = new CustomerSalePushLog();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");
         try {
             if (null != map.get("id") && StringUtils.isNotBlank(map.get("id").toString())) {
-                customerSalePushLog.setOcdcId(Integer.valueOf(map.get("id").toString()));
+                customerSalePushLog.setOcdcId(map.get("id").asInt());
             } else {
                 customerSalePushLog.setOcdcId(CommonEnum.NO.getCode());
             }
             if (null != map.get("customer_id") && StringUtils.isNotBlank(map.get("customer_id").toString())) {
-                customerSalePushLog.setCustomerId((Integer) map.get("customer_id"));
+                customerSalePushLog.setCustomerId(map.get("customer_id").asInt());
             } else {
                 customerSalePushLog.setCustomerId(CommonEnum.NO.getCode());
             }
             customerSalePushLog.setLoanId(CommonEnum.NO.getCode());
             if (null != map.get("telephonenumber") && StringUtils.isNotBlank(map.get("telephonenumber").toString())) {
-                customerSalePushLog.setTelephonenumber(map.get("telephonenumber").toString());
+                customerSalePushLog.setTelephonenumber(map.get("telephonenumber").asText());
             }
             //customer_name
             if (null != map.get("name") && StringUtils.isNotBlank(map.get("name").toString())) {
-                customerSalePushLog.setCustomerName(map.get("name").toString());
+                customerSalePushLog.setCustomerName(map.get("name").asText());
             } else {
                 customerSalePushLog.setCustomerName(CommonConst.DEFAULT_CUSTOMER_NAME + map.get("data_id").toString());
             }
             if (null != map.get("owner_user_id") && StringUtils.isNotBlank(map.get("owner_user_id").toString())) {
-                customerSalePushLog.setOwnerUserId((Integer) map.get("owner_user_id"));
+                customerSalePushLog.setOwnerUserId(map.get("owner_user_id").asInt());
             } else {
                 customerSalePushLog.setOwnerUserId(CommonEnum.NO.getCode());
             }
             if (null != map.get("owner_user_name") && StringUtils.isNotBlank(map.get("owner_user_name").toString())) {
-                customerSalePushLog.setOwnerUserName(map.get("owner_user_name").toString());
+                customerSalePushLog.setOwnerUserName(map.get("owner_user_name").asText());
             }
             if (null != map.get("creater_user_id") && StringUtils.isNotBlank(map.get("creater_user_id").toString())) {
-                customerSalePushLog.setCreaterUserId((Integer) map.get("creater_user_id"));
+                customerSalePushLog.setCreaterUserId(map.get("creater_user_id").asInt());
             } else {
                 customerSalePushLog.setCreaterUserId(CommonEnum.NO.getCode());
             }
             if (null != map.get("customer_level") && StringUtils.isNotBlank(map.get("customer_level").toString())) {
-                customerSalePushLog.setCustomerLevel(map.get("customer_level").toString());
+                customerSalePushLog.setCustomerLevel(map.get("customer_level").asText());
             } else {
                 customerSalePushLog.setCustomerLevel(CommonEnum.CUSTOMER_LEVEL_0.getCodeDesc());
             }
             if (null != map.get("loan_amount") && StringUtils.isNotBlank(map.get("loan_amount").toString())) {
-                customerSalePushLog.setLoanAmount(new BigDecimal(map.get("loan_amount").toString()));
+                customerSalePushLog.setLoanAmount(map.get("loan_amount").decimalValue());
             }
             if (null != map.get("spare_phone") && StringUtils.isNotBlank(map.get("spare_phone").toString())) {
-                customerSalePushLog.setSparePhone(map.get("spare_phone").toString());
+                customerSalePushLog.setSparePhone(map.get("spare_phone").asText());
             }
             if (null != map.get("age") && StringUtils.isNotBlank(map.get("age").toString())) {
-                customerSalePushLog.setAge(map.get("age").toString());
+                customerSalePushLog.setAge(map.get("age").asText());
             }
             if (null != map.get("marriage") && StringUtils.isNotBlank(map.get("marriage").toString())) {
-                customerSalePushLog.setMarriage(map.get("marriage").toString());
+                customerSalePushLog.setMarriage(map.get("marriage").asText());
             }
             if (null != map.get("id_card") && StringUtils.isNotBlank(map.get("id_card").toString())) {
-                customerSalePushLog.setIdCard(map.get("id_card").toString());
+                customerSalePushLog.setIdCard(map.get("id_card").asText());
             }
             if (null != map.get("province_huji") && StringUtils.isNotBlank(map.get("province_huji").toString())) {
-                customerSalePushLog.setProvinceHuji(map.get("province_huji").toString());
+                customerSalePushLog.setProvinceHuji(map.get("province_huji").asText());
             }
             if (null != map.get("sex") && StringUtils.isNotBlank(map.get("sex").toString())) {
-                customerSalePushLog.setSex(map.get("sex").toString());
+                customerSalePushLog.setSex(map.get("sex").asText());
             } else {
                 customerSalePushLog.setSex(CommonEnum.SEX_MALE.getCodeDesc());
             }
             if (null != map.get("customer_address") && StringUtils.isNotBlank(map.get("customer_address").toString())) {
-                customerSalePushLog.setCustomerAddress(map.get("customer_address").toString());
+                customerSalePushLog.setCustomerAddress(map.get("customer_address").asText());
             }
             if (null != map.get("per_description") && StringUtils.isNotBlank(map.get("per_description").toString())) {
-                customerSalePushLog.setPerDescription(map.get("per_description").toString());
+                customerSalePushLog.setPerDescription(map.get("per_description").asText());
             }
             if (null != map.get("house_amount") && StringUtils.isNotBlank(map.get("house_amount").toString())) {
-                customerSalePushLog.setHouseAmount(map.get("house_amount").toString());
+                customerSalePushLog.setHouseAmount(map.get("house_amount").asText());
             }
             if (null != map.get("house_type") && StringUtils.isNotEmpty(map.get("house_type").toString())) {
-                customerSalePushLog.setHouseType(map.get("house_type").toString());
+                customerSalePushLog.setHouseType(map.get("house_type").asText());
             }
             if (null != map.get("house_value") && StringUtils.isNotBlank(map.get("house_value").toString())) {
-                customerSalePushLog.setHouseValue(map.get("house_value").toString());
+                customerSalePushLog.setHouseValue(map.get("house_value").asText());
             }
             if (null != map.get("house_area") && StringUtils.isNotBlank(map.get("house_area").toString())) {
-                customerSalePushLog.setHouseArea(map.get("house_area").toString());
+                customerSalePushLog.setHouseArea(map.get("house_area").asText());
             }
             if (null != map.get("house_age") && StringUtils.isNotBlank(map.get("house_age").toString())) {
                 customerSalePushLog.setHouseAge(map.get("house_age").toString());
             }
             if (null != map.get("house_loan") && StringUtils.isNotBlank(map.get("house_loan").toString())) {
-                customerSalePushLog.setHouseLoan(map.get("house_loan").toString());
+                customerSalePushLog.setHouseLoan(map.get("house_loan").asText());
             } else {
                 customerSalePushLog.setHouseLoan(CommonEnum.HOUSE_LOAN_0.getCodeDesc());
             }
             if (null != map.get("house_alone") && StringUtils.isNotBlank(map.get("house_alone").toString())) {
-                customerSalePushLog.setHouseAlone(map.get("house_alone").toString());
+                customerSalePushLog.setHouseAlone(map.get("house_alone").asText());
             } else {
                 customerSalePushLog.setHouseAlone(CommonEnum.HOUSE_ALONE_0.getCodeDesc());
             }
             if (null != map.get("house_location") && StringUtils.isNotBlank(map.get("house_location").toString())) {
-                customerSalePushLog.setHouseLoan(map.get("house_location").toString());
+                customerSalePushLog.setHouseLoan(map.get("house_location").asText());
             }
             if (null != map.get("city") && StringUtils.isNotBlank(map.get("city").toString())) {
-                customerSalePushLog.setCity(map.get("city").toString());
+                customerSalePushLog.setCity(map.get("city").asText());
             }
             if (null != map.get("retain") && StringUtils.isNotBlank(map.get("retain").toString())) {
-                customerSalePushLog.setRetain((Integer) map.get("retain"));
+                customerSalePushLog.setRetain( map.get("retain").asInt());
             } else {
                 customerSalePushLog.setRetain(CommonEnum.RETAIN_STATUE_0.getCode());
             }
@@ -450,41 +577,42 @@ public class OcdcService {
             customerSalePushLog.setUpdateTime(new Date());
             customerSalePushLog.setReceiveTime(new Date());
             if (null != map.get("is_lock") && StringUtils.isNotBlank(map.get("is_lock").toString())) {
-                customerSalePushLog.setIsLock((Integer) map.get("is_lock"));
+                customerSalePushLog.setIsLock((Integer) map.get("is_lock").asInt());
             } else {
                 customerSalePushLog.setIsLock(CommonEnum.NO.getCode());
             }
             if (null != map.get("phone_view_time") && StringUtils.isNotBlank(map.get("phone_view_time").toString())) {
-                customerSalePushLog.setPhoneViewTime((Date) map.get("phone_view_time"));
+
+                customerSalePushLog.setPhoneViewTime(sdf.parse(map.get("phone_view_time").asText()));
             }
             if (null != map.get("phone_view_uid") && StringUtils.isNotBlank(map.get("phone_view_uid").toString())) {
-                customerSalePushLog.setPhoneViewUid((Integer) map.get("phone_view_uid"));
+                customerSalePushLog.setPhoneViewUid((Integer) map.get("phone_view_uid").asInt());
             } else {
                 customerSalePushLog.setPhoneViewUid(CommonEnum.NO.getCode());
             }
             if (null != map.get("phone_view_count") && StringUtils.isNotBlank(map.get("phone_view_count").toString())) {
-                customerSalePushLog.setPhoneViewCount((Integer) map.get("phone_view_count"));
+                customerSalePushLog.setPhoneViewCount((Integer) map.get("phone_view_count").asInt());
             } else {
                 customerSalePushLog.setPhoneViewCount(CommonEnum.NO.getCode());
             }
             if (null != map.get("autostatus") && StringUtils.isNotBlank(map.get("autostatus").toString())) {
-                customerSalePushLog.setAutostatus((Integer) map.get("autostatus"));
+                customerSalePushLog.setAutostatus((Integer) map.get("autostatus").asInt());
             } else {
                 customerSalePushLog.setAutostatus(CommonEnum.YES.getCode());
             }
             if (null != map.get("utm_source") && StringUtils.isNotBlank(map.get("utm_source").toString())) {
-                customerSalePushLog.setUtmSource(map.get("utm_source").toString());
+                customerSalePushLog.setUtmSource(map.get("utm_source").asText());
             }
             if (null != map.get("customer_source") && StringUtils.isNotBlank(map.get("customer_source").toString())) {
-                customerSalePushLog.setCustomerSource(map.get("customer_source").toString());
+                customerSalePushLog.setCustomerSource(map.get("customer_source").asText());
             }
             if (null != map.get("customer_classify") && StringUtils.isNotBlank(map.get("customer_classify").toString())) {
-                customerSalePushLog.setCustomerClassify(map.get("customer_classify").toString());
+                customerSalePushLog.setCustomerClassify(map.get("customer_classify").asText());
             } else {
                 customerSalePushLog.setCustomerClassify(CommonEnum.CUSTOMER_CLASSIFY_1.getCodeDesc());
             }
             if (null != map.get("laiyuan") && StringUtils.isNotBlank(map.get("laiyuan").toString())) {
-                customerSalePushLog.setLaiyuan((Integer) map.get("laiyuan"));
+                customerSalePushLog.setLaiyuan((Integer) map.get("laiyuan").asInt());
             } else {
                 customerSalePushLog.setLaiyuan(CommonEnum.LAIYUAN_0.getCode());
             }
@@ -493,7 +621,7 @@ public class OcdcService {
                 customerSalePushLog.setExt(map.get("exend_text").toString());
             }
             if (null != map.get("repeat_callback_time") && StringUtils.isNotBlank(map.get("repeat_callback_time").toString())) {
-                customerSalePushLog.setRepeatCallbackTime((Date) map.get("repeat_callback_time"));
+                customerSalePushLog.setRepeatCallbackTime(sdf.parse(map.get("repeat_callback_time").asText()));
             }
         } catch (Exception e) {
             e.printStackTrace();

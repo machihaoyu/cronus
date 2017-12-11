@@ -1,8 +1,12 @@
 package com.fjs.cronus.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.crm.JSONData;
+import com.fjs.cronus.dto.crm.OcdcData;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
+import com.fjs.cronus.model.CustomerSalePushLog;
 import com.fjs.cronus.service.OcdcService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -71,17 +75,15 @@ public class OcdcController {
     @ApiOperation(value="OCDC推送", notes="OCDC推送客户信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "jsonObject", value = "JSON推送数据", required = true, paramType = "body", dataType = "JSONObject")
+            @ApiImplicitParam(name = "ocdcRawData", value = "JSON推送数据", required = true, paramType = "body", dataType = "OcdcData")
     })
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @RequestMapping(value = "/ocdcCustomerPush", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto addOcdc(@RequestBody JSONObject jsonObject){
-        logger.info("OCDC数据：" + jsonObject.toJSONString());
+    public CronusDto ocdcCustomerPush(@RequestHeader("Authorization")String token, @RequestBody String ocdcRawData){
+        OcdcData ocdcData = JSON.parseObject(ocdcRawData,OcdcData.class);
         CronusDto resultDto = new CronusDto();
-        Object list = jsonObject.get("data");
-        List<Map<String, Object>> listObj = new ArrayList<>();
-        listObj = (ArrayList)list;
-        ocdcService.addOcdcCustomer(listObj);
+        List<String> list = ocdcService.addOcdcCustomerNew(ocdcData,token);
+        resultDto.setData(list);
         return resultDto;
     }
 

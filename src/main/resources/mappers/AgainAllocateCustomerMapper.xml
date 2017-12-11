@@ -12,6 +12,11 @@
     <sql id="Base_Column_List">
         id,data_id,json_data,status,update_time,create_time
     </sql>
+    <insert id="addAgainAllocateCustomer" parameterType="com.fjs.cronus.model.AgainAllocateCustomer" >
+        insert into again_allocate_customer (data_id, json_data,
+        update_time, create_time)
+        values (#{dataId}, #{jsonData},#{updataTime}, #{createTime})
+    </insert>
     <update id="saveStatusByDataId" parameterType="com.fjs.cronus.model.AgainAllocateCustomer">
         UPDATE again_allocate_customer
         <set>
