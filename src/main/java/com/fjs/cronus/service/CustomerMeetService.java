@@ -1,5 +1,6 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.AddCustomerMeetDTO;
@@ -47,7 +48,9 @@ public class CustomerMeetService {
         customerMeet.setLastUpdateUser(userId);
         customerMeet.setIsDeleted(CommonConst.DATA_NORMAIL);
         //开始更新交易的状态
-        TheaApiDTO resultDTO = theaService.changeStatusByCustomerId(token,customerMeetDTO.getCustomerId());
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("customerId",customerMeetDTO.getCustomerId());
+        TheaApiDTO resultDTO = theaService.changeStatusByCustomerId(token,jsonObject);
         return customerMeetMapper.insert(customerMeet);
     }
 
