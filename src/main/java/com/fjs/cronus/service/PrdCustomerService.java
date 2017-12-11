@@ -193,9 +193,9 @@ public class PrdCustomerService {
         prdCustomerDTO.setCustomerName(prdCustomer.getCustomerName());
         prdCustomerDTO.setSex(prdCustomer.getSex());
         prdCustomerDTO.setCustomerType(prdCustomer.getCustomerType());
-        //隐藏手机号后四位
-        String phoneNumber = prdCustomer.getTelephonenumber().substring(0, 3) + "****" + prdCustomer.getTelephonenumber().substring(7, prdCustomer.getTelephonenumber().length());
-        prdCustomerDTO.setTelephonenumber(phoneNumber);
+        //TODO 隐藏手机号后四位
+       // String phoneNumber = prdCustomer.getTelephonenumber().substring(0, 3) + "****" + prdCustomer.getTelephonenumber().substring(7, prdCustomer.getTelephonenumber().length());
+        prdCustomerDTO.setTelephonenumber(prdCustomer.getTelephonenumber());
         prdCustomerDTO.setLoanAmount(prdCustomer.getLoanAmount());
         prdCustomerDTO.setCity(prdCustomer.getCity());
         prdCustomerDTO.setCustomerSource(prdCustomer.getCustomerSource());
