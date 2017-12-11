@@ -100,7 +100,7 @@ public class AllocateRedisService {
         } else {
             String[] userIdsArray = userIds.split(",");
             String userIdStr = userId.toString();
-            for (int i = 0 ; i<= userIdsArray.length; i++) {
+            for (int i = 0 ; i< userIdsArray.length; i++) {
                 if (userIdStr.equals(userIdsArray[i])) {
                     ArrayUtils.remove(userIdsArray, i);
                 }

@@ -208,9 +208,9 @@ public class AutoAllocateService {
                 }
             }
 
-            if (autoStatus == 1 && allocateEntity.getAllocateStatus().equals(AllocateEnum.ALLOCATE_TO_OWNER.getCode()) ) {
+            if (autoStatus == 1 && allocateEntity.getAllocateStatus().getCode().equals(AllocateEnum.ALLOCATE_TO_OWNER.getCode()) ) {
                 //更新城市队列
-                String[] cityStrArrayAll = StringUtils.split(",");
+                String[] cityStrArrayAll = StringUtils.split(allocateCities,",");
                 if (ArrayUtils.contains(cityStrArrayAll, customerDTO.getCity())) {
                     allocateRedisService.changeAllocateTemplet(customerDTO.getOwnerUserId(), customerDTO.getCity());
                 }
