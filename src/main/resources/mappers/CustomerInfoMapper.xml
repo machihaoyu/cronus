@@ -118,10 +118,13 @@
     <if test="customerName !=null and customerName !=''">
       AND  c.customer_name  like CONCAT('%',#{customerName},'%' )
     </if>
-
-    <if test="telephonenumber != null and telephonenumber !=''">
-      and c.telephonenumber like CONCAT('%',#{telephonenumber},'%' )
-    </if>
+      <if test="paramsList != null and paramsList.size > 0">
+      AND c.telephonenumber in
+      <foreach collection="paramsList" item="item"
+               index="index" open="(" close=")" separator=",">
+          ${item}
+      </foreach>
+      </if>
       <if test="utmSource != null and utmSource != '' ">
           and c.utm_source = #{utmSource}
       </if>
@@ -169,10 +172,13 @@
     <if test="customerName !=null and customerName !=''">
       and c.customer_name  like CONCAT('%', #{customerName},'%' )
     </if>
-    <if test="telephonenumber != null and telephonenumber != ''">
-      and c.telephonenumber like CONCAT('%',${telephonenumber},'%' )
-    </if>
-
+      <if test="paramsList != null and paramsList.size > 0">
+          AND c.telephonenumber in
+          <foreach collection="paramsList" item="item"
+                   index="index" open="(" close=")" separator=",">
+              ${item}
+          </foreach>
+      </if>
       <if test="utmSource != null and utmSource != '' ">
           and c.utm_source = #{utmSource}
       </if>
@@ -1148,6 +1154,15 @@
         <if test="customerType != null and customerType !=''">
             and c.customer_type = #{customerType}
         </if>
+        <if test="utmSource != null and utmSource != '' ">
+            and c.utm_source = #{utmSource}
+        </if>
+        <if test="city != null and city !=''">
+            and c.city  like CONCAT('%', #{city},'%' )
+        </if>
+        <if test="customerName !=null and customerName !=''">
+            and c.customer_name  like CONCAT('%', #{customerName},'%' )
+        </if>
     </select>
     <select id="getListByWhereCount" parameterType="java.util.Map" resultType="java.lang.Integer">
         select
@@ -1216,8 +1231,12 @@
         <include refid="Blob_Column_List" />
         from customer_info  c
         WHERE  c.is_deleted = 0
-        <if test="telephonenumber != null and telephonenumber != ''">
-            and c.telephonenumber = #{telephonenumber}
+        <if test="paramsList != null and paramsList.size > 0">
+            AND c.telephonenumber in
+            <foreach collection="paramsList" item="item"
+                     index="index" open="(" close=")" separator=",">
+                ${item}
+            </foreach>
         </if>
     </select>
     <select id="allocationCustomerList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">

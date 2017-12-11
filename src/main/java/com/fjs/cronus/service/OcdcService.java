@@ -17,6 +17,7 @@ import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerSalePushLog;
 import com.fjs.cronus.service.client.TheaService;
+import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.EntityToDto;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
@@ -87,7 +88,12 @@ public class OcdcService {
             try {
                 AllocateEntity allocateEntity = new AllocateEntity();
                 Map<String, Object> mapc = new HashedMap();
-                mapc.put("telephonenumber", customerSalePushLog.getTelephonenumber());
+                List paramsList = new ArrayList();
+                //TODO加密
+                paramsList.add(DEC3Util.des3EncodeCBC(customerSalePushLog.getTelephonenumber()));
+                paramsList.add(customerSalePushLog.getTelephonenumber());
+
+                mapc.put("paramsList",paramsList);
                 List<CustomerInfo> customerInfoList = customerInfoMapper.selectByOCDCPhone(mapc);
                 if (!CollectionUtils.isEmpty(customerInfoList) && customerInfoList.size() > 0) { //重复客户
 

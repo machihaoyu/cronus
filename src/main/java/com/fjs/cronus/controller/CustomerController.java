@@ -741,4 +741,43 @@ public class CustomerController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
+    @ApiOperation(value="获取客户列表", notes="获取客户列表信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "utmSource", value = "渠道", paramType = "query",  dataType = "string"),
+            @ApiImplicitParam(name = "city", value = "城市", paramType = "query",  dataType = "string"),
+    })
+    @RequestMapping(value = "/customerListToCheck", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<List<Integer>> customerListToCheck(@RequestParam(value = "customerName",required = false) String customerName,
+                                                                @RequestParam(value = "utmSource",required = false) String utmSource,
+                                                                @RequestParam(value = "city",required = false) String city,
+                                                                @RequestHeader("Authorization")String token) {
+
+
+        CronusDto<List<Integer>> cronusDto = new CronusDto();
+        //获取当前用户登录的id
+        Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (userId == null){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        if (StringUtils.isEmpty(customerName) && StringUtils.isEmpty(utmSource) && StringUtils.isEmpty(city)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        try {
+            List<Integer> resultList = customerInfoService.customerListToCheck(customerName,utmSource,city,token);
+            cronusDto.setData(resultList);
+            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            cronusDto.setResult(ResultResource.CODE_SUCCESS);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->customerList获取列表信息操作失败",e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
 }

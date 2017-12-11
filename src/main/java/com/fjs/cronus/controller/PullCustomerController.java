@@ -110,6 +110,8 @@ public class PullCustomerController {
             if (id !=null){
                 pullCustomer = pullCustomerService.selectById(id);
                 pullCustomerDTO=pullCustomerService.copyProperty(pullCustomer);
+                //不需要隐藏手机号信息
+                pullCustomerDTO.setTelephone(pullCustomer.getTelephone());
                 pullCustomerDTO.setOwnUserName(userInfoDTO.getName());
             }else{
                 theaApiDTO.setResult(CommonMessage.FAIL.getCode());

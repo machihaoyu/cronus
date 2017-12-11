@@ -21,6 +21,7 @@ import com.fjs.cronus.model.PrdCustomer;
 import com.fjs.cronus.model.PrdOperationLog;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.FastJsonUtils;
 import org.apache.commons.collections.map.HashedMap;
@@ -132,11 +133,16 @@ public class PrdCustomerService {
                     throw new CronusException(CronusException.Type.MESSAGE_PRDCUSTOMER_ERROR);
                 }
                 //m没有负责人更新time
+                //开始gengxin
+                copyPropertyToCustomer(prdCustomer,userInfoDTO,customerInfo);
+                customerInfo.setCompanyId(Integer.valueOf(userInfoDTO.getCompany_id()));
+                customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
+                customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
+                customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
                 customerInfo.setOwnUserId(Integer.valueOf(userInfoDTO.getUser_id()));
                 customerInfo.setOwnUserName(userInfoDTO.getName());
                 customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
                 customerInfo.setLastUpdateTime(date);
-                //开始gengxin
                 customerInfoMapper.updateCustomer(customerInfo);
                 //log
                 customerInfoService.insertLog(customerInfo, Integer.valueOf(userInfoDTO.getUser_id()));
@@ -144,6 +150,14 @@ public class PrdCustomerService {
                  //新插入一条
                 CustomerInfo customerInfo1 = new CustomerInfo();
                 copyPropertyToCustomer(prdCustomer,userInfoDTO,customerInfo1);
+                customerInfo1.setCompanyId(Integer.valueOf(userInfoDTO.getCompany_id()));
+                customerInfo1.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
+                customerInfo1.setRemain(CommonConst.REMAIN_STATUS_NO);
+                customerInfo1.setConfirm(CommonConst.CONFIRM__STATUS_NO);
+                customerInfo1.setOwnUserId(Integer.valueOf(userInfoDTO.getUser_id()));
+                customerInfo1.setOwnUserName(userInfoDTO.getName());
+                customerInfo1.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
+                customerInfo1.setLastUpdateTime(date);
                 customerInfoMapper.insertCustomer(customerInfo1);
                 //插入日志
                 customerInfoService.insertAddCustomerLog(customerInfo1,Integer.valueOf(userInfoDTO.getUser_id()));
@@ -230,7 +244,9 @@ public class PrdCustomerService {
         customerInfo.setCustomerName(prdCustomer.getCustomerName());
         customerInfo.setSex(prdCustomer.getSex());
         customerInfo.setCustomerType(prdCustomer.getCustomerType());
-        customerInfo.setTelephonenumber(prdCustomer.getTelephonenumber());
+        //对手机号进行加密
+        String telephone = DEC3Util.des3EncodeCBC(prdCustomer.getTelephonenumber());
+        customerInfo.setTelephonenumber(telephone);
         customerInfo.setLoanAmount(prdCustomer.getLoanAmount());
         customerInfo.setCity(prdCustomer.getCity());
         customerInfo.setCustomerSource(prdCustomer.getCustomerSource());

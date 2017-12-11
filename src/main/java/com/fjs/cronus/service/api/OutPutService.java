@@ -2,8 +2,10 @@ package com.fjs.cronus.service.api;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.util.HttpClientHelper;
+import com.fjs.cronus.util.MultiThreadedHttpConnection;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,13 +20,15 @@ public class OutPutService {
 
     public static void  synchronToOcdc(CustomerInfo customerInfo){
         JSONObject jsonObject = (JSONObject)JSONObject.toJSON(customerInfo);
-        HttpClientHelper httpClientHelper = HttpClientHelper.getInstance();
-        String result  = httpClientHelper.sendJsonHttpPost(ocdcUrl,jsonObject.toJSONString());
+        CronusDto result  = MultiThreadedHttpConnection.getInstance().sendDataByPost(ocdcUrl,jsonObject.toJSONString());
         System.out.println(result);
     }
+
     public static void main(String args[]){
         CustomerInfo customerInfo = new CustomerInfo();
-        synchronToOcdc(customerInfo);
+        for (int i = 1; i < 10; i++){
+            synchronToOcdc(customerInfo);
+        }
 
     }
 

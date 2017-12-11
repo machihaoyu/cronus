@@ -23,6 +23,7 @@ import com.fjs.cronus.model.CustomerInfoLog;
 import com.fjs.cronus.model.CustomerUseful;
 import com.fjs.cronus.model.PullCustomer;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.HttpClientHelper;
@@ -57,7 +58,9 @@ public class PullCustomerService {
         PullCustomerDTO pullCustomerDTO=new PullCustomerDTO();
         pullCustomerDTO.setId(pullCustomer.getId());
         pullCustomerDTO.setName(pullCustomer.getName());
-        pullCustomerDTO.setTelephone(pullCustomer.getTelephone());
+        //TODO 对手机号进行隐藏
+        String phoneNumber = pullCustomer.getTelephone().substring(0, 3) + "****" + pullCustomer.getTelephone().substring(7, pullCustomer.getTelephone().length());
+        pullCustomerDTO.setTelephone(phoneNumber);
         pullCustomerDTO.setLoanAmount(pullCustomer.getLoanAmount());
         pullCustomerDTO.setSaleId(pullCustomer.getSaleId());
         pullCustomerDTO.setCity(pullCustomer.getCity());
@@ -227,7 +230,7 @@ public class PullCustomerService {
         }else {
             //新增一条客户信息
             CustomerInfo customer = new CustomerInfo();
-            flag = addCustomer(customer,pullCustomer,userId);
+            flag = addCustomer(customer,pullCustomer,userInfoDTO);
         }
         if (flag == true){
             //修改客户的状态
@@ -304,7 +307,8 @@ public class PullCustomerService {
     public boolean updateCustomer(CustomerInfo customerInfo,PullCustomer pullCustomer, Integer userId){
         boolean flag = false;
         Date date = new Date();
-        customerInfo.setTelephonenumber(pullCustomer.getTelephone());
+        String telephone = DEC3Util.des3EncodeCBC(pullCustomer.getTelephone());
+        customerInfo.setTelephonenumber(telephone);
         customerInfo.setCustomerName(pullCustomer.getName());
         customerInfo.setHouseStatus("无");
         customerInfo.setLoanAmount(pullCustomer.getLoanAmount());
@@ -328,10 +332,12 @@ public class PullCustomerService {
         return  flag;
     }
     @Transactional
-    public boolean addCustomer(CustomerInfo customerInfo,PullCustomer pullCustomer, Integer userId){
+    public boolean addCustomer(CustomerInfo customerInfo,PullCustomer pullCustomer, UserInfoDTO userInfoDTO){
         boolean flag = false;
         Date date = new Date();
-        customerInfo.setTelephonenumber(pullCustomer.getTelephone());
+        Integer userId = Integer.valueOf(userInfoDTO.getUser_id());
+        String telephone = DEC3Util.des3EncodeCBC(pullCustomer.getTelephone());
+        customerInfo.setTelephonenumber(telephone);
         customerInfo.setCustomerName(pullCustomer.getName());
         customerInfo.setHouseStatus("无");
         customerInfo.setLoanAmount(pullCustomer.getLoanAmount());
@@ -343,6 +349,10 @@ public class PullCustomerService {
         customerInfo.setLastUpdateUser(userId);
         customerInfo.setCreateTime(date);
         customerInfo.setCreateUser(userId);
+        customerInfo.setCompanyId(Integer.valueOf(userInfoDTO.getCompany_id()));
+        customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
+        customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
+        customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
         customerInfoMapper.insertCustomer(customerInfo);
         //插入日志
         //生成日志记录

@@ -63,7 +63,7 @@ public class CustomerMeetController {
         try{
             if (customerId != null){
                 CustomerInfo customerInfo=customerInfoService.findCustomerById(customerId);
-                if(customerId == null){
+                if(customerInfo == null){
                     logger.error("该客户不存在");
                     throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
                 }

@@ -18,7 +18,10 @@ public class EntityToDto {
 
         dto.setId(customerInfo.getId());
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
-            dto.setTelephonenumber(customerInfo.getTelephonenumber());
+            //对手机号进行解密并且隐藏后四位
+            String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+            String phoneNumber = telephone.substring(0, 3) + "****" + telephone.substring(7, telephone.length());
+            dto.setTelephonenumber(phoneNumber);
         }
         if (!StringUtils.isEmpty(customerInfo.getCustomerName())){
             dto.setCustomerName(customerInfo.getCustomerName());
@@ -70,7 +73,9 @@ public class EntityToDto {
 
         dto.setId(customerInfo.getId());
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
-            dto.setTelephonenumber(customerInfo.getTelephonenumber());
+            String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+            String phoneNumber = telephone.substring(0, 3) + "****" + telephone.substring(7, telephone.length());
+            dto.setTelephonenumber(phoneNumber);
         }
         if (!StringUtils.isEmpty(customerInfo.getCustomerName())){
             dto.setCustomerName(customerInfo.getCustomerName());
@@ -311,7 +316,9 @@ public class EntityToDto {
 
         dto.setId(customerInfo.getId());
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
-            dto.setTelephonenumber(customerInfo.getTelephonenumber());
+            //多手机号进行加密
+            String telephone =DEC3Util.des3EncodeCBC(customerInfo.getTelephonenumber());
+            dto.setTelephonenumber(telephone);
         }
         if (!StringUtils.isEmpty(customerInfo.getCustomerName())){
             dto.setCustomerName(customerInfo.getCustomerName());

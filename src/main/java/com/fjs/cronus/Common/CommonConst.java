@@ -104,7 +104,7 @@ public class CommonConst {
     public static String ADD_UTMSOURCERATE_URL=SYSTEMNAME+"utmSourceRate/add";
     public static String ADD_CONFIG_URL=SYSTEMNAME+"config/add";
 
-    public static String UPDATE_LOAN_URL=SYSTEMNAME+"loan/update";
+    public static String UPDATE_LOAN_URL=SYSTEMNAME+"customer/update";
     public static String UPDATE_KEY_URL=SYSTEMNAME+"keyManager/update";
     public static String UPDATE_UTMSOURCERATE_URL=SYSTEMNAME+"utmSourceRate/update";
     public static String UPDATE_CONFIG_URL=SYSTEMNAME+"config/update";

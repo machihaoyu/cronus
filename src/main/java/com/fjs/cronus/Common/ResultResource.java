@@ -45,7 +45,7 @@ public class ResultResource {
 
     public static String[] CALLBACKSTATUS ={"'正常'","'未接'","'待联系'","'空号'","'拒接'","'拒访'","'其他'"};
 
-    public static String[] DOCUMENT_C_NAMES = {"'借款人(正)'","'房产证'","'借款人户口簿'","'借款人银行流水'","'公积金证明'","'保单证明'","'行驶证证明'"};
+    public static String[] DOCUMENT_C_NAMES = {"'借款人(正)'","'房产证'","'借款人户口簿'","'借款人银行流水'","'公积金证明'","'保单证明'","'行驶证证明','借款合同','放款凭证','纸质证明材料'"};
 
     public static String HOUSEREGISTER = "借款人户口簿";
 
@@ -56,6 +56,15 @@ public class ResultResource {
     public static String PROOFPOLICY = "保单证明";
 
     public static String CERTIFICATE = "行驶证证明";
+
+    /**
+     * 借款合同/放款凭证/纸质证明材料
+     */
+    public static String  CONTRACT = "借款合同";
+
+    public static String  VOUCHER ="放款凭证";
+
+    public static String PAPERMATERIAL = "纸质证明材料";
 
     public static String DOWNLOADFOOTPATH = "/Uploads/";
 

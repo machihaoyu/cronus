@@ -25,6 +25,7 @@ import com.fjs.cronus.model.CustomerInfoLog;
 
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
 import org.apache.commons.collections.map.HashedMap;
@@ -71,6 +72,7 @@ public class CustomerInfoService {
         Map<String,Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
         List<CustomerListDTO> dtoList = new ArrayList<>();
+        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
         if (!StringUtils.isEmpty(customerName)){
             paramsMap.put("customerName",customerName);
         }
@@ -96,9 +98,12 @@ public class CustomerInfoService {
             paramsMap.put("level",level);
         }
         //手机需要解密加密
-
         if (telephonenumber != null){
-            paramsMap.put("telephonenumber",telephonenumber);
+            List paramsList = new ArrayList();
+            //加密
+             paramsList.add(DEC3Util.des3EncodeCBC(telephonenumber));
+             paramsList.add(telephonenumber);
+              paramsMap.put("paramsList",paramsList);
         }
         //获取下属员工
         List<Integer> ids = ucService.getSubUserByUserId(token,userId);
@@ -106,19 +111,16 @@ public class CustomerInfoService {
         paramsMap.put("start",(page-1) * size);
         paramsMap.put("size",size);
         resultList = customerInfoMapper.customerList(paramsMap);
+        Integer count = customerInfoMapper.customerListCount(paramsMap);
         if (resultList != null && resultList.size() > 0){
             for (CustomerInfo customerInfo : resultList) {
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto);
                 dtoList.add(customerDto);
             }
-            Integer count = customerInfoMapper.customerListCount(paramsMap);
             result.setRows(dtoList);
             result.setTotal(count.toString());
         }
-        Integer count = customerInfoMapper.customerListCount(paramsMap);
-        result.setRows(dtoList);
-        result.setTotal(count.toString());
         return  result;
     }
 
@@ -196,7 +198,10 @@ public class CustomerInfoService {
         }
         //判断手机号是否被注册
             Map<String,Object> paramsMap = new HashMap<>();
-            paramsMap.put("telephonenumber",telephonenumber);
+            List paramsList = new ArrayList();
+            paramsList.add(DEC3Util.des3EncodeCBC(telephonenumber));
+            paramsList.add(telephonenumber);
+            paramsMap.put("paramsList",paramsList);
             paramsMap.put("start",0);
             paramsMap.put("size",10);
             List<CustomerInfo> customerInfos = customerInfoMapper.customerList(paramsMap);
@@ -205,11 +210,12 @@ public class CustomerInfoService {
             }
 
         //实体与DTO相互转换
+        //对手机号加密
         CustomerInfo customerInfo = new CustomerInfo();
-
         Date date = new Date();
         customerInfo.setCustomerName(customerDTO.getCustomerName());
-        customerInfo.setTelephonenumber(customerDTO.getTelephonenumber());
+        String telephone =DEC3Util.des3EncodeCBC(customerDTO.getTelephonenumber());
+        customerInfo.setTelephonenumber(telephone);
         customerInfo.setCustomerSource(customerDTO.getCustomerSource());
         customerInfo.setUtmSource(customerDTO.getUtmSource());
         customerInfo.setLoanAmount(customerDTO.getLoanAmount());
@@ -247,7 +253,7 @@ public class CustomerInfoService {
         //手机需要加密
         Map<String,Object> paramsMap = new HashMap<>();
         CustomerDTO dto= new CustomerDTO();
-        String encryptTelephone = "";//加密后的
+        String encryptTelephone =DEC3Util.des3EncodeCBC(telephonenumber);
         List paramsList = new ArrayList();
         paramsList.add(encryptTelephone);
         paramsList.add(telephonenumber);
@@ -256,7 +262,6 @@ public class CustomerInfoService {
         if (customerInfo == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
-        EntityToDto.customerEntityToCustomerDto(customerInfo,dto);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerInfo.getId());
@@ -284,7 +289,8 @@ public class CustomerInfoService {
        for (CustomerInfo customerInfo: customerInfoList) {
             CustomerDTO customerDto = new CustomerDTO();
             EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
-            //TODO  增加source 调用接口 来源渠道
+            String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+           customerDto.setTelephonenumber(telephone);
             customerDto.setUtmSource(customerInfo.getUtmSource());
             customerDtos.add(customerDto);
         }
@@ -305,6 +311,9 @@ public class CustomerInfoService {
         }
         CustomerDTO customerDto = new CustomerDTO();
         EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
+        //对手机号进行加
+        String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+        customerDto.setTelephonenumber(telephone);
         customerDto.setRetirementWages(customerInfo.getRetirementWages());
         String employedInfo = customerInfo.getEmployedInfo();
         List<EmplouInfo> emplouInfos = new ArrayList<>();
@@ -417,7 +426,11 @@ public class CustomerInfoService {
         //判断手机号是否被注册
         if (customerId == null){
             Map<String,Object> paramsMap = new HashMap<>();
-            paramsMap.put("telephonenumber",telephonenumber);
+            //加密
+            List paramsList = new ArrayList();
+            paramsList.add(DEC3Util.des3EncodeCBC(telephonenumber));
+            paramsList.add(telephonenumber);
+            paramsMap.put("paramsList",paramsList);
             paramsMap.put("start",0);
             paramsMap.put("size",10);
             List<CustomerInfo> customerInfos = customerInfoMapper.customerList(paramsMap);
@@ -438,6 +451,9 @@ public class CustomerInfoService {
         }
         CustomerDTO customerDto = new CustomerDTO();
         EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
+        //d对手机进行解密
+        String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+        customerDto.setTelephonenumber(telephone);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerDto);
@@ -563,6 +579,8 @@ public class CustomerInfoService {
         if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
+        //对手机号进行解密
+        customerInfo.setTelephonenumber(DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber()));
         return customerInfo;
     }
 
@@ -630,6 +648,7 @@ public class CustomerInfoService {
             }
         }
         resultList = customerInfoMapper.findCustomerListByFeild(paramsMap);
+
         return  resultList;
     }
 
@@ -710,8 +729,12 @@ public class CustomerInfoService {
             if (!StringUtils.isEmpty(customerName)){
                 paramMap.put("customerName",customerName);
             }
+
             if (!StringUtils.isEmpty(telephonenumber)){
-                paramMap.put("telephonenumber",telephonenumber);
+                List paramsList = new ArrayList();
+                paramsList.add(DEC3Util.des3EncodeCBC(telephonenumber));
+                paramsList.add(telephonenumber);
+                paramMap.put("paramsList",paramsList);
             }
             if (!StringUtils.isEmpty(utmSource)){
                 paramMap.put("utmSource",utmSource);
@@ -799,7 +822,12 @@ public class CustomerInfoService {
             paramsMap.put("paramsList", paramsList);
         }
         resultList = customerInfoMapper.findCustomerListByFeild(paramsMap);
-
+        if (resultList != null && resultList.size() > 0){
+            for (CustomerInfo customerInfo : resultList) {
+                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber()) ;
+                customerInfo.setTelephonenumber(telephone);
+            }
+        }
         return  resultList;
     }
 
@@ -1218,9 +1246,13 @@ public class CustomerInfoService {
         CronusDto resultDto =  new CronusDto();
         //手机需要加密
         CustomerDTO dto= new CustomerDTO();
-        String encryptTelephone = "";//加密后的
         Map<String,Object> mapc=new HashedMap();
-        mapc.put("telephonenumber",telephonenumber);
+        List paramsList = new ArrayList();
+        //加
+        paramsList.add(DEC3Util.des3EncodeCBC(telephonenumber));
+        paramsList.add(telephonenumber);
+
+        mapc.put("paramsList",paramsList);
         List <CustomerInfo> customerInfos = customerInfoMapper.selectByOCDCPhone(mapc);
         if (customerInfos != null && customerInfos.size() >0 ) {
             EntityToDto.customerEntityToCustomerDto(customerInfos.get(0), dto);
@@ -1229,5 +1261,22 @@ public class CustomerInfoService {
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(dto);
         return  resultDto;
+    }
+
+    public List<Integer> customerListToCheck(String customerName,String utmSource,String city,String token){
+        Map<String,Object> paramsMap = new HashMap<>();
+        List<Integer> customerInfoList = new ArrayList<>();
+        if (!StringUtils.isEmpty(customerName)){
+            paramsMap.put("customerName",customerName);
+        }
+        if (!StringUtils.isEmpty(utmSource)){
+            paramsMap.put("utmSource",utmSource);
+        }
+        if (!StringUtils.isEmpty(city)){
+            paramsMap.put("city",city);
+        }
+        customerInfoList = customerInfoMapper.findCustomerByType(paramsMap);
+        return customerInfoList;
+
     }
 }

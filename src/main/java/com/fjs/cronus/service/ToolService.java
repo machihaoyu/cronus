@@ -8,6 +8,7 @@ import com.fjs.cronus.dto.cronus.PhoneResultDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
+import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.HttpsClientUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +41,8 @@ public class ToolService {
         }
         String telephoneNumber = customerInfo.getTelephonenumber();
         //TODO 手机号加密解密
-        String url = phoneAreaUrl + telephoneNumber;
+        String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+        String url = phoneAreaUrl + telephone;
         String resultStr = HttpsClientUtil.sendHttps(url);
         PhoneAreaDTO phoneAreaDTO = new PhoneAreaDTO();
         JSONObject jsonObject = JSONObject.parseObject(resultStr);

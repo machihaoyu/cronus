@@ -443,7 +443,9 @@ public class DocumentService {
        jsonObject.put("customer_id",customerInfo.getId());
        jsonObject.put("customer_name",customerInfo.getCustomerName());
        //TODO 需要解密
-       jsonObject.put("customer_telephone",customerInfo.getTelephonenumber());
+       String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+       String phoneNumber = telephone.substring(0, 3) + "****" + telephone.substring(7, telephone.length());
+       jsonObject.put("customer_telephone",phoneNumber);
        jsonObject.put("crm_attach_id",document_id);
        jsonObject.put("create_user_id",userInfo.getUser_id());
        jsonObject.put("create_user_name",userInfo.getName());
@@ -736,13 +738,25 @@ public class DocumentService {
                         && !documentCids.contains(map.get(ResultResource.PROOFPOLICY))  && !documentCids.contains(map.get(ResultResource.CERTIFICATE))){
                     message = message + "【借款人银行流水/房产证/公积金证明/保单证明/行驶证证明 至少需一】";
                 }
+                if(!documentCids.contains(map.get(ResultResource.CONTRACT)) && !documentCids.contains(map.get(ResultResource.VOUCHER))&& !documentCids.contains(map.get(ResultResource.PAPERMATERIAL))){
+                    message = message + "【借款合同/放款凭证/纸质证明材料 至少需一】";
+                }
+                //做判断是否上传借款合同/放款凭证/纸质证明材料至少其一
+
                 break;
             case producttype_mortgage:
                 if(!documentCids.contains(map.get(ResultResource.INENTITY))){
-                    message = "【借款人身份证】";
+                    message = "【请上传借款人身份证】";
                 }
+                if(!documentCids.contains(map.get(ResultResource.HOUSEREGISTER))){
+                    message = "【请上传户口本】";
+                }
+
                 if(!documentCids.contains(map.get(ResultResource.HOUSEHOLD)) && !documentCids.contains(map.get(ResultResource.CERTIFICATE))){
                     message = message + "【房产证/行驶证证明 至少需一】";
+                }
+                if(!documentCids.contains(map.get(ResultResource.CONTRACT)) && !documentCids.contains(map.get(ResultResource.VOUCHER))&& !documentCids.contains(map.get(ResultResource.PAPERMATERIAL))){
+                    message = message + "【借款合同/放款凭证/纸质证明材料 至少需一】";
                 }
                 break;
             case producttype_ransomfloor:
@@ -754,6 +768,9 @@ public class DocumentService {
                 }
                 if(!documentCids.contains(map.get(ResultResource.HOUSEREGISTER))){
                     message = message +"【借款人户口簿】";
+                }
+                if(!documentCids.contains(map.get(ResultResource.CONTRACT)) && !documentCids.contains(map.get(ResultResource.VOUCHER))&& !documentCids.contains(map.get(ResultResource.PAPERMATERIAL))){
+                    message = message + "【借款合同/放款凭证/纸质证明材料 至少需一】";
                 }
                 break;
                 default:
