@@ -1,6 +1,7 @@
 package com.fjs.cronus.service.client;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import org.springframework.cloud.netflix.feign.FeignClient;
@@ -31,6 +32,6 @@ public interface TheaService {
     public TheaApiDTO cancelLoanByCustomerId(@RequestHeader("Authorization") String token, @RequestParam(value = "customerId") Integer customerId);
 
     @RequestMapping(value = "/loan/v1/changeStatusByCustomerId", method = RequestMethod.POST)
-    public TheaApiDTO changeStatusByCustomerId(@RequestHeader("Authorization") String token, @RequestParam(value = "customerId") Integer customerId);
+    public TheaApiDTO changeStatusByCustomerId(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject);
 
 }
