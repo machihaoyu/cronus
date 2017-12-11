@@ -13,19 +13,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class OutPutService {
 
-
-    private static final String ocdcUrl = "http://ocdc.ding1.com/Api/Index/save";
+    private static final String ocdcUrl = "http://beta-ocdc.fang-crm.com/Api/Index/save";
     private static final String key = "366a192b7w17e14c54574d18c28d48e6123428ab";
 
-
     public static void  synchronToOcdc(CustomerInfo customerInfo){
-
         JSONObject jsonObject = (JSONObject)JSONObject.toJSON(customerInfo);
         HttpClientHelper httpClientHelper = HttpClientHelper.getInstance();
         String result  = httpClientHelper.sendJsonHttpPost(ocdcUrl,jsonObject.toJSONString());
-
-      System.out.println(result);
-
+        System.out.println(result);
     }
     public static void main(String args[]){
         CustomerInfo customerInfo = new CustomerInfo();

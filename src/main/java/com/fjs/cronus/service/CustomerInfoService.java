@@ -95,6 +95,8 @@ public class CustomerInfoService {
         if (level != null){
             paramsMap.put("level",level);
         }
+        //手机需要解密加密
+
         if (telephonenumber != null){
             paramsMap.put("telephonenumber",telephonenumber);
         }
