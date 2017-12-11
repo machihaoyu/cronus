@@ -1,6 +1,5 @@
 package com.fjs.cronus.service.client;
 
-import com.fjs.cronus.api.thea.ConfigDTO;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import org.springframework.cloud.netflix.feign.FeignClient;
@@ -29,4 +28,8 @@ public interface TheaService {
 
     @RequestMapping(value = "/loan/v1/cancelLoanByCustomerId", method = RequestMethod.GET)
     public TheaApiDTO cancelLoanByCustomerId(@RequestHeader("Authorization") String token, @RequestParam(value = "customerId") Integer customerId);
+
+    @RequestMapping(value = "/loan/v1/changeStatusByCustomerId", method = RequestMethod.POST)
+    public TheaApiDTO changeStatusByCustomerId(@RequestHeader("Authorization") String token, @RequestParam(value = "customerId") Integer customerId);
+
 }

@@ -203,6 +203,28 @@ public class CustomerDTO {
     @ApiModelProperty(value = "负责人姓名",notes = "负责人姓名")
     private String ownUserName;
 
+    @ApiModelProperty(value = "客户来源",notes = "客户来源")
+    private String customerSource;
+
+    @ApiModelProperty(value = "金额",notes = "金额")
+    private BigDecimal loanAmount;
+
+    public BigDecimal getLoanAmount() {
+        return loanAmount;
+    }
+
+    public void setLoanAmount(BigDecimal loanAmount) {
+        this.loanAmount = loanAmount;
+    }
+
+    public String getCustomerSource() {
+        return customerSource;
+    }
+
+    public void setCustomerSource(String customerSource) {
+        this.customerSource = customerSource;
+    }
+
     public String getOwnUserName() {
         return ownUserName;
     }

@@ -4,11 +4,13 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.AddCustomerMeetDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
+import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.CustomerMeetDTO;
 import com.fjs.cronus.mappers.CustomerMeetMapper;
 
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerMeet;
+import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.uc.UcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,8 +31,10 @@ public class CustomerMeetService {
     private CustomerInfoService customerInfoService;
     @Autowired
     UcService ucService;
+    @Autowired
+    TheaService theaService;
     @Transactional
-    public Integer addCustomerMeet(AddCustomerMeetDTO customerMeetDTO, PHPLoginDto userInfoDTO, CustomerInfo customerInfo){
+    public Integer addCustomerMeet(AddCustomerMeetDTO customerMeetDTO, PHPLoginDto userInfoDTO, CustomerInfo customerInfo,String token){
         Date date = new Date();
         CustomerMeet customerMeet=new CustomerMeet();
         customerMeet.setMeetTime(customerMeetDTO.getMeetTime());
@@ -42,10 +46,8 @@ public class CustomerMeetService {
         customerMeet.setCreateUser(userId);
         customerMeet.setLastUpdateUser(userId);
         customerMeet.setIsDeleted(CommonConst.DATA_NORMAIL);
-
-        //TODO 更新状态 是更新客户 还是交易的状态
-       /* loan.setStatus(CommonConst.LOAN_STATUS_MEET);
-        loanService.update(loan,userInfoDTO);*/
+        //开始更新交易的状态
+        TheaApiDTO resultDTO = theaService.changeStatusByCustomerId(token,customerMeetDTO.getCustomerId());
         return customerMeetMapper.insert(customerMeet);
     }
 

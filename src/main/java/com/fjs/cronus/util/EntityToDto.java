@@ -292,6 +292,18 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getOwnUserName())){
             dto.setOwnUserName(customerInfo.getOwnUserName());
         }
+        if (!StringUtils.isEmpty(customerInfo.getUtmSource())){
+            dto.setUtmSource(customerInfo.getUtmSource());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerSource())){
+            dto.setCustomerSource(customerInfo.getCustomerSource());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getExt())){
+            dto.setExt(customerInfo.getExt());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getLoanAmount())){
+            dto.setLoanAmount(customerInfo.getLoanAmount());
+        }
 
     }
 
@@ -528,6 +540,18 @@ public class EntityToDto {
         }
         if (!StringUtils.isEmpty(customerInfo.getOwnUserName())){
             dto.setOwnUserName(customerInfo.getOwnUserName());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getUtmSource())){
+            dto.setUtmSource(customerInfo.getUtmSource());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerSource())){
+            dto.setCustomerSource(customerInfo.getCustomerSource());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getExt())){
+            dto.setExt(customerInfo.getExt());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getLoanAmount())){
+            dto.setLoanAmount(customerInfo.getLoanAmount());
         }
     }
 

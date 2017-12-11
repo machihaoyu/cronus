@@ -127,7 +127,7 @@ public class CustomerMeetController {
                 return theaApiDTO;
             }
             customerMeetDTO.setCustomerId(customerInfo.getId());
-            int createResult = customerMeetService.addCustomerMeet(customerMeetDTO,resultDto,customerInfo);
+            int createResult = customerMeetService.addCustomerMeet(customerMeetDTO,resultDto,customerInfo,token);
             if (createResult >0) {
                 theaApiDTO.setResult(CommonMessage.ADD_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());

@@ -125,8 +125,8 @@ public class CustomerInfoService {
         CronusDto cronusDto = new CronusDto();
          //判断必传字段*/
          //json转map 参数，教研参数
-        Integer user_id = ucService.getUserIdByToken(token);
-        if (user_id == null){
+        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO.getUser_id() == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户信息出错!");
         }
          validAddData(customerDTO);
@@ -142,11 +142,16 @@ public class CustomerInfoService {
         }
          customerInfo.setRetirementWages(customerDTO.getRetirementWages());
          Date date = new Date();
+         //刚申请的客户
+         customerInfo.setCompanyId(Integer.valueOf(userInfoDTO.getCompany_id()));
+         customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
+         customerInfo.setCustomerType(CommonConst.CUSTOMER_TYPE_MIND);
+         customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
+         customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
+         customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
          customerInfo.setCreateTime(date);
-         customerInfo.setCreateUser(user_id);
+         customerInfo.setCreateUser(Integer.valueOf(userInfoDTO.getUser_id()));
          customerInfo.setLastUpdateTime(date);
-         customerInfo.setLastUpdateUser(user_id);
-         customerInfo.setCustomerType(ResultResource.CUSTOMERTYPE);
          customerInfo.setIsDeleted(0);
          customerInfoMapper.insertCustomer(customerInfo);
          if (customerInfo.getId() == null){
@@ -158,7 +163,7 @@ public class CustomerInfoService {
         EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription("增加一条客户记录");
-        customerInfoLog.setLogUserId(user_id);
+        customerInfoLog.setLogUserId(Integer.valueOf(userInfoDTO.getUser_id()));
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
         cronusDto.setResult(ResultResource.CODE_SUCCESS);
@@ -172,8 +177,8 @@ public class CustomerInfoService {
         CronusDto cronusDto = new CronusDto();
         //判断必传字段*/
         //json转map 参数，教研参数
-        Integer user_id = ucService.getUserIdByToken(token);
-        if (user_id == null){
+        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO.getUser_id() == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户信息出错!");
         }
         String customerName = customerDTO.getCustomerName();
@@ -207,11 +212,15 @@ public class CustomerInfoService {
         customerInfo.setUtmSource(customerDTO.getUtmSource());
         customerInfo.setLoanAmount(customerDTO.getLoanAmount());
         customerInfo.setCreateTime(date);
-        customerInfo.setCreateUser(user_id);
+        customerInfo.setCreateUser(Integer.valueOf(userInfoDTO.getUser_id()));
         customerInfo.setLastUpdateTime(date);
-        customerInfo.setLastUpdateUser(user_id);
+        customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
         customerInfo.setCustomerType(ResultResource.CUSTOMERTYPE);
         customerInfo.setIsDeleted(0);
+        customerInfo.setCompanyId(Integer.valueOf(userInfoDTO.getCompany_id()));
+        customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
+        customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
+        customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
         customerInfoMapper.insertCustomer(customerInfo);
         if (customerInfo.getId() == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
@@ -222,7 +231,7 @@ public class CustomerInfoService {
         EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription("增加一条客户记录");
-        customerInfoLog.setLogUserId(user_id);
+        customerInfoLog.setLogUserId(Integer.valueOf(userInfoDTO.getUser_id()));
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
         cronusDto.setResult(ResultResource.CODE_SUCCESS);

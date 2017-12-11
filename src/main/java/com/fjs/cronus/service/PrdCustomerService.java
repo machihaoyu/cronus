@@ -28,9 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -151,9 +148,6 @@ public class PrdCustomerService {
                 //插入日志
                 customerInfoService.insertAddCustomerLog(customerInfo1,Integer.valueOf(userInfoDTO.getUser_id()));
                 //TODO 像ocdc同步数据
-
-
-
             }
         }
 
@@ -182,14 +176,21 @@ public class PrdCustomerService {
      */
     public Integer delete(Integer id,UserInfoDTO userInfoDTO){
         PrdCustomer prdCustomer=getByPrimary(id);
+        boolean flag= validUserAndTime(prdCustomer,Integer.valueOf(userInfoDTO.getUser_id()));
+        if (flag == false){
+            throw new CronusException(CronusException.Type.MESSAGE_PRDCUSTOMER_ERROR);
+        }
         prdCustomer.setIsDeleted(CommonConst.DATA__DELETE);
         Date date = new Date();
         prdCustomer.setLastUpdateTime(date);
+        prdCustomer.setStatus(-1);
         Integer userId = null;
         if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
             userId = Integer.parseInt(userInfoDTO.getUser_id());
         }
         prdCustomer.setLastUpdateUser(userId);
+        //开始插入操作日志
+
         return prdCustomerMapper.update(prdCustomer);
     }
 
