@@ -87,10 +87,11 @@ public class CustomerDTO {
 
     //新版本添加字段
     @ApiModelProperty(value = "期望用款时间",notes = "期望用款时间")
-    @JsonFormat(timezone="GMT+8")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date expectMoneyTime;
 
     @ApiModelProperty(value = "期望贷款期限",notes = "期望贷款期限")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private String expectLoanTime;
 
     @ApiModelProperty(value = "期望还款方式 0其他 1等额本息 2先息后本 3 等额本金",notes = "期望还款方式 0其他 1等额本息 2先息后本 3 等额本金")
