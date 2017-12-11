@@ -143,20 +143,13 @@ public class PrdCustomerService {
             }else {
                  //新插入一条
                 CustomerInfo customerInfo1 = new CustomerInfo();
-                copyPropertyToCustomer(prdCustomer,userInfoDTO,customerInfo);
+                copyPropertyToCustomer(prdCustomer,userInfoDTO,customerInfo1);
                 customerInfoMapper.insertCustomer(customerInfo1);
                 //插入日志
                 customerInfoService.insertAddCustomerLog(customerInfo1,Integer.valueOf(userInfoDTO.getUser_id()));
                 //TODO 像ocdc同步数据
             }
         }
-
-       /* if (prdCustomerDTO.getType() != null && prdCustomerDTO.getType() ==1 ){
-          *//*  Loan loan=copyProperty2Loan(prdCustomerDTO);
-            loan.setTelephonenumber(prdCustomer.getTelephonenumber());
-            loanService.add(loan,userInfoDTO);*//*
-        }*/
-
         return result;
     }
 
@@ -200,7 +193,9 @@ public class PrdCustomerService {
         prdCustomerDTO.setCustomerName(prdCustomer.getCustomerName());
         prdCustomerDTO.setSex(prdCustomer.getSex());
         prdCustomerDTO.setCustomerType(prdCustomer.getCustomerType());
-        prdCustomerDTO.setTelephonenumber(prdCustomer.getTelephonenumber());
+        //隐藏手机号后四位
+        String phoneNumber = prdCustomer.getTelephonenumber().substring(0, 3) + "****" + prdCustomer.getTelephonenumber().substring(7, prdCustomer.getTelephonenumber().length());
+        prdCustomerDTO.setTelephonenumber(phoneNumber);
         prdCustomerDTO.setLoanAmount(prdCustomer.getLoanAmount());
         prdCustomerDTO.setCity(prdCustomer.getCity());
         prdCustomerDTO.setCustomerSource(prdCustomer.getCustomerSource());
@@ -246,6 +241,10 @@ public class PrdCustomerService {
         customerInfo.setCreateUser(userId);
         customerInfo.setLastUpdateTime(date);
         customerInfo.setLastUpdateUser(userId);
+        customerInfo.setCompanyId(Integer.valueOf(userInfoDTO.getCompany_id()));
+        customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
+        customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
+        customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
         customerInfo.setIsDeleted(0);
     }
 
@@ -338,6 +337,8 @@ public class PrdCustomerService {
             throw new CronusException(CronusException.Type.MESSAGE_PRDCUSTOMER_ERROR);
         }
         prdCustomerDTO = copyProperty(prdCustomer,token);
+        //手机号不需要隐藏
+        prdCustomerDTO.setTelephonenumber(prdCustomer.getTelephonenumber());
         return  prdCustomerDTO;
     }
 
@@ -376,8 +377,10 @@ public class PrdCustomerService {
      * @param prdCustomer
      */
     public void dtoTOEntity(AddPrdCustomerDTO addPrdCustomerDTO,PrdCustomer prdCustomer,Integer userId){
-        Integer time =Integer.parseInt(String.valueOf(Calendar.getInstance().getTimeInMillis()));
         Date date = new Date();
+        Date time = DateUtils.parse(DateUtils.format(date,DateUtils.FORMAT_LONG),DateUtils.FORMAT_LONG);
+        long ts = time.getTime()/1000;
+        String res = String.valueOf(ts);
         if (!StringUtils.isEmpty(addPrdCustomerDTO.getCustomerName())){
             prdCustomer.setCustomerName(addPrdCustomerDTO.getCustomerName());
         }
@@ -405,7 +408,7 @@ public class PrdCustomerService {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("content",addPrdCustomerDTO.getContent());
             jsonObject.put("create_user_id",userId);
-            jsonObject.put("create_time",time);
+            jsonObject.put("create_time",Integer.valueOf(res));
             jsonArray.add(jsonObject);
             //jsonArray
             prdCustomer.setCommunitContent(jsonArray.toJSONString());
