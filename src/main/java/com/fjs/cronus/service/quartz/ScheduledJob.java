@@ -30,7 +30,7 @@ public class ScheduledJob {
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduledJob.class);
 
-    public void examineVideo() {
+    public void dotask() {
 
        logger.info("Examine Start!");
 

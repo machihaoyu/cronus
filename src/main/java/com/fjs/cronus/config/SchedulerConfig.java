@@ -78,12 +78,12 @@ public class SchedulerConfig {
         jobDetail.setJobClass(CustomDetailQuartzJobBean.class);
         jobDetail.setDurability(true);
 
-        jobDetail.setName("examineVideo");// 设置任务的名字
-        jobDetail.setGroup("d-quartz");// 设置任务的分组，这些属性都可以存储在数据库中，在多任务的时候使用
+        jobDetail.setName("sendmess");// 设置任务的名字
+        jobDetail.setGroup("cronus-quartz");// 设置任务的分组，这些属性都可以存储在数据库中，在多任务的时候使用
 
         Map<String, String> jobDataMap = new HashMap<String,String>();
         jobDataMap.put("targetObject","scheduledJob");
-        jobDataMap.put("targetMethod", "examineVideo");
+        jobDataMap.put("targetMethod", "dotask");
 
         jobDetail.setJobDataAsMap(jobDataMap);
 
@@ -95,7 +95,7 @@ public class SchedulerConfig {
         CronTriggerFactoryBean tigger = new CronTriggerFactoryBean();
         tigger.setJobDetail(jobDetail.getObject());
         tigger.setCronExpression("0/5 * * * * ?");// 初始时的cron表达式//每5秒执行一次
-        tigger.setName("examineVideo");// trigger的name
+        tigger.setName("sendmess");// trigger的name
         return tigger;
 
     }
