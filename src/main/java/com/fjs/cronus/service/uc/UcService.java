@@ -105,7 +105,6 @@ public class UcService {
         //根据token查询当前用户id
         String result = thorInterfaceService.getCurrentUserInfo(token,null);
         BaseUcDTO dto = FastJsonUtils.getSingleBean(result,BaseUcDTO.class);
-        System.out.println(dto.getData().toString());
         UcUserDTO userDTO = FastJsonUtils.getSingleBean(dto.getData().toString(),UcUserDTO.class);
         if (userDTO != null){
             user_id  = Integer.valueOf(userDTO.getUser_id());
@@ -119,7 +118,6 @@ public class UcService {
         //根据token查询当前用户id
         String result = thorInterfaceService.getCurrentUserInfo(token,systemName);
         BaseUcDTO dto = FastJsonUtils.getSingleBean(result,BaseUcDTO.class);
-        System.out.println(dto.getData().toString());
         com.fjs.cronus.dto.uc.UserInfoDTO userDTO = FastJsonUtils.getSingleBean(dto.getData().toString(),com.fjs.cronus.dto.uc.UserInfoDTO.class);
         return userDTO;
     }
@@ -203,7 +201,6 @@ public class UcService {
     public List<PhpDepartmentModel> getSubCompanys(String token, Integer companyId) {
         List<PhpDepartmentModel> phpDepartmentModelList = new ArrayList<PhpDepartmentModel>();
         PhpApiDto<List<PhpDepartmentModel>> phpApiDto = thorInterfaceService.getSubCompany(token, null,1, null,companyId);
-        System.out.println(phpApiDto.getRetData());
         phpDepartmentModelList = phpApiDto.getRetData();
         return phpDepartmentModelList;
     }
