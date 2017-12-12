@@ -7,6 +7,7 @@ import com.fjs.cronus.dto.cronus.AddCustomerMeetDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.CustomerMeetDTO;
+import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.mappers.CustomerMeetMapper;
 
 import com.fjs.cronus.model.CustomerInfo;
@@ -70,7 +71,7 @@ public class CustomerMeetService {
         customerMeetDTO.setContent(customerMeet.getContent());
         customerMeetDTO.setUserId(customerMeet.getCreateUser());
         customerMeetDTO.setCustomerId(customerMeet.getCustomerId());
-        UcUserDTO ucUserDTO = ucService.getUserInfoByID(token,customerMeet.getCreateUser());
+        UserInfoDTO ucUserDTO = ucService.getUserInfoByID(token,customerMeet.getCreateUser());
         customerMeetDTO.setUserName(ucUserDTO.getName());
         customerMeetDTO.setCreateTime(customerMeet.getCreateTime());
         return customerMeetDTO;

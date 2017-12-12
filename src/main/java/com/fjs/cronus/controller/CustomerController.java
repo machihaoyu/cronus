@@ -213,7 +213,7 @@ public class CustomerController {
     })
     @RequestMapping(value = "/findCustomerByFeild", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto findCustomerByFeild(@RequestParam Integer customerId) {
+    public CronusDto<CustomerDTO> findCustomerByFeild(@RequestParam Integer customerId) {
         CronusDto cronusDto = new CronusDto();
         try {
             cronusDto = customerInfoService.findCustomerByFeild(customerId);

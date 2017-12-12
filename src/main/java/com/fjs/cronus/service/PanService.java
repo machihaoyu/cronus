@@ -9,6 +9,7 @@ import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.dto.cronus.PanParamDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
+import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.AllocateLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
@@ -165,7 +166,7 @@ public class PanService {
      */
     @Transactional
     public void receiveCustomerByType(CustomerInfo customerInfo,Integer userId,String token){
-        UcUserDTO ucUserDTO = ucService.getUserInfoByID(token,userId);
+        UserInfoDTO ucUserDTO = ucService.getUserInfoByID(token,userId);
         Date date = new Date();
         if (customerInfo.getOwnUserId() != 0){
             throw new CronusException(CronusException.Type.MESSAGE_PULLCUSTOMEROWNER_ERROR);

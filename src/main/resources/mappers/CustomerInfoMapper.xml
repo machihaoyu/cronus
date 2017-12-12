@@ -1090,22 +1090,18 @@
         <include refid="Blob_Column_List" />
         from customer_info  c
         WHERE  c.is_deleted = 0
-        <if test="customerIdList!=null and customerIdList.size>0">
+       <!-- <if test="customerIdList!=null and customerIdList.size>0">
             AND c.id in
             <foreach collection="customerIdList" item="customerIdList"
                      index="index" open="(" close=")" separator=",">
                 ${customerIdList}
             </foreach>
-        </if>
+        </if>-->
         <if test="customer_type!=null and customer_type!=''">
             and c.customer_type = #{customer_type}
         </if>
-        <if test="cityList!=null and cityList.size>0">
-            AND c.city in
-            <foreach collection="cityList" item="cityList"
-                     index="index" open="(" close=")" separator=",">
-                ${cityList}
-            </foreach>
+        <if test="city!=null">
+            AND c.city = #{city}
         </if>
         <if test="search_name !=null and search_name !=''">
             and c.customer_name = #{search_name}
@@ -1115,6 +1111,22 @@
         </if>
         <if test="search_callback_status != null and search_callback_status != ''">
             and c.callback_status = #{search_callback_status}
+        </if>
+        <if test="ownUserId != null and ownUserId != ''">
+            and c.own_user_id = #{ownUserId}
+        </if>
+        <if test="isHaveOwn != null and isHaveOwn != ''">
+            <choose>
+                <when test="isHaveOwn == 0">
+                    and c.own_user_id ==0
+                </when>
+                <when test="isHaveOwn == 1">
+                    and c.own_user_id != 0
+                </when>
+            </choose>
+        </if>
+        <if test="subCompanyId != null and subCompanyId != ''">
+            and c.sub_company_id = #{subCompanyId}
         </if>
         <choose>
             <when test="communication_order != null and order == 1">
@@ -1157,22 +1169,18 @@
         COUNT(*)
         from customer_info  c
         WHERE  c.is_deleted = 0
-        <if test="customerIdList!=null and customerIdList.size>0">
+      <!--  <if test="customerIdList!=null and customerIdList.size>0">
             AND c.id in
             <foreach collection="customerIdList" item="customerIdList"
                      index="index" open="(" close=")" separator=",">
                 ${customerIdList}
             </foreach>
-        </if>
+        </if>-->
         <if test="customer_type!=null and customer_type!=''">
             and c.customer_type = #{customer_type}
         </if>
-        <if test="cityList!=null and cityList.size>0">
-            AND c.city in
-            <foreach collection="cityList" item="cityList"
-                     index="index" open="(" close=")" separator=",">
-                #{cityList}
-            </foreach>
+        <if test="city!=null">
+            AND c.city = #{city}
         </if>
         <if test="search_name !=null and search_name !=''">
             and c.customer_name = #{search_name}
@@ -1182,6 +1190,22 @@
         </if>
         <if test="search_callback_status != null and search_callback_status != ''">
             and c.callback_status = #{search_callback_status}
+        </if>
+        <if test="ownUserId != null and ownUserId != ''">
+            and c.own_user_id = #{ownUserId}
+        </if>
+        <if test="isHaveOwn != null and isHaveOwn != ''">
+            <choose>
+                <when test="isHaveOwn == 0">
+                    and c.own_user_id ==0
+                </when>
+                <when test="isHaveOwn == 1">
+                    and c.own_user_id != 0
+                </when>
+            </choose>
+        </if>
+        <if test="subCompanyId != null and subCompanyId != ''">
+            and c.sub_company_id = #{subCompanyId}
         </if>
         <choose>
             <when test="communication_order != null and order == 1">

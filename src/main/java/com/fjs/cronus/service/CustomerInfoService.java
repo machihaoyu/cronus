@@ -440,6 +440,14 @@ public class CustomerInfoService {
         //d对手机进行解密
         String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
         customerDto.setTelephonenumber(telephone);
+        customerDto.setRetirementWages(customerInfo.getRetirementWages());
+        String employedInfo = customerInfo.getEmployedInfo();
+        List<EmplouInfo> emplouInfos = new ArrayList<>();
+        if (!StringUtils.isEmpty(employedInfo)){
+            JSONArray jsonArray = JSONArray.parseArray(employedInfo);
+            emplouInfos = jsonArray.toJavaList(EmplouInfo.class);
+            customerDto.setEmployedInfo(emplouInfos);
+        }
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerDto);
@@ -918,7 +926,7 @@ public class CustomerInfoService {
                 throw new CronusException(CronusException.Type.MESSAGE_REMOVECUSTOERAll_ERROR);
             }
             //判断这个负责人是不是在职的
-            UcUserDTO userInfoDTO = ucService.getUserInfoByID(token,removeDTO.getEmpId());
+            UserInfoDTO userInfoDTO = ucService.getUserInfoByID(token,removeDTO.getEmpId());
             Integer status = Integer.parseInt(userInfoDTO.getStatus());
             if (status != 1){
                 throw new CronusException(CronusException.Type.MESSAGE_REMOVECUSTOERSTATUS_ERROR);
@@ -1120,7 +1128,7 @@ public class CustomerInfoService {
            //处理
            // String customerIds = listToString(mustUpCustomerIds);
             //查询到这些用户信息
-            UcUserDTO userDTO = ucService.getUserInfoByID(token,toUser);
+            UserInfoDTO userDTO = ucService.getUserInfoByID(token,toUser);
             //开始更新
             Map<String,Object> paramsMap = new HashMap<>();
             //获取当前登录用户信息

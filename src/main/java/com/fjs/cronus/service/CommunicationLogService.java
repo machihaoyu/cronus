@@ -195,7 +195,7 @@ public class CommunicationLogService {
                 communicationDTO.setCreateTime(communicationLog1.getCreateTime());
                 communicationDTO.setOwnUserId(communicationLog1.getCreateUser());
                 //获取姓名
-                UcUserDTO userInfoDTO = ucService.getUserInfoByID(token,communicationLog1.getCreateUser());
+                UserInfoDTO userInfoDTO = ucService.getUserInfoByID(token,communicationLog1.getCreateUser());
                 communicationDTO.setOwnUserName(userInfoDTO.getName());
                 communicationDTOS.add(communicationDTO);
             }

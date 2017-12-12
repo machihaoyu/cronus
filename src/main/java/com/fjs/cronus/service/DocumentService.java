@@ -8,6 +8,7 @@ import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.UploadDocumentDto;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.ocr.*;
+import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.*;
 import com.fjs.cronus.model.CustomerInfo;
@@ -437,7 +438,7 @@ public class DocumentService {
        else {
            jsonObject.put("type",null);
        }
-       UcUserDTO userInfo = ucService.getUserInfoByID(token,user_id);
+       UserInfoDTO userInfo = ucService.getUserInfoByID(token,user_id);
      /*  ocrSaveBaseInfoDTO.setR_contract_document(rContractDocument);
        ocrSaveBaseInfoDTO.setCategoryInfo(documentCategory);*/
        jsonObject.put("customer_id",customerInfo.getId());

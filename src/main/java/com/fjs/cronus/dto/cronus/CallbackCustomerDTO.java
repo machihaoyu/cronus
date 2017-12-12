@@ -24,7 +24,7 @@ public class CallbackCustomerDTO {
 
     private String ownUserName;
 
-    private String customerLevel;
+    private String customerType;
 
     private String callbackStatus;
 
@@ -94,12 +94,12 @@ public class CallbackCustomerDTO {
         this.ownUserName = ownUserName;
     }
 
-    public String getCustomerLevel() {
-        return customerLevel;
+    public String getCustomerType() {
+        return customerType;
     }
 
-    public void setCustomerLevel(String customerLevel) {
-        this.customerLevel = customerLevel;
+    public void setCustomerType(String customerType) {
+        this.customerType = customerType;
     }
 
     public String getCallbackStatus() {

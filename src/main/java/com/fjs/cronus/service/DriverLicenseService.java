@@ -7,6 +7,7 @@ import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.OcrDocumentDto;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.ocr.DriverLicenseDTO;
+import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.OcrDriverLicenseMapper;
 import com.fjs.cronus.mappers.RContractDocumentMapper;
@@ -185,7 +186,7 @@ public class DriverLicenseService {
             ocrDriverLicense.setDriverEndDate(driver_end_date);
         }
         Integer user_id = ucService.getUserIdByToken(token);
-        UcUserDTO ucUserDTO = ucService.getUserInfoByID(token,user_id);
+        UserInfoDTO ucUserDTO = ucService.getUserInfoByID(token,user_id);
         if (ucUserDTO == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }

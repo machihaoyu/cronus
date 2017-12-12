@@ -8,6 +8,7 @@ import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.*;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.cronus.CallbackLogDTO;
+import com.fjs.cronus.dto.uc.*;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CallbackConfigMapper;
 import com.fjs.cronus.mappers.CallbackLogMapper;
@@ -20,6 +21,7 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.uc.LoaService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.FastJsonUtils;
@@ -56,17 +58,14 @@ public class CallbackService {
     @Autowired
     CallbackLogMapper callbackLogMapper;
 
-    public QueryResult callbackCustomerList(String callback_user, String callback_start_time, String callback_end_time, String search_name,
-                                            Integer type, String search_city, String search_telephone, String search_callback_status, Integer page, Integer size, Integer communication_order, String token){
+    public QueryResult callbackCustomerList(String callback_start_time, String callback_end_time, String search_name,
+                                            Integer type, String search_city, String search_telephone, String search_callback_status, Integer page, Integer size, Integer communication_order,
+                                            Integer ownUserId,Integer isHaveOwn,Integer subCompanyId,String token){
         QueryResult resultDto = new QueryResult();
         //筛选回访人
-        List  customerIdList = new ArrayList();
+        //List  customerIdList = new ArrayList();
         Map<String,Object> paramsMap = new HashMap<>();
         //根据token查询到当前登录用户信息
-        Integer user_id = ucService.getUserIdByToken(token);
-        if (user_id == null){
-            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
-        }
         if (type == null || "".equals(type)){
             throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
         }
@@ -79,27 +78,17 @@ public class CallbackService {
             Date endDate = DateUtils.parse(callback_end_time,DateUtils.FORMAT_LONG);
             paramsMap.put("createTimeEnd",endDate);
         }
-        if (!StringUtils.isEmpty(callback_user)){
-            paramsMap.put("callback_user",callback_user);
-        }
-         if (paramsMap != null && paramsMap.size() > 0 ){
+       /*  if (paramsMap != null && paramsMap.size() > 0 ){
              //从phonelog中查询到customerId
              customerIdList = phoneLogMapper.getCustomerId(paramsMap);
              paramsMap.clear();
          }
          if (customerIdList != null  && customerIdList.size() > 0){
              paramsMap.put("customerIdList",customerIdList);
-         }
+         }*/
          paramsMap.put("customer_type", CustomerEnum.getByValue(type).getName());
-
-        List<String> cityList = new ArrayList<>();
          if (!StringUtils.isEmpty(search_city)){
-             search_city="'" + search_city + "'";
-             cityList.add(search_city);
-             paramsMap.put("cityList",cityList);
-         }else {
-             cityList = Arrays.<String> asList(ResultResource.CITYS);
-             paramsMap.put("cityList",cityList);
+             paramsMap.put("search_city",search_city);
          }
          if (!StringUtils.isEmpty(search_name)){
             paramsMap.put("search_name",search_name);
@@ -107,13 +96,18 @@ public class CallbackService {
         if (!StringUtils.isEmpty(search_callback_status)){
             paramsMap.put("search_callback_status",search_callback_status);
         }
+        if (!StringUtils.isEmpty(ownUserId)){
+            paramsMap.put("ownUserId",ownUserId);
+        }
+        if (!StringUtils.isEmpty(isHaveOwn)){
+            paramsMap.put("isHaveOwn",isHaveOwn);
+        }
+        if (!StringUtils.isEmpty(subCompanyId)){
+            paramsMap.put("subCompanyId",subCompanyId);
+        }
         if (!StringUtils.isEmpty(search_telephone)){
-            List phonelist = new ArrayList();
-            //TODO 手机号加密操作
-            String encodePhone = "";
-            phonelist.add(encodePhone);
-            phonelist.add(search_telephone);
-            paramsMap.put("phonelist",phonelist);
+            String encryptTelephone = DEC3Util.des3EncodeCBC(search_telephone);
+            paramsMap.put("telephonenumber",encryptTelephone);
         }
        //计算分页
         if (communication_order == 1){
@@ -122,7 +116,8 @@ public class CallbackService {
         }else if (communication_order == 2){
             //需要重新回访的,后去当前系统时间
             //从缓存中获取配置时间
-            Integer configTime = getConfigTime(type);
+           // Integer configTime = getConfigTime(type);
+            Integer configTime = null;
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DAY_OF_YEAR,-configTime * 30);
             Date searchTime = cal.getTime();
@@ -130,7 +125,8 @@ public class CallbackService {
             paramsMap.put("searchTime",searchTime);
             paramsMap.put("communication_order",communication_order);
         }else if (communication_order == 3){
-            Integer configTime = getConfigTime(type);
+           // Integer configTime = getConfigTime(type);
+            Integer configTime = null;
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DAY_OF_YEAR,-configTime * 30);
             Date searchTime = cal.getTime();
@@ -139,7 +135,8 @@ public class CallbackService {
             paramsMap.put("communication_order",communication_order);
         }else {
             //默认所有需要回访的
-            Integer configTime = getConfigTime(type);
+           // Integer configTime = getConfigTime(type);
+            Integer configTime = null;
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DAY_OF_YEAR,-configTime * 30);
             Date searchTime = cal.getTime();
@@ -154,10 +151,6 @@ public class CallbackService {
         //遍历
         for (CustomerInfo customerInfo : customerInfoList) {
             CallbackCustomerDTO callbackCustomerDTO = new CallbackCustomerDTO();
-           LoanDTO dto  = loaService.selectByCustomerId(token,customerInfo.getId());
-            if (dto == null){
-                throw new CronusException(CronusException.Type.CRM_CUSTOMERLOAN_ERROR);
-            }
             callbackCustomerDTO.setId(customerInfo.getId());
             callbackCustomerDTO.setCallbackStatus(customerInfo.getCallbackStatus());
             if (customerInfo.getCallbackTime() != null) {
@@ -167,24 +160,24 @@ public class CallbackService {
             if (customerInfo.getCreateTime() != null){
                 callbackCustomerDTO.setCreateTime(customerInfo.getCreateTime());
             }
-            String phoneNumber = customerInfo.getTelephonenumber().substring(0, 3) + "****" +customerInfo.getTelephonenumber().substring(7, customerInfo.getTelephonenumber().length());
             Integer communicationOrder = createOrderWhere(customerInfo);
             callbackCustomerDTO.setCommunicationOrder(communicationOrder);
-            callbackCustomerDTO.setTelephonenumber(phoneNumber);
-            callbackCustomerDTO.setCustomerLevel(customerInfo.getCustomerLevel());
+            //解密
+            String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+            callbackCustomerDTO.setTelephonenumber(telephone);
+            callbackCustomerDTO.setCustomerType(customerInfo.getCustomerType());
             callbackCustomerDTO.setCustomerName(customerInfo.getCustomerName());
-            callbackCustomerDTO.setLoanAmount(dto.getLoanAmount());
-//            if (dto.getOwnUserId() != null) {
-//                callbackCustomerDTO.setOwnUserId(dto.getOwnUserId());
-//            }
-            callbackCustomerDTO.setOwnUserName("无");
-            callbackCustomerDTO.setSub_company("未知");
-//            if (dto.getOwnUserId() != null){
-//
-//                 UcUserDTO ucUserDTO = ucService.getUserInfoByID(token,dto.getOwnUserId());
-//                callbackCustomerDTO.setOwnUserName(ucUserDTO.getName());
-//                callbackCustomerDTO.setSub_company(ucUserDTO.getSub_company_name());
-//            }
+            callbackCustomerDTO.setLoanAmount(customerInfo.getLoanAmount());
+            if (customerInfo.getOwnUserId() != 0){
+                 com.fjs.cronus.dto.uc.UserInfoDTO ucUserDTO = ucService.getUserInfoByID(token,customerInfo.getOwnUserId());
+                 callbackCustomerDTO.setOwnUserName(ucUserDTO.getName());
+                 callbackCustomerDTO.setOwnUserId(customerInfo.getOwnUserId());
+                 callbackCustomerDTO.setSub_company(ucUserDTO.getSub_company_name() + "(" + ucUserDTO.getCompany_name() + ")");
+            }else {
+                callbackCustomerDTO.setOwnUserName("无");
+                callbackCustomerDTO.setSub_company("未知");
+                callbackCustomerDTO.setOwnUserId(customerInfo.getOwnUserId());
+            }
             resultList.add(callbackCustomerDTO);
         }
         resultDto.setRows(resultList);
@@ -323,7 +316,7 @@ public class CallbackService {
         if (user_id == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
-        UcUserDTO userDTO = ucService.getUserInfoByID(token,user_id);
+        com.fjs.cronus.dto.uc.UserInfoDTO userDTO = ucService.getUserInfoByID(token,user_id);
         if (userDTO == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
@@ -420,7 +413,7 @@ public class CallbackService {
     }
 
 
-    public Integer  getConfigTime(Integer type){
+  /*  public Integer  getConfigTime(Integer type){
         //从缓存中获取到配置信息
         Integer cycle = null;
         List<CallbackConfigDTO> callbackConfigDtos = getAllCallbackConfig();
@@ -434,7 +427,7 @@ public class CallbackService {
         }
 
     return cycle;
-    }
+    }*/
 
     public List<CallbackConfigDTO>  getAllCallbackConfig(){
           //从缓存中获取配置

@@ -16,6 +16,7 @@ import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.uc.CrmCitySubCompanyDto;
 import com.fjs.cronus.dto.uc.SubCompanyCityDto;
 import com.fjs.cronus.dto.uc.ThorQueryDto;
+import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import com.fjs.cronus.service.redis.UcRedisService;
@@ -50,7 +51,7 @@ public class UcService {
         }else {
             //查接口先查看用户的数据权限
             List idList = new ArrayList();
-            UcUserDTO ucUserDTO = getUserInfoByID(token,user_id);
+            UserInfoDTO ucUserDTO = getUserInfoByID(token,user_id);
             if (ucUserDTO ==null){
                 throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
             }
@@ -77,9 +78,9 @@ public class UcService {
         }
     }
 
-    public UcUserDTO getUserInfoByID(String token, Integer user_id){
+    public UserInfoDTO getUserInfoByID(String token, Integer user_id){
         //TODO 差缓存是否存在用户信息 不存在 插接口
-        UcUserDTO ucUserDTO = null;
+        UserInfoDTO ucUserDTO = null;
         ucUserDTO = ucRedisService.getRedisUserInfo(ResultResource.USERINFOBYID + user_id);
         if (ucUserDTO != null){
             return ucUserDTO;
@@ -90,7 +91,7 @@ public class UcService {
             String result = FastJsonUtils.obj2JsonString(ucDTO.getRetData());
             //把json格式的数据转为对象
 
-            ucUserDTO = FastJsonUtils.getSingleBean(result,UcUserDTO.class);
+            ucUserDTO = FastJsonUtils.getSingleBean(result,UserInfoDTO.class);
             //TODO 信息存入缓存 并设置失效时间
             ucRedisService.setRedisUserInfo(ResultResource.USERINFOBYID + user_id + ucUserDTO.getUser_id(), ucUserDTO);
 
