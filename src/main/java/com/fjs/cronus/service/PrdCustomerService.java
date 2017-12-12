@@ -120,11 +120,8 @@ public class PrdCustomerService {
             //将客户信息装入到我们自己的
            //首先查询这个手机号存在么
             Map<String,Object> params = new HashMap<>();
-            String encryptTelephone = "";//加密后的
-            List paramsList = new ArrayList();
-            paramsList.add(encryptTelephone);
-            paramsList.add(prdCustomerDTO.getTelephonenumber());
-            params.put("paramsList",paramsList);
+            String encryptTelephone =DEC3Util.des3EncodeCBC(prdCustomerDTO.getTelephonenumber()) ;//加密后的
+            params.put("telephonenumber",encryptTelephone);
             CustomerInfo customerInfo = customerInfoMapper.findByFeild(params);
             //判断有没有负责人
             if (customerInfo != null) {

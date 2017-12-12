@@ -211,7 +211,7 @@ public class OcdcService {
                 try {
                     AllocateEntity allocateEntity = new AllocateEntity();
                     Map<String, Object> mapc = new HashedMap();
-                    mapc.put("telephonenumber", customerSalePushLog.getTelephonenumber());
+                    mapc.put("telephonenumber",DEC3Util.des3EncodeCBC(customerSalePushLog.getTelephonenumber()));
                     List<CustomerInfo> customerInfoList = customerInfoMapper.selectByOCDCPhone(mapc);
                     if (!CollectionUtils.isEmpty(customerInfoList) && customerInfoList.size() > 0) { //重复客户
 

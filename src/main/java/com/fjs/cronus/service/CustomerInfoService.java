@@ -99,11 +99,7 @@ public class CustomerInfoService {
         }
         //手机需要解密加密
         if (telephonenumber != null){
-            List paramsList = new ArrayList();
-            //加密
-             paramsList.add(DEC3Util.des3EncodeCBC(telephonenumber));
-             paramsList.add(telephonenumber);
-              paramsMap.put("paramsList",paramsList);
+              paramsMap.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
         }
         //获取下属员工
         List<Integer> ids = ucService.getSubUserByUserId(token,userId);
@@ -198,10 +194,7 @@ public class CustomerInfoService {
         }
         //判断手机号是否被注册
             Map<String,Object> paramsMap = new HashMap<>();
-            List paramsList = new ArrayList();
-            paramsList.add(DEC3Util.des3EncodeCBC(telephonenumber));
-            paramsList.add(telephonenumber);
-            paramsMap.put("paramsList",paramsList);
+            paramsMap.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
             paramsMap.put("start",0);
             paramsMap.put("size",10);
             List<CustomerInfo> customerInfos = customerInfoMapper.customerList(paramsMap);
@@ -254,10 +247,7 @@ public class CustomerInfoService {
         Map<String,Object> paramsMap = new HashMap<>();
         CustomerDTO dto= new CustomerDTO();
         String encryptTelephone =DEC3Util.des3EncodeCBC(telephonenumber);
-        List paramsList = new ArrayList();
-        paramsList.add(encryptTelephone);
-        paramsList.add(telephonenumber);
-        paramsMap.put("paramsList",paramsList);
+        paramsMap.put("telephonenumber",encryptTelephone);
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
         if (customerInfo == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
@@ -426,11 +416,7 @@ public class CustomerInfoService {
         //判断手机号是否被注册
         if (customerId == null){
             Map<String,Object> paramsMap = new HashMap<>();
-            //加密
-            List paramsList = new ArrayList();
-            paramsList.add(DEC3Util.des3EncodeCBC(telephonenumber));
-            paramsList.add(telephonenumber);
-            paramsMap.put("paramsList",paramsList);
+            paramsMap.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
             paramsMap.put("start",0);
             paramsMap.put("size",10);
             List<CustomerInfo> customerInfos = customerInfoMapper.customerList(paramsMap);
@@ -1247,12 +1233,7 @@ public class CustomerInfoService {
         //手机需要加密
         CustomerDTO dto= new CustomerDTO();
         Map<String,Object> mapc=new HashedMap();
-        List paramsList = new ArrayList();
-        //加
-        paramsList.add(DEC3Util.des3EncodeCBC(telephonenumber));
-        paramsList.add(telephonenumber);
-
-        mapc.put("paramsList",paramsList);
+        mapc.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
         List <CustomerInfo> customerInfos = customerInfoMapper.selectByOCDCPhone(mapc);
         if (customerInfos != null && customerInfos.size() >0 ) {
             EntityToDto.customerEntityToCustomerDto(customerInfos.get(0), dto);

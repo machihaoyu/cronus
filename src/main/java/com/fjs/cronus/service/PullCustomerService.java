@@ -218,11 +218,8 @@ public class PullCustomerService {
         }
         pullCustomerUpdateLogService.addLog(pullCustomer,userId,CommonConst.TRANSFER_PULL_CUSTOMER1);
         //转入客户现根据手机号判断是否包含此信息
-        String encryptTelephone = "";//加密后的
-        List paramsList = new ArrayList();
-        paramsList.add(encryptTelephone);
-        paramsList.add(pullCustomer.getTelephone());
-        paramsMap.put("paramsList",paramsList);
+        String encryptTelephone =DEC3Util.des3EncodeCBC(pullCustomer.getTelephone()) ;//加密后的
+        paramsMap.put("telephonenumber",encryptTelephone);
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
         if (customerInfo != null){
             //开始更新客户信息

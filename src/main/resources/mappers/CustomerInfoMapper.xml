@@ -118,12 +118,8 @@
     <if test="customerName !=null and customerName !=''">
       AND  c.customer_name  like CONCAT('%',#{customerName},'%' )
     </if>
-      <if test="paramsList != null and paramsList.size > 0">
-      AND c.telephonenumber in
-      <foreach collection="paramsList" item="item"
-               index="index" open="(" close=")" separator=",">
-          ${item}
-      </foreach>
+      <if test="telephonenumber != null and telephonenumber!=''">
+      AND c.telephonenumber = #{telephonenumber}
       </if>
       <if test="utmSource != null and utmSource != '' ">
           and c.utm_source = #{utmSource}
@@ -172,12 +168,8 @@
     <if test="customerName !=null and customerName !=''">
       and c.customer_name  like CONCAT('%', #{customerName},'%' )
     </if>
-      <if test="paramsList != null and paramsList.size > 0">
-          AND c.telephonenumber in
-          <foreach collection="paramsList" item="item"
-                   index="index" open="(" close=")" separator=",">
-              ${item}
-          </foreach>
+      <if test="telephonenumber != null and telephonenumber!=''">
+          AND c.telephonenumber = #{telephonenumber}
       </if>
       <if test="utmSource != null and utmSource != '' ">
           and c.utm_source = #{utmSource}
@@ -761,13 +753,9 @@
   <include refid="Blob_Column_List" />
   from customer_info  c
   WHERE  c.is_deleted = 0
-  <if test="paramsList!=null and paramsList.size>0">
-    AND c.telephonenumber in
-    <foreach collection="paramsList" item="paramsList"
-             index="index" open="(" close=")" separator=",">
-      ${paramsList}
-    </foreach>
-  </if>
+     <if test="telephonenumber != null and telephonenumber!=''">
+         AND c.telephonenumber = #{telephonenumber}
+     </if>
      <if test="id != null and id !=''">
          and c.id = #{id}
      </if>
@@ -1231,12 +1219,8 @@
         <include refid="Blob_Column_List" />
         from customer_info  c
         WHERE  c.is_deleted = 0
-        <if test="paramsList != null and paramsList.size > 0">
-            AND c.telephonenumber in
-            <foreach collection="paramsList" item="item"
-                     index="index" open="(" close=")" separator=",">
-                ${item}
-            </foreach>
+        <if test="telephonenumber != null and telephonenumber!=''">
+            AND c.telephonenumber = #{telephonenumber}
         </if>
     </select>
     <select id="allocationCustomerList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">

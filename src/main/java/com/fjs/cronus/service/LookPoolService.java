@@ -123,7 +123,6 @@ public class LookPoolService {
         paramMap.put("size",size);
         List<CustomerInfo> customerInfoList = customerInfoMapper.customerList(paramMap);
         if (customerInfoList != null && customerInfoList.size() > 0){
-
             for (CustomerInfo customerInfo : customerInfoList) {
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto);
