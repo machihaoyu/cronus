@@ -574,11 +574,11 @@ public class CustomerInfoService {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
         //对手机号进行解密
-        customerInfo.setTelephonenumber(DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber()));
+       // customerInfo.setTelephonenumber(DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber()));
         return customerInfo;
     }
 
-    public QueryResult<CustomerListDTO> allocationCustomerList(String customerName,String utmSource,String customerSource,Integer autostatus,Integer page,Integer size,Integer type){
+    public QueryResult<CustomerListDTO> allocationCustomerList(String customerName,String utmSource,String customerSource,Integer autostatus,Integer page,Integer size,Integer type,String telephonenumber){
         List<CustomerInfo> resultList = new ArrayList<>();
         Map<String,Object> paramsMap = new HashMap<>();
         List<CustomerListDTO> doList = new ArrayList<>();
@@ -589,6 +589,9 @@ public class CustomerInfoService {
         }
         if (!StringUtils.isEmpty(utmSource)){
             paramsMap.put("utmSource",utmSource);
+        }
+        if (!StringUtils.isEmpty(telephonenumber)){
+            paramsMap.put("telephonenumber",telephonenumber);
         }
         if (!StringUtils.isEmpty(customerSource)){
             paramsMap.put("customerSource",customerSource);
@@ -1070,6 +1073,8 @@ public class CustomerInfoService {
                 //找出客户的信息
                ReturnLogArrDTO returnLogArrDTO = new ReturnLogArrDTO();
                CustomerInfo customerInfo = findCustomerById(logArrDTO.getCustomerId());
+               //对手机解密
+                customerInfo.setTelephonenumber(DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber()));
                returnLogArrDTO.setCustomerInfo(customerInfo);
 
                 List<Integer> serviceIds = new ArrayList<>();

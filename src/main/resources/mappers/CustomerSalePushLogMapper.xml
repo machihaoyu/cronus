@@ -114,4 +114,57 @@
             )
         </foreach>
     </insert>
+    <select id="repeatcustomerList"  parameterType="java.util.Map" resultType="java.util.Map">
+      SELECT
+        <include refid="base_column" />
+        ,COUNT(0) AS reat_num FROM customer_sale_push_log WHERE 1 = 1
+        <if test="telephonenumber != null and telephonenumber !=''">
+            and telephonenumber = #{telephonenumber}
+        </if>
+        <if test="customer_name != null and customer_name !=''">
+            and customer_name  like CONCAT('%', #{customer_name},'%' )
+        </if>
+        <if test="repeat_callback_status != null and repeat_callback_status != 3">
+            <choose>
+                <when test="repeat_callback_status == 1">
+                    and (repeat_callback_time IS NULL )
+                </when>
+                <when test="repeat_callback_status == 2">
+                    and (repeat_callback_time IS NOT NULL)
+                </when>
+            </choose>
+        </if>
+        <if test="createTimeBegin != null and createTimeEnd !=null ">
+            and date(create_time) between #{repeat_start_time} and #{repeat_end_time}
+        </if>
+        GROUP BY telephonenumber
+        HAVING reat_num>1 ORDER BY id DESC
+        limit ${start},${size}
+    </select>
+
+    <select id="repeatcustomerListConut"  parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT count(*)  FROM(SELECT telephonenumber,repeat_callback_time,COUNT(0) AS reat_num FROM customer_sale_push_log WHERE 1 = 1
+        <if test="telephonenumber != null and telephonenumber !=''">
+            and telephonenumber = #{telephonenumber}
+        </if>
+        <if test="customer_name != null and customer_name !=''">
+            and customer_name  like CONCAT('%', #{customer_name},'%' )
+        </if>
+        <if test="repeat_callback_status != null and repeat_callback_status != 3">
+            <choose>
+                <when test="repeat_callback_status == 1">
+                    and (repeat_callback_time IS NULL )
+                </when>
+                <when test="repeat_callback_status == 2">
+                    and (repeat_callback_time IS NOT NULL)
+                </when>
+            </choose>
+        </if>
+        <if test="createTimeBegin != null and createTimeEnd !=null ">
+            and date(create_time) between #{repeat_start_time} and #{repeat_end_time}
+        </if>
+        GROUP BY telephonenumber
+        HAVING reat_num>1) a
+    </select>
+
 </mapper>

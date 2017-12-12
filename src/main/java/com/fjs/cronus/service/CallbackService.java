@@ -8,7 +8,7 @@ import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.*;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.cronus.CallbackLogDTO;
-import com.fjs.cronus.dto.uc.*;
+import com.fjs.cronus.dto.cronus.RepeatCustomerSaleDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.*;
 import com.fjs.cronus.model.*;
@@ -52,6 +52,8 @@ public class CallbackService {
     CallbackLogMapper callbackLogMapper;
     @Autowired
     CustomerInfoLogMapper customerInfoLogMapper;
+    @Autowired
+    CustomerSalePushLogMapper customerSalePushLogMapper;
     public QueryResult callbackCustomerList(String callback_start_time, String callback_end_time, String search_name,
                                             Integer type, String search_city, String search_telephone, String search_callback_status, Integer page, Integer size, Integer communication_order,
                                             Integer ownUserId,Integer isHaveOwn,Integer subCompanyId,String token){
@@ -483,6 +485,51 @@ public class CallbackService {
 //        dto.setCustomerSource(loanDTO.getCustomerSource());
 //        dto.setUtmSource(loanDTO.getUtmSource());
         return  dto;
+    }
 
+    public QueryResult<CallbackDTO> repeatcustomerList(String telephonenumber,String repeat_start_time,String repeat_end_time,String customer_name,
+                                                       Integer repeat_callback_status,Integer page,Integer size){
+        QueryResult<CallbackDTO> resultDto = new QueryResult<>();
+        List<CallbackDTO> callbackDTOS = new ArrayList<>();
+        Map<String,Object> paramsMap = new HashMap<>();
+        List<String> telephoneList = new ArrayList<>();
+        if (!StringUtils.isEmpty(telephonenumber)){
+            paramsMap.put("telephonenumber",telephonenumber);
+        }
+        if (!StringUtils.isEmpty(repeat_start_time)){
+            Date startDate = DateUtils.parse(repeat_start_time,DateUtils.FORMAT_LONG);
+            paramsMap.put("repeat_start_time",startDate);
+        }
+        if (!StringUtils.isEmpty(repeat_end_time)){
+            Date endtDate = DateUtils.parse(repeat_end_time,DateUtils.FORMAT_LONG);
+            paramsMap.put("repeat_end_time",endtDate);
+        }
+        if (!StringUtils.isEmpty(customer_name)){
+            paramsMap.put("customer_name",customer_name);
+        }
+        if (!StringUtils.isEmpty(repeat_callback_status)){
+            paramsMap.put("repeat_callback_status",repeat_callback_status);
+        }
+        paramsMap.put("start",(page-1) * size);
+        paramsMap.put("size",size);
+        //开始拼装语句
+        List<RepeatCustomerSaleDTO> customerList = customerSalePushLogMapper.repeatcustomerList(paramsMap);
+        Integer count = customerSalePushLogMapper.repeatcustomerListConut(paramsMap);
+        if (customerList != null && customerList.size() > 0){
+            //循环
+            for (RepeatCustomerSaleDTO  repeatCustomerSaleDTO : customerList) {
+                if (repeatCustomerSaleDTO.getTelephonenumber() != null) {
+                    telephoneList.add(repeatCustomerSaleDTO.getTelephonenumber());
+                    //存储一个key value的参数
+                }
+            }
+        }
+
+
+
+
+
+
+        return  resultDto;
     }
 }

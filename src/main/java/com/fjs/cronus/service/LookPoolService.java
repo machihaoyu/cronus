@@ -167,6 +167,7 @@ public class LookPoolService {
         customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
         customerInfoMapper.updateCustomer(customerInfo);
         //添加日志
+
         customerInfoService.insertLog(customerInfo,Integer.valueOf(userInfoDTO.getUser_id()));
         flag = true;
         return  flag;

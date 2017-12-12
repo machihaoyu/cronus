@@ -1270,6 +1270,9 @@
         <if test="level != null and level != '' ">
             and c.level = #{level}
         </if>
+        <if test="telephonenumber != null and telephonenumber != '' ">
+            and c.telephonenumber = #{telephonenumber}
+        </if>
         <choose>
             <when test="order != null and order !=''">
                 order by ${order} desc
@@ -1301,6 +1304,9 @@
         <if test="level != null and level != '' ">
             and c.level = #{level}
         </if>
+        <if test="telephonenumber != null and telephonenumber != '' ">
+            and c.telephonenumber = #{telephonenumber}
+        </if>
     </select>
 
 
@@ -1321,6 +1327,9 @@
         </if>
         <if test="autostatus != null and autostatus != '' ">
             and c.autostatus = #{autostatus}
+        </if>
+        <if test="telephonenumber != null and telephonenumber != '' ">
+            and c.telephonenumber = #{telephonenumber}
         </if>
         <if test="level != null and level != '' ">
             and c.level = #{level}
@@ -1353,6 +1362,9 @@
         </if>
         <if test="level != null and level != '' ">
             and c.level = #{level}
+        </if>
+        <if test="telephonenumber != null and telephonenumber != '' ">
+            and c.telephonenumber = #{telephonenumber}
         </if>
     </select>
 

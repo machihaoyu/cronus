@@ -1,6 +1,7 @@
 package com.fjs.cronus.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CallbackLogDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
@@ -48,7 +49,7 @@ public class CallbackController {
     })
     @RequestMapping(value = "/callbackCustomerList", method = RequestMethod.GET)
     @ResponseBody
-    public QueryResult callbackCustomerList(@RequestParam(value = "callback_start_time",required = false) String callback_start_time,
+    public CronusDto<QueryResult<CallbackDTO>> callbackCustomerList(@RequestParam(value = "callback_start_time",required = false) String callback_start_time,
                                             @RequestParam(value = "callback_end_time",required = false) String callback_end_time,
                                             @RequestParam(value = "search_name",required = false) String search_name,
                                             @RequestParam(value = "type",required = false) Integer type,
@@ -62,14 +63,15 @@ public class CallbackController {
                                             @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
                                             @RequestParam(value = "size",required = false,defaultValue = "20") Integer size,
                                             @RequestHeader("Authorization") String token){
-        QueryResult queryResult = new QueryResult();
-        Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-
-
+        CronusDto<QueryResult<CallbackDTO>> resultCronusDto = new CronusDto<>();
+        QueryResult<CallbackDTO> queryResult = new QueryResult();
         try {
             queryResult  = callbackService.callbackCustomerList(callback_start_time,callback_end_time,search_name,type,search_city,search_telephone,search_callback_status,page,size,communication_order,
                     ownUserId,isHaveOwn,subCompanyId,token);
-            return queryResult;
+            resultCronusDto.setData(queryResult);
+            resultCronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultCronusDto.setResult(ResultResource.CODE_SUCCESS);
+            return resultCronusDto;
         } catch (Exception e) {
             logger.error("--------------->callbackCustomerList获取用户信息失败", e);
             if (e instanceof CronusException) {
@@ -210,6 +212,44 @@ public class CallbackController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
         return  cronusDto;
+    }
+    @ApiOperation(value="重复客户咨询", notes="重复客户咨询")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "telephonenumber", value = "手机号", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "repeat_start_time", value = "起始日期", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "repeat_end_time", value = "结束日期", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "customer_name", value = "客户姓名", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "repeat_callback_status", value = "1 未拨打，2 已拨打，3 不限", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "查询第几页(从1开始)", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "显示多少件", required = false, paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/repeatcustomerList", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<QueryResult<CallbackDTO>> repeatcustomerList(  @RequestParam(value = "telephonenumber",required = false) String telephonenumber,
+                                            @RequestParam(value = "repeat_start_time",required = false) String repeat_start_time,
+                                            @RequestParam(value = "repeat_end_time",required = false) String repeat_end_time,
+                                            @RequestParam(value = "customer_name",required = false) String customer_name,
+                                            @RequestParam(value = "repeat_callback_status",required = false) Integer repeat_callback_status,
+                                            @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
+                                            @RequestParam(value = "size",required = false,defaultValue = "20") Integer size,
+                                            @RequestHeader("Authorization") String token){
+        QueryResult<CallbackDTO> queryResult = new QueryResult();
+        CronusDto<QueryResult<CallbackDTO>> resultCronusDto = new CronusDto<>();
+        try {
+            queryResult  = callbackService.repeatcustomerList(telephonenumber,repeat_start_time,repeat_end_time,customer_name,repeat_callback_status,page,size);
+            resultCronusDto.setData(queryResult);
+            resultCronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultCronusDto.setResult(ResultResource.CODE_SUCCESS);
+            return resultCronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->repeatcustomerList获取用户信息失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
     }
 
 }

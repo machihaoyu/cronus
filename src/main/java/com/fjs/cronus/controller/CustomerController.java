@@ -437,8 +437,9 @@ public class CustomerController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "utmSource", value = "渠道 自申请客户传入'自申请'", paramType = "query",  dataType = "int"),
-            @ApiImplicitParam(name = "customerSource", value = "客户来源 ", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "utmSource", value = "渠道 自申请客户传入'自申请'", paramType = "query",  dataType = "string"),
+            @ApiImplicitParam(name = "customerSource", value = "客户来源 ", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "telephonenumber", value = "手机 ", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "autostatus", value = "1 新分配客户", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "type", value = "1已沟通客户，2 ：else", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "查询第几页(从1开始)", required = false, paramType = "query", dataType = "int"),
@@ -449,6 +450,7 @@ public class CustomerController {
     public CronusDto<QueryResult<CustomerListDTO>>  AllocationCustomerList(@RequestParam(value = "customerName",required = false) String customerName,
                                                                            @RequestParam(value = "utmSource",required = false) String utmSource,
                                                                            @RequestParam(value = "customerSource",required = false) String customerSource,
+                                                                           @RequestParam(value = "telephonenumber",required = false) String telephonenumber,
                                                                            @RequestParam(value = "autostatus",required = false) Integer autostatus,
                                                                            @RequestParam(value = "type",required = true) Integer type,
                                                                            @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
@@ -466,7 +468,7 @@ public class CustomerController {
           throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
       }
         try {
-            QueryResult<CustomerListDTO> queryResult  = customerInfoService.allocationCustomerList(customerName,utmSource,customerSource,autostatus,page,size,type);
+            QueryResult<CustomerListDTO> queryResult  = customerInfoService.allocationCustomerList(customerName,utmSource,customerSource,autostatus,page,size,type,telephonenumber);
             cronusDto.setData(queryResult);
             cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             cronusDto.setResult(ResultResource.CODE_SUCCESS);
