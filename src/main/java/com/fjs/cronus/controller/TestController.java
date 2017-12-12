@@ -1,6 +1,7 @@
 package com.fjs.cronus.controller;
 
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.mq.consumer.HttpMQConsumer;
 import com.fjs.cronus.util.mq.consumer.SimpleMessage;
@@ -29,9 +30,10 @@ public class TestController {
     HttpMQConsumer httpMQConsumer;
     @Autowired
     ProducerSpringService producerSpringService;
-
     @Autowired
     UcService ucService;
+    @Autowired
+    CustomerInfoService customerInfoService;
     @ApiOperation(value="MQ发送测试", notes="HTTP模式发送MQ")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "msg", value = "消息", required = false, paramType = "query", dataType = "String"),
@@ -93,5 +95,21 @@ public class TestController {
         System.out.println(user_id);
         return resultDto;
     }
+
+    @ApiOperation(value="给数据库所有手机号进行加密操作", notes="给数据库所有手机号进行加密操作")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "page", value = "page", required = true, paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/auth", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto auth(
+            @RequestHeader("Authorization") String token,Integer page){
+        CronusDto resultDto = new CronusDto();
+        customerInfoService.auth(page);
+        System.out.println(true);
+        return resultDto;
+    }
+
 
 }

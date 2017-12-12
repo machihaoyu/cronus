@@ -94,7 +94,7 @@ public class SchedulerConfig {
     public CronTriggerFactoryBean cronJobTrigger(JobDetailFactoryBean jobDetail) {
         CronTriggerFactoryBean tigger = new CronTriggerFactoryBean();
         tigger.setJobDetail(jobDetail.getObject());
-        tigger.setCronExpression("0/5 * * * * ?");// 初始时的cron表达式//每5秒执行一次
+        tigger.setCronExpression("0 */5 * * * ?");// 初始时的cron表达式//每5秒执行一次
         tigger.setName("sendmess");// trigger的name
         return tigger;
 

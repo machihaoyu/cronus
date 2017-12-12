@@ -1258,6 +1258,21 @@ public class CustomerInfoService {
         }
         customerInfoList = customerInfoMapper.findCustomerByType(paramsMap);
         return customerInfoList;
+    }
+
+    public void auth(Integer page){
+
+        Map<String,Object> map = new HashMap<>();
+        map.put("start",(page-1) * 5000);
+        map.put("size",5000);
+
+        List<CustomerInfo> customerInfoList = customerInfoMapper.customerList(map);
+        for (CustomerInfo customerInfo : customerInfoList) {
+            customerInfo.setTelephonenumber(DEC3Util.des3EncodeCBC(customerInfo.getTelephonenumber()));
+            customerInfoMapper.updateCustomer(customerInfo);
+        }
+        System.out.println(true);
+
 
     }
 }

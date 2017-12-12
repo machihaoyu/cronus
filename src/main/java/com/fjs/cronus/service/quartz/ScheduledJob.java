@@ -34,7 +34,7 @@ public class ScheduledJob {
 
        logger.info("Examine Start!");
 
-        System.out.println("我爱王倩");
+        System.out.println("定时任务测试");
 
         logger.info("Examine End!");
     }
