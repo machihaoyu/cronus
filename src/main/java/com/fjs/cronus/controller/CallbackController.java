@@ -39,6 +39,8 @@ public class CallbackController {
             @ApiImplicitParam(name = "search_telephone", value = "手机号", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "search_callback_status", value = "回防状态", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "communication_order", value = "1 从未回访，2 需要重新回访，3已经回访", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "ownUserId", value = "负责人id", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "isHaveOwn", value = "是否拥有负责人0没有，有", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "查询第几页(从1开始)", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少件", required = false, paramType = "query", dataType = "int"),
     })
