@@ -6,6 +6,7 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 
 import com.fjs.cronus.api.thea.LoanDTO;
+import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
@@ -28,10 +29,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
 
@@ -84,30 +83,29 @@ public class AutoAllocateService {
      */
     public Boolean isActiveApplicationChannel(CustomerDTO customerDTO) {
         String activeApplicationChannel = theaService.getConfigByName("activeApplicationChannel").getData();
-        if (activeApplicationChannel!=null && activeApplicationChannel.contains(customerDTO.getUtmSource()))
+        if (activeApplicationChannel != null && activeApplicationChannel.contains(customerDTO.getUtmSource()))
             return true;
         else
             return false;
     }
 
     @Transactional
-    public AllocateEntity autoAllocate(CustomerDTO customerDTO, AllocateSource allocateSource,String token) {
+    public AllocateEntity autoAllocate(CustomerDTO customerDTO, AllocateSource allocateSource, String token) {
         AllocateEntity allocateEntity = new AllocateEntity();
         allocateEntity.setSuccess(true);
         try {
-            //获取自动分配的城市（主要城市+异地城市）
-            String allocateCities = getAllocateCities();
+            //获取自动分配的城市
+            String allocateCities = theaService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY).getData();
 
-            UserInfoDTO ownerUser = getOwerUser(customerDTO,token); //获取负责人
+            UserInfoDTO ownerUser = getOwnerUser(customerDTO, token); //获取负责人
 
             boolean allocateToPublic = isAllocateToPublic(customerDTO.getUtmSource());
 
             //是否占用自动分配  0:直接到公盘  1:自动分配  2:带业务员
-            Integer autoStatus = 0;
+//            Integer autoStatus = 0;
             if (StringUtils.isNotEmpty(ownerUser.getUser_id())) {//存在这个在职负责人
                 customerDTO.setOwnerUserId(Integer.valueOf(ownerUser.getUser_id()));
-                allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
-                autoStatus = 2;
+                allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
             } else if (allocateToPublic) {
                 allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
                 customerDTO.setOwnerUserId(0);
@@ -116,39 +114,37 @@ public class AutoAllocateService {
                 customerDTO.setOwnerUserId(0);
                 allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
             } else if (StringUtils.contains(allocateCities, customerDTO.getCity())) {
-                autoStatus = 1;
                 Integer ownUserId = getAllocateUser(customerDTO.getCity());
                 if (ownUserId > 0) {
                     customerDTO.setOwnerUserId(ownUserId);
                     allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
-                }
-                else
-                { //进入待分配池
+                } else { //进入待分配池
                     customerDTO.setOwnerUserId(0);
                     allocateEntity.setAllocateStatus(AllocateEnum.WAITING_POOL);
                 }
             } else {
                 customerDTO.setOwnerUserId(0);
-                allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
                 switch (allocateSource.getCode()) {
                     case "0":
+                    case "1":
+                        allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
+                        break;
                     case "2"://推入客服系统
+                        allocateEntity.setAllocateStatus(AllocateEnum.TO_SERVICE_SYSTEM);
                         try {
 
                         } catch (Exception e) {
                         }
                         break;
-                    case "1":
-                        break;
                 }
             }
             /*如果数据中存在id说明是己存在表中的记录；过来的数据id一定为0或者null，非0的是走不了分配的*/
-            SimpleUserInfoDTO simpleUserInfoDTO = new SimpleUserInfoDTO();
+            SimpleUserInfoDTO simpleUserInfoDTO;
             Integer customerId = 0;
             if (null != customerDTO.getId() && customerDTO.getId() > 0) {
                 customerId = customerDTO.getId();
                 if (null != customerDTO.getOwnerUserId() && customerDTO.getOwnerUserId() > 0) {
-                    simpleUserInfoDTO = thorUcService.getUserInfoById(token,customerDTO.getOwnerUserId()).getData();
+                    simpleUserInfoDTO = thorUcService.getUserInfoById(token, customerDTO.getOwnerUserId()).getData();
                     if (null != ownerUser.getSub_company_id()) {
                         customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
                     } else {
@@ -156,86 +152,65 @@ public class AutoAllocateService {
                     }
                     //customerDTO.se(new Date()); //todo customerDTO 无领取时间 `receive_time`
                     customerDTO.setLastUpdateTime(new Date());
-                    if (1 == autoStatus) { //是自动分配的
+//                    if (1 == autoStatus) { //是自动分配的
                         //重复申请,无论有效无效,直接变成未沟通
 //                        customerDTO.setst(CommonEnum.LOAN_STATUE_1.getCode());
 //                        customerDTO.setClickCommunicateButton(CommonEnum.NO.getCode());
 //                        customerDTO.setCommunicateTime(null);
-                    }
+//                    }
 //                    theaService.saveOne(loan);
                     //customerInfoService.editCustomerOk(customerDTO, token); //todo
                 }
             } else {
-                //新生产的数据，如果手机号不存在数据表中，则添加(己包含业务员)
-//                Map<String, Object> map = new HashMap<>();
-//                map.put("eqPhone", customerDTO.getTelephonenumber());
                 CronusDto<CustomerDTO> cronusDto = customerInfoService.fingByphone(customerDTO.getTelephonenumber());
                 CustomerDTO hasCustomer = cronusDto.getData();
                 if (null == hasCustomer || null == hasCustomer.getId()) {
-                    if (autoStatus == 1 && customerDTO.getOwnerUserId() == 0) {
-                        //下面进入再分配池子
-                        //againAllocateCustomerService.addAgainAllocateCustomer(c);
-                        allocateEntity.setSuccess(true);
-
-                    } else {
-                        customerDTO.setLastUpdateTime(new Date());
-                        //先注销之后重新获取
-                        if (customerDTO.getOwnerUserId()!=null && customerDTO.getOwnerUserId() >0) {
-                            simpleUserInfoDTO = thorUcService.getUserInfoById(token, customerDTO.getOwnerUserId()).getData();
-                        }
-                        if (null != simpleUserInfoDTO.getSub_company_id()) {
-                            customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
-                        } else {
-                            customerDTO.setSubCompanyId(0);
-                        }
-                        //保存数据
-                        customerInfoService.addCustomer(customerDTO, token);
+                    switch (allocateEntity.getAllocateStatus().getCode()) {
+                        case "0":
+                        case "1":
+                        case "3":
+                            //先注销之后重新获取
+                            addCustomer(customerDTO,token);
+                            break;
                     }
                 }
             }
 
-            if (allocateEntity.getAllocateStatus().getCode().equals(AllocateEnum.ALLOCATE_TO_OWNER.getCode()))
-            {
-                //有负责人
-                if (isActiveApplicationChannel(customerDTO))
-                {
-                    LoanDTO loanDTO = new LoanDTO();
-                    loanDTO.setTelephonenumber(customerDTO.getTelephonenumber());
-                    loanDTO.setLoanAmount(customerDTO.getLoanAmount());
-                    loanDTO.setCustomerId(customerDTO.getId());
-                    loanDTO.setCustomerName(customerDTO.getCustomerName());
-                    theaService.inserLoan(loanDTO);
-                }
-            }
 
-            if (autoStatus == 1 && allocateEntity.getAllocateStatus().getCode().equals(AllocateEnum.ALLOCATE_TO_OWNER.getCode()) ) {
-                //更新城市队列
-                String[] cityStrArrayAll = StringUtils.split(allocateCities,",");
-                if (ArrayUtils.contains(cityStrArrayAll, customerDTO.getCity())) {
-                    allocateRedisService.changeAllocateTemplet(customerDTO.getOwnerUserId(), customerDTO.getCity());
-                }
-                //如果是再分配盘的数据则标记再分配成功
-                Map<String, Object> againAllocateMap = new HashMap<>();
-                againAllocateMap.put("dataId", customerId);
-                againAllocateMap.put("status", CommonEnum.AGAIN_ALLOCATE_STATUS_1.getCodeDesc());
-                againAllocateCustomerService.saveStatusByDataId(againAllocateMap);
-                //添加分配日志
-                CustomerInfo customerInfo = new CustomerInfo();
-                EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
-                allocateLogService.addAllocatelog(customerInfo, customerDTO.getOwnerUserId(),
-                        CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode(), null);
-            } else if (autoStatus == 2) {//自动分配(带业务员)
-                //添加分配日志
-                CustomerInfo customerInfo = new CustomerInfo();
-                EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
-                allocateLogService.addAllocatelog(customerInfo, customerDTO.getOwnerUserId(),
-                        CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_5.getCode(), null);
+            switch (allocateEntity.getAllocateStatus().getCode()) {
+                case "0":
+                case "1":
+                    String[] cityStrArrayAll = StringUtils.split(allocateCities, ",");
+                    if (ArrayUtils.contains(cityStrArrayAll, customerDTO.getCity())) {
+                        allocateRedisService.changeAllocateTemplet(customerDTO.getOwnerUserId(), customerDTO.getCity());
+                    }
+                    //如果是再分配盘的数据则标记再分配成功
+                    if (allocateSource.getCode().equals("2")) {
+                        Map<String, Object> againAllocateMap = new HashMap<>();
+                        againAllocateMap.put("dataId", customerId);
+                        againAllocateMap.put("status", CommonEnum.AGAIN_ALLOCATE_STATUS_1.getCodeDesc());
+                        againAllocateCustomerService.saveStatusByDataId(againAllocateMap);
+                    }
+                    //添加分配日志
+                    CustomerInfo customerInfo = new CustomerInfo();
+                    EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
+                    allocateLogService.addAllocatelog(customerInfo, customerDTO.getOwnerUserId(),
+                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode(), null);
+                    activeChannelAddTansaction(customerDTO);
+                    sendMessage(customerDTO,token);
+                    break;
+                case "2":
+                    break;
+                case "3":
+                    //添加分配日志
+                    CustomerInfo customerInfot = new CustomerInfo();
+                    EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfot);
+                    allocateLogService.addAllocatelog(customerInfot, customerDTO.getOwnerUserId(),
+                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_5.getCode(), null);
+                    activeChannelAddTansaction(customerDTO);
+                    sendMessage(customerDTO,token);
+                    break;
             }
-            if (null != customerDTO.getOwnerUserId() && 0 != customerDTO.getOwnerUserId()) {//分配成功，给业务员通知提醒
-                //添加消息记录
-//                    String smsResult = smsService.sendSmsForAutoAllocate(simpleUserInfoDTO.getTelephone(), loan.getCustomerName(), loan.getTelephonenumber());
-            }
-
 
         } catch (Exception e) {
             logger.error("-------------------自动分配失败:ocdcDataId=" + customerDTO.getTelephonenumber() + "-------------------", e);
@@ -244,7 +219,50 @@ public class AutoAllocateService {
         return allocateEntity;
     }
 
-    private UserInfoDTO getOwerUser(CustomerDTO customerDTO,String token) {
+    private void addCustomer(CustomerDTO customerDTO,String token)
+    {
+        SimpleUserInfoDTO simpleUserInfoDTO;
+        if (customerDTO.getOwnerUserId() != null && customerDTO.getOwnerUserId() > 0) {
+            simpleUserInfoDTO = thorUcService.getUserInfoById(token, customerDTO.getOwnerUserId()).getData();
+            if (null != simpleUserInfoDTO.getSub_company_id()) {
+                customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
+            } else {
+                customerDTO.setSubCompanyId(0);
+            }
+        }
+        //保存数据
+        customerDTO.setLastUpdateTime(new Date());
+        customerInfoService.addCustomer(customerDTO, token);
+    }
+
+    /**
+     * 主动申请渠道添加交易
+     * @param customerDTO
+     */
+    private void activeChannelAddTansaction(CustomerDTO customerDTO)
+    {
+        if (isActiveApplicationChannel(customerDTO)) {
+            LoanDTO loanDTO = new LoanDTO();
+            loanDTO.setTelephonenumber(customerDTO.getTelephonenumber());
+            loanDTO.setLoanAmount(customerDTO.getLoanAmount());
+            loanDTO.setCustomerId(customerDTO.getId());
+            loanDTO.setCustomerName(customerDTO.getCustomerName());
+            theaService.inserLoan(loanDTO);
+        }
+    }
+
+    private void sendMessage(CustomerDTO customerDTO,String token)
+    {
+        MailDTO mailDTO = new MailDTO();
+        mailDTO.setContent("房金所为您分配了客户名：" + customerDTO.getCustomerName() + "，请注意跟进。");
+        mailDTO.setCreateUser(0);
+        mailDTO.setFromId(0);
+        mailDTO.setFromName("系统");
+        mailDTO.setToId(customerDTO.getOwnerUserId());
+        theaService.sendMail(token, mailDTO);
+    }
+
+    private UserInfoDTO getOwnerUser(CustomerDTO customerDTO, String token) {
         //分析客户扩展信息
         JSONObject extJson = new JSONObject();
         if (StringUtils.isNotBlank(customerDTO.getExt())) {
@@ -261,7 +279,7 @@ public class AutoAllocateService {
                 salerId = Integer.valueOf(extJson.get("sale_id").toString());
                 if (0 != salerId) {
                     BaseUcDTO<UserInfoDTO> thorApiDTO = thorUcService.getUserInfoByField(token, null, salerId, null);
-                    if (0 == thorApiDTO.getErrNum() && thorApiDTO.getRetData()!=null) {
+                    if (0 == thorApiDTO.getErrNum() && thorApiDTO.getRetData() != null) {
                         userInfoDTO = thorApiDTO.getRetData();
                         salerId = Integer.valueOf(userInfoDTO.getUser_id());
                     }
@@ -281,7 +299,7 @@ public class AutoAllocateService {
             try {
                 BaseUcDTO<UserInfoDTO> thorApiDTO = thorUcService.getUserInfoByField(
                         phone, token, null, null);
-                if (0 == thorApiDTO.getErrNum() && thorApiDTO.getRetData()!=null) {
+                if (0 == thorApiDTO.getErrNum() && thorApiDTO.getRetData() != null) {
                     userInfoDTO = thorApiDTO.getRetData();
                     salerId = Integer.valueOf(userInfoDTO.getUser_id());
                 } else {
@@ -293,7 +311,7 @@ public class AutoAllocateService {
             }
         }
 
-        if (userInfoDTO.getStatus()!=null && userInfoDTO.getStatus().equals("1")) {
+        if (userInfoDTO.getStatus() != null && userInfoDTO.getStatus().equals("1")) {
             return userInfoDTO;
         } else return new UserInfoDTO();
     }
@@ -305,7 +323,6 @@ public class AutoAllocateService {
         String allocateToNoUserPool = theaService.getConfigByName(CommonConst.ALLOCATE_TO_NO_USER_POOL).getData();
 
         //判断该推送客户是否在限制渠道中/进公盘
-
         String[] utmSourceStrArray;
         if (StringUtils.isNotBlank(allocateToNoUserPool)) {
             utmSourceStrArray = allocateToNoUserPool.split(",");
@@ -315,28 +332,6 @@ public class AutoAllocateService {
         }
         return allocateToPublic;
     }
-
-    /**
-     * 获取自动分配的城市
-     *
-     * @return
-     */
-    private String getAllocateCities() {
-        String mainCityStr = theaService.getConfigByName(CommonConst.MAIN_CITY).getData();
-        String remoteCityStr = theaService.getConfigByName(CommonConst.REMOTE_CITY).getData();
-        String mainAndRemoteCityStr = "";
-        if (StringUtils.isNotBlank(mainCityStr) && StringUtils.isNotBlank(remoteCityStr)) {
-            mainAndRemoteCityStr = mainCityStr + "," + remoteCityStr;
-        } else if (StringUtils.isNotBlank(mainCityStr) && StringUtils.isBlank(remoteCityStr)) {
-            mainAndRemoteCityStr = mainCityStr;
-        } else if (StringUtils.isBlank(mainCityStr) && StringUtils.isNotBlank(remoteCityStr)) {
-            mainAndRemoteCityStr = remoteCityStr;
-        } else {
-            mainAndRemoteCityStr = "";
-        }
-        return mainAndRemoteCityStr;
-    }
-
 
     /**
      * 根据城市获取分配队列信息

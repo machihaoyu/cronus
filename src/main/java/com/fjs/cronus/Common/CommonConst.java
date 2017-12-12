@@ -112,6 +112,8 @@ public class CommonConst {
     public static String UPDATE_PRDCUSTOMER_URL=SYSTEMNAME+"prdCustomer/update";
 
     public static String ALLOCATE_TO_NO_USER_POOL = "allocateToNoUserPool";
+
+    public static String CAN_ALLOCATE_CITY = "canAllocateCity";
     //业绩确认
     public static String CONFIRM_ACHIVEMENT_URL=SYSTEMNAME+"achievement/confirm";
 

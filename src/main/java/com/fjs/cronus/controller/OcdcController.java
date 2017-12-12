@@ -6,6 +6,7 @@ import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.crm.JSONData;
 import com.fjs.cronus.dto.crm.OcdcData;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
+import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.model.CustomerSalePushLog;
 import com.fjs.cronus.service.OcdcService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -87,9 +88,17 @@ public class OcdcController {
         return resultDto;
     }
 
-    public CronusDto serviceAllocate(@RequestBody CustomerDTO customerDTO){
+    @ApiOperation(value="客服推送", notes="客服推送客户信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customer", value = "JSON推送数据", required = true, paramType = "body", dataType = "String")
+    })
+    @RequestMapping(value = "/serviceAllocate", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto serviceAllocate(@RequestHeader("Authorization")String token, @RequestBody String customer){
         CronusDto resultDto = new CronusDto();
-//        ocdcService.addOcdcCustomer(customerDTO);
+        AllocateEntity allocateEntity = ocdcService.serviceAllocate(customer,token);
+        resultDto.setData(allocateEntity);
         return resultDto;
     }
 
