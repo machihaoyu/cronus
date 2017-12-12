@@ -1,5 +1,6 @@
 package com.fjs.cronus.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.CallbackLogDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
@@ -79,7 +80,7 @@ public class CallbackController {
         }
     }
 
-    @ApiOperation(value="打开回访页面", notes="打开回访页面")
+   /* @ApiOperation(value="打开回访页面", notes="打开回访页面")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int")
@@ -106,8 +107,8 @@ public class CallbackController {
         }
         return  cronusDto;
 
-    }
-    @ApiOperation(value="获取回访信息详情", notes="获取回访信息详情")
+    }*/
+   /* @ApiOperation(value="获取回访信息详情", notes="获取回访信息详情")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int")
@@ -130,8 +131,8 @@ public class CallbackController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
         return  cronusDto;
-    }
-    @ApiOperation(value="获取正常状态问题回访详情", notes="获取正常状态问题回访详情")
+    }*/
+   /* @ApiOperation(value="获取正常状态问题回访详情", notes="获取正常状态问题回访详情")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "id", value = "日志id", required = true, paramType = "query", dataType = "int")
@@ -154,8 +155,8 @@ public class CallbackController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
         return  cronusDto;
-    }
-    @ApiOperation(value="获取正常状态所有问题", notes="获取正常状态所有问题")
+    }*/
+    /*@ApiOperation(value="获取正常状态所有问题", notes="获取正常状态所有问题")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int")
@@ -179,21 +180,27 @@ public class CallbackController {
         }
         return  cronusDto;
     }
-
-    @ApiOperation(value="提交回访页面成功", notes="提交回访页面成功")
+*/
+    @ApiOperation(value="编辑回访信息接口", notes="编辑回访信息接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "callbackDTO", value = "", required = true, paramType = "body", dataType = "CallbackDTO")
+            @ApiImplicitParam(name = "jsonObject", value = "{'customerId':'客户id', 'callback_status';'回访状态','userId':'当前操作人id'}", required = true, paramType = "body", dataType = "JSONObject")
     })
     @RequestMapping(value = "/editCallbackOk", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto editCallbackOk(@RequestBody CallbackDTO callbackDTO, @RequestHeader("Authorization") String token){
+    public CronusDto editCallbackOk(@RequestBody JSONObject jsonObject, @RequestHeader("Authorization") String token){
         CronusDto cronusDto = new CronusDto();
-        if (callbackDTO.getCustomerId() == null){
+        Integer customerId = jsonObject.getInteger("customerId");
+        String callback_status = jsonObject.getString("callback_status");
+        Integer userId = jsonObject.getInteger("userId");
+        if (customerId == null){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        if (callback_status == null){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
         try {
-            cronusDto  = callbackService.editCallbackOk(callbackDTO,token);
+            cronusDto  = callbackService.editCallbackOk(customerId,callback_status,userId);
         } catch (Exception e) {
             logger.error("--------------->editCallbackOk提交失败", e);
             if (e instanceof CronusException) {

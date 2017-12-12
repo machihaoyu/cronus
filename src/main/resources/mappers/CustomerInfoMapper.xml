@@ -1255,7 +1255,7 @@
         from customer_info  c
         WHERE  c.is_deleted = 0
         <if test="customerName !=null and customerName !=''">
-            and (c.customer_name  like CONCAT('%', #{customerName},'%' )
+            and c.customer_name  like CONCAT('%', #{customerName},'%' )
         </if>
 
         <if test="utmSource != null and utmSource != '' ">
@@ -1283,7 +1283,7 @@
         from customer_info  c
         WHERE  c.is_deleted = 0
         <if test="customerName !=null and customerName !=''">
-            and (c.customer_name  like CONCAT('%', #{customerName},'%' )
+            and c.customer_name  like CONCAT('%', #{customerName},'%' )
         </if>
 
         <if test="utmSource != null and utmSource != '' ">

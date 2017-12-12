@@ -10,14 +10,8 @@ import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.cronus.CallbackLogDTO;
 import com.fjs.cronus.dto.uc.*;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.mappers.CallbackConfigMapper;
-import com.fjs.cronus.mappers.CallbackLogMapper;
-import com.fjs.cronus.mappers.CallbackPhoneLogMapper;
-import com.fjs.cronus.mappers.CustomerInfoMapper;
-import com.fjs.cronus.model.CallbackConfig;
-import com.fjs.cronus.model.CallbackLog;
-import com.fjs.cronus.model.CallbackPhoneLog;
-import com.fjs.cronus.model.CustomerInfo;
+import com.fjs.cronus.mappers.*;
+import com.fjs.cronus.model.*;
 import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.uc.LoaService;
 import com.fjs.cronus.service.uc.UcService;
@@ -40,7 +34,6 @@ import java.util.*;
 public class CallbackService {
 
 
-
     @Autowired
     CallbackPhoneLogMapper phoneLogMapper;
     @Autowired
@@ -57,7 +50,8 @@ public class CallbackService {
     CallbackPhoneLogMapper callbackPhoneLogMapper;
     @Autowired
     CallbackLogMapper callbackLogMapper;
-
+    @Autowired
+    CustomerInfoLogMapper customerInfoLogMapper;
     public QueryResult callbackCustomerList(String callback_start_time, String callback_end_time, String search_name,
                                             Integer type, String search_city, String search_telephone, String search_callback_status, Integer page, Integer size, Integer communication_order,
                                             Integer ownUserId,Integer isHaveOwn,Integer subCompanyId,String token){
@@ -117,7 +111,7 @@ public class CallbackService {
             //需要重新回访的,后去当前系统时间
             //从缓存中获取配置时间
            // Integer configTime = getConfigTime(type);
-            Integer configTime = null;
+            Integer configTime = 1;
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DAY_OF_YEAR,-configTime * 30);
             Date searchTime = cal.getTime();
@@ -126,7 +120,7 @@ public class CallbackService {
             paramsMap.put("communication_order",communication_order);
         }else if (communication_order == 3){
            // Integer configTime = getConfigTime(type);
-            Integer configTime = null;
+            Integer configTime = 2;
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DAY_OF_YEAR,-configTime * 30);
             Date searchTime = cal.getTime();
@@ -136,7 +130,7 @@ public class CallbackService {
         }else {
             //默认所有需要回访的
            // Integer configTime = getConfigTime(type);
-            Integer configTime = null;
+            Integer configTime = 3;
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DAY_OF_YEAR,-configTime * 30);
             Date searchTime = cal.getTime();
@@ -304,14 +298,12 @@ public class CallbackService {
     }
 
     @Transactional
-   public CronusDto  editCallbackOk(CallbackDTO callbackDTO,String token){
+   public CronusDto  editCallbackOk(Integer customerId,String callback_status,Integer userId){
+        boolean flag = false;
         CronusDto resultDto = new CronusDto();
         Date date = new Date();
         Map<String,Object> paramsMap = new HashMap<>();
-        if (StringUtils.isEmpty(callbackDTO.getCallbackStatus())){
-            throw new CronusException(CronusException.Type.CRM_CUSTOMCALLSTATUS_ERROR);
-        }
-        //获取当前登录用户的信息
+  /*      //获取当前登录用户的信息
         Integer user_id = ucService.getUserIdByToken(token);
         if (user_id == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
@@ -320,8 +312,8 @@ public class CallbackService {
         if (userDTO == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
-        //
-        //正常状态需回答完问题并生成callbacklog数据
+        //*/
+       /* //正常状态需回答完问题并生成callbacklog数据
         if (ResultResource.CUSTOMERSTATUS.equals(callbackDTO.getCallbackStatus())){
             boolean flag = true;
             //获取所有的问题
@@ -368,15 +360,25 @@ public class CallbackService {
         callbackPhoneLog.setIsDeleted(0);
         callbackPhoneLogMapper.addCallbackPhoneLog(callbackPhoneLog);
         //更新客户的回访时间
-        //根据id找到客户
-        paramsMap.put("id",callbackDTO.getCustomerId());
+        //根据id找到客户*/
+        paramsMap.put("id",customerId);
         CustomerInfo updatecustomerInfo = customerInfoMapper.findByFeild(paramsMap);
         //更改状态和时间、
-        updatecustomerInfo.setCallbackStatus(callbackDTO.getCallbackStatus());
+        updatecustomerInfo.setCallbackStatus(callback_status);
         updatecustomerInfo.setCallbackTime(date);
-        updatecustomerInfo.setLastUpdateUser(user_id);
+        updatecustomerInfo.setLastUpdateUser(userId);
         updatecustomerInfo.setLastUpdateTime(date);
         customerInfoMapper.updateCustomer(updatecustomerInfo);
+        //插入日志
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(updatecustomerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription("增加一条客户记录");
+        customerInfoLog.setLogUserId(userId);
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        flag = true;
+        resultDto.setData(flag);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         return resultDto;
