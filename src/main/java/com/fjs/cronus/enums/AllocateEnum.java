@@ -3,10 +3,10 @@ package com.fjs.cronus.enums;
 public enum AllocateEnum {
 
     PUBLIC("0","公盘"),
-
-    ALLOCATE_TO_OWNER("1", "分配到负责人"),
-
-    WAITING_POOL("2", "进入待分配池");
+    ALLOCATE_TO_OWNER("1", "自动分配队列"),
+    WAITING_POOL("2", "进入待分配池"),
+    EXIST_OWNER("3", "已存在负责人"),
+    TO_SERVICE_SYSTEM("4","推入客服系统");
 
 
     private String code;
