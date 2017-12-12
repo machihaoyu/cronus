@@ -1261,6 +1261,9 @@
         <if test="utmSource != null and utmSource != '' ">
             and c.utm_source = #{utmSource}
         </if>
+        <if test="customerSource != null and utmSource != '' ">
+            and c.customer_source = #{customerSource}
+        </if>
         <if test="autostatus != null and autostatus != '' ">
             and c.autostatus = #{autostatus}
         </if>
@@ -1291,6 +1294,9 @@
         </if>
         <if test="autostatus != null and autostatus != '' ">
             and c.autostatus = #{autostatus}
+        </if>
+        <if test="customerSource != null and utmSource != '' ">
+            and c.customer_source = #{customerSource}
         </if>
         <if test="level != null and level != '' ">
             and c.level = #{level}
