@@ -35,7 +35,9 @@ public interface TheaService {
     @RequestMapping(value = "/loan/v1/changeStatusByCustomerId", method = RequestMethod.POST)
     public TheaApiDTO changeStatusByCustomerId(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject);
 
-    @RequestMapping(value = "/mail/v1/sendSms", method = RequestMethod.POST)
-    TheaApiDTO<LoanDTO> sendMail(@RequestHeader("Authorization") String token,@RequestBody MailDTO mailDTO);
+    @RequestMapping(value = "/mail/v1/sendMail", method = RequestMethod.POST)
+    TheaApiDTO<String> sendMail(@RequestHeader("Authorization") String token,@RequestBody MailDTO mailDTO);
+
+
 
 }
