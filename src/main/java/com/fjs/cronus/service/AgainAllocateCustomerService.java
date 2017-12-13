@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,5 +39,14 @@ public class AgainAllocateCustomerService {
      */
     public Integer addAgainAllocateCustomer(AgainAllocateCustomer againAllocateCustomer){
         return againAllocateCustomerMapper.addAgainAllocateCustomer(againAllocateCustomer);
+    }
+
+    /**
+     * 获取分配池中未分配的客户
+     * @return
+     */
+    public List<AgainAllocateCustomer> getNonAllocateCustomer()
+    {
+        return againAllocateCustomerMapper.getNonAllocateCustomer();
     }
 }
