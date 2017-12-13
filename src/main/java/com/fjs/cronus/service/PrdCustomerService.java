@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 
+import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.AddPrdCustomerDTO;
@@ -132,14 +133,8 @@ public class PrdCustomerService {
                 //m没有负责人更新time
                 //开始gengxin
                 copyPropertyToCustomer(prdCustomer,userInfoDTO,customerInfo);
-                customerInfo.setCompanyId(Integer.valueOf(userInfoDTO.getCompany_id()));
-                customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
-                customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
-                customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
                 customerInfo.setOwnUserId(Integer.valueOf(userInfoDTO.getUser_id()));
                 customerInfo.setOwnUserName(userInfoDTO.getName());
-                customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
-                customerInfo.setLastUpdateTime(date);
                 customerInfoMapper.updateCustomer(customerInfo);
                 //log
                 customerInfoService.insertLog(customerInfo, Integer.valueOf(userInfoDTO.getUser_id()));
@@ -147,10 +142,6 @@ public class PrdCustomerService {
                  //新插入一条
                 CustomerInfo customerInfo1 = new CustomerInfo();
                 copyPropertyToCustomer(prdCustomer,userInfoDTO,customerInfo1);
-                customerInfo1.setCompanyId(Integer.valueOf(userInfoDTO.getCompany_id()));
-                customerInfo1.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
-                customerInfo1.setRemain(CommonConst.REMAIN_STATUS_NO);
-                customerInfo1.setConfirm(CommonConst.CONFIRM__STATUS_NO);
                 customerInfo1.setOwnUserId(Integer.valueOf(userInfoDTO.getUser_id()));
                 customerInfo1.setOwnUserName(userInfoDTO.getName());
                 customerInfo1.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
@@ -258,6 +249,7 @@ public class PrdCustomerService {
         customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
         customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
         customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
+        customerInfo.setCustomerType(ResultResource.CUSTOMERTYPE);
         customerInfo.setIsDeleted(0);
     }
 

@@ -355,8 +355,8 @@ public class CustomerController {
     @ApiOperation(value="判断客户的附件上传情况", notes="判断客户的附件上传情况")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "productType", value = "产品类型1：信用，2：抵押，3：赎楼", required = true, paramType = "query", dataType = "String")
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "productType", value = "产品类型1：信用，2：抵押，3：赎楼", required = true, paramType = "query", dataType = "int")
     })
     @RequestMapping(value = "/validDocumentToContract", method = RequestMethod.GET)
     @ResponseBody

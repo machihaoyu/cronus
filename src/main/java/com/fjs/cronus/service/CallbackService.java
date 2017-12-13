@@ -35,8 +35,6 @@ public class CallbackService {
 
 
     @Autowired
-    CallbackPhoneLogMapper phoneLogMapper;
-    @Autowired
     CronusRedisService cronusRedisService;
     @Autowired
     CallbackConfigMapper callbackConfigMapper;
@@ -54,6 +52,8 @@ public class CallbackService {
     CustomerInfoLogMapper customerInfoLogMapper;
     @Autowired
     CustomerSalePushLogMapper customerSalePushLogMapper;
+    @Autowired
+    CustomerInfoService customerInfoService;
     public QueryResult callbackCustomerList(String callback_start_time, String callback_end_time, String search_name,
                                             Integer type, String search_city, String search_telephone, String search_callback_status, Integer page, Integer size, Integer communication_order,
                                             Integer ownUserId,Integer isHaveOwn,Integer subCompanyId,String token){
@@ -487,21 +487,21 @@ public class CallbackService {
         return  dto;
     }
 
-    public QueryResult<CallbackDTO> repeatcustomerList(String telephonenumber,String repeat_start_time,String repeat_end_time,String customer_name,
+    public QueryResult<RepeatCustomerDTO> repeatcustomerList(String telephonenumber,String repeat_start_time,String repeat_end_time,String customer_name,
                                                        Integer repeat_callback_status,Integer page,Integer size){
-        QueryResult<CallbackDTO> resultDto = new QueryResult<>();
-        List<CallbackDTO> callbackDTOS = new ArrayList<>();
+        QueryResult<RepeatCustomerDTO> resultDto = new QueryResult<>();
+        List<RepeatCustomerDTO> callbackDTOS = new ArrayList<>();
         Map<String,Object> paramsMap = new HashMap<>();
         List<String> telephoneList = new ArrayList<>();
         if (!StringUtils.isEmpty(telephonenumber)){
             paramsMap.put("telephonenumber",telephonenumber);
         }
         if (!StringUtils.isEmpty(repeat_start_time)){
-            Date startDate = DateUtils.parse(repeat_start_time,DateUtils.FORMAT_LONG);
+            Date startDate = DateUtils.parse(repeat_start_time,DateUtils.FORMAT_SHORT);
             paramsMap.put("repeat_start_time",startDate);
         }
         if (!StringUtils.isEmpty(repeat_end_time)){
-            Date endtDate = DateUtils.parse(repeat_end_time,DateUtils.FORMAT_LONG);
+            Date endtDate = DateUtils.parse(repeat_end_time,DateUtils.FORMAT_SHORT);
             paramsMap.put("repeat_end_time",endtDate);
         }
         if (!StringUtils.isEmpty(customer_name)){
@@ -515,21 +515,94 @@ public class CallbackService {
         //开始拼装语句
         List<RepeatCustomerSaleDTO> customerList = customerSalePushLogMapper.repeatcustomerList(paramsMap);
         Integer count = customerSalePushLogMapper.repeatcustomerListConut(paramsMap);
+        Map<String,RepeatParamDTO> repeatParamDTOMap = new HashMap<>();
         if (customerList != null && customerList.size() > 0){
             //循环
             for (RepeatCustomerSaleDTO  repeatCustomerSaleDTO : customerList) {
                 if (repeatCustomerSaleDTO.getTelephonenumber() != null) {
-                    telephoneList.add(repeatCustomerSaleDTO.getTelephonenumber());
+                    //加密
+                    telephoneList.add(DEC3Util.des3EncodeCBC(repeatCustomerSaleDTO.getTelephonenumber()));
                     //存储一个key value的参数
+                    RepeatParamDTO repeatParamDTO = new RepeatParamDTO();
+                    repeatParamDTO.setReat_num(repeatCustomerSaleDTO.getReat_num());
+                    repeatParamDTO.setRepeat_callback_time(repeatCustomerSaleDTO.getRepeat_callback_time());
+                    repeatParamDTOMap.put(repeatCustomerSaleDTO.getTelephonenumber(),repeatParamDTO);
                 }
             }
         }
+        if (telephoneList != null && telephoneList.size() > 0){
+            //开始查询
+            Map<String,Object> params = new HashMap<>();
+            params.put("telephoneList",telephoneList);
+            List<CustomerInfo>  customerInfoList = customerInfoMapper.findCustomerListByFeild(params);
+            if (customerInfoList != null && customerInfoList.size() > 0){
+                for (CustomerInfo customerInfo : customerInfoList) {
+                    RepeatCustomerDTO repeatCustomerDTO = new RepeatCustomerDTO();
+                    repeatCustomerDTO.setCity(customerInfo.getCity());
+                    repeatCustomerDTO.setUtmSource(customerInfo.getUtmSource());
+                    repeatCustomerDTO.setCreateTime(customerInfo.getCreateTime());
+                    repeatCustomerDTO.setCustomerName(customerInfo.getCustomerName());
+                    repeatCustomerDTO.setCustomerSource(customerInfo.getCustomerSource());
+                    repeatCustomerDTO.setHouseStatus(customerInfo.getHouseStatus());
+                    repeatCustomerDTO.setId(customerInfo.getId());
+                    repeatCustomerDTO.setLoanAmount(customerInfo.getLoanAmount());
+                    repeatCustomerDTO.setOwnUserName(customerInfo.getOwnUserName());
+                    String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+                    repeatCustomerDTO.setTelephonenumber(telephone);
+                    RepeatParamDTO repeatParamDTO= repeatParamDTOMap.get(telephone);
+                    repeatCustomerDTO.setReat_num(repeatParamDTO.getReat_num());
+                    repeatCustomerDTO.setRepeat_callback_time(repeatParamDTO.getRepeat_callback_time());
+                    callbackDTOS.add(repeatCustomerDTO);
 
-
-
-
-
-
+                }
+            }
+            params.clear();
+        }
+        resultDto.setTotal(count.toString());
+        resultDto.setRows(callbackDTOS);
         return  resultDto;
     }
+    public List<RepeatChildDTO> getchildInfo(Integer customerId){
+        List<RepeatChildDTO> repeatChildDTOS = new ArrayList<>();
+        Map<String,Object> parmasMap = new HashMap<>();
+        CustomerInfo customerInfo = customerInfoService.findCustomerById(customerId);
+        if (customerInfo == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        //查询客户推送日志记录
+        String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+        //查询信息
+        parmasMap.put("telephone",telephone);
+        List<CustomerSalePushLog> customerSalePushLogs = customerSalePushLogMapper.findByFeild(parmasMap);
+        if (customerSalePushLogs != null && customerSalePushLogs.size() > 0){
+            for (CustomerSalePushLog customerSalePushLog : customerSalePushLogs){
+                RepeatChildDTO repeatChildDTO = new RepeatChildDTO();
+                repeatChildDTO.setCity(customerSalePushLog.getCity());
+                repeatChildDTO.setCreateTime(customerSalePushLog.getCreateTime());
+                repeatChildDTO.setCustomerName(customerSalePushLog.getCustomerName());
+                repeatChildDTO.setCustomerSource(customerSalePushLog.getCustomerSource());
+                repeatChildDTO.setCity(customerSalePushLog.getCity());
+                repeatChildDTO.setId(customerSalePushLog.getId());
+                repeatChildDTO.setLoanAmount(customerSalePushLog.getLoanAmount());
+                repeatChildDTO.setUtmSource(customerSalePushLog.getUtmSource());
+                //兼容老的数据库中housestatus字段
+                if (StringUtils.isEmpty(customerSalePushLog.getHouseStatus())){
+                    String str = customerSalePushLog.getExt();
+                    //转json
+                    JSONObject jsonObject = JSONObject.parseObject(str);
+                    String hosestatus=jsonObject.getString("house_status");
+                    repeatChildDTO.setHouseStatus(hosestatus);
+                }else {
+
+                    repeatChildDTO.setHouseStatus(customerSalePushLog.getHouseStatus());
+                }
+                repeatChildDTOS.add(repeatChildDTO);
+            }
+
+        }
+        return  repeatChildDTOS;
+    }
+
+
+
 }

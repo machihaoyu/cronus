@@ -53,8 +53,8 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getRemain())){
             dto.setRemain(customerInfo.getRemain());
         }
-        if (!StringUtils.isEmpty(customerInfo.getLevel())){
-            dto.setLevel(customerInfo.getLevel());
+        if (!StringUtils.isEmpty(customerInfo.getCustomerType())){
+            dto.setLevel(customerInfo.getCustomerType());
         }
         if (!StringUtils.isEmpty(customerInfo.getLastUpdateTime())){
             dto.setLast_update_time(customerInfo.getLastUpdateTime());

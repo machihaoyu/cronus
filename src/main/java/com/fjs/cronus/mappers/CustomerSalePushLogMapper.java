@@ -16,4 +16,6 @@ public interface CustomerSalePushLogMapper {
     public List<RepeatCustomerSaleDTO> repeatcustomerList(Map<String,Object> paramsMap);
 
     public Integer repeatcustomerListConut(Map<String,Object> paramsMap);
+
+    public List<CustomerSalePushLog> findByFeild(Map<String,Object> paramsMap);
 }
