@@ -85,11 +85,7 @@ public class CommonConst {
 
     public static String OBJECT_NULL ="无对应的记录";
 
-    //重复客户不走自动分配的客户手机分类
-    public static String CAN_NOT_ALLOCATE_CUSTOMER_CLASSIFY = "CanNotAllocateCustomerClassify";
 
-    //客户在设定的时间段内重复申请不进入系统(单位秒)
-    public static String R_CUSTOMER_CANNOT_INTO_SALE_TIME = "RCustomerCannotIntoSaleTime";
 
     public static String NO_AUTHORIZE = "没有权限";
     public static String NO_AUTHORIZE_COMMUNICATE = "没有权限,只有本人才能添加沟通";
@@ -111,9 +107,18 @@ public class CommonConst {
     public static String UPDATE_PULL_CUSTOMER_URL=SYSTEMNAME+"pullCustomer/update";
     public static String UPDATE_PRDCUSTOMER_URL=SYSTEMNAME+"prdCustomer/update";
 
+    //系统配置 Start
+
+    //重复客户不走自动分配的客户手机分类
+    public static String CAN_NOT_ALLOCATE_CUSTOMER_CLASSIFY = "CanNotAllocateCustomerClassify";
+    //客户在设定的时间段内重复申请不进入系统(单位秒)
+    public static String R_CUSTOMER_CANNOT_INTO_SALE_TIME = "RCustomerCannotIntoSaleTime";
     public static String ALLOCATE_TO_NO_USER_POOL = "allocateToNoUserPool";
 
+    public static String ACTIVE_APPLICATION_CHANNEL = "activeApplicationChannel";
     public static String CAN_ALLOCATE_CITY = "canAllocateCity";
+
+    //系统配置end
     //业绩确认
     public static String CONFIRM_ACHIVEMENT_URL=SYSTEMNAME+"achievement/confirm";
 

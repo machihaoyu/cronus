@@ -429,7 +429,7 @@ public class OcdcService {
      * @return
      */
     public Boolean isThreeNonCustomer(CustomerSalePushLog customerSalePushLog) {
-        String configValue = theaService.getConfigByName("CanNotAllocateCustomerClassify").getData();
+        String configValue = theaService.getConfigByName(CommonConst.CAN_NOT_ALLOCATE_CUSTOMER_CLASSIFY).getData();
         if (StringUtils.isNotEmpty(configValue) && configValue.contains(customerSalePushLog.getCustomerClassify()))
             return true;
         else
@@ -443,70 +443,11 @@ public class OcdcService {
      * @return
      */
     public Boolean isActiveApplicationChannel(CustomerSalePushLog customerSalePushLog) {
-        String activeApplicationChannel = theaService.getConfigByName("activeApplicationChannel").getData();
+        String activeApplicationChannel = theaService.getConfigByName(CommonConst.ACTIVE_APPLICATION_CHANNEL).getData();
         if (StringUtils.isNotEmpty(activeApplicationChannel) && activeApplicationChannel.contains(customerSalePushLog.getUtmSource()))
             return true;
         else
             return false;
-    }
-
-    /**
-     * 判断有无负责人
-     *
-     * @param customerSalePushLog
-     * @return
-     */
-    public Boolean hasOwnerUser(CustomerSalePushLog customerSalePushLog) {
-        if (customerSalePushLog != null && customerSalePushLog.getOwnerUserId() != null && customerSalePushLog.getOwnerUserId() > 0) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 渠道是不是属于直接进公盘渠道
-     *
-     * @return
-     */
-    public boolean isPublicOffer(CustomerSalePushLog customerSalePushLog) {
-        String activeApplicationChannel = theaService.getConfigByName("allocateToNoUserPool").getData();
-        if (activeApplicationChannel.contains(customerSalePushLog.getUtmSource()))
-            return true;
-        else
-            return false;
-    }
-
-    /**
-     * 判断是不是分配城市
-     *
-     * @return
-     */
-    public boolean isDistributeCity(CustomerSalePushLog customerSalePushLog) {
-        String activeApplicationChannel = theaService.getConfigByName("canAllocateCity").getData();
-        if (activeApplicationChannel.contains(customerSalePushLog.getCity()))
-            return true;
-        else
-            return false;
-    }
-
-    /**
-     * 判断是不是客服推送过来的
-     *
-     * @return
-     */
-    public boolean isCustomerServicePush(CustomerSalePushLog customerSalePushLog) {
-        if (customerSalePushLog.getLaiyuan() != null && customerSalePushLog.getLaiyuan().equals(1))
-            return true;
-        else return false;
-    }
-
-    /**
-     * 判断是不是待分配推送
-     *
-     * @return
-     */
-    public boolean isPendingPush() {
-        return false;
     }
 
     /**
@@ -515,7 +456,7 @@ public class OcdcService {
      * @return
      */
     public boolean isRepeatPushInTime(CustomerSalePushLog customerSalePushLog) {
-        String configValue = theaService.getConfigByName("RCustomerCannotIntoSaleTime").getData();//CanNotAllocateCustomerClassify
+        String configValue = theaService.getConfigByName(CommonConst.R_CUSTOMER_CANNOT_INTO_SALE_TIME).getData();
         //时间小于配置中的推送时间间隔
         if ((System.currentTimeMillis() - customerSalePushLog.getCreateTime().getTime())
                 <= Integer.valueOf(configValue) * 1000) {
