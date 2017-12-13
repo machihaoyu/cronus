@@ -6,7 +6,6 @@ import java.util.Date;
  * 消息
  */
 public class MailDTO {
-
     private static final long serialVersionUID = 1L;
 
     private Integer id;
@@ -31,9 +30,13 @@ public class MailDTO {
 
     private Integer createUser;
 
-    private Integer lastUpdateUser;
+    public Integer getCreateUser() {
+        return createUser;
+    }
 
-    private Integer isDeleted;
+    public void setCreateUser(Integer createUser) {
+        this.createUser = createUser;
+    }
 
     public Integer getId() {
         return id;
@@ -115,46 +118,5 @@ public class MailDTO {
         this.lastUpdateTime = lastUpdateTime;
     }
 
-    public Integer getCreateUser() {
-        return createUser;
-    }
 
-    public void setCreateUser(Integer createUser) {
-        this.createUser = createUser;
-    }
-
-    public Integer getLastUpdateUser() {
-        return lastUpdateUser;
-    }
-
-    public void setLastUpdateUser(Integer lastUpdateUser) {
-        this.lastUpdateUser = lastUpdateUser;
-    }
-
-    public Integer getIsDeleted() {
-        return isDeleted;
-    }
-
-    public void setIsDeleted(Integer isDeleted) {
-        this.isDeleted = isDeleted;
-    }
-
-    @Override
-    public String toString() {
-        return "Mail{" +
-                "id=" + id +
-                ", fromId=" + fromId +
-                ", fromName='" + fromName + '\'' +
-                ", toId=" + toId +
-                ", content='" + content + '\'' +
-                ", status='" + status + '\'' +
-                ", noticeTime=" + noticeTime +
-                ", isNotice=" + isNotice +
-                ", createTime=" + createTime +
-                ", lastUpdateTime=" + lastUpdateTime +
-                ", createUser=" + createUser +
-                ", lastUpdateUser='" + lastUpdateUser + '\'' +
-                ", isDeleted=" + isDeleted +
-                '}';
-    }
 }

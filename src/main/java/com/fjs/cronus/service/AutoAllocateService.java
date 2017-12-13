@@ -21,6 +21,7 @@ import com.fjs.cronus.model.UserMonthInfo;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
+import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
@@ -64,7 +65,7 @@ public class AutoAllocateService {
     private CustomerInfoService customerInfoService;
 
     @Autowired
-    private TheaService theaService;
+    private TheaClientService theaClientService;
 
 //    @Autowired
 //    private LoanLogService loanLogService;
@@ -82,7 +83,7 @@ public class AutoAllocateService {
      * @return
      */
     public Boolean isActiveApplicationChannel(CustomerDTO customerDTO) {
-        String activeApplicationChannel = theaService.getConfigByName("activeApplicationChannel").getData();
+        String activeApplicationChannel = theaClientService.getConfigByName(CommonConst.ACTIVE_APPLICATION_CHANNEL);
         if (activeApplicationChannel != null && activeApplicationChannel.contains(customerDTO.getUtmSource()))
             return true;
         else
@@ -95,7 +96,7 @@ public class AutoAllocateService {
         allocateEntity.setSuccess(true);
         try {
             //获取自动分配的城市
-            String allocateCities = theaService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY).getData();
+            String allocateCities = theaClientService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY);
 
             UserInfoDTO ownerUser = getOwnerUser(customerDTO, token); //获取负责人
 
@@ -153,7 +154,7 @@ public class AutoAllocateService {
                     //customerDTO.se(new Date()); //todo customerDTO 无领取时间 `receive_time`
                     customerDTO.setLastUpdateTime(new Date());
 //                    if (1 == autoStatus) { //是自动分配的
-                        //重复申请,无论有效无效,直接变成未沟通
+                    //重复申请,无论有效无效,直接变成未沟通
 //                        customerDTO.setst(CommonEnum.LOAN_STATUE_1.getCode());
 //                        customerDTO.setClickCommunicateButton(CommonEnum.NO.getCode());
 //                        customerDTO.setCommunicateTime(null);
@@ -170,7 +171,7 @@ public class AutoAllocateService {
                         case "1":
                         case "3":
                             //先注销之后重新获取
-                            addCustomer(customerDTO,token);
+                            addCustomer(customerDTO, token);
                             break;
                     }
                 }
@@ -197,7 +198,7 @@ public class AutoAllocateService {
                     allocateLogService.addAllocatelog(customerInfo, customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode(), null);
                     activeChannelAddTansaction(customerDTO);
-                    sendMessage(customerDTO,token);
+                    sendMessage(customerDTO, token);
                     break;
                 case "2":
                     break;
@@ -208,7 +209,7 @@ public class AutoAllocateService {
                     allocateLogService.addAllocatelog(customerInfot, customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_5.getCode(), null);
                     activeChannelAddTansaction(customerDTO);
-                    sendMessage(customerDTO,token);
+                    sendMessage(customerDTO, token);
                     break;
             }
 
@@ -219,8 +220,7 @@ public class AutoAllocateService {
         return allocateEntity;
     }
 
-    private void addCustomer(CustomerDTO customerDTO,String token)
-    {
+    private void addCustomer(CustomerDTO customerDTO, String token) {
         SimpleUserInfoDTO simpleUserInfoDTO;
         if (customerDTO.getOwnerUserId() != null && customerDTO.getOwnerUserId() > 0) {
             simpleUserInfoDTO = thorUcService.getUserInfoById(token, customerDTO.getOwnerUserId()).getData();
@@ -237,29 +237,27 @@ public class AutoAllocateService {
 
     /**
      * 主动申请渠道添加交易
+     *
      * @param customerDTO
      */
-    private void activeChannelAddTansaction(CustomerDTO customerDTO)
-    {
+    private void activeChannelAddTansaction(CustomerDTO customerDTO) {
         if (isActiveApplicationChannel(customerDTO)) {
             LoanDTO loanDTO = new LoanDTO();
             loanDTO.setTelephonenumber(customerDTO.getTelephonenumber());
             loanDTO.setLoanAmount(customerDTO.getLoanAmount());
             loanDTO.setCustomerId(customerDTO.getId());
             loanDTO.setCustomerName(customerDTO.getCustomerName());
-            theaService.inserLoan(loanDTO);
+            theaClientService.inserLoan(loanDTO);
         }
     }
 
-    private void sendMessage(CustomerDTO customerDTO,String token)
-    {
-        MailDTO mailDTO = new MailDTO();
-        mailDTO.setContent("房金所为您分配了客户名：" + customerDTO.getCustomerName() + "，请注意跟进。");
-        mailDTO.setCreateUser(0);
-        mailDTO.setFromId(0);
-        mailDTO.setFromName("系统");
-        mailDTO.setToId(customerDTO.getOwnerUserId());
-        theaService.sendMail(token, mailDTO);
+    private void sendMessage(CustomerDTO customerDTO, String token) {
+        theaClientService.sendMail(token,
+                "房金所为您分配了客户名：" + customerDTO.getCustomerName() + "，请注意跟进。",
+                0,
+                0,
+                "系统管理员",
+                customerDTO.getOwnerUserId());
     }
 
     private UserInfoDTO getOwnerUser(CustomerDTO customerDTO, String token) {
@@ -320,7 +318,7 @@ public class AutoAllocateService {
         boolean allocateToPublic = false;
         //获取配置中不走自动分配的渠道
 //            String allocateToNoUserPool = "";
-        String allocateToNoUserPool = theaService.getConfigByName(CommonConst.ALLOCATE_TO_NO_USER_POOL).getData();
+        String allocateToNoUserPool = theaClientService.getConfigByName(CommonConst.ALLOCATE_TO_NO_USER_POOL);
 
         //判断该推送客户是否在限制渠道中/进公盘
         String[] utmSourceStrArray;
