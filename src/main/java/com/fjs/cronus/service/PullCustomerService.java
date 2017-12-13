@@ -350,6 +350,7 @@ public class PullCustomerService {
         customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
         customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
         customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
+        customerInfo.setCustomerType(ResultResource.CUSTOMERTYPE);
         customerInfoMapper.insertCustomer(customerInfo);
         //插入日志
         //生成日志记录

@@ -114,9 +114,9 @@
             )
         </foreach>
     </insert>
-    <select id="repeatcustomerList"  parameterType="java.util.Map" resultType="java.util.Map">
+    <select id="repeatcustomerList"  parameterType="java.util.Map" resultType="com.fjs.cronus.dto.cronus.RepeatCustomerSaleDTO">
       SELECT
-        <include refid="base_column" />
+        telephonenumber ,repeat_callback_time
         ,COUNT(0) AS reat_num FROM customer_sale_push_log WHERE 1 = 1
         <if test="telephonenumber != null and telephonenumber !=''">
             and telephonenumber = #{telephonenumber}
@@ -134,7 +134,7 @@
                 </when>
             </choose>
         </if>
-        <if test="createTimeBegin != null and createTimeEnd !=null ">
+        <if test="repeat_start_time != null and repeat_end_time !=null ">
             and date(create_time) between #{repeat_start_time} and #{repeat_end_time}
         </if>
         GROUP BY telephonenumber
@@ -143,7 +143,7 @@
     </select>
 
     <select id="repeatcustomerListConut"  parameterType="java.util.Map" resultType="java.lang.Integer">
-        SELECT count(*)  FROM(SELECT telephonenumber,repeat_callback_time,COUNT(0) AS reat_num FROM customer_sale_push_log WHERE 1 = 1
+        SELECT count(*)  FROM(SELECT COUNT(0) AS reat_num FROM customer_sale_push_log WHERE 1 = 1
         <if test="telephonenumber != null and telephonenumber !=''">
             and telephonenumber = #{telephonenumber}
         </if>
@@ -160,11 +160,20 @@
                 </when>
             </choose>
         </if>
-        <if test="createTimeBegin != null and createTimeEnd !=null ">
+        <if test="repeat_start_time != null and repeat_end_time !=null ">
             and date(create_time) between #{repeat_start_time} and #{repeat_end_time}
         </if>
         GROUP BY telephonenumber
         HAVING reat_num>1) a
     </select>
+    <select id="findByFeild " parameterType="java.util.Map" resultMap="BaseResultMap">
 
+     SELECT
+        <include refid="base_column"/>
+        FROM  customer_sale_push_log where 1 = 1
+        <if test="telephone != null and telephone != ''">
+            telephonenumber =#{telephone}
+        </if>
+
+    </select>
 </mapper>

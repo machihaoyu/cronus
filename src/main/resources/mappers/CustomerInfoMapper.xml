@@ -140,7 +140,7 @@
           and c.remain = #{remain}
       </if>
       <if test="level != null ">
-          and c.level = #{level}
+          and c.customer_type = #{level}
       </if>
       <if test="owerId!=null and owerId.size>0">
           AND c.own_user_id in
@@ -190,7 +190,7 @@
           and c.remain = #{remain}
       </if>
       <if test="level != null ">
-          and c.level = #{level}
+          and c.customer_type = #{level}
       </if>
       <if test="owerId!=null and owerId.size>0">
           AND c.own_user_id in
@@ -799,7 +799,13 @@
               ${owerId}
           </foreach>
       </if>
-
+      <if test="telephoneList!=null and telephoneList.size>0">
+          AND  c.telephonenumber IN
+      <foreach item="item" index="index" collection="telephoneList" open="("
+               separator="," close=")">
+          #{item}
+      </foreach>
+      </if>
   </select>
     <select id="findCustomerByOtherCity" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
         select
@@ -1268,7 +1274,7 @@
             and c.autostatus = #{autostatus}
         </if>
         <if test="level != null and level != '' ">
-            and c.level = #{level}
+            and c.customer_type = #{level}
         </if>
         <if test="telephonenumber != null and telephonenumber != '' ">
             and c.telephonenumber = #{telephonenumber}
@@ -1302,7 +1308,7 @@
             and c.customer_source = #{customerSource}
         </if>
         <if test="level != null and level != '' ">
-            and c.level = #{level}
+            and c.customer_type = #{level}
         </if>
         <if test="telephonenumber != null and telephonenumber != '' ">
             and c.telephonenumber = #{telephonenumber}
@@ -1332,7 +1338,7 @@
             and c.telephonenumber = #{telephonenumber}
         </if>
         <if test="level != null and level != '' ">
-            and c.level = #{level}
+            and c.customer_type = #{level}
         </if>
         <choose>
             <when test="order != null and order !=''">
@@ -1361,7 +1367,7 @@
             and c.autostatus = #{autostatus}
         </if>
         <if test="level != null and level != '' ">
-            and c.level = #{level}
+            and c.customer_type = #{level}
         </if>
         <if test="telephonenumber != null and telephonenumber != '' ">
             and c.telephonenumber = #{telephonenumber}
