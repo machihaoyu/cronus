@@ -1,19 +1,14 @@
 package com.fjs.cronus.service;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
-import com.fjs.cronus.api.thea.ConfigDTO;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.crm.OcdcData;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
-import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
@@ -21,29 +16,20 @@ import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.AgainAllocateCustomer;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerSalePushLog;
-import com.fjs.cronus.service.client.TheaService;
+import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.util.DEC3Util;
-import com.fjs.cronus.util.EntityToDto;
 import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -61,8 +47,11 @@ public class OcdcService {
     @Autowired
     private AgainAllocateCustomerService againAllocateCustomerService;
 
+//    @Autowired
+//    private TheaService theaService;
+
     @Autowired
-    private TheaService theaService;
+    private TheaClientService theaClientService;
 
     @Autowired
     private CustomerSalePushLogService customerSalePushLogService;
@@ -80,9 +69,11 @@ public class OcdcService {
     @Autowired
     private CustomerInfoService customerInfoService;
 
-    public List<String> addOcdcCustomerNew(OcdcData ocdcData, String token) {
+    public void addOcdcCustomerNew(OcdcData ocdcData, String token) {
 
+        CronusDto resultDto = new CronusDto();
         List<String> successlist = new ArrayList<>();
+        List<String> failList = new ArrayList<>();
         //遍历OCDC数据信息
         List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<CustomerSalePushLog>();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -109,10 +100,9 @@ public class OcdcService {
                             if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0) {
                                 //自动分配
                                 allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC, token);
-                            }
-                            //有负责人分给对应的业务员
-                            else {
-                                queryLoanListByOcdcPushData(customerSalePushLog);
+                            } else {//有负责人分给对应的业务员
+                                sendMail(token, customerDTO);
+                                createLoan(customerSalePushLog);
                             }
                         }
                         //是不是三无客户
@@ -126,6 +116,7 @@ public class OcdcService {
                                     allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC, token);
                                 } else {
                                     //发消息业务员，提醒跟进
+                                    sendMail(token, customerDTO);
                                 }
                             }
                         }
@@ -148,11 +139,14 @@ public class OcdcService {
                                 againAllocateCustomer.setUpdataTime(new Date());
                                 againAllocateCustomerService.addAgainAllocateCustomer(againAllocateCustomer);
                                 break;
+                            case "4":
+                                pushServiceSystem(map);
+                                break;
                         }
                     }
                     successlist.add(customerSalePushLog.getOcdcId().toString());
                 } catch (RuntimeException E) {
-
+                    failList.add(customerSalePushLog.getOcdcId().toString());
                 }
                 customerSalePushLogList.add(customerSalePushLog);
             }
@@ -160,7 +154,13 @@ public class OcdcService {
         }
         //保存OCDC推送日志
         customerSalePushLogService.insertList(customerSalePushLogList);
-        return successlist;
+        autoAllocateFeedback(successlist,failList);
+    }
+
+    private void sendMail(String token, CustomerDTO customerDTO) {
+        theaClientService.sendMail(token,
+                "客户姓名:" + customerDTO.getCustomerName() + ",客户电话:" + customerDTO.getTelephonenumber() + "，重复申请，请注意跟进；",
+                0, 0, "系统管理员", customerDTO.getOwnerUserId());
     }
 
     /**
@@ -168,19 +168,45 @@ public class OcdcService {
      *
      * @param
      */
-    public AllocateEntity serviceAllocate(String servicedData, String token) {
-
-        AllocateEntity allocateEntity = new AllocateEntity();
+    public void serviceAllocate(String servicedData, String token) {
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         try {
             JsonNode node = objectMapper.readValue(servicedData, JsonNode.class);
             CustomerSalePushLog customerSalePushLog = this.queryCustomerSalePushLogByOcdcPushData(node);
-            if (customerSalePushLog.getTelephonenumber()!=null && customerSalePushLog.getTelephonenumber().length() > 0) {
+            if (customerSalePushLog.getTelephonenumber() != null && customerSalePushLog.getTelephonenumber().length() > 0) {
                 CustomerDTO customerDTO = new CustomerDTO();
                 BeanUtils.copyProperties(customerSalePushLog, customerDTO);
-                allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.SERVICES, token);
+                autoAllocateService.autoAllocate(customerDTO, AllocateSource.SERVICES, token);
+            }
+        } catch (Exception e) {
+        }
+
+    }
+
+    /**
+     * 待分配池定时分配
+     */
+    //@Scheduled()
+    public AllocateEntity waitingPoolAllocate() {
+
+        String token = "";
+        AllocateEntity allocateEntity = new AllocateEntity();
+        List<AgainAllocateCustomer> list = againAllocateCustomerService.getNonAllocateCustomer();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        try {
+            for (AgainAllocateCustomer againCustomer :
+                    list) {
+                JsonNode node = objectMapper.readValue(againCustomer.getJsonData(), JsonNode.class);
+                CustomerSalePushLog customerSalePushLog = this.queryCustomerSalePushLogByOcdcPushData(node);
+                if (customerSalePushLog.getTelephonenumber() != null && customerSalePushLog.getTelephonenumber().length() > 0) {
+                    CustomerDTO customerDTO = new CustomerDTO();
+                    BeanUtils.copyProperties(customerSalePushLog, customerDTO);
+                    allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.WAITING, token);
+                }
             }
         } catch (Exception e) {
             allocateEntity.setSuccess(false);
@@ -188,17 +214,6 @@ public class OcdcService {
 
         return allocateEntity;
     }
-
-    /**
-     * 待分配池定时分配
-     */
-    //@Scheduled()
-    public void waitingPoolAllocate() {
-
-//        AllocateEntity allocateEntity = new AllocateEntity();
-//        allocateEntity = autoAllocateService.autoAllocate(null, AllocateSource.WAITING);
-    }
-
 
 
     /**
@@ -224,7 +239,7 @@ public class OcdcService {
      * @param customerSalePushLog
      * @return
      */
-    public Integer queryLoanListByOcdcPushData(CustomerSalePushLog customerSalePushLog) {
+    public void createLoan(CustomerSalePushLog customerSalePushLog) {
         CustomerInfo customerInfo = new CustomerInfo();
         LoanDTO loan = new LoanDTO();
         if (null != customerSalePushLog.getCustomerId()) {
@@ -242,12 +257,7 @@ public class OcdcService {
         if (null != customerSalePushLog.getCreateTime()) {
             loan.setCreateTime(customerSalePushLog.getCreateTime());
         }
-        TheaApiDTO theaApiDTO = theaService.inserLoan(loan);
-        if (theaApiDTO != null && theaApiDTO.getResult() == 0) {
-            return 1;
-        } else {
-            return 0;
-        }
+        theaClientService.inserLoan(loan);
     }
 
     /**
@@ -429,7 +439,7 @@ public class OcdcService {
      * @return
      */
     public Boolean isThreeNonCustomer(CustomerSalePushLog customerSalePushLog) {
-        String configValue = theaService.getConfigByName(CommonConst.CAN_NOT_ALLOCATE_CUSTOMER_CLASSIFY).getData();
+        String configValue = theaClientService.getConfigByName(CommonConst.CAN_NOT_ALLOCATE_CUSTOMER_CLASSIFY);
         if (StringUtils.isNotEmpty(configValue) && configValue.contains(customerSalePushLog.getCustomerClassify()))
             return true;
         else
@@ -443,7 +453,7 @@ public class OcdcService {
      * @return
      */
     public Boolean isActiveApplicationChannel(CustomerSalePushLog customerSalePushLog) {
-        String activeApplicationChannel = theaService.getConfigByName(CommonConst.ACTIVE_APPLICATION_CHANNEL).getData();
+        String activeApplicationChannel = theaClientService.getConfigByName(CommonConst.ACTIVE_APPLICATION_CHANNEL);
         if (StringUtils.isNotEmpty(activeApplicationChannel) && activeApplicationChannel.contains(customerSalePushLog.getUtmSource()))
             return true;
         else
@@ -456,7 +466,7 @@ public class OcdcService {
      * @return
      */
     public boolean isRepeatPushInTime(CustomerSalePushLog customerSalePushLog) {
-        String configValue = theaService.getConfigByName(CommonConst.R_CUSTOMER_CANNOT_INTO_SALE_TIME).getData();
+        String configValue = theaClientService.getConfigByName(CommonConst.R_CUSTOMER_CANNOT_INTO_SALE_TIME);
         //时间小于配置中的推送时间间隔
         if ((System.currentTimeMillis() - customerSalePushLog.getCreateTime().getTime())
                 <= Integer.valueOf(configValue) * 1000) {
@@ -467,6 +477,7 @@ public class OcdcService {
 
     /**
      * 未分配城市客户到客服系统
+     *
      * @param json
      * @return
      */
@@ -484,18 +495,33 @@ public class OcdcService {
 
     /**
      * 销售系统自动分配后给ocdc反馈数据
+     *
      * @param
      * @return
      */
-    public String autoAllocateFeedback(String success,String fail) {
+    public String autoAllocateFeedback(List<String> successlist, List<String> failList) {
+
+        StringBuilder successes = new StringBuilder();
+        StringBuilder fails = new StringBuilder();
+        for (int i = 0; i < successlist.size(); i++) {
+            successes.append(successlist.get(i));
+            if (i < successlist.size() - 1)
+                successes.append(",");
+        }
+        for (int i = 0; i < failList.size(); i++) {
+            successes.append(failList.get(i));
+            if (i < failList.size() - 1)
+                fails.append(",");
+        }
+
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(90000);
         requestFactory.setReadTimeout(90000);
         restTemplate.setRequestFactory(requestFactory);
         MultiValueMap<String, String> postParameters = new LinkedMultiValueMap<String, String>();
-        postParameters.add("key","366a192b7w17e14c54574d18c28d48e6123428ab");
-        postParameters.add("success", success);
-        postParameters.add("fail", fail);
+        postParameters.add("key", "366a192b7w17e14c54574d18c28d48e6123428ab");
+        postParameters.add("success", successes.toString());
+        postParameters.add("fail", fails.toString());
         String str = restTemplate.postForObject("http://beta-ocdc.fang-crm.com/Api/Index/pushCallback", postParameters, String.class);
         return str;
     }

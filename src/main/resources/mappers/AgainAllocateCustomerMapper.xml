@@ -41,4 +41,8 @@
         </set>
         WHERE data_id = #{dataId,jdbcType=INTEGER}
     </update>
+
+    <select id="getNonAllocateCustomer" resultMap="BaseResultMap">
+        select * from again_allocate_customer where status = 0
+    </select>
 </mapper>

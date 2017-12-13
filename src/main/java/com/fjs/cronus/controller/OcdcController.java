@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.crm.JSONData;
 import com.fjs.cronus.dto.crm.OcdcData;
+import com.fjs.cronus.dto.crm.ResponseData;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.model.CustomerSalePushLog;
@@ -25,9 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * 客户
- *
+ * <p>
  * Created by feng on 2017/7/14.
  */
 @Controller
@@ -40,66 +40,44 @@ public class OcdcController {
     @Autowired
     private OcdcService ocdcService;
 
-//    @Autowired
-//    private ConfigService configService;
-
-//    @Autowired
-//    private ConfigRedisService configRedisService;
-
-    /*@ApiOperation(value="获取配置信息", notes="根据英文名获取配置信息")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true,
-                    paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "name", value = "配置名", required = true, paramType = "query", dataType = "String")
-    })
-    @RequestMapping(value = "/getConfigByName", method = RequestMethod.GET)
-    @ResponseBody
-    public TheaApiDTO<Config> getConfigByName(@RequestParam String name){
-        TheaApiDTO resultDto = new TheaApiDTO();
-        if(StringUtils.isBlank(name)){
-            throw new TheaException(TheaException.Type.THEA_PARAM_ERROR);
-        }
-        try{
-//            Config config = configService.selectByName(name);
-            String value = configRedisService.getConfigValue(name);
-            resultDto.setResult(ResultDescription.CODE_SUCCESS);
-            resultDto.setMessage(ResultDescription.MESSAGE_SUCCESS);
-            resultDto.setData(value);
-        } catch (Exception e){
-            logger.error("-------------------获取配置信息失败:name="+name+"-------------------");
-            throw new TheaException(TheaException.Type.THEA_SYSTEM_ERROR);
-        }
-        return resultDto;
-    }*/
-
-
-    @ApiOperation(value="OCDC推送", notes="OCDC推送客户信息")
+    @ApiOperation(value = "OCDC推送", notes = "OCDC推送客户信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "ocdcRawData", value = "JSON推送数据", required = true, paramType = "body", dataType = "OcdcData")
     })
     @RequestMapping(value = "/ocdcCustomerPush", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto ocdcCustomerPush(@RequestHeader("Authorization")String token, @RequestBody String ocdcRawData){
-        OcdcData ocdcData = JSON.parseObject(ocdcRawData,OcdcData.class);
+    public CronusDto ocdcCustomerPush(@RequestHeader("Authorization") String token, @RequestBody String ocdcRawData) {
+        OcdcData ocdcData = JSON.parseObject(ocdcRawData, OcdcData.class);
         CronusDto resultDto = new CronusDto();
-        List<String> list = ocdcService.addOcdcCustomerNew(ocdcData,token);
-        resultDto.setData(list);
+        try {
+            ocdcService.addOcdcCustomerNew(ocdcData, token);
+            resultDto.setResult(0);
+        }catch (Exception e)
+        {
+            resultDto.setResult(1);
+        }
         return resultDto;
     }
 
-    @ApiOperation(value="客服推送", notes="客服推送客户信息")
+    @ApiOperation(value = "客服推送", notes = "客服推送客户信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customer", value = "JSON推送数据", required = true, paramType = "body", dataType = "String")
     })
     @RequestMapping(value = "/serviceAllocate", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto serviceAllocate(@RequestHeader("Authorization")String token, @RequestBody String customer){
-        CronusDto resultDto = new CronusDto();
-        AllocateEntity allocateEntity = ocdcService.serviceAllocate(customer,token);
-        resultDto.setData(allocateEntity);
-        return resultDto;
+    public ResponseData serviceAllocate(@RequestHeader("Authorization") String token, @RequestBody String customer) {
+        ResponseData responseData = new ResponseData();
+        try {
+            ocdcService.serviceAllocate(customer, token);
+            responseData.setErrMsg("添加成功");
+            responseData.setErrNum("0");
+        } catch (Exception e) {
+            responseData.setErrMsg("请联系上海城市CRM助理添加分配名额");
+            responseData.setErrNum("1");
+        }
+        return responseData;
     }
 
 }
