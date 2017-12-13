@@ -2,6 +2,7 @@ package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.AddCustomerMeetDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
@@ -10,17 +11,22 @@ import com.fjs.cronus.dto.thea.CustomerMeetDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.mappers.CustomerMeetMapper;
 
+import com.fjs.cronus.model.CommunicationLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerMeet;
 import com.fjs.cronus.service.client.TheaService;
+import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by yinzf on 2017/10/14.
@@ -35,6 +41,8 @@ public class CustomerMeetService {
     UcService ucService;
     @Autowired
     TheaService theaService;
+    @Autowired
+    TheaClientService theaClientService;
     @Transactional
     public Integer addCustomerMeet(AddCustomerMeetDTO customerMeetDTO, PHPLoginDto userInfoDTO, CustomerInfo customerInfo,String token){
         Date date = new Date();
@@ -75,5 +83,38 @@ public class CustomerMeetService {
         customerMeetDTO.setUserName(ucUserDTO.getName());
         customerMeetDTO.setCreateTime(customerMeet.getCreateTime());
         return customerMeetDTO;
+    }
+
+    /**
+     *
+     * m面见发送消息定时任务
+     */
+
+    public void sendMessMeetToCustomer(String token){
+        Date date = new Date();
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("meetTime",date);
+        List<CustomerMeet> customerMeets = customerMeetMapper.selectByTime(paramsMap);
+        try {
+            if (customerMeets != null && customerMeets.size() >0){
+                for (CustomerMeet customerMeet : customerMeets) {
+                    if (customerMeet.getMeetTime() != null){
+                        Long time1=Long.parseLong(DateUtils.format(customerMeet.getMeetTime(),DateUtils.FORMAT_FULL_Long));
+                        Long time2=Long.parseLong(DateUtils.format(date,DateUtils.FORMAT_FULL_Long));
+                        if (time1 - time2 > 360){
+                            //调用发送信息接口
+                            MailDTO mailDTO = new MailDTO();
+                            CustomerInfo customerInfo = customerInfoService.findCustomerById(customerMeet.getCustomerId());
+                            String content = "您定于"+ DateUtils.format(customerMeet.getMeetTime(),DateUtils.FORMAT_FULL_Long) + "面见客户"+ customerInfo.getCustomerName()+"请注意面见。";
+                            theaClientService.sendMail(token,content,customerMeet.getCreateUser(),customerMeet.getCreateUser(),null,customerMeet.getCreateUser());
+                        }
+                    }
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
     }
 }

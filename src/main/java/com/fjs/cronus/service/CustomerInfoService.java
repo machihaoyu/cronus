@@ -24,6 +24,7 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerInfoLog;
 
 import com.fjs.cronus.service.client.TheaService;
+import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.EntityToDto;
@@ -60,6 +61,8 @@ public class CustomerInfoService {
     AllocateLogMapper allocateLogMapper;
     @Autowired
     TheaService theaService;
+    @Autowired
+    TheaClientService theaClientService;
     public  List<CustomerInfo> findList(){
         List<CustomerInfo> resultList = new ArrayList();
         resultList = customerInfoMapper.selectAll();
@@ -964,30 +967,43 @@ public class CustomerInfoService {
            //对负责人去除操作
             ownIds =  new ArrayList<Integer>(new HashSet<>(ownIds));
             //得到用户的信息逗号隔开
-            String strIds  = listToString(ownIds);
+            String strIds  = listToString(uniqueList);
             List<PHPUserDto> userList = ucService.getUserByIds(token,strIds,null,null,null,null,null,null,null);
             // TODO 下面开始更改这些客户的信息
-            flag = removeToUser(uniqueList,removeDTO.getEmpId(),userInfoDTO.getName(),token,userInfoDTO.getUser_id(),userInfoDTO.getName());
+          /*  flag = removeToUser(uniqueList,removeDTO.getEmpId(),userInfoDTO.getName(),token,userInfoDTO.getUser_id(),userInfoDTO.getName());
             if (flag == false){
                 throw new CronusException(CronusException.Type.MESSAGE_REMOVENOTINJOB_ERROR);
+            }*/
+            //调用交易系统修改
+            Integer thearesult = theaClientService.serviceContractToUser(token,strIds,removeDTO.getEmpId());
+            if (thearesult != 0){
+                throw new CronusException(CronusException.Type.CRM_CONTRACTINFO_ERROR);
             }
+            Integer thearesult1 = theaClientService.cancelAll(token,strIds,removeDTO.getEmpId());
             /*负责人变更时，保留状态归零*/
+            if (thearesult1 != 0){
+                throw new CronusException(CronusException.Type.CRM_THEA_ERROR);
+            }
             for (CustomerInfo customerInfo : customerInfoList) {
                 Integer remain = customerInfo.getRemain();
                 if (remain != 2){
                     remain =0;
                 }
+                customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
+                customerInfo.setOwnUserId(removeDTO.getEmpId());
+                customerInfo.setReceiveTime(date);
                 customerInfo.setRemain(remain);
                 customerInfo.setLastUpdateTime(date);
                 customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
                 customerInfoMapper.updateCustomer(customerInfo);
             }
+            removeCustomerAddLog(customerInfoList,removeDTO.getEmpId(),Integer.valueOf(userInfoDTO.getUser_id()),userInfoDTO.getName());
             flag =true;
         }
             return  flag;
     }
 
-    public boolean removeToUser(List<Integer> customerids,Integer touser,String touserName,String token,String userId,String userName){
+  /*  public boolean removeToUser(List<Integer> customerids,Integer touser,String touserName,String token,String userId,String userName){
         boolean flag = false;
         //循环每一个客户,对每一个客户进行处理
 
@@ -1022,11 +1038,11 @@ public class CustomerInfoService {
                         serviceLogDTOS.add(serviceLogDTO);
                         mustUpAgreementIds.add(agreementIds);
                     }else {//此条信息有合同的时候
-                         /*
+                         *//*
                          * 3种类型：已结案：不做任何处理
                          * 结案中：合同的负责人设为被转移人；合同状态变为进行中；审批流程重置；协议的负责人设为被转移人；
                          * 进行中（未申请结案）：合同的负责人设为被转移人；协议的负责人设为被转移人；
-                         */
+                         *//*
                         //遍历合同的信息
                         logArrDTO.setCustomerId(customerId);
                         serviceLogDTO.setServiceContracrId(agreementIds);
@@ -1063,9 +1079,9 @@ public class CustomerInfoService {
         return  flag;
 
     }
+*/
 
-
-    public List<ReturnLogArrDTO> selectUseToLog(List<LogArrDTO> logarr){
+    /*public List<ReturnLogArrDTO> selectUseToLog(List<LogArrDTO> logarr){
         List<ReturnLogArrDTO> resultList = new ArrayList<>();
         //遍历
         if (logarr != null && logarr.size() > 0){
@@ -1109,23 +1125,14 @@ public class CustomerInfoService {
         }
         return  resultList;
 
-    }
+    }*/
 
     /**
      *
-     * @param mustUpAgreementIds
-     * @param mustUpCustomerIds
-     * @param mustUpContractIds1
-     * @param mustUpContractIds2
-     * @param toUser
-     * @param toUserName
      * @return
      */
     @Transactional
-    public boolean saveRemoveInfo(List<Integer> mustUpAgreementIds,List<Integer> mustUpCustomerIds,
-                                  List<Integer> mustUpContractIds1,List<Integer> mustUpContractIds2,
-                                  Integer toUser,String toUserName,String token){
-
+    public boolean saveRemoveInfo(List<Integer> mustUpCustomerIds,Integer toUser,String token){
         boolean flag = false;
         Date date = new Date();
         //如果客户为要修改的状态,修改客户信
@@ -1146,37 +1153,24 @@ public class CustomerInfoService {
             paramsMap.put("lastUpdateUser",userId);
             customerInfoMapper.batchUpdate(paramsMap);
         }
-        // TODO 调用接口
-         String serviceContractIds = listToString(mustUpAgreementIds);
-         //(serviceContractIds,toUser)
-        // TODO 修改进行中的合同
-        String contractIds = listToString(mustUpContractIds1);
-        //(contractIds,toUser)
-        //修改正在结案中的合同
-        String contractIdInConclusion = listToString(mustUpContractIds2);
-        //(contractIdInConclusion,toUser)
-        //TODO 未生效的业绩改成失效
-
-        //TODO 审核全部改为失效
         flag =true;
         return  flag;
     }
-
-    public void  removeCustomerAddLog(List<ReturnLogArrDTO> returnLogArrDTOS,Integer toUser,Integer userId,String userName){
+    public void  removeCustomerAddLog(List<CustomerInfo> customerInfos, Integer toUser,Integer userId,String userName){
         //遍历添加日志
         Date date = new Date();
-        if (returnLogArrDTOS != null && returnLogArrDTOS.size() > 0) {
-            for (ReturnLogArrDTO returnLogArrDTO : returnLogArrDTOS){
+        if (customerInfos != null && customerInfos.size() > 0) {
+            for (CustomerInfo customerInfo : customerInfos){
                  //添加分配日志
                 AllocateLog allocateLog = new AllocateLog();
                 allocateLog.setCreateTime(new Date());
-                allocateLog.setCustomerId(returnLogArrDTO.getCustomerInfo().getId());
-                allocateLog.setOldOwnerId(returnLogArrDTO.getCustomerInfo().getOwnUserId());
+                allocateLog.setCustomerId(customerInfo.getId());
+                allocateLog.setOldOwnerId(customerInfo.getOwnUserId());
                 allocateLog.setNewOwnerId(toUser);
                 allocateLog.setCreateUserId(userId);
                 allocateLog.setCreateUserName(userName);
                 //json化字符串
-                JSONObject jsonObject = (JSONObject)JSONObject.toJSON(returnLogArrDTO);
+                JSONObject jsonObject = (JSONObject)JSONObject.toJSON(customerInfo);
                 allocateLog.setResult(jsonObject.toJSONString());
                 allocateLog.setCreateTime(date);
                 allocateLog.setOperation(CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_9.getCodeDesc());
@@ -1186,7 +1180,7 @@ public class CustomerInfoService {
                 }
                 //开始添加客户操作日志
                 CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-                EntityToDto.customerEntityToCustomerLog(returnLogArrDTO.getCustomerInfo(),customerInfoLog);
+                EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
                 customerInfoLog.setLogCreateTime(date);
                 customerInfoLog.setLogDescription("增加一条客户记录");
                 customerInfoLog.setLogUserId(userId);
@@ -1271,21 +1265,5 @@ public class CustomerInfoService {
         }
         customerInfoList = customerInfoMapper.findCustomerByType(paramsMap);
         return customerInfoList;
-    }
-
-    public void auth(Integer page){
-
-        Map<String,Object> map = new HashMap<>();
-        map.put("start",(page-1) * 5000);
-        map.put("size",5000);
-
-        List<CustomerInfo> customerInfoList = customerInfoMapper.customerList(map);
-        for (CustomerInfo customerInfo : customerInfoList) {
-            customerInfo.setTelephonenumber(DEC3Util.des3EncodeCBC(customerInfo.getTelephonenumber()));
-            customerInfoMapper.updateCustomer(customerInfo);
-        }
-        System.out.println(true);
-
-
     }
 }

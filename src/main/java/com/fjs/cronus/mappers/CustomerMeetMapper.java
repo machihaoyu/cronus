@@ -18,5 +18,5 @@ public interface CustomerMeetMapper extends MyMapper<CustomerMeet> {
 
     List<CustomerMeet> findByFeild(Map<String,Object> paramsMap);
 
-
+    List<CustomerMeet> selectByTime(Map<String,Object> paramsMap);
 }

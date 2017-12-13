@@ -12,7 +12,6 @@
 		<result column="house_status" property="houseStatus" jdbcType="VARCHAR" />
 		<result column="loan_amount" property="loanAmount" jdbcType="INTEGER" />
 		<result column="next_contact_time" property="nextContactTime" jdbcType="TIMESTAMP" />
-		<result column="next_contact_time" property="nextContactTime" jdbcType="TIMESTAMP" />
 	</resultMap>
 
 	<!--客户id-->
@@ -23,7 +22,7 @@
 	<sql id="Base_Column_List">
 		id,loan_id,customer_id,create_user,type
 		,content,create_time,house_status,loan_amount,
-		is_deleted
+		is_deleted,next_contact_time
 	</sql>
 
 	<!--统计今天的沟通数-->
@@ -65,5 +64,12 @@
 		<if test="createTimeBegin != null and createTimeEnd !=null ">
 			and date(create_time) between #{createTimeBegin} and #{createTimeEnd}
 		</if>
+	</select>
+	<select id="selectByTime" resultMap="ResultMap2" parameterType="Map">
+		SELECT
+		<include refid="Base_Column_List" />
+		from communication_log
+		where 1=1
+		AND next_contact_time > #{comiaTime}
 	</select>
 </mapper>

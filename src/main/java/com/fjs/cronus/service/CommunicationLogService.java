@@ -2,6 +2,7 @@ package com.fjs.cronus.service;
 
 
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.cronus.CommunicationDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
@@ -14,7 +15,9 @@ import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.CustomerMeetMapper;
 import com.fjs.cronus.model.*;
+import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +49,8 @@ public class CommunicationLogService {
     CustomerInfoLogMapper customerInfoLogMapper;
     @Autowired
     UcService ucService;
+    @Autowired
+    TheaClientService theaClientService;
     //添加
     @Transactional
     public Integer addLog(CustomerUsefulDTO customerUsefulDTO, CustomerInfo customerDto, UserInfoDTO userInfoDTO, String token){
@@ -285,5 +290,41 @@ public class CommunicationLogService {
         CommunicationLog communicationLog = new CommunicationLog();
         communicationLog.setId(id);
         return communicationLogMapper.selectOne(communicationLog);
+    }
+    /**
+     * 查找大于当前时间五分钟的数据并且发送短信
+     *
+     */
+
+    public void  sendMessToCustomer(String token){
+        Date date = new Date();
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("comiaTime",date);
+        List<CommunicationLog> communicationLogList = communicationLogMapper.selectByTime(paramsMap);
+        try {
+            if (communicationLogList != null && communicationLogList.size() >0){
+                for (CommunicationLog communicationLog : communicationLogList) {
+                    if (communicationLog.getNextContactTime() != null){
+                        Long time1=Long.parseLong(DateUtils.format(communicationLog.getNextContactTime(),DateUtils.FORMAT_FULL_Long));
+                        Long time2=Long.parseLong(DateUtils.format(date,DateUtils.FORMAT_FULL_Long));
+                        if (time1 - time2 > 360){
+                            //调用发送信息接口
+                            MailDTO mailDTO = new MailDTO();
+                            CustomerInfo customerInfo = customerService.findCustomerById(communicationLog.getCustomerId());
+                            String content = "您设置了"+ DateUtils.format(communicationLog.getNextContactTime(),DateUtils.FORMAT_FULL_Long) + "与客户"+ customerInfo.getCustomerName()+"再次沟通，请注意沟通。";
+                            mailDTO.setContent(content);
+                            mailDTO.setCreateTime(date);
+                            mailDTO.setToId(communicationLog.getCreateUser());
+                            mailDTO.setFromId(communicationLog.getCreateUser());
+                            mailDTO.setStatus(0);
+                            theaClientService.sendMail(token,content,communicationLog.getCreateUser(),communicationLog.getCreateUser(),null,communicationLog.getCreateUser());
+                        }
+                    }
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }

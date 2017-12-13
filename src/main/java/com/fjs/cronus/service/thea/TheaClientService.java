@@ -1,5 +1,6 @@
 package com.fjs.cronus.service.thea;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
@@ -69,6 +70,33 @@ public class TheaClientService {
         mailDTO.setFromName(fromName);
         mailDTO.setToId(toId);
         TheaApiDTO<String> resultDto = theaService.sendMail(token, mailDTO);
+    }
+
+    public Integer serviceContractToUser(String token,String customerIds,Integer toUser){
+        Integer result = 1;
+        TheaApiDTO resultDto = theaService.serviceContractToUser(token,customerIds,toUser);
+        if (resultDto.getData()!=null){
+            result = Integer.valueOf(resultDto.getData().toString());
+            if (result == 0){
+                return  result;
+            }
+        }
+        return result;
+    }
+    public Integer cancelAll(String token,String customerId,Integer newOwnnerId){
+        Integer result = 1;
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("customerId",customerId);
+        jsonObject.put("newOwnnerId",newOwnnerId);
+        TheaApiDTO resultDto = theaService.cancelAll(token,jsonObject);
+        if (resultDto.getData()!=null){
+            result = Integer.valueOf(resultDto.getData().toString());
+            if (result == 0){
+                return  result;
+            }
+        }
+        return result;
     }
 
 }

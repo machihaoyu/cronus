@@ -95,21 +95,4 @@ public class TestController {
         System.out.println(user_id);
         return resultDto;
     }
-
-    @ApiOperation(value="给数据库所有手机号进行加密操作", notes="给数据库所有手机号进行加密操作")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "page", value = "page", required = true, paramType = "query", dataType = "int"),
-    })
-    @RequestMapping(value = "/auth", method = RequestMethod.GET)
-    @ResponseBody
-    public CronusDto auth(
-            @RequestHeader("Authorization") String token,Integer page){
-        CronusDto resultDto = new CronusDto();
-        customerInfoService.auth(page);
-        System.out.println(true);
-        return resultDto;
-    }
-
-
 }

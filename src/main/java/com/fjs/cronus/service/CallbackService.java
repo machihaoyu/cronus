@@ -590,8 +590,10 @@ public class CallbackService {
                     String str = customerSalePushLog.getExt();
                     //转json
                     JSONObject jsonObject = JSONObject.parseObject(str);
-                    String hosestatus=jsonObject.getString("house_status");
-                    repeatChildDTO.setHouseStatus(hosestatus);
+                    if (jsonObject.getString("house_status") != null) {
+                        String hosestatus = jsonObject.getString("house_status");
+                        repeatChildDTO.setHouseStatus(hosestatus);
+                    }
                 }else {
 
                     repeatChildDTO.setHouseStatus(customerSalePushLog.getHouseStatus());

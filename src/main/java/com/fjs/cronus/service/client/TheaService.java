@@ -38,6 +38,11 @@ public interface TheaService {
     @RequestMapping(value = "/mail/v1/sendMail", method = RequestMethod.POST)
     TheaApiDTO<String> sendMail(@RequestHeader("Authorization") String token,@RequestBody MailDTO mailDTO);
 
+    @RequestMapping(value = "/serviceContract/v1/serviceContract/cronus/toUser")
+    TheaApiDTO serviceContractToUser(@RequestHeader("Authorization") String token,@RequestParam(value = "customerIds") String customerIds,@RequestParam(value = "toUser")Integer toUser);
+
+    @RequestMapping(value = "/loan/v1/cancelAll")
+    TheaApiDTO cancelAll(@RequestHeader("Authorization") String token,@RequestBody JSONObject jsonObject);
 
 
 }

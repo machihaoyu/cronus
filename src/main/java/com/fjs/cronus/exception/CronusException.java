@@ -189,6 +189,10 @@ public class CronusException extends BaseException {
         MESSAGE_PARAMSCUSTOMER_ERROR("6086","请完善信息"),
 
         CRM_LOSESUBCOMPANTID_ERROR("6089","请选择分公司"),
+
+        CRM_CONTRACTINFO_ERROR("6090","链接交易系统，更改合同状态失败"),
+
+        CRM_THEA_ERROR("6090","链接交易系统，更改回款等信息状态失败"),
         ;
         private String status;
         private String error;

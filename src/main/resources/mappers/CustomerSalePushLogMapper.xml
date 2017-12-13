@@ -166,13 +166,13 @@
         GROUP BY telephonenumber
         HAVING reat_num>1) a
     </select>
-    <select id="findByFeild " parameterType="java.util.Map" resultMap="BaseResultMap">
+    <select id="findByFeild" parameterType="java.util.Map" resultMap="BaseResultMap">
 
      SELECT
         <include refid="base_column"/>
         FROM  customer_sale_push_log where 1 = 1
         <if test="telephone != null and telephone != ''">
-            telephonenumber =#{telephone}
+           and telephonenumber =#{telephone}
         </if>
 
     </select>

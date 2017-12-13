@@ -18,6 +18,15 @@
      select
 	 <include refid="Base_Column_List" />
      from customer_meet
-	 WHERE  1 = 1 and customer_id = #{customerId}
+	 WHERE  1 = 1
+
+	and customer_id = #{customerId}
+	</select>
+	<select id="selectByTime" resultMap="BaseResultMap" parameterType="com.fjs.cronus.model.CustomerMeet">
+		select
+		<include refid="Base_Column_List" />
+		from customer_meet
+		WHERE  1 = 1
+		AND meet_time > #{meetTime}
 	</select>
 </mapper>
