@@ -1109,6 +1109,39 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
+    <update id="updateCustomerSys" parameterType="com.fjs.cronus.model.CustomerInfo" >
+        update customer_info
+        <set >
+            <if test="city != null" >
+                city = #{city,jdbcType=VARCHAR},
+            </if>
+            <if test="subCompanyId != null" >
+                sub_company_id = #{subCompanyId,jdbcType=INTEGER},
+            </if>
+            <if test="lastUpdateTime != null" >
+                last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastUpdateUser != null" >
+                last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+            </if>
+            <if test="utmSource != null" >
+                utm_source = #{utmSource,jdbcType=VARCHAR},
+            </if>
+            <if test="receiveTime != null" >
+                receive_time = #{receiveTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="firstCommunicateTime != null">
+                first_communicate_time = #{firstCommunicateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="clickCommunicateButton != null">
+                click_communicate_button = #{clickCommunicateButton,jdbcType=INTEGER},
+            </if>
+            <if test="communicateTime != null">
+                communicate_time = #{communicateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
     <select id="getListByWhere" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
         select
         <include refid="Base_Column_List" />

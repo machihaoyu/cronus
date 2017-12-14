@@ -22,6 +22,8 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
 
     void updateCustomer(CustomerInfo customerInfo);
 
+    void updateCustomerSys(CustomerInfo customerInfo);
+
     List <CustomerInfo> getListByWhere(Map<String,Object> paramMap);
 
     List<Integer> findCustomerByType(Map<String,Object> paramMap);

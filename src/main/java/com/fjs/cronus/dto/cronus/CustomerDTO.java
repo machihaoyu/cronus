@@ -244,6 +244,18 @@ public class CustomerDTO {
     @ApiModelProperty(value = "海贷魔方 扩展字段",notes = "海贷魔方 扩展字段")
     private String ext;
 
+    @ApiModelProperty(value = "领取时间",notes = "领取时间")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private Date receiveTime;
+
+    public Date getReceiveTime() {
+        return receiveTime;
+    }
+
+    public void setReceiveTime(Date receiveTime) {
+        this.receiveTime = receiveTime;
+    }
+
     /*   @ApiModelProperty(value = "海贷魔方 扩展字段",notes = "海贷魔方 扩展字段")
     private String ext;
 

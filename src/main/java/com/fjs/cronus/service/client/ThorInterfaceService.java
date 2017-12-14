@@ -502,7 +502,13 @@ public interface ThorInterfaceService {
     @RequestMapping(value = "/api/v1/listAllEnableCompany",method = RequestMethod.GET)
     CronusDto<List<CompanyDto>> listAllEnableCompany(@RequestHeader("Authorization") String token);
 
-
+    /**
+     * 根据登录成功后返回的token，获取用户信息
+     * @param token
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getCurrentUserInfo", method = RequestMethod.GET)
+    CronusDto<UserInfoDTO> getUserInfoByToken(@RequestHeader("Authorization") String token, @RequestParam(value = "systemName") String systemName);
 
 }
 
