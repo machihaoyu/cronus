@@ -31,4 +31,37 @@ public class CronusRedisService {
         list = redis.get(key);
         return list;
     }
+
+
+    /**
+     * 设置未沟通分配失败的客户
+     * @param key
+     * @param list
+     */
+    public void setRedisFailNonConmunicateAllocateInfo(String key,List list){
+        ValueOperations<String,List> redis = listOperations.opsForValue();
+        redis.set(key,list,30, TimeUnit.DAYS);
+    }
+
+    /**
+     * 获取未沟通分配失败的客户
+     * @param key
+     * @return
+     */
+    public List getRedisFailNonConmunicateAllocateInfo(String key) {
+        ValueOperations<String,List> redis = listOperations.opsForValue();
+        List list = new ArrayList();
+        list = redis.get(key);
+        return list;
+    }
+
+    /**
+     * 清空未沟通分配失败的客户
+     * @param key
+     */
+    public void clearRedisFailNonConmunicateAllocateInfo(String key){
+        ValueOperations<String,List> redis = listOperations.opsForValue();
+        redis.set(key,null,30, TimeUnit.DAYS);
+    }
+
 }

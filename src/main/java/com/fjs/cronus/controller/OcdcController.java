@@ -9,6 +9,7 @@ import com.fjs.cronus.dto.crm.ResponseData;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.model.CustomerSalePushLog;
+import com.fjs.cronus.service.AutoAllocateService;
 import com.fjs.cronus.service.OcdcService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -39,6 +40,9 @@ public class OcdcController {
 
     @Autowired
     private OcdcService ocdcService;
+
+    @Autowired
+    private AutoAllocateService autoAllocateService;
 
     @ApiOperation(value = "OCDC推送", notes = "OCDC推送客户信息")
     @ApiImplicitParams({
@@ -75,6 +79,24 @@ public class OcdcController {
             responseData.setErrNum("0");
         } catch (Exception e) {
             responseData.setErrMsg("请联系上海城市CRM助理添加分配名额");
+            responseData.setErrNum("1");
+        }
+        return responseData;
+    }
+
+    @ApiOperation(value = "未沟通分配", notes = "未沟通分配")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/nonCommunicateAgainAllocate", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseData nonCommunicateAgainAllocate(@RequestHeader("Authorization") String token) {
+        ResponseData responseData = new ResponseData();
+        try {
+            autoAllocateService.nonCommunicateAgainAllocate(token);
+            responseData.setErrNum("0");
+        } catch (Exception e) {
+            responseData.setErrMsg("");
             responseData.setErrNum("1");
         }
         return responseData;

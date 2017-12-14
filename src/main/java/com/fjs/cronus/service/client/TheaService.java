@@ -5,9 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.api.thea.Config;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.api.thea.MailDTO;
+import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.crius.CriusApiDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.LoanDTO4;
+import com.fjs.cronus.dto.thea.WorkDayDTO;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,4 +54,7 @@ public interface TheaService {
 
     @RequestMapping(value = "/config/v1/findByName", method = RequestMethod.GET)
     public TheaApiDTO<Config> findByName(@RequestHeader("Authorization") String token, @RequestParam(value = "name") String name);
+
+    @RequestMapping(value = "/api/v1/workDayList?page=1&size=20", method = RequestMethod.GET)
+    TheaApiDTO<QueryResult<WorkDayDTO>> getWorkDay(@RequestHeader("Authorization") String token);
 }

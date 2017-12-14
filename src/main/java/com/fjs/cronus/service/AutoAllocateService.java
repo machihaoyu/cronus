@@ -6,10 +6,10 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 
 import com.fjs.cronus.api.thea.LoanDTO;
-import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
+import com.fjs.cronus.dto.thea.WorkDayDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.CrmUserDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
@@ -19,9 +19,9 @@ import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UserMonthInfo;
-import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
+import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DateUtils;
@@ -30,6 +30,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,6 +78,9 @@ public class AutoAllocateService {
     @Autowired
     private AgainAllocateCustomerService againAllocateCustomerService;
 
+
+    @Autowired
+    private CronusRedisService cronusRedisService;
 //    @Autowired
 //    private SmsService smsService;
 
@@ -95,7 +99,7 @@ public class AutoAllocateService {
     }
 
     @Transactional
-    public AllocateEntity autoAllocate(CustomerDTO customerDTO, AllocateSource allocateSource, String token) {
+    public synchronized AllocateEntity autoAllocate(CustomerDTO customerDTO, AllocateSource allocateSource, String token) {
         AllocateEntity allocateEntity = new AllocateEntity();
         allocateEntity.setSuccess(true);
         try {
@@ -106,8 +110,7 @@ public class AutoAllocateService {
 
             boolean allocateToPublic = isAllocateToPublic(customerDTO.getUtmSource());
 
-            //是否占用自动分配  0:直接到公盘  1:自动分配  2:带业务员
-//            Integer autoStatus = 0;
+            //分配规则
             if (StringUtils.isNotEmpty(ownerUser.getUser_id())) {//存在这个在职负责人
                 customerDTO.setOwnerUserId(Integer.valueOf(ownerUser.getUser_id()));
                 allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
@@ -143,7 +146,8 @@ public class AutoAllocateService {
                         break;
                 }
             }
-            /*如果数据中存在id说明是己存在表中的记录；过来的数据id一定为0或者null，非0的是走不了分配的*/
+
+            //保存客户
             SimpleUserInfoDTO simpleUserInfoDTO;
             Integer customerId = 0;
             if (null != customerDTO.getId() && customerDTO.getId() > 0) {
@@ -155,11 +159,17 @@ public class AutoAllocateService {
                     } else {
                         customerDTO.setSubCompanyId(0);
                     }
-
                 }
                 customerDTO.setReceiveTime(new Date());
                 customerDTO.setLastUpdateTime(new Date());
-                customerInfoService.editCustomerSys(customerDTO, token);
+                CustomerInfo customerInfo = new CustomerInfo();
+                BeanUtils.copyProperties(customerDTO, customerInfo);
+                if (allocateEntity.getAllocateStatus().getCode().equals("1")) {
+                    customerInfo.setConfirm(1);
+                    customerInfo.setClickCommunicateButton(0);
+                    customerInfo.setCommunicateTime(null);
+                }
+                customerInfoService.editCustomerSys(customerInfo, token);
             } else {
                 CronusDto<CustomerDTO> cronusDto = customerInfoService.fingByphone(customerDTO.getTelephonenumber());
                 CustomerDTO hasCustomer = cronusDto.getData();
@@ -175,7 +185,7 @@ public class AutoAllocateService {
                 }
             }
 
-
+            //分配日志&更新分配队列
             switch (allocateEntity.getAllocateStatus().getCode()) {
                 case "0":
                     break;
@@ -200,7 +210,7 @@ public class AutoAllocateService {
                     sendMessage(customerDTO, token);
                     break;
                 case "2": //WAITING_POOL
-                    sendCRMAssistantMessage(customerDTO,token);
+                    sendCRMAssistantMessage(customerDTO, token);
                     break;
                 case "3":
                     //添加分配日志
@@ -262,12 +272,21 @@ public class AutoAllocateService {
                 customerDTO.getOwnerUserId());
     }
 
+    private void sendMessage(CustomerInfo customerInfo, String token) {
+        theaClientService.sendMail(token,
+                "房金所为您分配了客户名：" + customerInfo.getCustomerName() + "，请注意跟进。",
+                0,
+                0,
+                "系统管理员",
+                customerInfo.getOwnUserId());
+    }
+
     private void sendCRMAssistantMessage(CustomerDTO customerDTO, String token) {
 
         BaseUcDTO<List<CrmUserDTO>> crmUser = thorInterfaceService.getCRMUser(token, customerDTO.getCity());
         List<CrmUserDTO> crmUserDTOList = crmUser.getRetData();
-        for (CrmUserDTO crmUserDTO:
-             crmUserDTOList) {
+        for (CrmUserDTO crmUserDTO :
+                crmUserDTOList) {
             //todo 发送短信
         }
     }
@@ -392,5 +411,94 @@ public class AutoAllocateService {
             }
         }
         return ownUserId;
+    }
+
+
+    /**
+     * 客户未沟通重新分配
+     */
+    public synchronized void nonCommunicateAgainAllocate(String token) {
+        if (currentWorkDayAndTime(token)) {
+            List<CustomerInfo> list = customerInfoService.selectNonCommunicateInTime().getData();
+
+            List<Integer> existFailList = cronusRedisService.getRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO);
+            if (existFailList == null) {
+                existFailList = new ArrayList<>();
+            }
+            StringBuilder stringBuilder = new StringBuilder();
+            if (existFailList != null) {
+                for (int i = 0; i < existFailList.size(); i++) {
+                    stringBuilder.append(existFailList.get(i).toString());
+                    if (i < existFailList.size() - 1) {
+                        stringBuilder.append(",");
+                    }
+                }
+            }
+            List<Integer> failList = new ArrayList<>();
+            for (CustomerInfo customerInfo :
+                    list) {
+                if (existFailList.contains(customerInfo.getId())) {
+                    continue;
+                }
+                Integer ownUserId = 0;
+
+                try {
+                    ownUserId = getAllocateUser(customerInfo.getCity());
+                } catch (Exception e) {
+
+                }
+                if (ownUserId > 0) {
+                    SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token, ownUserId).getData();
+                    if (simpleUserInfoDTO != null && null != simpleUserInfoDTO.getSub_company_id()) {
+                        customerInfo.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
+                    } else {
+                        customerInfo.setSubCompanyId(0);
+                    }
+                    customerInfo.setReceiveTime(new Date());
+                    customerInfo.setLastUpdateTime(new Date());
+                    customerInfo.setConfirm(1);
+                    customerInfo.setClickCommunicateButton(0);
+                    customerInfo.setCommunicateTime(null);
+                    customerInfoService.editCustomerSys(customerInfo, token);
+
+                    allocateRedisService.changeAllocateTemplet(customerInfo.getOwnUserId(), customerInfo.getCity());
+                    //添加分配日志
+                    allocateLogService.addAllocatelog(customerInfo, customerInfo.getOwnUserId(),
+                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
+                    sendMessage(customerInfo, token);
+
+                } else {
+                    //分配名额已经满了,向这个城市的crm助理发送短信
+                    //todo
+                    if (!failList.contains(customerInfo.getId()))
+                        failList.add(customerInfo.getId());
+                }
+            }
+            //failList 添加到缓存
+            existFailList.addAll(failList);
+            cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, failList);
+
+        }
+    }
+
+    private boolean currentWorkDayAndTime(String token) {
+        Date date = new Date();
+        Integer hour = DateUtils.getHour(new Date());
+        if (10 < hour && hour < 18) {
+            return true;
+        }
+        String month = DateUtils.getYear(date).toString() + "-" + DateUtils.getMonth(date).toString();
+
+        String workDays = "";
+        List<WorkDayDTO> workDayDTOList = theaClientService.getWorkDay(token);
+        for (WorkDayDTO workday :
+                workDayDTOList) {
+            if (workday.getMonth().equals(month)) {
+                workDays = workday.getWorkdays();
+                break;
+            }
+        }
+        if (workDays.contains(DateUtils.getDay(date).toString())) ;
+        return true;
     }
 }

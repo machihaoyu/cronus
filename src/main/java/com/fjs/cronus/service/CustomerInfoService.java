@@ -1397,4 +1397,41 @@ public class CustomerInfoService {
         }
         return  cronusDto;
     }
+
+    public CronusDto editCustomerSys(CustomerInfo customerInfo, String token){
+        CronusDto resultDto = new CronusDto();
+        //校验参数手机号不更新
+        Integer user_id = ucService.getUserIdByToken(token);
+        if (user_id == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "信息出错!");
+        }
+//        customerInfo.setLastUpdateTime(date);
+//        customerInfo.setConfirm(0);
+        customerInfo.setLastUpdateUser(user_id);
+//        customerInfo.setClickCommunicateButton(0);
+        customerInfoMapper.updateCustomerSys(customerInfo);
+        //生成日志记录
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(new Date());
+        customerInfoLog.setLogDescription("自动分配更新客户");
+        customerInfoLog.setLogUserId(user_id);
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(customerInfo.getId());
+        return  resultDto;
+    }
+
+    public CronusDto<List <CustomerInfo>> selectNonCommunicateInTime(){
+        CronusDto resultDto =  new CronusDto();
+        //手机需要加密
+        List <CustomerInfo> customerInfos = customerInfoMapper.selectNonCommunicateInTime();
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(customerInfos);
+        return  resultDto;
+    }
+
 }

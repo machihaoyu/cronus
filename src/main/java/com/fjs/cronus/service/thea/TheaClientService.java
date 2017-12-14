@@ -3,8 +3,10 @@ package com.fjs.cronus.service.thea;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.api.thea.MailDTO;
+import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.LoanDTO4;
+import com.fjs.cronus.dto.thea.WorkDayDTO;
 import com.fjs.cronus.dto.uc.AllUserDTO;
 import com.fjs.cronus.service.client.TheaService;
 import org.slf4j.Logger;
@@ -12,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 /**
  * Created by msi on 2017/11/30.
@@ -98,6 +102,12 @@ public class TheaClientService {
             }
         }
         return result;
+    }
+
+    public List<WorkDayDTO> getWorkDay(String token) {
+        TheaApiDTO<QueryResult<WorkDayDTO>> resultDto = theaService.getWorkDay(token);
+        QueryResult<WorkDayDTO> result = resultDto.getData();
+        return result.getRows();
     }
 
 }

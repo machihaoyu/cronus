@@ -1136,9 +1136,6 @@
             <if test="clickCommunicateButton != null">
                 click_communicate_button = #{clickCommunicateButton,jdbcType=INTEGER},
             </if>
-            <if test="communicateTime != null">
-                communicate_time = #{communicateTime,jdbcType=TIMESTAMP},
-            </if>
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
@@ -1690,4 +1687,19 @@
             #{paramsList}
         </foreach>
     </update>
+    <select id="selectNonCommunicateInTime" resultMap="ResultMapWithBLOBs">
+        SELECT
+        a.*
+        FROM
+        customer_info a
+        LEFT JOIN allocate_log b ON a.id = b.customer_id
+        WHERE
+        a.customer_type = '意向客户'
+        AND a.own_user_id > 0
+        AND TIMESTAMPDIFF(
+        MINUTE,
+        a.receive_time,
+        CURTIME()
+        ) &lt; 150000 and b.id  and b.operation in ('未沟通分配','自动分配') LIMIT 100
+    </select>
 </mapper>
