@@ -681,6 +681,7 @@ public class CustomerController {
         }
         try {
             boolean result  = customerInfoService.removeCustomerAll(removeDTO,token);
+            cronusDto.setData(result);
             cronusDto.setResult(ResultResource.CODE_SUCCESS);
             cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             return cronusDto;

@@ -927,7 +927,7 @@ public class CustomerInfoService {
             boolean flag = false;
             //判断有没有选择负责人
             Map<String,Object> paramMap = new HashMap<>();
-            List<Integer> ownIds = null;//负责人
+            List<Integer> ownIds = new ArrayList<>();//负责人
             if (StringUtils.isEmpty(removeDTO.getEmpId())){
                 throw new CronusException(CronusException.Type.MESSAGE_REMOVECUSTOERAll_ERROR);
             }
