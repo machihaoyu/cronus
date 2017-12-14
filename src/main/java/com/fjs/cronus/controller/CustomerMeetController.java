@@ -105,15 +105,6 @@ public class CustomerMeetController {
         String token=request.getHeader("Authorization");
       //  UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
-        String[] authority=resultDto.getAuthority();
-        if(authority.length>0){
-            List<String> authList= Arrays.asList(authority);
-            if (authList.contains(CommonConst.ADD_LOAN_URL)){
-                theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
-                theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
-                return theaApiDTO;
-            }
-        }
         try{
             if (customerMeetDTO.getCustomerId() == null){
                 theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());

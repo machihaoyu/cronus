@@ -20,6 +20,7 @@ import com.fjs.cronus.mappers.PrdCustomerMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.PrdCustomer;
 import com.fjs.cronus.model.PrdOperationLog;
+import com.fjs.cronus.service.api.OutPutService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DEC3Util;
@@ -52,8 +53,9 @@ public class PrdCustomerService {
     CustomerInfoMapper customerInfoMapper;
     @Autowired
     CustomerInfoService customerInfoService;
-//    @Autowired
-//    private LoanService loanService;
+    @Autowired
+    OutPutService outPutService;
+
 
     @Transactional
     public Integer addPrdCustomer(PrdCustomer prdCustomer, UserInfoDTO userInfoDTO){
@@ -146,10 +148,17 @@ public class PrdCustomerService {
                 customerInfo1.setOwnUserName(userInfoDTO.getName());
                 customerInfo1.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
                 customerInfo1.setLastUpdateTime(date);
+                customerInfo.setReceiveId(0);
+                customerInfo.setCommunicateId(0);
                 customerInfoMapper.insertCustomer(customerInfo1);
                 //插入日志
                 customerInfoService.insertAddCustomerLog(customerInfo1,Integer.valueOf(userInfoDTO.getUser_id()));
                 //TODO 像ocdc同步数据
+                try {
+                    outPutService.synchronToOcdc(customerInfo1);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         }
         return result;

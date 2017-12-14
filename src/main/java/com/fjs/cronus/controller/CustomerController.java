@@ -189,13 +189,13 @@ public class CustomerController {
     })
     @RequestMapping(value = "/editCustomer", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<CustomerDTO> editCustomer(@RequestParam Integer customerId) {
+    public CronusDto<CustomerDTO> editCustomer(@RequestParam Integer customerId,@RequestHeader("Authorization")String token) {
         CronusDto<CustomerDTO> cronusDto = new CronusDto();
         try {
             if (customerId == null || "".equals(customerId)) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
             }
-            cronusDto = customerInfoService.editCustomer(customerId);
+            cronusDto = customerInfoService.editCustomer(customerId,token);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->获取用户信息失败", e);
@@ -468,7 +468,7 @@ public class CustomerController {
           throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
       }
         try {
-            QueryResult<CustomerListDTO> queryResult  = customerInfoService.allocationCustomerList(customerName,utmSource,customerSource,autostatus,page,size,type,telephonenumber);
+            QueryResult<CustomerListDTO> queryResult  = customerInfoService.allocationCustomerList(customerName,utmSource,customerSource,autostatus,page,size,type,telephonenumber,token);
             cronusDto.setData(queryResult);
             cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             cronusDto.setResult(ResultResource.CODE_SUCCESS);
@@ -670,15 +670,6 @@ public class CustomerController {
         CronusDto cronusDto = new CronusDto();
         //校验权限
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
-        String[] authority=resultDto.getAuthority();
-        if(authority.length>0){
-            List<String> authList= Arrays.asList(authority);
-            if (authList.contains(CommonConst.REMOVE_LOAN_URL)){
-                cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
-                cronusDto.setMessage(CommonConst.NO_AUTHORIZE);
-                return cronusDto;
-            }
-        }
         try {
             boolean result  = customerInfoService.removeCustomerAll(removeDTO,token);
             cronusDto.setData(result);

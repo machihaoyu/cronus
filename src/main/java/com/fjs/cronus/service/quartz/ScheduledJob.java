@@ -46,6 +46,7 @@ public class ScheduledJob {
         //调用任务
        // communicationLogService.sendMessToCustomer();
         //customerMeetService.sendMessMeetToCustomer();
+        System.out.println(1);
         logger.info("Examine End!");
     }
 }

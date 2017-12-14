@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
+import com.fjs.cronus.dto.thea.LoanDTO4;
 import com.fjs.cronus.dto.uc.AllUserDTO;
 import com.fjs.cronus.service.client.TheaService;
 import org.slf4j.Logger;
@@ -75,8 +76,8 @@ public class TheaClientService {
     public Integer serviceContractToUser(String token,String customerIds,Integer toUser){
         Integer result = 1;
         TheaApiDTO resultDto = theaService.serviceContractToUser(token,customerIds,toUser);
-        if (resultDto.getData()!=null){
-            result = Integer.valueOf(resultDto.getData().toString());
+        if (resultDto!=null){
+            result = Integer.valueOf(resultDto.getResult());
             if (result == 0){
                 return  result;
             }
@@ -86,12 +87,12 @@ public class TheaClientService {
     public Integer cancelAll(String token,String customerId,Integer newOwnnerId){
         Integer result = 1;
 
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("customerId",customerId);
-        jsonObject.put("newOwnnerId",newOwnnerId);
-        TheaApiDTO resultDto = theaService.cancelAll(token,jsonObject);
-        if (resultDto.getData()!=null){
-            result = Integer.valueOf(resultDto.getData().toString());
+        LoanDTO4 loanDTO4 = new LoanDTO4();
+        loanDTO4.setIds(customerId);
+        loanDTO4.setNewOwnnerId(newOwnnerId);
+        TheaApiDTO resultDto = theaService.cancelAll(token,loanDTO4);
+        if (resultDto!=null){
+            result = Integer.valueOf(resultDto.getResult());
             if (result == 0){
                 return  result;
             }

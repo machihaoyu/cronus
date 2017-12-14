@@ -22,11 +22,9 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerInfoLog;
 import com.fjs.cronus.model.CustomerUseful;
 import com.fjs.cronus.model.PullCustomer;
+import com.fjs.cronus.service.api.OutPutService;
 import com.fjs.cronus.service.uc.UcService;
-import com.fjs.cronus.util.DEC3Util;
-import com.fjs.cronus.util.DateUtils;
-import com.fjs.cronus.util.EntityToDto;
-import com.fjs.cronus.util.HttpClientHelper;
+import com.fjs.cronus.util.*;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +52,8 @@ public class PullCustomerService {
     CustomerInfoService customerInfoService;
     @Autowired
     CustomerInfoLogMapper customerInfoLogMapper;
+    @Autowired
+    OutPutService outPutService;
     public PullCustomerDTO copyProperty(PullCustomer pullCustomer){
         PullCustomerDTO pullCustomerDTO=new PullCustomerDTO();
         pullCustomerDTO.setId(pullCustomer.getId());
@@ -351,6 +351,8 @@ public class PullCustomerService {
         customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
         customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
         customerInfo.setCustomerType(ResultResource.CUSTOMERTYPE);
+        customerInfo.setReceiveId(0);
+        customerInfo.setCommunicateId(0);
         customerInfoMapper.insertCustomer(customerInfo);
         //插入日志
         //生成日志记录
@@ -361,6 +363,9 @@ public class PullCustomerService {
         customerInfoLog.setLogUserId(userId);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        try{
+            outPutService.synchronToOcdc(customerInfo);
+        }catch (Exception e){e.printStackTrace();}
         flag = true;
         return  flag;
     }
@@ -380,10 +385,11 @@ public class PullCustomerService {
         jsonObject.put("phone",pullCustomer.getTelephone());
         jsonObject.put("status",status);
         //发送post请求
-        HttpClientHelper httpClientHelper = HttpClientHelper.getInstance();
-        String res  = httpClientHelper.sendJsonHttpPost(CommonConst.HaiDai_ChangPhone,jsonObject.toJSONString());
-        if (!StringUtils.isEmpty(res)){
-            result = Integer.parseInt(res);
+        CronusDto cronusDto = MultiThreadedHttpConnection.getInstance().sendDataByPost(CommonConst.HaiDai_ChangPhone,jsonObject.toJSONString());
+        if (cronusDto != null) {
+            if (!StringUtils.isEmpty( cronusDto.getData().toString())) {
+                result = Integer.parseInt(cronusDto.getData().toString());
+            }
         }
         return  result;
     }

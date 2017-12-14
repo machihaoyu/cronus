@@ -100,6 +100,8 @@ public class CommunicationLogService {
 //        loan.setStatus(CommonConst.LOAN_STATUS_COMMUNICATION);
         customerDto.setLastUpdateTime(date);
         customerDto.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
+        //开始更新沟通人
+        customerDto.setCommunicateId(Integer.parseInt(userInfoDTO.getUser_id()));
         customerInfoMapper.updateCustomer(customerDto);
         //插入客户日志表
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
@@ -118,7 +120,6 @@ public class CommunicationLogService {
             customerMeet.setLastUpdateTime(date);
             customerMeet.setIsDeleted(CommonConst.DATA_NORMAIL);
             customerMeetMapper.insert(customerMeet);
-            //发送一条短信
         }
 
         //沟通日志
@@ -309,14 +310,8 @@ public class CommunicationLogService {
                         Long time2=Long.parseLong(DateUtils.format(date,DateUtils.FORMAT_FULL_Long));
                         if (time1 - time2 > 360){
                             //调用发送信息接口
-                            MailDTO mailDTO = new MailDTO();
                             CustomerInfo customerInfo = customerService.findCustomerById(communicationLog.getCustomerId());
                             String content = "您设置了"+ DateUtils.format(communicationLog.getNextContactTime(),DateUtils.FORMAT_FULL_Long) + "与客户"+ customerInfo.getCustomerName()+"再次沟通，请注意沟通。";
-                            mailDTO.setContent(content);
-                            mailDTO.setCreateTime(date);
-                            mailDTO.setToId(communicationLog.getCreateUser());
-                            mailDTO.setFromId(communicationLog.getCreateUser());
-                            mailDTO.setStatus(0);
                             theaClientService.sendMail(token,content,communicationLog.getCreateUser(),communicationLog.getCreateUser(),null,communicationLog.getCreateUser());
                         }
                     }

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
+import com.fjs.cronus.dto.thea.LoanDTO4;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +43,7 @@ public interface TheaService {
     TheaApiDTO serviceContractToUser(@RequestHeader("Authorization") String token,@RequestParam(value = "customerIds") String customerIds,@RequestParam(value = "toUser")Integer toUser);
 
     @RequestMapping(value = "/loan/v1/cancelAll")
-    TheaApiDTO cancelAll(@RequestHeader("Authorization") String token,@RequestBody JSONObject jsonObject);
+    TheaApiDTO cancelAll(@RequestHeader("Authorization") String token,@RequestBody LoanDTO4 loanDTO4);
 
 
 }

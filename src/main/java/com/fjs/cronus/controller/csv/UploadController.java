@@ -11,6 +11,7 @@ import com.fjs.cronus.api.thea.Loan;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
+import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.PrdCustomer;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.PrdCustomerService;
@@ -195,9 +196,11 @@ public class UploadController {
 //            System.out.println(loan.toString());
             if (customerDTO != null){
                 logger.info("导入的csv:"+customerDTO.toString());
-                UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
-                //TODO 增加客户
-                CronusDto cronusDto = customerInfoService.addCustomer(customerDTO,token);
+                try {
+                    CronusDto cronusDto = customerInfoService.addUploadCustomer(customerDTO, token);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         }
         reader.close();

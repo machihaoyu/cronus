@@ -227,7 +227,7 @@ public class AllocateController {
                         CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_2.getCode(), null);
             }
             //开始进行批量分配
-            boolean updateResult = allocateService.batchAllocate(allocateDTO.getIds(),allocateDTO.getEmpId(),userInfoDTO);
+            boolean updateResult = allocateService.batchAllocate(allocateDTO.getIds(),allocateDTO.getEmpId(),userInfoDTO,token);
             if (updateResult == true) {
                 theaApiDTO.setResult(CommonMessage.ALLOCATE_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.ALLOCATE_SUCCESS.getCodeDesc());

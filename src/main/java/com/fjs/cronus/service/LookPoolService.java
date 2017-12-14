@@ -75,12 +75,18 @@ public class LookPoolService {
         }
         paramMap.put("start",(page-1) * size);
         paramMap.put("size",size);
+        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO == null){
+            throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
+        }
+        Integer lookphone =Integer.parseInt(userInfoDTO.getLook_phone());
+        Integer user_Id = Integer.parseInt(userInfoDTO.getUser_id());
         List<CustomerInfo> customerInfoList = customerInfoMapper.customerList(paramMap);
         if (customerInfoList != null && customerInfoList.size() > 0){
 
             for (CustomerInfo customerInfo : customerInfoList) {
                 CustomerListDTO customerDto = new CustomerListDTO();
-                EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto);
+                EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,user_Id);
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);
@@ -121,11 +127,17 @@ public class LookPoolService {
         //获取三无客户盘的状态
         paramMap.put("start",(page-1) * size);
         paramMap.put("size",size);
+        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO == null){
+            throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
+        }
+        Integer lookphone =Integer.parseInt(userInfoDTO.getLook_phone());
+        Integer user_Id = Integer.parseInt(userInfoDTO.getUser_id());
         List<CustomerInfo> customerInfoList = customerInfoMapper.customerList(paramMap);
         if (customerInfoList != null && customerInfoList.size() > 0){
             for (CustomerInfo customerInfo : customerInfoList) {
                 CustomerListDTO customerDto = new CustomerListDTO();
-                EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto);
+                EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,user_Id);
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);

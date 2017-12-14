@@ -59,8 +59,8 @@ public class MultiThreadedHttpConnection {
 	}
 
 
-	public CronusDto<String>  sendDataByPost(String url, String param) {
-		CronusDto<String> result = new CronusDto<String>();
+	public CronusDto  sendDataByPost(String url, String param) {
+		CronusDto result = new CronusDto();
 		if (param == null || url == null) {
 			result.setData("请求参数缺失");
 			return result;

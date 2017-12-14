@@ -89,6 +89,8 @@
   <result column="confirm" jdbcType="INTEGER" property="confirm" />
   <result column="click_communicate_button" jdbcType="INTEGER" property="clickCommunicateButton" />
   <result column="communicate_time" jdbcType="TIMESTAMP" property="communicateTime" />
+    <result column="communicate_id" jdbcType="INTEGER" property="communicateId" />
+    <result column="receive_id" jdbcType="INTEGER" property="receiveId" />
 </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.fjs.cronus.model.CustomerInfoLog" extends="BaseResultMap" >
     <result column="per_description" jdbcType="LONGVARCHAR" property="perDescription" />
@@ -109,7 +111,7 @@
     provident_money, provident_time, compny_name, fixed_phone, loan_amount, customer_source,
     utm_source, own_user_id, own_user_name, receive_time, circle, company_id, retirement_wages,
     level, remain, view_time, view_uid, view_count, autostatus, first_communicate_time,
-    first_allocate_time, cooperation_status, confirm, click_communicate_button, communicate_time
+    first_allocate_time, cooperation_status, confirm, click_communicate_button, communicate_time,communicate_id,receive_id
   </sql>
   <insert id="addCustomerLog" parameterType="com.fjs.cronus.model.CustomerInfoLog" useGeneratedKeys="true" keyProperty="id">
     insert into customer_info_log
@@ -381,6 +383,12 @@
       <if test="ext != null">
         ext,
       </if>
+      <if test="communicateId != null">
+        communicate_id,
+      </if>
+      <if test="receiveId != null">
+        receive_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
 
@@ -650,6 +658,12 @@
       </if>
       <if test="ext != null">
         #{ext,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="communicateId != null">
+        #{communicateId,jdbcType=INTEGER},
+      </if>
+      <if test="receiveId != null">
+        #{receiveId,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>

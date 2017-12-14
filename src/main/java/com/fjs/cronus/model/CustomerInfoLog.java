@@ -178,7 +178,9 @@ public class CustomerInfoLog extends BaseModel {
     private Date communicateTime;
 
     private Integer companyId;
+    private Integer communicateId;
 
+    private Integer receiveId;
 
     public Integer getCompanyId() {
         return companyId;
@@ -857,5 +859,21 @@ public class CustomerInfoLog extends BaseModel {
 
     public void setCommunicateTime(Date communicateTime) {
         this.communicateTime = communicateTime;
+    }
+
+    public Integer getCommunicateId() {
+        return communicateId;
+    }
+
+    public void setCommunicateId(Integer communicateId) {
+        this.communicateId = communicateId;
+    }
+
+    public Integer getReceiveId() {
+        return receiveId;
+    }
+
+    public void setReceiveId(Integer receiveId) {
+        this.receiveId = receiveId;
     }
 }

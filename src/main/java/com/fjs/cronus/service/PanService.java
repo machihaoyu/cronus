@@ -91,12 +91,18 @@ public class PanService {
             map.put("type",type);
             map.put("start",(page-1)*size);
             map.put("size",size);
+            UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
+            if (userInfoDTO == null){
+                throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
+            }
+            Integer lookphone =Integer.parseInt(userInfoDTO.getLook_phone());
+            Integer user_Id = Integer.parseInt(userInfoDTO.getUser_id());
             List<CustomerInfo> customerInfoList = customerInfoMapper.publicOfferList(map);
             Integer total = customerInfoMapper.publicOfferCount(map);
             if (customerInfoList != null && customerInfoList.size() > 0) {
                 for (CustomerInfo customerInfo : customerInfoList){
                     CustomerListDTO customerDto = new CustomerListDTO();
-                    EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto);
+                    EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,user_Id);
                     resultDto.add(customerDto);
                 }
             }
@@ -177,6 +183,8 @@ public class PanService {
         customerInfo.setOwnUserName(ucUserDTO.getName());
         customerInfo.setReceiveTime(date);
         customerInfo.setSubCompanyId(Integer.valueOf(ucUserDTO.getSub_company_id()));
+        //更改领取人
+        customerInfo.setReceiveId(userId);
         customerInfoMapper.updateCustomer(customerInfo);
 
         //开始插入日志

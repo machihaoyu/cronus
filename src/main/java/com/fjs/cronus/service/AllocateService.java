@@ -13,7 +13,9 @@ import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerInfoLog;
+import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,8 @@ public class AllocateService {
     UcService ucService;
     @Autowired
     CustomerInfoLogMapper customerInfoLogMapper;
+    @Autowired
+    TheaClientService theaClientService;
 
     public CronusDto sellUser(String token,String customer_ids,String action,Integer userId){
         CronusDto resultDto = new CronusDto();
@@ -91,7 +95,7 @@ public class AllocateService {
     }
 
     @Transactional
-    public boolean batchAllocate(String ids, Integer empId,UserInfoDTO userInfoDTO) {
+    public boolean batchAllocate(String ids, Integer empId,UserInfoDTO userInfoDTO,String token) {
         boolean flag = false;
         Integer userId = null;
         //ids 转为list
@@ -147,11 +151,15 @@ public class AllocateService {
                 }
                 //开始分配
                 customerInfoMapper.batchAllocate(map);
+                try {
+                    String content = userInfoDTO.getName() +"分配给了你"+ customerInfoList.size()+"个客户,"+ "请注意跟进。";
+                    theaClientService.sendMail(token,content,userId,userId,null,userId);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
                 flag = true;
             }
-
         }
-
         return  flag;
     }
 }

@@ -178,6 +178,10 @@ public class CustomerInfo extends BaseModel {
 
     private Integer companyId;
 
+    private Integer communicateId;
+
+    private Integer receiveId;
+
     public Integer getCompanyId() {
         return companyId;
     }
@@ -842,6 +846,19 @@ public class CustomerInfo extends BaseModel {
         this.loanAmount = loanAmount;
     }
 
+    public Integer getCommunicateId() {
+        return communicateId;
+    }
 
+    public void setCommunicateId(Integer communicateId) {
+        this.communicateId = communicateId;
+    }
 
+    public Integer getReceiveId() {
+        return receiveId;
+    }
+
+    public void setReceiveId(Integer receiveId) {
+        this.receiveId = receiveId;
+    }
 }

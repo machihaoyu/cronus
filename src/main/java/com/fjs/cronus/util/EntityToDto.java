@@ -14,14 +14,24 @@ import java.util.List;
 public class EntityToDto {
 
 
-    public static void customerEntityToCustomerListDto(CustomerInfo customerInfo, CustomerListDTO dto){
+    public static void customerEntityToCustomerListDto(CustomerInfo customerInfo, CustomerListDTO dto,Integer lookphone,Integer userId){
 
         dto.setId(customerInfo.getId());
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
             //对手机号进行解密并且隐藏后四位
-            String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-            String phoneNumber = telephone.substring(0, 3) + "****" + telephone.substring(7, telephone.length());
-            dto.setTelephonenumber(phoneNumber);
+            if (lookphone == 1) {//查看自己
+                if (userId == customerInfo.getOwnUserId()) {
+                    String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+                    dto.setTelephonenumber(telephone);
+                }else {
+                    String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+                    String phoneNumber = telephone.substring(0, 7) + "****";
+                    dto.setTelephonenumber(phoneNumber);
+                }
+            }else if (lookphone == 2){//查看全部
+                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+                dto.setTelephonenumber(telephone);
+            }
         }
         if (!StringUtils.isEmpty(customerInfo.getCustomerName())){
             dto.setCustomerName(customerInfo.getCustomerName());
@@ -74,7 +84,7 @@ public class EntityToDto {
         dto.setId(customerInfo.getId());
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
             String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-            String phoneNumber = telephone.substring(0, 3) + "****" + telephone.substring(7, telephone.length());
+            String phoneNumber = telephone.substring(0, 7) + "****";
             dto.setTelephonenumber(phoneNumber);
         }
         if (!StringUtils.isEmpty(customerInfo.getCustomerName())){
@@ -1445,8 +1455,8 @@ public class EntityToDto {
              dto.setCustomer_name(ocrIdentity.getCustomerName());
          }
          if (!StringUtils.isEmpty(ocrIdentity.getCustomerTelephone())){
-             //解密并隐藏
-             String phoneNumber = ocrIdentity.getCustomerTelephone().substring(0, 3) + "****" + ocrIdentity.getCustomerTelephone().substring(7, ocrIdentity.getCustomerTelephone().length());
+             //解密并隐藏  String phoneNumber = telephone.substring(0, 7) + "****";
+             String phoneNumber = ocrIdentity.getCustomerTelephone().substring(0, 7) + "****";
              dto.setCustomer_telephone(phoneNumber);
          }
 
@@ -1507,7 +1517,7 @@ public class EntityToDto {
             ocrHouseholdRegister.setCustomer_name(dto.getCustomerName());
         }
         if (!StringUtils.isEmpty(dto.getCustomerTelephone())){
-            String phoneNumber = dto.getCustomerTelephone().substring(0, 3) + "****" + dto.getCustomerTelephone().substring(7, dto.getCustomerTelephone().length());
+            String phoneNumber = dto.getCustomerTelephone().substring(0, 7) + "****";
             ocrHouseholdRegister.setCustomer_telephone(phoneNumber);
         }
         if (!StringUtils.isEmpty(dto.getDocumentId())){
@@ -1553,7 +1563,7 @@ public class EntityToDto {
         }
         if (!StringUtils.isEmpty(dto.getCustomerTelephone())){
             //TODO 解密
-            String phoneNumber = dto.getCustomerTelephone().substring(0, 3) + "****" + dto.getCustomerTelephone().substring(7, dto.getCustomerTelephone().length());
+            String phoneNumber = dto.getCustomerTelephone().substring(0, 7) + "****";
             ocrDriverLicense.setCustomer_telephone(phoneNumber);
         }
         if (!StringUtils.isEmpty(dto.getDocumentId())){
@@ -1600,7 +1610,7 @@ public class EntityToDto {
             ocrDriverVehicle.setCustomer_name(dto.getCustomerName());
         }
         if (!StringUtils.isEmpty(dto.getCustomerTelephone())){
-            String phoneNumber = dto.getCustomerTelephone().substring(0, 3) + "****" + dto.getCustomerTelephone().substring(7, dto.getCustomerTelephone().length());
+            String phoneNumber = dto.getCustomerTelephone().substring(0, 7) + "****";
             ocrDriverVehicle.setCustomer_telephone(phoneNumber);
         }
         if (!StringUtils.isEmpty(dto.getDocumentId())){
@@ -1646,7 +1656,7 @@ public class EntityToDto {
             ocrHouseRegistration.setCustomer_name(dto.getCustomerName());
         }
         if (!StringUtils.isEmpty(dto.getCustomerTelephone())){
-            String phoneNumber = dto.getCustomerTelephone().substring(0, 3) + "****" + dto.getCustomerTelephone().substring(7, dto.getCustomerTelephone().length());
+            String phoneNumber = dto.getCustomerTelephone().substring(0, 7) + "****";
             ocrHouseRegistration.setCustomer_telephone(phoneNumber);
         }
         if (!StringUtils.isEmpty(dto.getDocumentId())){
@@ -1955,6 +1965,12 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getCommunicateTime())){
             log.setCommunicateTime(customerInfo.getCommunicateTime());
         }
+        if (!StringUtils.isEmpty(customerInfo.getReceiveId())){
+            log.setReceiveId(customerInfo.getReceiveId());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCommunicateId())){
+            log.setReceiveId(customerInfo.getCommunicateId());
+        }
 
 
     }
@@ -2079,4 +2095,5 @@ public class EntityToDto {
             dto.setCustomerStreet(customerInfo.getCustomerStreet());
         }
     }
+
 }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.cronus.EmplouInfo;
 import com.fjs.cronus.dto.cronus.QuestionsDTO;
+import com.fjs.cronus.util.DEC3Util;
 import org.w3c.dom.ls.LSInput;
 
 import javax.swing.event.ListDataEvent;
@@ -68,7 +69,7 @@ public class DateTest {
         questionsDTOS.add(questionsDTO2);
         questionsDTOS.add(questionsDTO3);
         //*/
-        JSONObject jsonObject = new JSONObject();
+      /*  JSONObject jsonObject = new JSONObject();
 
        // a:1:{i:0;a:3:{s:7:"content";s:12:"按规定发";s:14:"create_user_id";s:1:"1";s:11:"create_time";i:1512095726;}}
         jsonObject.put("content","按规定发");
@@ -85,7 +86,10 @@ public class DateTest {
         jsonArray.add(jsonObject);
         jsonArray.add(jsonObject1);
 
-        System.out.println(jsonArray.toString());
+        System.out.println(jsonArray.toString());*/
+        String telephone = "13162706810";
+        String phoneNumber = telephone.substring(0, 6) + "****" + telephone.substring(3, telephone.length());
+        System.out.println(phoneNumber);
 
     }
 }
