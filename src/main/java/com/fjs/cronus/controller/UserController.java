@@ -73,7 +73,7 @@ public class UserController {
             @ApiImplicitParam(name = "page", value = "第几页", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "pageSize", value = "每页显示数", required = false, paramType = "query", dataType = "int"),
     })
-    @RequestMapping(value = "/getUnderlingByUserId", method = RequestMethod.GET)
+    @RequestMapping(value = "/getSubUserByUserId", method = RequestMethod.GET)
     @ResponseBody
     public PhpQueryResultDto getSubUserByUserId(HttpServletRequest request, Integer subCompanyId, String flag,
                                                 String name, @RequestParam("page") Integer page,
