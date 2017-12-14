@@ -1,5 +1,7 @@
 package com.fjs.cronus.api.thea;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -22,9 +24,9 @@ public class Config implements Serializable{
     private static final long serialVersionUID = 1L;
 
     private Integer id;
-
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
-
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date lastUpdateTime;
 
     private Integer createUser;
@@ -33,14 +35,14 @@ public class Config implements Serializable{
 
     private Integer isDeleted;
 
-    private String name;
+    private String conName;
 
-    private String title;
+    private String conTitle;
 
-    private String description;
+    private String conDescription;
 
-    private String value;
-    private Integer type;
+    private String conValue;
+    private Integer conType;
 
 
     public Integer getId() {
@@ -91,44 +93,44 @@ public class Config implements Serializable{
         this.isDeleted = isDeleted;
     }
 
-    public String getName() {
-        return name;
+    public String getConName() {
+        return conName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setConName(String conName) {
+        this.conName = conName;
     }
 
-    public String getTitle() {
-        return title;
+    public String getConTitle() {
+        return conTitle;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setConTitle(String conTitle) {
+        this.conTitle = conTitle;
     }
 
-    public String getDescription() {
-        return description;
+    public String getConDescription() {
+        return conDescription;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setConDescription(String conDescription) {
+        this.conDescription = conDescription;
     }
 
-    public String getValue() {
-        return value;
+    public String getConValue() {
+        return conValue;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setConValue(String conValue) {
+        this.conValue = conValue;
     }
 
-    public Integer getType() {
-        return type;
+    public Integer getConType() {
+        return conType;
     }
 
-    public void setType(Integer type) {
-        this.type = type;
+    public void setConType(Integer conType) {
+        this.conType = conType;
     }
 
     @Override
@@ -140,10 +142,10 @@ public class Config implements Serializable{
                 ", createUser=" + createUser +
                 ", lastUpdateUser=" + lastUpdateUser +
                 ", isDeleted=" + isDeleted +
-                ", name='" + name + '\'' +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", value='" + value + '\'' +
+                ", conName='" + conName + '\'' +
+                ", conTitle='" + conTitle + '\'' +
+                ", conDescription='" + conDescription + '\'' +
+                ", conValue='" + conValue + '\'' +
                 '}';
     }
 }

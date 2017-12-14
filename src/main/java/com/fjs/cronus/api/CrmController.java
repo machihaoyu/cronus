@@ -10,6 +10,7 @@ import com.fjs.cronus.dto.customer.*;
 import com.fjs.cronus.dto.login.AuthorityDTO;
 import com.fjs.cronus.dto.login.LoginInfoDTO;
 import com.fjs.cronus.dto.param.CustomerSaleParamDTO;
+import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.enums.ErrorNumEnum;
 import com.fjs.cronus.entity.Agreement;
 import com.fjs.cronus.entity.CustomerSale;
@@ -771,9 +772,9 @@ public class CrmController {
 
     //获取用户信息
     @RequestMapping(value = "/getUserInfo", method = RequestMethod.GET)
-    public PageBeanDTO<UserInfoDTO> getUserInfo(@RequestParam Integer departmentId ,@RequestParam String search,
-                                  @RequestParam Integer type,@RequestParam Integer page,
-                                  @RequestParam Integer size) throws InvocationTargetException, IllegalAccessException {
+    public PageBeanDTO<UserInfoDTO> getUserInfo(@RequestParam Integer departmentId , @RequestParam String search,
+                                                @RequestParam Integer type, @RequestParam Integer page,
+                                                @RequestParam Integer size) throws InvocationTargetException, IllegalAccessException {
         HashMap<String,Object> map = new HashMap<>();
         if(StringUtils.isNotEmpty(search)){
             map.put("name",search);
