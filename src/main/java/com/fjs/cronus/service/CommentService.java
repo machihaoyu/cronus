@@ -1,10 +1,15 @@
 package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.cronus.CommentDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.mappers.CommentMapper;
 import com.fjs.cronus.model.Comment;
+import com.fjs.cronus.model.CommunicationLog;
+import com.fjs.cronus.model.CustomerInfo;
+import com.fjs.cronus.service.thea.TheaClientService;
+import com.fjs.cronus.util.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,8 +26,12 @@ import java.util.Map;
 public class CommentService {
     @Autowired
     private CommentMapper commentMapper;
-
-    public Integer add(CommentDTO commentDTO, UserInfoDTO userInfoDTO){
+    @Autowired
+    CustomerInfoService customerInfoService;
+    @Autowired
+    TheaClientService theaClientService;
+    public boolean add(CommentDTO commentDTO, UserInfoDTO userInfoDTO, CommunicationLog communicationLog,String token){
+        boolean flag = false;
         Comment comment = copyProperty(commentDTO);
         Integer userId = null;
         if (userInfoDTO != null && StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
@@ -33,7 +42,23 @@ public class CommentService {
         comment.setCreateUser(userId);
         comment.setCreateUserName(userInfoDTO.getName());
         comment.setIsDeleted(CommonConst.DATA_NORMAIL);
-        return commentMapper.insert(comment);
+        commentMapper.insert(comment);
+        //发送消息
+        try {
+            MailDTO mailDTO = new MailDTO();
+            CustomerInfo customerInfo = customerInfoService.findCustomerById(communicationLog.getCustomerId());
+            String content = "团队长"+userInfoDTO.getName()  + "对您的客户"+ customerInfo.getCustomerName()+"的沟通日志进行了评论，请注意查看。";
+            mailDTO.setContent(content);
+            mailDTO.setCreateTime(date);
+            mailDTO.setToId(communicationLog.getCreateUser());
+            mailDTO.setFromId(communicationLog.getCreateUser());
+            mailDTO.setStatus(0);
+            theaClientService.sendMail(token,content,communicationLog.getCreateUser(),communicationLog.getCreateUser(),null,communicationLog.getCreateUser());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        flag =true;
+        return flag;
     }
 
     public Comment copyProperty(CommentDTO commentDTO){

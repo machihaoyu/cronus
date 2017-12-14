@@ -95,8 +95,8 @@ public class CommentController {
                 theaApiDTO.setMessage(CommonConst.COMMENT_NULL);
                 return theaApiDTO;
             }
-            int addResult = commentService.add(commentDTO,userInfoDTO);
-            if (addResult >0) {
+            boolean addResult = commentService.add(commentDTO,userInfoDTO,communicationLog,token);
+            if (addResult == true) {
                 theaApiDTO.setResult(CommonMessage.ADD_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
             } else {
