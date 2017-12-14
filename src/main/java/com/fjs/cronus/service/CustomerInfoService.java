@@ -79,7 +79,7 @@ public class CustomerInfoService {
         Map<String,Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
         List<CustomerListDTO> dtoList = new ArrayList<>();
-        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
+        PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
         if (userInfoDTO == null){
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
         }
@@ -116,7 +116,7 @@ public class CustomerInfoService {
         paramsMap.put("owerId",ids);
         paramsMap.put("start",(page-1) * size);
         paramsMap.put("size",size);
-        Integer lookphone =Integer.parseInt(userInfoDTO.getLook_phone());
+        Integer lookphone =Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
         resultList = customerInfoMapper.customerList(paramsMap);
         Integer count = customerInfoMapper.customerListCount(paramsMap);
         if (resultList != null && resultList.size() > 0){
@@ -313,11 +313,11 @@ public class CustomerInfoService {
         CronusDto<CustomerDTO> resultDto = new CronusDto();
         Map<String,Object> paramsMap = new HashMap<>();
         //获取业务员信息
-        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
+        PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
         if (userInfoDTO == null){
             throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
         }
-        Integer lookphone = Integer.valueOf(userInfoDTO.getLook_phone());
+        Integer lookphone = Integer.valueOf(userInfoDTO.getUser_info().getLook_phone());
         paramsMap.put("id",customerId);
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
         if (customerInfo == null){
@@ -644,7 +644,7 @@ public class CustomerInfoService {
         Map<String,Object> paramsMap = new HashMap<>();
         List<CustomerListDTO> doList = new ArrayList<>();
         QueryResult<CustomerListDTO> result = new QueryResult<>();
-        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
+        PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
         if (userInfoDTO == null){
             throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
         }
@@ -673,8 +673,8 @@ public class CustomerInfoService {
             resultList = customerInfoMapper.allocationCustomerList(paramsMap);
             count = customerInfoMapper.allocationCustomerListCount(paramsMap);
         }
-        Integer lookphone =Integer.parseInt(userInfoDTO.getLook_phone());
-        Integer userId = Integer.parseInt(userInfoDTO.getUser_id());
+        Integer lookphone =Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
+        Integer userId = Integer.parseInt(userInfoDTO.getUser_info().getUser_id());
         if (resultList != null && resultList.size() > 0){
             for (CustomerInfo customerInfo : resultList) {
                 CustomerListDTO customerDto = new CustomerListDTO();
@@ -817,13 +817,13 @@ public class CustomerInfoService {
             }
             paramMap.put("start",(page-1) * size);
             paramMap.put("size",size);
-            UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
-            if (userInfoDTO == null){
+            PHPLoginDto phpLoginDto = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
+            if (phpLoginDto == null){
                 throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
             }
             List<CustomerInfo> customerInfoList = customerInfoMapper.customerList(paramMap);
-            Integer lookphone =Integer.parseInt(userInfoDTO.getLook_phone());
-            Integer userId = Integer.parseInt(userInfoDTO.getUser_id());
+            Integer lookphone =Integer.parseInt(phpLoginDto.getUser_info().getLook_phone());
+            Integer userId = Integer.parseInt(phpLoginDto.getUser_info().getLook_phone());
             if (customerInfoList != null && customerInfoList.size() > 0){
 
                 for (CustomerInfo customerInfo : customerInfoList) {

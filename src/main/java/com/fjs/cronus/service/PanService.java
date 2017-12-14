@@ -4,6 +4,7 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.dto.cronus.PanParamDTO;
@@ -91,18 +92,18 @@ public class PanService {
             map.put("type",type);
             map.put("start",(page-1)*size);
             map.put("size",size);
-            UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
+            PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
             if (userInfoDTO == null){
                 throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
             }
-            Integer lookphone =Integer.parseInt(userInfoDTO.getLook_phone());
-            Integer user_Id = Integer.parseInt(userInfoDTO.getUser_id());
+            Integer lookphone =Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
+            Integer user_Id = Integer.parseInt(userInfoDTO.getUser_info().getUser_id());
             List<CustomerInfo> customerInfoList = customerInfoMapper.publicOfferList(map);
             Integer total = customerInfoMapper.publicOfferCount(map);
             if (customerInfoList != null && customerInfoList.size() > 0) {
                 for (CustomerInfo customerInfo : customerInfoList){
                     CustomerListDTO customerDto = new CustomerListDTO();
-                    EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,user_Id);
+                    EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,userId);
                     resultDto.add(customerDto);
                 }
             }
