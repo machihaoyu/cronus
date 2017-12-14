@@ -35,7 +35,7 @@ public class OAuthResourceConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
       //  http.authorizeRequests().antMatchers("/uc/api/**", "/saas/api/**", "/ocr/api/**","/php/api/**","/api/v1/**").authenticated();
-        http.authorizeRequests().requestMatchers(CorsUtils::isPreFlightRequest).permitAll().antMatchers("/uc/api/**", "/saas/api/**", "/ocr/api/**","/php/api/**","/api/v1/**").authenticated();
+        http.authorizeRequests().requestMatchers(CorsUtils::isPreFlightRequest).permitAll().antMatchers("/uc/api/**", "/saas/api/**", "/ocr/api/**","/php/api/**","/api/v1/**","/user/v1/**").authenticated();
         //http.addFilterBefore( new PreAuthFilter(), BasicAuthenticationFilter )
        /* http
                 .authorizeRequests()
