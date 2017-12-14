@@ -159,13 +159,6 @@ public class AutoAllocateService {
                 }
                 customerDTO.setReceiveTime(new Date());
                 customerDTO.setLastUpdateTime(new Date());
-//                    if (1 == autoStatus) { //是自动分配的
-                //重复申请,无论有效无效,直接变成未沟通
-//                        customerDTO.setst(CommonEnum.LOAN_STATUE_1.getCode());
-//                        customerDTO.setClickCommunicateButton(CommonEnum.NO.getCode());
-//                        customerDTO.setCommunicateTime(null);
-//                    }
-//                    theaService.saveOne(loan);
                 customerInfoService.editCustomerSys(customerDTO, token);
             } else {
                 CronusDto<CustomerDTO> cronusDto = customerInfoService.fingByphone(customerDTO.getTelephonenumber());
