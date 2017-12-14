@@ -3,6 +3,7 @@ package com.fjs.cronus.dto;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
+ * 添加渠道，来源dto
  * Created by yinzf on 2017/12/14.
  */
 public class AutoCleanManageDTO {

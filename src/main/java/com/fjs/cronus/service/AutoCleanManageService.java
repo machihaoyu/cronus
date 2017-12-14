@@ -1,12 +1,18 @@
 package com.fjs.cronus.service;
 
-import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.dto.AutoCleanManageDTO;
+import com.fjs.cronus.dto.AutoCleanManageDTO2;
+import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
+import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.mappers.AutoCleanManageMapper;
 import com.fjs.cronus.model.AutoCleanManage;
+import com.fjs.cronus.model.CustomerMeet;
+import com.fjs.cronus.service.client.ThorInterfaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.entity.Example;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +25,8 @@ public class AutoCleanManageService {
 
     @Autowired
     private AutoCleanManageMapper autoCleanManageMapper;
+    @Autowired
+    private ThorInterfaceService thorUcService;
 
     /**
      * 获取集合
@@ -45,5 +53,30 @@ public class AutoCleanManageService {
         autoCleanManage.setUtmSource(autoCleanManageDTO.getUtmSource());
         autoCleanManage.setCustomerSource(autoCleanManageDTO.getCustomerSource());
         return autoCleanManage;
+    }
+
+    public List<AutoCleanManageDTO2> getList(String token){
+        List<AutoCleanManageDTO2> dtoList = new ArrayList<>();
+        List<AutoCleanManage> autoCleanManageList = new ArrayList<>();
+        Example example=new Example(AutoCleanManage.class);
+        Example.Criteria criteria=example.createCriteria();
+        criteria.andEqualTo("isDeleted",1);
+        criteria.andEqualTo("utmSource","");
+        criteria.andEqualTo("customerSource","");
+        autoCleanManageList = autoCleanManageMapper.selectByExample(example);
+        for (AutoCleanManage autoCleanManage:autoCleanManageList){
+            AutoCleanManageDTO2 autoCleanManageDTO = new AutoCleanManageDTO2();
+            autoCleanManageDTO.setId(autoCleanManage.getId());
+            //获取业务员信息
+            SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token,autoCleanManage.getUserId()).getData();
+            if (simpleUserInfoDTO == null){
+                return null;
+            }
+            autoCleanManageDTO.setOwnerUserName(simpleUserInfoDTO.getName());
+            autoCleanManageDTO.setCreateTime(autoCleanManage.getCreateTime());
+            autoCleanManageDTO.setTelephone(simpleUserInfoDTO.getTelephone());
+            dtoList.add(autoCleanManageDTO);
+        }
+        return dtoList;
     }
 }
