@@ -2,10 +2,13 @@ package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
+import com.fjs.cronus.api.thea.Config;
 import com.fjs.cronus.api.thea.Loan;
+import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.AutoCleanManage;
 import com.fjs.cronus.model.Mail;
+import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +35,8 @@ public class AutoCleanService {
 //    @Value("${publicToken}")
 //    private String publicToken;
 
-//    @Autowired
-//    private ConfigService configService;
+    @Autowired
+    private TheaService theaService;
 
 //    @Autowired
 //    private LoanService loanService;
@@ -273,6 +276,19 @@ public class AutoCleanService {
         return null;
     }
 
+    public Config findByType(Integer type,String token){
+        Config config = null;
+        String name ="";
+        if (type == 1){
+            name = CommonConst.CAN_NOT_CLEAN_CUSTOMER_COMPANY;
+        }
+        if (type == 2){
+            name = CommonConst.CAN_NOT_CLEAN_CUSTOMER_USER_ID;
+        }
+        TheaApiDTO<Config> resultDto = theaService.findByName(token,CommonConst.CAN_NOT_CLEAN_CUSTOMER_COMPANY);
+        config = resultDto.getData();
+        return config;
+    }
 
     public static void main(String args[]) {
         /*List<Integer> all = new ArrayList<>();
@@ -294,5 +310,4 @@ public class AutoCleanService {
         System.out.println(once);
 
     }
-
 }

@@ -5,13 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.api.thea.Config;
-import com.fjs.cronus.api.thea.Loan;
-import com.fjs.cronus.api.thea.LoanDTO;
-import com.fjs.cronus.dto.AutoCleanManageDTO;
-import com.fjs.cronus.dto.CleanMangerCompanyDTO;
-import com.fjs.cronus.dto.CleanUserDTO;
-import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.api.crius.CriusApiDTO;
+import com.fjs.cronus.dto.*;
+import com.fjs.cronus.dto.cronus.BaseUcDTO;
+import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
@@ -21,6 +17,7 @@ import com.fjs.cronus.service.AutoCleanService;
 import com.fjs.cronus.service.CleanMangerService;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.client.ThorInterfaceService;
+import com.fjs.cronus.util.FastJsonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -32,10 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -61,8 +55,10 @@ public class CleanMangerController {
     private ThorInterfaceService thorUcService;
     @Autowired
     private TheaService theaService;
+//    @Autowired
+//    private AutoCleanService autoCleanService;
 
-    @ApiOperation(value="添加需要屏蔽的公司", notes="添加需要屏蔽的公司")
+    /*@ApiOperation(value="添加需要屏蔽的公司", notes="添加需要屏蔽的公司")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
     })
@@ -195,7 +191,7 @@ public class CleanMangerController {
         }
 
         return theaApiDTO;
-    }
+    }*/
 
     @ApiOperation(value="新增自动清洗管理", notes="新增自动清洗管理")
     @ApiImplicitParams({
@@ -245,5 +241,31 @@ public class CleanMangerController {
         }
 
         return theaApiDTO;
+    }
+
+    @ApiOperation(value="获取自动清洗屏蔽列表", notes="获取屏蔽列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/getAutoCleanList", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto getAutoCleanList(HttpServletRequest request,@RequestParam(required = false)Integer type){
+        CronusDto cronusDto = new CronusDto();
+        String token=request.getHeader("Authorization");
+        List<AutoCleanManageDTO2> autoCleanManageList = null;
+        try{
+            autoCleanManageList = autoCleanManageService.getList(token);
+            cronusDto.setResult(CommonMessage.SUCCESS.getCode());
+            cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+        }catch (Exception e){
+            cronusDto.setResult(CommonMessage.FAIL.getCode());
+            cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
+            logger.error("获取屏蔽列表失败：",e);
+        }
+
+
+            cronusDto.setData(autoCleanManageList);
+
+        return cronusDto;
     }
 }
