@@ -30,6 +30,7 @@ import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
 import org.apache.commons.collections.map.HashedMap;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -385,6 +386,43 @@ public class CustomerInfoService {
         resultDto.setData(customerInfo.getId());
         return  resultDto;
     }
+
+    public CronusDto editCustomerSys(CustomerDTO customerDTO, String token){
+        CronusDto resultDto = new CronusDto();
+        //校验参数手机号不更新
+        Integer user_id = ucService.getUserIdByToken(token);
+        if (user_id == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "信息出错!");
+        }
+        Map<String,Object> paramsMap = new HashMap<>();
+        Integer id = customerDTO.getId();
+        paramsMap.put("id",id);
+        CustomerInfo customerInfo  = customerInfoMapper.findByFeild(paramsMap);
+        if (customerInfo == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        Date date = new Date();
+        BeanUtils.copyProperties(customerDTO,customerInfo);
+
+        customerInfo.setLastUpdateTime(date);
+        customerInfo.setConfirm(0);
+        customerInfo.setLastUpdateUser(user_id);
+        customerInfo.setClickCommunicateButton(0);
+        customerInfoMapper.updateCustomerSys(customerInfo);
+        //生成日志记录
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription("自动分配更新客户");
+        customerInfoLog.setLogUserId(user_id);
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(customerInfo.getId());
+        return  resultDto;
+    }
+
     public List findCustomerByType(String customerType){
         Map<String,Object> paramsMap = new HashMap<>();
         List<Integer> customerInfoList = new ArrayList<>();

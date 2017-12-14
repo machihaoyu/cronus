@@ -11,6 +11,7 @@ import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
+import com.fjs.cronus.dto.uc.CrmUserDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.enums.AllocateEnum;
@@ -69,6 +70,9 @@ public class AutoAllocateService {
 
 //    @Autowired
 //    private LoanLogService loanLogService;
+
+    @Autowired
+    ThorInterfaceService thorInterfaceService;
 
     @Autowired
     private AgainAllocateCustomerService againAllocateCustomerService;
@@ -151,17 +155,18 @@ public class AutoAllocateService {
                     } else {
                         customerDTO.setSubCompanyId(0);
                     }
-                    //customerDTO.se(new Date()); //todo customerDTO 无领取时间 `receive_time`
-                    customerDTO.setLastUpdateTime(new Date());
+
+                }
+                customerDTO.setReceiveTime(new Date());
+                customerDTO.setLastUpdateTime(new Date());
 //                    if (1 == autoStatus) { //是自动分配的
-                    //重复申请,无论有效无效,直接变成未沟通
+                //重复申请,无论有效无效,直接变成未沟通
 //                        customerDTO.setst(CommonEnum.LOAN_STATUE_1.getCode());
 //                        customerDTO.setClickCommunicateButton(CommonEnum.NO.getCode());
 //                        customerDTO.setCommunicateTime(null);
 //                    }
 //                    theaService.saveOne(loan);
-                    //customerInfoService.editCustomerOk(customerDTO, token); //todo
-                }
+                customerInfoService.editCustomerSys(customerDTO, token);
             } else {
                 CronusDto<CustomerDTO> cronusDto = customerInfoService.fingByphone(customerDTO.getTelephonenumber());
                 CustomerDTO hasCustomer = cronusDto.getData();
@@ -180,6 +185,7 @@ public class AutoAllocateService {
 
             switch (allocateEntity.getAllocateStatus().getCode()) {
                 case "0":
+                    break;
                 case "1":
                     String[] cityStrArrayAll = StringUtils.split(allocateCities, ",");
                     if (ArrayUtils.contains(cityStrArrayAll, customerDTO.getCity())) {
@@ -200,7 +206,8 @@ public class AutoAllocateService {
                     activeChannelAddTansaction(customerDTO);
                     sendMessage(customerDTO, token);
                     break;
-                case "2":
+                case "2": //WAITING_POOL
+                    sendCRMAssistantMessage(customerDTO,token);
                     break;
                 case "3":
                     //添加分配日志
@@ -210,6 +217,8 @@ public class AutoAllocateService {
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_5.getCode(), null);
                     activeChannelAddTansaction(customerDTO);
                     sendMessage(customerDTO, token);
+                    break;
+                case "4":
                     break;
             }
 
@@ -258,6 +267,16 @@ public class AutoAllocateService {
                 0,
                 "系统管理员",
                 customerDTO.getOwnerUserId());
+    }
+
+    private void sendCRMAssistantMessage(CustomerDTO customerDTO, String token) {
+
+        BaseUcDTO<List<CrmUserDTO>> crmUser = thorInterfaceService.getCRMUser(token, customerDTO.getCity());
+        List<CrmUserDTO> crmUserDTOList = crmUser.getRetData();
+        for (CrmUserDTO crmUserDTO:
+             crmUserDTOList) {
+            //todo 发送短信
+        }
     }
 
     private UserInfoDTO getOwnerUser(CustomerDTO customerDTO, String token) {

@@ -41,14 +41,8 @@ public class OcdcService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    //    @Autowired
-//    private ConfigRedisService configRedisService;
-
     @Autowired
     private AgainAllocateCustomerService againAllocateCustomerService;
-
-//    @Autowired
-//    private TheaService theaService;
 
     @Autowired
     private TheaClientService theaClientService;
@@ -93,7 +87,7 @@ public class OcdcService {
                     if (cronusDto.getResult() == 0) {
                         customerDTO = cronusDto.getData();
                     }
-                    if (customerDTO != null && customerDTO.getId() > 0) { //重复客户
+                    if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) { //重复客户
 
                         if (isActiveApplicationChannel(customerSalePushLog)) {//主动申请渠道
                             //无负责人
@@ -154,7 +148,7 @@ public class OcdcService {
         }
         //保存OCDC推送日志
         customerSalePushLogService.insertList(customerSalePushLogList);
-        autoAllocateFeedback(successlist,failList);
+        autoAllocateFeedback(successlist, failList);
     }
 
     private void sendMail(String token, CustomerDTO customerDTO) {
