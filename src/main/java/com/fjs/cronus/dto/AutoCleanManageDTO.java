@@ -1,6 +1,9 @@
 package com.fjs.cronus.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
+
+import java.util.Date;
 
 /**
  * 添加渠道，来源dto
@@ -13,6 +16,9 @@ public class AutoCleanManageDTO {
     private String customerSource;
     @ApiModelProperty(value = "渠道")
     private String utmSource;
+    @ApiModelProperty(value = "创建时间（展开列表使用")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    private Date createTime;
 
     public Integer getId() {
         return id;
@@ -36,6 +42,14 @@ public class AutoCleanManageDTO {
 
     public void setUtmSource(String utmSource) {
         this.utmSource = utmSource;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     @Override
