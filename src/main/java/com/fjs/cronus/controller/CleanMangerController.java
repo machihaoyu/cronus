@@ -6,6 +6,7 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.api.thea.Config;
 import com.fjs.cronus.dto.CleanMangerCompanyDTO;
+import com.fjs.cronus.dto.CleanUserDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.crius.CriusApiDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -119,69 +121,72 @@ public class CleanMangerController {
     }
 
 
-    /*@ApiOperation(value="添加需要屏蔽的业务员客户", notes="添加需要屏蔽的业务员客户")
+    @ApiOperation(value="添加需要屏蔽的业务员客户", notes="添加需要屏蔽的业务员客户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
     })
-    @RequestMapping(value = "/addCustomer", method = RequestMethod.POST)
+    @RequestMapping(value = "/addEmp", method = RequestMethod.POST)
     @ResponseBody
-    public TheaApiDTO addCustomer(@Valid @RequestBody CleanMangerCompanyDTO cleanMangerCompanyDTO, BindingResult result, HttpServletRequest request){
-        logger.info("添加需要屏蔽公司的数据：" + cleanMangerCompanyDTO.toString());
+    public TheaApiDTO addEmp(@Valid @RequestBody CleanUserDTO cleanUserDTO, BindingResult result, HttpServletRequest request){
+        logger.info("添加需要屏蔽员工的数据：" + cleanUserDTO.toString());
         TheaApiDTO theaApiDTO = new TheaApiDTO();
         if(result.hasErrors()){
-            throw new TheaException(TheaException.Type.MESSAGE_PARAM_ERROR);
+            throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
         }
         try{
-//            //分公司id不能为空
-//            if (cleanMangerCompanyDTO.getSubCompanyId() == null){
-//                theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
-//                theaApiDTO.setMessage(CommonConst.SUB_COMPANY_ID_NULL);
-//                return theaApiDTO;
-//            }
-//            //获取屏蔽的公司
-//            Config config = configMapper.findValueByName(CommonConst.CAN_NOT_CLEAN_CUSTOMER_COMPANY);
-//            if(config == null){
-//                config = new Config();
-//            }
-//            if (config != null){
-//                String value = config.getConValue();
-//                List<String> strCompany = new ArrayList<>();
-//                if (StringUtils.isNotEmpty(value)){
-//                    JSONObject jsonObject = JSON.parseObject(value);
-//                    for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-//                        strCompany.add(entry.getValue().toString());
-//                    }
-//                    if (strCompany.contains(cleanMangerCompanyDTO.getSubCompanyId().toString())){
-//                        theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
-//                        theaApiDTO.setMessage(CommonConst.SUB_COMPANY_EXIST);
-//                        return theaApiDTO;
-//                    }else{
-//                        strCompany.add(cleanMangerCompanyDTO.getSubCompanyId().toString());
-//                    }
-//                }else{
-//                    strCompany.add(cleanMangerCompanyDTO.getSubCompanyId().toString());
-//                }
-//                String token=request.getHeader("Authorization");
-//                ThorApiDTO<UserInfoDTO> thorApiDTO=thorUcService.getUserInfoByToken(token,CommonConst.SYSTEMNAME);
-//                UserInfoDTO userInfoDTO=thorApiDTO.getData();
-//
-//                config.setConValue(value);
-//                Integer addResult = cleanMangerService.add(cleanMangerCompanyDTO.getSubCompanyId(),strCompany,config,userInfoDTO);
-//                if (addResult >0) {
-//                    theaApiDTO.setResult(CommonMessage.ADD_SUCCESS.getCode());
-//                    theaApiDTO.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
-//                } else {
-//                    logger.error("-------------->addCompany创建屏蔽分公司失败");
-//                    theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
-//                    theaApiDTO.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
-//                }
-//            }
+            //业务员id不能为空
+            if (cleanUserDTO.getUserId() == null){
+                theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+                theaApiDTO.setMessage(CommonConst.ID_NULL);
+                return theaApiDTO;
+            }
+            String token=request.getHeader("Authorization");
+            CronusDto<UserInfoDTO> thorApiDTO=thorUcService.getUserInfoByToken(token,CommonConst.SYSTEMNAME);
+            UserInfoDTO userInfoDTO=thorApiDTO.getData();
+            //获取屏蔽的业务员
+            TheaApiDTO<Config> resultDto = theaService.findByName(token,CommonConst.CAN_NOT_CLEAN_CUSTOMER_USER_ID);
+            Config config = resultDto.getData();
+            String value =  "";
+            if (config != null){
+                List<Integer> idList = new ArrayList<>();
+                value = config.getConValue();
+                if (StringUtils.isNotEmpty(value)){
+                    String ids = value.substring(1,value.length()-1);
+                    String[] idArray = ids.split(",");
+                    if (idArray.length>0){
+                        for(int i=0;i<idArray.length;i++){
+                            Integer id = Integer.parseInt(idArray[i]);
+                            idList.add(id);
+                        }
+                    }
+                    if (idList.contains(cleanUserDTO.getUserId())){
+                        theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+                        theaApiDTO.setMessage(CommonConst.EXIST);
+                        return theaApiDTO;
+                    }else{
+                        idList.add(cleanUserDTO.getUserId());
+                    }
+                }else{
+                    idList.add(cleanUserDTO.getUserId());
+                }
+                value = idList.toString();
+                config.setConValue(value);
+                Integer addResult = cleanMangerService.addEmp(config,token);
+                if (addResult >0) {
+                    theaApiDTO.setResult(CommonMessage.ADD_SUCCESS.getCode());
+                    theaApiDTO.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
+                } else {
+                    logger.error("-------------->addEmp创建屏蔽业务员失败");
+                    theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+                    theaApiDTO.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
+                }
+            }
         }catch (Exception e){
-            logger.error("-------------->addCompany创建屏蔽分公司失败",e);
+            logger.error("-------------->addCompany创建屏蔽业务员失败",e);
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
         }
 
         return theaApiDTO;
-    }*/
+    }
 }

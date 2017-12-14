@@ -7,9 +7,6 @@ import com.fjs.cronus.service.client.TheaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import java.util.List;
 
 /**
@@ -35,6 +32,16 @@ public class CleanMangerService {
         Integer a=0;
         companyConfig.setConValue(str);
 
+        CriusApiDTO criusApiDTO = theaService.updatebConfig(token, companyConfig);
+        if (criusApiDTO.getResult() == 0){
+            a = 1;
+        }
+        return a;
+    }
+
+    public Integer addEmp(Config companyConfig, String token){
+        //获取屏蔽的公司
+        Integer a=0;
         CriusApiDTO criusApiDTO = theaService.updatebConfig(token, companyConfig);
         if (criusApiDTO.getResult() == 0){
             a = 1;

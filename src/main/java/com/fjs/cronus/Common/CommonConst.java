@@ -224,6 +224,7 @@ public class CommonConst {
     public static String SUB_COMPANY_ID_NULL = "分公司id为空";
 
     public static String SUB_COMPANY_EXIST = "分公司已屏蔽";
+    public static String EXIST = "已存在";
 
     public static String USE_TIME_NULL = "期望用款时间为空";
     public static String DEADLINE_NULL = "期望贷款期限为空";
