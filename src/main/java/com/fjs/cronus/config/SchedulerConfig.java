@@ -1,3 +1,4 @@
+/*
 package com.fjs.cronus.config;
 
 import com.fjs.cronus.service.quartz.CustomDetailQuartzJobBean;
@@ -15,9 +16,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+*/
 /**
  * Created by zl on 2017/12/11
- */
+ *//*
+
 @Configuration
 public class SchedulerConfig {
 
@@ -70,11 +73,13 @@ public class SchedulerConfig {
     @Bean(name = "jobDetail")
     public JobDetailFactoryBean detailFactoryBean() {// ScheduleTask为需要执行的任务
         JobDetailFactoryBean jobDetail = new JobDetailFactoryBean();
-        /*
+        */
+/*
          *  是否并发执行
          *  例如每5s执行一次任务，但是当前任务还没有执行完，就已经过了5s了，
          *  如果此处为true，则下一个任务会执行，如果此处为false，则下一个任务会等待上一个任务执行完后，再开始执行
-         */
+         *//*
+
         jobDetail.setJobClass(CustomDetailQuartzJobBean.class);
         jobDetail.setDurability(true);
 
@@ -137,3 +142,4 @@ public class SchedulerConfig {
           return properties;
       }
 }
+*/
