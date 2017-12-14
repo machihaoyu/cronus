@@ -5,6 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.api.thea.Config;
+import com.fjs.cronus.api.thea.Loan;
+import com.fjs.cronus.api.thea.LoanDTO;
+import com.fjs.cronus.dto.AutoCleanManageDTO;
 import com.fjs.cronus.dto.CleanMangerCompanyDTO;
 import com.fjs.cronus.dto.CleanUserDTO;
 import com.fjs.cronus.dto.CronusDto;
@@ -12,6 +15,9 @@ import com.fjs.cronus.dto.api.crius.CriusApiDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.model.AutoCleanManage;
+import com.fjs.cronus.service.AutoCleanManageService;
+import com.fjs.cronus.service.AutoCleanService;
 import com.fjs.cronus.service.CleanMangerService;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.client.ThorInterfaceService;
@@ -24,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,8 +53,8 @@ import java.util.Map;
 public class CleanMangerController {
     private  static  final Logger logger = LoggerFactory.getLogger(CleanMangerController.class);
 
-//    @Autowired
-//    private AutoCleanService autoCleanService;
+    @Autowired
+    private AutoCleanManageService autoCleanManageService;
     @Autowired
     private CleanMangerService cleanMangerService;
     @Autowired
@@ -183,6 +190,56 @@ public class CleanMangerController {
             }
         }catch (Exception e){
             logger.error("-------------->addCompany创建屏蔽业务员失败",e);
+            theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+            theaApiDTO.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
+        }
+
+        return theaApiDTO;
+    }
+
+    @ApiOperation(value="新增自动清洗管理", notes="新增自动清洗管理")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")})
+    @RequestMapping(value = "/insert", method = RequestMethod.POST)
+    @ResponseBody
+    @Transactional
+    public TheaApiDTO insert(@Valid @RequestBody AutoCleanManageDTO autoCleanManageDTO, BindingResult result, HttpServletRequest request){
+        TheaApiDTO theaApiDTO = new TheaApiDTO();
+        logger.info("新增自动清洗管理的数据：" + autoCleanManageDTO.toString());
+        if(result.hasErrors()){
+            throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
+        }
+        String token=request.getHeader("Authorization");
+        CronusDto<UserInfoDTO> thorApiDTO=thorUcService.getUserInfoByToken(token,CommonConst.SYSTEMNAME);
+        UserInfoDTO userInfoDTO=thorApiDTO.getData();
+        if (StringUtils.isEmpty(autoCleanManageDTO.getUtmSource())){
+            theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+            theaApiDTO.setMessage("utmSource不能为空");
+            return theaApiDTO;
+        }
+        if (StringUtils.isEmpty(autoCleanManageDTO.getCustomerSource())){
+            theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+            theaApiDTO.setMessage("customerSource不能为空");
+            return theaApiDTO;
+        }
+        try{
+            AutoCleanManage autoCleanManage = autoCleanManageService.copyProperty(autoCleanManageDTO);
+            Integer userId = null;
+            if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
+                userId = Integer.parseInt(userInfoDTO.getUser_id());
+            }
+            int createResult = autoCleanManageService.add(autoCleanManage,userId);
+            if (createResult >0) {
+                theaApiDTO.setResult(CommonMessage.ADD_SUCCESS.getCode());
+                theaApiDTO.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
+            } else {
+                logger.error("-------------->insert创建自动清洗失败");
+                theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+                theaApiDTO.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+            }
+        }catch (Exception e){
+            logger.error("-------------->insert创建自动清洗失败",e);
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
         }
