@@ -174,6 +174,32 @@ public final class DateUtils {
     }
 
     /**
+     * 获取日期月份
+     *
+     * @param date
+     *            日期
+     * @return
+     */
+    public static Integer getMonth(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal.get(Calendar.MONTH);
+    }
+
+    /**
+     * 获取日期日
+     *
+     * @param date
+     *            日期
+     * @return
+     */
+    public static Integer getDay(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal.get(Calendar.DATE);
+    }
+
+    /**
      * 按默认格式的字符串距离今天的天数
      *
      * @param date

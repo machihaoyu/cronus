@@ -244,5 +244,8 @@ public class CommonConst {
     public static String OPERATIONSUCESS = "领取成功";
 
     public static String HaiDai_ChangPhone ="http://192.168.1.90/interface/changeCustPhone.do";
+
+    //未沟通重新分配
+    public static String FAIL_NON_COMMUNICATE_ALLOCATE_INFO = "fail_non_communicate_allocate";
 }
 

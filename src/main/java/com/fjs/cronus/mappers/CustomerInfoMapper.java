@@ -52,10 +52,13 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
 
     /**
      * 根据OCDC电话号码查找
-     * @param phone
+     * @param
      * @return
      */
     List <CustomerInfo> selectByOCDCPhone(Map<String,Object> parmsMap);
+
+
+    List <CustomerInfo> selectNonCommunicateInTime();
 
     /**
      * 分组获取客户来源
