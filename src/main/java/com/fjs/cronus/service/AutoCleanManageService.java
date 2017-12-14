@@ -111,4 +111,15 @@ public class AutoCleanManageService {
         }
         return dtoList;
     }
+
+    public Integer deleteById(Integer id,Integer userId){
+        AutoCleanManage autoCleanManage = new AutoCleanManage();
+        autoCleanManage.setId(id);
+        autoCleanManage = autoCleanManageMapper.selectOne(autoCleanManage);
+        Date date= new Date();
+        autoCleanManage.setIsDeleted(2);
+        autoCleanManage.setLastUpdateUser(userId);
+        autoCleanManage.setLastUpdateTime(date);
+        return autoCleanManageMapper.update(autoCleanManage);
+    }
 }

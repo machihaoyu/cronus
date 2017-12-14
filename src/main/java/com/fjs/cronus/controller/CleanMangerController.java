@@ -285,9 +285,43 @@ public class CleanMangerController {
         }catch (Exception e){
             cronusDto.setResult(CommonMessage.FAIL.getCode());
             cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
-            logger.error("获取屏蔽列表失败：",e);
+            logger.error("展开屏蔽列表失败：",e);
         }
         cronusDto.setData(autoCleanManageList);
+        return cronusDto;
+    }
+
+    @ApiOperation(value="删除屏蔽", notes="删除屏蔽")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "id", value = "id", paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/deleteById", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto deleteById(HttpServletRequest request,@RequestParam(required = true)Integer id){
+        CronusDto cronusDto = new CronusDto();
+        String token=request.getHeader("Authorization");
+        CronusDto<UserInfoDTO> thorApiDTO=thorUcService.getUserInfoByToken(token,CommonConst.SYSTEMNAME);
+        UserInfoDTO userInfoDTO=thorApiDTO.getData();
+        Integer userId = null;
+        try{
+            if (userInfoDTO != null &&StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
+                userId = Integer.parseInt(userInfoDTO.getUser_id());
+            }
+            int num = autoCleanManageService.deleteById(id,userId);
+            if (num > 0){
+                cronusDto.setResult(CommonMessage.SUCCESS.getCode());
+                cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+            }else{
+                cronusDto.setResult(CommonMessage.FAIL.getCode());
+                cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
+                logger.info("删除屏蔽失败");
+            }
+        }catch (Exception e){
+            cronusDto.setResult(CommonMessage.FAIL.getCode());
+            cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
+            logger.error("删除屏蔽失败：",e);
+        }
         return cronusDto;
     }
 }

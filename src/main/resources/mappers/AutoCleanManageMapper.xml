@@ -27,4 +27,20 @@
         </where>
     </select>
 
+    <update id="update" parameterType="com.fjs.cronus.model.AutoCleanManage">
+        update auto_clean_manage
+        <set>
+            <if test="isDeleted != null ">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="lastUpdateTime != null ">
+                last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastUpdateUser != null ">
+                last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
 </mapper>
