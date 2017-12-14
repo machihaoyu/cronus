@@ -209,14 +209,20 @@ public class CustomerController {
     @ApiOperation(value="根据属性获取客户信息", notes="根据属性获取客户信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "telephone", value = "手机号", required = false, paramType = "query", dataType = "string"),
     })
     @RequestMapping(value = "/findCustomerByFeild", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<CustomerDTO> findCustomerByFeild(@RequestParam Integer customerId) {
+    public CronusDto<CustomerDTO> findCustomerByFeild(@RequestParam(value = "customerId",required = false) Integer customerId,
+                                                      @RequestParam(value = "telephone",required = false) String telephone) {
         CronusDto cronusDto = new CronusDto();
+        if (StringUtils.isEmpty(customerId) && StringUtils.isEmpty(telephone)){
+
+            throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
+        }
         try {
-            cronusDto = customerInfoService.findCustomerByFeild(customerId);
+            cronusDto = customerInfoService.findCustomerByFeild(customerId,telephone);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->获取用户信息失败", e);

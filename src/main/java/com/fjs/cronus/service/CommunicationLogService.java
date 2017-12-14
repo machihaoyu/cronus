@@ -308,7 +308,7 @@ public class CommunicationLogService {
                     if (communicationLog.getNextContactTime() != null){
                         Long time1=Long.parseLong(DateUtils.format(communicationLog.getNextContactTime(),DateUtils.FORMAT_FULL_Long));
                         Long time2=Long.parseLong(DateUtils.format(date,DateUtils.FORMAT_FULL_Long));
-                        if (time1 - time2 > 360){
+                        if (time1 - time2 < 360){
                             //调用发送信息接口
                             CustomerInfo customerInfo = customerService.findCustomerById(communicationLog.getCustomerId());
                             String content = "您设置了"+ DateUtils.format(communicationLog.getNextContactTime(),DateUtils.FORMAT_FULL_Long) + "与客户"+ customerInfo.getCustomerName()+"再次沟通，请注意沟通。";

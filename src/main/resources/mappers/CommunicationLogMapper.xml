@@ -22,7 +22,7 @@
 	<sql id="Base_Column_List">
 		id,loan_id,customer_id,create_user,type
 		,content,create_time,house_status,loan_amount,
-		is_deleted,next_contact_time
+		next_contact_time
 	</sql>
 
 	<!--统计今天的沟通数-->

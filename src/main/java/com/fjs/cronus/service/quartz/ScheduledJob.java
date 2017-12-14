@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,9 @@ public class ScheduledJob {
     CommunicationLogService communicationLogService;
     @Autowired
     CustomerMeetService customerMeetService;
+    @Value("${token.current}")
+    private String token;
+
     private SimpleDateFormat dateFormat() {
         return new SimpleDateFormat("HH:mm:ss");
     }
@@ -44,8 +48,8 @@ public class ScheduledJob {
        logger.info("Examine Start!");
        //查询大于当前时间沟通和面见表获取沟通时间
         //调用任务
-       // communicationLogService.sendMessToCustomer();
-        //customerMeetService.sendMessMeetToCustomer();
+        communicationLogService.sendMessToCustomer(token);
+        customerMeetService.sendMessMeetToCustomer(token);
         System.out.println(1);
         logger.info("Examine End!");
     }

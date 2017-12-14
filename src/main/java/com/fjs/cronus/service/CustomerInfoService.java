@@ -486,11 +486,16 @@ public class CustomerInfoService {
             }
         }
     }
-    public CronusDto<CustomerDTO> findCustomerByFeild(Integer customerId){
+    public CronusDto<CustomerDTO> findCustomerByFeild(Integer customerId,String telephoneNumber){
         CronusDto resultDto = new CronusDto();
         Map<String,Object> paramsMap = new HashMap<>();
         if (!StringUtils.isEmpty(customerId)) {
             paramsMap.put("id", customerId);
+        }
+        if (!StringUtils.isEmpty(telephoneNumber)){
+            //手机号加密
+
+            paramsMap.put("telephonenumber", DEC3Util.des3EncodeCBC(telephoneNumber));
         }
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
         if (customerInfo == null){
