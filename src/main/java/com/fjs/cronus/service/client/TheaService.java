@@ -13,13 +13,15 @@ import com.fjs.cronus.dto.thea.WorkDayDTO;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 /**
  * Created by msi on 2017/10/11.
  */
 
 //@FeignClient(value = "THEA-BACKEND-ZSC", url = "http://192.168.2.79:8099")
-//@FeignClient(value = "${client.feign.thea-backend}", url = "http://192.168.1.124:1240")
-@FeignClient(value = "${client.feign.thea-backend}")
+@FeignClient(value = "${client.feign.thea-backend}", url = "http://192.168.1.124:1240")
+//@FeignClient(value = "${client.feign.thea-backend}", url = "http://localhost:8010")
 public interface TheaService {
 
 
@@ -58,4 +60,7 @@ public interface TheaService {
 
     @RequestMapping(value = "/api/v1/workDayList?page=1&size=20", method = RequestMethod.GET)
     TheaApiDTO<QueryResult<WorkDayDTO>> getWorkDay(@RequestHeader("Authorization") String token);
+
+    @RequestMapping(value = "/config/v1/addConfig", method = RequestMethod.POST)
+    public CriusApiDTO addConfig(@RequestHeader("Authorization") String token,@RequestBody Config config);
 }
