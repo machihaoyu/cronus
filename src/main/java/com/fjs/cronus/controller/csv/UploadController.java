@@ -264,25 +264,17 @@ public class UploadController {
             fileName="导入客户到公盘模板.csv";
         }
         try{
-
-            //2.设置文件头：最后一个参数是设置下载文件名
             ServletOutputStream out;
-            //FileInputStream inputStream = new FileInputStream(file);
-            //3.通过response获取ServletOutputStream对象(out)
-            out = response.getOutputStream();
-            int b = 0;
-            byte[] buffer = new byte[1024];
-            //创建缓冲区
-            int len = 0;
-            //循环将输入流中的内容读取到缓冲区当中
-            while((len=inputStream.read(buffer))>0){
-                //输出缓冲区的内容到浏览器，实现文件下载
-                out.write(buffer, 0, len);
-            }
+            byte[] buffer = new byte[inputStream.available()];
+            inputStream.read(buffer);
+            response.reset();
+            OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
+            response.setContentType("application/octet-stream");
+            //如果输出的是中文名的文件，在此处就要用URLEncoder.encode方法进行处理
             response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
-            inputStream.close();
-            out.close();
-            out.flush();
+            toClient.write(buffer);
+            toClient.flush();
+            toClient.close();
             theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
             theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
 

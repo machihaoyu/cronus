@@ -384,7 +384,7 @@ public class CustomerInfoService {
         }
         Date date = new Date();
         EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
-        customerInfo.setRetirementWages(customerInfo.getRetirementWages());
+        customerInfo.setRetirementWages(customerDTO.getRetirementWages());
         List<EmplouInfo> emplouInfos= customerDTO.getEmployedInfo();
         if (emplouInfos != null && emplouInfos.size() > 0) {
             String jsonString = JSONArray.toJSONString(emplouInfos);
