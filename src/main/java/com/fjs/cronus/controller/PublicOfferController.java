@@ -215,7 +215,4 @@ public class PublicOfferController {
         }
         return theaApiDTO;
     }
-
-
-
 }

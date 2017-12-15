@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
  * Created by msi on 2017/10/11.
  */
 
-@FeignClient(value = "THEA-BACKEND-ZSC", url = "http://192.168.2.79:8093")
+@FeignClient(value = "THEA-BACKEND-ZSC", url = "http://192.168.2.79:8099")
 //@FeignClient(value = "${client.feign.thea-backend}", url = "http://192.168.1.124:1240")
 public interface TheaService {
 

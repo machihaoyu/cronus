@@ -116,7 +116,7 @@ public class PanService {
         //查询当前业务员领取的个数
         paramMap.put("createUserId",userId);
         paramMap.put("operation",CommonConst.OPERATION);
-        Date today = DateUtils.parse(DateUtils.format(date,DateUtils.FORMAT_SHORT),DateUtils.FORMAT_SHORT);
+        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
         paramMap.put("operation",CommonConst.OPERATION);
         paramMap.put("createTime",today);
         Integer count = allocateLogMapper.receiveCountByWhere(paramMap);
@@ -140,12 +140,13 @@ public class PanService {
         allocateLog.setCreateUserName(userName);
         allocateLog.setOperation(CommonEnum.LOAN_OPERATION_TYPE_2.getCodeDesc());
         //开始插入
+        allocateLog.setResult(CommonConst.OPERATIONSUCESS);
         Integer insertAllocateLog = allocateLogMapper.insert(allocateLog);
         if (null == insertAllocateLog) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERLOG_ERROR);
         }
-
-           return false;
+        flag = true;
+        return flag;
 
     }
 

@@ -146,7 +146,7 @@
         <include refid="Base_Column_List"/>
         FROM allocate_log cl
         INNER JOIN (
-        select MAX(id) mid FROM allocate_log where customer_id
+        select MAX(id) mid FROM allocate_log where customer_id IN
         <foreach item="paramsList" index="index" collection="paramsList" open="(" separator="," close=")">
             #{paramsList}
         </foreach>
@@ -159,9 +159,9 @@
         COUNT(*)
         FROM allocate_log cl
         WHERE
-        create_user_id = #{createUserId},
-        AND DATA(create_time) =#{createTime},
-        AND operation = #{operation}
+        create_user_id = #{createUserId}
+        AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
+        AND  operation = #{operation}
     </select>
 
 </mapper>

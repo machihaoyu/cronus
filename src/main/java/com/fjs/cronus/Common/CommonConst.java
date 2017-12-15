@@ -232,4 +232,7 @@ public class CommonConst {
     public static String ALLOCATEALL ="allocateAll";
 
     public static String OPERATION = "领取客户";
+
+    public static String OPERATIONSUCESS = "领取成功";
 }
+

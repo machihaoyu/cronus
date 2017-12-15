@@ -264,16 +264,25 @@ public class AllocateController {
                     AllocateLogDTO allocateLogDTO=new AllocateLogDTO();
                     allocateLogDTO = allocateLogService.copyProperty(allocateLog);
                     //查找旧业务员姓名
-                    SimpleUserInfoDTO simpleUserInfoDTO = ucService.getSystemUserInfo(token,allocateLogDTO.getOldOwnerId());
-                    if (simpleUserInfoDTO == null){
-                        throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+                    SimpleUserInfoDTO simpleUserInfoDTO = null;
+                    if (allocateLogDTO.getOldOwnerId() == null || allocateLogDTO.getOldOwnerId() == 0){
+                        allocateLogDTO.setOldOwnerName(null);
+                    }else {
+                         simpleUserInfoDTO = ucService.getSystemUserInfo(token, allocateLogDTO.getOldOwnerId());
+                        if (simpleUserInfoDTO == null) {
+                            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+                        }
+                        allocateLogDTO.setOldOwnerName(simpleUserInfoDTO.getName());
                     }
-                    allocateLogDTO.setOldOwnerName(simpleUserInfoDTO.getName());
-                    simpleUserInfoDTO = ucService.getSystemUserInfo(token,allocateLogDTO.getNewOwnerId());
-                    if (simpleUserInfoDTO == null){
-                        throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+                    if (allocateLogDTO.getNewOwnerId() == null || allocateLogDTO.getNewOwnerId() == 0){
+                        allocateLogDTO.setOldOwnerName(null);
+                    }else {
+                        simpleUserInfoDTO = ucService.getSystemUserInfo(token, allocateLogDTO.getNewOwnerId());
+                        if (simpleUserInfoDTO == null) {
+                            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+                        }
+                        allocateLogDTO.setNewOwnerName(simpleUserInfoDTO.getName());
                     }
-                    allocateLogDTO.setNewOwnerName(simpleUserInfoDTO.getName());
 
                     allocateLogDTOS.add(allocateLogDTO);
                 }

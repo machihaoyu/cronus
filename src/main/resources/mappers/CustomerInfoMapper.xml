@@ -150,6 +150,13 @@
               ${owerId}
           </foreach>
       </if>
+      <if test="customerClassify!=null and customerClassify.size>0">
+          AND c.customer_classify in
+          <foreach collection="customerClassify" item="customerClassify"
+                   index="index" open="(" close=")" separator=",">
+              ${customerClassify}
+          </foreach>
+      </if>
   </select>
 
   <select id="customerList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
@@ -160,7 +167,7 @@
     from customer_info  c
     WHERE  c.is_deleted = 0
     <if test="customerName !=null and customerName !=''">
-      and (c.customer_name  like CONCAT('%', #{customerName},'%' )
+      and c.customer_name  like CONCAT('%', #{customerName},'%' )
     </if>
     <if test="telephonenumber != null and telephonenumber != ''">
       and c.telephonenumber like CONCAT('%',${telephonenumber},'%' )
@@ -192,6 +199,13 @@
           <foreach collection="owerId" item="owerId"
                    index="index" open="(" close=")" separator=",">
               ${owerId}
+          </foreach>
+      </if>
+      <if test="customerClassify!=null and customerClassify.size>0">
+          AND c.customer_classify in
+          <foreach collection="customerClassify" item="customerClassify"
+                   index="index" open="(" close=")" separator=",">
+              ${customerClassify}
           </foreach>
       </if>
     <choose>

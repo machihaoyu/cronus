@@ -78,10 +78,12 @@ public class AllocateService {
         //下面查询这些客户最近的分配记录
         Map<Integer,AllocateLog> allocateLogs = allocateLogService.getNewestAllocateLogByCustomerIds(customer_ids);
         //检测存不存在未沟通的新分配客户,如果存在就报错
-        for (Integer id : ids) {
-            AllocateLog allocateLog = allocateLogs.get(id);
-            if (CommonConst.OPERARIONAll.equals(allocateLog.getOperation()) || CommonConst.OPERARIONNO.equals(allocateLog.getOperation())){
-                throw new CronusException(CronusException.Type.CRM_CUSOMERALLACATE_ERROR);
+        if (allocateLogs != null && !allocateLogs.isEmpty()) {
+            for (Integer id : ids) {
+                AllocateLog allocateLog = allocateLogs.get(id);
+                if (CommonConst.OPERARIONAll.equals(allocateLog.getOperation()) || CommonConst.OPERARIONNO.equals(allocateLog.getOperation())) {
+                    throw new CronusException(CronusException.Type.CRM_CUSOMERALLACATE_ERROR);
+                }
             }
         }
         flag = true;

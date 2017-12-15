@@ -1071,8 +1071,6 @@ public class CustomerInfoService {
                 customerInfoLogMapper.addCustomerLog(customerInfoLog);
             }
         }
-
-
     }
 
     public String listToString(List list){
