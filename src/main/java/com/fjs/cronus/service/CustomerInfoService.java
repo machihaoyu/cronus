@@ -1380,6 +1380,7 @@ public class CustomerInfoService {
         customerInfo.setIsDeleted(0);
         customerInfo.setReceiveId(0);
         customerInfo.setCommunicateId(0);
+        customerInfo.setOwnUserId(0);
         customerInfoMapper.insertCustomer(customerInfo);
         if (customerInfo.getId() == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
