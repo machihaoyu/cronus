@@ -77,52 +77,29 @@ public class UploadController {
             String token=request.getHeader("Authorization");
 //            ThorApiDTO<UserInfoDTO> thorApiDTO=thorUcService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
 //            UserInfoDTO userInfoDTO=thorApiDTO.getData();
-            String path = request.getSession().getServletContext().getRealPath("upload");
             String fileName = file.getOriginalFilename();
-//            System.out.println(path);
-            File targetFile = new File(path, fileName);
-            if(!targetFile.exists()){
-                targetFile.createNewFile();
-            }
             if (param == null){
                 theaApiDTO.setResult(CommonMessage.FAIL.getCode());
                 theaApiDTO.setMessage(CommonConst.UNVALID_PARA);
                 return theaApiDTO;
             }
-            //保存
-            //获取输出流
-            OutputStream os=new FileOutputStream(targetFile);
-            //获取输入流 CommonsMultipartFile 中可以直接得到文件的流
-            InputStream is=file.getInputStream();
-            int temp;
-            //一个一个字节的读取并写入
-            while((temp=is.read())!=(-1))
-            {
-                os.write(temp);
-            }
-            os.flush();
-            os.close();
-            is.close();
-
-//            System.out.println("fileUrl:" + request.getContextPath()+"/upload/"+fileName);
+            InputStream is=   file.getInputStream();
             if (param == 1){
-                readerCsv(targetFile.getPath(),token);
+                readerCsv(is,token);
             }
             if (param == 2){
                 Workbook wb=null;
-                String ext = targetFile.getPath().substring(targetFile.getPath().lastIndexOf("."));
-                InputStream is2 = new FileInputStream(targetFile.getPath());
+                String ext = fileName.substring(fileName.lastIndexOf("."));
                     if(".xls".equals(ext)){
-                        wb = new HSSFWorkbook(is2);
+                        wb = new HSSFWorkbook(is);
                     }else if(".xlsx".equals(ext)){
-                        wb = new XSSFWorkbook(is2);
+                        wb = new XSSFWorkbook(is);
                     }else{
                         wb=null;
                     }
-                readExcelContent(targetFile.getPath(),wb,token);
+                readExcelContent(is,wb,token);
             }
 
-            deleteFile(targetFile.getPath());
             response.setCharacterEncoding("UTF-8");
             theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
             theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
@@ -141,7 +118,7 @@ public class UploadController {
      * @throws Exception
      */
     @Transactional
-    public void readerCsv(String csvFilePath,String token) throws Exception {
+    public void readerCsv(InputStream csvFilePath,String token) throws Exception {
 
         CsvReader reader = new CsvReader(csvFilePath, ',',
                 Charset.forName("GBK"));
@@ -156,11 +133,6 @@ public class UploadController {
         for (int i = 0; i < list.size(); i++) {
             datas[i] = list.get(i);
         }
-        //输出
-//        for (int i = 0; i < headers.length; i++) {
-//            System.out.print(headers[i] + "\t");
-//        }
-//        System.out.println("");
         for (int i = 0; i < datas.length; i++) {
             Object[] data = datas[i]; // 取出一组数据
             CustomerDTO customerDTO=new CustomerDTO();
@@ -291,7 +263,7 @@ public class UploadController {
      * @return
      * @throws Exception
      */
-    public void readExcelContent(String filepath,Workbook wb,String token) throws Exception{
+    public void readExcelContent(InputStream inputStream,Workbook wb,String token) throws Exception{
         if(wb==null){
             throw new Exception("Workbook对象为空！");
         }
