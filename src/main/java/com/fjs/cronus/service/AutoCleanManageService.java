@@ -8,6 +8,7 @@ import com.fjs.cronus.mappers.AutoCleanManageMapper;
 import com.fjs.cronus.model.AutoCleanManage;
 import com.fjs.cronus.model.CustomerMeet;
 import com.fjs.cronus.service.client.ThorInterfaceService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
@@ -39,7 +40,12 @@ public class AutoCleanManageService {
 
     public Integer add(AutoCleanManage autoCleanManage,Integer userId){
         Date date=new Date();
-        autoCleanManage.setUserId(userId);
+        if (StringUtils.isEmpty(autoCleanManage.getCustomerSource())){
+            autoCleanManage.setCustomerSource("");
+        }
+        if (StringUtils.isEmpty(autoCleanManage.getUtmSource())){
+            autoCleanManage.setUtmSource("");
+        }
         autoCleanManage.setCreateUser(userId);
         autoCleanManage.setCreateTime(date);
         autoCleanManage.setLastUpdateUser(userId);
@@ -50,6 +56,7 @@ public class AutoCleanManageService {
 
     public AutoCleanManage copyProperty(AutoCleanManageDTO autoCleanManageDTO){
         AutoCleanManage autoCleanManage=new AutoCleanManage();
+        autoCleanManage.setUserId(autoCleanManageDTO.getUserId());
         autoCleanManage.setUtmSource(autoCleanManageDTO.getUtmSource());
         autoCleanManage.setCustomerSource(autoCleanManageDTO.getCustomerSource());
         return autoCleanManage;
@@ -121,5 +128,20 @@ public class AutoCleanManageService {
         autoCleanManage.setLastUpdateUser(userId);
         autoCleanManage.setLastUpdateTime(date);
         return autoCleanManageMapper.update(autoCleanManage);
+    }
+
+    /**
+     * 根据userId查找
+     * @param userId
+     * @return
+     */
+    public List<AutoCleanManage> selectByUserId(Integer userId){
+        List<AutoCleanManage> autoCleanManageList = new ArrayList<>();
+        Example example=new Example(AutoCleanManage.class);
+        Example.Criteria criteria=example.createCriteria();
+        criteria.andEqualTo("isDeleted",1);
+        criteria.andEqualTo("userId",userId);
+        autoCleanManageList = autoCleanManageMapper.selectByExample(example);
+        return autoCleanManageList;
     }
 }
