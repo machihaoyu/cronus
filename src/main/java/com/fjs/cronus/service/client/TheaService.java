@@ -20,7 +20,7 @@ import javax.validation.Valid;
  */
 
 //@FeignClient(value = "THEA-BACKEND-ZSC", url = "http://192.168.2.79:8099")
-@FeignClient(value = "${client.feign.thea-backend}", url = "http://192.168.1.124:1240")
+@FeignClient(value = "${client.feign.thea-backend}")
 //@FeignClient(value = "${client.feign.thea-backend}", url = "http://localhost:8010")
 public interface TheaService {
 
