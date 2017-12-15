@@ -159,6 +159,7 @@ public class CommonConst {
     //需要屏蔽自动清洗的用户ID
     public static String CAN_NOT_CLEAN_CUSTOMER_USER_ID = "CanNotCleanCustomerUserId";
 
+    public static String CANPUUMAXCOUNT = "MaxReceiveCustomer";
     //沟通日志类型
     public static int COMMUNICATION_LOG_TYPE0 = 0;
     public static int COMMUNICATION_LOG_TYPE1 = 1;
@@ -230,5 +231,5 @@ public class CommonConst {
 
     public static String ALLOCATEALL ="allocateAll";
 
-
+    public static String OPERATION = "领取客户";
 }

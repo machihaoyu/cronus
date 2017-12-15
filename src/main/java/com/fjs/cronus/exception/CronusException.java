@@ -170,6 +170,13 @@ public class CronusException extends BaseException {
 
         MESSAGE_REMOVECUSTNOTNULL_ERROR("6077","请先选择客户"),
 
+        MESSAGE_REMOVENOTINJOB_ERROR("6078","离职客户批量转移失败"),
+
+        MESSAGE_CUSTOMERCLEAN_ERROR("6079","清洗中，不能领取客户"),
+
+        MESSAGE_PULLCUSTOMERCOUNT_ERROR("6080","您今天客户领取已到上限"),
+
+        MESSAGE_PULLCUSTOMEROWNER_ERROR("6081","C此客户已经有负责人"),
         ;
         private String status;
         private String error;

@@ -202,10 +202,53 @@ public final class DateUtils {
         long t1 = c.getTime().getTime();
         return (int) (t / 1000 - t1 / 1000) / 3600 / 24;
     }
+
+    public static int getHour(Date date) {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.HOUR_OF_DAY);
+    }
+
+    /**
+     * 功能描述：返回分
+     *
+     * @param date
+     *            日期
+     * @return 返回分钟
+     */
+    public static int getMinute(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.MINUTE);
+    }
+    public static int dayForWeek(Date date){
+        try {
+            Calendar c = Calendar.getInstance();
+            c.setTime(date);
+            int dayForWeek = 0;
+            if (c.get(Calendar.DAY_OF_WEEK) == 1) {
+                dayForWeek = 7;
+            } else {
+                dayForWeek = c.get(Calendar.DAY_OF_WEEK) - 1;
+            }
+            return dayForWeek;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public static void main(String [] args){
         try {
-            DateUtils  dateUtil = new DateUtils();
-            System.out.println(getNow(FORMAT_LONG));
+         /*   DateUtils  dateUtil = new DateUtils();*/
+            int gethour = getHour(new Date());
+            int minute = getMinute(new Date());
+            int week = dayForWeek(new Date());
+            System.out.println(gethour);
+            System.out.println(minute);
+            System.out.println(week);
 
         } catch (Exception e) {
             // TODO: handle exception

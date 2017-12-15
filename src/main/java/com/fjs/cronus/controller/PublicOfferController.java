@@ -5,12 +5,15 @@ import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.CityDto;
 import com.fjs.cronus.dto.cronus.PanParamDTO;
 import com.fjs.cronus.dto.uc.SubCompanyCityDto;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.model.CustomerInfo;
+import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.PanService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -44,7 +48,8 @@ public class PublicOfferController {
     UcService ucService;
     @Autowired
     TheaClientService theaClientService;
-
+    @Autowired
+    CustomerInfoService customerInfoService;
     @Autowired
     PanService panService;
     @ApiOperation(value="获取公盘列表", notes="获取公盘列表")
@@ -164,5 +169,53 @@ public class PublicOfferController {
         }
         return  cronusDto;
     }
+
+    @ApiOperation(value="公盘领取", notes="公盘领取")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query",  dataType = "int"),
+    })
+    @RequestMapping(value = "/pullPan", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto pullPan(@RequestParam(required = true) Integer customerId, HttpServletRequest request){
+        CronusDto theaApiDTO=new CronusDto();
+        String token=request.getHeader("Authorization");
+        PHPLoginDto resultDto = ucService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
+        String[] authority=resultDto.getAuthority();
+        if(authority.length>0){
+            List<String> authList= Arrays.asList(authority);
+            if (authList.contains(CommonConst.PULL_LOAN_URL)){
+                theaApiDTO.setResult(CommonMessage.PULL_FAIL.getCode());
+                theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
+                return theaApiDTO;
+            }
+        }
+        UserInfoDTO userInfoDTO=ucService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
+        CustomerInfo customerInfo = null;
+        try{
+            Integer userId=null;
+            if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
+                userId=Integer.parseInt(userInfoDTO.getUser_id());
+            }
+            //领取操作
+            boolean updateResult = panService.pullPan(customerId,userId,token);
+            if (updateResult == true) {
+                theaApiDTO.setResult(CommonMessage.PULL_SUCCESS.getCode());
+                theaApiDTO.setMessage(CommonMessage.PULL_SUCCESS.getCodeDesc());
+            } else {
+                logger.error("-------------->pullPan领取失败");
+                theaApiDTO.setResult(CommonMessage.PULL_FAIL.getCode());
+                theaApiDTO.setMessage(CommonMessage.PULL_FAIL.getCodeDesc());
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+            }
+        }catch (Exception e){
+            logger.error("-------------->pullPan领取失败",e);
+            theaApiDTO.setResult(CommonMessage.PULL_FAIL.getCode());
+            theaApiDTO.setMessage(CommonMessage.PULL_FAIL.getCodeDesc());
+        }
+        return theaApiDTO;
+    }
+
+
 
 }

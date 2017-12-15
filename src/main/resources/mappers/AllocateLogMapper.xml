@@ -109,7 +109,7 @@
 
     <!--统计今天的分配沟通数-->
     <select id="selectCommunicateToday" resultType="Integer" parameterType="Map">
-        SELECT count(1)
+        SELECT count(*)
         from allocate_log a
         LEFT JOIN communication_log c
         on a.loan_id=c.loan_id
@@ -146,11 +146,22 @@
         <include refid="Base_Column_List"/>
         FROM allocate_log cl
         INNER JOIN (
-        select MAX(allocate_id) mid FROM allocate_log where customer_id
+        select MAX(id) mid FROM allocate_log where customer_id
         <foreach item="paramsList" index="index" collection="paramsList" open="(" separator="," close=")">
             #{paramsList}
         </foreach>
         group by customer_id
-        ) clt on cl.allocate_id=clt.mid
+        ) clt on cl.id=clt.mid
     </select>
+
+    <select id="receiveCountByWhere"  resultType="Integer"  parameterType="Map">
+        SELECT
+        COUNT(*)
+        FROM allocate_log cl
+        WHERE
+        create_user_id = #{createUserId},
+        AND DATA(create_time) =#{createTime},
+        AND operation = #{operation}
+    </select>
+
 </mapper>

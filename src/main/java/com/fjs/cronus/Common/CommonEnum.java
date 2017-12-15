@@ -79,7 +79,7 @@ public enum CommonEnum {
     ALLOCATE_LOG_OPERATION_TYPE_6(6, "外地拓展分配"),
     ALLOCATE_LOG_OPERATION_TYPE_7(7, "其他分配"),
     ALLOCATE_LOG_OPERATION_TYPE_8(8, "自动清洗"),
-
+    ALLOCATE_LOG_OPERATION_TYPE_9(9,"离职移交"),
     //再分配盘数据标记
     AGAIN_ALLOCATE_STATUS_0(0, "未再分配"),
     AGAIN_ALLOCATE_STATUS_1(1, "已再分配"),

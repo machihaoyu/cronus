@@ -25,4 +25,6 @@ public interface AllocateLogMapper extends MyMapper<AllocateLog> {
     public Integer selectCommunicateHistory(Map<String, Object> map);
 
     public List<AllocateLog> getNewestAllocateLogByCustomerIds(Map<String,Object> paramsMap);
+
+    public Integer receiveCountByWhere(Map<String,Object> paramsMap);
 }

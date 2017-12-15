@@ -677,9 +677,11 @@ public class CustomerController {
         }
         try {
             boolean result  = customerInfoService.removeCustomerAll(removeDTO,token);
+            cronusDto.setResult(ResultResource.CODE_SUCCESS);
+            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             return cronusDto;
         } catch (Exception e) {
-            logger.error("--------------->removeCustomer批量扔回公盘操作失败",e);
+            logger.error("--------------->removeCustomer离职员工批量转移操作失败",e);
             if (e instanceof CronusException) {
                 CronusException thorException = (CronusException)e;
                 throw thorException;

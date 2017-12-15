@@ -1,6 +1,7 @@
 package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.*;
 import com.fjs.cronus.dto.ContractDTO;
 import com.fjs.cronus.dto.CronusDto;
@@ -14,14 +15,17 @@ import com.fjs.cronus.dto.thea.ServiceContractDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.AllocateLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
+import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CommunicationLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerInfoLog;
 
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.EntityToDto;
+import com.fjs.cronus.util.FastJsonUtils;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,7 +53,8 @@ public class CustomerInfoService {
     CommunicationLogService communicationLogService;
     @Autowired
     AllocateService allocateService;
-
+    @Autowired
+    AllocateLogMapper allocateLogMapper;
 
     public  List<CustomerInfo> findList(){
         List<CustomerInfo> resultList = new ArrayList();
@@ -794,6 +799,7 @@ public class CustomerInfoService {
     }
 
     public boolean removeCustomerAll(RemoveDTO removeDTO,String token){
+            Date date = new Date();
             boolean flag = false;
             //判断有没有选择负责人
             Map<String,Object> paramMap = new HashMap<>();
@@ -840,15 +846,27 @@ public class CustomerInfoService {
             String strIds  = listToString(ownIds);
             List<PHPUserDto> userList = ucService.getUserByIds(token,strIds,null,null,null,null,null,null,null);
             // TODO 下面开始更改这些客户的信息
-            removeToUser(uniqueList,removeDTO.getEmpId(),userInfoDTO.getName());
-
-
-
+            flag = removeToUser(uniqueList,removeDTO.getEmpId(),userInfoDTO.getName(),token,userInfoDTO.getUser_id(),userInfoDTO.getName());
+            if (flag == false){
+                throw new CronusException(CronusException.Type.MESSAGE_REMOVENOTINJOB_ERROR);
+            }
+            /*负责人变更时，保留状态归零*/
+            for (CustomerInfo customerInfo : customerInfoList) {
+                Integer remain = customerInfo.getRemain();
+                if (remain != 2){
+                    remain =0;
+                }
+                customerInfo.setRemain(remain);
+                customerInfo.setLastUpdateTime(date);
+                customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
+                customerInfoMapper.updateCustomer(customerInfo);
+            }
+            flag =true;
         }
             return  flag;
     }
 
-    public boolean removeToUser(List<Integer> customerids,Integer touser,String touserName){
+    public boolean removeToUser(List<Integer> customerids,Integer touser,String touserName,String token,String userId,String userName){
         boolean flag = false;
         //循环每一个客户,对每一个客户进行处理
 
@@ -895,36 +913,33 @@ public class CustomerInfoService {
                         List<ContracrLogDTO> contracrLogDTOS2 = new ArrayList<>();//第二种种合同
                         serviceLogDTOS.add(serviceLogDTO);
                         for (ContracrLogDTO contracrLogDTO : contractInfo) {
-                            if (contracrLogDTO.getStatus() == 0){//合同的状态为进行中 还没有提交申请
+                            if (contracrLogDTO.getStatus() == 0) {//合同的状态为进行中 还没有提交申请
                                 contracrLogDTOS1.add(contracrLogDTO);
                                 mustUpAgreementIds.add(agreementIds);
                                 mustUpContractIds1.add(contracrLogDTO.getContractId());
-                            }else if (contracrLogDTO.getStatus() == 1){////正在结案中
+                            } else if (contracrLogDTO.getStatus() == 1) {////正在结案中
                                 mustUpAgreementIds.add(agreementIds);
                                 contracrLogDTOS2.add(contracrLogDTO);
                                 mustUpContractIds2.add(contracrLogDTO.getContractId());
                                 //修改合同的负责人,将合同的状态变成进行中,审核流程变成还未审核,审核状态变成默认
-
                             }
-
                         }
-
-
                     }
-
                 }
-
-
-
             }
             logarr.add(logArrDTO);
 
         }
         //
         List<ReturnLogArrDTO> returnLogArrDTOS = selectUseToLog(logarr);
+        if (saveRemoveInfo(mustUpAgreementIds,mustUpCustomerIds,mustUpContractIds1,mustUpContractIds2,touser,touserName,token) == true){
+            //下面是保存 转移记录到分配表
+            removeCustomerAddLog(returnLogArrDTOS,touser,Integer.valueOf(userId),userName);
+            flag = true;
+        }
 
 
-        return  false;
+        return  flag;
 
     }
 
@@ -948,28 +963,19 @@ public class CustomerInfoService {
                        serviceIds.add(serviceLogDTO.getServiceContracrId());
                        List<ContracrLogDTO> contracrLogDTOS1 = serviceLogDTO.getContracrLogDTOS();
                        List<ContracrLogDTO> contractLogDTOS2 = serviceLogDTO.getContracrLogDTOS2();
-
                        for (ContracrLogDTO contracrLogDTO :contracrLogDTOS1 ) {
-
                            contract1.add(contracrLogDTO.getContractId());
                        }
                        for (ContracrLogDTO contracrLogDTO1 :contractLogDTOS2 ) {
-
                            contract2.add(contracrLogDTO1.getContractId());
                        }
                    }
-
-
                }
 
                //TODO 调用交易系统开始填写信息
-
                 List<ServiceContract> serviceContracts = null;
-
                 List<Contract> contracts1 = null;
-
                 List<Contract> contracts2 = null;
-
                 returnLogArrDTO.setAgreementInfos(serviceContracts);
                 returnLogArrDTO.setContractInfos1(contracts1);
                 returnLogArrDTO.setContractInfos2(contracts2);
@@ -1009,7 +1015,6 @@ public class CustomerInfoService {
             Map<String,Object> paramsMap = new HashMap<>();
             //获取当前登录用户信息
             Integer userId = ucService.getUserIdByToken(token);
-
             paramsMap.put("paramsList",mustUpCustomerIds);
             paramsMap.put("subcompanyId",userDTO.getSub_company_id());
             paramsMap.put("ownerUserId",toUser);
@@ -1018,12 +1023,56 @@ public class CustomerInfoService {
             paramsMap.put("lastUpdateUser",userId);
             customerInfoMapper.batchUpdate(paramsMap);
         }
+        // TODO 调用接口
+         String serviceContractIds = listToString(mustUpAgreementIds);
+         //(serviceContractIds,toUser)
+        // TODO 修改进行中的合同
+        String contractIds = listToString(mustUpContractIds1);
+        //(contractIds,toUser)
+        //修改正在结案中的合同
+        String contractIdInConclusion = listToString(mustUpContractIds2);
+        //(contractIdInConclusion,toUser)
+        //TODO 未生效的业绩改成失效
 
-         // TODO 修改进行中的合同
-
-
-
+        //TODO 审核全部改为失效
+        flag =true;
         return  flag;
+    }
+
+    public void  removeCustomerAddLog(List<ReturnLogArrDTO> returnLogArrDTOS,Integer toUser,Integer userId,String userName){
+        //遍历添加日志
+        Date date = new Date();
+        if (returnLogArrDTOS != null && returnLogArrDTOS.size() > 0) {
+            for (ReturnLogArrDTO returnLogArrDTO : returnLogArrDTOS){
+                 //添加分配日志
+                AllocateLog allocateLog = new AllocateLog();
+                allocateLog.setCreateTime(new Date());
+                allocateLog.setCustomerId(returnLogArrDTO.getCustomerInfo().getId());
+                allocateLog.setOldOwnerId(returnLogArrDTO.getCustomerInfo().getOwnUserId());
+                allocateLog.setNewOwnerId(toUser);
+                allocateLog.setCreateUserId(userId);
+                allocateLog.setCreateUserName(userName);
+                //json化字符串
+                JSONObject jsonObject = (JSONObject)JSONObject.toJSON(returnLogArrDTO);
+                allocateLog.setResult(jsonObject.toJSONString());
+                allocateLog.setCreateTime(date);
+                allocateLog.setOperation(CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_9.getCodeDesc());
+                Integer result = allocateLogMapper.insert(allocateLog);
+                if (result == null){
+                    throw  new CronusException(CronusException.Type.CRM_CUSTOMERLOG_ERROR);
+                }
+                //开始添加客户操作日志
+                CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+                EntityToDto.customerEntityToCustomerLog(returnLogArrDTO.getCustomerInfo(),customerInfoLog);
+                customerInfoLog.setLogCreateTime(date);
+                customerInfoLog.setLogDescription("增加一条客户记录");
+                customerInfoLog.setLogUserId(userId);
+                customerInfoLog.setIsDeleted(0);
+                customerInfoLogMapper.addCustomerLog(customerInfoLog);
+            }
+        }
+
+
     }
 
     public String listToString(List list){

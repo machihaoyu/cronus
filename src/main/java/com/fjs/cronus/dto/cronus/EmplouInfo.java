@@ -35,5 +35,75 @@ public class EmplouInfo implements Serializable{
     @ApiModelProperty(value = "经营状态：1存续，2在业，3吊销，4注销，5迁出，6迁入，7停业，8清算",notes = "经营状态：1存续，2在业，3吊销，4注销，5迁出，6迁入，7停业，8清算")
     private Integer status;
 
+    public String getCompanyName() {
+        return companyName;
+    }
 
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getYears() {
+        return years;
+    }
+
+    public void setYears(String years) {
+        this.years = years;
+    }
+
+    public String getTurnover() {
+        return turnover;
+    }
+
+    public void setTurnover(String turnover) {
+        this.turnover = turnover;
+    }
+
+    public String getRegisterMoney() {
+        return registerMoney;
+    }
+
+    public void setRegisterMoney(String registerMoney) {
+        this.registerMoney = registerMoney;
+    }
+
+    public String getSubscribedMoney() {
+        return subscribedMoney;
+    }
+
+    public void setSubscribedMoney(String subscribedMoney) {
+        this.subscribedMoney = subscribedMoney;
+    }
+
+    public Integer getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Integer roles) {
+        this.roles = roles;
+    }
+
+    public String getShares() {
+        return shares;
+    }
+
+    public void setShares(String shares) {
+        this.shares = shares;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
 }
