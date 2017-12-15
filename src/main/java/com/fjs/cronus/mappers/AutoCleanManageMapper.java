@@ -13,4 +13,5 @@ public interface AutoCleanManageMapper extends MyMapper<AutoCleanManage>{
 
     public List<AutoCleanManage> selectByParamsMap(Map<String, Object> map);
 
+    public Integer update(AutoCleanManage autoCleanManage);
 }

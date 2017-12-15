@@ -55,6 +55,11 @@ public class AutoCleanManageService {
         return autoCleanManage;
     }
 
+    /**
+     * 屏蔽列表
+     * @param token
+     * @return
+     */
     public List<AutoCleanManageDTO2> getList(String token){
         List<AutoCleanManageDTO2> dtoList = new ArrayList<>();
         List<AutoCleanManage> autoCleanManageList = new ArrayList<>();
@@ -67,6 +72,7 @@ public class AutoCleanManageService {
         for (AutoCleanManage autoCleanManage:autoCleanManageList){
             AutoCleanManageDTO2 autoCleanManageDTO = new AutoCleanManageDTO2();
             autoCleanManageDTO.setId(autoCleanManage.getId());
+            autoCleanManageDTO.setUserId(autoCleanManage.getUserId());
             //获取业务员信息
             SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token,autoCleanManage.getUserId()).getData();
             if (simpleUserInfoDTO == null){
@@ -78,5 +84,42 @@ public class AutoCleanManageService {
             dtoList.add(autoCleanManageDTO);
         }
         return dtoList;
+    }
+
+    /**
+     * 展开列表
+     * @param userId
+     * @return
+     */
+    public List<AutoCleanManageDTO> getByUserId(Integer userId){
+        List<AutoCleanManageDTO> dtoList = new ArrayList<>();
+        List<AutoCleanManage> autoCleanManageList = new ArrayList<>();
+        Example example=new Example(AutoCleanManage.class);
+        Example.Criteria criteria=example.createCriteria();
+        criteria.andEqualTo("isDeleted",1);
+        criteria.andEqualTo("userId",userId);
+        criteria.andNotEqualTo("utmSource","");
+        criteria.andNotEqualTo("customerSource","");
+        autoCleanManageList = autoCleanManageMapper.selectByExample(example);
+        for (AutoCleanManage autoCleanManage:autoCleanManageList){
+            AutoCleanManageDTO autoCleanManageDTO = new AutoCleanManageDTO();
+            autoCleanManageDTO.setId(autoCleanManage.getId());
+            autoCleanManageDTO.setCustomerSource(autoCleanManage.getCustomerSource());
+            autoCleanManageDTO.setUtmSource(autoCleanManage.getUtmSource());
+            autoCleanManageDTO.setCreateTime(autoCleanManage.getCreateTime());
+            dtoList.add(autoCleanManageDTO);
+        }
+        return dtoList;
+    }
+
+    public Integer deleteById(Integer id,Integer userId){
+        AutoCleanManage autoCleanManage = new AutoCleanManage();
+        autoCleanManage.setId(id);
+        autoCleanManage = autoCleanManageMapper.selectOne(autoCleanManage);
+        Date date= new Date();
+        autoCleanManage.setIsDeleted(2);
+        autoCleanManage.setLastUpdateUser(userId);
+        autoCleanManage.setLastUpdateTime(date);
+        return autoCleanManageMapper.update(autoCleanManage);
     }
 }

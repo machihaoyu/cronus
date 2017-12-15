@@ -10,6 +10,8 @@ import java.util.Date;
  */
 public class AutoCleanManageDTO2 {
     private Integer id;
+    @ApiModelProperty(value = "业务员ID")
+    private Integer userId;
     @ApiModelProperty(value = "业务员姓名")
     private String ownerUserName;
     @ApiModelProperty(value = "电话")
@@ -48,5 +50,13 @@ public class AutoCleanManageDTO2 {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 }

@@ -249,7 +249,7 @@ public class CleanMangerController {
     })
     @RequestMapping(value = "/getAutoCleanList", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto getAutoCleanList(HttpServletRequest request,@RequestParam(required = false)Integer type){
+    public CronusDto getAutoCleanList(HttpServletRequest request){
         CronusDto cronusDto = new CronusDto();
         String token=request.getHeader("Authorization");
         List<AutoCleanManageDTO2> autoCleanManageList = null;
@@ -262,10 +262,66 @@ public class CleanMangerController {
             cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
             logger.error("获取屏蔽列表失败：",e);
         }
+        cronusDto.setData(autoCleanManageList);
 
+        return cronusDto;
+    }
 
-            cronusDto.setData(autoCleanManageList);
+    @ApiOperation(value="列表展开", notes="列表展开")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "userId", value = "业务员id", paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/getChildById", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto getChildById(HttpServletRequest request,@RequestParam(required = true)Integer userId){
+        CronusDto cronusDto = new CronusDto();
+        String token=request.getHeader("Authorization");
+        List<AutoCleanManageDTO> autoCleanManageList = null;
+        try{
+            autoCleanManageList = autoCleanManageService.getByUserId(userId);
+            cronusDto.setResult(CommonMessage.SUCCESS.getCode());
+            cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+        }catch (Exception e){
+            cronusDto.setResult(CommonMessage.FAIL.getCode());
+            cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
+            logger.error("展开屏蔽列表失败：",e);
+        }
+        cronusDto.setData(autoCleanManageList);
+        return cronusDto;
+    }
 
+    @ApiOperation(value="删除屏蔽", notes="删除屏蔽")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "id", value = "id", paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/deleteById", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto deleteById(HttpServletRequest request,@RequestParam(required = true)Integer id){
+        CronusDto cronusDto = new CronusDto();
+        String token=request.getHeader("Authorization");
+        CronusDto<UserInfoDTO> thorApiDTO=thorUcService.getUserInfoByToken(token,CommonConst.SYSTEMNAME);
+        UserInfoDTO userInfoDTO=thorApiDTO.getData();
+        Integer userId = null;
+        try{
+            if (userInfoDTO != null &&StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
+                userId = Integer.parseInt(userInfoDTO.getUser_id());
+            }
+            int num = autoCleanManageService.deleteById(id,userId);
+            if (num > 0){
+                cronusDto.setResult(CommonMessage.SUCCESS.getCode());
+                cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+            }else{
+                cronusDto.setResult(CommonMessage.FAIL.getCode());
+                cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
+                logger.info("删除屏蔽失败");
+            }
+        }catch (Exception e){
+            cronusDto.setResult(CommonMessage.FAIL.getCode());
+            cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
+            logger.error("删除屏蔽失败：",e);
+        }
         return cronusDto;
     }
 }
