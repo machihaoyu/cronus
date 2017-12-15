@@ -198,7 +198,7 @@ public class PublicOfferController {
                 userId=Integer.parseInt(userInfoDTO.getUser_id());
             }
             //领取操作
-            boolean updateResult = panService.pullPan(customerId,userId,token);
+            boolean updateResult = panService.pullPan(customerId,userId,token,userInfoDTO.getName());
             if (updateResult == true) {
                 theaApiDTO.setResult(CommonMessage.PULL_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.PULL_SUCCESS.getCodeDesc());

@@ -1,6 +1,7 @@
 package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
@@ -97,7 +98,7 @@ public class PanService {
         return  result;
     }
 
-    public boolean pullPan(Integer customerId,Integer userId,String token){
+    public boolean pullPan(Integer customerId,Integer userId,String token,String userName){
        //判断清洗中不能领取客户每周日的八点开始进行自动清洗
         Map<String,Object> paramMap = new HashMap<>();
         boolean flag = false;
@@ -131,6 +132,18 @@ public class PanService {
         receiveCustomerByType(customerInfo,userId,token);
         //增加分配日志
         AllocateLog allocateLog = new AllocateLog();
+        allocateLog.setCreateTime(new Date());
+        allocateLog.setCustomerId(customerInfo.getId());
+        allocateLog.setOldOwnerId(0);
+        allocateLog.setNewOwnerId(userId);
+        allocateLog.setCreateUserId(userId);
+        allocateLog.setCreateUserName(userName);
+        allocateLog.setOperation(CommonEnum.LOAN_OPERATION_TYPE_2.getCodeDesc());
+        //开始插入
+        Integer insertAllocateLog = allocateLogMapper.insert(allocateLog);
+        if (null == insertAllocateLog) {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERLOG_ERROR);
+        }
 
            return false;
 

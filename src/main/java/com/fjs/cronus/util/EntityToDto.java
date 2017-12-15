@@ -20,6 +20,9 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
             dto.setTelephonenumber(customerInfo.getTelephonenumber());
         }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerName())){
+            dto.setCustomerName(customerInfo.getCustomerName());
+        }
         if (customerInfo.getLoanAmount() != null){
             dto.setLoanAmount(customerInfo.getLoanAmount());
         }
