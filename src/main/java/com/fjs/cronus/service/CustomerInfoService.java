@@ -238,6 +238,8 @@ public class CustomerInfoService {
         customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
         customerInfo.setReceiveId(0);
         customerInfo.setCommunicateId(0);
+        customerInfo.setOwnUserId(Integer.valueOf(userInfoDTO.getUser_id()));
+        customerInfo.setOwnUserName(userInfoDTO.getName());
         customerInfoMapper.insertCustomer(customerInfo);
         if (customerInfo.getId() == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);

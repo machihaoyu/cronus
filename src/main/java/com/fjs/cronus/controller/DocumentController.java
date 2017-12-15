@@ -109,7 +109,7 @@ public class DocumentController {
             @ApiImplicitParam(name = "contractId", value = "合同id，非必传上传合同需要", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "category", value = "附件类型", required = true, paramType = "query",  dataType = "int"),
-            @ApiImplicitParam(name = "source", value = "来源pc端传'PC'", required = false, paramType = "query",  dataType = "String"),
+            @ApiImplicitParam(name = "source", value = "来源pc端传'PC',C端传'C'", required = false, paramType = "query",  dataType = "String"),
     })
     @RequestMapping(value = "/uploadPcDocumentOk",method = RequestMethod.POST)
     @ResponseBody

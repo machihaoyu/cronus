@@ -44,8 +44,6 @@ public class OcrIdentityService {
     @Autowired
     DocumentMapper documentMapper;
     @Autowired
-    JdbcTemplate jdbcTemplate;
-    @Autowired
     UcService ucService;
 
     @Value("${ftp.viewUrl}")

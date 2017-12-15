@@ -101,7 +101,7 @@ public class CustomerMeetService {
                     if (customerMeet.getMeetTime() != null){
                         Long time1=Long.parseLong(DateUtils.format(customerMeet.getMeetTime(),DateUtils.FORMAT_FULL_Long));
                         Long time2=Long.parseLong(DateUtils.format(date,DateUtils.FORMAT_FULL_Long));
-                        if (time1 - time2 < 2100){
+                        if (time1 - time2 <= 2100){
                             //调用发送信息接口
                             MailDTO mailDTO = new MailDTO();
                             CustomerInfo customerInfo = customerInfoService.findCustomerById(customerMeet.getCustomerId());

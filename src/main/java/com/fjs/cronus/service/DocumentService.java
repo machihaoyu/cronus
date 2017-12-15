@@ -1,6 +1,7 @@
 package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.OcrInfoEnum;
 import com.fjs.cronus.Common.ProductTyoeEnum;
 import com.fjs.cronus.Common.ResultResource;
@@ -92,9 +93,6 @@ public class DocumentService {
     public static final ExecutorService es = new ThreadPoolExecutor(2, 4, 0L, TimeUnit.MILLISECONDS,
             new ArrayBlockingQueue<Runnable>(5), supplyThreadFactory);*/
     public CronusDto uploadDocument(Integer customerId){
-
-        //TODO 查询客户的基础信息
-        //查询所有的父类信息
         CronusDto resultDto = new CronusDto();
         Map<String,Object> paramsMap = new HashMap<>();
         paramsMap.put("documentCParentId",0);
@@ -130,9 +128,13 @@ public class DocumentService {
                 category = 0;
             }
             //通过token获取用户信息
-            Integer user_id = ucService.getUserIdByToken(token);
-            if (user_id == null){
+            UserInfoDTO user = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
+            if (user == null){
                 throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+            }
+            Integer userId = Integer.valueOf(user.getUser_id());
+           if (userId == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
             }
             //校验文件的类型与大小
             Integer size = uploadDocumentDto.getSize();
@@ -179,6 +181,8 @@ public class DocumentService {
                 if (uploadDocumentDto.getContractId() != null && uploadDocumentDto.getContractId() > 0){
                     Integer contratId = uploadDocumentDto.getContractId();
                     //TODO 通过合同查询客户id
+
+
                 }
                 //封装参数
                 UploadDocumentDTO paramsDto = new UploadDocumentDTO();
@@ -191,7 +195,7 @@ public class DocumentService {
                 paramsDto.setSource(uploadDocumentDto.getSource());
                 paramsDto.setType(uploadDocumentDto.getType());
                 paramsDto.setKey(name);
-                NewDocumentDTO documentDto = newDocument(paramsDto,user_id,category,uploadDocumentDto.getCustomerId(),uploadDocumentDto.getContractId());
+                NewDocumentDTO documentDto = newDocument(paramsDto,userId,category,uploadDocumentDto.getCustomerId(),uploadDocumentDto.getContractId(),user.getName());
                 if (documentDto.getStatus() == -1){
                     throw new CronusException(CronusException.Type.CRM_CONTROCTDOCU_ERROR);
                 }
@@ -199,7 +203,7 @@ public class DocumentService {
                 //调用图文识别接口
                 Integer rc_document_id =documentDto.getContract_document_id();
                 //异步无回调
-                addOcrInfo(category,uploadDocumentDto.getCustomerId(),uploadDocumentDto.getImageBase64(), rc_document_id,user_id,token);
+                addOcrInfo(category,uploadDocumentDto.getCustomerId(),uploadDocumentDto.getImageBase64(), rc_document_id,userId,token);
                 resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
                 resultDto.setResult(ResultResource.CODE_SUCCESS);
             }else {
@@ -212,7 +216,7 @@ public class DocumentService {
 
     //生成一条新的合同数据
     @Transactional
-    public NewDocumentDTO newDocument (UploadDocumentDTO uploadDocumentDTO, Integer user_id, Integer category, Integer customerId, Integer contratId ){
+    public NewDocumentDTO newDocument (UploadDocumentDTO uploadDocumentDTO, Integer user_id, Integer category, Integer customerId, Integer contratId,String userName ){
         Document document = new Document();
         Integer status = 0;
         Integer documentId = null;
@@ -294,7 +298,7 @@ public class DocumentService {
             newDocumentDTO.setM_name("");
         }
         //TODO 从缓存中查询到相关信息
-        newDocumentDTO.setUp_name("");
+        newDocumentDTO.setUp_name(userName);
         newDocumentDTO.setUp_date(date);
         newDocumentDTO.setStatus(status);
         return newDocumentDTO;
@@ -443,7 +447,6 @@ public class DocumentService {
        ocrSaveBaseInfoDTO.setCategoryInfo(documentCategory);*/
        jsonObject.put("customer_id",customerInfo.getId());
        jsonObject.put("customer_name",customerInfo.getCustomerName());
-       //TODO 需要解密
        String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
        String phoneNumber = telephone.substring(0, 3) + "****" + telephone.substring(7, telephone.length());
        jsonObject.put("customer_telephone",phoneNumber);
@@ -532,7 +535,11 @@ public class DocumentService {
 
        //参数类型转换
 
-       Integer user_id = ucService.getUserIdByToken(token);
+       UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEM_NAME_ENGLISH);
+       if (userInfoDTO == null){
+           throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+       }
+       Integer user_id =  Integer.valueOf(userInfoDTO.getUser_id());
        if (user_id == null){
            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
        }
@@ -600,7 +607,7 @@ public class DocumentService {
                paramsDto.setType(suffix);
                paramsDto.setKey(name);
 
-               NewDocumentDTO documentDto = newDocument(paramsDto,user_id,categoryParam,customerIdParam,contractIdParam);
+               NewDocumentDTO documentDto = newDocument(paramsDto,user_id,categoryParam,customerIdParam,contractIdParam,userInfoDTO.getName());
                if (documentDto.getStatus() == -1){
                    throw new CronusException(CronusException.Type.CRM_CONTROCTDOCU_ERROR);
                }
