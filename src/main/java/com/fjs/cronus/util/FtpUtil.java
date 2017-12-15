@@ -170,6 +170,7 @@ public class FtpUtil {
 					inputStream.close();
 				}
 			}*/
+			ftp.setControlEncoding("UTF-8");
 			ftp.setFileType(FTP.BINARY_FILE_TYPE);
 			ftp.enterLocalPassiveMode();
 			ftp.setRemoteVerificationEnabled(false);
@@ -338,9 +339,9 @@ public class FtpUtil {
 			//InputStream is = FileBase64ConvertUitl.decoderBase64File(base64);
 			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads","2017/11/22", "zhanglei.jpg", is);
 			System.out.println(flag);*/
-			FileInputStream in=new FileInputStream(new File("D:\\441876515053529363.png"));
-		    String base64File= FileBase64ConvertUitl.encodeBase64File(in);
-		    System.out.println(base64File);
+			FileInputStream in=new FileInputStream(new File("D:\\a.csv"));
+			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads","/download", "a.csv", in);
+			System.out.println(flag);
 		} catch (Exception e) {
 	        e.printStackTrace();  
 	    }  

@@ -384,7 +384,7 @@ public class CustomerInfoService {
         }
         Date date = new Date();
         EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
-        customerInfo.setRetirementWages(customerInfo.getRetirementWages());
+        customerInfo.setRetirementWages(customerDTO.getRetirementWages());
         List<EmplouInfo> emplouInfos= customerDTO.getEmployedInfo();
         if (emplouInfos != null && emplouInfos.size() > 0) {
             String jsonString = JSONArray.toJSONString(emplouInfos);
@@ -1439,4 +1439,22 @@ public class CustomerInfoService {
         return  resultDto;
     }
 
+    public Map<String, Integer> countForAutoClean(){
+        return customerInfoMapper.countForAutoClean();
+    }
+
+    /**
+     * 根据属性Map查询
+     *
+     * @param telStr
+     * @return
+     */
+    public List<CustomerInfo> selectByParams(Map<String, Object> telStr) {
+        List<CustomerInfo> customerInfoList = customerInfoMapper.selectByParams(telStr);
+        return customerInfoList;
+    }
+
+    public List<Integer> selectForAutoClean(Map<String, Object> paramsMap){
+        return customerInfoMapper.selectForAutoClean(paramsMap);
+    }
 }

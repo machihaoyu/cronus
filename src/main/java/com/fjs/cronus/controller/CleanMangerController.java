@@ -55,8 +55,8 @@ public class CleanMangerController {
     private ThorInterfaceService thorUcService;
     @Autowired
     private TheaService theaService;
-//    @Autowired
-//    private AutoCleanService autoCleanService;
+    @Autowired
+    private AutoCleanService autoCleanService;
 
     /*@ApiOperation(value="添加需要屏蔽的公司", notes="添加需要屏蔽的公司")
     @ApiImplicitParams({
@@ -121,7 +121,7 @@ public class CleanMangerController {
         }
 
         return theaApiDTO;
-    }
+    }*/
 
 
     @ApiOperation(value="添加需要屏蔽的业务员客户", notes="添加需要屏蔽的业务员客户")
@@ -158,6 +158,7 @@ public class CleanMangerController {
                     String[] idArray = ids.split(",");
                     if (idArray.length>0){
                         for(int i=0;i<idArray.length;i++){
+                            idArray[i] = idArray[i].replace(" ","");
                             Integer id = Integer.parseInt(idArray[i]);
                             idList.add(id);
                         }
@@ -191,7 +192,7 @@ public class CleanMangerController {
         }
 
         return theaApiDTO;
-    }*/
+    }
 
     @ApiOperation(value="新增自动清洗管理", notes="新增自动清洗管理")
     @ApiImplicitParams({
