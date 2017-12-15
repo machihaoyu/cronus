@@ -696,7 +696,7 @@
               #{ownUserId,jdbcType=VARCHAR},
           </if>
           <if test="ownUserName != null" >
-              #{receive_time,jdbcType=DECIMAL},
+              #{ownUserName,jdbcType=DECIMAL},
           </if>
           <if test="receiveTime != null" >
               #{receiveTime,jdbcType=VARCHAR},
