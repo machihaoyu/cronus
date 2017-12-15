@@ -81,8 +81,9 @@ public class AutoAllocateService {
 
     @Autowired
     private CronusRedisService cronusRedisService;
-//    @Autowired
-//    private SmsService smsService;
+
+    @Autowired
+    private SmsService smsService;
 
     /**
      * 判断是不是客户主动申请渠道
@@ -148,7 +149,7 @@ public class AutoAllocateService {
             }
 
             //保存客户
-            SimpleUserInfoDTO simpleUserInfoDTO;
+            SimpleUserInfoDTO simpleUserInfoDTO = null;
             Integer customerId = 0;
             if (null != customerDTO.getId() && customerDTO.getId() > 0) {
                 customerId = customerDTO.getId();
@@ -178,8 +179,17 @@ public class AutoAllocateService {
                         case "0":
                         case "1":
                         case "3":
-                            //先注销之后重新获取
-                            addCustomer(customerDTO, token);
+                            if (customerDTO.getOwnerUserId() != null && customerDTO.getOwnerUserId() > 0) {
+                                simpleUserInfoDTO = thorUcService.getUserInfoById(token, customerDTO.getOwnerUserId()).getData();
+                                if (null != simpleUserInfoDTO.getSub_company_id()) {
+                                    customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
+                                } else {
+                                    customerDTO.setSubCompanyId(0);
+                                }
+                            }
+                            //保存数据
+                            customerDTO.setLastUpdateTime(new Date());
+                            customerInfoService.addCustomer(customerDTO, token);
                             break;
                     }
                 }
@@ -207,10 +217,10 @@ public class AutoAllocateService {
                     allocateLogService.addAllocatelog(customerInfo, customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode(), null);
                     activeChannelAddTansaction(customerDTO);
-                    sendMessage(customerDTO, token);
+                    sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     break;
                 case "2": //WAITING_POOL
-                    sendCRMAssistantMessage(customerDTO, token);
+                    sendCRMAssistantMessage(customerDTO.getCity(),customerDTO.getCustomerName(), token);
                     break;
                 case "3":
                     //添加分配日志
@@ -219,7 +229,7 @@ public class AutoAllocateService {
                     allocateLogService.addAllocatelog(customerInfot, customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_5.getCode(), null);
                     activeChannelAddTansaction(customerDTO);
-                    sendMessage(customerDTO, token);
+                    sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     break;
                 case "4":
                     break;
@@ -263,31 +273,33 @@ public class AutoAllocateService {
         }
     }
 
-    private void sendMessage(CustomerDTO customerDTO, String token) {
+    private void sendMessage(String customerName, Integer toId, SimpleUserInfoDTO ownerUser, String token) {
         theaClientService.sendMail(token,
-                "房金所为您分配了客户名：" + customerDTO.getCustomerName() + "，请注意跟进。",
+                "房金所为您分配了客户名：" + customerName + "，请注意跟进。",
                 0,
                 0,
                 "系统管理员",
-                customerDTO.getOwnerUserId());
+                toId);
+
+        smsService.sendSmsForAutoAllocate(ownerUser.getTelephone(), customerName);
     }
 
-    private void sendMessage(CustomerInfo customerInfo, String token) {
-        theaClientService.sendMail(token,
-                "房金所为您分配了客户名：" + customerInfo.getCustomerName() + "，请注意跟进。",
-                0,
-                0,
-                "系统管理员",
-                customerInfo.getOwnUserId());
-    }
+//    private void sendMessage(String customerName,Integer toId, SimpleUserInfoDTO ownerUser,String token) {
+//        theaClientService.sendMail(token,
+//                "房金所为您分配了客户名：" + customerName + "，请注意跟进。",
+//                0,
+//                0,
+//                "系统管理员",
+//                toId);
+//    }
 
-    private void sendCRMAssistantMessage(CustomerDTO customerDTO, String token) {
+    private void sendCRMAssistantMessage(String customerCity,String customerName, String token) {
 
-        BaseUcDTO<List<CrmUserDTO>> crmUser = thorInterfaceService.getCRMUser(token, customerDTO.getCity());
+        BaseUcDTO<List<CrmUserDTO>> crmUser = thorInterfaceService.getCRMUser(token, customerCity);
         List<CrmUserDTO> crmUserDTOList = crmUser.getRetData();
         for (CrmUserDTO crmUserDTO :
                 crmUserDTOList) {
-            //todo 发送短信
+            smsService.sendNonCommunicate(customerName, crmUserDTO.getPhone());
         }
     }
 
@@ -466,11 +478,11 @@ public class AutoAllocateService {
                         //添加分配日志
                         allocateLogService.addAllocatelog(customerInfo, customerInfo.getOwnUserId(),
                                 CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
-                        sendMessage(customerInfo, token);
+                        sendMessage(customerInfo.getCustomerName(), ownUserId, simpleUserInfoDTO, token);
 
                     } else {
                         //分配名额已经满了,向这个城市的crm助理发送短信
-                        //todo
+                        sendCRMAssistantMessage(customerInfo.getCity(),customerInfo.getCustomerName(), token);
                         if (!failList.contains(customerInfo.getId()))
                             failList.add(customerInfo.getId());
                     }
@@ -480,9 +492,7 @@ public class AutoAllocateService {
                 cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, failList);
 
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.warn(e.getMessage());
         }
     }
