@@ -1439,4 +1439,22 @@ public class CustomerInfoService {
         return  resultDto;
     }
 
+    public Map<String, Integer> countForAutoClean(){
+        return customerInfoMapper.countForAutoClean();
+    }
+
+    /**
+     * 根据属性Map查询
+     *
+     * @param telStr
+     * @return
+     */
+    public List<CustomerInfo> selectByParams(Map<String, Object> telStr) {
+        List<CustomerInfo> customerInfoList = customerInfoMapper.selectByParams(telStr);
+        return customerInfoList;
+    }
+
+    public List<Integer> selectForAutoClean(Map<String, Object> paramsMap){
+        return customerInfoMapper.selectForAutoClean(paramsMap);
+    }
 }

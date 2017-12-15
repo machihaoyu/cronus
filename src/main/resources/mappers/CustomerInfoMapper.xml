@@ -1697,4 +1697,49 @@
         SELECT a.* FROM customer_info a LEFT JOIN allocate_log b ON a.id = b.customer_id WHERE a.customer_type = '意向客户'
         AND a.own_user_id > 0 AND TIMESTAMPDIFF(MINUTE,a.receive_time,CURTIME()) &lt; 15 and b.id  and b.operation in ('未沟通分配','自动分配') LIMIT 100
     </select>
+
+    <!--自动清洗数据计算-->
+    <select id="countForAutoClean" resultType="map">
+        SELECT count(*) as total,
+        COUNT(CASE WHEN remain = 0 THEN 1 END) as unRemain,
+        COUNT(CASE WHEN remain = 1 THEN 1 END) as isRemain
+        FROM customer_info
+    </select>
+
+    <select id="selectByParams" resultMap="BaseResultMap" parameterType="Map">
+        select <include refid="Base_Column_List"/>
+        from customer_info
+        <where>
+            <if test=" null != eqPhone and '' != eqPhone ">
+                AND telephonenumber = #{eqPhone}
+            </if>
+            <if test=" null != inPhone and '' != inPhone">
+                AND telephonenumber IN (#{inPhone})
+            </if>
+            <if test=" null != remain">
+                AND remain = #{remain}
+            </if>
+            <if test="null != inStatus">
+                AND status IN
+                <foreach item="item" index="index" collection="inStatus" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="null != ownUserId">
+                AND own_user_id = #{ownUserId}
+            </if>
+            <if test="null != customerSource">
+                AND customer_source = #{customerSource}
+            </if>
+            <if test="null != utmSource">
+                AND utm_source = #{utmSource}
+            </if>
+            <if test="null != ids">
+                AND id IN
+                <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
 </mapper>

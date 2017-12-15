@@ -1,5 +1,6 @@
 package com.fjs.cronus.mappers;
 
+import com.fjs.cronus.api.thea.Loan;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.util.MyMapper;
 import org.springframework.data.repository.query.Param;
@@ -43,6 +44,8 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
     List<CustomerInfo> publicOfferList(Map<String,Object> parmsMap);
 
     Integer publicOfferCount(Map<String,Object> parmsMap);
+
+    public List<Integer> selectForAutoClean(Map<String, Object> map);
     /**
      * 根据电话号码查找
      * @param paramMap
@@ -72,4 +75,7 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
 
     public void batchUpdate(Map<String,Object> paramsMap);
 
+    public Map<String, Integer> countForAutoClean();
+
+    public List<CustomerInfo> selectByParams(Map<String, Object> telStr);
 }
