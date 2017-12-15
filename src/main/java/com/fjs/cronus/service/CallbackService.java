@@ -67,12 +67,12 @@ public class CallbackService {
         }
 
         if (!StringUtils.isEmpty(callback_start_time)){
-            Date startDate = DateUtils.parse(callback_start_time,DateUtils.FORMAT_LONG);
-            paramsMap.put("createTimeStart",startDate);
+            //Date startDate = DateUtils.parse(callback_start_time,DateUtils.FORMAT_SHORT);
+            paramsMap.put("createTimeStart",callback_start_time);
         }
         if (!StringUtils.isEmpty(callback_end_time)){
-            Date endDate = DateUtils.parse(callback_end_time,DateUtils.FORMAT_LONG);
-            paramsMap.put("createTimeEnd",endDate);
+           // Date endDate = DateUtils.parse(callback_end_time,DateUtils.FORMAT_SHORT);
+            paramsMap.put("createTimeEnd",callback_end_time);
         }
        /*  if (paramsMap != null && paramsMap.size() > 0 ){
              //从phonelog中查询到customerId
@@ -164,7 +164,7 @@ public class CallbackService {
             callbackCustomerDTO.setCustomerType(customerInfo.getCustomerType());
             callbackCustomerDTO.setCustomerName(customerInfo.getCustomerName());
             callbackCustomerDTO.setLoanAmount(customerInfo.getLoanAmount());
-            if (customerInfo.getOwnUserId() != 0){
+            if (customerInfo.getOwnUserId() != null && customerInfo.getOwnUserId() != 0){
                  com.fjs.cronus.dto.uc.UserInfoDTO ucUserDTO = ucService.getUserInfoByID(token,customerInfo.getOwnUserId());
                  callbackCustomerDTO.setOwnUserName(ucUserDTO.getName());
                  callbackCustomerDTO.setOwnUserId(customerInfo.getOwnUserId());

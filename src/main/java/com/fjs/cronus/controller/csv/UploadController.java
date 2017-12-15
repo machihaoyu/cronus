@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ import java.util.Date;
 import java.util.List;
 
 
+@RequestMapping("/api/v1")
 @Controller
 public class UploadController {
     private Logger logger = LoggerFactory.getLogger(UploadController.class);
@@ -246,33 +248,26 @@ public class UploadController {
     @RequestMapping(value = "file/download", method = RequestMethod.GET)
     public CronusDto fileDownload( HttpServletRequest request, HttpServletResponse response,Integer param){
         CronusDto theaApiDTO=new CronusDto();
-        //获取网站部署路径(通过ServletContext对象)，用于确定下载文件位置，从而实现下载
-        String path = request.getSession().getServletContext().getRealPath("download");
-        //1.设置文件ContentType类型，这样设置，会自动判断下载文件类型
-        response.setContentType("multipart/form-data");
-        response.setCharacterEncoding("UTF-8");
-        //2.设置文件头：最后一个参数是设置下载文件名(假如我们叫a.pdf)
         if (param == null){
             theaApiDTO.setResult(CommonMessage.FAIL.getCode());
             theaApiDTO.setMessage(CommonConst.UNVALID_PARA);
             return theaApiDTO;
         }
-        File file = null;
+        InputStream inputStream= null;
         String fileName=null;
         if (param == 1){
-            file=new File(path + "\\"+"Template.xlsx");
+             inputStream=this.getClass().getResourceAsStream("/webapp/download/Template.xlsx");
             fileName="Template.xlsx";
         }
         if (param == 2){
-            file=new File(path + "\\"+"导入客户到公盘模板.csv");
+            inputStream=this.getClass().getResourceAsStream("/webapp/download/导入客户到公盘模板.csv");
             fileName="导入客户到公盘模板.csv";
         }
         try{
 
             //2.设置文件头：最后一个参数是设置下载文件名
-            response.setHeader("Content-Disposition", "attachment;filename="+new String(fileName.getBytes("utf-8"),"ISO-8859-1"));
             ServletOutputStream out;
-            FileInputStream inputStream = new FileInputStream(file);
+            //FileInputStream inputStream = new FileInputStream(file);
             //3.通过response获取ServletOutputStream对象(out)
             out = response.getOutputStream();
             int b = 0;
@@ -284,6 +279,7 @@ public class UploadController {
                 //输出缓冲区的内容到浏览器，实现文件下载
                 out.write(buffer, 0, len);
             }
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
             inputStream.close();
             out.close();
             out.flush();
