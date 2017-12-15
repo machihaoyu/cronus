@@ -1,8 +1,10 @@
 package com.fjs.cronus.service.quartz;
 
 
+import com.fjs.cronus.service.AutoAllocateService;
 import com.fjs.cronus.service.CommunicationLogService;
 import com.fjs.cronus.service.CustomerMeetService;
+import com.fjs.cronus.service.OcdcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,12 @@ public class ScheduledJob {
     @Value("${token.current}")
     private String token;
 
+    @Autowired
+    private OcdcService ocdcService;
+
+    @Autowired
+    private AutoAllocateService autoAllocateService;
+
     private SimpleDateFormat dateFormat() {
         return new SimpleDateFormat("HH:mm:ss");
     }
@@ -51,6 +59,9 @@ public class ScheduledJob {
         communicationLogService.sendMessToCustomer(token);
         customerMeetService.sendMessMeetToCustomer(token);
         System.out.println(1);
+        ocdcService.waitingPoolAllocate(token);
+
+        autoAllocateService.nonCommunicateAgainAllocate(token);
         logger.info("Examine End!");
     }
 }

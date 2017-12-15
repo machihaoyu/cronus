@@ -38,7 +38,7 @@ import java.util.*;
 @Service
 public class UserService {
 
-    @Value("${publicToken}")
+    @Value("${token.current}")
     private String publicToken;
 
     @Autowired

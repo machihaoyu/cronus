@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class UserInfoRedisService {
 
-    @Value("${publicToken}")
+    @Value("${token.current}")
     private String publicToken;
 
     @Resource
