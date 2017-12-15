@@ -180,18 +180,16 @@ public class OcdcService {
     }
 
     /**
-     * 待分配池定时分配
+     * 待分配池定时分配 5min
      */
-    //@Scheduled()
-    public AllocateEntity waitingPoolAllocate() {
+    public AllocateEntity waitingPoolAllocate(String token) {
 
-        String token = "";
         AllocateEntity allocateEntity = new AllocateEntity();
-        List<AgainAllocateCustomer> list = againAllocateCustomerService.getNonAllocateCustomer();
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         try {
+
+            List<AgainAllocateCustomer> list = againAllocateCustomerService.getNonAllocateCustomer();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             for (AgainAllocateCustomer againCustomer :
                     list) {
                 JsonNode node = objectMapper.readValue(againCustomer.getJsonData(), JsonNode.class);
@@ -204,6 +202,7 @@ public class OcdcService {
             }
         } catch (Exception e) {
             allocateEntity.setSuccess(false);
+            logger.warn(e.getMessage());
         }
 
         return allocateEntity;

@@ -415,69 +415,75 @@ public class AutoAllocateService {
 
 
     /**
-     * 客户未沟通重新分配
+     * 客户未沟通重新分配 定时任务 5min
      */
     public synchronized void nonCommunicateAgainAllocate(String token) {
-        if (currentWorkDayAndTime(token)) {
-            List<CustomerInfo> list = customerInfoService.selectNonCommunicateInTime().getData();
+        try {
+            if (currentWorkDayAndTime(token)) {
+                List<CustomerInfo> list = customerInfoService.selectNonCommunicateInTime().getData();
 
-            List<Integer> existFailList = cronusRedisService.getRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO);
-            if (existFailList == null) {
-                existFailList = new ArrayList<>();
-            }
-            StringBuilder stringBuilder = new StringBuilder();
-            if (existFailList != null) {
-                for (int i = 0; i < existFailList.size(); i++) {
-                    stringBuilder.append(existFailList.get(i).toString());
-                    if (i < existFailList.size() - 1) {
-                        stringBuilder.append(",");
+                List<Integer> existFailList = cronusRedisService.getRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO);
+                if (existFailList == null) {
+                    existFailList = new ArrayList<>();
+                }
+                StringBuilder stringBuilder = new StringBuilder();
+                if (existFailList != null) {
+                    for (int i = 0; i < existFailList.size(); i++) {
+                        stringBuilder.append(existFailList.get(i).toString());
+                        if (i < existFailList.size() - 1) {
+                            stringBuilder.append(",");
+                        }
                     }
                 }
-            }
-            List<Integer> failList = new ArrayList<>();
-            for (CustomerInfo customerInfo :
-                    list) {
-                if (existFailList.contains(customerInfo.getId())) {
-                    continue;
-                }
-                Integer ownUserId = 0;
+                List<Integer> failList = new ArrayList<>();
+                for (CustomerInfo customerInfo :
+                        list) {
+                    if (existFailList.contains(customerInfo.getId())) {
+                        continue;
+                    }
+                    Integer ownUserId = 0;
 
-                try {
-                    ownUserId = getAllocateUser(customerInfo.getCity());
-                } catch (Exception e) {
+                    try {
+                        ownUserId = getAllocateUser(customerInfo.getCity());
+                    } catch (Exception e) {
 
-                }
-                if (ownUserId > 0) {
-                    SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token, ownUserId).getData();
-                    if (simpleUserInfoDTO != null && null != simpleUserInfoDTO.getSub_company_id()) {
-                        customerInfo.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
+                    }
+                    if (ownUserId > 0) {
+                        SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token, ownUserId).getData();
+                        if (simpleUserInfoDTO != null && null != simpleUserInfoDTO.getSub_company_id()) {
+                            customerInfo.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
+                        } else {
+                            customerInfo.setSubCompanyId(0);
+                        }
+                        customerInfo.setReceiveTime(new Date());
+                        customerInfo.setLastUpdateTime(new Date());
+                        customerInfo.setConfirm(1);
+                        customerInfo.setClickCommunicateButton(0);
+                        customerInfo.setCommunicateTime(null);
+                        customerInfoService.editCustomerSys(customerInfo, token);
+
+                        allocateRedisService.changeAllocateTemplet(customerInfo.getOwnUserId(), customerInfo.getCity());
+                        //添加分配日志
+                        allocateLogService.addAllocatelog(customerInfo, customerInfo.getOwnUserId(),
+                                CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
+                        sendMessage(customerInfo, token);
+
                     } else {
-                        customerInfo.setSubCompanyId(0);
+                        //分配名额已经满了,向这个城市的crm助理发送短信
+                        //todo
+                        if (!failList.contains(customerInfo.getId()))
+                            failList.add(customerInfo.getId());
                     }
-                    customerInfo.setReceiveTime(new Date());
-                    customerInfo.setLastUpdateTime(new Date());
-                    customerInfo.setConfirm(1);
-                    customerInfo.setClickCommunicateButton(0);
-                    customerInfo.setCommunicateTime(null);
-                    customerInfoService.editCustomerSys(customerInfo, token);
-
-                    allocateRedisService.changeAllocateTemplet(customerInfo.getOwnUserId(), customerInfo.getCity());
-                    //添加分配日志
-                    allocateLogService.addAllocatelog(customerInfo, customerInfo.getOwnUserId(),
-                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
-                    sendMessage(customerInfo, token);
-
-                } else {
-                    //分配名额已经满了,向这个城市的crm助理发送短信
-                    //todo
-                    if (!failList.contains(customerInfo.getId()))
-                        failList.add(customerInfo.getId());
                 }
-            }
-            //failList 添加到缓存
-            existFailList.addAll(failList);
-            cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, failList);
+                //failList 添加到缓存
+                existFailList.addAll(failList);
+                cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, failList);
 
+            }
+        }
+        catch (Exception e)
+        {
+            logger.warn(e.getMessage());
         }
     }
 
