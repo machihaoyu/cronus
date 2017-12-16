@@ -15,8 +15,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2017/7/6 0006. url = "http://192.168.1.124:1120",
  */
-@FeignClient(value = "${client.feign.thor-backend}",url = "http://192.168.1.124:1120")
-
+@FeignClient(value = "${client.feign.thor-backend}")
 public interface ThorUcService {
 
     /**
