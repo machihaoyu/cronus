@@ -220,7 +220,8 @@ public class CleanMangerController {
             theaApiDTO.setMessage("customerSource不能为空");
             return theaApiDTO;
         }
-        if (autoCleanManageDTO.getUserId() != null){
+        if (autoCleanManageDTO.getUserId() != null && StringUtils.isEmpty(autoCleanManageDTO.getUtmSource())
+                && StringUtils.isEmpty(autoCleanManageDTO.getCustomerSource())){
             List<AutoCleanManage> autoCleanManageList = autoCleanManageService.selectByUserId(autoCleanManageDTO.getUserId());
             if (!CollectionUtils.isEmpty(autoCleanManageList)){
                 theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
