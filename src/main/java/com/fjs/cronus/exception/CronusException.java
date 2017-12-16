@@ -193,6 +193,9 @@ public class CronusException extends BaseException {
         CRM_CONTRACTINFO_ERROR("6090","链接交易系统，更改合同状态失败"),
 
         CRM_THEA_ERROR("6090","链接交易系统，更改回款等信息状态失败"),
+
+        CRM_KEEPCUSTOMER_ERROR("6091","请先保留用户！"),
+
         ;
         private String status;
         private String error;
