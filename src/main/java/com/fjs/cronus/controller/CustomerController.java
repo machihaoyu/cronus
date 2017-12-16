@@ -564,6 +564,10 @@ public class CustomerController {
             }
         }catch (Exception e){
             logger.error("-------------->keepLoan保留失败",e);
+            if(e instanceof CronusException){
+                CronusException cronusException = (CronusException) e;
+                throw cronusException;
+            }
             theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.KEEP_FAIL.getCodeDesc());
         }

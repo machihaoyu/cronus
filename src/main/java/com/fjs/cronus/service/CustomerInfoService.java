@@ -770,6 +770,8 @@ public class CustomerInfoService {
         TheaApiDTO resultDto = theaService.inserLoan(loanDTO,token);
         if (resultDto != null && resultDto.getResult() == 0){
             flag = true;
+        }else {
+            throw new  CronusException(CronusException.Type.CRM_CONNECT_ERROR);
         }
         return flag;
     }
