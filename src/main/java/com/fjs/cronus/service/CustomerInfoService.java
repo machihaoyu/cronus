@@ -764,7 +764,9 @@ public class CustomerInfoService {
         loanDTO.setLoanAmount(customerInfo.getLoanAmount());
         loanDTO.setOwnUserName(customerInfo.getOwnUserName());
         loanDTO.setOwnUserId(customerInfo.getOwnUserId());
-        loanDTO.setTelephonenumber(customerInfo.getTelephonenumber());
+        //TODO 解密
+        String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+        loanDTO.setTelephonenumber(telephone);
         TheaApiDTO resultDto = theaService.inserLoan(loanDTO,token);
         if (resultDto != null && resultDto.getResult() == 0){
             flag = true;
@@ -869,7 +871,7 @@ public class CustomerInfoService {
         if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
-        customerInfo.setOwnUserId(null);
+        customerInfo.setOwnUserId(0);
         customerInfo.setOwnUserName(null);
         customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
         customerInfo.setLastUpdateUser(userId);
@@ -1438,7 +1440,7 @@ public class CustomerInfoService {
         return  resultDto;
     }
 
-    public CronusDto<List <CustomerInfo>> selectNonCommunicateInTime(){
+    public CronusDto<List<CustomerInfo>> selectNonCommunicateInTime(){
         CronusDto resultDto =  new CronusDto();
         //手机需要加密
         List <CustomerInfo> customerInfos = customerInfoMapper.selectNonCommunicateInTime();
