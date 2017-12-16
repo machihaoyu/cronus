@@ -244,6 +244,12 @@ public class DocumentService {
             document.setLastUpdateTime(date);
             document.setLastUpdateUser(user_id);
             document.setIsDeleted(0);
+            //判断是不是c端
+            if ("C".equals(uploadDocumentDTO.getSource())){
+                document.setIsFlag(1);
+            }else {
+                document.setIsFlag(0);
+            }
             documentMapper.addDocument(document);
             documentId = document.getId();
         }

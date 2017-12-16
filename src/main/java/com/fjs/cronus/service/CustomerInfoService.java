@@ -724,7 +724,7 @@ public class CustomerInfoService {
     }
 
     @Transactional
-    public boolean keepCustomer(Integer customerId,UserInfoDTO userInfoDTO){
+    public boolean keepCustomer(Integer customerId,UserInfoDTO userInfoDTO,String token){
         boolean flag = false;
         Integer userId = null;
         if (!StringUtils.isEmpty(userInfoDTO.getUser_id())) {
@@ -764,7 +764,7 @@ public class CustomerInfoService {
         loanDTO.setOwnUserName(customerInfo.getOwnUserName());
         loanDTO.setOwnUserId(customerInfo.getOwnUserId());
         loanDTO.setTelephonenumber(customerInfo.getTelephonenumber());
-        TheaApiDTO resultDto = theaService.inserLoan(loanDTO);
+        TheaApiDTO resultDto = theaService.inserLoan(loanDTO,token);
         if (resultDto != null && resultDto.getResult() == 0){
             flag = true;
         }

@@ -53,8 +53,8 @@ public class TheaClientService {
      * 新增交易
      * @param loanDTO
      */
-    public void inserLoan(LoanDTO loanDTO) {
-        TheaApiDTO resultDto = theaService.inserLoan(loanDTO);
+    public void inserLoan(LoanDTO loanDTO,String token) {
+        TheaApiDTO resultDto = theaService.inserLoan(loanDTO,token);
     }
 
     /**

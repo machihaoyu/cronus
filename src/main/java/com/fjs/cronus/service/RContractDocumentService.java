@@ -3,13 +3,17 @@ package com.fjs.cronus.service;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.cronus.OcrDocumentDto;
+import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.DocumentMapper;
 import com.fjs.cronus.mappers.RContractDocumentMapper;
+import com.fjs.cronus.model.Document;
 import com.fjs.cronus.model.RContractDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.print.Doc;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,10 +29,11 @@ public class RContractDocumentService {
     RContractDocumentMapper rContractDocumentMapper;
     @Value("${ftp.viewUrl}")
     private String viewUrl;
+    @Autowired
+    DocumentMapper documentMapper;
     public CronusDto findDocByCustomerId(Integer customerId){
         CronusDto resultDto = new CronusDto();
         Map<String,Object> paramsMap = new HashMap<>();
-        //查询
         paramsMap.put("customerId",customerId);
         List<RContractDocument> documentList = rContractDocumentMapper.ocrDocument(paramsMap);
         List<OcrDocumentDto> ocrDocumentDtos = new ArrayList<>();
@@ -41,6 +46,7 @@ public class RContractDocumentService {
                 ocrDocumentDto.setDocument_c_name_header(rcdocument.getDocumentCategory().getDocumentCNameHeader());
                 ocrDocumentDto.setRc_document_id(rcdocument.getId());
                 ocrDocumentDto.setDocumentSavename(rcdocument.getDocument().getDocumentSavename());
+                ocrDocumentDto.setFlag(rcdocument.getDocument().getIsFlag());
                 ocrDocumentDto.setDocumentSavepath(ResultResource.DOWNLOADFOOTPATH + rcdocument.getDocument().getDocumentSavepath());
                 ocrDocumentDto.setUrl(viewUrl + rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDtos.add(ocrDocumentDto);
@@ -74,5 +80,21 @@ public class RContractDocumentService {
          resultDto.setResult(ResultResource.CODE_SUCCESS);
          resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
          return  resultDto;
+     }
+
+     public boolean confirmDocument(Integer document_id){
+         boolean flag = false;
+         Map<String,Object> paramsMap = new HashMap<>();
+         paramsMap.put("document_id",document_id);
+
+         Document document = documentMapper.findByFeild(paramsMap);
+         if (document == null){
+             throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
+         }
+         //开始更新
+         document.setIsFlag(2);//修改为已确认状态
+         documentMapper.update(document);
+         flag = true;
+         return  flag;
      }
 }

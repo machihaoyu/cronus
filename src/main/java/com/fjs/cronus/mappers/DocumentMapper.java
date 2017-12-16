@@ -17,4 +17,6 @@ public interface DocumentMapper {
 
     //List<Document>  ocrDocument(Map<String,Object> paramsMap);
     Document selectByKey(@Param(value = "id")  Integer id);
+
+    void update(Document document);
 }

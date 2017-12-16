@@ -552,7 +552,7 @@ public class CustomerController {
                 return theaApiDTO;
             }
 
-            boolean updateResult = customerInfoService.keepCustomer(customerId,userInfoDTO);
+            boolean updateResult = customerInfoService.keepCustomer(customerId,userInfoDTO,token);
             if (updateResult == true) {
                 theaApiDTO.setResult(CommonMessage.KEEP_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.KEEP_SUCCESS.getCodeDesc());
