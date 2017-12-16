@@ -3,6 +3,7 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.cronus.AddPullCustomerDTO;
 import com.fjs.cronus.dto.cronus.PullCustomerDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
@@ -107,6 +108,7 @@ public class PullCustomerController {
             if (id !=null){
                 pullCustomer = pullCustomerService.selectById(id);
                 pullCustomerDTO=pullCustomerService.copyProperty(pullCustomer);
+                pullCustomerDTO.setOwnUserName(userInfoDTO.getName());
             }else{
                 theaApiDTO.setResult(CommonMessage.FAIL.getCode());
                 theaApiDTO.setMessage(CommonConst.ID_NULL);
@@ -125,16 +127,18 @@ public class PullCustomerController {
 
     @ApiOperation(value="保存海岱魔方原始盘", notes="保存海岱魔方原始盘")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")})
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "pullCustomerDTO", value = "pullCustomerDTO", required = true, paramType = "body", dataType = "AddPullCustomerDTO"),
+    })
+
     @RequestMapping(value = "/updatePullCustomer", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto updatePullCustomer(@Valid @RequestBody PullCustomerDTO pullCustomerDTO, BindingResult result, HttpServletRequest request){
+    public CronusDto updatePullCustomer(@Valid @RequestBody AddPullCustomerDTO pullCustomerDTO, BindingResult result, @RequestHeader("Authorization")String token){
         logger.info("保存原始盘的数据："+pullCustomerDTO.toString());
         CronusDto theaApiDTO =new CronusDto();
         if(result.hasErrors()){
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
         }
-        String token=request.getHeader("Authorization");
         UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
         String[] authority=resultDto.getAuthority();
@@ -146,6 +150,11 @@ public class PullCustomerController {
                 return theaApiDTO;
             }
         }
+        //判断是否全是下属
+        List<Integer> ids = thorUcService.getSubUserByUserId(token,Integer.valueOf(userInfoDTO.getUser_id()));
+        if (!ids.contains(pullCustomerDTO.getId())){
+            throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
+        }
         try{
             PullCustomer pullCustomer=pullCustomerService.selectById(pullCustomerDTO.getId());
             if (pullCustomer != null&& pullCustomer.getStatus()==CommonConst.PULL_CUSTOMER_STASTUS_TRANSFER){
@@ -153,13 +162,15 @@ public class PullCustomerController {
                 theaApiDTO.setMessage(CommonConst.UPDATE_TRANSFER);
                 return theaApiDTO;
             }
-            pullCustomer=pullCustomerService.copyProperty(pullCustomerDTO);
+            pullCustomer=pullCustomerService.copyPropertyAdd(pullCustomerDTO);
 
             if (StringUtils.isNotEmpty(userInfoDTO.getUser_id().toString())){
                 Date date=new Date();
                 pullCustomer.setLastUpdateTime(date);
                 pullCustomer.setLastUpdateUser(Integer.parseInt(userInfoDTO.getUser_id().toString()));
             }
+
+
             int createResult = pullCustomerService.update(pullCustomer,userInfoDTO);
             if (createResult >0) {
                 theaApiDTO.setResult(CommonMessage.UPDATE_SUCCESS.getCode());
@@ -180,7 +191,8 @@ public class PullCustomerController {
 
     @ApiOperation(value="将原始盘转入交易", notes="将原始盘转入交易")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")})
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
     @RequestMapping(value = "/transferLoan", method = RequestMethod.POST)
     @ResponseBody
     public CronusDto transferLoan(@Valid @RequestBody PullCustomerDTO pullCustomerDTO, BindingResult result, HttpServletRequest request){

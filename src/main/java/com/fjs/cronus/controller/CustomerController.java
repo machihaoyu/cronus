@@ -7,6 +7,7 @@ import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.cronus.AddCustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.dto.cronus.RemoveDTO;
@@ -691,5 +692,25 @@ public class CustomerController {
 
     }
 
-
+    @ApiOperation(value="客户系统手动添加客户", notes="客户系统手动添加客户")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerDTO", value = "", required = true, paramType = "body", dataType = "AddCustomerDTO")
+    })
+    @RequestMapping(value = "/addCRMCustomer", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto addCRMCustomer(@RequestBody AddCustomerDTO customerDTO, @RequestHeader("Authorization") String token) {
+        CronusDto cronusDto = new CronusDto();
+        try {
+            cronusDto = customerInfoService.addCRMCustomer(customerDTO,token);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->customerList获取列表信息操作失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
 }

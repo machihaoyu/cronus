@@ -2,7 +2,9 @@ package com.fjs.cronus.service;
 
 
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.dto.cronus.CommunicationDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
+import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.thea.CommunicationLogDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 
@@ -12,6 +14,7 @@ import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.CustomerMeetMapper;
 import com.fjs.cronus.model.*;
+import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.EntityToDto;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by yinzf on 2017/9/19.
@@ -44,7 +44,8 @@ public class CommunicationLogService {
     CustomerInfoMapper customerInfoMapper;
     @Autowired
     CustomerInfoLogMapper customerInfoLogMapper;
-
+    @Autowired
+    UcService ucService;
     //添加
     @Transactional
     public Integer addLog(CustomerUsefulDTO customerUsefulDTO, CustomerInfo customerDto, UserInfoDTO userInfoDTO, String token){
@@ -174,7 +175,34 @@ public class CommunicationLogService {
 
         return customerUsefulDTO;
     }
+    //获取沟通日志列表
+    public List<CommunicationDTO> findListByCustomerId(Integer customerId,String token){
+        Map<String,Object> paramsMap = new HashMap<>();
+        List<CommunicationDTO> communicationDTOS = new ArrayList<>();
 
+        Example example=new Example(CommunicationLog.class);
+        CustomerUsefulDTO customerUsefulDTO = new CustomerUsefulDTO();
+        Example.Criteria criteria=example.createCriteria();
+        criteria.andEqualTo("customerId",customerId);
+        example.setOrderByClause("create_time desc");
+        List<CommunicationLog> communicationLogList = communicationLogMapper.selectByExample(example);
+        //取最近的一次
+        if (communicationLogList != null && communicationLogList.size() > 0){
+            for (CommunicationLog communicationLog1 : communicationLogList) {
+                CommunicationDTO communicationDTO = new CommunicationDTO();
+                communicationDTO.setId(communicationLog1.getId());
+                communicationDTO.setContent(communicationLog1.getContent());
+                communicationDTO.setCreateTime(communicationLog1.getCreateTime());
+                communicationDTO.setOwnUserId(communicationLog1.getCreateUser());
+                //获取姓名
+                UcUserDTO userInfoDTO = ucService.getUserInfoByID(token,communicationLog1.getCreateUser());
+                communicationDTO.setOwnUserName(userInfoDTO.getName());
+                communicationDTOS.add(communicationDTO);
+            }
+        }
+
+        return communicationDTOS;
+    }
     /**
      * 根据客户id查找沟通日志
      * @param

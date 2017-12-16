@@ -6,6 +6,7 @@ import com.fjs.cronus.dto.CronusDto;
 
 import com.fjs.cronus.dto.api.PHPLoginDto;
 
+import com.fjs.cronus.dto.cronus.CommunicationDTO;
 import com.fjs.cronus.dto.thea.CustomerUsefulDTO;
 
 import com.fjs.cronus.dto.uc.UserInfoDTO;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -154,7 +156,36 @@ public class CommunicationLogController {
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
         }
-
         return theaApiDTO;
     }
+
+    @ApiOperation(value="根据客户id获取沟通日志列表", notes="根据客户id获取沟通日志列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query",  dataType = "int"),
+    })
+    @RequestMapping(value = "/selectListByCustomerId", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<CustomerUsefulDTO> selectListByCustomerId(@RequestParam(required = true) Integer customerId, HttpServletRequest request){
+        CronusDto theaApiDTO=new CronusDto<>();
+        List<CommunicationDTO> communicationLogLis = new ArrayList<>();
+        String token=request.getHeader("Authorization");
+        try{
+            if (customerId != null){
+                communicationLogLis=communicationLogService.findListByCustomerId(customerId,token);
+                theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
+                theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+            }else{
+                theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+                theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc());
+            }
+        }catch (Exception e){
+            logger.error("根据交易id获取沟通日志失败",e);
+            theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+            theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc());
+        }
+        theaApiDTO.setData(communicationLogLis);
+        return theaApiDTO;
+    }
+
 }

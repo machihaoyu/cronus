@@ -164,6 +164,70 @@ public class CustomerInfoService {
         return  cronusDto;
     }
 
+    @Transactional
+    public CronusDto addCRMCustomer(AddCustomerDTO customerDTO, String token){
+        CronusDto cronusDto = new CronusDto();
+        //判断必传字段*/
+        //json转map 参数，教研参数
+        Integer user_id = ucService.getUserIdByToken(token);
+        if (user_id == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户信息出错!");
+        }
+        String customerName = customerDTO.getCustomerName();
+        String telephonenumber = customerDTO.getTelephonenumber();
+        if (customerName == null || "".equals(customerName)){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERNAME_ERROR);
+        }
+        if (telephonenumber == null || "".equals(telephonenumber)) {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONE_ERROR);
+        }
+        if (PhoneFormatCheckUtils.isChinaPhoneLegal(telephonenumber) == false){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONE_ERROR);
+        }
+        //判断手机号是否被注册
+            Map<String,Object> paramsMap = new HashMap<>();
+            paramsMap.put("telephonenumber",telephonenumber);
+            paramsMap.put("start",0);
+            paramsMap.put("size",10);
+            List<CustomerInfo> customerInfos = customerInfoMapper.customerList(paramsMap);
+            if (customerInfos.size() > 0){
+                throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONERE_ERROR);
+            }
+
+        //实体与DTO相互转换
+        CustomerInfo customerInfo = new CustomerInfo();
+
+        Date date = new Date();
+        customerInfo.setCustomerName(customerDTO.getCustomerName());
+        customerInfo.setTelephonenumber(customerDTO.getTelephonenumber());
+        customerInfo.setCustomerSource(customerDTO.getCustomerSource());
+        customerInfo.setUtmSource(customerDTO.getUtmSource());
+        customerInfo.setLoanAmount(customerDTO.getLoanAmount());
+        customerInfo.setCreateTime(date);
+        customerInfo.setCreateUser(user_id);
+        customerInfo.setLastUpdateTime(date);
+        customerInfo.setLastUpdateUser(user_id);
+        customerInfo.setCustomerType(ResultResource.CUSTOMERTYPE);
+        customerInfo.setIsDeleted(0);
+        customerInfoMapper.insertCustomer(customerInfo);
+        if (customerInfo.getId() == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
+        }
+        //开始插入log表
+        //生成日志记录
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription("增加一条客户记录");
+        customerInfoLog.setLogUserId(user_id);
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        cronusDto.setResult(ResultResource.CODE_SUCCESS);
+        cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        cronusDto.setData(customerInfo.getId());
+        return  cronusDto;
+    }
+
     public CronusDto<Integer> fingBytelephone(String telephonenumber){
         CronusDto resultDto =  new CronusDto();
         //手机需要加密

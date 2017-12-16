@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.cronus.AddPullCustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.PullCustomerDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
@@ -68,6 +69,7 @@ public class PullCustomerService {
         pullCustomerDTO.setStatus(pullCustomer.getStatus());
         pullCustomerDTO.setCreateTime(pullCustomer.getCreateTime());
         pullCustomerDTO.setLastUpdateTime(pullCustomer.getLastUpdateTime());
+
         return pullCustomerDTO;
     }
 
@@ -139,10 +141,18 @@ public class PullCustomerService {
         pullCustomer.setLoanAmount(pullCustomerDTO.getLoanAmount());
         return pullCustomer;
     }
+    public PullCustomer copyPropertyAdd(AddPullCustomerDTO pullCustomerDTO){
+        PullCustomer pullCustomer=selectById(pullCustomerDTO.getId());
+        pullCustomer.setTelephone(pullCustomerDTO.getTelephone());
+        pullCustomer.setName(pullCustomerDTO.getName());
+        pullCustomer.setLoanAmount(pullCustomerDTO.getLoanAmount());
+        return pullCustomer;
+    }
 
     @Transactional
     public  Integer update(PullCustomer pullCustomer,UserInfoDTO userInfoDTO){
         Integer userId = null;
+        //p判断是否是自己及其下属
         if (StringUtils.isNotEmpty(userInfoDTO.getUser_id().toString())) {
             userId = Integer.parseInt(userInfoDTO.getUser_id().toString());
         }

@@ -14,7 +14,7 @@ public class AddCustomerMeetDTO implements Serializable {
     @ApiModelProperty(value = "客户id", required = false)
     private Integer customerId;
     @ApiModelProperty(value = "面见时间", required = false)
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     private Date meetTime;
     @ApiModelProperty(value = "面见内容", required = false)
     private String content;

@@ -678,34 +678,34 @@
               #{perDescription,jdbcType=LONGVARCHAR},
           </if>
           <if test="loanAmount != null" >
-              #{loan_amount,jdbcType=DECIMAL},
+              #{loanAmount,jdbcType=DECIMAL},
           </if>
           <if test="customerSource != null" >
-              #{customer_source,jdbcType=VARCHAR},
+              #{customerSource,jdbcType=VARCHAR},
           </if>
           <if test="utmSource != null" >
-              #{utm_source,jdbcType=VARCHAR},
+              #{utmSource,jdbcType=VARCHAR},
           </if>
           <if test="ownUserId != null" >
-              #{own_user_id,jdbcType=VARCHAR},
+              #{ownUserId,jdbcType=VARCHAR},
           </if>
           <if test="ownUserName != null" >
               #{receive_time,jdbcType=DECIMAL},
           </if>
           <if test="receiveTime != null" >
-              #{receive_time,jdbcType=VARCHAR},
+              #{receiveTime,jdbcType=VARCHAR},
           </if>
           <if test="circle != null" >
               #{circle,jdbcType=VARCHAR},
           </if>
           <if test="companyId != null" >
-              #{company_id,jdbcType=VARCHAR},
+              #{companyId,jdbcType=VARCHAR},
           </if>
           <if test="employedInfo != null" >
-              #{employed_info,jdbcType=LONGVARCHAR},
+              #{employedInfo,jdbcType=LONGVARCHAR},
           </if>
           <if test="retirementWages != null" >
-              #{retirement_wages,jdbcType=VARCHAR},
+              #{retirementWages,jdbcType=VARCHAR},
           </if>
           <if test="ext != null" >
               #{ext,jdbcType=LONGVARCHAR},
