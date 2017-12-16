@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.util.StringUtils;
+import org.w3c.dom.ls.LSInput;
 
 
 import java.beans.Transient;
@@ -166,6 +167,7 @@ public class CustomerInfoService {
          customerInfo.setLastUpdateTime(date);
          customerInfo.setIsDeleted(0);
          customerInfo.setReceiveId(0);
+         customerInfo.setAutostatus(1);//自动分配
          customerInfo.setCommunicateId(0);
          customerInfoMapper.insertCustomer(customerInfo);
          if (customerInfo.getId() == null){
@@ -238,6 +240,9 @@ public class CustomerInfoService {
         customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
         customerInfo.setReceiveId(0);
         customerInfo.setCommunicateId(0);
+        customerInfo.setOwnUserId(Integer.valueOf(userInfoDTO.getUser_id()));
+        customerInfo.setOwnUserName(userInfoDTO.getName());
+        customerInfo.setAutostatus(0);
         customerInfoMapper.insertCustomer(customerInfo);
         if (customerInfo.getId() == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
@@ -722,7 +727,7 @@ public class CustomerInfoService {
     }
 
     @Transactional
-    public boolean keepCustomer(Integer customerId,UserInfoDTO userInfoDTO){
+    public boolean keepCustomer(Integer customerId,UserInfoDTO userInfoDTO,String token){
         boolean flag = false;
         Integer userId = null;
         if (!StringUtils.isEmpty(userInfoDTO.getUser_id())) {
@@ -761,10 +766,14 @@ public class CustomerInfoService {
         loanDTO.setLoanAmount(customerInfo.getLoanAmount());
         loanDTO.setOwnUserName(customerInfo.getOwnUserName());
         loanDTO.setOwnUserId(customerInfo.getOwnUserId());
-        loanDTO.setTelephonenumber(customerInfo.getTelephonenumber());
-        TheaApiDTO resultDto = theaService.inserLoan(loanDTO);
+        loanDTO.setUtmSource("自申请");
+        String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+        loanDTO.setTelephonenumber(telephone);
+        TheaApiDTO resultDto = theaService.inserLoan(loanDTO,token);
         if (resultDto != null && resultDto.getResult() == 0){
             flag = true;
+        }else {
+            throw new  CronusException(CronusException.Type.CRM_CONNECT_ERROR);
         }
         return flag;
     }
@@ -782,6 +791,11 @@ public class CustomerInfoService {
         return  customerSourceDTO;
     }
 
+    public List<String> getAllCustomerSource(){
+        List<String> customerSourceByGroup = new ArrayList<>();
+        customerSourceByGroup = customerInfoMapper.customerSourceByGroup();
+        return  customerSourceByGroup;
+    }
     public QueryResult<CustomerListDTO> resignCustomerList(String token,String customerName,String telephonenumber,String utmSource,String ownUserName,String customerSource,
                                                            String level,Integer companyId,Integer page,Integer size){
         QueryResult<CustomerListDTO> queryResult = new  QueryResult();
@@ -861,8 +875,7 @@ public class CustomerInfoService {
         if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
-        customerInfo.setOwnUserId(null);
-        customerInfo.setOwnUserName(null);
+        customerInfo.setRemain(0);
         customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
         customerInfo.setLastUpdateUser(userId);
         Date date = new Date();
@@ -1008,8 +1021,7 @@ public class CustomerInfoService {
             }
             //判断这个负责人是不是在职的
             UserInfoDTO userInfoDTO = ucService.getUserInfoByID(token,removeDTO.getEmpId());
-            Integer status = Integer.parseInt(userInfoDTO.getStatus());
-            if (status != 1){
+            if (userInfoDTO !=null &&  "1".equals(userInfoDTO.getStatus())){
                 throw new CronusException(CronusException.Type.MESSAGE_REMOVECUSTOERSTATUS_ERROR);
             }
             if (StringUtils.isEmpty(removeDTO.getIds())){
@@ -1378,6 +1390,8 @@ public class CustomerInfoService {
         customerInfo.setIsDeleted(0);
         customerInfo.setReceiveId(0);
         customerInfo.setCommunicateId(0);
+        customerInfo.setOwnUserId(0);
+        customerInfo.setAutostatus(0);
         customerInfoMapper.insertCustomer(customerInfo);
         if (customerInfo.getId() == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
@@ -1429,7 +1443,7 @@ public class CustomerInfoService {
         return  resultDto;
     }
 
-    public CronusDto<List <CustomerInfo>> selectNonCommunicateInTime(){
+    public CronusDto<List<CustomerInfo>> selectNonCommunicateInTime(){
         CronusDto resultDto =  new CronusDto();
         //手机需要加密
         List <CustomerInfo> customerInfos = customerInfoMapper.selectNonCommunicateInTime();

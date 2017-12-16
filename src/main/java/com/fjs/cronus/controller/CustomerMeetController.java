@@ -105,6 +105,7 @@ public class CustomerMeetController {
         String token=request.getHeader("Authorization");
       //  UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
+        //没有保留的用户不能面见
         try{
             if (customerMeetDTO.getCustomerId() == null){
                 theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
@@ -116,6 +117,9 @@ public class CustomerMeetController {
                 theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
                 theaApiDTO.setMessage("客户不存在");
                 return theaApiDTO;
+            }
+            if (customerInfo.getRemain() != 1){
+                throw new CronusException(CronusException.Type.CRM_KEEPCUSTOMER_ERROR);
             }
             customerMeetDTO.setCustomerId(customerInfo.getId());
             int createResult = customerMeetService.addCustomerMeet(customerMeetDTO,resultDto,customerInfo,token);

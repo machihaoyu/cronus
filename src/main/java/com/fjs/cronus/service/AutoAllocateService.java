@@ -216,7 +216,7 @@ public class AutoAllocateService {
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
                     allocateLogService.addAllocatelog(customerInfo, customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode(), null);
-                    activeChannelAddTansaction(customerDTO);
+                    activeChannelAddTansaction(customerDTO,token);
                     sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     break;
                 case "2": //WAITING_POOL
@@ -228,7 +228,7 @@ public class AutoAllocateService {
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfot);
                     allocateLogService.addAllocatelog(customerInfot, customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_5.getCode(), null);
-                    activeChannelAddTansaction(customerDTO);
+                    activeChannelAddTansaction(customerDTO,token);
                     sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     break;
                 case "4":
@@ -262,14 +262,14 @@ public class AutoAllocateService {
      *
      * @param customerDTO
      */
-    private void activeChannelAddTansaction(CustomerDTO customerDTO) {
+    private void activeChannelAddTansaction(CustomerDTO customerDTO,String token) {
         if (isActiveApplicationChannel(customerDTO)) {
             LoanDTO loanDTO = new LoanDTO();
             loanDTO.setTelephonenumber(customerDTO.getTelephonenumber());
             loanDTO.setLoanAmount(customerDTO.getLoanAmount());
             loanDTO.setCustomerId(customerDTO.getId());
             loanDTO.setCustomerName(customerDTO.getCustomerName());
-            theaClientService.inserLoan(loanDTO);
+            theaClientService.inserLoan(loanDTO,token);
         }
     }
 

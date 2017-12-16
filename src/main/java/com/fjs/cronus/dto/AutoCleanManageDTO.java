@@ -12,6 +12,10 @@ import java.util.Date;
 public class AutoCleanManageDTO {
     private Integer id;
 
+    @ApiModelProperty(value = "业务员id")
+    private Integer userId;
+    @ApiModelProperty(value = "电话")
+    private String telephone;
     @ApiModelProperty(value = "来源")
     private String customerSource;
     @ApiModelProperty(value = "渠道")
@@ -52,12 +56,31 @@ public class AutoCleanManageDTO {
         this.createTime = createTime;
     }
 
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
+
     @Override
     public String toString() {
         return "AutoCleanManageDTO{" +
                 "id=" + id +
+                ", userId=" + userId +
+                ", telephone='" + telephone + '\'' +
                 ", customerSource='" + customerSource + '\'' +
                 ", utmSource='" + utmSource + '\'' +
+                ", createTime=" + createTime +
                 '}';
     }
 }

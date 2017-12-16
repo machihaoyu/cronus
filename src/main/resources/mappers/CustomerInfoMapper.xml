@@ -696,7 +696,7 @@
               #{ownUserId,jdbcType=VARCHAR},
           </if>
           <if test="ownUserName != null" >
-              #{receive_time,jdbcType=DECIMAL},
+              #{ownUserName,jdbcType=DECIMAL},
           </if>
           <if test="receiveTime != null" >
               #{receiveTime,jdbcType=VARCHAR},
@@ -1660,7 +1660,7 @@
             <if test="lastUpdateTime != null ">
                 last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
             </if>
-            own_user_id=null
+            own_user_id = 0
         </set>
         where id in
         <foreach collection="paramsList" index="index" item="paramsList" open="(" separator="," close=")">

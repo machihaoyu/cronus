@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -124,7 +125,7 @@ public class CleanMangerController {
     }*/
 
 
-    @ApiOperation(value="添加需要屏蔽的业务员客户", notes="添加需要屏蔽的业务员客户")
+    /*@ApiOperation(value="添加需要屏蔽的业务员客户", notes="添加需要屏蔽的业务员客户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
     })
@@ -192,7 +193,7 @@ public class CleanMangerController {
         }
 
         return theaApiDTO;
-    }
+    }*/
 
     @ApiOperation(value="新增自动清洗管理", notes="新增自动清洗管理")
     @ApiImplicitParams({
@@ -209,15 +210,24 @@ public class CleanMangerController {
         String token=request.getHeader("Authorization");
         CronusDto<UserInfoDTO> thorApiDTO=thorUcService.getUserInfoByToken(token,CommonConst.SYSTEMNAME);
         UserInfoDTO userInfoDTO=thorApiDTO.getData();
-        if (StringUtils.isEmpty(autoCleanManageDTO.getUtmSource())){
+        if (autoCleanManageDTO.getUserId() == null && StringUtils.isEmpty(autoCleanManageDTO.getUtmSource())){
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
             theaApiDTO.setMessage("utmSource不能为空");
             return theaApiDTO;
         }
-        if (StringUtils.isEmpty(autoCleanManageDTO.getCustomerSource())){
+        if (autoCleanManageDTO.getUserId() == null && StringUtils.isEmpty(autoCleanManageDTO.getCustomerSource())){
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
             theaApiDTO.setMessage("customerSource不能为空");
             return theaApiDTO;
+        }
+        if (autoCleanManageDTO.getUserId() != null && StringUtils.isEmpty(autoCleanManageDTO.getUtmSource())
+                && StringUtils.isEmpty(autoCleanManageDTO.getCustomerSource())){
+            List<AutoCleanManage> autoCleanManageList = autoCleanManageService.selectByUserId(autoCleanManageDTO.getUserId());
+            if (!CollectionUtils.isEmpty(autoCleanManageList)){
+                theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+                theaApiDTO.setMessage("客户已存在");
+                return theaApiDTO;
+            }
         }
         try{
             AutoCleanManage autoCleanManage = autoCleanManageService.copyProperty(autoCleanManageDTO);

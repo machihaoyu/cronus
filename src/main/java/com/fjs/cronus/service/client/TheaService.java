@@ -33,7 +33,7 @@ public interface TheaService {
     public TheaApiDTO<String> getConfigByName(@RequestParam(value = "name") String name);
 
     @RequestMapping(value = "/loan/v1/insertLoan", method = RequestMethod.POST)
-    public TheaApiDTO inserLoan(LoanDTO loanDTO);
+    public TheaApiDTO inserLoan(@RequestBody LoanDTO loanDTO,@RequestHeader("Authorization")String token);
 
     @RequestMapping(value = "/config/v1/name", method = RequestMethod.GET)
     public TheaApiDTO<String> findValueByName(@RequestHeader("Authorization") String token, @RequestParam(value = "name") String name);

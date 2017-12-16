@@ -20,6 +20,15 @@ public class Document extends BaseModel {
 
     private String documentSavepath;
 
+    private Integer isFlag;
+
+    public Integer getIsFlag() {
+        return isFlag;
+    }
+
+    public void setIsFlag(Integer isFlag) {
+        this.isFlag = isFlag;
+    }
     public Integer getId() {
         return id;
     }

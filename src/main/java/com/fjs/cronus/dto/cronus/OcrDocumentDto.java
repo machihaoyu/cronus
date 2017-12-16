@@ -23,6 +23,16 @@ public class OcrDocumentDto  implements Serializable{
 
     private String Url;
 
+    private Integer flag;
+
+    public Integer getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Integer flag) {
+        this.flag = flag;
+    }
+
     public String getUrl() {
         return Url;
     }

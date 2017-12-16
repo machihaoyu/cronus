@@ -194,7 +194,11 @@ public class CronusException extends BaseException {
 
         CRM_THEA_ERROR("6090","链接交易系统，更改回款等信息状态失败"),
 
-        AUTO_CLEAN_ERROR("6091","自动清洗错误"),
+        CRM_KEEPCUSTOMER_ERROR("6091","请先保留用户！"),
+
+        CRM_CONNECT_ERROR("6092","链接交易系统，添加交易信息失败"),
+
+		AUTO_CLEAN_ERROR("6091","自动清洗错误"),
         ;
         private String status;
         private String error;

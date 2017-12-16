@@ -96,7 +96,7 @@ public class OcdcService {
                                 allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC, token);
                             } else {//有负责人分给对应的业务员
                                 sendMail(token, customerDTO);
-                                createLoan(customerSalePushLog);
+                                createLoan(customerSalePushLog,token);
                             }
                         }
                         //是不是三无客户
@@ -232,7 +232,7 @@ public class OcdcService {
      * @param customerSalePushLog
      * @return
      */
-    public void createLoan(CustomerSalePushLog customerSalePushLog) {
+    public void createLoan(CustomerSalePushLog customerSalePushLog,String token) {
         CustomerInfo customerInfo = new CustomerInfo();
         LoanDTO loan = new LoanDTO();
         if (null != customerSalePushLog.getCustomerId()) {
@@ -250,7 +250,7 @@ public class OcdcService {
         if (null != customerSalePushLog.getCreateTime()) {
             loan.setCreateTime(customerSalePushLog.getCreateTime());
         }
-        theaClientService.inserLoan(loan);
+        theaClientService.inserLoan(loan,token);
     }
 
     /**
