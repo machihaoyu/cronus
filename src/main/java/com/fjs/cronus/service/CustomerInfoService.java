@@ -167,6 +167,7 @@ public class CustomerInfoService {
          customerInfo.setLastUpdateTime(date);
          customerInfo.setIsDeleted(0);
          customerInfo.setReceiveId(0);
+         customerInfo.setAutostatus(1);//自动分配
          customerInfo.setCommunicateId(0);
          customerInfoMapper.insertCustomer(customerInfo);
          if (customerInfo.getId() == null){
@@ -241,6 +242,7 @@ public class CustomerInfoService {
         customerInfo.setCommunicateId(0);
         customerInfo.setOwnUserId(Integer.valueOf(userInfoDTO.getUser_id()));
         customerInfo.setOwnUserName(userInfoDTO.getName());
+        customerInfo.setAutostatus(0);
         customerInfoMapper.insertCustomer(customerInfo);
         if (customerInfo.getId() == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
@@ -1390,6 +1392,7 @@ public class CustomerInfoService {
         customerInfo.setReceiveId(0);
         customerInfo.setCommunicateId(0);
         customerInfo.setOwnUserId(0);
+        customerInfo.setAutostatus(0);
         customerInfoMapper.insertCustomer(customerInfo);
         if (customerInfo.getId() == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);

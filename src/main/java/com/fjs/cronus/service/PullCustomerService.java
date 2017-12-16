@@ -353,6 +353,7 @@ public class PullCustomerService {
         customerInfo.setCustomerType(ResultResource.CUSTOMERTYPE);
         customerInfo.setReceiveId(0);
         customerInfo.setCommunicateId(0);
+        customerInfo.setAutostatus(0);
         customerInfoMapper.insertCustomer(customerInfo);
         //插入日志
         //生成日志记录

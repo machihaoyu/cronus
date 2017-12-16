@@ -150,6 +150,7 @@ public class PrdCustomerService {
                 customerInfo1.setLastUpdateTime(date);
                 customerInfo.setReceiveId(0);
                 customerInfo.setCommunicateId(0);
+                customerInfo.setAutostatus(0);
                 customerInfoMapper.insertCustomer(customerInfo1);
                 //插入日志
                 customerInfoService.insertAddCustomerLog(customerInfo1,Integer.valueOf(userInfoDTO.getUser_id()));
