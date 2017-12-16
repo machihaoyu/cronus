@@ -764,7 +764,7 @@ public class CustomerInfoService {
         loanDTO.setLoanAmount(customerInfo.getLoanAmount());
         loanDTO.setOwnUserName(customerInfo.getOwnUserName());
         loanDTO.setOwnUserId(customerInfo.getOwnUserId());
-        //TODO 解密
+        loanDTO.setUtmSource("自申请");
         String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
         loanDTO.setTelephonenumber(telephone);
         TheaApiDTO resultDto = theaService.inserLoan(loanDTO,token);

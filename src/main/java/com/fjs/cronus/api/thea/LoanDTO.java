@@ -33,6 +33,16 @@ public class LoanDTO {
     private String ownUserName;
     @ApiModelProperty(value = "负责人id", required = false)
     private Integer ownUserId;
+    @ApiModelProperty(value = "渠道来源（必填）")
+    private String utmSource;
+
+    public String getUtmSource() {
+        return utmSource;
+    }
+
+    public void setUtmSource(String utmSource) {
+        this.utmSource = utmSource;
+    }
 
     public Integer getOwnUserId() {
         return ownUserId;
