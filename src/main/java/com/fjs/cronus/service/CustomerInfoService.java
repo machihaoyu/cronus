@@ -1457,4 +1457,9 @@ public class CustomerInfoService {
     public List<Integer> selectForAutoClean(Map<String, Object> paramsMap){
         return customerInfoMapper.selectForAutoClean(paramsMap);
     }
+
+    public void batchUpdate(Map<String,Object> paramsMap)
+    {
+        customerInfoMapper.batchUpdate(paramsMap);
+    }
 }

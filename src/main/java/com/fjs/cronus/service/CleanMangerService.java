@@ -3,6 +3,7 @@ package com.fjs.cronus.service;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.api.thea.Config;
 import com.fjs.cronus.dto.api.crius.CriusApiDTO;
+import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.service.client.TheaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class CleanMangerService {
         Integer a=0;
         companyConfig.setConValue(str);
 
-        CriusApiDTO criusApiDTO = theaService.updatebConfig(token, companyConfig);
+        TheaApiDTO<Integer> criusApiDTO = theaService.updatebConfig(token, companyConfig);
         if (criusApiDTO.getResult() == 0){
             a = 1;
         }
@@ -42,7 +43,7 @@ public class CleanMangerService {
     public Integer addEmp(Config companyConfig, String token){
         //获取屏蔽的公司
         Integer a=0;
-        CriusApiDTO criusApiDTO = theaService.updatebConfig(token, companyConfig);
+        TheaApiDTO<Integer> criusApiDTO = theaService.updatebConfig(token, companyConfig);
         if (criusApiDTO.getResult() == 0){
             a = 1;
         }

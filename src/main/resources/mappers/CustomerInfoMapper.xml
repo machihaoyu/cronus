@@ -1742,4 +1742,27 @@
             </if>
         </where>
     </select>
+    <select id="selectForAutoClean" resultType="java.lang.Integer" parameterType="map">
+        SELECT id FROM customer_info
+        <where>
+            <if test="null != level">
+                AND level = #{level}
+            </if>
+            <if test="null != remain">
+                AND remain = #{remain}
+            </if>
+            <if test="null != notInOwnUserIds">
+                AND own_user_id NOT IN
+                <foreach item="item" index="index" collection="notInOwnUserIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="null != customerIds">
+                AND id NOT IN
+                <foreach item="item" index="index" collection="customerIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
 </mapper>

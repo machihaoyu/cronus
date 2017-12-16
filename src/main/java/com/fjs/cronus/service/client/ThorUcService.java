@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2017/7/6 0006. url = "http://192.168.1.124:1120",
  */
-@FeignClient(value = "${client.feign.thor-backend}")
+@FeignClient(value = "${client.feign.thor-backend}",url = "http://192.168.1.124:1120")
 
 public interface ThorUcService {
 
@@ -200,7 +200,7 @@ public interface ThorUcService {
      * @param city 城市
      */
     @RequestMapping(value = "/api/v1/getAllSalesman", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    BaseUcDTO getAllSalesman(@RequestHeader("Authorization") String token, @RequestParam(value = "city") String city);
+    BaseUcDTO<List<Integer>> getAllSalesman(@RequestHeader("Authorization") String token, @RequestParam(value = "city") String city);
 
     /**
      * 获取所有能操作的公司

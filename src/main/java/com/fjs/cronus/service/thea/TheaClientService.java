@@ -6,8 +6,10 @@ import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.LoanDTO4;
+import com.fjs.cronus.dto.thea.MailBatchDTO;
 import com.fjs.cronus.dto.thea.WorkDayDTO;
 import com.fjs.cronus.dto.uc.AllUserDTO;
+import com.fjs.cronus.model.Mail;
 import com.fjs.cronus.service.client.TheaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +77,11 @@ public class TheaClientService {
         mailDTO.setFromName(fromName);
         mailDTO.setToId(toId);
         TheaApiDTO<String> resultDto = theaService.sendMail(token, mailDTO);
+    }
+
+    public void sendMailBatch(String token,MailBatchDTO mailBatchDTO)
+    {
+        theaService.insertCleanMailBatch(token, mailBatchDTO);
     }
 
     public Integer serviceContractToUser(String token,String customerIds,Integer toUser){

@@ -9,6 +9,7 @@ import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.crius.CriusApiDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.LoanDTO4;
+import com.fjs.cronus.dto.thea.MailBatchDTO;
 import com.fjs.cronus.dto.thea.WorkDayDTO;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +21,8 @@ import javax.validation.Valid;
  */
 
 //@FeignClient(value = "THEA-BACKEND-ZSC", url = "http://192.168.2.79:8099")
-@FeignClient(value = "${client.feign.thea-backend}")
-//@FeignClient(value = "${client.feign.thea-backend}", url = "http://localhost:8010")
+//@FeignClient(value = "${client.feign.thea-backend}")
+@FeignClient(value = "${client.feign.thea-backend}", url = "http://192.168.1.124:1240")
 public interface TheaService {
 
 
@@ -46,6 +47,9 @@ public interface TheaService {
     @RequestMapping(value = "/mail/v1/sendMail", method = RequestMethod.POST)
     TheaApiDTO<String> sendMail(@RequestHeader("Authorization") String token,@RequestBody MailDTO mailDTO);
 
+    @RequestMapping(value = "/mail/v1/insertCleanMailBatch", method = RequestMethod.POST)
+    TheaApiDTO<Integer> insertCleanMailBatch(@RequestHeader("Authorization") String token,@RequestBody MailBatchDTO mailBatchDTO);
+
     @RequestMapping(value = "/serviceContract/v1/serviceContract/cronus/toUser")
     TheaApiDTO serviceContractToUser(@RequestHeader("Authorization") String token,@RequestParam(value = "customerIds") String customerIds,@RequestParam(value = "toUser")Integer toUser);
 
@@ -53,7 +57,7 @@ public interface TheaService {
     TheaApiDTO cancelAll(@RequestHeader("Authorization") String token,@RequestBody LoanDTO4 loanDTO4);
 
     @RequestMapping(value = "/config/v1/modify", method = RequestMethod.POST)
-    public CriusApiDTO updatebConfig(@RequestHeader("Authorization") String token, @RequestBody Config config);
+    public TheaApiDTO<Integer> updatebConfig(@RequestHeader("Authorization") String token, @RequestBody Config config);
 
     @RequestMapping(value = "/config/v1/findByName", method = RequestMethod.GET)
     public TheaApiDTO<Config> findByName(@RequestHeader("Authorization") String token, @RequestParam(value = "name") String name);
