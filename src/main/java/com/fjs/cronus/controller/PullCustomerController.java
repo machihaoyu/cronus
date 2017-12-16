@@ -5,6 +5,7 @@ import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.AddPullCustomerDTO;
 import com.fjs.cronus.dto.cronus.PullCustomerDTO;
+import com.fjs.cronus.dto.cronus.PullStatusDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 
@@ -151,17 +152,18 @@ public class PullCustomerController {
             }
         }
         //判断是否全是下属
-        List<Integer> ids = thorUcService.getSubUserByUserId(token,Integer.valueOf(userInfoDTO.getUser_id()));
-        if (!ids.contains(pullCustomerDTO.getId())){
-            throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
-        }
         try{
             PullCustomer pullCustomer=pullCustomerService.selectById(pullCustomerDTO.getId());
+            List<Integer> ids = thorUcService.getSubUserByUserId(token,Integer.valueOf(pullCustomer.getSaleId()));
+            if (!ids.contains(userInfoDTO.getUser_id())){
+                throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
+            }
             if (pullCustomer != null&& pullCustomer.getStatus()==CommonConst.PULL_CUSTOMER_STASTUS_TRANSFER){
                 theaApiDTO.setResult(CommonMessage.UPDATE_FAIL.getCode());
                 theaApiDTO.setMessage(CommonConst.UPDATE_TRANSFER);
                 return theaApiDTO;
             }
+            //
             pullCustomer=pullCustomerService.copyPropertyAdd(pullCustomerDTO);
 
             if (StringUtils.isNotEmpty(userInfoDTO.getUser_id().toString())){
@@ -189,7 +191,7 @@ public class PullCustomerController {
         return theaApiDTO;
     }
 
-    @ApiOperation(value="将原始盘转入交易", notes="将原始盘转入交易")
+    @ApiOperation(value="将原始盘转入客户表", notes="将原始盘转入客户表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
     })
@@ -212,6 +214,11 @@ public class PullCustomerController {
                 theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
                 return theaApiDTO;
             }
+        }
+        //判断是否是其下属
+        List<Integer> ids = thorUcService.getSubUserByUserId(token,Integer.valueOf(pullCustomerDTO.getSaleId()));
+        if (!ids.contains(userInfoDTO.getUser_id())){
+            throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
         }
         try{
             if (pullCustomerDTO.getId() == null){
@@ -248,7 +255,7 @@ public class PullCustomerController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")})
     @RequestMapping(value = "/changeStatus", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto changeStatus(@Valid @RequestBody PullCustomerDTO pullCustomerDTO, BindingResult result, HttpServletRequest request){
+    public CronusDto changeStatus(@Valid @RequestBody PullStatusDTO pullCustomerDTO, BindingResult result, HttpServletRequest request){
         CronusDto theaApiDTO=new CronusDto();
         logger.info("改变原始盘状态的数据："+pullCustomerDTO.toString());
         if(result.hasErrors()){
@@ -257,13 +264,15 @@ public class PullCustomerController {
         String token=request.getHeader("Authorization");
         UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
+        //判断当前用户能否操作
+        //判断是否全是下属
         try{
             if (pullCustomerDTO.getId() == null){
                 theaApiDTO.setResult(CommonMessage.CHANGE_FAIL.getCode());
                 theaApiDTO.setMessage(CommonConst.ID_NULL);
                 return theaApiDTO;
             }
-            if (pullCustomerDTO.getStatus() == null){
+            if (pullCustomerDTO.getToStatus() == null){
                 theaApiDTO.setResult(CommonMessage.CHANGE_FAIL.getCode());
                 theaApiDTO.setMessage(CommonConst.STATUS_NULL);
                 return theaApiDTO;
@@ -271,19 +280,23 @@ public class PullCustomerController {
             List<Integer> statusList=new ArrayList<Integer>();
             statusList.add(CommonConst.PULL_CUSTOMER_STASTUS_UNVALID);
             statusList.add(CommonConst.PULL_CUSTOMER_STASTUS_NORMAL);
-            if (!statusList.contains(pullCustomerDTO.getStatus())){
+            if (!statusList.contains(pullCustomerDTO.getToStatus())){
                 theaApiDTO.setResult(CommonMessage.CHANGE_FAIL.getCode());
                 theaApiDTO.setMessage(CommonConst.UNVALID_PARA);
                 return theaApiDTO;
             }
             PullCustomer pullCustomer=pullCustomerService.selectById(pullCustomerDTO.getId());
+            List<Integer> ids = thorUcService.getSubUserByUserId(token,Integer.valueOf(pullCustomer.getSaleId()));
+            if (!ids.contains(userInfoDTO.getUser_id())){
+                throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
+            }
             if (pullCustomer == null){
                 theaApiDTO.setResult(CommonMessage.CHANGE_FAIL.getCode());
                 theaApiDTO.setMessage(CommonConst.OBJECT_NULL);
                 return theaApiDTO;
             }
-            int createResult = pullCustomerService.changeStatus(pullCustomer,userInfoDTO,pullCustomerDTO.getStatus());
-            if (createResult >0) {
+            boolean createResult = pullCustomerService.changeStatus(pullCustomer,userInfoDTO,pullCustomerDTO.getToStatus());
+            if (createResult == true) {
                 theaApiDTO.setResult(CommonMessage.CHANGE_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.CHANGE_SUCCESS.getCodeDesc());
             } else {

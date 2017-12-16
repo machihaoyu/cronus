@@ -271,6 +271,7 @@ public class CustomerInfoService {
             CustomerDTO customerDto = new CustomerDTO();
             EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
             //TODO  增加source 调用接口 来源渠道
+            customerDto.setUtmSource(customerInfo.getUtmSource());
             customerDtos.add(customerDto);
         }
         if (customerDtos != null && customerDtos.size() > 0) {

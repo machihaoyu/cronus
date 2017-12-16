@@ -22,7 +22,9 @@ import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.Table;
 import java.util.*;
 
 /**
@@ -97,7 +99,7 @@ public class PanService {
         }
         return  result;
     }
-
+    @Transactional
     public boolean pullPan(Integer customerId,Integer userId,String token,String userName){
        //判断清洗中不能领取客户每周日的八点开始进行自动清洗
         Map<String,Object> paramMap = new HashMap<>();
@@ -156,6 +158,7 @@ public class PanService {
      * @param userId
      * @param token
      */
+    @Transactional
     public void receiveCustomerByType(CustomerInfo customerInfo,Integer userId,String token){
         UcUserDTO ucUserDTO = ucService.getUserInfoByID(token,userId);
         Date date = new Date();

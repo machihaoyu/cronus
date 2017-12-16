@@ -12,8 +12,7 @@ import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 
 
-
-
+import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.PullCustomerMapper;
 import com.fjs.cronus.model.CustomerInfo;
@@ -143,6 +142,18 @@ public class PullCustomerService {
     }
     public PullCustomer copyPropertyAdd(AddPullCustomerDTO pullCustomerDTO){
         PullCustomer pullCustomer=selectById(pullCustomerDTO.getId());
+        if (pullCustomer.getStatus() == 1){
+            throw new CronusException(CronusException.Type.MESSAGE_PULLCUSTOMERUPPDATE_ERROR);
+        }
+        //判断是否更新手机号
+        if (!pullCustomer.getTelephone().equals(pullCustomerDTO.getTelephone())){
+            pullCustomer.setOldTelephone(pullCustomer.getTelephone());
+            pullCustomer.setTelephone(pullCustomerDTO.getTelephone());
+            if (pullCustomer.getStatus() == -1){
+                pullCustomer.setStatus(0);
+            }
+        }
+        pullCustomer.setOldTelephone(pullCustomer.getTelephone());
         pullCustomer.setTelephone(pullCustomerDTO.getTelephone());
         pullCustomer.setName(pullCustomerDTO.getName());
         pullCustomer.setLoanAmount(pullCustomerDTO.getLoanAmount());
@@ -152,7 +163,6 @@ public class PullCustomerService {
     @Transactional
     public  Integer update(PullCustomer pullCustomer,UserInfoDTO userInfoDTO){
         Integer userId = null;
-        //p判断是否是自己及其下属
         if (StringUtils.isNotEmpty(userInfoDTO.getUser_id().toString())) {
             userId = Integer.parseInt(userInfoDTO.getUser_id().toString());
         }
@@ -187,27 +197,13 @@ public class PullCustomerService {
         paramsList.add(pullCustomer.getTelephone());
         paramsMap.put("paramsList",paramsList);
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
-       /* if (customerInfo == null){
-            loan=copyProperty(loan,pullCustomer);
-            CronusDto<Integer> cronusDto = iCustomerService.addCrmCustomer(token,customerDTO);
-            if (cronusDto != null){
-                loan.setCustomerId(cronusDto.getData());
-            }
-            loanService.add(loan,userInfoDTO);
-        }else{
-            loan=loanService.copyProperty(loan,pullCustomer);
-            //查找客户
-            CronusDto<CustomerDTO> cronusDto=iCustomerService.findCustomerByFeild(token,loan.getCustomerId());
-            customerDTO=cronusDto.getData();
-            customerDTO.setHouseStatus("无");
-            cronusDto = iCustomerService.editCustomerOk(token,customerDTO);
-            loanService.update(loan,userInfoDTO);
-        }*/
+
         return result;
     }
 
     @Transactional
-    public Integer changeStatus(PullCustomer pullCustomer,UserInfoDTO userInfoDTO,Integer status){
+    public boolean changeStatus(PullCustomer pullCustomer,UserInfoDTO userInfoDTO,Integer status){
+        boolean flag = false;
         if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
             Date date=new Date();
             pullCustomer.setLastUpdateTime(date);
@@ -215,13 +211,17 @@ public class PullCustomerService {
             pullCustomer.setStatus(status);
         }
         Integer result= update(pullCustomer,userInfoDTO);
+        if (result == null){
+          return flag;
+        }
         //原始盘日志
         Integer userId=null;
         if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
             userId=Integer.parseInt(userInfoDTO.getUser_id());
         }
         pullCustomerUpdateLogService.addLog(pullCustomer,userId,CommonConst.STATUS_PULL_CUSTOMER);
-        return result;
+        flag = true;
+        return flag;
     }
 
     public CustomerDTO copy2CustomerDto(PullCustomer pullCustomer){

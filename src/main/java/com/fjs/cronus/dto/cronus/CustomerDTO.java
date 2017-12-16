@@ -186,7 +186,17 @@ public class CustomerDTO {
     @ApiModelProperty(value = "退休金",notes = "退休金")
     private String retirementWages;
 
- /*   @ApiModelProperty(value = "海贷魔方 扩展字段",notes = "海贷魔方 扩展字段")
+    @ApiModelProperty(value = "渠道",notes = "渠道")
+    private String utmSource;
+
+    public String getUtmSource() {
+        return utmSource;
+    }
+
+    public void setUtmSource(String utmSource) {
+        this.utmSource = utmSource;
+    }
+    /*   @ApiModelProperty(value = "海贷魔方 扩展字段",notes = "海贷魔方 扩展字段")
     private String ext;
 
     @ApiModelProperty(value = "客户状态 意向客户 协议客户 成交客户",notes = "客户状态 意向客户 协议客户 成交客户")
