@@ -780,4 +780,35 @@ public class CustomerController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
+    @ApiOperation(value="获取所有来源", notes="获取所有来源")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/getAllCustomerSource", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<List<String>> getAllCustomerSource(@RequestHeader("Authorization")String token) {
+
+
+        CronusDto<List<String>> cronusDto = new CronusDto();
+        //获取当前用户登录的id
+        Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (userId == null){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        try {
+            List<String> resultList = customerInfoService.getAllCustomerSource();
+            cronusDto.setData(resultList);
+            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            cronusDto.setResult(ResultResource.CODE_SUCCESS);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->获取所有来源失败",e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+
 }

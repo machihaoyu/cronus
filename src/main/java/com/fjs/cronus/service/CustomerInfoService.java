@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.util.StringUtils;
+import org.w3c.dom.ls.LSInput;
 
 
 import java.beans.Transient;
@@ -784,6 +785,11 @@ public class CustomerInfoService {
         return  customerSourceDTO;
     }
 
+    public List<String> getAllCustomerSource(){
+        List<String> customerSourceByGroup = new ArrayList<>();
+        customerSourceByGroup = customerInfoMapper.customerSourceByGroup();
+        return  customerSourceByGroup;
+    }
     public QueryResult<CustomerListDTO> resignCustomerList(String token,String customerName,String telephonenumber,String utmSource,String ownUserName,String customerSource,
                                                            String level,Integer companyId,Integer page,Integer size){
         QueryResult<CustomerListDTO> queryResult = new  QueryResult();
