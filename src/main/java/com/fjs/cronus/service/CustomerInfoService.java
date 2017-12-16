@@ -875,8 +875,7 @@ public class CustomerInfoService {
         if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
-        customerInfo.setOwnUserId(0);
-        customerInfo.setOwnUserName(null);
+        customerInfo.setRemain(0);
         customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
         customerInfo.setLastUpdateUser(userId);
         Date date = new Date();
