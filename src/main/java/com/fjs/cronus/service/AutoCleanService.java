@@ -69,15 +69,28 @@ public class AutoCleanService {
     private SysConfigService configService;
 
     /**
+     * 自动清洗是否进行中
+     * @return
+     */
+    public boolean autoCleanStatus() {
+        boolean status = false;
+        SysConfig config = configService.getConfigByName(CommonConst.AUTO_CLEAN_STATUS);
+        if (config != null && StringUtils.isNotEmpty(config.getConValue())) {
+            if (config.getConValue().equals("1")) {
+                status = true;
+            }
+        }
+        return status;
+    }
+
+    /**
      * 自动清洗任务
      */
-    public void autoCleanTask()
-    {
+    public void autoCleanTask() {
         Date date = new Date();
         String week = DateUtils.getWeekOfDate(date);
         Integer hour = DateUtils.getHour(date);
-        if (week.equals(CommonEnum.WEEK_OF_SUNDAY.getCodeDesc()) && hour.equals(20))
-        {
+        if (week.equals(CommonEnum.WEEK_OF_SUNDAY.getCodeDesc()) && hour.equals(20)) {
             new Thread(() -> {
                 autoClean(publicToken);
             }).run();
@@ -92,9 +105,8 @@ public class AutoCleanService {
         //将清洗状态配置设置为清洗中
         try {
             ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
-            SysConfig config= configService.getConfigByName(CommonConst.AUTO_CLEAN_STATUS);
-            if (config == null || StringUtils.isEmpty(config.getConValue()))
-            {
+            SysConfig config = configService.getConfigByName(CommonConst.AUTO_CLEAN_STATUS);
+            if (config == null || StringUtils.isEmpty(config.getConValue())) {
                 throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
             }
             config.setConValue("1");
@@ -185,14 +197,14 @@ public class AutoCleanService {
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = 0; i < toIds.size(); i++) {
                 stringBuilder.append(toIds.get(i).toString());
-                if (i < toIds.size()-1) {
+                if (i < toIds.size() - 1) {
                     stringBuilder.append(",");
                 }
             }
-            mailBatchDTO.setContent(DateUtils.format(new Date(),DateUtils.FORMAT_LONG) + " 系统自动清洗完毕！清洗总数:"+beforeCountMap.get("total")+"。" +
-                    "清洗前的数据：未保留的客户有"+beforeCountMap.get("isRemain")+"条、保留的客户有"+beforeCountMap.get("unRemain")+"条。" +
-                    "清洗后的数据：未保留的客户有"+afterCountMap.get("isRemain")+"条、保留的客户有"+afterCountMap.get("unRemain")+"条。" +
-                    "自动清洗管理中屏蔽清洗的条数有:"+customerIdsByManage.size()+"条';");
+            mailBatchDTO.setContent(DateUtils.format(new Date(), DateUtils.FORMAT_LONG) + " 系统自动清洗完毕！清洗总数:" + beforeCountMap.get("total") + "。" +
+                    "清洗前的数据：未保留的客户有" + beforeCountMap.get("isRemain") + "条、保留的客户有" + beforeCountMap.get("unRemain") + "条。" +
+                    "清洗后的数据：未保留的客户有" + afterCountMap.get("isRemain") + "条、保留的客户有" + afterCountMap.get("unRemain") + "条。" +
+                    "自动清洗管理中屏蔽清洗的条数有:" + customerIdsByManage.size() + "条';");
             mailBatchDTO.setToId(stringBuilder.toString());
             theaClientService.sendMailBatch(publicToken, mailBatchDTO);
 
