@@ -209,6 +209,9 @@ public class PublicOfferController {
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
             }
         }catch (Exception e){
+            if (e instanceof CronusException){
+                CronusException cronusException = (CronusException)e;
+            }
             logger.error("-------------->pullPan领取失败",e);
             theaApiDTO.setResult(CommonMessage.PULL_FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.PULL_FAIL.getCodeDesc());

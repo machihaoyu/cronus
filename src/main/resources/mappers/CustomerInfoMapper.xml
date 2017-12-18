@@ -1171,8 +1171,8 @@
         <if test="ownUserId != null and ownUserId != ''">
             and c.own_user_id = #{ownUserId}
         </if>
-        <if test="createTimeStart != null and createTimeEnd != ''">
-            and date(create_time) between (#{createTimeStart} and #{createTimeEnd})
+        <if test="createTimeStart != null and createTimeEnd != null">
+            and create_time  &gt;= #{createTimeStart} and  create_time &lt;= #{createTimeEnd}
         </if>
         <if test="isHaveOwn != null and isHaveOwn != ''">
             <choose>
@@ -1228,13 +1228,13 @@
         COUNT(*)
         from customer_info  c
         WHERE  c.is_deleted = 0
-      <!--  <if test="customerIdList!=null and customerIdList.size>0">
-            AND c.id in
-            <foreach collection="customerIdList" item="customerIdList"
-                     index="index" open="(" close=")" separator=",">
-                ${customerIdList}
-            </foreach>
-        </if>-->
+        <!-- <if test="customerIdList!=null and customerIdList.size>0">
+             AND c.id in
+             <foreach collection="customerIdList" item="customerIdList"
+                      index="index" open="(" close=")" separator=",">
+                 ${customerIdList}
+             </foreach>
+         </if>-->
         <if test="customer_type!=null and customer_type!=''">
             and c.customer_type = #{customer_type}
         </if>
