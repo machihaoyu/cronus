@@ -113,8 +113,8 @@ public class CommunicationLogController {
         String token=request.getHeader("Authorization");
         UserInfoDTO userInfoDTO =thorUcService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
 
-        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
-        String[] authority=resultDto.getAuthority();
+          /*PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
+         String[] authority=resultDto.getAuthority();
         if(authority.length>0){
             List<String> authList= Arrays.asList(authority);
             if (authList.contains(CommonConst.ADD_COMM_LOG_URL)){
@@ -122,7 +122,7 @@ public class CommunicationLogController {
                 theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
                 return theaApiDTO;
             }
-        }
+        }*/
         CustomerInfo customerInfo = iCustomerService.findCustomerById(customerUsefulDTO.getCustomerId());
         if(customerInfo == null){
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());

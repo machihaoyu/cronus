@@ -1,11 +1,12 @@
 package com.fjs.cronus.dto.uc;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * Created by Administrator on 2017/7/3 0003.
  */
-public class UserInfoDTO {
+public class UserInfoDTO implements Serializable {
     private String user_id;
     private String role_ids;
     private String user_type;

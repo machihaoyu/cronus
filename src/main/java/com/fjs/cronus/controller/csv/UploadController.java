@@ -9,6 +9,7 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.api.thea.Loan;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.model.CustomerInfo;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -45,6 +47,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -69,12 +72,13 @@ public class UploadController {
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @ResponseBody
     @Transactional
-    public CronusDto upload(HttpServletRequest request, HttpServletResponse response, MultipartFile file, Integer param)
+    public CronusDto upload(@RequestHeader("Authorization")String token, HttpServletRequest request, HttpServletResponse response, MultipartFile file, Integer param)
             throws ServletException, IOException {
         CronusDto theaApiDTO=new CronusDto();
+        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
+        String[] authority=resultDto.getAuthority();
         try{
-//            System.out.println("开始导入");
-            String token=request.getHeader("Authorization");
+//            System.out.println("开始导入"
 //            ThorApiDTO<UserInfoDTO> thorApiDTO=thorUcService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
 //            UserInfoDTO userInfoDTO=thorApiDTO.getData();
             String fileName = file.getOriginalFilename();
@@ -85,9 +89,25 @@ public class UploadController {
             }
             InputStream is=   file.getInputStream();
             if (param == 1){
+                if(authority.length>0){
+                    List<String> authList= Arrays.asList(authority);
+                    if (authList.contains(CommonConst.PUBLICCUSTOMER)){
+                        theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+                        theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
+                        return theaApiDTO;
+                    }
+                }
                 readerCsv(is,token);
             }
             if (param == 2){
+                if(authority.length>0){
+                    List<String> authList= Arrays.asList(authority);
+                    if (authList.contains(CommonConst.PRDCUSTOMERADD)){
+                        theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+                        theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
+                        return theaApiDTO;
+                    }
+                }
                 Workbook wb=null;
                 String ext = fileName.substring(fileName.lastIndexOf("."));
                     if(".xls".equals(ext)){
