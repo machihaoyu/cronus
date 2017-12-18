@@ -466,7 +466,7 @@ public class CustomerController {
 
         CronusDto<QueryResult<CustomerListDTO>> cronusDto = new CronusDto();
         //获取当前用户登录的id
-      /*  Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+    /*    Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
         if (userId == null){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }*/
@@ -710,7 +710,7 @@ public class CustomerController {
             cronusDto = customerInfoService.addCRMCustomer(customerDTO,token);
             return cronusDto;
         } catch (Exception e) {
-            logger.error("--------------->customerList获取列表信息操作失败", e);
+            logger.error("--------------->addCRMCustomer新增客户失败", e);
             if (e instanceof CronusException) {
                 CronusException thorException = (CronusException)e;
                 throw thorException;

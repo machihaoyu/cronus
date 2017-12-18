@@ -9,16 +9,16 @@ import java.io.Serializable;
  */
 public class UploadDocumentDto implements Serializable {
 
-    @ApiModelProperty(value = "文件base64编码" ,required = true)
+    @ApiModelProperty(value = "文件base64编码" ,required = false)
     private String imageBase64;
 
-    @ApiModelProperty(value = "原始文件名称" ,required = true)
+    @ApiModelProperty(value = "原始文件名称:a.jpg" ,required = false)
     private String fileName;
 
-    @ApiModelProperty(value = "文件后缀名" ,required = true)
+    @ApiModelProperty(value = "文件后缀名" ,required = false)
     private String type;
 
-    @ApiModelProperty(value = "文件size" ,required = true)
+    @ApiModelProperty(value = "文件size" ,required = false)
     private Integer size;
 
     @ApiModelProperty(value = "合同编号" ,required = false)
@@ -30,7 +30,7 @@ public class UploadDocumentDto implements Serializable {
     @ApiModelProperty(value = "附件类型" ,required = false)
     private Integer category;
 
-    @ApiModelProperty(value = "pc or mobile",required = true)
+    @ApiModelProperty(value = "C端传C",required = true)
     private String  source;
 
     public String getSource() {
