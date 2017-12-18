@@ -1253,8 +1253,8 @@
         <if test="ownUserId != null and ownUserId != ''">
             and c.own_user_id = #{ownUserId}
         </if>
-        <if test="createTimeStart != null and createTimeEnd != ''">
-            and date(create_time) between (#{createTimeStart} and #{createTimeEnd})
+        <if test="createTimeStart != null and createTimeEnd != null">
+            and create_time  &gt;= #{createTimeStart} and  create_time &lt;= #{createTimeEnd}
         </if>
         <if test="isHaveOwn != null and isHaveOwn != ''">
             <choose>
@@ -1381,7 +1381,7 @@
         WHERE  c.is_deleted = 0
          AND  c.communicate_time IS NOT NULL
         <if test="customerName !=null and customerName !=''">
-            and (c.customer_name  like CONCAT('%', #{customerName},'%' )
+            and c.customer_name  like CONCAT('%', #{customerName},'%' )
         </if>
 
         <if test="utmSource != null and utmSource != '' ">
@@ -1413,7 +1413,7 @@
         WHERE  c.is_deleted = 0
         AND  c.communicate_time IS NOT NULL
         <if test="customerName !=null and customerName !=''">
-            and (c.customer_name  like CONCAT('%', #{customerName},'%' )
+            and c.customer_name  like CONCAT('%', #{customerName},'%' )
         </if>
 
         <if test="utmSource != null and utmSource != '' ">

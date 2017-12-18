@@ -45,6 +45,7 @@ public class CallbackController {
             @ApiImplicitParam(name = "search_telephone", value = "手机号", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "search_callback_status", value = "回防状态", required = false, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "communication_order", value = "1 从未回访，2 需要重新回访，3已经回访", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "cycle", value = "回访配置的周期", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "ownUserId", value = "负责人id", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "isHaveOwn", value = "是否拥有负责人0没有，有", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "subCompanyId", value = "分公司id", required = false, paramType = "query", dataType = "int"),
@@ -61,6 +62,7 @@ public class CallbackController {
                                             @RequestParam(value = "search_telephone",required = false) String search_telephone,
                                             @RequestParam(value = "search_callback_status",required = false) String search_callback_status,
                                             @RequestParam(value = "communication_order",required = false,defaultValue = "99") Integer communication_order,
+                                            @RequestParam(value = "cycle",required = false) Integer cycle,
                                             @RequestParam(value = "ownUserId",required = false) Integer ownUserId,
                                             @RequestParam(value = "isHaveOwn",required = false) Integer isHaveOwn,
                                             @RequestParam(value = "subCompanyId",required = false) Integer subCompanyId,
@@ -70,7 +72,7 @@ public class CallbackController {
         CronusDto<QueryResult<CallbackDTO>> resultCronusDto = new CronusDto<>();
         QueryResult<CallbackDTO> queryResult = new QueryResult();
         try {
-            queryResult  = callbackService.callbackCustomerList(callback_start_time,callback_end_time,search_name,type,search_city,search_telephone,search_callback_status,page,size,communication_order,
+            queryResult  = callbackService.callbackCustomerList(callback_start_time,callback_end_time,search_name,type,search_city,search_telephone,search_callback_status,page,size,communication_order,cycle,
                     ownUserId,isHaveOwn,subCompanyId,token);
             resultCronusDto.setData(queryResult);
             resultCronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
