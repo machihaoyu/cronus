@@ -23,8 +23,8 @@ import java.util.Map;
  * UC用户中心接口
  * Created by Administrator on 2017/7/19 0019. url = "http://192.168.1.124:1120",
  */
-@FeignClient(value = "${client.feign.thor-backend}", url = "http://192.168.1.128:1120",configuration = FeignClientConfig.class)
-//@FeignClient(value = "${client.feign.thor-backend}", configuration = FeignClientConfig.class)
+//@FeignClient(value = "${client.feign.thor-backend}", url = "http://192.168.1.128:1120",configuration = FeignClientConfig.class)
+@FeignClient(value = "${client.feign.thor-backend}", configuration = FeignClientConfig.class)
 public interface ThorInterfaceService {
 
 
