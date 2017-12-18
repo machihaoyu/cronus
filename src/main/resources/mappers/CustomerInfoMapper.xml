@@ -1526,7 +1526,6 @@
                 #{item}
             </foreach>
         </if>
-
         and is_deleted=0
         ORDER BY last_update_time DESC
         limit ${start},${size}
