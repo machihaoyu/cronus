@@ -101,10 +101,10 @@ public class PublicOfferController {
             List<String> mainCitys=new ArrayList<String>();//主要城市
             List<Integer> subCompanyIds=new ArrayList<>();//异地分公司
             if (StringUtils.isNotEmpty(utmSource)){
-                String result = theaClientService.findValueByName(token,CommonConst.SPECIAL_UTM_SOURCE);
+           /*     String result = theaClientService.findValueByName(token,CommonConst.SPECIAL_UTM_SOURCE);
                 JSONObject jsonObject = JSONObject.parseObject(result);
-                String specUtmSource = jsonObject.getString(utmSource);
-                pan.setUtmSource(specUtmSource);
+                String specUtmSource = jsonObject.getString(utmSource);*/
+                pan.setUtmSource(utmSource);
             }else {
                 //获取下属的城市
                 List<CityDto> subsCitys=ucService.getSubcompanyByUserId(token,userId,CommonConst.SYSTEMNAME);

@@ -942,19 +942,19 @@ public class CustomerInfoService {
         for (CustomerInfo customerInfo : customerInfoList) {
             if (customerInfo.getRemain() == CommonConst.CONFIRM__STATUS_NO){
                 cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
-                cronusDto.setMessage("" + customerInfo.getId() + "请先确认客户");
+                cronusDto.setMessage("" + customerInfo.getCustomerName() + "--已被保留,不能丢回!");
                 return cronusDto;
             }
             //判断是否是意向客户
             if (!customerInfo.getCustomerType().equals(CommonConst.CUSTOMER_TYPE_MIND) ){
                 cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
-                cronusDto.setMessage("" + customerInfo.getId() + "该客户不是意向客户");
+                cronusDto.setMessage("" + customerInfo.getCustomerName() + "该客户不是意向客户,不能丢回");
                 return cronusDto;
             }
             //负责人是不是自己
             if (!StringUtils.isEmpty(userInfoDTO.getUser_id()) && customerInfo.getOwnUserId() != Integer.parseInt(userInfoDTO.getUser_id())){
                 cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
-                cronusDto.setMessage("" + customerInfo.getId() + "该客户负责人不是本人");
+                cronusDto.setMessage("" + customerInfo.getCustomerName() + "--必须负责人自己才能操作!");
                 return cronusDto;
             }
             //是否沟通过
@@ -964,7 +964,7 @@ public class CustomerInfoService {
             }
             if (communicationLogList.size() == 0){
                 cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
-                cronusDto.setMessage("" + customerInfo.getId() + "请先沟通该客户");
+                cronusDto.setMessage("" + customerInfo.getCustomerName() + "--领取后, 必须添加过沟通才能扔回公盘!");
                 return cronusDto;
             }
 
