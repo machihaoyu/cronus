@@ -3,10 +3,12 @@ package com.fjs.cronus.controller;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.UploadDocumentDto;
+import com.fjs.cronus.dto.cronus.UploadCilentDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.model.Document;
 import com.fjs.cronus.service.DocumentCategoryService;
 import com.fjs.cronus.service.DocumentService;
+import com.fjs.cronus.util.FileBase64ConvertUitl;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -23,6 +25,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -215,6 +218,44 @@ public class DocumentController {
             resultDto  = documentService.deleteDocument(documentSavepath,documentSavename);
         }catch (Exception e) {
             logger.error("删除附件", e);
+            if (e instanceof CronusException) {
+                CronusException cronusException = (CronusException)e;
+                throw cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return  resultDto;
+    }
+
+    @ApiOperation(value="App端提交上传附件", notes="App端提交上传附件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "uploadDocumentDto", value = "uploadDocumentDto", required = true, paramType = "body",dataType = "UploadCilentDTO"),
+    })
+    @RequestMapping(value = "/uploadClientDocumentOk",method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto uploadClientDocumentOk(@RequestHeader("Authorization") String token,@RequestBody UploadCilentDTO uploadDocumentDto){
+        logger.info("start uploadTopicPictureList!");
+        CronusDto resultDto = new CronusDto();
+        List fileList=new ArrayList();
+        try {
+                String customerId = uploadDocumentDto.getCustomerId();
+                String category = uploadDocumentDto.getCategory();
+                String source   = uploadDocumentDto.getSource();
+                String fileName = uploadDocumentDto.getFileName();
+                //获取multiRequest 中所有的文件名
+                Integer size = uploadDocumentDto.getSize();
+                String base64 = uploadDocumentDto.getImageBase64();
+                InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(base64);
+                String path = documentService.uploadClientDocumentOk(inputStream,fileName,null,customerId,category,source,size,token,base64);
+                fileList.add(path);
+
+                resultDto.setData(fileList);
+                resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+                resultDto.setResult(ResultResource.CODE_SUCCESS);
+                logger.info("End CommonsMultipartResolver!");
+        } catch (Exception e) {
+            logger.error("上传图片失败", e);
             if (e instanceof CronusException) {
                 CronusException cronusException = (CronusException)e;
                 throw cronusException;
