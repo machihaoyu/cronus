@@ -96,7 +96,7 @@ public class CommonConst {
     public static String EDIT_CUSTOMER_URL = SYSTEMNAME+"/Customer/edit";
 
     public static String PRDCUSTOMERADD = SYSTEMNAME +"/Prd/import";
-    public static String PUBLICCUSTOMER = SYSTEMNAME +"/Import/index";
+    public static String PUBLICCUSTOMER = SYSTEMNAME +"/Prd/import";
     public static String REMOVECUSTOMER = SYSTEMNAME +"/Customer/removeCustomerAll";
 
     public static String ADD_RECE_URL=SYSTEMNAME+"rece/add";
@@ -255,5 +255,6 @@ public class CommonConst {
     public static String FAIL_NON_COMMUNICATE_ALLOCATE_INFO = "fail_non_communicate_allocate";
 
     public static String PHPLOGINKEY = "phploginkey";
+
 }
 

@@ -74,7 +74,7 @@
 			</choose>
 		</if>
         and is_deleted=0
-        order by create_time desc
+        order by last_update_time desc
 		limit ${start},${size}
 	</select>
 

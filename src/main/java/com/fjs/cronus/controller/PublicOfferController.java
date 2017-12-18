@@ -1,5 +1,7 @@
 package com.fjs.cronus.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.api.PhpApiDto;
@@ -17,6 +19,7 @@ import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.PanService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.FastJsonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -85,6 +88,7 @@ public class PublicOfferController {
         CronusDto<QueryResult<CustomerListDTO>> cronusDto  = new CronusDto<>();
 
         QueryResult<CustomerListDTO> queryResult=null;
+        //获取配置项
         try{
             //从token中获取用户信息
             PanParamDTO pan = new PanParamDTO();
@@ -97,7 +101,10 @@ public class PublicOfferController {
             List<String> mainCitys=new ArrayList<String>();//主要城市
             List<Integer> subCompanyIds=new ArrayList<>();//异地分公司
             if (StringUtils.isNotEmpty(utmSource)){
-                pan.setUtmSource(utmSource);
+                String result = theaClientService.findValueByName(token,CommonConst.SPECIAL_UTM_SOURCE);
+                JSONObject jsonObject = JSONObject.parseObject(result);
+                String specUtmSource = jsonObject.getString(utmSource);
+                pan.setUtmSource(specUtmSource);
             }else {
                 //获取下属的城市
                 List<CityDto> subsCitys=ucService.getSubcompanyByUserId(token,userId,CommonConst.SYSTEMNAME);
@@ -165,6 +172,10 @@ public class PublicOfferController {
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
         }catch (Exception e){
             logger.error("--------------->Offerlist客户信息操作失败",e);
+            if (e instanceof CronusException){
+                CronusException cronusException = (CronusException)e;
+                throw  cronusException;
+            }
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
         return  cronusDto;
@@ -211,6 +222,7 @@ public class PublicOfferController {
         }catch (Exception e){
             if (e instanceof CronusException){
                 CronusException cronusException = (CronusException)e;
+                throw cronusException;
             }
             logger.error("-------------->pullPan领取失败",e);
             theaApiDTO.setResult(CommonMessage.PULL_FAIL.getCode());
