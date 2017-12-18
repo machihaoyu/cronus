@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fjs.cronus.mappers.ConfigMapper">
+    <resultMap id="ConfigMap" type="com.fjs.cronus.model.SysConfig">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="con_name" property="conName" jdbcType="VARCHAR"/>
+        <result column="con_title" property="conTitle" jdbcType="VARCHAR"/>
+        <result column="con_description" property="conDescription" jdbcType="VARCHAR"/>
+        <result column="con_value" property="conValue" jdbcType="VARCHAR"/>
+        <result column="con_type" property="conType" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP"/>
+        <result column="create_user" property="createUser" jdbcType="INTEGER"/>
+        <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="TINYINT"/>
+    </resultMap>
+    <select id="getValueByName" parameterType="java.lang.String" resultType="string">
+        select con_value from sys_config where 1 = 1 AND is_deleted = 0 AND con_name = #{con_name}
+    </select>
+
+    <select id="findValueByName" parameterType="java.lang.String" resultMap="ConfigMap">
+        select * from sys_config where is_deleted = 0 and con_name = #{con_name}
+    </select>
+
+    <update id="ModifyValueById" parameterType="com.fjs.cronus.model.SysConfig">
+        UPDATE sys_config set con_value = #{conValue,jdbcType=VARCHAR},last_update_user = #{lastUpdateUser,jdbcType=INTEGER},last_update_time = #{lastUpdateTime} where is_deleted = 0 and id = #{id}
+    </update>
+    <insert id="insertConfig" parameterType="com.fjs.cronus.model.SysConfig" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_config(con_name,con_title,con_description,con_type,create_time,last_update_time,create_user,last_update_user,is_deleted)
+        values
+        (#{conName,jdbcType=VARCHAR},#{conTitle,jdbcType=VARCHAR},#{conDescription,jdbcType=VARCHAR},#{conType,jdbcType=INTEGER},
+        #{createTime},#{lastUpdateTime},#{createUser,jdbcType=INTEGER},#{lastUpdateUser,jdbcType=INTEGER},
+        #{isDeleted,jdbcType=INTEGER})
+    </insert>
+
+    <!-- 更新配置-->
+    <update id="update" parameterType="com.fjs.cronus.model.SysConfig">
+        update sys_config
+        <set>
+            <if test="conName != null and '' != conName">
+                con_name = #{conName,jdbcType=VARCHAR},
+            </if>
+            <if test="conTitle != null and '' != conTitle">
+                con_title = #{conTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="conDescription != null and '' != conDescription">
+                con_description = #{conDescription,jdbcType=VARCHAR},
+            </if>
+            <if test="conValue != null and '' != conValue">
+                con_value = #{conValue,jdbcType=VARCHAR},
+            </if>
+            <if test="conType != null ">
+                con_type = #{conType,jdbcType=INTEGER},
+            </if>
+            <if test="lastUpdateTime != null ">
+                last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastUpdateUser != null ">
+                last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null ">
+                is_deleted = #{isDeleted,jdbcType=TINYINT}
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+</mapper>

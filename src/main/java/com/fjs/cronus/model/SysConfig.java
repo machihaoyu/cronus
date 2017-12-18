@@ -1,4 +1,4 @@
-package com.fjs.cronus.api.thea;
+package com.fjs.cronus.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -7,7 +7,7 @@ import java.util.Date;
 
 /**
  */
-public class Config implements Serializable{
+public class SysConfig implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
