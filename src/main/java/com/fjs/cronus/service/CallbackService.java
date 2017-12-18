@@ -55,7 +55,7 @@ public class CallbackService {
     @Autowired
     CustomerInfoService customerInfoService;
     public QueryResult callbackCustomerList(String callback_start_time, String callback_end_time, String search_name,
-                                            Integer type, String search_city, String search_telephone, String search_callback_status, Integer page, Integer size, Integer communication_order,
+                                            Integer type, String search_city, String search_telephone, String search_callback_status, Integer page, Integer size, Integer communication_order,Integer cycle,
                                             Integer ownUserId,Integer isHaveOwn,Integer subCompanyId,String token){
         QueryResult resultDto = new QueryResult();
         //筛选回访人
@@ -67,12 +67,12 @@ public class CallbackService {
         }
 
         if (!StringUtils.isEmpty(callback_start_time)){
-            //Date startDate = DateUtils.parse(callback_start_time,DateUtils.FORMAT_SHORT);
-            paramsMap.put("createTimeStart",callback_start_time);
+            Date startDate = DateUtils.parse(callback_start_time,DateUtils.FORMAT_SHORT);
+            paramsMap.put("createTimeStart",startDate);
         }
         if (!StringUtils.isEmpty(callback_end_time)){
-           // Date endDate = DateUtils.parse(callback_end_time,DateUtils.FORMAT_SHORT);
-            paramsMap.put("createTimeEnd",callback_end_time);
+            Date endDate = DateUtils.parse(callback_end_time,DateUtils.FORMAT_SHORT);
+            paramsMap.put("createTimeEnd",endDate);
         }
        /*  if (paramsMap != null && paramsMap.size() > 0 ){
              //从phonelog中查询到customerId
@@ -113,7 +113,7 @@ public class CallbackService {
             //需要重新回访的,后去当前系统时间
             //从缓存中获取配置时间
            // Integer configTime = getConfigTime(type);
-            Integer configTime = 1;
+            Integer configTime = cycle;
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DAY_OF_YEAR,-configTime * 30);
             Date searchTime = cal.getTime();
@@ -122,7 +122,7 @@ public class CallbackService {
             paramsMap.put("communication_order",communication_order);
         }else if (communication_order == 3){
            // Integer configTime = getConfigTime(type);
-            Integer configTime = 2;
+            Integer configTime = cycle;
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DAY_OF_YEAR,-configTime * 30);
             Date searchTime = cal.getTime();
@@ -132,7 +132,7 @@ public class CallbackService {
         }else {
             //默认所有需要回访的
            // Integer configTime = getConfigTime(type);
-            Integer configTime = 3;
+            Integer configTime = cycle;
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DAY_OF_YEAR,-configTime * 30);
             Date searchTime = cal.getTime();

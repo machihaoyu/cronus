@@ -70,4 +70,5 @@ public class ResultResource {
 
     public static String DOWNLOADSUFFX = "/";
 
+    public static String PHNOEERROR ="手机号已存在";
 }
