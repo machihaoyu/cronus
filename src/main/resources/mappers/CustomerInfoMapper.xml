@@ -213,7 +213,7 @@
         order by ${order} desc
       </when>
       <otherwise>
-        order by c.create_time desc
+        order by c.last_update_time desc
       </otherwise>
     </choose>
     limit #{start},#{size}
@@ -1202,7 +1202,7 @@
                 and (c.callback_time is  NULL or c.callback_time &lt;= #{searchTime})
             </otherwise>
         </choose>
-        ORDER BY  c.create_time DESC
+        ORDER BY  c.last_update_time DESC
         limit #{start},#{size}
     </select>
     <select id="findCustomerByType" parameterType="java.util.Map" resultType="java.lang.Integer">
@@ -1349,7 +1349,7 @@
                 order by ${order} desc
             </when>
             <otherwise>
-                order by c.create_time DESC
+                order by c.last_update_time DESC
             </otherwise>
         </choose>
         limit #{start},#{size}
@@ -1427,7 +1427,7 @@
                 order by ${order} desc
             </when>
             <otherwise>
-                order by c.create_time DESC
+                order by c.last_update_time DESC
             </otherwise>
         </choose>
         limit #{start},#{size}
