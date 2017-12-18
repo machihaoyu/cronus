@@ -3,7 +3,6 @@
 <mapper namespace="com.fjs.cronus.mappers.CommentMapper">
     <resultMap id="BaseResultMap" type="com.fjs.cronus.model.Comment">
         <id column="id" property="id" jdbcType="INTEGER" />
-
         <result column="communication_log_id" property="communicationLogId" jdbcType="INTEGER" />
         <result column="content" property="content" jdbcType="VARCHAR" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
@@ -14,7 +13,7 @@
 
     <sql id="Base_Column_List">
         id,communication_log_id,
-        cast(content as char CHARACTER SET utf8) as content,
+        content,
         create_time,create_user,create_user_name,is_deleted
     </sql>
 

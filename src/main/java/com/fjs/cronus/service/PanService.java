@@ -69,7 +69,7 @@ public class PanService {
             }
             //合作状态
             if (StringUtils.isNotEmpty(pan.getCustomerClassify())) {
-                map.put("customer_classify", pan.getCustomerClassify());
+                map.put("cooperation_status", pan.getCustomerClassify());
             }
             //公司
             if (companyId != null) {

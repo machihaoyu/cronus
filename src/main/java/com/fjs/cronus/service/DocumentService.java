@@ -83,6 +83,8 @@ public class DocumentService {
     OcrDriverVehicleService driverVehicleService;
     @Autowired
     HouseRegisterService houseRegisterService;
+    @Autowired
+    CustomerInfoService customerInfoService;
    /* static final ThreadFactory supplyThreadFactory = new BasicThreadFactory.Builder().namingPattern("tuwenshibie-%d").daemon(true)
             .priority(Thread.MAX_PRIORITY).build();*/
     @Autowired
@@ -805,7 +807,7 @@ public class DocumentService {
     }
 
 
-    public String uploadClientDocumentOk(InputStream file,String fileName,String contractId,String customerId,
+    public String uploadClientDocumentOk(InputStream file,String fileName,String contractId,String telephone,
                                      String category,String source,Integer size,String token,String base64){
         //校验参数
         if (category == null || "".equals(category)){
@@ -817,11 +819,14 @@ public class DocumentService {
         if (contractId != null && !"".equals(contractId)){
             contractIdParam = Integer.valueOf(contractId);
         }
-        if (customerId != null && !"".equals(customerId)){
-            customerIdParam = Integer.valueOf(customerId);
+        //根据手机号查询
+         CronusDto<CustomerDTO> resultDTO  = customerInfoService.findCustomerByFeild(null,telephone);
+        CustomerDTO customerInfoDTO = resultDTO.getData();
+        if (customerInfoDTO == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
-
         //参数类型转换
+        customerIdParam = customerInfoDTO.getId();
 
         UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEM_NAME_ENGLISH);
         if (userInfoDTO == null){

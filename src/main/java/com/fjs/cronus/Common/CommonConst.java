@@ -92,7 +92,13 @@ public class CommonConst {
     //权限列表
     public static String SYSTEMNAME="sale";
     public static String ADD_COMM_LOG_URL=SYSTEMNAME+"communicationLog/add";
-    public static String ADD_LOAN_URL=SYSTEMNAME+"loan/add";
+    public static String ADD_CUSTOMER_URL=SYSTEMNAME+"/Customer/add";
+    public static String EDIT_CUSTOMER_URL = SYSTEMNAME+"/Customer/edit";
+
+    public static String PRDCUSTOMERADD = SYSTEMNAME +"/Prd/import";
+    public static String PUBLICCUSTOMER = SYSTEMNAME +"/Import/index";
+    public static String REMOVECUSTOMER = SYSTEMNAME +"/Customer/removeCustomerAll";
+
     public static String ADD_RECE_URL=SYSTEMNAME+"rece/add";
     public static String ADD_ACHIVEMENT_URL=SYSTEMNAME+"achievement/add";
     public static String ADD_KEY_URL=SYSTEMNAME+"keyManager/add";
@@ -100,7 +106,7 @@ public class CommonConst {
     public static String ADD_UTMSOURCERATE_URL=SYSTEMNAME+"utmSourceRate/add";
     public static String ADD_CONFIG_URL=SYSTEMNAME+"config/add";
 
-    public static String UPDATE_LOAN_URL=SYSTEMNAME+"customer/update";
+    public static String UPDATE_LOAN_URL=SYSTEMNAME+"/Customer/update";
     public static String UPDATE_KEY_URL=SYSTEMNAME+"keyManager/update";
     public static String UPDATE_UTMSOURCERATE_URL=SYSTEMNAME+"utmSourceRate/update";
     public static String UPDATE_CONFIG_URL=SYSTEMNAME+"config/update";
@@ -154,7 +160,7 @@ public class CommonConst {
     //扔回客户
     public static String REMOVE_LOAN_URL=SYSTEMNAME+"loan/remove";
     //分配客户
-    public static String ALLOCATE_LOAN_URL=SYSTEMNAME+"loan/allocate";
+    public static String ALLOCATE_LOAN_URL=SYSTEMNAME+"/Customer/allocateAll";
     //保留客户
     public static String KEEP_LOAN_URL=SYSTEMNAME+"loan/keep";
     //取消保留客户
@@ -247,5 +253,7 @@ public class CommonConst {
 
     //未沟通重新分配
     public static String FAIL_NON_COMMUNICATE_ALLOCATE_INFO = "fail_non_communicate_allocate";
+
+    public static String PHPLOGINKEY = "phploginkey";
 }
 

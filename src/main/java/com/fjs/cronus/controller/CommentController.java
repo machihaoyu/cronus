@@ -123,8 +123,6 @@ public class CommentController {
     public CronusDto selectByCommennicationLogId(@RequestParam(required = true) Integer communicationLogId, HttpServletRequest request){
         CronusDto theaApiDTO = new CronusDto();
         List<Comment> commentList = null;
-        String token=request.getHeader("Authorization");
-        UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
         try{
             if (communicationLogId != null){
                 commentList = commentService.getByCommunicationLogId(communicationLogId);

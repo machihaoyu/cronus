@@ -2,12 +2,13 @@ package com.fjs.cronus.dto.api;
 
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * Created by Administrator on 2017/7/3 0003.
  */
-public class PHPLoginDto {
+public class PHPLoginDto implements Serializable {
     private Integer errNum;
     private String errMsg;
     private String access_token;

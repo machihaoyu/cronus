@@ -1,5 +1,6 @@
 package com.fjs.cronus.service.redis;
 
+import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -39,6 +40,16 @@ public class UcRedisService {
     public UserInfoDTO getRedisUserInfo(String key) {
         ValueOperations<String,Object> redis = valueOperations.opsForValue();
         UserInfoDTO ucUserDTO = (UserInfoDTO)redis.get(key);
+        return ucUserDTO;
+    }
+
+    public void setPhpUserInfo(String key,PHPLoginDto phpLoginDto){
+        ValueOperations<String,Object> redis = valueOperations.opsForValue();
+        redis.set(key, phpLoginDto,30, TimeUnit.SECONDS);
+    }
+    public PHPLoginDto getRedisPhpUserInfo(String key) {
+        ValueOperations<String,Object> redis = valueOperations.opsForValue();
+        PHPLoginDto ucUserDTO = (PHPLoginDto)redis.get(key);
         return ucUserDTO;
     }
 }

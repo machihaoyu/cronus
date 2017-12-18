@@ -70,7 +70,7 @@ public class LookPoolService {
             for (int i = 0; i < strArray.length; i++) {
                 paramsList.add(strArray[i]);
             }
-            paramMap.put("customerClassify", paramsList);
+            paramMap.put("cooperation_status", paramsList);
         }else {
             throw new CronusException(CronusException.Type.MESSAGE_CONNECTTHEASYSTEM_ERROR);
         }

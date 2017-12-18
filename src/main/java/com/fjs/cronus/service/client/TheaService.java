@@ -20,6 +20,7 @@ import javax.validation.Valid;
  * Created by msi on 2017/10/11. url = "http://192.168.1.124:1240"
  */
 
+//@FeignClient(value = "${client.feign.thea-backend}",url = "192.168.1.124:1240")
 @FeignClient(value = "${client.feign.thea-backend}")
 public interface TheaService {
 

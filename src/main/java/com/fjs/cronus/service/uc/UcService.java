@@ -126,8 +126,13 @@ public class UcService {
 
     public PHPLoginDto getAllUserInfo(String token,String systemName ){
         PHPLoginDto phpLoginDto = new PHPLoginDto();
-        String result = thorInterfaceService.getAllUserInfo(token,systemName);
-        phpLoginDto = FastJsonUtils.getSingleBean(result,PHPLoginDto.class);
+        //先从redis中取到信息
+        phpLoginDto  = ucRedisService.getRedisPhpUserInfo(token);
+        if (phpLoginDto == null) {
+            String result = thorInterfaceService.getAllUserInfo(token, systemName);
+            phpLoginDto = FastJsonUtils.getSingleBean(result, PHPLoginDto.class);
+            ucRedisService.setPhpUserInfo(token,phpLoginDto);
+        }
         return  phpLoginDto;
     }
 

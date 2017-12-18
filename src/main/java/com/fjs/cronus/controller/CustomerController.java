@@ -93,6 +93,16 @@ public class CustomerController {
         if (userId == null){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
+        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
+        String[] authority=resultDto.getAuthority();
+        if(authority.length>0){
+            List<String> authList= Arrays.asList(authority);
+            if (authList.contains(CommonConst.CANCEL_LOAN_URL)){
+                cronusDto.setResult(CommonMessage.CANCEL_FAIL.getCode());
+                cronusDto.setMessage(CommonConst.NO_AUTHORIZE);
+                return cronusDto;
+            }
+        }
         try {
             QueryResult queryResult = customerInfoService.customerList(userId,customerName,telephonenumber,
                     utmSource, ownUserName, customerSource, circle,companyId,page,size, remain,level,token);
@@ -244,6 +254,16 @@ public class CustomerController {
     public CronusDto editCustomerOk(@RequestBody CustomerDTO customerDTO, @RequestHeader("Authorization") String token) {
         CronusDto cronusDto = new CronusDto();
         try {
+            PHPLoginDto resultDto = thorUcService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
+            String[] authority=resultDto.getAuthority();
+            if(authority.length>0){
+                List<String> authList= Arrays.asList(authority);
+                if (authList.contains(CommonConst.EDIT_CUSTOMER_URL)){
+                    cronusDto.setResult(CommonMessage.ADD_FAIL.getCode());
+                    cronusDto.setMessage(CommonConst.NO_AUTHORIZE);
+                    return cronusDto;
+                }
+            }
             cronusDto = customerInfoService.editCustomerOk(customerDTO,token);
             return cronusDto;
         } catch (Exception e) {
@@ -501,7 +521,7 @@ public class CustomerController {
         CronusDto  theaApiDTO=new CronusDto ();
         String token=request.getHeader("Authorization");
         Integer customerId = jsonObject.getInteger("customerId");
-        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
+        /*PHPLoginDto resultDto = thorUcService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
         String[] authority=resultDto.getAuthority();
         if(authority.length>0){
             List<String> authList= Arrays.asList(authority);
@@ -510,7 +530,7 @@ public class CustomerController {
                 theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
                 return theaApiDTO;
             }
-        }
+        }*/
         UserInfoDTO userInfoDTO = thorUcService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
         CustomerInfo customerInfo = new CustomerInfo();
         try{
@@ -644,7 +664,7 @@ public class CustomerController {
         CronusDto cronusDto = new CronusDto();
         //校验权限
         String ids = jsonObject.getString("ids");
-        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
+       /* PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
         String[] authority=resultDto.getAuthority();
         if(authority.length>0){
             List<String> authList= Arrays.asList(authority);
@@ -653,7 +673,7 @@ public class CustomerController {
                 cronusDto.setMessage(CommonConst.NO_AUTHORIZE);
                 return cronusDto;
             }
-        }
+        }*/
         try {
             cronusDto  = customerInfoService.removeCustomer(ids,token);
             return cronusDto;
@@ -706,6 +726,17 @@ public class CustomerController {
     @ResponseBody
     public CronusDto addCRMCustomer(@RequestBody AddCustomerDTO customerDTO, @RequestHeader("Authorization") String token) {
         CronusDto cronusDto = new CronusDto();
+        //校验权限 Customer/add
+        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
+        String[] authority=resultDto.getAuthority();
+        if(authority.length>0){
+            List<String> authList= Arrays.asList(authority);
+            if (authList.contains(CommonConst.ADD_CUSTOMER_URL)){
+                cronusDto.setResult(CommonMessage.ADD_FAIL.getCode());
+                cronusDto.setMessage(CommonConst.NO_AUTHORIZE);
+                return cronusDto;
+            }
+        }
         try {
             cronusDto = customerInfoService.addCRMCustomer(customerDTO,token);
             return cronusDto;
