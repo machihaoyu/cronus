@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -40,6 +41,15 @@ import java.util.*;
 public class OcdcService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Value("phpSystem.customerToService")
+    private String customerToService;
+
+    @Value("phpSystem.pushCallback")
+    private String pushCallback;
+
+    @Value("phpSystem.ocdcKey")
+    private String ocdcKey;
 
     @Autowired
     private AgainAllocateCustomerService againAllocateCustomerService;
@@ -139,12 +149,14 @@ public class OcdcService {
                         }
                     }
                     successlist.add(customerSalePushLog.getOcdcId().toString());
-                } catch (RuntimeException E) {
+                } catch (RuntimeException e) {
+                    logger.warn(e.getMessage());
                     failList.add(customerSalePushLog.getOcdcId().toString());
                 }
                 customerSalePushLogList.add(customerSalePushLog);
             }
         } catch (Exception e) {
+            logger.warn(e.getMessage());
         }
         //保存OCDC推送日志
         customerSalePushLogService.insertList(customerSalePushLogList);
@@ -482,7 +494,7 @@ public class OcdcService {
         restTemplate.setRequestFactory(requestFactory);
         MultiValueMap<String, String> postParameters = new LinkedMultiValueMap<String, String>();
         postParameters.add("data", json);
-        String str = restTemplate.postForObject("http://service.ding1.com/Home/Api/Api?key=356aa92b71o3a06c51534d18c75u46e63as428ab", postParameters, String.class);
+        String str = restTemplate.postForObject(customerToService, postParameters, String.class);
         return str;
     }
 
@@ -513,10 +525,10 @@ public class OcdcService {
         requestFactory.setReadTimeout(90000);
         restTemplate.setRequestFactory(requestFactory);
         MultiValueMap<String, String> postParameters = new LinkedMultiValueMap<String, String>();
-        postParameters.add("key", "366a192b7w17e14c54574d18c28d48e6123428ab");
+        postParameters.add("key", ocdcKey);
         postParameters.add("success", successes.toString());
         postParameters.add("fail", fails.toString());
-        String str = restTemplate.postForObject("http://beta-ocdc.fang-crm.com/Api/Index/pushCallback", postParameters, String.class);
+        String str = restTemplate.postForObject(pushCallback, postParameters, String.class);
         return str;
     }
 
