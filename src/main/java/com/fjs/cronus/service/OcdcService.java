@@ -250,6 +250,7 @@ public class OcdcService {
         if (null != customerSalePushLog.getCreateTime()) {
             loan.setCreateTime(customerSalePushLog.getCreateTime());
         }
+        loan.setUtmSource("自申请");
         theaClientService.inserLoan(loan,token);
     }
 

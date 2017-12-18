@@ -2,24 +2,20 @@ package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
-import com.fjs.cronus.api.thea.Config;
 import com.fjs.cronus.api.thea.Loan;
 import com.fjs.cronus.api.thea.MailDTO;
-import com.fjs.cronus.dto.api.crius.CriusApiDTO;
-import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.MailBatchDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
-import com.fjs.cronus.model.AllocateLog;
-import com.fjs.cronus.model.AutoCleanManage;
-import com.fjs.cronus.model.CustomerInfo;
-import com.fjs.cronus.model.CustomerInfoLog;
+import com.fjs.cronus.model.*;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.client.ThorUcService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.util.CommonUtil;
+import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,12 +54,6 @@ public class AutoCleanService {
     @Autowired
     private AllocateLogService allocateLogService;
 
-//    @Autowired
-//    private LoanLogService loanLogService;
-
-//    @Autowired
-//    private Mai mailService;
-
     @Autowired
     private TheaClientService theaClientService;
 
@@ -74,8 +64,25 @@ public class AutoCleanService {
 
     @Autowired
     private CustomerInfoLogMapper customerInfoLogMapper;
-//    @Autowired
-//    private ConfigMapper configMapper;
+
+    @Autowired
+    private SysConfigService configService;
+
+    /**
+     * 自动清洗任务
+     */
+    public void autoCleanTask()
+    {
+        Date date = new Date();
+        String week = DateUtils.getWeekOfDate(date);
+        Integer hour = DateUtils.getHour(date);
+        if (week.equals(CommonEnum.WEEK_OF_SUNDAY.getCodeDesc()) && hour.equals(20))
+        {
+            new Thread(() -> {
+                autoClean(publicToken);
+            }).run();
+        }
+    }
 
     /**
      * 自动清洗（暂定清洗时间为每周日晚上8点）
@@ -85,30 +92,13 @@ public class AutoCleanService {
         //将清洗状态配置设置为清洗中
         try {
             ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
-            Config config;
-            TheaApiDTO<Config> theaApiDTO = theaService.findByName(token, CommonConst.AUTO_CLEAN_STATUS);
-            if (theaApiDTO.getResult() == 0) {
-                config = theaApiDTO.getData();
-                config.setConName(CommonConst.AUTO_CLEAN_STATUS);
-                config.setConValue(CommonEnum.YES.getCode().toString());
-                TheaApiDTO<Integer> theaApiDTO1 = theaService.updatebConfig(token, config);
-                int save = 0;
-//                if (theaApiDTO1.getResult()==0)
-//                {
-//                    save =theaApiDTO1.getData();
-//                }
-//                if (1 != save) {
-//                    throw new CronusException(CronusException.Type.AUTO_CLEAN_ERROR);
-//                }
-            } else {
-                config = new Config();
-                config.setConName(CommonConst.AUTO_CLEAN_STATUS);
-                config.setConValue(CommonEnum.YES.getCode().toString());
-                CriusApiDTO criusApiDTO = theaService.addConfig(token, config);
-                if (criusApiDTO.getResult() != 0) {
-                    throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
-                }
+            SysConfig config= configService.getConfigByName(CommonConst.AUTO_CLEAN_STATUS);
+            if (config == null || StringUtils.isEmpty(config.getConValue()))
+            {
+                throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
             }
+            config.setConValue("1");
+            configService.update(config);
             //修改redis配置
             redisConfigOptions.set(CommonConst.AUTO_CLEAN_STATUS, CommonEnum.YES.getCode().toString());
             //计算清洗前的各类型的数据量
@@ -177,11 +167,8 @@ public class AutoCleanService {
             //重新设置清洗状态
             //修改redis配置
             config.setConValue(CommonEnum.NO.getCode().toString());
-            TheaApiDTO<Integer> theaApiDTO1 = theaService.updatebConfig(token, config);
-            int save = 0;
-            if (theaApiDTO1.getResult() == 0) {
-                save = theaApiDTO1.getData();
-            }
+            config.setConValue("0");
+            int save = configService.update(config);
             if (1 != save) {
                 throw new CronusException(CronusException.Type.AUTO_CLEAN_ERROR);
             }
@@ -202,9 +189,9 @@ public class AutoCleanService {
                     stringBuilder.append(",");
                 }
             }
-            mailBatchDTO.setContent(new Date().toString() + "系统自动清洗完毕！清洗总数:"+beforeCountMap.get("total")+"。" +
-                    "清洗前的数据：未保留的客户有"+beforeCountMap.get("un_retain")+"条、保留的客户有"+beforeCountMap.get("is_retain")+"条。" +
-                    "清洗后的数据：未保留的客户有"+afterCountMap.get("un_retain")+"条、保留的客户有"+afterCountMap.get("is_retain")+"条。" +
+            mailBatchDTO.setContent(DateUtils.format(new Date(),DateUtils.FORMAT_LONG) + " 系统自动清洗完毕！清洗总数:"+beforeCountMap.get("total")+"。" +
+                    "清洗前的数据：未保留的客户有"+beforeCountMap.get("isRemain")+"条、保留的客户有"+beforeCountMap.get("unRemain")+"条。" +
+                    "清洗后的数据：未保留的客户有"+afterCountMap.get("isRemain")+"条、保留的客户有"+afterCountMap.get("unRemain")+"条。" +
                     "自动清洗管理中屏蔽清洗的条数有:"+customerIdsByManage.size()+"条';");
             mailBatchDTO.setToId(stringBuilder.toString());
             theaClientService.sendMailBatch(publicToken, mailBatchDTO);
@@ -328,38 +315,4 @@ public class AutoCleanService {
         return loanLogList;
     }
 
-    public Config findByType(Integer type, String token) {
-        Config config = null;
-        String name = "";
-        if (type == 1) {
-            name = CommonConst.CAN_NOT_CLEAN_CUSTOMER_COMPANY;
-        }
-        if (type == 2) {
-            name = CommonConst.CAN_NOT_CLEAN_CUSTOMER_USER_ID;
-        }
-        TheaApiDTO<Config> resultDto = theaService.findByName(token, CommonConst.CAN_NOT_CLEAN_CUSTOMER_COMPANY);
-        config = resultDto.getData();
-        return config;
-    }
-
-    public static void main(String args[]) {
-        /*List<Integer> all = new ArrayList<>();
-        List<Integer> ad = new ArrayList<>();
-        ad.add(1);
-        ad.add(2);
-        List<Integer> add = new ArrayList<>();
-        add.add(1);
-        add.add(3);
-        all.addAll(ad);
-        all.removeAll(add);
-        all.addAll(add);
-        System.out.println(all);*/
-        List<Integer> a = new ArrayList<>();
-        for (int i = 0; i <= 2; i++) {
-            a.add(i);
-        }
-        List<List<Integer>> once = CommonUtil.splitList(a, 4);
-        System.out.println(once);
-
-    }
 }

@@ -1,10 +1,7 @@
 package com.fjs.cronus.service.quartz;
 
 
-import com.fjs.cronus.service.AutoAllocateService;
-import com.fjs.cronus.service.CommunicationLogService;
-import com.fjs.cronus.service.CustomerMeetService;
-import com.fjs.cronus.service.OcdcService;
+import com.fjs.cronus.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +38,9 @@ public class ScheduledJob {
     @Autowired
     private AutoAllocateService autoAllocateService;
 
+    @Autowired
+    private AutoCleanService autoCleanService;
+
     private SimpleDateFormat dateFormat() {
         return new SimpleDateFormat("HH:mm:ss");
     }
@@ -62,6 +62,9 @@ public class ScheduledJob {
         ocdcService.waitingPoolAllocate(token);
 
         autoAllocateService.nonCommunicateAgainAllocate(token);
+
+        autoCleanService.autoCleanTask();
+
         logger.info("Examine End!");
     }
 }
