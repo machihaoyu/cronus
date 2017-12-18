@@ -1317,6 +1317,7 @@
         from customer_info  c
         WHERE  c.is_deleted = 0
         AND  c.communicate_time IS NULL
+        and  c.remain = 0
         <if test="customerName !=null and customerName !=''">
             and c.customer_name  like CONCAT('%', #{customerName},'%' )
         </if>
@@ -1359,6 +1360,7 @@
         from customer_info  c
         WHERE  c.is_deleted = 0
         AND  c.communicate_time IS NULL
+        and  c.remain = 0
         <if test="customerName !=null and customerName !=''">
             and c.customer_name  like CONCAT('%', #{customerName},'%' )
         </if>
@@ -1396,6 +1398,7 @@
         from customer_info  c
         WHERE  c.is_deleted = 0
          AND  c.communicate_time IS NOT NULL
+        and  c.remain = 0
         <if test="customerName !=null and customerName !=''">
             and c.customer_name  like CONCAT('%', #{customerName},'%' )
         </if>
@@ -1435,6 +1438,7 @@
         from customer_info  c
         WHERE  c.is_deleted = 0
         AND  c.communicate_time IS NOT NULL
+        and  c.remain = 0
         <if test="customerName !=null and customerName !=''">
             and c.customer_name  like CONCAT('%', #{customerName},'%' )
         </if>
