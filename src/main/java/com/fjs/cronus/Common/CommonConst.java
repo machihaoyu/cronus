@@ -255,5 +255,6 @@ public class CommonConst {
     public static String FAIL_NON_COMMUNICATE_ALLOCATE_INFO = "fail_non_communicate_allocate";
 
     public static String PHPLOGINKEY = "phploginkey";
+
 }
 
