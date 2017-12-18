@@ -268,6 +268,7 @@ public class AutoAllocateService {
             loanDTO.setTelephonenumber(customerDTO.getTelephonenumber());
             loanDTO.setLoanAmount(customerDTO.getLoanAmount());
             loanDTO.setCustomerId(customerDTO.getId());
+            loanDTO.setUtmSource("自申请");
             loanDTO.setCustomerName(customerDTO.getCustomerName());
             theaClientService.inserLoan(loanDTO,token);
         }
