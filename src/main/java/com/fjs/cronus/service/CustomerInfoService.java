@@ -215,8 +215,10 @@ public class CustomerInfoService {
             paramsMap.put("size",10);
             List<CustomerInfo> customerInfos = customerInfoMapper.customerList(paramsMap);
             if (customerInfos.size() > 0){
-                throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONERE_ERROR);
-            }
+                cronusDto.setResult(ResultResource.CODE_OTHER_ERROR);
+                cronusDto.setMessage(ResultResource.PHNOEERROR);
+                return cronusDto;
+    }
 
         //实体与DTO相互转换
         //对手机号加密

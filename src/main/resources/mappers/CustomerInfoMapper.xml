@@ -1437,7 +1437,7 @@
         ,
         <include refid="Blob_Column_List" />
         from customer_info
-        where 1=1
+        where own_user_id =0
         <if test="telephonenumber != null and '' != telephonenumber">
             and telephonenumber = #{telephonenumber,jdbcType=VARCHAR}
         </if>
@@ -1492,7 +1492,7 @@
         <if test="mainCitys != null and mainCitys.size() > 0
 			and subCompanyIds != null and subCompanyIds.size() > 0
 			and type== null">
-            and city in
+            and(city in
             <foreach item="item" index="index" collection="mainCitys" open="("
                      separator="," close=")">
                 #{item}
@@ -1503,11 +1503,12 @@
                      separator="," close=")">
                 #{item}
             </foreach>
+            )
         </if>
         <if test="mainCitys != null and mainCitys.size() > 0
 			and subCompanyIds != null and subCompanyIds.size() > 0
 			and type != null">
-            and city not in
+            and(city not in
             <foreach item="item" index="index" collection="mainCitys" open="("
                      separator="," close=")">
                 #{item}
@@ -1518,13 +1519,13 @@
                 #{item}
             </foreach>
         </if>
-        and (own_user_id is null or own_user_id =0)
         <if test="utmList != null and utmList.size() > 0">
             and utm_source not IN
             <foreach item="item" index="index" collection="utmList" open="("
                      separator="," close=")">
                 #{item}
             </foreach>
+            )
         </if>
         and is_deleted=0
         ORDER BY last_update_time DESC
@@ -1535,7 +1536,7 @@
         select
         COUNT(*)
         from customer_info
-        where 1=1
+        where own_user_id =0
         <if test="telephonenumber != null and '' != telephonenumber">
             and telephonenumber = #{telephonenumber,jdbcType=VARCHAR}
         </if>
@@ -1590,7 +1591,7 @@
         <if test="mainCitys != null and mainCitys.size() > 0
 			and subCompanyIds != null and subCompanyIds.size() > 0
 			and type== null">
-            and city in
+            and( city in
             <foreach item="item" index="index" collection="mainCitys" open="("
                      separator="," close=")">
                 #{item}
@@ -1601,22 +1602,22 @@
                      separator="," close=")">
                 #{item}
             </foreach>
+            )
         </if>
         <if test="mainCitys != null and mainCitys.size() > 0
 			and subCompanyIds != null and subCompanyIds.size() > 0
 			and type != null">
-            and city not in
+            and (city not in
             <foreach item="item" index="index" collection="mainCitys" open="("
                      separator="," close=")">
                 #{item}
             </foreach>
-            and company_id not in
+            or company_id not in
             <foreach item="item" index="index" collection="subCompanyIds" open="("
                      separator="," close=")">
                 #{item}
             </foreach>
         </if>
-        and (own_user_id is null or own_user_id =0)
         <if test="utmList != null and utmList.size() > 0">
             and utm_source not IN
             <foreach item="item" index="index" collection="utmList" open="("
@@ -1624,6 +1625,7 @@
                 #{item}
             </foreach>
         </if>
+        )
         and is_deleted=0
     </select>
     <select id="customerSourceByGroup" resultType="String" parameterType="Map">
