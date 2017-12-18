@@ -54,12 +54,6 @@ public class AutoCleanService {
     @Autowired
     private AllocateLogService allocateLogService;
 
-//    @Autowired
-//    private LoanLogService loanLogService;
-
-//    @Autowired
-//    private Mai mailService;
-
     @Autowired
     private TheaClientService theaClientService;
 
@@ -70,11 +64,25 @@ public class AutoCleanService {
 
     @Autowired
     private CustomerInfoLogMapper customerInfoLogMapper;
-//    @Autowired
-//    private ConfigMapper configMapper;
 
     @Autowired
     private SysConfigService configService;
+
+    /**
+     * 自动清洗任务
+     */
+    public void autoCleanTask()
+    {
+        Date date = new Date();
+        String week = DateUtils.getWeekOfDate(date);
+        Integer hour = DateUtils.getHour(date);
+        if (week.equals(CommonEnum.WEEK_OF_SUNDAY.getCodeDesc()) && hour.equals(20))
+        {
+            new Thread(() -> {
+                autoClean(publicToken);
+            }).run();
+        }
+    }
 
     /**
      * 自动清洗（暂定清洗时间为每周日晚上8点）

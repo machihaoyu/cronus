@@ -85,6 +85,15 @@ public enum CommonEnum {
     AGAIN_ALLOCATE_STATUS_1(1, "已再分配"),
 
 
+    //星期
+    WEEK_OF_MONDAY(1,"星期一"),
+    WEEK_OF_TUESDAY(2,"星期二"),
+    WEEK_OF_WEDNESDAY(3,"星期三"),
+    WEEK_OF_THURSDAY(4,"星期四"),
+    WEEK_OF_FRIDAY(5,"星期五"),
+    WEEK_OF_SATURDAY(6,"星期六"),
+    WEEK_OF_SUNDAY(7,"星期日")
+
     ;
 
     /**
