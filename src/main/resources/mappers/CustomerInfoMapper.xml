@@ -1316,6 +1316,7 @@
         <include refid="Blob_Column_List" />
         from customer_info  c
         WHERE  c.is_deleted = 0
+        AND  c.communicate_time IS NULL
         <if test="customerName !=null and customerName !=''">
             and c.customer_name  like CONCAT('%', #{customerName},'%' )
         </if>
@@ -1334,6 +1335,13 @@
         </if>
         <if test="telephonenumber != null and telephonenumber != '' ">
             and c.telephonenumber = #{telephonenumber}
+        </if>
+        <if test="ownerIds!=null and ownerIds.size>0">
+            AND c.own_user_id in
+            <foreach collection="ownerIds" item="ownerIds"
+                     index="index" open="(" close=")" separator=",">
+                ${ownerIds}
+            </foreach>
         </if>
         <choose>
             <when test="order != null and order !=''">
@@ -1350,6 +1358,7 @@
        COUNT(*)
         from customer_info  c
         WHERE  c.is_deleted = 0
+        AND  c.communicate_time IS NULL
         <if test="customerName !=null and customerName !=''">
             and c.customer_name  like CONCAT('%', #{customerName},'%' )
         </if>
@@ -1368,6 +1377,13 @@
         </if>
         <if test="telephonenumber != null and telephonenumber != '' ">
             and c.telephonenumber = #{telephonenumber}
+        </if>
+        <if test="ownerIds!=null and ownerIds.size>0">
+            AND c.own_user_id in
+            <foreach collection="ownerIds" item="ownerIds"
+                     index="index" open="(" close=")" separator=",">
+                ${ownerIds}
+            </foreach>
         </if>
     </select>
 
@@ -1395,6 +1411,13 @@
         </if>
         <if test="level != null and level != '' ">
             and c.customer_type = #{level}
+        </if>
+        <if test="ownerIds!=null and ownerIds.size>0">
+            AND c.own_user_id in
+            <foreach collection="ownerIds" item="ownerIds"
+                     index="index" open="(" close=")" separator=",">
+                ${ownerIds}
+            </foreach>
         </if>
         <choose>
             <when test="order != null and order !=''">
@@ -1427,6 +1450,13 @@
         </if>
         <if test="telephonenumber != null and telephonenumber != '' ">
             and c.telephonenumber = #{telephonenumber}
+        </if>
+        <if test="ownerIds!=null and ownerIds.size>0">
+            AND c.own_user_id in
+            <foreach collection="ownerIds" item="ownerIds"
+                     index="index" open="(" close=")" separator=",">
+                ${ownerIds}
+            </foreach>
         </if>
     </select>
 

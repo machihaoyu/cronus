@@ -660,6 +660,10 @@ public class CustomerInfoService {
         if (userInfoDTO == null){
             throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
         }
+        Integer lookphone =Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
+        Integer userId = Integer.parseInt(userInfoDTO.getUser_info().getUser_id());
+        //获取下属id
+        List<Integer> ownerIds = ucService.getSubUserByUserId(token,userId);
         Integer count = null;
         if (!StringUtils.isEmpty(customerName)){
             paramsMap.put("customerName",customerName);
@@ -676,6 +680,9 @@ public class CustomerInfoService {
         if (autostatus != null){
             paramsMap.put("autostatus",autostatus);
         }
+        if (ownerIds != null && ownerIds.size() > 0){
+            paramsMap.put("ownerIds",ownerIds);
+        }
         paramsMap.put("start",(page-1) * size);
         paramsMap.put("size",size);
         if (type == 1){//已沟通客户 判断沟通时间不为null;
@@ -685,8 +692,6 @@ public class CustomerInfoService {
             resultList = customerInfoMapper.allocationCustomerList(paramsMap);
             count = customerInfoMapper.allocationCustomerListCount(paramsMap);
         }
-        Integer lookphone =Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
-        Integer userId = Integer.parseInt(userInfoDTO.getUser_info().getUser_id());
         if (resultList != null && resultList.size() > 0){
             for (CustomerInfo customerInfo : resultList) {
                 CustomerListDTO customerDto = new CustomerListDTO();
