@@ -151,9 +151,9 @@
               ${owerId}
           </foreach>
       </if>
-      <if test="customerClassify!=null and customerClassify.size>0">
-          AND c.customer_classify in
-          <foreach item="item" index="index" collection="customerClassify" open="("
+      <if test="cooperation_status!=null and cooperation_status.size>0">
+          AND c.cooperation_status in
+          <foreach item="item" index="index" collection="cooperation_status" open="("
                    separator="," close=")">
               #{item}
           </foreach>
@@ -201,9 +201,9 @@
               ${owerId}
           </foreach>
       </if>
-      <if test="customerClassify!=null and customerClassify.size>0">
-          AND c.customer_classify in
-          <foreach item="item" index="index" collection="customerClassify" open="("
+      <if test="cooperation_status!=null and cooperation_status.size>0">
+          AND c.cooperation_status in
+          <foreach item="item" index="index" collection="cooperation_status" open="("
                    separator="," close=")">
               #{item}
           </foreach>
