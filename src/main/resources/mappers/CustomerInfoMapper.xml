@@ -1624,8 +1624,8 @@
                      separator="," close=")">
                 #{item}
             </foreach>
+            )
         </if>
-        )
         and is_deleted=0
     </select>
     <select id="customerSourceByGroup" resultType="String" parameterType="Map">
