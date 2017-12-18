@@ -15,12 +15,11 @@ public class UploadCilentDTO implements Serializable {
     @ApiModelProperty(value = "原始文件名称:a.jpg" ,required = false)
     private String fileName;
 
+    @ApiModelProperty(value = "手机号唯一标识" ,required = false)
+    private String telephone;
 
-    @ApiModelProperty(value = "客户id" ,required = false)
-    private String customerId;
-
-    @ApiModelProperty(value = "附件类型" ,required = false)
-    private String category;
+    @ApiModelProperty(value = "附件类型id" ,required = false)
+    private String categoryId;
 
     @ApiModelProperty(value = "C端传C",required = false)
     private String  source;
@@ -52,20 +51,20 @@ public class UploadCilentDTO implements Serializable {
         this.fileName = fileName;
     }
 
-    public String getCustomerId() {
-        return customerId;
+    public String getTelephone() {
+        return telephone;
     }
 
-    public void setCustomerId(String customerId) {
-        this.customerId = customerId;
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
     }
 
-    public String getCategory() {
-        return category;
+    public String getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
     }
 
     public String getSource() {

@@ -239,15 +239,15 @@ public class DocumentController {
         CronusDto resultDto = new CronusDto();
         List fileList=new ArrayList();
         try {
-                String customerId = uploadDocumentDto.getCustomerId();
-                String category = uploadDocumentDto.getCategory();
+                String telephone = uploadDocumentDto.getTelephone();
+                String category = uploadDocumentDto.getCategoryId();
                 String source   = uploadDocumentDto.getSource();
                 String fileName = uploadDocumentDto.getFileName();
                 //获取multiRequest 中所有的文件名
                 Integer size = uploadDocumentDto.getSize();
                 String base64 = uploadDocumentDto.getImageBase64();
                 InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(base64);
-                String path = documentService.uploadClientDocumentOk(inputStream,fileName,null,customerId,category,source,size,token,base64);
+                String path = documentService.uploadClientDocumentOk(inputStream,fileName,null,telephone,category,source,size,token,base64);
                 fileList.add(path);
 
                 resultDto.setData(fileList);
