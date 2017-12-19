@@ -170,8 +170,8 @@ public class AutoCleanService {
                     allocateLogService.insertBatch(allocateLogList);
                     //allocateLogSaveBatchMap.put("",)
                     //添加客户日志
-//                    List<CustomerInfoLog> loanLogList = this.initLoanLog(loanList);
-//                    customerInfoLogMapper.insertList(loanLogList);
+                    List<CustomerInfoLog> loanLogList = this.initLoanLog(loanList);
+                    customerInfoLogMapper.insertBatch(loanLogList);
                 }
             }
             Map<String, Integer> afterCountMap = new HashMap<>();
