@@ -51,6 +51,8 @@ public class CommunicationLogService {
     UcService ucService;
     @Autowired
     TheaClientService theaClientService;
+    @Autowired
+    CommentService commentService;
     //添加
     @Transactional
     public Integer addLog(CustomerUsefulDTO customerUsefulDTO, CustomerInfo customerDto, UserInfoDTO userInfoDTO, String token){
@@ -203,6 +205,10 @@ public class CommunicationLogService {
                 //获取姓名
                 UserInfoDTO userInfoDTO = ucService.getUserInfoByID(token,communicationLog1.getCreateUser());
                 communicationDTO.setOwnUserName(userInfoDTO.getName());
+                List<Comment> commentList = commentService.getByCommunicationLogId(communicationLog1.getId());
+                if (commentList != null && commentList.size() > 0){
+                    communicationDTO.setComments(commentList);
+                }
                 communicationDTOS.add(communicationDTO);
             }
         }

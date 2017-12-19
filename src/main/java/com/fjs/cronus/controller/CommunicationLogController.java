@@ -166,7 +166,7 @@ public class CommunicationLogController {
     })
     @RequestMapping(value = "/selectListByCustomerId", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<CustomerUsefulDTO> selectListByCustomerId(@RequestParam(required = true) Integer customerId, HttpServletRequest request){
+    public CronusDto<CommunicationDTO> selectListByCustomerId(@RequestParam(required = true) Integer customerId, HttpServletRequest request){
         CronusDto theaApiDTO=new CronusDto<>();
         List<CommunicationDTO> communicationLogLis = new ArrayList<>();
         String token=request.getHeader("Authorization");
