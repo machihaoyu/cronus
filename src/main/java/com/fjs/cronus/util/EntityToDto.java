@@ -20,7 +20,7 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
             //对手机号进行解密并且隐藏后四位
             if (lookphone == 1) {//查看自己
-                if (userId == customerInfo.getOwnUserId()) {
+                if (userId.equals(customerInfo.getOwnUserId())) {
                     String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
                     dto.setTelephonenumber(telephone);
                 }else {

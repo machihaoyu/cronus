@@ -40,7 +40,6 @@ public class ToolService {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERUNFIND_ERROR);
         }
         String telephoneNumber = customerInfo.getTelephonenumber();
-        //TODO 手机号加密解密
         String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
         String url = phoneAreaUrl + telephone;
         String resultStr = HttpsClientUtil.sendHttps(url);
