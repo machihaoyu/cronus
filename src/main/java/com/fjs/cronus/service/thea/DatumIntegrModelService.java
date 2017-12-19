@@ -1,9 +1,15 @@
 package com.fjs.cronus.service.thea;
 
+import com.fjs.cronus.enums.CategoryEnum;
+import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.DatumIntegrModelMapper;
+import com.fjs.cronus.model.AttachmentModel;
 import com.fjs.cronus.model.thea.DatumIntegrModelDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by chenjie on 2017/12/18.
@@ -62,5 +68,56 @@ public class DatumIntegrModelService {
         }
 
         return datumIntegrModelDTO;
+    }
+
+    /**
+     * 获取身份证、户口簿、房产证、婚姻证明、放款凭证附件分类名称、id
+     * @param type 要获取的附件类型
+     * @return
+     */
+    public List<AttachmentModel> getCategoryInfo(Integer type) {
+        CategoryEnum enumByCode = CategoryEnum.getEnumByCode(type);
+        if (enumByCode == null)
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, CronusException.Type.CRM_PARAMS_ERROR.getError() + "||附件类型");
+
+        List<AttachmentModel> list = null;
+
+        if (CategoryEnum.IDENTITY.getCode().equals(enumByCode.getCode())){
+            //身份证
+            list = datumIntegrModelMapper.identityId();
+            return list;
+        } else if (CategoryEnum.HOUSEHOLDREGISTER.getCode().equals(enumByCode.getCode())) {
+            //户口簿
+            list = datumIntegrModelMapper.householdRegisterId();
+            return list;
+        } else if (CategoryEnum.PROPERTYCERTIFICATE.getCode().equals(enumByCode.getCode())) {
+            //房产证
+            list = datumIntegrModelMapper.houseRegistrationId();
+            return list;
+        } else if (CategoryEnum.MARRIAGECERTIFICATE.getCode().equals(enumByCode.getCode())) {
+            //结婚证
+            list = datumIntegrModelMapper.proofOfMarriageId();
+            return list;
+        } else if (CategoryEnum.VOUCHER.getCode().equals(enumByCode.getCode())) {
+            //放款凭证
+            list = datumIntegrModelMapper.voucherId();
+            return list;
+        }
+        return list;
+    }
+
+    /**
+     * 获取收入证明附件分类名称、id
+     * @return
+     */
+    public List<List<AttachmentModel>> getEarnCategoryInfo() {
+        List<AttachmentModel> proofOfEarningsIds = datumIntegrModelMapper.proofOfEarningsId();
+        List<AttachmentModel> bankStatementIds = datumIntegrModelMapper.bankStatementId();
+        List<AttachmentModel> financialAssetsIds = datumIntegrModelMapper.financialAssetsId();
+        List<List<AttachmentModel>> lists = new ArrayList<>(3);
+        lists.add(proofOfEarningsIds);
+        lists.add(bankStatementIds);
+        lists.add(financialAssetsIds);
+        return lists;
     }
 }
