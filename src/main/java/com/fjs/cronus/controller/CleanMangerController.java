@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -210,12 +211,22 @@ public class CleanMangerController {
         String token=request.getHeader("Authorization");
         CronusDto<UserInfoDTO> thorApiDTO=thorUcService.getUserInfoByToken(token,CommonConst.SYSTEMNAME);
         UserInfoDTO userInfoDTO=thorApiDTO.getData();
-        if (autoCleanManageDTO.getUserId() == null && StringUtils.isEmpty(autoCleanManageDTO.getUtmSource())){
+        if (autoCleanManageDTO.getUserId() == null) {
+            theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+            theaApiDTO.setMessage("userId不能为空");
+            return theaApiDTO;
+        }
+        if (autoCleanManageDTO.getType() == null) {
+            theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+            theaApiDTO.setMessage("type不能为空");
+            return theaApiDTO;
+        }
+        if (autoCleanManageDTO.getType() == 2 && StringUtils.isEmpty(autoCleanManageDTO.getUtmSource())){
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
             theaApiDTO.setMessage("utmSource不能为空");
             return theaApiDTO;
         }
-        if (autoCleanManageDTO.getUserId() == null && StringUtils.isEmpty(autoCleanManageDTO.getCustomerSource())){
+        if (autoCleanManageDTO.getType() == 2 && StringUtils.isEmpty(autoCleanManageDTO.getCustomerSource())){
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
             theaApiDTO.setMessage("customerSource不能为空");
             return theaApiDTO;
