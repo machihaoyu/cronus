@@ -63,4 +63,69 @@ public class DatumIntegrModelProvider {
     }
 
 
+    public String identityId(){
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("SELECT id,document_c_name FROM document_category" +
+                " WHERE document_c_name IN ('" + DatumIntegrConstant.IDENTITY_BORROWER_FACE + "','" + DatumIntegrConstant.IDENTITY_BORROWER_BACK + "') AND is_deleted=0");
+        return stringBuffer.toString();
+    }
+
+
+    public String householdRegisterId(){
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("SELECT id,document_c_name FROM document_category WHERE " +
+                "document_c_name IN ('" + DatumIntegrConstant.HOUSEHOLDREGISTER_BORROWER + "','" + DatumIntegrConstant.HOUSEHOLDREGISTER_SPOUSE + "'," +
+                "'" + DatumIntegrConstant.HOUSEHOLDREGISTER_OTHER + "') AND is_deleted=0");
+        return stringBuffer.toString();
+    }
+
+
+    public String houseRegistrationId(){
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("SELECT id,document_c_name FROM document_category WHERE " +
+                "document_c_name IN ('" + DatumIntegrConstant.HOUSEREGISTRATION + "') AND is_deleted=0");
+        return stringBuffer.toString();
+    }
+
+
+    public String proofOfMarriageId(){
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("SELECT id,document_c_name FROM document_category WHERE " +
+                "document_c_name IN ('" + DatumIntegrConstant.PROOFOFMARRIAGE_BORROWER + "') AND is_deleted=0");
+        return stringBuffer.toString();
+    }
+
+
+    public String voucherId(){
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("SELECT id,document_c_name FROM document_category WHERE " +
+                "document_c_name IN ('" + DatumIntegrConstant.VOUCHER + "') AND is_deleted=0");
+        return stringBuffer.toString();
+    }
+
+
+    public String proofOfEarningsId(){
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("SELECT id,document_c_name FROM document_category WHERE " +
+                "document_c_name IN ('" + DatumIntegrConstant.PROOFOFEARNINGS_BORROWER + "','" + DatumIntegrConstant.PROOFOFEARNINGS_SPOUSE + "') AND is_deleted=0");
+        return stringBuffer.toString();
+    }
+
+
+    public String bankStatementId(){
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("SELECT id,document_c_name FROM document_category WHERE " +
+                "document_c_name IN ('" + DatumIntegrConstant.BANK_STATEMENT_BORROWER + "','" + DatumIntegrConstant.BANK_STATEMENT_SPOUSE + "') AND is_deleted=0");
+        return stringBuffer.toString();
+    }
+
+
+    public String financialAssetsId(){
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("SELECT id,document_c_name FROM document_category WHERE " +
+                "document_c_name IN ('" + DatumIntegrConstant.FINANCIAL_ASSETS + "','" + DatumIntegrConstant.SPARE_ROOM + "') AND is_deleted=0");
+        return stringBuffer.toString();
+    }
+
+
 }

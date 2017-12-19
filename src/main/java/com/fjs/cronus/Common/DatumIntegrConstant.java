@@ -46,4 +46,19 @@ public interface DatumIntegrConstant {
 
     /** 婚姻证明（盖章页、内容页）--其他抵押人婚姻证明分类名称 */
     String PROOFOFMARRIAGE_OTHER = "其他抵押人婚姻证明";
+
+    /** 合同材料--放款凭证分类名称 */
+    String VOUCHER = "放款凭证";
+
+    /** 个人银行流水--借款人银行流水分类名称 */
+    String BANK_STATEMENT_BORROWER = "借款人银行流水";
+
+    /** 个人银行流水--配偶银行流水分类名称 */
+    String BANK_STATEMENT_SPOUSE = "配偶银行流水";
+
+    /** 个人资产证明--金融资产分类名称 */
+    String FINANCIAL_ASSETS = "金融资产";
+
+    /** 个人资产证明--房产信息（备用房）分类名称 */
+    String SPARE_ROOM = "房产信息（备用房）";
 }

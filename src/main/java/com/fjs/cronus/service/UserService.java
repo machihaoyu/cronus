@@ -165,8 +165,8 @@ public class UserService {
         Map<String, Object> allocateMap = new HashMap<>();
         allocateMap.put("operationsStr", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
                 "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
-        String userIdsStr = CommonUtil.initStrListToStr(baseUcDTO.getRetData());
-        allocateMap.put("newOwnerIds", userIdsStr);
+//        String userIdsStr = CommonUtil.initStrListToStr(baseUcDTO.getRetData());
+        allocateMap.put("newOwnerIds", baseUcDTO.getRetData());
         allocateMap.put("createBeginDate", DateUtils.getBeginDateByStr(effectiveDate));
         allocateMap.put("createEndDate", DateUtils.getEndDateByStr(effectiveDate));
         List<AllocateLog> allocateLogList = allocateLogService.selectByParamsMap(allocateMap);

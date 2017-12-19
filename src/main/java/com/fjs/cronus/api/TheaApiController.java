@@ -1,5 +1,8 @@
 package com.fjs.cronus.api;
 
+import com.fjs.cronus.dto.RespBaseDTO;
+import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.model.AttachmentModel;
 import com.fjs.cronus.model.thea.DatumIntegrModelDTO;
 import com.fjs.cronus.service.thea.DatumIntegrModelService;
 import io.swagger.annotations.Api;
@@ -11,11 +14,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * Created by chenjie on 2017/12/15.
  */
 @RestController
-@Api(description = "提供给thea服务的接口")
+@Api(description = "提供给C端服务的接口")
 public class TheaApiController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -32,6 +37,35 @@ public class TheaApiController {
     public DatumIntegrModelDTO judgeDatum(@RequestHeader("Authorization") String token, @RequestParam("customerId") Long customerId){
         DatumIntegrModelDTO datumIntegrModelDTO = datumIntegrModelService.judgeDatum(customerId);
         return datumIntegrModelDTO;
+    }
+
+
+    @ApiOperation(value = "C端获取附件分类信息接口", notes = "C端获取附件分类信息接口API")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "认证信息(网关)", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+        @ApiImplicitParam(name = "type", value = "1--身份证;2--户口簿;3--房产证;4--结婚证;5--放款凭证", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/api/v1/getCategoryInfo", method = RequestMethod.GET)
+    public RespBaseDTO<List<AttachmentModel>> getCategoryInfo(@RequestHeader("Authorization") String token, @RequestParam("type") Integer type){
+        try{
+            List<AttachmentModel> attachmentModels = datumIntegrModelService.getCategoryInfo(type);
+            return new RespBaseDTO(attachmentModels);
+        }catch (CronusException e) {
+            return new RespBaseDTO(Integer.parseInt(e.getResponseError().getStatus()),e.getResponseError().getMessage());
+        }
+    }
+
+
+    @ApiOperation(value = "C端获取收入证明附件分类信息接口", notes = "C端获取收入证明附件分类信息接口API")
+    @ApiImplicitParam(name = "Authorization", value = "认证信息(网关)", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")
+    @RequestMapping(value = "/api/v1/getEarnCategoryInfo", method = RequestMethod.GET)
+    public RespBaseDTO<List<List<AttachmentModel>>> getEarnCategoryInfo(){
+        try{
+            List<List<AttachmentModel>> attachmentModels = datumIntegrModelService.getEarnCategoryInfo();
+            return new RespBaseDTO(attachmentModels);
+        }catch (CronusException e) {
+            return new RespBaseDTO(Integer.parseInt(e.getResponseError().getStatus()),e.getResponseError().getMessage());
+        }
     }
 
 }
