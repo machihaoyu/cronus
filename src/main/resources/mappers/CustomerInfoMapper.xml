@@ -1547,11 +1547,12 @@
                      separator="," close=")">
                 #{item}
             </foreach>
-            and company_id not in
+            or company_id not in
             <foreach item="item" index="index" collection="subCompanyIds" open="("
                      separator="," close=")">
                 #{item}
             </foreach>
+            )
         </if>
         <if test="utmList != null and utmList.size() > 0">
             and utm_source not IN
@@ -1651,6 +1652,7 @@
                      separator="," close=")">
                 #{item}
             </foreach>
+            )
         </if>
         <if test="utmList != null and utmList.size() > 0">
             and utm_source not IN
@@ -1695,7 +1697,8 @@
             <if test="lastUpdateTime != null ">
                 last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
             </if>
-            own_user_id = 0
+            own_user_id = 0,
+            own_user_name = NULL
         </set>
         where id in
         <foreach collection="paramsList" index="index" item="paramsList" open="(" separator="," close=")">

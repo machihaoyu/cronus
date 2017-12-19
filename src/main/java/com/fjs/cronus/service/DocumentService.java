@@ -717,7 +717,7 @@ public class DocumentService {
       resultDto.setData(flag);
       return  resultDto;
   }
-    public CronusDto validDocumentToContract(Integer customerId,Integer productType,String token){
+    public CronusDto<Boolean> validDocumentToContract(Integer customerId,Integer productType,String token){
         CronusDto resultDto = new CronusDto();
         //搜索检索的附件标示
         Map<String,Object> paramsMap = new HashMap<>();
@@ -795,9 +795,9 @@ public class DocumentService {
         }
         if (!"".equals(message)){
             message = "请上传附件" + message;
-            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultDto.setMessage(message);
             resultDto.setResult(ResultResource.CODE_SUCCESS);
-            resultDto.setData(message);
+            resultDto.setData(false);
             return  resultDto;
         }
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);

@@ -60,13 +60,12 @@ public class PublicOfferController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query",  dataType = "string"),
             @ApiImplicitParam(name = "telephonenumber", value = "手机号", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "utmSource", value = "渠道来源(除公盘外的必须传)", required = false, paramType = "query",  dataType = "string"),
+            @ApiImplicitParam(name = "utmSource", value = "渠道来源", required = false, paramType = "query",  dataType = "string"),
             @ApiImplicitParam(name = "houseStatus", value = "有 无房产", required = false, paramType = "query",  dataType = "string"),
             @ApiImplicitParam(name = "customerClassify", value = "跟进状态(暂未接通 无意向 有意向待跟踪 资质差无法操作 空号 外地 同行 内部员工 其他)", required = false, paramType = "query",  dataType = "string"),
             @ApiImplicitParam(name = "customerSource", value = "客户来源", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "mountLevle", value = "1：0-20万，2：20-50万，3:50-100万，4:100-500万，5：大于五百万 ", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "city", value = "城市", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "type", value = "公盘类型（外地公盘填1）", required = false, paramType = "query",  dataType = "int"),
             @ApiImplicitParam(name = "page", value = "查询第几页", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少", required = false, paramType = "query", dataType = "int"),
     })
@@ -80,7 +79,6 @@ public class PublicOfferController {
                                                              @RequestParam(required = false) String customerSource,
                                                              @RequestParam(required = false) String city,
                                                              @RequestParam(required = false) Integer mountLevle ,
-                                                             @RequestParam(required = false) Integer type,
                                                              @RequestParam(required = false) Integer page,
                                                              @RequestParam(required = false) Integer size,
                                                              @RequestHeader("Authorization")String token){
@@ -101,11 +99,8 @@ public class PublicOfferController {
             List<String> mainCitys=new ArrayList<String>();//主要城市
             List<Integer> subCompanyIds=new ArrayList<>();//异地分公司
             if (StringUtils.isNotEmpty(utmSource)){
-           /*     String result = theaClientService.findValueByName(token,CommonConst.SPECIAL_UTM_SOURCE);
-                JSONObject jsonObject = JSONObject.parseObject(result);
-                String specUtmSource = jsonObject.getString(utmSource);*/
                 pan.setUtmSource(utmSource);
-            }else {
+            }
                 //获取下属的城市
                 List<CityDto> subsCitys=ucService.getSubcompanyByUserId(token,userId,CommonConst.SYSTEMNAME);
                 List<String> subCitys=new ArrayList<String>();
@@ -159,14 +154,13 @@ public class PublicOfferController {
 //                for (SubCompanyCityDto subCompanyCityDto2:subCompanyCityDtoList2){
 //                    System.out.println(subCompanyCityDto2.toString());
 //                }
-            }
             pan.setCustomerName(customerName);
             pan.setTelephonenumber(telephonenumber);
             pan.setHouseStatus(houseStatus);
             pan.setCustomerClassify(customerClassify);
             pan.setCustomerSource(customerSource);
             pan.setCity(city);
-            queryResult  =panService.listByOffer(pan,userId,companyId,token,CommonConst.SYSTEMNAME,page,size,mainCitys,subCompanyIds,type,mountLevle);
+            queryResult  =panService.listByOffer(pan,userId,companyId,token,CommonConst.SYSTEMNAME,page,size,mainCitys,subCompanyIds,null,mountLevle);
             cronusDto.setData(queryResult);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
@@ -229,5 +223,134 @@ public class PublicOfferController {
             theaApiDTO.setMessage(CommonMessage.PULL_FAIL.getCodeDesc());
         }
         return theaApiDTO;
+    }
+
+    @ApiOperation(value="获取特殊公盘列表", notes="获取特殊公盘列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query",  dataType = "string"),
+            @ApiImplicitParam(name = "telephonenumber", value = "手机号", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "utmSource", value = "渠道来源(除外地公盘外的必须传)", required = false, paramType = "query",  dataType = "string"),
+            @ApiImplicitParam(name = "houseStatus", value = "有 无房产", required = false, paramType = "query",  dataType = "string"),
+            @ApiImplicitParam(name = "customerClassify", value = "跟进状态(暂未接通 无意向 有意向待跟踪 资质差无法操作 空号 外地 同行 内部员工 其他)", required = false, paramType = "query",  dataType = "string"),
+            @ApiImplicitParam(name = "customerSource", value = "客户来源", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "mountLevle", value = "1：0-20万，2：20-50万，3:50-100万，4:100-500万，5：大于五百万 ", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "city", value = "城市", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "type", value = "公盘类型（外地公盘填1）", required = false, paramType = "query",  dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "查询第几页", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "显示多少", required = false, paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/specialOfferlist", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<QueryResult<CustomerListDTO>> specialOfferlist(@RequestParam(required = false) String customerName,
+                                                             @RequestParam(required = false) String telephonenumber,
+                                                             @RequestParam(required = false) String utmSource,
+                                                             @RequestParam(required = false) String houseStatus,
+                                                             @RequestParam(required = false) String customerClassify,
+                                                             @RequestParam(required = false) String customerSource,
+                                                             @RequestParam(required = false) String city,
+                                                             @RequestParam(required = false) Integer mountLevle ,
+                                                             @RequestParam(required = false) Integer type,
+                                                             @RequestParam(required = false) Integer page,
+                                                             @RequestParam(required = false) Integer size,
+                                                             @RequestHeader("Authorization")String token){
+
+        CronusDto<QueryResult<CustomerListDTO>> cronusDto  = new CronusDto<>();
+
+        QueryResult<CustomerListDTO> queryResult=null;
+        //获取配置项
+        try{
+            //从token中获取用户信息
+            PanParamDTO pan = new PanParamDTO();
+            UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
+            Integer userId=null;
+            Integer companyId=null;
+            if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
+                userId=Integer.parseInt(userInfoDTO.getUser_id());
+            }
+            List<String> mainCitys=new ArrayList<String>();//主要城市
+            List<Integer> subCompanyIds=new ArrayList<>();//异地分公司
+            if (type == null){
+                String result = theaClientService.findValueByName(token,CommonConst.SPECIAL_UTM_SOURCE);
+                JSONObject jsonObject = JSONObject.parseObject(result);
+                String specUtmSource = jsonObject.getString(utmSource);
+                pan.setUtmSource(specUtmSource);
+            }else {
+                if (StringUtils.isNotEmpty(utmSource)) {
+                    pan.setUtmSource(utmSource);
+                }
+                //获取下属的城市
+                List<CityDto> subsCitys = ucService.getSubcompanyByUserId(token, userId, CommonConst.SYSTEMNAME);
+                List<String> subCitys = new ArrayList<String>();
+                if (!CollectionUtils.isEmpty(subsCitys)) {
+                    for (CityDto cityDto : subsCitys) {
+                        if (StringUtils.isNotEmpty(cityDto.getName())) {
+                            subCitys.add(cityDto.getName());
+                        }
+                    }
+                }
+                //获取主要城市
+                String mainCity = theaClientService.findValueByName(token, CommonConst.MAIN_CITY);
+                String[] mainCityArray = mainCity.split(",");
+                int mainCitySize = mainCityArray.length;
+                for (int i = 0; i < mainCitySize; i++) {
+                    mainCitys.add(mainCityArray[i]);
+                }
+                mainCitys.retainAll(subCitys);
+                int citySize = mainCitys.size();
+                for (int i = 0; i < citySize; i++) {
+                    String cityName = mainCitys.get(i);
+                    cityName = cityName + "''";
+                }
+                //获取下属的分公司
+                List<SubCompanyCityDto> subCompanyDtos = ucService.getAllSubCompanyByUserId(token, userId, CommonConst.SYSTEMNAME);
+                List<String> subCompanys = new ArrayList<String>();
+                List<String> remoteCitys = new ArrayList<String>();
+                if (!CollectionUtils.isEmpty(subCompanyDtos)) {
+                    for (SubCompanyCityDto subCompanyCityDto : subCompanyDtos) {
+                        if (StringUtils.isNotEmpty(subCompanyCityDto.getCityName())) {
+                            subCompanys.add(subCompanyCityDto.getCityName());
+                        }
+                    }
+                }
+                //获取异地分公司
+                String remoteCity = theaClientService.findValueByName(token, CommonConst.REMOTE_CITY);
+                String[] remoteCityArray = remoteCity.split(",");
+                int remoteCitySize = remoteCityArray.length;
+                for (int i = 0; i < remoteCitySize; i++) {
+                    remoteCitys.add(remoteCityArray[i]);
+                }
+                subCompanys.retainAll(remoteCitys);
+                //获取下属的异地分公司
+                List<SubCompanyCityDto> subCompanyCityDtoList2 = new ArrayList<>();
+                for (SubCompanyCityDto subCompanyCityDto : subCompanyDtos) {
+                    if (subCompanys.contains(subCompanyCityDto.getCityName()) && !subCompanyCityDtoList2.contains(subCompanyCityDto)) {
+                        subCompanyCityDtoList2.add(subCompanyCityDto);
+                        subCompanyIds.add(subCompanyCityDto.getSubCompanyId());
+                    }
+                }
+//                for (SubCompanyCityDto subCompanyCityDto2:subCompanyCityDtoList2){
+//                    System.out.println(subCompanyCityDto2.toString());
+//                }
+            }
+            pan.setCustomerName(customerName);
+            pan.setTelephonenumber(telephonenumber);
+            pan.setHouseStatus(houseStatus);
+            pan.setCustomerClassify(customerClassify);
+            pan.setCustomerSource(customerSource);
+            pan.setCity(city);
+            queryResult  =panService.listByOffer(pan,userId,companyId,token,CommonConst.SYSTEMNAME,page,size,mainCitys,subCompanyIds,type,mountLevle);
+            cronusDto.setData(queryResult);
+            cronusDto.setResult(CommonMessage.SUCCESS.getCode());
+            cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+        }catch (Exception e){
+            logger.error("--------------->Offerlist客户信息操作失败",e);
+            if (e instanceof CronusException){
+                CronusException cronusException = (CronusException)e;
+                throw  cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return  cronusDto;
     }
 }
