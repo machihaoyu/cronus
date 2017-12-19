@@ -212,7 +212,7 @@ public class AllocateController {
                 return theaApiDTO;
             }
         }
-        UserInfoDTO userInfoDTO=ucService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
+        UserInfoDTO userInfoDTO=resultDto.getUser_info();
         List<CustomerInfo> customerInfoList=new ArrayList<CustomerInfo>();
         try{
             customerInfoList=customerInfoService.getByIds(allocateDTO.getIds());

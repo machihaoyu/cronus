@@ -125,6 +125,7 @@ public class AllocateService {
             map.put("lastUpdateUser",userId);
             map.put("lastUpdateTime",date);
             map.put("paramsList",uniqueList);
+            map.put("own_user_name",userInfoDTO.getName());
             //判断是否是首次分配
             Map<String,Object> idMap=new HashMap<>();
             idMap.put("paramsList",uniqueList);

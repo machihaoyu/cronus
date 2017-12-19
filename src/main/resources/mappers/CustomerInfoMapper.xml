@@ -1694,6 +1694,9 @@
             <if test="lastUpdateTime != null ">
                 last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
             </if>
+            <if test="own_user_name != null ">
+                own_user_name = #{own_user_name,jdbcType=VARCHAR},
+            </if>
             own_user_id = #{ownUserId,jdbcType=INTEGER}
         </set>
         where id in
