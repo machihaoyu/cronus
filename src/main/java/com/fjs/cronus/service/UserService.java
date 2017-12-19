@@ -98,7 +98,7 @@ public class UserService {
             UserMonthInfoDTO userMonthInfoDTO = new UserMonthInfoDTO();
             userMonthInfoDTO.setUserId(Integer.valueOf(userId));
             AppUserDto appUserDto = getUserInfoByField(null, Integer.valueOf(userId), null);
-            if (appUserDto!=null) {
+            if (appUserDto != null) {
                 if (StringUtils.isNotBlank(appUserDto.getDepartment_id()) && !"null".equals(appUserDto.getDepartment_id())) {
                     userMonthInfoDTO.setDepartmentId(Integer.valueOf(appUserDto.getDepartment_id()));
                 }
@@ -182,11 +182,13 @@ public class UserService {
         /*if (null == allocateLogList || allocateLogList.size() == 0) {
             return userMonthInfoDTOList;
         }*/
-        loanIdsStr = allocateLogList.get(0).getLoanId().toString();
-        if (allocateLogList.size() > 1) {
-            for (int i = 1; i < allocateLogList.size(); i++) {
-                if (allocateLogList.get(i).getCustomerId() != null) {
-                    loanIdsStr = loanIdsStr + "," + allocateLogList.get(i).getCustomerId().toString();
+        if (allocateLogList.size() > 0) {
+            loanIdsStr = allocateLogList.get(0).getLoanId().toString();
+            if (allocateLogList.size() > 1) {
+                for (int i = 1; i < allocateLogList.size(); i++) {
+                    if (allocateLogList.get(i).getCustomerId() != null) {
+                        loanIdsStr = loanIdsStr + "," + allocateLogList.get(i).getCustomerId().toString();
+                    }
                 }
             }
         }
@@ -245,8 +247,8 @@ public class UserService {
      * @param city 城市
      * @return
      */
-    public List<Map<String,String>> getAllocateQueue(String city) {
-        List<Map<String,String>> allocateQueue = new ArrayList<>();
+    public List<Map<String, String>> getAllocateQueue(String city) {
+        List<Map<String, String>> allocateQueue = new ArrayList<>();
         String userIdsStr = allocateRedisService.getAllocateTemplet(city);
         if (StringUtils.isBlank(userIdsStr)) {
             return allocateQueue;
@@ -280,27 +282,26 @@ public class UserService {
                 citiesStr.append(",");
             }
         }
-        ThorApiDTO<List<CrmCitySubCompanyDto>> phpApiDto1 = thorUcService.getSubCompanyByCitys(token,citiesStr.toString());
+        ThorApiDTO<List<CrmCitySubCompanyDto>> phpApiDto1 = thorUcService.getSubCompanyByCitys(token, citiesStr.toString());
         crmCitySubCompanyDtoList = phpApiDto1.getData();
         return crmCitySubCompanyDtoList;
     }
 
     public AppUserDto getUserInfoByField(String telephone, Integer userId, String ownUserName) {
         AppUserDto appUserDto = null;
-        if(userId!=null){
-            String key = "USERINFO"+userId;
-            RedisTemplate<String ,Object> redisTemplate = redisConfig.valueOperations();
-            ValueOperations<String,Object> valueOperations = redisTemplate.opsForValue();
-            if(redisTemplate.hasKey(key)){
+        if (userId != null) {
+            String key = "USERINFO" + userId;
+            RedisTemplate<String, Object> redisTemplate = redisConfig.valueOperations();
+            ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+            if (redisTemplate.hasKey(key)) {
                 appUserDto = (AppUserDto) valueOperations.get(key);
             }
-            if(appUserDto!=null){
+            if (appUserDto != null) {
                 return appUserDto;
             }
         }
-        PhpApiDto<AppUserDto> apiDto = thorUcService.getUserInfoByField(telephone,publicToken, userId, ownUserName);
-        if (apiDto.getErrNum()==0)
-        {
+        PhpApiDto<AppUserDto> apiDto = thorUcService.getUserInfoByField(telephone, publicToken, userId, ownUserName);
+        if (apiDto.getErrNum() == 0) {
             appUserDto = apiDto.getRetData();
         }
         return appUserDto;
