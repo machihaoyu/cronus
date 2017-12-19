@@ -163,12 +163,12 @@ public class UserService {
         }
         //获取这些业务员的自动分配数和确认数
         Map<String, Object> allocateMap = new HashMap<>();
-        allocateMap.put("inOperation", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
+        allocateMap.put("operationsStr", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
                 "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
         String userIdsStr = CommonUtil.initStrListToStr(baseUcDTO.getRetData());
-        allocateMap.put("inNewOwnerId", userIdsStr);
-        allocateMap.put("beginDate", DateUtils.getBeginDateByStr(effectiveDate));
-        allocateMap.put("endDate", DateUtils.getEndDateByStr(effectiveDate));
+        allocateMap.put("newOwnerIds", userIdsStr);
+        allocateMap.put("createBeginDate", DateUtils.getBeginDateByStr(effectiveDate));
+        allocateMap.put("createEndDate", DateUtils.getEndDateByStr(effectiveDate));
         List<AllocateLog> allocateLogList = allocateLogService.selectByParamsMap(allocateMap);
         //计算业务员的已分配数
         for (AllocateLog allocateLog : allocateLogList) {

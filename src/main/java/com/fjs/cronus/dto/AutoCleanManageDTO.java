@@ -20,6 +20,8 @@ public class AutoCleanManageDTO {
     private String customerSource;
     @ApiModelProperty(value = "渠道")
     private String utmSource;
+    @ApiModelProperty(value = "类型 1列表添加 2添加屏蔽规则")
+    private Integer type;
     @ApiModelProperty(value = "创建时间（展开列表使用")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date createTime;
@@ -72,6 +74,14 @@ public class AutoCleanManageDTO {
         this.telephone = telephone;
     }
 
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
     @Override
     public String toString() {
         return "AutoCleanManageDTO{" +
@@ -80,6 +90,7 @@ public class AutoCleanManageDTO {
                 ", telephone='" + telephone + '\'' +
                 ", customerSource='" + customerSource + '\'' +
                 ", utmSource='" + utmSource + '\'' +
+                ", type='" + type + '\'' +
                 ", createTime=" + createTime +
                 '}';
     }

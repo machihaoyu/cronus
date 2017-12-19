@@ -163,4 +163,14 @@
       and customer_id = #{customerId}
     </if>
   </select>
+
+  <update id="update" parameterType="com.fjs.cronus.model.RContractDocument" >
+    update r_contract_document
+    <set >
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER}
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
 </mapper>

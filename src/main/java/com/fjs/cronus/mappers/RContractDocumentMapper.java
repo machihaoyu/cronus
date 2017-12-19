@@ -20,4 +20,6 @@ public interface RContractDocumentMapper{
     Integer checkCustomerIsUpload(Map<String,Object> paramsMap);
 
     List<Integer> findListByFeild(Map<String,Object> paramsMap);
+
+    void update(RContractDocument rContractDocument);
 }

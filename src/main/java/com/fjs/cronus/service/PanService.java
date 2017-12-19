@@ -53,7 +53,7 @@ public class PanService {
     @Autowired
     TheaService theaService;
     public QueryResult<CustomerListDTO> listByOffer(PanParamDTO pan, Integer userId, Integer companyId , String token, String system,
-                                                Integer page, Integer size, List<String> mainCitys, List<Integer> subCompanyIds, Integer type,Integer mountLevle) {
+                                                Integer page, Integer size, List<String> mainCitys, List<Integer> subCompanyIds, Integer type,Integer mountLevle,List<String> utmList,List<String>paramsList) {
 
         QueryResult<CustomerListDTO> result = new QueryResult<>();
         Map<String,Object> map=new HashedMap();
@@ -92,6 +92,12 @@ public class PanService {
             map.put("type",type);
             map.put("start",(page-1)*size);
             map.put("size",size);
+            if (utmList != null && utmList.size() > 0){
+                map.put("utmList",utmList);
+            }
+            if (paramsList != null && paramsList.size() > 0){
+                map.put("paramsList",paramsList);
+            }
             PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
             if (userInfoDTO == null){
                 throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
