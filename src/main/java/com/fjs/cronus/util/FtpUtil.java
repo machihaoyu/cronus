@@ -64,6 +64,7 @@ public class FtpUtil {
 			ftp.setBufferSize(1024);
 			ftp.setControlEncoding("utf-8");
 			//ftp.enterRemotePassiveMode();
+			ftp.enterLocalPassiveMode();
 			//上传文件
 			if (!ftp.storeFile(filename, input)) {
 				return result;
