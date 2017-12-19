@@ -49,9 +49,13 @@ public class FastJsonUtils {
      * @throws Exception
      * @author myclover
      */
-    public static <T> List<T> getBeanList(String jsonData, Class<T> clazz)
-            throws Exception {
-        return JSON.parseArray(jsonData, clazz);
+    public static <T> List<T> getBeanList(String jsonData, Class<T> clazz) {
+        try {
+            return JSON.parseArray(jsonData, clazz);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**

@@ -195,27 +195,30 @@ public class DocumentController {
     @ApiOperation(value="删除附件", notes="删除附件")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "documentSavepath", value = "文件存储路径", required = true, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "documentSavename", value = "文件存储名称", required = true, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "documentSavepath", value = "文件存储路径", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "documentSavename", value = "文件存储名称", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "rc_document_id", value = "文件id", required = true, paramType = "query", dataType = "int"),
 
     })
     @RequestMapping(value = "/deleteDocument",method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto  deleteDocument(@RequestParam(value = "documentSavepath",required = true) String documentSavepath,
-                                     @RequestParam(value = "documentSavename",required = true) String documentSavename){
+    public CronusDto  deleteDocument(@RequestParam(value = "documentSavepath",required = false) String documentSavepath,
+                                     @RequestParam(value = "documentSavename",required = false) String documentSavename,
+                                     @RequestParam(value = "rc_document_id",required = true) Integer rc_document_id){
         logger.info("start deleteDocument!");
         CronusDto resultDto = new CronusDto();
         //校验参数
-        if (documentSavepath == null || "".equals(documentSavepath)){
+       /* if (documentSavepath == null || "".equals(documentSavepath)){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
         if (documentSavename == null || "".equals(documentSavename)){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }*/
+        if (rc_document_id == null || "".equals(rc_document_id)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
         try {
-            resultDto  = documentService.deleteDocument(documentSavepath,documentSavename);
+            resultDto  = documentService.deleteDocument(documentSavepath,documentSavename,rc_document_id);
         }catch (Exception e) {
             logger.error("删除附件", e);
             if (e instanceof CronusException) {
