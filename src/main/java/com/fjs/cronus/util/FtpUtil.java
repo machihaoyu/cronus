@@ -224,6 +224,7 @@ public class FtpUtil {
 			ftp.changeWorkingDirectory(remotePath);// 转移到FTP服务器目录
 			//开始删除文件名
 			ftp.setFileType(FTP.BINARY_FILE_TYPE);
+			ftp.enterLocalPassiveMode();
 			FTPFile[] fs = ftp.listFiles();
 			for (FTPFile ff : fs) {
 				if (ff.getName().equals(fileName)) {
@@ -320,8 +321,10 @@ public class FtpUtil {
 		/*	FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
 			String image64 = FileBase64ConvertUitl.encodeBase64File(in);
 			System.out.println(image64);*/
-			String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/11/14/", "1510653839270371.png");
-			System.out.println(bytes.length());
+		/*	String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/11/14/", "1510653839270371.png");
+			System.out.println(bytes.length());*/
+			boolean flag = delete("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/12/19", "_S1513663486445460.png");
+			System.out.println(flag);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

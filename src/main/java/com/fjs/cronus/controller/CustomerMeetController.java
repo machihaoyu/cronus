@@ -56,7 +56,7 @@ public class CustomerMeetController {
     })
     @RequestMapping(value = "/selectCustomerMeetByCustomerId", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<CustomerMeetDTO> selectByCustomerId(@RequestParam(required = true) Integer customerId,@RequestHeader("Authorization")String token){
+    public CronusDto<List<CustomerMeetDTO>> selectByCustomerId(@RequestParam(required = true) Integer customerId,@RequestHeader("Authorization")String token){
         CronusDto theaApiDTO=new CronusDto<>();
         List<CustomerMeet> customerMeetList=null;
         List<CustomerMeetDTO> customerMeetDTOList=new ArrayList<CustomerMeetDTO>();
@@ -82,7 +82,7 @@ public class CustomerMeetController {
                 theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc());
             }
         }catch (Exception e){
-            logger.error("根据交易id获取面见记录",e);
+            logger.error("根据id获取面见记录",e);
             theaApiDTO.setResult(CommonMessage.FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc());
         }
