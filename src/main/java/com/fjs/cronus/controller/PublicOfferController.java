@@ -33,9 +33,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by msi on 2017/11/30.
@@ -91,10 +89,30 @@ public class PublicOfferController {
             //从token中获取用户信息
             PanParamDTO pan = new PanParamDTO();
             UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
+            List<String> paramsList = new ArrayList<>();
+            List<String> utmList = new ArrayList<>();
             Integer userId=null;
             Integer companyId=null;
             if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
                 userId=Integer.parseInt(userInfoDTO.getUser_id());
+            }
+            //公盘需要踢出三处客户以及过滤掉特殊渠道的
+            String result = theaClientService.findValueByName(token,CommonConst.SPECIAL_UTM_SOURCE);
+            JSONObject jsonObject = JSONObject.parseObject(result);
+            Map<String,String> valueMap = jsonObject.toJavaObject(Map.class);
+            for (String str : valueMap.values()) {
+                utmList.add(str);
+            }
+            //需要踢出三无客户盘的
+            String unableResult = theaClientService.findValueByName(token, CommonConst.CAN_NOT_ALLOCATE_CUSTOMER_CLASSIFY);
+            if (unableResult != null && !"".equals(unableResult)) {
+                String[] strArray = null;
+                strArray = unableResult.split(",");
+                for (int i = 0; i < strArray.length; i++) {
+                    paramsList.add(strArray[i]);
+                }
+            }else {
+                throw new CronusException(CronusException.Type.MESSAGE_CONNECTTHEASYSTEM_ERROR);
             }
             List<String> mainCitys=new ArrayList<String>();//主要城市
             List<Integer> subCompanyIds=new ArrayList<>();//异地分公司
@@ -160,7 +178,7 @@ public class PublicOfferController {
             pan.setCustomerClassify(customerClassify);
             pan.setCustomerSource(customerSource);
             pan.setCity(city);
-            queryResult  =panService.listByOffer(pan,userId,companyId,token,CommonConst.SYSTEMNAME,page,size,mainCitys,subCompanyIds,null,mountLevle);
+            queryResult  =panService.listByOffer(pan,userId,companyId,token,CommonConst.SYSTEMNAME,page,size,mainCitys,subCompanyIds,null,mountLevle,utmList,paramsList);
             cronusDto.setData(queryResult);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
@@ -263,6 +281,8 @@ public class PublicOfferController {
             //从token中获取用户信息
             PanParamDTO pan = new PanParamDTO();
             UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
+            List<String> paramsList = new ArrayList<>();
+            List<String> utmList = new ArrayList<>();
             Integer userId=null;
             Integer companyId=null;
             if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
@@ -276,6 +296,24 @@ public class PublicOfferController {
                 String specUtmSource = jsonObject.getString(utmSource);
                 pan.setUtmSource(specUtmSource);
             }else {
+                //公盘需要踢出三处客户以及过滤掉特殊渠道的
+                String result = theaClientService.findValueByName(token,CommonConst.SPECIAL_UTM_SOURCE);
+                JSONObject jsonObject = JSONObject.parseObject(result);
+                Map<String,String> valueMap = jsonObject.toJavaObject(Map.class);
+                for (String str : valueMap.values()) {
+                    utmList.add(str);
+                }
+                //需要踢出三无客户盘的
+                String unableResult = theaClientService.findValueByName(token, CommonConst.CAN_NOT_ALLOCATE_CUSTOMER_CLASSIFY);
+                if (unableResult != null && !"".equals(unableResult)) {
+                    String[] strArray = null;
+                    strArray = unableResult.split(",");
+                    for (int i = 0; i < strArray.length; i++) {
+                        paramsList.add(strArray[i]);
+                    }
+                }else {
+                    throw new CronusException(CronusException.Type.MESSAGE_CONNECTTHEASYSTEM_ERROR);
+                }
                 if (StringUtils.isNotEmpty(utmSource)) {
                     pan.setUtmSource(utmSource);
                 }
@@ -339,7 +377,7 @@ public class PublicOfferController {
             pan.setCustomerClassify(customerClassify);
             pan.setCustomerSource(customerSource);
             pan.setCity(city);
-            queryResult  =panService.listByOffer(pan,userId,companyId,token,CommonConst.SYSTEMNAME,page,size,mainCitys,subCompanyIds,type,mountLevle);
+            queryResult  =panService.listByOffer(pan,userId,companyId,token,CommonConst.SYSTEMNAME,page,size,mainCitys,subCompanyIds,type,mountLevle,utmList,paramsList);
             cronusDto.setData(queryResult);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());

@@ -1560,6 +1560,13 @@
                      separator="," close=")">
                 #{item}
             </foreach>
+        </if>
+        <if test="paramsList!=null and paramsList.size>0">
+            AND (cooperation_status IS NULL OR cooperation_status NOT in
+            <foreach item="item" index="index" collection="paramsList" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
             )
         </if>
         and is_deleted=0
@@ -1657,6 +1664,13 @@
         <if test="utmList != null and utmList.size() > 0">
             and utm_source not IN
             <foreach item="item" index="index" collection="utmList" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="paramsList!=null and paramsList.size>0">
+            AND (cooperation_status IS NULL OR  cooperation_status NOT in
+            <foreach item="item" index="index" collection="paramsList" open="("
                      separator="," close=")">
                 #{item}
             </foreach>
