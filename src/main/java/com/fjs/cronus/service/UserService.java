@@ -89,7 +89,7 @@ public class UserService {
     public Map<String, List<UserMonthInfoDTO>> getUserMonthInfoList(String city, Integer companyId, String effectiveDate, Integer userIdByOption) throws Exception {
         BaseUcDTO<List<String>> baseUcDTO = thorUcService.getUserIds(publicToken, null, null,
                 null, null, companyId, null);
-        if (null == baseUcDTO.getRetData() && baseUcDTO.getRetData().size() == 0) {
+        if (null == baseUcDTO.getRetData() || baseUcDTO.getRetData().size() == 0) {
             return null;
         }
         //设置初始化列表项
