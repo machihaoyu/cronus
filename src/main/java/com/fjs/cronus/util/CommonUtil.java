@@ -72,10 +72,11 @@ public class CommonUtil {
 
     public static String initStrListToStr(List<String> list) {
         StringBuffer str = new StringBuffer();
-        str.append(list.get(0));
-        for (int i = 0; i< list.size(); i++) {
-            str.append(",");
+        for (int i = 0; i < list.size(); i++) {
             str.append(list.get(i));
+            if (i < list.size() - 1) {
+                str.append(",");
+            }
         }
         return str.toString();
     }
@@ -83,7 +84,7 @@ public class CommonUtil {
     public static String initIntegerListToStr(List<Integer> list) {
         StringBuffer str = new StringBuffer();
         str.append(list.get(0));
-        for (int i = 0; i< list.size(); i++) {
+        for (int i = 0; i < list.size(); i++) {
             str.append(",");
             str.append(list.get(i));
         }
