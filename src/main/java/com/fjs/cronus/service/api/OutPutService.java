@@ -21,7 +21,7 @@ import java.util.Date;
 @Service
 public class OutPutService {
 
-    private static final String ocdcUrl = "http://beta-ocdc.fang-crm.com/Api/Index/save&key=366a192b7w17e14c54574d18c28d48e6123428ab";
+    private static final String ocdcUrl = "http://beta-ocdc.fang-crm.com/Api/Index/save&key=356a192b7oo3b06c54574d18c28d46e63as428ab";
 
 
     public void  synchronToOcdc(CustomerInfo customerInfo){
@@ -36,7 +36,62 @@ public class OutPutService {
         customerInfo.setTelephonenumber("13162706810");
         customerInfo.setCustomerName("zl");
         customerInfo.setHouseStatus("无");
-        outPutService.synchronToOcdc(customerInfo);
+        customerInfo.setCustomerSource("京东");
+        customerInfo.setUtmSource("京东");
+        String str = "{\n" +
+                "    \"customer_id\":\"\",\n" +
+                "    \"telephonenumber\":\"15244147758\",\n" +
+                "    \"customer_name\":\"名字\",\n" +
+                "    \"loan_amount\":\"100000\",\n" +
+                "    \"house_status\":\"有\",\n" +
+                "    \"customer_classify\":\"空号\",\n" +
+                "    \"cooperation_status\":\"暂未接通\",\n" +
+                "    \"age\":\"12\",\n" +
+                "    \"id_card\":\"362527199011232512\",\n" +
+                "    \"marriage\":\"已婚\",\n" +
+                "    \"sex\":\"男\",\n" +
+                "    \"province_huji\":\"\",\n" +
+                "    \"spare_phone\":\"\",\n" +
+                "    \"customer_source\":\"线下\",\n" +
+                "    \"utm_source\":\"渠道11\",\n" +
+                "    \"address\":null,\n" +
+                "    \"quick_city\":\"\",\n" +
+                "    \"house_amount\":\"一套房\",\n" +
+                "    \"house_type\":\"12\",\n" +
+                "    \"house_value\":\"12\",\n" +
+                "    \"house_area\":\"12\",\n" +
+                "    \"house_age\":\"12\",\n" +
+                "    \"house_loan\":\"是\",\n" +
+                "    \"house_alone\":\"否\",\n" +
+                "    \"house_loan_value\":\"12\",\n" +
+                "    \"quick_citys\":\"\",\n" +
+                "    \"per_description\":\"1212\",\n" +
+                "    \"city\":null,\n" +
+                "    \"owner_user_id\":\"1\",\n" +
+                "    \"sub_company_id\":\"1\",\n" +
+                "    \"creater_user_id\":\"1\",\n" +
+                "    \"create_time\":1512098404,\n" +
+                "    \"receive_time\":1512098404,\n" +
+                "    \"customer_address\":\"天津市\n" +
+                "市辖县\n" +
+                "宁河县\n" +
+                "\n" +
+                "\",\n" +
+                "    \"house_location\":\"内蒙古自治区\n" +
+                "呼和浩特市\n" +
+                "市辖区\n" +
+                "\n" +
+                "\",\n" +
+                "    \"name\":\"名字\",\n" +
+                "    \"push_status\":1,\n" +
+                "    \"push_time\":1512098404\n" +
+                "}";
+         JSONObject jsonObject = JSONObject.parseObject(str);
+        HttpClientHelper httpClientHelper = new HttpClientHelper();
+        System.out.println(jsonObject.toJSONString());
+        String result  = httpClientHelper.sendJsonHttpPost(ocdcUrl,jsonObject.toJSONString());
+        //outPutService.synchronToOcdc(customerInfo);
+        System.out.println(result);
     }
 
     public JSONObject entityToJsonObject(CustomerInfo customerInfo){
@@ -156,7 +211,5 @@ public class OutPutService {
         json.put("push_time",ts);
         json.put("cooperation_status",customerInfo.getCooperationStatus());
         return  json;
-
-
     }
 }
