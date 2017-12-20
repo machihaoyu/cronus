@@ -1531,4 +1531,16 @@ public class CustomerInfoService {
         resultDto.setData(customerInfo.getId());
         return  resultDto;
     }
+
+    public String getTelePhone(Integer customerId,String token){
+
+      CustomerInfo customerInfo = findCustomerById(customerId);
+      if(customerInfo == null ){
+          throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+      }
+      //解密
+        String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+
+       return telephone;
+    }
 }

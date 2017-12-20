@@ -866,4 +866,29 @@ public class CustomerController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
+
+    @ApiOperation(value="ezphone获取手机号", notes="ezphone获取手机号")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerId", value = "customerId", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/getTelePhone", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto getTelePhone(@RequestParam Integer customerId, @RequestHeader("Authorization") String token) {
+        CronusDto cronusDto = new CronusDto();
+        try {
+            String result = customerInfoService.getTelePhone(customerId,token);
+            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            cronusDto.setResult(ResultResource.CODE_SUCCESS);
+            cronusDto.setData(result);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->editCustomerOk提交失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
 }

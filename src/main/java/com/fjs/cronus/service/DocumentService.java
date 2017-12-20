@@ -563,8 +563,6 @@ public class DocumentService {
         if (file.getSize() > ResultResource.FILEMAXSIZE ){
             throw new CronusException(CronusException.Type.CRM_MAXSIZE_UPLOAD);
         }
-
-
         Long size = file.getSize();
         //校验文件格式
        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);

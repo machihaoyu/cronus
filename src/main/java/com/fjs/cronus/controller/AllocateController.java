@@ -137,9 +137,9 @@ public class AllocateController {
     })
     @RequestMapping(value = "/getSubUserByUserId", method = RequestMethod.GET)
     @ResponseBody
-    public PhpQueryResultDTO getSubUserByUserId(HttpServletRequest request, Integer subCompanyId, String flag,
-                                        String name, @RequestParam(required = false) Integer page,
-                                        @RequestParam(required = false) Integer pageSize) {
+    public PhpQueryResultDTO getSubUserByUserId(HttpServletRequest request, @RequestParam(required = false) Integer subCompanyId, @RequestParam(required = false) String flag,
+                                                @RequestParam(required = false)String name, @RequestParam(required = false) Integer page,
+                                                @RequestParam(required = false) Integer pageSize) {
         PhpQueryResultDTO resultDto = new PhpQueryResultDTO();
         //获取当前用户信息
         String token = request.getHeader("Authorization");
@@ -160,26 +160,22 @@ public class AllocateController {
         }
         ThorQueryDto<List<PHPUserDto>> subThorApiDTO = null;
         try {
-            List<String> list = ucService.getSubUserByUserId(token, user_id);
+            List<Integer> list = ucService.getSubUserByUserId(token, user_id);
             StringBuffer idList = new StringBuffer();
             int size = list.size();
             for (int i = 0; i < size; i++) {
+                System.out.println(list.get(i));
                 if (i != size - 1) {
                     idList.append(list.get(i) + ",");
                 } else {
-                    idList.append(list.get(i));
+                    idList.append(list.get(i) + "");
                 }
-            }
-            Integer sub_company_id = null;
-            if (StringUtils.isNotEmpty(userInfoDTO.getSub_company_id())) {
-                sub_company_id = Integer.parseInt(userInfoDTO.getSub_company_id());
             }
             if (pageSize == null) {
                 pageSize = 5;
             }
-            String department_ids = userInfoDTO.getDepartment_id();
-            subThorApiDTO = thorInterfaceService.getUserByIds(token, null, null, subCompanyId,
-                    flag, page, pageSize, name, null);
+            subThorApiDTO = thorInterfaceService.getUserByIds(token, idList.toString(), null, subCompanyId,
+                    flag, page, pageSize, name, 1);
         } catch (Exception e) {
             resultDto.setErrNum(1);
             resultDto.setErrMsg("获取信息出错");
@@ -212,7 +208,7 @@ public class AllocateController {
                 return theaApiDTO;
             }
         }
-        UserInfoDTO userInfoDTO=resultDto.getUser_info();
+        UserInfoDTO userInfoDTO=ucService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
         List<CustomerInfo> customerInfoList=new ArrayList<CustomerInfo>();
         try{
             customerInfoList=customerInfoService.getByIds(allocateDTO.getIds());
