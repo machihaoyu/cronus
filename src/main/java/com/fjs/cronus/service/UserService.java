@@ -183,7 +183,7 @@ public class UserService {
             return userMonthInfoDTOList;
         }*/
         if (allocateLogList.size() > 0) {
-            loanIdsStr = allocateLogList.get(0).getLoanId().toString();
+            loanIdsStr = allocateLogList.get(0).getCustomerId().toString();
             if (allocateLogList.size() > 1) {
                 for (int i = 1; i < allocateLogList.size(); i++) {
                     if (allocateLogList.get(i).getCustomerId() != null) {
