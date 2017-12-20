@@ -134,10 +134,10 @@ public class AutoAllocateService {
             } else {
                 customerDTO.setOwnerUserId(0);
                 switch (allocateSource.getCode()) {
-                    case "0":
                     case "1":
                         allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
                         break;
+                    case "0":
                     case "2"://推入客服系统
                         allocateEntity.setAllocateStatus(AllocateEnum.TO_SERVICE_SYSTEM);
                         try {
@@ -189,6 +189,7 @@ public class AutoAllocateService {
                             }
                             //保存数据
                             customerDTO.setLastUpdateTime(new Date());
+                            customerDTO.setOwnUserName(simpleUserInfoDTO.getName());
                             customerInfoService.addCustomer(customerDTO, token);
                             break;
                     }
