@@ -558,7 +558,7 @@ public class CustomerInfoService {
         return  resultDto;
     }
     @Transactional
-    public CronusDto<Boolean> editCustomerType(Integer customer_id ,Integer user_id,String customerTypeSta,String customerTypeEnd){
+    public CronusDto<Boolean> editCustomerType(Integer customer_id ,Integer user_id){
         CronusDto resultDto = new CronusDto();
         //根据uid查询到客户相关信息
         boolean flag = false;
@@ -574,18 +574,18 @@ public class CustomerInfoService {
             //改成协议客户
             customerInfo.setCustomerType(CustomerEnum.agreement_customer.getName());
             customerInfo.setCustomerLevel(CustomerEnum.agreement_customer.getName());
+            customerInfoMapper.updateCustomer(customerInfo);
+            CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+            Date date = new Date();
+            EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+            customerInfoLog.setLogCreateTime(date);
+            customerInfoLog.setLogDescription("签章协议");
+            customerInfoLog.setLogUserId(user_id);
+            customerInfoLog.setIsDeleted(0);
+            customerInfoLogMapper.addCustomerLog(customerInfoLog);
         }
         //开始更新
-        customerInfoMapper.updateCustomer(customerInfo);
         //生成日志记录
-        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        Date date = new Date();
-        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
-        customerInfoLog.setLogCreateTime(date);
-        customerInfoLog.setLogDescription("签章协议");
-        customerInfoLog.setLogUserId(user_id);
-        customerInfoLog.setIsDeleted(0);
-        customerInfoLogMapper.addCustomerLog(customerInfoLog);
         flag = true;
         resultDto.setData(flag);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
@@ -610,18 +610,18 @@ public class CustomerInfoService {
             //成交用户
             customerInfo.setCustomerType(CustomerEnum.conversion_customer.getName());
             customerInfo.setCustomerLevel(CustomerEnum.agreement_customer.getName());
+            //开始更新
+            customerInfoMapper.updateCustomer(customerInfo);
+            //生成日志记录
+            CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+            Date date = new Date();
+            EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+            customerInfoLog.setLogCreateTime(date);
+            customerInfoLog.setLogDescription("成交用户");
+            customerInfoLog.setLogUserId(user_id);
+            customerInfoLog.setIsDeleted(0);
+            customerInfoLogMapper.addCustomerLog(customerInfoLog);
         }
-        //开始更新
-        customerInfoMapper.updateCustomer(customerInfo);
-        //生成日志记录
-        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        Date date = new Date();
-        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
-        customerInfoLog.setLogCreateTime(date);
-        customerInfoLog.setLogDescription("成交用户");
-        customerInfoLog.setLogUserId(user_id);
-        customerInfoLog.setIsDeleted(0);
-        customerInfoLogMapper.addCustomerLog(customerInfoLog);
         flag = true;
         resultDto.setData(flag);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
