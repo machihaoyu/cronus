@@ -63,9 +63,9 @@
                     #{item}
                 </foreach>
             </if>
-            <if test=" null != operationsStr and '' != operationsStr">
-                AND operation IN (#{operationsStr})
-            </if>
+            <!--<if test=" null != operationsStr and '' != operationsStr">-->
+                AND operation IN ("自动分配","未沟通分配")
+            <!--</if>-->
             <if test="null != createBeginDate">
                 <![CDATA[	and create_time >=  #{createBeginDate }  ]]>
             </if>

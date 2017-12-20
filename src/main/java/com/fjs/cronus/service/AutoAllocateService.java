@@ -187,11 +187,15 @@ public class AutoAllocateService {
                                     customerDTO.setSubCompanyId(0);
                                 }
                                 if (null != simpleUserInfoDTO.getName())
-                                customerDTO.setOwnUserName(simpleUserInfoDTO.getName());
+                                    customerDTO.setOwnUserName(simpleUserInfoDTO.getName());
                             }
                             //保存数据
                             customerDTO.setLastUpdateTime(new Date());
-                            customerInfoService.addCustomer(customerDTO, token);
+                            CronusDto cronusDto1 = customerInfoService.addCustomer(customerDTO, token);
+                            if (cronusDto1.getResult()==0)
+                            {
+                                customerDTO.setId(Integer.parseInt(cronusDto1.getData().toString()));
+                            }
                             break;
                     }
                 }
@@ -204,7 +208,7 @@ public class AutoAllocateService {
                 case "1":
 //                    String[] cityStrArrayAll = StringUtils.split(allocateCities, ",");
 //                    if (ArrayUtils.contains(cityStrArrayAll, customerDTO.getCity())) {
-                    if(allocateCities.contains(customerDTO.getCity())){
+                    if (allocateCities.contains(customerDTO.getCity())) {
                         allocateRedisService.changeAllocateTemplet(customerDTO.getOwnerUserId(), customerDTO.getCity());
                     }
                     //如果是再分配盘的数据则标记再分配成功
@@ -217,13 +221,13 @@ public class AutoAllocateService {
                     //添加分配日志
                     CustomerInfo customerInfo = new CustomerInfo();
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
-                    allocateLogService.addAllocatelog(customerInfo, customerDTO.getOwnerUserId(),
-                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode(), null);
-                    activeChannelAddTansaction(customerDTO,token);
+                    allocateLogService.autoAllocateAddAllocatelog(customerInfo.getId(), customerDTO.getOwnerUserId(),
+                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode());
+                    activeChannelAddTansaction(customerDTO, token);
                     sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     break;
                 case "2": //WAITING_POOL
-                    sendCRMAssistantMessage(customerDTO.getCity(),customerDTO.getCustomerName(), token);
+                    sendCRMAssistantMessage(customerDTO.getCity(), customerDTO.getCustomerName(), token);
                     break;
                 case "3":
                     //添加分配日志
@@ -231,7 +235,7 @@ public class AutoAllocateService {
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfot);
                     allocateLogService.addAllocatelog(customerInfot, customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_5.getCode(), null);
-                    activeChannelAddTansaction(customerDTO,token);
+                    activeChannelAddTansaction(customerDTO, token);
                     sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     break;
                 case "4":
@@ -265,7 +269,7 @@ public class AutoAllocateService {
      *
      * @param customerDTO
      */
-    private void activeChannelAddTansaction(CustomerDTO customerDTO,String token) {
+    private void activeChannelAddTansaction(CustomerDTO customerDTO, String token) {
         if (isActiveApplicationChannel(customerDTO)) {
             LoanDTO loanDTO = new LoanDTO();
             loanDTO.setTelephonenumber(customerDTO.getTelephonenumber());
@@ -273,7 +277,7 @@ public class AutoAllocateService {
             loanDTO.setCustomerId(customerDTO.getId());
             loanDTO.setUtmSource("自申请");
             loanDTO.setCustomerName(customerDTO.getCustomerName());
-            theaClientService.inserLoan(loanDTO,token);
+            theaClientService.inserLoan(loanDTO, token);
         }
     }
 
@@ -297,7 +301,7 @@ public class AutoAllocateService {
 //                toId);
 //    }
 
-    private void sendCRMAssistantMessage(String customerCity,String customerName, String token) {
+    private void sendCRMAssistantMessage(String customerCity, String customerName, String token) {
 
         BaseUcDTO<List<CrmUserDTO>> crmUser = thorInterfaceService.getCRMUser(token, customerCity);
         List<CrmUserDTO> crmUserDTOList = crmUser.getRetData();
@@ -367,8 +371,7 @@ public class AutoAllocateService {
 //            String allocateToNoUserPool = "";
         String allocateToNoUserPool = theaClientService.getConfigByName(CommonConst.ALLOCATE_TO_NO_USER_POOL);
 
-        if (allocateToNoUserPool.contains(utmSource))
-        {
+        if (allocateToNoUserPool.contains(utmSource)) {
             allocateToPublic = true;
         }
         //判断该推送客户是否在限制渠道中/进公盘
@@ -393,12 +396,12 @@ public class AutoAllocateService {
         if (StringUtils.isBlank(userIdsStr)) {
             return 0;
         }
-//        String[] userIdsArray = userIdsStr.split(",");
+        String[] userIdsArray = userIdsStr.split(",");
         //查询这个队列里面每个人这这个月的分配数（有限）
         List<Integer> ids = CommonUtil.initStrtoIntegerList(userIdsStr);
         Map<String, Object> userMonthMap = new HashMap<>();
         userMonthMap.put("userIds", ids);
-//        userMonthMap.put("effectiveDate", TheaDateUtil.getyyyyMMForThisMonth());
+        userMonthMap.put("effectiveDate", DateUtils.getyyyyMMForThisMonth());
         List<UserMonthInfo> userMonthInfoServiceList = userMonthInfoService.selectByParamsMap(userMonthMap);
         List<AllocateLog> allocateLogList = new ArrayList<>();
         if (null != userMonthInfoServiceList && userMonthInfoServiceList.size() > 0) {
@@ -412,23 +415,29 @@ public class AutoAllocateService {
 
             Map<String, Object> allocateLogeMap = new HashMap<>();
             allocateLogeMap.put("newOwnerIds", newOwnerIds);
-            allocateLogeMap.put("operationsStr", CommonEnum.LOAN_OPERATION_TYPE_0.getCodeDesc() + "," + CommonEnum.LOAN_OPERATION_TYPE_4.getCodeDesc());
+//            allocateLogeMap.put("operationsStr", CommonEnum.LOAN_OPERATION_TYPE_0.getCodeDesc() + "," + CommonEnum.LOAN_OPERATION_TYPE_4.getCodeDesc());
             allocateLogeMap.put("createBeginDate", DateUtils.getStartTimeOfThisMonth());
             allocateLogeMap.put("createEndDate", DateUtils.getStartTimeOfNextMonth());
             allocateLogList = allocateLogService.selectByParamsMap(allocateLogeMap);
             //将查询结果重新封装为一个根据分配队列的ID结果的对象(将已分配的队列加+1)
-            for (UserMonthInfo userMonthInfo : userMonthInfoServiceList) {
-                for (AllocateLog allocateLog : allocateLogList) {
-                    if (allocateLog.getNewOwnerId().equals(userMonthInfo.getUserId())) {
-                        userMonthInfo.setAssignedCustomerNum(userMonthInfo.getAssignedCustomerNum() + 1);
+            for (int i = 0; i < userIdsArray.length; i++) {
+                String user = userIdsArray[i];
+                for (UserMonthInfo userMonthInfo : userMonthInfoServiceList) {
+                    if (user.equals(userMonthInfo.getUserId().toString())) {
+                        for (AllocateLog allocateLog : allocateLogList) {
+                            if (allocateLog.getNewOwnerId().equals(userMonthInfo.getUserId())) {
+                                userMonthInfo.setAssignedCustomerNum(userMonthInfo.getAssignedCustomerNum() + 1);
+                            }
+                        }
+                        //如果用户的已分配数>= 客户的基础分配数+奖励分配数 的输出用户ID
+                        if ((userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) > userMonthInfo.getAssignedCustomerNum()) {
+                            ownUserId = userMonthInfo.getUserId();
+                            return ownUserId;
+                        }
                     }
                 }
-                //如果用户的已分配数>= 客户的基础分配数+奖励分配数 的输出用户ID
-                if ((userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) > userMonthInfo.getAssignedCustomerNum()) {
-                    ownUserId = userMonthInfo.getUserId();
-                    return ownUserId;
-                }
             }
+
         }
         return ownUserId;
     }
@@ -490,7 +499,7 @@ public class AutoAllocateService {
 
                     } else {
                         //分配名额已经满了,向这个城市的crm助理发送短信
-                        sendCRMAssistantMessage(customerInfo.getCity(),customerInfo.getCustomerName(), token);
+                        sendCRMAssistantMessage(customerInfo.getCity(), customerInfo.getCustomerName(), token);
                         if (!failList.contains(customerInfo.getId()))
                             failList.add(customerInfo.getId());
                     }

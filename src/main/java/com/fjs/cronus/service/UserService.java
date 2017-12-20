@@ -163,8 +163,8 @@ public class UserService {
         }
         //获取这些业务员的自动分配数和确认数
         Map<String, Object> allocateMap = new HashMap<>();
-        allocateMap.put("operationsStr", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
-                "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
+//        allocateMap.put("operationsStr", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
+//                "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
 //        String userIdsStr = CommonUtil.initStrListToStr(baseUcDTO.getRetData());
         allocateMap.put("newOwnerIds", baseUcDTO.getRetData());
         allocateMap.put("createBeginDate", DateUtils.getBeginDateByStr(effectiveDate));
@@ -183,7 +183,7 @@ public class UserService {
             return userMonthInfoDTOList;
         }*/
         if (allocateLogList.size() > 0) {
-            loanIdsStr = allocateLogList.get(0).getLoanId().toString();
+            loanIdsStr = allocateLogList.get(0).getCustomerId().toString();
             if (allocateLogList.size() > 1) {
                 for (int i = 1; i < allocateLogList.size(); i++) {
                     if (allocateLogList.get(i).getCustomerId() != null) {
