@@ -1,9 +1,11 @@
 package com.fjs.cronus.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.service.DocumentService;
 import com.fjs.cronus.service.OcrInfoService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -25,7 +27,8 @@ public class OcrInfoControlller {
 
     @Autowired
     OcrInfoService ocrInfoService;
-
+    @Autowired
+    DocumentService documentService;
     @ApiOperation(value="获取附件列表", notes="获取附件列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
@@ -114,5 +117,32 @@ public class OcrInfoControlller {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
-
+    @ApiOperation(value="图文识别回调接口", notes="图文识别回调接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "jsonObject", value = "jsonObject", required = true, paramType = "body", dataType = "JSONObject"),
+    })
+    @RequestMapping(value = "/callbackOcrInfo", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto callbackOcrInfo(@RequestBody JSONObject jsonObject,@RequestHeader("Authorization") String token) {
+        CronusDto cronusDto = new CronusDto();
+        try {
+            Integer id = jsonObject.getInteger("id");
+            if (id == null || "".equals(id)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+            }
+            Integer result = documentService.addOrSaveInfo(jsonObject);
+            cronusDto.setData(result);
+            cronusDto.setResult(ResultResource.CODE_SUCCESS);
+            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            return cronusDto;
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            logger.error("--------------->callbackOcrInfo 图文识别回调接口出错", e);
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
 }
