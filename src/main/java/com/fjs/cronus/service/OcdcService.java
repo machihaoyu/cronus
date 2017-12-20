@@ -42,13 +42,13 @@ public class OcdcService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("phpSystem.customerToService")
+    @Value("${phpSystem.customerToService}")
     private String customerToService;
 
-    @Value("phpSystem.pushCallback")
+    @Value("&{phpSystem.pushCallback}")
     private String pushCallback;
 
-    @Value("phpSystem.ocdcKey")
+    @Value("&{phpSystem.ocdcKey}")
     private String ocdcKey;
 
     @Autowired
