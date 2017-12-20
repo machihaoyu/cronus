@@ -228,7 +228,8 @@ public class DocumentService {
         Map<String,Object> paramsMap = new HashMap<>();
         //检查文件是否重复
         String md5 = uploadDocumentDTO.getMd5();
-        paramsMap.put("documentMd5",md5);
+        Date date = new Date();
+     /*   paramsMap.put("documentMd5",md5);
         Document document1 = documentMapper.findByFeild(paramsMap);
         paramsMap.clear();
         Date date = new Date();
@@ -237,7 +238,7 @@ public class DocumentService {
             //throw new CronusException(CronusException.Type.)
             document = document1;
             documentId = document1.getId();
-        }else {
+        }else {*/
             //增加一条新的数据
             document.setDocumentName(uploadDocumentDTO.getName());
             document.setDocumentSavename(uploadDocumentDTO.getSavename());
@@ -259,7 +260,7 @@ public class DocumentService {
             }
             documentMapper.addDocument(document);
             documentId = document.getId();
-        }
+        //}
         if (documentId < 0){
             status = -1;
         }
@@ -581,12 +582,12 @@ public class DocumentService {
        try {
            String md5 = MD5Util.getMd5CodeInputStream(file.getInputStream());
            //开始上传图片
-           Map<String,Object> documenmap = new HashMap<>();
+        /*   Map<String,Object> documenmap = new HashMap<>();
            documenmap.put("documentMd5",md5);
            Document documentRepeat = documentMapper.findByFeild(documenmap);
            if (documentRepeat != null){
                return ResultResource.REPEATDOCUMET;
-           }
+           }*/
            CronusDto uploadDto = uploadPcStreamDocument(file.getInputStream(),name+ "." + suffix);
            if(uploadDto != null && uploadDto.getData() != null){
                String result = FastJsonUtils.obj2JsonString(uploadDto.getData());
