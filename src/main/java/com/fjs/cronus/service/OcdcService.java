@@ -106,16 +106,14 @@ public class OcdcService {
                                 allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC, token);
                             } else {//有负责人分给对应的业务员
                                 sendMail(token, customerDTO);
-                                createLoan(customerSalePushLog,token);
+                                createLoan(customerSalePushLog, token);
                             }
-                        }
-                        //是不是三无客户
-                        else {
+                        } else {
                             if (isThreeNonCustomer(customerSalePushLog) || isRepeatPushInTime(customerSalePushLog)) {
                                 ;
                             } else {
                                 //有无负责人,有负责人跟进，没有自动分配
-                                if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0) {
+                                if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
                                     //自动分配
                                     allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC, token);
                                 } else {
@@ -244,7 +242,7 @@ public class OcdcService {
      * @param customerSalePushLog
      * @return
      */
-    public void createLoan(CustomerSalePushLog customerSalePushLog,String token) {
+    public void createLoan(CustomerSalePushLog customerSalePushLog, String token) {
         CustomerInfo customerInfo = new CustomerInfo();
         LoanDTO loan = new LoanDTO();
         if (null != customerSalePushLog.getCustomerId()) {
@@ -263,7 +261,7 @@ public class OcdcService {
             loan.setCreateTime(customerSalePushLog.getCreateTime());
         }
         loan.setUtmSource("自申请");
-        theaClientService.inserLoan(loan,token);
+        theaClientService.inserLoan(loan, token);
     }
 
     /**
