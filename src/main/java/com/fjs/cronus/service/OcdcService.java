@@ -107,10 +107,11 @@ public class OcdcService {
                             } else {//有负责人分给对应的业务员
                                 sendMail(token, customerDTO);
                                 createLoan(customerSalePushLog, token);
+                                allocateEntity.setSuccess(true);
                             }
                         } else {
                             if (isThreeNonCustomer(customerSalePushLog) || isRepeatPushInTime(customerSalePushLog)) {
-                                ;
+                                allocateEntity.setSuccess(true);
                             } else {
                                 //有无负责人,有负责人跟进，没有自动分配
                                 if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
@@ -119,6 +120,7 @@ public class OcdcService {
                                 } else {
                                     //发消息业务员，提醒跟进
                                     sendMail(token, customerDTO);
+                                    allocateEntity.setSuccess(true);
                                 }
                             }
                         }
@@ -146,7 +148,12 @@ public class OcdcService {
                                 break;
                         }
                     }
-                    successlist.add(customerSalePushLog.getOcdcId().toString());
+                    if (allocateEntity.isSuccess()) {
+                        successlist.add(customerSalePushLog.getOcdcId().toString());
+                    }
+                    else {
+                        failList.add(customerSalePushLog.getOcdcId().toString());
+                    }
                 } catch (RuntimeException e) {
                     logger.warn(e.getMessage());
                     failList.add(customerSalePushLog.getOcdcId().toString());
@@ -514,7 +521,7 @@ public class OcdcService {
                 successes.append(",");
         }
         for (int i = 0; i < failList.size(); i++) {
-            successes.append(failList.get(i));
+            fails.append(failList.get(i));
             if (i < failList.size() - 1)
                 fails.append(",");
         }
