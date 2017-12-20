@@ -199,6 +199,8 @@ public class CronusException extends BaseException {
         CRM_CONNECT_ERROR("6092","链接交易系统，添加交易信息失败"),
 
 		AUTO_CLEAN_ERROR("6091","自动清洗错误"),
+
+
         ;
         private String status;
         private String error;
