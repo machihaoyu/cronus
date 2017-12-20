@@ -71,4 +71,6 @@ public class ResultResource {
     public static String DOWNLOADSUFFX = "/";
 
     public static String PHNOEERROR ="手机号已存在";
+
+    public static String REPEATDOCUMET = "附件包含已经上传过的附件，请重新选择";
 }

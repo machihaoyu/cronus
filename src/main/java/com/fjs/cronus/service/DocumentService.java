@@ -10,6 +10,7 @@ import com.fjs.cronus.dto.UploadDocumentDto;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.ocr.*;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
+import com.fjs.cronus.dto.uc.UserSortInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.*;
 import com.fjs.cronus.model.CustomerInfo;
@@ -159,6 +160,7 @@ public class DocumentService {
             //如果不足三位前面补0 图片新名称
             String name = millis + String.format("%03d", end3);
             //生成文件md5
+            Map<String,Object>  documenmap = new HashMap<>();
             String md5 = MD5Util.getMd5Code(uploadDocumentDto.getImageBase64());
             CronusDto uploadDto = uploadStreamDocument(uploadDocumentDto.getImageBase64(),name+ "." + type);
             //生成缩略图
@@ -231,13 +233,10 @@ public class DocumentService {
         paramsMap.clear();
         Date date = new Date();
         if (document1 != null){
+            //此附件已经上传
+            //throw new CronusException(CronusException.Type.)
             document = document1;
             documentId = document1.getId();
-            //判断是不是同一个客户上传的
-      /*      Map<String ,Object> map = new HashMap<>();
-            map.put("documentId",documentId);
-            RContractDocument rContractDocument = rContractDocumentMapper.findByFeild(map);*/
-
         }else {
             //增加一条新的数据
             document.setDocumentName(uploadDocumentDTO.getName());
@@ -584,6 +583,12 @@ public class DocumentService {
        try {
            String md5 = MD5Util.getMd5CodeInputStream(file.getInputStream());
            //开始上传图片
+           Map<String,Object> documenmap = new HashMap<>();
+           documenmap.put("documentMd5",md5);
+           Document documentRepeat = documentMapper.findByFeild(documenmap);
+           if (documentRepeat != null){
+               return ResultResource.REPEATDOCUMET;
+           }
            CronusDto uploadDto = uploadPcStreamDocument(file.getInputStream(),name+ "." + suffix);
            if(uploadDto != null && uploadDto.getData() != null){
                String result = FastJsonUtils.obj2JsonString(uploadDto.getData());
@@ -847,7 +852,7 @@ public class DocumentService {
         //参数类型转换
         customerIdParam = customerInfoDTO.getId();
 
-        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEM_NAME_ENGLISH);
+        UserSortInfoDTO userInfoDTO = ucService.getSortUserInfo(token);
         if (userInfoDTO == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
