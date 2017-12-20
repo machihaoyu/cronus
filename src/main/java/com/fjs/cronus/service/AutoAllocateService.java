@@ -189,6 +189,7 @@ public class AutoAllocateService {
                             }
                             //保存数据
                             customerDTO.setLastUpdateTime(new Date());
+                            customerDTO.setOwnUserName(simpleUserInfoDTO.getName());
                             customerInfoService.addCustomer(customerDTO, token);
                             break;
                     }
