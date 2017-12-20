@@ -200,8 +200,9 @@ public class AutoAllocateService {
                 case "0":
                     break;
                 case "1":
-                    String[] cityStrArrayAll = StringUtils.split(allocateCities, ",");
-                    if (ArrayUtils.contains(cityStrArrayAll, customerDTO.getCity())) {
+//                    String[] cityStrArrayAll = StringUtils.split(allocateCities, ",");
+//                    if (ArrayUtils.contains(cityStrArrayAll, customerDTO.getCity())) {
+                    if(allocateCities.contains(customerDTO.getCity())){
                         allocateRedisService.changeAllocateTemplet(customerDTO.getOwnerUserId(), customerDTO.getCity());
                     }
                     //如果是再分配盘的数据则标记再分配成功
@@ -364,14 +365,18 @@ public class AutoAllocateService {
 //            String allocateToNoUserPool = "";
         String allocateToNoUserPool = theaClientService.getConfigByName(CommonConst.ALLOCATE_TO_NO_USER_POOL);
 
-        //判断该推送客户是否在限制渠道中/进公盘
-        String[] utmSourceStrArray;
-        if (StringUtils.isNotBlank(allocateToNoUserPool)) {
-            utmSourceStrArray = allocateToNoUserPool.split(",");
-            if (ArrayUtils.contains(utmSourceStrArray, utmSource)) {
-                allocateToPublic = true;
-            }
+        if (allocateToNoUserPool.contains(utmSource))
+        {
+            allocateToPublic = true;
         }
+        //判断该推送客户是否在限制渠道中/进公盘
+//        String[] utmSourceStrArray;
+//        if (StringUtils.isNotBlank(allocateToNoUserPool)) {
+//            utmSourceStrArray = allocateToNoUserPool.split(",");
+//            if (ArrayUtils.contains(utmSourceStrArray, utmSource)) {
+//                allocateToPublic = true;
+//            }
+//        }
         return allocateToPublic;
     }
 
