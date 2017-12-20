@@ -57,13 +57,12 @@ public class CommunicationLogController {
     })
     @RequestMapping(value = "/selectByCustomerId", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<CustomerUsefulDTO> selectByCustomerId(@RequestParam(required = true) Integer customerId, HttpServletRequest request){
+    public CronusDto<CustomerUsefulDTO> selectByCustomerId(@RequestParam(required = true) Integer customerId,@RequestHeader("Authorization")String token){
         CronusDto theaApiDTO=new CronusDto<>();
         CustomerUsefulDTO customerUsefulDTO =null;
-        String token=request.getHeader("Authorization");
         try{
             if (customerId != null){
-                customerUsefulDTO=communicationLogService.findByCustomerId(customerId);
+                customerUsefulDTO=communicationLogService.findByCustomerId(customerId,token);
                 theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
             }else{

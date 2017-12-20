@@ -3,6 +3,7 @@ package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.api.thea.MailDTO;
+import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.CommunicationDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
@@ -10,6 +11,7 @@ import com.fjs.cronus.dto.thea.CommunicationLogDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 
 import com.fjs.cronus.dto.thea.CustomerUsefulDTO;
+import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CommunicationLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
@@ -17,6 +19,7 @@ import com.fjs.cronus.mappers.CustomerMeetMapper;
 import com.fjs.cronus.model.*;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
 import org.apache.commons.lang3.StringUtils;
@@ -61,7 +64,7 @@ public class CommunicationLogService {
         customerUsefulDTO.setHouseStatus(customerUsefulDTO.getHouseStatus());
         //修改客户
         //有效客户
-        if(customerUsefulDTO.getLoanAmount() != null){
+        if(customerUsefulDTO.getLoanAmount() != null && Integer.valueOf(customerUsefulDTO.getLoanAmount().toString()) > 0){
             CustomerUseful customerUseful = customerUsefulService.selectByCustomerId(customerUsefulDTO.getCustomerId());
             if (customerUseful == null){
                 customerUseful=customerUsefulService.copyProperty(customerUsefulDTO);
@@ -142,8 +145,12 @@ public class CommunicationLogService {
 
     }
 
-    public CustomerUsefulDTO findByCustomerId(Integer customerId){
-        Map<String,Object> paramsMap = new HashMap<>();
+    public CustomerUsefulDTO findByCustomerId(Integer customerId,String token){
+        CustomerUsefulDTO customerUsefulDTO = new CustomerUsefulDTO();
+        PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
+        Integer lookphone = Integer.valueOf(userInfoDTO.getUser_info().getLook_phone());
+        Integer userId = Integer.valueOf(userInfoDTO.getUser_info().getUser_id());
+      /*  Map<String,Object> paramsMap = new HashMap<>();
         Example example=new Example(CommunicationLog.class);
         CustomerUsefulDTO customerUsefulDTO = new CustomerUsefulDTO();
         CommunicationLog communicationLog = new CommunicationLog();
@@ -174,12 +181,68 @@ public class CommunicationLogService {
             customerUsefulDTO.setIsMeet(CommonConst.IS_MEET__YES);
             customerUsefulDTO.setMeetTime(customerMeet.getMeetTime());
         }
-
-        customerUsefulDTO.setTelephonenumber(customerInfo.getTelephonenumber());
+        String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+        customerUsefulDTO.setTelephonenumber(telephone);
         customerUsefulDTO.setLoanAmount(customerUseful.getLoanAmount());
         customerUsefulDTO.setNextContactTime(communicationLog.getNextContactTime());
         customerUsefulDTO.setPurpose(customerUseful.getPurpose());
-        customerUsefulDTO.setPurposeDescribe(customerUseful.getPurposeDescribe());
+        customerUsefulDTO.setPurposeDescribe(customerUseful.getPurposeDescribe());*/
+        Map<String,Object> paramsMap = new HashMap<>();
+        Example example=new Example(CommunicationLog.class);
+        CommunicationLog communicationLog = new CommunicationLog();
+        Example.Criteria criteria=example.createCriteria();
+        criteria.andEqualTo("customerId",customerId);
+        example.setOrderByClause("create_time desc");
+        List<CommunicationLog> communicationLogList = communicationLogMapper.selectByExample(example);
+        //取最近的一次
+        if (communicationLogList != null && communicationLogList.size() > 0){
+            communicationLog = communicationLogList.get(0);
+            customerUsefulDTO.setNextContactTime(communicationLog.getNextContactTime());
+        }
+        paramsMap.put("customerId",customerId);
+        List<CustomerMeet> customerMeets = customerMeetMapper.findByFeild(paramsMap);
+        if (customerMeets == null || customerMeets.size() == 0){
+            customerUsefulDTO.setIsMeet(CommonConst.IS_MEET_NO);
+        }else {
+            CustomerMeet customerMeet = customerMeets.get(0);
+            customerUsefulDTO.setIsMeet(CommonConst.IS_MEET__YES);
+            customerUsefulDTO.setMeetTime(customerMeet.getMeetTime());
+        }
+        CustomerInfo customerInfo = customerService.findCustomerById(customerId);
+        customerUsefulDTO.setId(customerInfo.getId());
+        customerUsefulDTO.setCustomerId(customerInfo.getId());
+        customerUsefulDTO.setCooperationStatus(customerInfo.getCooperationStatus());
+        if (customerInfo == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        if (lookphone == 1) {//查看自己
+            if (userId.equals(customerInfo.getOwnUserId())) {
+                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+                customerUsefulDTO.setTelephonenumber(telephone);
+            }else {
+                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+                String phoneNumber = telephone.substring(0, 7) + "****";
+                customerUsefulDTO.setTelephonenumber(phoneNumber);
+            }
+        }else if (lookphone == 2){//查看全部
+            String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+            customerUsefulDTO.setTelephonenumber(telephone);
+        }
+        if (customerInfo.getConfirm() == 2 || customerInfo.getConfirm() == 3){
+            //查询有效客户
+            CustomerUseful customerUseful = customerUsefulService.selectByCustomerId(customerId);
+            if (customerUseful != null){
+                customerUsefulDTO.setHouseStatus(customerUseful.getHouseStatus());
+                //判断手机号
+                customerUsefulDTO.setLoanAmount(customerUseful.getLoanAmount());
+                customerUsefulDTO.setPurposeDescribe(customerUseful.getPurposeDescribe());
+                customerUsefulDTO.setPurpose(customerUseful.getPurpose());
+            }
+        }else {
+            customerUsefulDTO.setLoanAmount(customerInfo.getLoanAmount());
+            customerUsefulDTO.setHouseStatus(customerInfo.getHouseStatus());
+        }
+
 
         return customerUsefulDTO;
     }
