@@ -45,10 +45,10 @@ public class OcdcService {
     @Value("${phpSystem.customerToService}")
     private String customerToService;
 
-    @Value("&{phpSystem.pushCallback}")
+    @Value("${phpSystem.pushCallback}")
     private String pushCallback;
 
-    @Value("&{phpSystem.ocdcKey}")
+    @Value("${phpSystem.ocdcKey}")
     private String ocdcKey;
 
     @Autowired
