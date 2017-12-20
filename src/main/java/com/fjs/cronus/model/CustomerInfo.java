@@ -59,7 +59,7 @@ public class CustomerInfo extends BaseModel {
 
     private String callbackStatus;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date callbackTime;
 
     private Integer subCompanyId;
@@ -69,6 +69,7 @@ public class CustomerInfo extends BaseModel {
     private String perDescription;
 
     //新版本添加字段
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date expectMoneyTime;
 
     private String expectLoanTime;
@@ -141,7 +142,7 @@ public class CustomerInfo extends BaseModel {
 
     private String ownUserName;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date receiveTime;
 
     private Integer circle;
@@ -155,7 +156,7 @@ public class CustomerInfo extends BaseModel {
     private String level;
 
     private Integer remain;
-
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date viewTime;
 
     private Integer viewUid;
@@ -163,9 +164,9 @@ public class CustomerInfo extends BaseModel {
     private Integer viewCount;
 
     private Integer autostatus;
-
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date firstCommunicateTime;
-
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date firstAllocateTime;
 
     private String  cooperationStatus;
@@ -173,7 +174,7 @@ public class CustomerInfo extends BaseModel {
     private Integer  confirm;
 
     private Integer clickCommunicateButton;
-
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date communicateTime;
 
     private Integer companyId;
