@@ -5,14 +5,13 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.model.CustomerInfo;
-import com.fjs.cronus.util.DEC3Util;
-import com.fjs.cronus.util.DateUtils;
-import com.fjs.cronus.util.HttpClientHelper;
-import com.fjs.cronus.util.MultiThreadedHttpConnection;
+import com.fjs.cronus.util.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 对外接口
@@ -25,22 +24,22 @@ public class OutPutService {
 
 
     public void  synchronToOcdc(CustomerInfo customerInfo){
-        JSONObject jsonObject = entityToJsonObject(customerInfo);
-        CronusDto result  = MultiThreadedHttpConnection.getInstance().sendDataByPost(ocdcUrl,jsonObject.toJSONString());
+        Map jsonObject = entityToJsonObject(customerInfo);
+        CronusDto result  = MultiThreadedHttpConnection.getInstance().sendPostByMap(ocdcUrl,jsonObject);
         System.out.println(result);
     }
-    public static void main(String args[]){
+  /*  public static void main(String args[]){
         OutPutService outPutService = new OutPutService();
         CustomerInfo customerInfo = new CustomerInfo();
-        customerInfo.setId(101);
+   *//*     customerInfo.setId(101);
         customerInfo.setTelephonenumber("13162706810");
         customerInfo.setCustomerName("zl");
         customerInfo.setHouseStatus("无");
         customerInfo.setCustomerSource("京东");
-        customerInfo.setUtmSource("京东");
+        customerInfo.setUtmSource("京东");*//*
         String str = "{\n" +
-                "    \"customer_id\":\"\",\n" +
-                "    \"telephonenumber\":\"15244147758\",\n" +
+                "    \"customer_id\":\"131\",\n" +
+                "    \"telephonenumber\":\"filUhyU9JwtGrZ13MHuXOw==\",\n" +
                 "    \"customer_name\":\"名字\",\n" +
                 "    \"loan_amount\":\"100000\",\n" +
                 "    \"house_status\":\"有\",\n" +
@@ -86,18 +85,21 @@ public class OutPutService {
                 "    \"push_status\":1,\n" +
                 "    \"push_time\":1512098404\n" +
                 "}";
-         JSONObject jsonObject = JSONObject.parseObject(str);
+        JSONObject jsonObject = JSONObject.parseObject(str);
+        customerInfo = FastJsonUtils.getSingleBean(jsonObject.toJSONString(),CustomerInfo.class);
+        customerInfo.setId(jsonObject.getInteger("customer_id"));
         HttpClientHelper httpClientHelper = new HttpClientHelper();
         System.out.println(jsonObject.toJSONString());
-        String result  = httpClientHelper.sendJsonHttpPost(ocdcUrl,jsonObject.toJSONString());
+        Map map = outPutService.entityToJsonObject(customerInfo);
+        CronusDto result  = MultiThreadedHttpConnection.getInstance().sendPostByMap(ocdcUrl,map);
         //outPutService.synchronToOcdc(customerInfo);
-        System.out.println(result);
-    }
+        System.out.println(result.getData());
+    }*/
 
-    public JSONObject entityToJsonObject(CustomerInfo customerInfo){
+    public Map entityToJsonObject(CustomerInfo customerInfo){
 
-        JSONObject json = new JSONObject();
-        json.put("customer_id",customerInfo.getId());
+        Map<String,String> json = new HashMap();
+        json.put("customer_id",customerInfo.getId().toString());
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
             String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
             json.put("telephonenumber",telephone);
@@ -167,17 +169,17 @@ public class OutPutService {
             json.put("customer_classify",customerInfo.getCustomerClassify());
         }
         if (!StringUtils.isEmpty(customerInfo.getSubCompanyId())){
-            json.put("sub_company_id",customerInfo.getSubCompanyId());
+            json.put("sub_company_id",customerInfo.getSubCompanyId().toString());
         }
 
         if (!StringUtils.isEmpty(customerInfo.getCreateTime())){
             Date time = DateUtils.parse(DateUtils.format(customerInfo.getCreateTime(),DateUtils.FORMAT_LONG),DateUtils.FORMAT_LONG);
             long ts = time.getTime()/1000;
-            json.put("create_time",ts);
+            json.put("create_time",String.valueOf(ts));
         }
 
         if (!StringUtils.isEmpty(customerInfo.getCreateUser())){
-            json.put("creater_user_id",customerInfo.getCreateUser());
+            json.put("creater_user_id",customerInfo.getCreateUser().toString());
         }
 
         if (!StringUtils.isEmpty(customerInfo.getHouseAlone())){
@@ -188,7 +190,7 @@ public class OutPutService {
         }
 
         if (!StringUtils.isEmpty(customerInfo.getOwnUserId())){
-            json.put("owner_user_id",customerInfo.getOwnUserId());
+            json.put("owner_user_id",customerInfo.getOwnUserId().toString());
         }
         if (!StringUtils.isEmpty(customerInfo.getUtmSource())){
             json.put("utm_source",customerInfo.getUtmSource());
@@ -197,18 +199,18 @@ public class OutPutService {
             json.put("customer_source",customerInfo.getCustomerSource());
         }
         if (!StringUtils.isEmpty(customerInfo.getLoanAmount())){
-            json.put("loan_amount",customerInfo.getLoanAmount());
+            json.put("loan_amount",customerInfo.getLoanAmount().toString());
         }
         if (!StringUtils.isEmpty(customerInfo.getReceiveTime())){
             Date time = DateUtils.parse(DateUtils.format(customerInfo.getReceiveTime(),DateUtils.FORMAT_LONG),DateUtils.FORMAT_LONG);
             long ts = time.getTime()/1000;
-            json.put("receive_time",ts);
+            json.put("receive_time",String.valueOf(ts));
         }
         Date date = new Date();
         Date time = DateUtils.parse(DateUtils.format(date,DateUtils.FORMAT_LONG),DateUtils.FORMAT_LONG);
         long ts = time.getTime()/1000;
-        json.put("push_status",1);
-        json.put("push_time",ts);
+        json.put("push_status","1");
+        json.put("push_time",String.valueOf(ts));
         json.put("cooperation_status",customerInfo.getCooperationStatus());
         return  json;
     }
