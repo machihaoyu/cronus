@@ -357,17 +357,6 @@ public class CustomerInfoService {
     public CronusDto editCustomerOk(CustomerDTO customerDTO, String token){
         CronusDto resultDto = new CronusDto();
         //校验权限
-
-        PHPLoginDto userInfo = ucService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
-        String[] authority=userInfo.getAuthority();
-        if(authority.length>0){
-            List<String> authList= Arrays.asList(authority);
-            if (authList.contains(CommonConst.UPDATE_LOAN_URL)){
-                resultDto.setResult(CommonMessage.UPDATE_FAIL.getCode());
-                resultDto.setMessage(CommonConst.NO_AUTHORIZE);
-                return resultDto;
-            }
-        }
         //校验参数手机号不更新
         Integer user_id = ucService.getUserIdByToken(token);
         if (user_id == null){

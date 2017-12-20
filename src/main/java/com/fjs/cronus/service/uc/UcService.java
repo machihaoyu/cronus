@@ -99,7 +99,6 @@ public class UcService {
         return ucUserDTO;
     }
 
-    //校验是否有权限进行编辑
     public Integer getUserIdByToken(String token){
         Integer user_id = null;
         CronusDto resultDto = new CronusDto();

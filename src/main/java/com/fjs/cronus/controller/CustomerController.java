@@ -845,5 +845,25 @@ public class CustomerController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
-
+    @ApiOperation(value="C端提交编辑客户信息", notes="C端提交编辑客户信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerDTO", value = "customerDTO", required = true, paramType = "body", dataType = "CustomerDTO")
+    })
+    @RequestMapping(value = "/editClientCustomerOk", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto editClientCustomerOk(@RequestBody CustomerDTO customerDTO, @RequestHeader("Authorization") String token) {
+        CronusDto cronusDto = new CronusDto();
+        try {
+            cronusDto = customerInfoService.editCustomerOk(customerDTO,token);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->editCustomerOk提交失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
 }
