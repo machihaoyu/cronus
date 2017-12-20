@@ -186,10 +186,11 @@ public class AutoAllocateService {
                                 } else {
                                     customerDTO.setSubCompanyId(0);
                                 }
+                                if (null != simpleUserInfoDTO.getName())
+                                customerDTO.setOwnUserName(simpleUserInfoDTO.getName());
                             }
                             //保存数据
                             customerDTO.setLastUpdateTime(new Date());
-                            customerDTO.setOwnUserName(simpleUserInfoDTO.getName());
                             customerInfoService.addCustomer(customerDTO, token);
                             break;
                     }
