@@ -106,11 +106,11 @@ public class CustomerInfoService {
         if (remain != null){
             paramsMap.put("remain",remain);
         }
-        if (level != null){
+        if (!StringUtils.isEmpty(level )){
             paramsMap.put("level",level);
         }
         //手机需要解密加密
-        if (telephonenumber != null){
+        if (!StringUtils.isEmpty(telephonenumber)){
               paramsMap.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
         }
         //获取下属员工
