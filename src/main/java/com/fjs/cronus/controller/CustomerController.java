@@ -855,7 +855,7 @@ public class CustomerController {
     public CronusDto editClientCustomerOk(@RequestBody CustomerDTO customerDTO, @RequestHeader("Authorization") String token) {
         CronusDto cronusDto = new CronusDto();
         try {
-            cronusDto = customerInfoService.editCustomerOk(customerDTO,token);
+            cronusDto = customerInfoService.editClientCustomerOk(customerDTO,token);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->editCustomerOk提交失败", e);

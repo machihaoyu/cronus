@@ -14,6 +14,7 @@ import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.uc.UserSortInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.AllocateLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
@@ -1473,5 +1474,61 @@ public class CustomerInfoService {
     public void batchUpdate(Map<String,Object> paramsMap)
     {
         customerInfoMapper.batchUpdate(paramsMap);
+    }
+
+
+
+    /**
+     * 提交编辑用户
+     * @return
+     */
+    @Transactional
+    public CronusDto editClientCustomerOk(CustomerDTO customerDTO, String token){
+        CronusDto resultDto = new CronusDto();
+        //校验权限
+        //校验参数手机号不更新
+        UserSortInfoDTO userSortInfoDTO = ucService.getSortUserInfo(token);
+        if (userSortInfoDTO == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "信息出错!");
+        }
+        Map<String,Object> paramsMap = new HashMap<>();
+        if (customerDTO.getId() == null || "".equals(customerDTO.getId()) ){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        if (customerDTO.getCustomerName() == null || "".equals(customerDTO.getCustomerName()) ){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMERNAME_ERROR);
+        }
+        if (customerDTO.getHouseStatus() == null || "".equals(customerDTO.getHouseStatus())){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEHOUSE_ERROR);
+        }
+        Integer id = customerDTO.getId();
+        paramsMap.put("id",id);
+        CustomerInfo customerInfo  = customerInfoMapper.findByFeild(paramsMap);
+        if (customerInfo == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        Date date = new Date();
+        EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
+        customerInfo.setRetirementWages(customerDTO.getRetirementWages());
+        List<EmplouInfo> emplouInfos= customerDTO.getEmployedInfo();
+        if (emplouInfos != null && emplouInfos.size() > 0) {
+            String jsonString = JSONArray.toJSONString(emplouInfos);
+            customerInfo.setEmployedInfo(jsonString);
+        }
+        customerInfo.setLastUpdateTime(date);
+        customerInfo.setLastUpdateUser(Integer.valueOf(userSortInfoDTO.getUser_id()));
+        customerInfoMapper.updateCustomer(customerInfo);
+        //生成日志记录
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription("编辑客户信息");
+        customerInfoLog.setLogUserId(Integer.valueOf(userSortInfoDTO.getUser_id()));
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(customerInfo.getId());
+        return  resultDto;
     }
 }

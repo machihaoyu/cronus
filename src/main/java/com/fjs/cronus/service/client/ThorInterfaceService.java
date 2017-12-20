@@ -511,5 +511,9 @@ public interface ThorInterfaceService {
     @RequestMapping(value = "/api/v1/getCurrentUserInfo", method = RequestMethod.GET)
     CronusDto<UserInfoDTO> getUserInfoByToken(@RequestHeader("Authorization") String token, @RequestParam(value = "systemName") String systemName);
 
+
+    @RequestMapping(value = "/api/v1/getSortUserInfo", method = RequestMethod.GET)
+    CronusDto<UserSortInfoDTO> getSortUserInfo(@RequestHeader("Authorization") String token);
+
 }
 

@@ -13,10 +13,7 @@ import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.BaseUcDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
-import com.fjs.cronus.dto.uc.CrmCitySubCompanyDto;
-import com.fjs.cronus.dto.uc.SubCompanyCityDto;
-import com.fjs.cronus.dto.uc.ThorQueryDto;
-import com.fjs.cronus.dto.uc.UserInfoDTO;
+import com.fjs.cronus.dto.uc.*;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import com.fjs.cronus.service.redis.UcRedisService;
@@ -222,5 +219,12 @@ public class UcService {
         return  companyDtos;
     }
 
-
+   public UserSortInfoDTO getSortUserInfo(String token) {
+       UserSortInfoDTO userSortInfoDTO = new UserSortInfoDTO();
+       CronusDto<UserSortInfoDTO> result = thorInterfaceService.getSortUserInfo(token);
+       if (result.getData() != null) {
+           userSortInfoDTO = result.getData();
+       }
+       return userSortInfoDTO;
+   }
 }

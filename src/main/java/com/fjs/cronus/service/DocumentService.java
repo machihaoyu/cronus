@@ -233,6 +233,11 @@ public class DocumentService {
         if (document1 != null){
             document = document1;
             documentId = document1.getId();
+            //判断是不是同一个客户上传的
+      /*      Map<String ,Object> map = new HashMap<>();
+            map.put("documentId",documentId);
+            RContractDocument rContractDocument = rContractDocumentMapper.findByFeild(map);*/
+
         }else {
             //增加一条新的数据
             document.setDocumentName(uploadDocumentDTO.getName());
