@@ -77,7 +77,7 @@ public class CommentController {
                 return theaApiDTO;
             }
             Integer ownUserId = communicationLog.getCreateUser();
-            List<String> idList = new ArrayList<String>();
+            List<Integer> idList = new ArrayList<Integer>();
             if (StringUtils.isNotEmpty(userInfoDTO.getData_type())) {
                 Integer dataType = Integer.parseInt(userInfoDTO.getData_type());
                 //查看下属
