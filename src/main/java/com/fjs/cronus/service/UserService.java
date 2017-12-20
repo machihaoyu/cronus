@@ -163,8 +163,8 @@ public class UserService {
         }
         //获取这些业务员的自动分配数和确认数
         Map<String, Object> allocateMap = new HashMap<>();
-        allocateMap.put("operationsStr", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
-                "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
+//        allocateMap.put("operationsStr", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
+//                "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
 //        String userIdsStr = CommonUtil.initStrListToStr(baseUcDTO.getRetData());
         allocateMap.put("newOwnerIds", baseUcDTO.getRetData());
         allocateMap.put("createBeginDate", DateUtils.getBeginDateByStr(effectiveDate));

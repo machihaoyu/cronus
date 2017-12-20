@@ -99,16 +99,18 @@ public class AllocateRedisService {
             return null;
         } else {
             String[] userIdsArray = userIds.split(",");
+            String[] newUserIdsArray = null;
             String userIdStr = userId.toString();
             for (int i = 0 ; i< userIdsArray.length; i++) {
                 if (userIdStr.equals(userIdsArray[i])) {
-                    ArrayUtils.remove(userIdsArray, i);
+                    newUserIdsArray = ArrayUtils.remove(userIdsArray, i);
+                    break;
                 }
             }
-            userIdsArray = ArrayUtils.remove(userIdsArray,0);
-            userIdsArray = ArrayUtils.add(userIdsArray, userIdStr);
+//            userIdsArray = ArrayUtils.remove(userIdsArray,0);
+            newUserIdsArray = ArrayUtils.add(newUserIdsArray, userIdStr);
             //拼接
-            userIds = CommonUtil.queryStrArrayToStr(userIdsArray);
+            userIds = CommonUtil.queryStrArrayToStr(newUserIdsArray);
             userIds = this.setAllocateTemplete(userIds, city);
         }
         return userIds;
