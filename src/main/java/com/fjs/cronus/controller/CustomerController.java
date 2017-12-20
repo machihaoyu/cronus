@@ -321,13 +321,6 @@ public class CustomerController {
         if (user_id == null){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
-        if (customerTypeSta == null || "".equals(customerTypeSta)){
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
-        }
-        if (customerTypeEnd == null || "".equals(customerTypeEnd)){
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
-        }
-
         try {
             cronusDto = customerInfoService.editCustomerType(customer_id,user_id,customerTypeSta,customerTypeEnd);
             return cronusDto;
@@ -359,13 +352,6 @@ public class CustomerController {
         if (user_id == null){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
-        if (customerTypeSta == null || "".equals(customerTypeSta)){
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
-        }
-        if (customerTypeEnd == null || "".equals(customerTypeEnd)){
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
-        }
-
         try {
             cronusDto = customerInfoService.editCustomerTypeTOConversion(customer_id,user_id);
             return cronusDto;

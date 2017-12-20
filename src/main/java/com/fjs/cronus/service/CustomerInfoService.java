@@ -558,7 +558,7 @@ public class CustomerInfoService {
         return  resultDto;
     }
     @Transactional
-    public CronusDto editCustomerType(Integer customer_id ,Integer user_id,String customerTypeSta,String customerTypeEnd){
+    public CronusDto<Boolean> editCustomerType(Integer customer_id ,Integer user_id,String customerTypeSta,String customerTypeEnd){
         CronusDto resultDto = new CronusDto();
         //根据uid查询到客户相关信息
         boolean flag = false;
@@ -594,7 +594,7 @@ public class CustomerInfoService {
     }
 
     @Transactional
-    public CronusDto editCustomerTypeTOConversion(Integer customer_id ,Integer user_id){
+    public CronusDto<Boolean> editCustomerTypeTOConversion(Integer customer_id ,Integer user_id){
         CronusDto resultDto = new CronusDto();
         //根据uid查询到客户相关信息
         boolean flag = false;
