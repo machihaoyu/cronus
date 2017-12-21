@@ -166,7 +166,7 @@ public class CronusException extends BaseException {
 
         MESSAGE_REMOVECUSTOERAll_ERROR("6075", "请选择要转的负责人"),
 
-        MESSAGE_REMOVECUSTOERSTATUS_ERROR("6076", "请选择在职的负责人"),
+        MESSAGE_REMOVECUSTOERSTATUS_ERROR("6076", "这个客户的负责人是在职的，不允许转移"),
 
         MESSAGE_REMOVECUSTNOTNULL_ERROR("6077","请先选择客户"),
 
