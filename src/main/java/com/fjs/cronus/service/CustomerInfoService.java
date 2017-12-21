@@ -1075,7 +1075,7 @@ public class CustomerInfoService {
             }
             //判断这个负责人是不是在职的
             UserInfoDTO userInfoDTO = ucService.getUserInfoByID(token,removeDTO.getEmpId());
-            if (userInfoDTO !=null &&  "1".equals(userInfoDTO.getStatus())){
+            if (userInfoDTO ==null  ||  !"1".equals(userInfoDTO.getStatus())){
                 resultDto.setData(flag);
                 resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTOERSTATUS_ERROR);
                 resultDto.setResult(ResultResource.CODE_SUCCESS);
@@ -1124,20 +1124,15 @@ public class CustomerInfoService {
                 throw new CronusException(CronusException.Type.MESSAGE_REMOVENOTINJOB_ERROR);
             }*/
             //调用交易系统修改
-            Integer thearesult = theaClientService.serviceContractToUser(token,strIds,removeDTO.getEmpId());
-            if (thearesult != 0){
-                resultDto.setData(flag);
-                resultDto.setMessage(ResultResource.CRM_CONTRACTINFO_ERROR);
-                resultDto.setResult(ResultResource.CODE_SUCCESS);
-                return resultDto;
+            try {
+                Integer thearesult = theaClientService.serviceContractToUser(token, strIds, removeDTO.getEmpId());
+            }catch (Exception e){
+                e.printStackTrace();
             }
-            Integer thearesult1 = theaClientService.cancelAll(token,strIds,removeDTO.getEmpId());
-            /*负责人变更时，保留状态归零*/
-            if (thearesult1 != 0){
-                resultDto.setData(flag);
-                resultDto.setMessage(ResultResource.CRM_THEA_ERROR);
-                resultDto.setResult(ResultResource.CODE_SUCCESS);
-                return resultDto;
+            try {
+                Integer thearesult1 = theaClientService.cancelAll(token,strIds,removeDTO.getEmpId());
+            }catch (Exception e){
+                e.printStackTrace();
             }
             for (CustomerInfo customerInfo : customerInfoList) {
                 Integer remain = customerInfo.getRemain();

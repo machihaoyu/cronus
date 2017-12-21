@@ -87,12 +87,6 @@ public class TheaClientService {
     public Integer serviceContractToUser(String token,String customerIds,Integer toUser){
         Integer result = 1;
         TheaApiDTO resultDto = theaService.serviceContractToUser(token,customerIds,toUser);
-        if (resultDto!=null){
-            result = Integer.valueOf(resultDto.getResult());
-            if (result == 0){
-                return  result;
-            }
-        }
         return result;
     }
     public Integer cancelAll(String token,String customerId,Integer newOwnnerId){

@@ -78,7 +78,7 @@ public class ResultResource {
 
     public static String MESSAGE_REMOVECUSTOERAll_ERROR = "请选择需要转移的负责人";
 
-    public static String MESSAGE_REMOVECUSTOERSTATUS_ERROR = "这个客户的负责人是在职的，不允许转移";
+    public static String MESSAGE_REMOVECUSTOERSTATUS_ERROR = "请选择在职的员工转移";
 
     public static String MESSAGE_REMOVECUSTNOTNULL_ERROR = "请先选择客户";
 
