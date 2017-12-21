@@ -683,10 +683,7 @@ public class CustomerController {
         //校验权限
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
         try {
-            boolean result  = customerInfoService.removeCustomerAll(removeDTO,token);
-            cronusDto.setData(result);
-            cronusDto.setResult(ResultResource.CODE_SUCCESS);
-            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            cronusDto  = customerInfoService.removeCustomerAll(removeDTO,token);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->removeCustomer离职员工批量转移操作失败",e);

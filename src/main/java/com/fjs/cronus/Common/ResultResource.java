@@ -7,6 +7,8 @@ public class ResultResource {
     public static int CODE_SUCCESS = 0;
     public static String MESSAGE_SUCCESS = "成功";
     // 其他错误
+    public static int CODE_ERROR = 0;
+
     public static int CODE_OTHER_ERROR = 999999;
     public static String MESSAGE_OTHER_ERROR = "其他错误";
 
@@ -73,4 +75,19 @@ public class ResultResource {
     public static String PHNOEERROR ="手机号已存在";
 
     public static String REPEATDOCUMET = "附件包含已经上传过的附件，请重新选择";
+
+    public static String MESSAGE_REMOVECUSTOERAll_ERROR = "请选择需要转移的负责人";
+
+    public static String MESSAGE_REMOVECUSTOERSTATUS_ERROR = "这个客户的负责人是在职的，不允许转移";
+
+    public static String MESSAGE_REMOVECUSTNOTNULL_ERROR = "请先选择客户";
+
+    public static String CRM_CUSOMERALLACATE_ERROR = "存在新分配未沟通客户,不允许此操作";
+
+    public static String CRM_CONTRACTINFO_ERROR = "链接交易系统，更改合同状态失败";
+
+    public static String CRM_THEA_ERROR = "链接交易系统，更改回款等信息状态失败";
+
+    public static String CRM_MOVE_SUCESSS = "转移成功";
+
 }

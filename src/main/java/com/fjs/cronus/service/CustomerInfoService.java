@@ -1055,22 +1055,32 @@ public class CustomerInfoService {
         }
     }
 
-    public boolean removeCustomerAll(RemoveDTO removeDTO,String token){
+    public CronusDto<Boolean> removeCustomerAll(RemoveDTO removeDTO,String token){
             Date date = new Date();
+            CronusDto<Boolean> resultDto = new CronusDto<>();
             boolean flag = false;
             //判断有没有选择负责人
             Map<String,Object> paramMap = new HashMap<>();
             List<Integer> ownIds = new ArrayList<>();//负责人
             if (StringUtils.isEmpty(removeDTO.getEmpId())){
-                throw new CronusException(CronusException.Type.MESSAGE_REMOVECUSTOERAll_ERROR);
+                resultDto.setData(flag);
+                resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTOERAll_ERROR);
+                resultDto.setResult(ResultResource.CODE_SUCCESS);
+                return resultDto;
             }
             //判断这个负责人是不是在职的
             UserInfoDTO userInfoDTO = ucService.getUserInfoByID(token,removeDTO.getEmpId());
             if (userInfoDTO !=null &&  "1".equals(userInfoDTO.getStatus())){
-                throw new CronusException(CronusException.Type.MESSAGE_REMOVECUSTOERSTATUS_ERROR);
+                resultDto.setData(flag);
+                resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTOERSTATUS_ERROR);
+                resultDto.setResult(ResultResource.CODE_SUCCESS);
+                return resultDto;
             }
             if (StringUtils.isEmpty(removeDTO.getIds())){
-                throw new CronusException(CronusException.Type.MESSAGE_REMOVECUSTNOTNULL_ERROR);
+                resultDto.setData(flag);
+                resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTNOTNULL_ERROR);
+                resultDto.setResult(ResultResource.CODE_SUCCESS);
+                return resultDto;
             }
         List<Integer> paramsList = new ArrayList<>();
         if (removeDTO.getIds() != null && !"".equals(removeDTO.getIds())) {
@@ -1085,7 +1095,10 @@ public class CustomerInfoService {
         //判断客户存在不存在首次分配未处理的的
         boolean result = allocateService.validCustomerAllIsOperate(removeDTO.getIds());
         if (result == false){
-            throw new CronusException(CronusException.Type.CRM_CUSOMERALLACATE_ERROR);
+            resultDto.setData(flag);
+            resultDto.setMessage(ResultResource.CRM_CUSOMERALLACATE_ERROR);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            return resultDto;
         }
         //查询这些客户的信息
         paramMap.put("paramsList",uniqueList);
@@ -1108,12 +1121,18 @@ public class CustomerInfoService {
             //调用交易系统修改
             Integer thearesult = theaClientService.serviceContractToUser(token,strIds,removeDTO.getEmpId());
             if (thearesult != 0){
-                throw new CronusException(CronusException.Type.CRM_CONTRACTINFO_ERROR);
+                resultDto.setData(flag);
+                resultDto.setMessage(ResultResource.CRM_CONTRACTINFO_ERROR);
+                resultDto.setResult(ResultResource.CODE_SUCCESS);
+                return resultDto;
             }
             Integer thearesult1 = theaClientService.cancelAll(token,strIds,removeDTO.getEmpId());
             /*负责人变更时，保留状态归零*/
             if (thearesult1 != 0){
-                throw new CronusException(CronusException.Type.CRM_THEA_ERROR);
+                resultDto.setData(flag);
+                resultDto.setMessage(ResultResource.CRM_THEA_ERROR);
+                resultDto.setResult(ResultResource.CODE_SUCCESS);
+                return resultDto;
             }
             for (CustomerInfo customerInfo : customerInfoList) {
                 Integer remain = customerInfo.getRemain();
@@ -1131,7 +1150,10 @@ public class CustomerInfoService {
             removeCustomerAddLog(customerInfoList,removeDTO.getEmpId(),Integer.valueOf(userInfoDTO.getUser_id()),userInfoDTO.getName());
             flag =true;
         }
-            return  flag;
+             resultDto.setData(flag);
+            resultDto.setMessage(ResultResource.CRM_MOVE_SUCESSS);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            return  resultDto;
     }
 
   /*  public boolean removeToUser(List<Integer> customerids,Integer touser,String touserName,String token,String userId,String userName){
