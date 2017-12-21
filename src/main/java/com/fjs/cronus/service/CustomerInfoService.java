@@ -1020,7 +1020,7 @@ public class CustomerInfoService {
             }
             //判断这个负责人是不是在职的
             UserInfoDTO userInfoDTO = ucService.getUserInfoByID(token,removeDTO.getEmpId());
-            if (userInfoDTO !=null &&  "1".equals(userInfoDTO.getStatus())){
+            if (userInfoDTO !=null &&  !"1".equals(userInfoDTO.getStatus())){
                 throw new CronusException(CronusException.Type.MESSAGE_REMOVECUSTOERSTATUS_ERROR);
             }
             if (StringUtils.isEmpty(removeDTO.getIds())){
