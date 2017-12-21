@@ -98,7 +98,7 @@ public class OcdcService {
                         customerDTO = cronusDto.getData();
                     }
                     if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) { //重复客户
-
+                        customerDTO.setTelephonenumber(customerSalePushLog.getTelephonenumber());
                         if (isActiveApplicationChannel(customerSalePushLog)) {//主动申请渠道
                             //无负责人
                             if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
@@ -247,7 +247,7 @@ public class OcdcService {
     /**
      * 根据OCDC推送数据生成交易数据
      *
-     * @param customerSalePushLog
+     * @param
      * @return
      */
     public void createLoan(CustomerDTO customerDTO, String token) {
