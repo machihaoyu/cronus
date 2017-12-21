@@ -208,6 +208,8 @@ public class CustomerInfoService {
         customerInfo.setCustomerType(CommonConst.CUSTOMER_TYPE_MIND);
         customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
         customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
+        customerInfo.setReceiveTime(date);
+        customerInfo.setFirstCommunicateTime(date);
         customerInfo.setLastUpdateUser(0);
         customerInfo.setCreateTime(date);
         customerInfo.setCreateUser(0);
