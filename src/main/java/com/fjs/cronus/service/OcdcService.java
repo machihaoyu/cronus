@@ -101,12 +101,12 @@ public class OcdcService {
 
                         if (isActiveApplicationChannel(customerSalePushLog)) {//主动申请渠道
                             //无负责人
-                            if (customerSalePushLog.getOwnerUserId() == null || customerSalePushLog.getOwnerUserId() == 0) {
+                            if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
                                 //自动分配
                                 allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC, token);
                             } else {//有负责人分给对应的业务员
                                 sendMail(token, customerDTO);
-                                createLoan(customerSalePushLog, token);
+                                createLoan(customerDTO, token);
                                 allocateEntity.setSuccess(true);
                             }
                         } else {
@@ -250,23 +250,19 @@ public class OcdcService {
      * @param customerSalePushLog
      * @return
      */
-    public void createLoan(CustomerSalePushLog customerSalePushLog, String token) {
-        CustomerInfo customerInfo = new CustomerInfo();
+    public void createLoan(CustomerDTO customerDTO, String token) {
         LoanDTO loan = new LoanDTO();
-        if (null != customerSalePushLog.getCustomerId()) {
-            loan.setCustomerId(customerSalePushLog.getCustomerId());
+        if (null != customerDTO.getId()) {
+            loan.setCustomerId(customerDTO.getId());
         }
-        if (null != customerSalePushLog.getLoanAmount()) {
-            loan.setLoanAmount(customerSalePushLog.getLoanAmount());
+        if (null != customerDTO.getLoanAmount()) {
+            loan.setLoanAmount(customerDTO.getLoanAmount());
         }
-        if (StringUtils.isNotEmpty(customerSalePushLog.getTelephonenumber())) {
-            loan.setTelephonenumber(customerSalePushLog.getTelephonenumber());
+        if (StringUtils.isNotEmpty(customerDTO.getTelephonenumber())) {
+            loan.setTelephonenumber(customerDTO.getTelephonenumber());
         }
-        if (StringUtils.isNotEmpty(customerSalePushLog.getCustomerName())) {
-            loan.setCustomerName(customerSalePushLog.getCustomerName());
-        }
-        if (null != customerSalePushLog.getCreateTime()) {
-            loan.setCreateTime(customerSalePushLog.getCreateTime());
+        if (StringUtils.isNotEmpty(customerDTO.getCustomerName())) {
+            loan.setCustomerName(customerDTO.getCustomerName());
         }
         loan.setUtmSource("自申请");
         theaClientService.inserLoan(loan, token);
