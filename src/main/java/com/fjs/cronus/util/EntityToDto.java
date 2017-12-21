@@ -75,6 +75,10 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getCommunicateTime())){
             dto.setCommunicateTime(customerInfo.getCommunicateTime());
         }
+        if (!StringUtils.isEmpty(customerInfo.getIdCard())){
+            dto.setIdentity(customerInfo.getIdCard());
+        }
+
 
 
     }
