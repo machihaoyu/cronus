@@ -137,7 +137,7 @@ public class OcdcService {
                             case "2":
                                 //未分配，添加到待分配池
                                 AgainAllocateCustomer againAllocateCustomer = new AgainAllocateCustomer();
-                                againAllocateCustomer.setDataId(customerSalePushLog.getId());
+                                againAllocateCustomer.setDataId(customerSalePushLog.getOcdcId());
                                 againAllocateCustomer.setJsonData(map);
                                 againAllocateCustomer.setCreateTime(new Date());
                                 againAllocateCustomer.setUpdataTime(new Date());
