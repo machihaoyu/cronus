@@ -749,6 +749,7 @@ public class CustomerInfoService {
     public List<CustomerInfo> listByCondition(CustomerInfo customerInfo,UserInfoDTO userInfoDTO,String token,String systemName){
 
         List<CustomerInfo> resultList = new ArrayList<>();
+        List ids = new ArrayList();
         Map<String,Object> paramsMap = new HashMap<>();
         //判断当前登录用户所属公司
         Integer companyId = null;
@@ -757,8 +758,7 @@ public class CustomerInfoService {
             customerInfo.setCompanyId(companyId);
         }
         //得到下属员工
-        Integer userId = Integer.parseInt(userInfoDTO.getUser_id());
-        List<Integer> ids = ucService.getSubUserByUserId(token,userId);
+        ids.add(Integer.valueOf(userInfoDTO.getUser_id()));
         paramsMap.put("owerId",ids);
         if (customerInfo != null) {
             if (customerInfo.getRemain() != null) {
@@ -766,6 +766,9 @@ public class CustomerInfoService {
             }
             if (customerInfo.getCompanyId() != null) {
                 paramsMap.put("companyId", companyId);
+            }
+            if (customerInfo.getCustomerType() != null){
+                paramsMap.put("customerType", customerInfo.getCustomerType());
             }
         }
         resultList = customerInfoMapper.findCustomerListByFeild(paramsMap);

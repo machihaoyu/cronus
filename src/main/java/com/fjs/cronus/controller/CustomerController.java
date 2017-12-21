@@ -20,6 +20,7 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.CommunicationLogService;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.DocumentService;
+import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -56,6 +57,8 @@ public class CustomerController {
     UcService thorUcService;
     @Autowired
     CommunicationLogService communicationLogService;
+    @Autowired
+    TheaClientService theaClientService;
     @ApiOperation(value="获取客户列表", notes="获取客户列表信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
@@ -517,11 +520,13 @@ public class CustomerController {
         CustomerInfo customerInfo = new CustomerInfo();
         try{
             customerInfo.setRemain(CommonConst.REMAIN_STATUS_YES);
+            customerInfo.setCustomerType(CommonConst.CUSTOMER_TYPE_MIND);
             if (org.apache.commons.lang3.StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
                 customerInfo.setOwnUserId(Integer.parseInt(userInfoDTO.getUser_id()));
             }
             List<CustomerInfo> customerInfoList = customerInfoService.listByCondition(customerInfo,userInfoDTO,token,CommonConst.SYSTEMNAME);
-            if (customerInfoList.size() > CommonConst.REMAIN_MAX_NUM){
+            String maxCount = theaClientService.findValueByName(token,CommonConst.KEEPPARAMS);
+            if (customerInfoList.size() > Integer.valueOf(maxCount)){
                 theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
                 theaApiDTO.setMessage("您保留的客户已满，不能保留");
                 return theaApiDTO;

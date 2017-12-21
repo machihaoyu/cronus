@@ -256,5 +256,7 @@ public class CommonConst {
 
     public static String PHPLOGINKEY = "phploginkey";
 
+    public static String KEEPPARAMS = "MaxCustomerNum";
+
 }
 

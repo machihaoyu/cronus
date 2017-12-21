@@ -820,6 +820,9 @@
           #{item}
       </foreach>
       </if>
+      <if test="customerType != null" >
+          customer_type = #{customerType,jdbcType=VARCHAR},
+      </if>
   </select>
     <select id="findCustomerByOtherCity" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
         select
