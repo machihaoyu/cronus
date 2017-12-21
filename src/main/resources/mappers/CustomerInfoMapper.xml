@@ -797,6 +797,9 @@
       <if test="customerName != null and customerName !=''">
           and c.customer_name = #{customerName}
       </if>
+      <if test="customerType != null" >
+          customer_type = #{customerType,jdbcType=VARCHAR}
+      </if>
       <if test="city != null and city !=''">
           and c.city = #{city}
       </if>
@@ -819,9 +822,6 @@
                separator="," close=")">
           #{item}
       </foreach>
-      </if>
-      <if test="customerType != null" >
-          customer_type = #{customerType,jdbcType=VARCHAR},
       </if>
   </select>
     <select id="findCustomerByOtherCity" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
