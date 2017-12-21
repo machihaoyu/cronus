@@ -73,10 +73,10 @@ public class OcdcService {
     @Autowired
     private CustomerInfoService customerInfoService;
 
-    public void addOcdcCustomerNew(OcdcData ocdcData, String token) {
+    public List<String> addOcdcCustomerNew(OcdcData ocdcData, String token) {
 
         CronusDto resultDto = new CronusDto();
-        List<String> successlist = new ArrayList<>();
+        List<String> successList = new ArrayList<>();
         List<String> failList = new ArrayList<>();
         //遍历OCDC数据信息
         List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<CustomerSalePushLog>();
@@ -149,7 +149,7 @@ public class OcdcService {
                         }
                     }
                     if (allocateEntity.isSuccess()) {
-                        successlist.add(customerSalePushLog.getOcdcId().toString());
+                        successList.add(customerSalePushLog.getOcdcId().toString());
                     }
                     else {
                         failList.add(customerSalePushLog.getOcdcId().toString());
@@ -165,7 +165,8 @@ public class OcdcService {
         }
         //保存OCDC推送日志
         customerSalePushLogService.insertList(customerSalePushLogList);
-        autoAllocateFeedback(successlist, failList);
+        autoAllocateFeedback(successList, failList);
+        return successList;
     }
 
     private void sendMail(String token, CustomerDTO customerDTO) {
