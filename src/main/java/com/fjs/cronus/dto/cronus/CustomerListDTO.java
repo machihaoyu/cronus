@@ -54,6 +54,17 @@ public class CustomerListDTO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date communicateTime;
 
+    @ApiModelProperty(value = "身份证", required = false)
+    private String identity;
+
+    public String getIdentity() {
+        return identity;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
+
     public Date getLast_update_time() {
         return last_update_time;
     }

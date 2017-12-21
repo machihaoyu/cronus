@@ -129,8 +129,8 @@ public class CustomerInfoService {
                 dtoList.add(customerDto);
             }
             result.setRows(dtoList);
-            result.setTotal(count.toString());
         }
+        result.setTotal(count.toString());
         return  result;
     }
 
