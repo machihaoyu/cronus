@@ -798,7 +798,7 @@
           and c.customer_name = #{customerName}
       </if>
       <if test="customerType != null" >
-          customer_type = #{customerType,jdbcType=VARCHAR}
+          and c.customer_type = #{customerType,jdbcType=VARCHAR}
       </if>
       <if test="city != null and city !=''">
           and c.city = #{city}
