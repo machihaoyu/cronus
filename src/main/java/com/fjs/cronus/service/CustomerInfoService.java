@@ -1135,14 +1135,15 @@ public class CustomerInfoService {
                 e.printStackTrace();
             }
             for (CustomerInfo customerInfo : customerInfoList) {
-                Integer remain = customerInfo.getRemain();
+               /* Integer remain = customerInfo.getRemain();
                 if (remain != 2){
                     remain =0;
-                }
+                }*/
                 customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
                 customerInfo.setOwnUserId(removeDTO.getEmpId());
+                customerInfo.setOwnUserName(userInfoDTO.getName());
                 customerInfo.setReceiveTime(date);
-                customerInfo.setRemain(remain);
+                //customerInfo.setRemain(remain);
                 customerInfo.setLastUpdateTime(date);
                 customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
                 customerInfoMapper.updateCustomer(customerInfo);
