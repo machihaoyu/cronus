@@ -190,6 +190,52 @@ public class CustomerInfoService {
     }
 
     @Transactional
+    public CronusDto addOcdcCustomer(CustomerDTO customerDTO, String token){
+        CronusDto cronusDto = new CronusDto();
+        //实体与DTO相互转换
+        CustomerInfo customerInfo = new CustomerInfo();
+        EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
+        //新加字段
+        List<EmplouInfo> emplouInfos = customerDTO.getEmployedInfo();
+        //转Json在转String
+        if (emplouInfos != null && emplouInfos.size() > 0) {
+            String jsonString = JSONArray.toJSONString(emplouInfos);
+            customerInfo.setEmployedInfo(jsonString);
+        }
+        customerInfo.setRetirementWages(customerDTO.getRetirementWages());
+        Date date = new Date();
+        //刚申请的客户
+        customerInfo.setCustomerType(CommonConst.CUSTOMER_TYPE_MIND);
+        customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
+        customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
+        customerInfo.setLastUpdateUser(0);
+        customerInfo.setCreateTime(date);
+        customerInfo.setCreateUser(0);
+        customerInfo.setLastUpdateTime(date);
+        customerInfo.setIsDeleted(0);
+        customerInfo.setReceiveId(0);
+        customerInfo.setAutostatus(1);//自动分配
+        customerInfo.setCommunicateId(0);
+        customerInfoMapper.insertCustomer(customerInfo);
+        if (customerInfo.getId() == null){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
+        }
+        //开始插入log表
+        //生成日志记录
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        customerInfoLog.setLogCreateTime(date);
+        customerInfoLog.setLogDescription("增加一条客户记录");
+        customerInfoLog.setLogUserId(0);//系统
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        cronusDto.setResult(ResultResource.CODE_SUCCESS);
+        cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        cronusDto.setData(customerInfo.getId());
+        return  cronusDto;
+    }
+
+    @Transactional
     public CronusDto addCRMCustomer(AddCustomerDTO customerDTO, String token){
         CronusDto cronusDto = new CronusDto();
         //判断必传字段*/

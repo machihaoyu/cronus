@@ -173,7 +173,7 @@ public class UserService {
         //计算业务员的已分配数
         for (AllocateLog allocateLog : allocateLogList) {
             for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
-                if (null != allocateLog.getNewOwnerId() && allocateLog.getNewOwnerId().equals(userMonthInfoDTO)) {
+                if (null != allocateLog.getNewOwnerId() && allocateLog.getNewOwnerId().equals(userMonthInfoDTO.getUserId())) {
                     userMonthInfoDTO.setAssignedCustomerNum(userMonthInfoDTO.getAssignedCustomerNum() + 1);
                 }
             }
@@ -202,7 +202,7 @@ public class UserService {
         for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
             int effectCountNum = userMonthInfoDTO.getEffectiveCustomerNum();
             for (CustomerUseful customerUseful : customerUsefulList) {
-                if (null != customerUseful.getCreateUser() && customerUseful.getCreateUser().equals(userMonthInfoDTO.getUserId())) {
+                if (null != customerUseful.getCustomerId() && customerUseful.getCustomerId().equals(userMonthInfoDTO.getUserId())) {
                     effectCountNum++;
                 }
             }

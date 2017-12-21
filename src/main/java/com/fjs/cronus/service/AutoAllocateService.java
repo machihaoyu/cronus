@@ -191,7 +191,7 @@ public class AutoAllocateService {
                             }
                             //保存数据
                             customerDTO.setLastUpdateTime(new Date());
-                            CronusDto cronusDto1 = customerInfoService.addCustomer(customerDTO, token);
+                            CronusDto cronusDto1 = customerInfoService.addOcdcCustomer(customerDTO, token);
                             if (cronusDto1.getResult()==0)
                             {
                                 customerDTO.setId(Integer.parseInt(cronusDto1.getData().toString()));
