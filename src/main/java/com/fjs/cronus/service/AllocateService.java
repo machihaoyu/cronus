@@ -99,6 +99,7 @@ public class AllocateService {
         boolean flag = false;
         Integer userId = null;
         //ids 转为list
+        List<String> nameList = new ArrayList<>();
         Date date = new Date();
         Map<String,Object> map=new HashMap<>();
         List<Integer> paramsList = new ArrayList<>();
@@ -129,9 +130,11 @@ public class AllocateService {
             //判断是否是首次分配
             Map<String,Object> idMap=new HashMap<>();
             idMap.put("paramsList",uniqueList);
+            StringBuffer stringBuffer = new StringBuffer();
             List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerListByFeild(idMap);
             if (customerInfoList.size() > 0){
                 for (CustomerInfo customerInfo: customerInfoList){
+                    nameList.add(customerInfo.getCustomerName());
                     if (customerInfo.getFirstAllocateTime() == null){
                         customerInfo.setFirstAllocateTime(date);
                         customerInfo.setReceiveTime(date);
@@ -152,15 +155,33 @@ public class AllocateService {
                 }
                 //开始分配
                 customerInfoMapper.batchAllocate(map);
+                flag = true;
                 try {
-                    String content = userInfoDTO.getName() +"分配给了你"+ customerInfoList.size()+"个客户,"+ "请注意跟进。";
+                    String names = listToString(nameList);
+                    String content = userInfoDTO.getName() +"分配给了你"+ customerInfoList.size()+"个客户,"+"客户名分别是"+names+ "请注意跟进。";
                     theaClientService.sendMail(token,content,userId,userId,null,userId);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-                flag = true;
             }
         }
         return  flag;
     }
+
+    public String listToString(List list){
+
+        StringBuilder str = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            if (i == list.size() - 1)//当循环到最后一个的时候 就不添加逗号,
+            {
+                str.append(list.get(i));
+            } else {
+                str.append(list.get(i));
+                str.append(",");
+            }
+
+        }
+        return  str.toString();
+    }
+
 }
