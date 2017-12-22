@@ -21,6 +21,17 @@ public class ScrmbDTO  implements Serializable{
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date communicateTime;
 
+    @ApiModelProperty(value = "客户姓名", required = false)
+    private String customerName;
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
     public Integer getCustomerId() {
         return customerId;
     }

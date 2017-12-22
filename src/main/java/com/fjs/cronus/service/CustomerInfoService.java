@@ -1625,6 +1625,7 @@ public class CustomerInfoService {
         scrmbDTO.setCustomerId(customerInfo.getId());
         scrmbDTO.setCommunicateTime(customerInfo.getCommunicateTime());
         scrmbDTO.setConfirm(customerInfo.getConfirm());
+        scrmbDTO.setCustomerName(customerInfo.getCustomerName());
         return  scrmbDTO;
     }
 }
