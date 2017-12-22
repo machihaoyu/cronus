@@ -940,7 +940,7 @@ public class CustomerInfoService {
         customerInfoLog.setLogUserId(userId);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
-        TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token,customerId);
+        TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token,customerId.toString());
         if (resultDto != null && resultDto.getResult() == 0){
             flag = true;
         }
@@ -1015,6 +1015,10 @@ public class CustomerInfoService {
         //开始批量移除客户到公盘
         batchRemove(ids,Integer.valueOf(userInfoDTO.getUser_id()));
         //开始废弃交易
+        TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token,ids);
+        if (resultDto == null || resultDto.getResult() != 0){
+            throw new CronusException(CronusException.Type.CRM_CONNECT_ERROR);
+        }
         flag = true;
         cronusDto.setData(flag);
         cronusDto.setResult(CommonMessage.REMOVE_SUCCESS.getCode());

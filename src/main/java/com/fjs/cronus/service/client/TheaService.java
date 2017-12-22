@@ -20,8 +20,8 @@ import javax.validation.Valid;
  * Created by msi on 2017/10/11. url = "http://192.168.1.124:1240"
  */
 
-//@FeignClient(value = "${client.feign.thea-backend}",url = "192.168.1.124:1240")
 @FeignClient(value = "${client.feign.thea-backend}")
+//@FeignClient(value = "${client.feign.thea-backend}",url = "192.168.1.124:1240")
 public interface TheaService {
 
 
@@ -38,7 +38,7 @@ public interface TheaService {
     public TheaApiDTO<String> findValueByName(@RequestHeader("Authorization") String token, @RequestParam(value = "name") String name);
 
     @RequestMapping(value = "/loan/v1/cancelLoanByCustomerId", method = RequestMethod.GET)
-    public TheaApiDTO cancelLoanByCustomerId(@RequestHeader("Authorization") String token, @RequestParam(value = "customerId") Integer customerId);
+    public TheaApiDTO cancelLoanByCustomerId(@RequestHeader("Authorization") String token, @RequestParam(value = "customerIds") String customerIds);
 
     @RequestMapping(value = "/loan/v1/changeStatusByCustomerId", method = RequestMethod.POST)
     public TheaApiDTO changeStatusByCustomerId(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject);
