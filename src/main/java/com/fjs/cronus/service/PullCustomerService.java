@@ -28,6 +28,7 @@ import com.fjs.cronus.util.*;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +55,9 @@ public class PullCustomerService {
     CustomerInfoLogMapper customerInfoLogMapper;
     @Autowired
     OutPutService outPutService;
+
+    @Value("${sysn.haidaiUrl}")
+    private String haidaiUrl;
     public PullCustomerDTO copyProperty(PullCustomer pullCustomer){
         PullCustomerDTO pullCustomerDTO=new PullCustomerDTO();
         pullCustomerDTO.setId(pullCustomer.getId());
@@ -386,7 +390,7 @@ public class PullCustomerService {
         jsonObject.put("phone",pullCustomer.getTelephone());
         jsonObject.put("status",status);
         //发送post请求
-        CronusDto cronusDto = MultiThreadedHttpConnection.getInstance().sendDataByPost(CommonConst.HaiDai_ChangPhone,jsonObject.toJSONString());
+        CronusDto cronusDto = MultiThreadedHttpConnection.getInstance().sendDataByPost(haidaiUrl,jsonObject.toJSONString());
         if (cronusDto != null) {
             if (!StringUtils.isEmpty( cronusDto.getData().toString())) {
                 result = Integer.parseInt(cronusDto.getData().toString());

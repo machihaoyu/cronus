@@ -6,6 +6,7 @@ import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.util.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -20,8 +21,8 @@ import java.util.Map;
 @Service
 public class OutPutService {
 
-    private static final String ocdcUrl = "http://beta-ocdc.fang-crm.com/Api/Index/save&key=356a192b7oo3b06c54574d18c28d46e63as428ab";
-
+    @Value("${sysn.ocdcUrl}")
+    private String ocdcUrl;
 
     public void  synchronToOcdc(CustomerInfo customerInfo){
         Map jsonObject = entityToJsonObject(customerInfo);
