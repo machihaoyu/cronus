@@ -1143,7 +1143,7 @@ public class CustomerInfoService {
                 customerInfo.setOwnUserId(removeDTO.getEmpId());
                 customerInfo.setOwnUserName(userInfoDTO.getName());
                 customerInfo.setReceiveTime(date);
-                //customerInfo.setRemain(remain);
+                customerInfo.setRemain(remain);
                 customerInfo.setLastUpdateTime(date);
                 customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
                 customerInfoMapper.updateCustomer(customerInfo);
