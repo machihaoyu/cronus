@@ -8,10 +8,7 @@ import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
-import com.fjs.cronus.dto.cronus.AddCustomerDTO;
-import com.fjs.cronus.dto.cronus.CustomerDTO;
-import com.fjs.cronus.dto.cronus.CustomerListDTO;
-import com.fjs.cronus.dto.cronus.RemoveDTO;
+import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.thea.AllocateDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
@@ -871,6 +868,31 @@ public class CustomerController {
             cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             cronusDto.setResult(ResultResource.CODE_SUCCESS);
             cronusDto.setData(result);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->editCustomerOk提交失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+    @ApiOperation(value="根据客户id获取沟通状态", notes="根据客户id获取沟通状态")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerId", value = "customerId", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/getCommunByCustomerId", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<ScrmbDTO> getCommunByCustomerId(@RequestParam Integer customerId, @RequestHeader("Authorization") String token) {
+        CronusDto cronusDto = new CronusDto();
+        ScrmbDTO scrmbDTO = new ScrmbDTO();
+        try {
+            scrmbDTO = customerInfoService.getCommunByCustomerId(customerId);
+            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            cronusDto.setResult(ResultResource.CODE_SUCCESS);
+            cronusDto.setData(scrmbDTO);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->editCustomerOk提交失败", e);

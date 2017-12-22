@@ -1612,7 +1612,19 @@ public class CustomerInfoService {
       }
       //解密
         String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-
        return telephone;
+    }
+
+    public ScrmbDTO getCommunByCustomerId(Integer customerId){
+
+        ScrmbDTO scrmbDTO = new ScrmbDTO();
+        CustomerInfo customerInfo = findCustomerById(customerId);
+        if(customerInfo == null ){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        scrmbDTO.setCustomerId(customerInfo.getId());
+        scrmbDTO.setCommunicateTime(customerInfo.getCommunicateTime());
+        scrmbDTO.setConfirm(customerInfo.getConfirm());
+        return  scrmbDTO;
     }
 }
