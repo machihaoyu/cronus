@@ -43,6 +43,6 @@
     </update>
 
     <select id="getNonAllocateCustomer" resultMap="BaseResultMap">
-        select * from again_allocate_customer where status = 0
+        select * from again_allocate_customer where status = 0 limit 0,50
     </select>
 </mapper>

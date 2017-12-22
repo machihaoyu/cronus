@@ -139,10 +139,6 @@ public class AutoAllocateService {
                     case "0":
                     case "2"://推入客服系统
                         allocateEntity.setAllocateStatus(AllocateEnum.TO_SERVICE_SYSTEM);
-                        try {
-
-                        } catch (Exception e) {
-                        }
                         break;
                 }
             }
@@ -191,10 +187,11 @@ public class AutoAllocateService {
                             //保存数据
                             customerDTO.setLastUpdateTime(new Date());
                             CronusDto cronusDto1 = customerInfoService.addOcdcCustomer(customerDTO, token);
-                            if (cronusDto1.getResult()==0)
-                            {
+                            if (cronusDto1.getResult() == 0) {
                                 customerDTO.setId(Integer.parseInt(cronusDto1.getData().toString()));
                             }
+                            break;
+                        case "2": // 再分配池保存
                             break;
                     }
                 }
@@ -222,7 +219,9 @@ public class AutoAllocateService {
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
                     allocateLogService.autoAllocateAddAllocatelog(customerInfo.getId(), customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode());
-                    addLoan(customerDTO, token);
+                    if (isActiveApplicationChannel(customerDTO)) {
+                        addLoan(customerDTO, token);
+                    }
                     sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     break;
                 case "2": //WAITING_POOL
@@ -234,7 +233,9 @@ public class AutoAllocateService {
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfot);
                     allocateLogService.addAllocatelog(customerInfot, customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_5.getCode(), null);
-                    addLoan(customerDTO, token);
+                    if (isActiveApplicationChannel(customerDTO)) {
+                        addLoan(customerDTO, token);
+                    }
                     sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     break;
                 case "4":
@@ -269,17 +270,17 @@ public class AutoAllocateService {
      * @param customerDTO
      */
     public void addLoan(CustomerDTO customerDTO, String token) {
-        if (isActiveApplicationChannel(customerDTO)) {
-            LoanDTO loanDTO = new LoanDTO();
-            loanDTO.setTelephonenumber(customerDTO.getTelephonenumber());
-            loanDTO.setLoanAmount(customerDTO.getLoanAmount());
-            loanDTO.setCustomerId(customerDTO.getId());
-            loanDTO.setUtmSource("自申请");
-            loanDTO.setCustomerName(customerDTO.getCustomerName());
-            loanDTO.setOwnUserId(customerDTO.getOwnerUserId());
-            loanDTO.setOwnUserName(customerDTO.getOwnUserName());
-            theaClientService.inserLoan(loanDTO, token);
-        }
+//        if (isActiveApplicationChannel(customerDTO)) {
+        LoanDTO loanDTO = new LoanDTO();
+        loanDTO.setTelephonenumber(customerDTO.getTelephonenumber());
+        loanDTO.setLoanAmount(customerDTO.getLoanAmount());
+        loanDTO.setCustomerId(customerDTO.getId());
+        loanDTO.setUtmSource("自申请");
+        loanDTO.setCustomerName(customerDTO.getCustomerName());
+        loanDTO.setOwnUserId(customerDTO.getOwnerUserId());
+        loanDTO.setOwnUserName(customerDTO.getOwnUserName());
+        theaClientService.inserLoan(loanDTO, token);
+//        }
     }
 
     private void sendMessage(String customerName, Integer toId, SimpleUserInfoDTO ownerUser, String token) {
@@ -292,15 +293,6 @@ public class AutoAllocateService {
 
         smsService.sendSmsForAutoAllocate(ownerUser.getTelephone(), customerName);
     }
-
-//    private void sendMessage(String customerName,Integer toId, SimpleUserInfoDTO ownerUser,String token) {
-//        theaClientService.sendMail(token,
-//                "房金所为您分配了客户名：" + customerName + "，请注意跟进。",
-//                0,
-//                0,
-//                "系统管理员",
-//                toId);
-//    }
 
     private void sendCRMAssistantMessage(String customerCity, String customerName, String token) {
 
@@ -442,7 +434,6 @@ public class AutoAllocateService {
         }
         return ownUserId;
     }
-
 
     /**
      * 客户未沟通重新分配 定时任务 5min

@@ -1,30 +1,20 @@
 package com.fjs.cronus.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.crm.JSONData;
 import com.fjs.cronus.dto.crm.OcdcData;
 import com.fjs.cronus.dto.crm.ResponseData;
-import com.fjs.cronus.dto.cronus.CustomerDTO;
-import com.fjs.cronus.entity.AllocateEntity;
-import com.fjs.cronus.model.CustomerSalePushLog;
+import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.service.AutoAllocateService;
 import com.fjs.cronus.service.OcdcService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 客户
@@ -55,7 +45,7 @@ public class OcdcController {
         OcdcData ocdcData = JSON.parseObject(ocdcRawData, OcdcData.class);
         CronusDto resultDto = new CronusDto();
         try {
-            resultDto.setData(ocdcService.addOcdcCustomerNew(ocdcData, token));
+            resultDto.setData(ocdcService.addOcdcCustomer(ocdcData, AllocateSource.OCDC, token));
             resultDto.setResult(0);
         }catch (Exception e)
         {
@@ -74,7 +64,8 @@ public class OcdcController {
     public ResponseData serviceAllocate(@RequestHeader("Authorization") String token, @RequestBody String customer) {
         ResponseData responseData = new ResponseData();
         try {
-            ocdcService.serviceAllocate(customer, token);
+            String key = ocdcService.serviceAllocate(customer, token);
+            responseData.setRetData(key);
             responseData.setErrMsg("添加成功");
             responseData.setErrNum("0");
         } catch (Exception e) {
