@@ -1,6 +1,5 @@
 package com.fjs.cronus.service.thea;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.QueryResult;
@@ -8,14 +7,11 @@ import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.LoanDTO4;
 import com.fjs.cronus.dto.thea.MailBatchDTO;
 import com.fjs.cronus.dto.thea.WorkDayDTO;
-import com.fjs.cronus.dto.uc.AllUserDTO;
-import com.fjs.cronus.model.Mail;
 import com.fjs.cronus.service.client.TheaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -56,7 +52,7 @@ public class TheaClientService {
      * @param loanDTO
      */
     public void inserLoan(LoanDTO loanDTO,String token) {
-        TheaApiDTO resultDto = theaService.inserLoan(loanDTO,token);
+        TheaApiDTO resultDto = theaService.insertLoan(loanDTO,token);
     }
 
     /**
