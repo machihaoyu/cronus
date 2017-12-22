@@ -70,17 +70,22 @@ public class AutoCleanService {
 
     /**
      * 自动清洗是否进行中
+     *
      * @return
      */
     public boolean autoCleanStatus() {
-        boolean status = false;
-        SysConfig config = configService.getConfigByName(CommonConst.AUTO_CLEAN_STATUS);
-        if (config != null && StringUtils.isNotEmpty(config.getConValue())) {
-            if (config.getConValue().equals("1")) {
-                status = true;
-            }
-        }
-        return status;
+        ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
+        String status = redisConfigOptions.get(CommonConst.AUTO_CLEAN_STATUS);
+        if (status.equals("1"))
+            return true;
+        else
+            return false;
+//        SysConfig config = configService.getConfigByName(CommonConst.AUTO_CLEAN_STATUS);
+//        if (config != null && StringUtils.isNotEmpty(config.getConValue())) {
+//            if (config.getConValue().equals("1")) {
+//                status = true;
+//            }
+//        }
     }
 
     /**
@@ -103,14 +108,14 @@ public class AutoCleanService {
     @Transactional
     public void autoClean(String token) {
         //将清洗状态配置设置为清洗中
+        ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
         try {
-            ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
-            SysConfig config = configService.getConfigByName(CommonConst.AUTO_CLEAN_STATUS);
-            if (config == null || StringUtils.isEmpty(config.getConValue())) {
-                throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
-            }
-            config.setConValue("1");
-            configService.update(config);
+//            SysConfig config = configService.getConfigByName(CommonConst.AUTO_CLEAN_STATUS);
+//            if (config == null || StringUtils.isEmpty(config.getConValue())) {
+//                throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
+//            }
+//            config.setConValue("1");
+//            configService.update(config);
             //修改redis配置
             redisConfigOptions.set(CommonConst.AUTO_CLEAN_STATUS, CommonEnum.YES.getCode().toString());
             //计算清洗前的各类型的数据量
@@ -178,12 +183,12 @@ public class AutoCleanService {
             afterCountMap = customerInfoService.countForAutoClean();
             //重新设置清洗状态
             //修改redis配置
-            config.setConValue(CommonEnum.NO.getCode().toString());
-            config.setConValue("0");
-            int save = configService.update(config);
-            if (1 != save) {
-                throw new CronusException(CronusException.Type.AUTO_CLEAN_ERROR);
-            }
+//            config.setConValue(CommonEnum.NO.getCode().toString());
+//            config.setConValue("0");
+//            int save = configService.update(config);
+//            if (1 != save) {
+//                throw new CronusException(CronusException.Type.AUTO_CLEAN_ERROR);
+//            }
             redisConfigOptions.set(CommonConst.AUTO_CLEAN_STATUS, CommonEnum.NO.getCode().toString());
             //获取所有的业务员
             //添加消息信息！
@@ -210,6 +215,7 @@ public class AutoCleanService {
 
             System.out.println("清洗完成，清洗前：" + beforeCountMap + ",清洗后：" + afterCountMap);
         } catch (Exception e) {
+            redisConfigOptions.set(CommonConst.AUTO_CLEAN_STATUS, CommonEnum.NO.getCode().toString());
             System.out.println("清洗失败：" + e.getMessage());
         }
     }
