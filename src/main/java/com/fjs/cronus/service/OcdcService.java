@@ -29,6 +29,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -316,7 +317,7 @@ public class OcdcService {
                 customerSalePushLog.setCustomerLevel(CommonEnum.CUSTOMER_LEVEL_0.getCodeDesc());
             }
             if (null != map.get("loan_amount") && StringUtils.isNotBlank(map.get("loan_amount").toString())) {
-                customerSalePushLog.setLoanAmount(map.get("loan_amount").decimalValue());
+                customerSalePushLog.setLoanAmount(new BigDecimal(map.get("loan_amount").asInt()) );
             }
             if (null != map.get("spare_phone") && StringUtils.isNotBlank(map.get("spare_phone").toString())) {
                 customerSalePushLog.setSparePhone(map.get("spare_phone").asText());
