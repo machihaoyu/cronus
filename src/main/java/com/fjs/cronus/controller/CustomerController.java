@@ -558,6 +558,12 @@ public class CustomerController {
                 theaApiDTO.setMessage("刚分配未沟通的客户不能保留");
                 return theaApiDTO;
             }
+            if (customerInfo.getConfirm() == 1){
+                theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
+                theaApiDTO.setMessage("刚沟通未确认的客户不能保留");
+                return theaApiDTO;
+            }
+
 
             boolean updateResult = customerInfoService.keepCustomer(customerId,userInfoDTO,token);
             if (updateResult == true) {
