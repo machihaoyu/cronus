@@ -380,7 +380,7 @@ public class CommunicationLogService {
                         if (time1 - time2 < 300){
                             //调用发送信息接口
                             CustomerInfo customerInfo = customerService.findCustomerById(communicationLog.getCustomerId());
-                            String content = "您设置了"+ DateUtils.format(communicationLog.getNextContactTime(),DateUtils.FORMAT_FULL_Long) + "与客户"+ customerInfo.getCustomerName()+"再次沟通，请注意沟通。";
+                            String content = "您设置了"+ DateUtils.format(communicationLog.getNextContactTime(),DateUtils.FORMAT_LONG) + "与客户"+ customerInfo.getCustomerName()+"再次沟通，请注意沟通。";
                             theaClientService.sendMail(token,content,communicationLog.getCreateUser(),communicationLog.getCreateUser(),null,communicationLog.getCreateUser());
                         }
                     }

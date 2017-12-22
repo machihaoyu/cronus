@@ -105,7 +105,7 @@ public class CustomerMeetService {
                             //调用发送信息接口
                             MailDTO mailDTO = new MailDTO();
                             CustomerInfo customerInfo = customerInfoService.findCustomerById(customerMeet.getCustomerId());
-                            String content = "您定于"+ DateUtils.format(customerMeet.getMeetTime(),DateUtils.FORMAT_FULL_Long) + "面见客户"+ customerInfo.getCustomerName()+"请注意面见。";
+                            String content = "您定于"+ DateUtils.format(customerMeet.getMeetTime(),DateUtils.FORMAT_LONG) + "面见客户"+ customerInfo.getCustomerName()+"请注意面见。";
                             theaClientService.sendMail(token,content,customerMeet.getCreateUser(),customerMeet.getCreateUser(),null,customerMeet.getCreateUser());
                         }
                     }
