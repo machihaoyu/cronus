@@ -26,7 +26,6 @@ import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -223,7 +222,7 @@ public class AutoAllocateService {
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
                     allocateLogService.autoAllocateAddAllocatelog(customerInfo.getId(), customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode());
-                    activeChannelAddTansaction(customerDTO, token);
+                    addLoan(customerDTO, token);
                     sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     break;
                 case "2": //WAITING_POOL
@@ -235,7 +234,7 @@ public class AutoAllocateService {
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfot);
                     allocateLogService.addAllocatelog(customerInfot, customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_5.getCode(), null);
-                    activeChannelAddTansaction(customerDTO, token);
+                    addLoan(customerDTO, token);
                     sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     break;
                 case "4":
@@ -269,7 +268,7 @@ public class AutoAllocateService {
      *
      * @param customerDTO
      */
-    private void activeChannelAddTansaction(CustomerDTO customerDTO, String token) {
+    public void addLoan(CustomerDTO customerDTO, String token) {
         if (isActiveApplicationChannel(customerDTO)) {
             LoanDTO loanDTO = new LoanDTO();
             loanDTO.setTelephonenumber(customerDTO.getTelephonenumber());
@@ -277,6 +276,8 @@ public class AutoAllocateService {
             loanDTO.setCustomerId(customerDTO.getId());
             loanDTO.setUtmSource("自申请");
             loanDTO.setCustomerName(customerDTO.getCustomerName());
+            loanDTO.setOwnUserId(customerDTO.getOwnerUserId());
+            loanDTO.setOwnUserName(customerDTO.getOwnUserName());
             theaClientService.inserLoan(loanDTO, token);
         }
     }

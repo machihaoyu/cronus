@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
-import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.crm.OcdcData;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
@@ -14,7 +13,6 @@ import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.AgainAllocateCustomer;
-import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerSalePushLog;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.util.DEC3Util;
@@ -106,7 +104,7 @@ public class OcdcService {
                                 allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC, token);
                             } else {//有负责人分给对应的业务员
                                 sendMail(token, customerDTO);
-                                createLoan(customerDTO, token);
+                                autoAllocateService.addLoan(customerDTO, token);
                                 allocateEntity.setSuccess(true);
                             }
                         } else {
@@ -250,23 +248,25 @@ public class OcdcService {
      * @param
      * @return
      */
-    public void createLoan(CustomerDTO customerDTO, String token) {
-        LoanDTO loan = new LoanDTO();
-        if (null != customerDTO.getId()) {
-            loan.setCustomerId(customerDTO.getId());
-        }
-        if (null != customerDTO.getLoanAmount()) {
-            loan.setLoanAmount(customerDTO.getLoanAmount());
-        }
-        if (StringUtils.isNotEmpty(customerDTO.getTelephonenumber())) {
-            loan.setTelephonenumber(customerDTO.getTelephonenumber());
-        }
-        if (StringUtils.isNotEmpty(customerDTO.getCustomerName())) {
-            loan.setCustomerName(customerDTO.getCustomerName());
-        }
-        loan.setUtmSource("自申请");
-        theaClientService.inserLoan(loan, token);
-    }
+//    public void createLoan(CustomerDTO customerDTO, String token) {
+//        LoanDTO loan = new LoanDTO();
+//        if (null != customerDTO.getId()) {
+//            loan.setCustomerId(customerDTO.getId());
+//        }
+//        if (null != customerDTO.getLoanAmount()) {
+//            loan.setLoanAmount(customerDTO.getLoanAmount());
+//        }
+//        if (StringUtils.isNotEmpty(customerDTO.getTelephonenumber())) {
+//            loan.setTelephonenumber(customerDTO.getTelephonenumber());
+//        }
+//        if (StringUtils.isNotEmpty(customerDTO.getCustomerName())) {
+//            loan.setCustomerName(customerDTO.getCustomerName());
+//        }
+//        loan.setOwnUserId(customerDTO.getOwnerUserId());
+//        loan.setOwnUserName(customerDTO.getOwnUserName());
+//        loan.setUtmSource("自申请");
+//        theaClientService.inserLoan(loan, token);
+//    }
 
     /**
      * OCDC推送对象转换成本地推送日志
