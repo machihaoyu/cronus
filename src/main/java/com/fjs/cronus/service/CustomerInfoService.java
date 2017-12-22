@@ -1135,10 +1135,10 @@ public class CustomerInfoService {
                 e.printStackTrace();
             }
             for (CustomerInfo customerInfo : customerInfoList) {
-               /* Integer remain = customerInfo.getRemain();
+                Integer remain = customerInfo.getRemain();
                 if (remain != 2){
                     remain =0;
-                }*/
+                }
                 customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
                 customerInfo.setOwnUserId(removeDTO.getEmpId());
                 customerInfo.setOwnUserName(userInfoDTO.getName());
