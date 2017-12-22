@@ -21,6 +21,7 @@ import com.fjs.cronus.model.CustomerInfoLog;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
 import org.apache.commons.collections.map.HashedMap;
@@ -65,11 +66,15 @@ public class PanService {
             }
             //电话
             if (StringUtils.isNotEmpty(pan.getTelephonenumber())) {
-                map.put("telephonenumber", pan.getTelephonenumber());
+                //手机号加密
+                map.put("telephonenumber", DEC3Util.des3EncodeCBC(pan.getTelephonenumber()));
             }
             //合作状态
             if (StringUtils.isNotEmpty(pan.getCustomerClassify())) {
                 map.put("cooperation_status", pan.getCustomerClassify());
+            }
+            if (StringUtils.isNotEmpty(pan.getHouseStatus())) {
+                map.put("houseStatus", pan.getHouseStatus());
             }
             //公司
             if (companyId != null) {
