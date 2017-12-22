@@ -71,7 +71,7 @@ public class OcdcService {
     @Autowired
     private CustomerInfoService customerInfoService;
 
-    public List<String> addOcdcCustomerNew(OcdcData ocdcData, String token) {
+    public List<String> addOcdcCustomer(OcdcData ocdcData, AllocateSource allocateSource, String token) {
 
         CronusDto resultDto = new CronusDto();
         List<String> successList = new ArrayList<>();
@@ -88,20 +88,14 @@ public class OcdcService {
 
                 try {
                     AllocateEntity allocateEntity = new AllocateEntity();
-                    CustomerDTO customerDTO = null;
-                    Map<String, Object> mapc = new HashedMap();
-                    mapc.put("telephonenumber", DEC3Util.des3EncodeCBC(customerSalePushLog.getTelephonenumber()));
-                    CronusDto<CustomerDTO> cronusDto = customerInfoService.fingByphone(customerSalePushLog.getTelephonenumber());
-                    if (cronusDto.getResult() == 0) {
-                        customerDTO = cronusDto.getData();
-                    }
+                    CustomerDTO customerDTO = getCustomer(customerSalePushLog.getTelephonenumber());
                     if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) { //重复客户
                         customerDTO.setTelephonenumber(customerSalePushLog.getTelephonenumber());
                         if (isActiveApplicationChannel(customerSalePushLog)) {//主动申请渠道
                             //无负责人
                             if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
                                 //自动分配
-                                allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC, token);
+                                allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                             } else {//有负责人分给对应的业务员
                                 sendMail(token, customerDTO);
                                 autoAllocateService.addLoan(customerDTO, token);
@@ -114,7 +108,7 @@ public class OcdcService {
                                 //有无负责人,有负责人跟进，没有自动分配
                                 if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
                                     //自动分配
-                                    allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC, token);
+                                    allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                                 } else {
                                     //发消息业务员，提醒跟进
                                     sendMail(token, customerDTO);
@@ -124,7 +118,7 @@ public class OcdcService {
                         }
                     } else {
                         BeanUtils.copyProperties(customerSalePushLog, customerDTO);
-                        allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.OCDC, token);
+                        allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                     }
                     if (allocateEntity.getAllocateStatus() != null) {
                         switch (allocateEntity.getAllocateStatus().getCode()) {
@@ -148,8 +142,7 @@ public class OcdcService {
                     }
                     if (allocateEntity.isSuccess()) {
                         successList.add(customerSalePushLog.getOcdcId().toString());
-                    }
-                    else {
+                    } else {
                         failList.add(customerSalePushLog.getOcdcId().toString());
                     }
                 } catch (RuntimeException e) {
@@ -167,6 +160,17 @@ public class OcdcService {
         return successList;
     }
 
+    private CustomerDTO getCustomer(String telephone) {
+        CustomerDTO customerDTO = null;
+        Map<String, Object> mapc = new HashedMap();
+        mapc.put("telephonenumber", DEC3Util.des3EncodeCBC(telephone));
+        CronusDto<CustomerDTO> cronusDto = customerInfoService.fingByphone(telephone);
+        if (cronusDto.getResult() == 0) {
+            customerDTO = cronusDto.getData();
+        }
+        return customerDTO;
+    }
+
     private void sendMail(String token, CustomerDTO customerDTO) {
         theaClientService.sendMail(token,
                 "客户姓名:" + customerDTO.getCustomerName() + ",客户电话:" + customerDTO.getTelephonenumber() + "，重复申请，请注意跟进；",
@@ -178,50 +182,45 @@ public class OcdcService {
      *
      * @param
      */
-    public void serviceAllocate(String servicedData, String token) {
+    public String serviceAllocate(String servicedData, String token) {
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        List<String> allocateEntities = new ArrayList<>();
+        String success = "";
         try {
-            JsonNode node = objectMapper.readValue(servicedData, JsonNode.class);
-            CustomerSalePushLog customerSalePushLog = this.queryCustomerSalePushLogByOcdcPushData(node);
-            if (customerSalePushLog.getTelephonenumber() != null && customerSalePushLog.getTelephonenumber().length() > 0) {
-                CustomerDTO customerDTO = new CustomerDTO();
-                BeanUtils.copyProperties(customerSalePushLog, customerDTO);
-                autoAllocateService.autoAllocate(customerDTO, AllocateSource.SERVICES, token);
-            }
+            OcdcData ocdcData = new OcdcData();
+            List<String> listraw = new ArrayList<>();
+            listraw.add(servicedData);
+            ocdcData.setData(listraw);
+            allocateEntities = addOcdcCustomer(ocdcData, AllocateSource.WAITING, token);
         } catch (Exception e) {
+            logger.warn(e.getMessage());
         }
+        if (allocateEntities.size() > 0)
+            success = allocateEntities.get(0);
+        return success;
 
     }
 
     /**
      * 待分配池定时分配 5min
      */
-    public AllocateEntity waitingPoolAllocate(String token) {
+    public List<String> waitingPoolAllocate(String token) {
 
-        AllocateEntity allocateEntity = new AllocateEntity();
+        List<String> allocateEntities = new ArrayList<>();
         try {
-
+            OcdcData ocdcData = new OcdcData();
+            List<String> listraw = new ArrayList<>();
             List<AgainAllocateCustomer> list = againAllocateCustomerService.getNonAllocateCustomer();
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             for (AgainAllocateCustomer againCustomer :
                     list) {
-                JsonNode node = objectMapper.readValue(againCustomer.getJsonData(), JsonNode.class);
-                CustomerSalePushLog customerSalePushLog = this.queryCustomerSalePushLogByOcdcPushData(node);
-                if (customerSalePushLog.getTelephonenumber() != null && customerSalePushLog.getTelephonenumber().length() > 0) {
-                    CustomerDTO customerDTO = new CustomerDTO();
-                    BeanUtils.copyProperties(customerSalePushLog, customerDTO);
-                    allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.WAITING, token);
-                }
+                listraw.add(againCustomer.getJsonData());
             }
+            ocdcData.setData(listraw);
+            allocateEntities = addOcdcCustomer(ocdcData, AllocateSource.WAITING, token);
         } catch (Exception e) {
-            allocateEntity.setSuccess(false);
             logger.warn(e.getMessage());
         }
-
-        return allocateEntity;
+        return allocateEntities;
     }
 
 
