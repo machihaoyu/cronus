@@ -123,7 +123,7 @@ public class DocumentService {
         resultDto.setData("");
         return  resultDto;
     }
-    @Transactional
+   /* @Transactional
     public CronusDto uploadDocumentOk(UploadDocumentDto uploadDocumentDto,String token){
         CronusDto resultDto = new CronusDto();
         List<NewDocumentDTO> resultList = new ArrayList<>();
@@ -217,7 +217,7 @@ public class DocumentService {
             }
 
         return  resultDto;
-    }
+    }*/
 
     //生成一条新的合同数据
     @Transactional
@@ -379,7 +379,7 @@ public class DocumentService {
         }
     return resultDto;
     }
-   public boolean addOcrInfo (Integer category,Integer customer_id,String imageBase64,Integer rc_document_id,Integer user_id,String token){
+   public boolean addOcrInfo (Integer category,Integer customer_id,String imageBase64,Integer rc_document_id,Integer user_id,String token,UserSortInfoDTO userSortInfoDTO,UserInfoDTO userInfoDTO){
        final long step1Time = System.currentTimeMillis();
        try {
           /*  es.execute(new Runnable() {
@@ -391,7 +391,7 @@ public class DocumentService {
                     long step2Time = System.currentTimeMillis();*/
                     try {
                         logger.warn("开始通信");
-                        ReqParamDTO reqParamDTO = addOcrDealParam(category,customer_id, imageBase64, rc_document_id, user_id, token);
+                        ReqParamDTO reqParamDTO = addOcrDealParam(category,customer_id, imageBase64, rc_document_id, user_id, token,userSortInfoDTO,userInfoDTO);
                         //调用图文识别接口
                         talosService.ocrService(reqParamDTO, token);
                     } catch (Exception e) {
@@ -412,7 +412,7 @@ public class DocumentService {
      return  true;
    }
    @Transactional
-   public ReqParamDTO addOcrDealParam(Integer category,Integer customer_id,String imageBase64,Integer rc_document_id,Integer user_id,String token){
+   public ReqParamDTO addOcrDealParam(Integer category,Integer customer_id,String imageBase64,Integer rc_document_id,Integer user_id,String token,UserSortInfoDTO userSortInfoDTO,UserInfoDTO userInfoDTO){
 
        ReqParamDTO reqParamDTO = new ReqParamDTO();
        //主要业务操作
@@ -456,7 +456,7 @@ public class DocumentService {
        else {
            jsonObject.put("type",null);
        }
-       UserInfoDTO userInfo = ucService.getUserInfoByID(token,user_id);
+       //UserInfoDTO userInfo = ucService.getUserInfoByID(token,user_id);
      /*  ocrSaveBaseInfoDTO.setR_contract_document(rContractDocument);
        ocrSaveBaseInfoDTO.setCategoryInfo(documentCategory);*/
        jsonObject.put("customer_id",customerInfo.getId());
@@ -465,10 +465,17 @@ public class DocumentService {
        String phoneNumber = telephone.substring(0, 3) + "****" + telephone.substring(7, telephone.length());
        jsonObject.put("customer_telephone",phoneNumber);
        jsonObject.put("crm_attach_id",document_id);
-       jsonObject.put("create_user_id",userInfo.getUser_id());
-       jsonObject.put("create_user_name",userInfo.getName());
-       jsonObject.put("update_user_id",userInfo.getUser_id());
-       jsonObject.put("update_user_name",userInfo.getName());
+       if (userSortInfoDTO != null) {
+           jsonObject.put("create_user_id", userSortInfoDTO.getUser_id());
+           jsonObject.put("create_user_name", userSortInfoDTO.getName());
+           jsonObject.put("update_user_id", userSortInfoDTO.getUser_id());
+           jsonObject.put("update_user_name", userSortInfoDTO.getName());
+       }else {
+           jsonObject.put("create_user_id", userInfoDTO.getUser_id());
+           jsonObject.put("create_user_name", userInfoDTO.getName());
+           jsonObject.put("update_user_id", userInfoDTO.getUser_id());
+           jsonObject.put("update_user_name", userInfoDTO.getName());
+       }
        jsonObject.put("category",category);
        // TODO 生成对应的ocr信息
        Integer id = addOrSaveInfo(jsonObject);
@@ -485,8 +492,13 @@ public class DocumentService {
        if (jsonObject.getInteger("type") != null) {
            reqParamDTO.setType(jsonObject.getInteger("type").toString());
        }
-       reqParamDTO.setUserId(Long.parseLong(userInfo.getUser_id()));
-       reqParamDTO.setUserName(userInfo.getName());
+       if (userSortInfoDTO != null) {
+           reqParamDTO.setUserId(Long.parseLong(userSortInfoDTO.getUser_id()));
+           reqParamDTO.setUserName(userSortInfoDTO.getName());
+       }else {
+           reqParamDTO.setUserId(Long.parseLong(userInfoDTO.getUser_id()));
+           reqParamDTO.setUserName(userInfoDTO.getName());
+       }
        reqParamDTO.setId(Long.parseLong(id.toString()));
        return  reqParamDTO;
    }
@@ -634,7 +646,7 @@ public class DocumentService {
                //异步无回调
                //把附件转为base64
                String imageBase64 = FileBase64ConvertUitl.encodeBase64File(file.getInputStream());
-               addOcrInfo(categoryParam,customerIdParam,imageBase64, rc_document_id,user_id,token);
+               addOcrInfo(categoryParam,customerIdParam,imageBase64, rc_document_id,user_id,token,null,userInfoDTO);
                return  url;
            }else {
                throw new CronusException(CronusException.Type.CRM_UPLOADERROR_ERROR);
@@ -929,7 +941,7 @@ public class DocumentService {
                 //异步无回调
                 //把附件转为base64
                // String imageBase64 = FileBase64ConvertUitl.encodeBase64File(file);
-                addOcrInfo(categoryParam,customerIdParam,base64, rc_document_id,user_id,token);
+                addOcrInfo(categoryParam,customerIdParam,base64, rc_document_id,user_id,token,userInfoDTO,null);
                 return  url;
             }else {
                 throw new CronusException(CronusException.Type.CRM_UPLOADERROR_ERROR);
