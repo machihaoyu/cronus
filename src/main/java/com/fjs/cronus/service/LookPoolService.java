@@ -12,6 +12,7 @@ import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.EntityToDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,7 +46,7 @@ public class LookPoolService {
             paramMap.put("customerName",customerName);
         }
         if (!StringUtils.isEmpty(telephonenumber)){
-            paramMap.put("telephonenumber",telephonenumber);
+            paramMap.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
         }
         if (!StringUtils.isEmpty(utmSource)){
             paramMap.put("utmSource",utmSource);
@@ -91,9 +92,11 @@ public class LookPoolService {
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);
-            Integer count = customerInfoMapper.customerListCount(paramMap);
-            queryResult.setTotal(count.toString());
+
         }
+        Integer count = customerInfoMapper.customerListCount(paramMap);
+        queryResult.setTotal(count.toString());
+
         return  queryResult;
     }
 
@@ -108,7 +111,7 @@ public class LookPoolService {
             paramMap.put("customerName",customerName);
         }
         if (!StringUtils.isEmpty(telephonenumber)){
-            paramMap.put("telephonenumber",telephonenumber);
+            paramMap.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
         }
         if (!StringUtils.isEmpty(utmSource)){
             paramMap.put("utmSource",utmSource);
@@ -142,9 +145,9 @@ public class LookPoolService {
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);
-            Integer count = customerInfoMapper.customerListCount(paramMap);
-            queryResult.setTotal(count.toString());
         }
+        Integer count = customerInfoMapper.customerListCount(paramMap);
+        queryResult.setTotal(count.toString());
         return  queryResult;
     }
 
