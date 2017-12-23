@@ -1831,6 +1831,9 @@
                     #{item}
                 </foreach>
             </if>
+            <if test="null != receiveTime">
+                <![CDATA[	and receive_time < #{receiveTime}  ]]>
+            </if>
         </where>
     </select>
 </mapper>

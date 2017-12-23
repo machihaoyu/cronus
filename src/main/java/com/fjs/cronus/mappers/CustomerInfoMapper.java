@@ -45,7 +45,7 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
 
     Integer publicOfferCount(Map<String,Object> parmsMap);
 
-    public List<Integer> selectForAutoClean(Map<String, Object> map);
+    List<Integer> selectForAutoClean(Map<String, Object> map);
     /**
      * 根据电话号码查找
      * @param paramMap

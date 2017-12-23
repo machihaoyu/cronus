@@ -146,6 +146,10 @@ public class AutoCleanService {
             if (null != allUserIds && allUserIds.size() > 0) {
                 paramsMap.put("notInOwnUserIds", allUserIds);
             }
+            String date = DateUtils.format(DateUtils.addDay(new Date(),-1),DateUtils.FORMAT_SHORT);
+            if (StringUtils.isNotEmpty(date)) {
+                paramsMap.put("receiveTime", date);
+            }
             //查询需要清洗的交易ID的集合
             List<Integer> autoCleanCustomerIds = customerInfoService.selectForAutoClean(paramsMap);
             //清洗总条数
