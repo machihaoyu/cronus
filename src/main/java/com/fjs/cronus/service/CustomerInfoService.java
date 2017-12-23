@@ -1561,10 +1561,11 @@ public class CustomerInfoService {
         CronusDto resultDto = new CronusDto();
         //校验权限
         //校验参数手机号不更新
-        UserSortInfoDTO userSortInfoDTO = ucService.getSortUserInfo(token);
-        if (userSortInfoDTO == null){
+       // UserSortInfoDTO userSortInfoDTO = ucService.getSortUserInfo(token);
+      /*  if (userSortInfoDTO == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "信息出错!");
-        }
+        }*/
+        SortUserInfoByPhoneDTO userSortInfoDTO = ucService.getSortUserInfoByPhone(token,customerDTO.getTelephonenumber());
         Map<String,Object> paramsMap = new HashMap<>();
         if (customerDTO.getId() == null || "".equals(customerDTO.getId()) ){
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);

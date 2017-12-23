@@ -12,6 +12,7 @@ import com.fjs.cronus.dto.api.uc.CompanyDto;
 import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.BaseUcDTO;
+import com.fjs.cronus.dto.cronus.SortUserInfoByPhoneDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.uc.*;
 import com.fjs.cronus.exception.CronusException;
@@ -227,4 +228,14 @@ public class UcService {
        }
        return userSortInfoDTO;
    }
+
+    public SortUserInfoByPhoneDTO getSortUserInfoByPhone(String token,String telephone) {
+        SortUserInfoByPhoneDTO userSortInfoDTO = new SortUserInfoByPhoneDTO();
+        CronusDto<SortUserInfoByPhoneDTO> result = thorInterfaceService.getSortUserInfoByPhone(token,telephone,2);
+        if (result.getData() != null) {
+            userSortInfoDTO = result.getData();
+        }
+        return userSortInfoDTO;
+    }
+
 }

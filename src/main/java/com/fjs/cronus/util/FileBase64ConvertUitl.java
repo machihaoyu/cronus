@@ -70,6 +70,25 @@ public class FileBase64ConvertUitl {
         out.close();
     }
 
+    public static InputStream BaseToInputStream(String base64string){
+
+        ByteArrayInputStream stream = null;
+
+        try {
+
+            BASE64Decoder decoder = new BASE64Decoder();
+
+            byte[] bytes1 = decoder.decodeBuffer(base64string);
+
+            stream = new ByteArrayInputStream(bytes1);
+
+        } catch (Exception e) {
+
+        }
+
+        return stream;
+
+    }
     public static void main(String[] args) {
         try {
          /*   //String base64Code = encodeBase64File("D:/image/123.jpg");

@@ -248,6 +248,62 @@ public class FtpUtil {
 		return  flag;
 	}
 
+	public static boolean uploadFileClient(String host, int port, String username, String password, String basePath,
+									 String filePath, String filename, InputStream input) {
+		boolean result = false;
+		FTPClient ftp = new FTPClient();
+		try {
+			int reply;
+			ftp.connect(host);// 连接FTP服务器
+			// 如果采用默认端口，可以使用ftp.connect(host)的方式直接连接FTP服务器
+			ftp.login(username, password);// 登录
+			reply = ftp.getReplyCode();
+			if (!FTPReply.isPositiveCompletion(reply)) {
+				ftp.disconnect();
+				return result;
+			}
+			//切换到上传目录
+			if (!ftp.changeWorkingDirectory(basePath+"/"+filePath)) {
+				//如果目录不存在创建目录
+				String[] dirs = filePath.split("/");
+				String tempPath = basePath;
+				for (String dir : dirs) {
+					if (null == dir || "".equals(dir))
+						continue;
+					tempPath += "/" + dir;
+					if (!ftp.changeWorkingDirectory(tempPath)) {
+						if (!ftp.makeDirectory(tempPath)) {
+							return result;
+						} else {
+							ftp.changeWorkingDirectory(tempPath);
+						}
+					}
+				}
+			}
+
+			ftp.setBufferSize(1024);
+			ftp.setControlEncoding("utf-8");
+			ftp.enterLocalPassiveMode();
+			ftp.setFileType(FTPClient.BINARY_FILE_TYPE);
+			//上传文件
+			if (!ftp.storeFile(filename, input)) {
+				return result;
+			}
+			input.close();
+			ftp.logout();
+			result = true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (ftp.isConnected()) {
+				try {
+					ftp.disconnect();
+				} catch (IOException ioe) {
+				}
+			}
+		}
+		return result;
+	}
 	/**
 	 *  文件转byte
 	 * @param inStream
@@ -265,69 +321,17 @@ public class FtpUtil {
 		swapStream.close();
 		return in2b;
 	}
-	public static void main(String[] args) {
+	public  static  boolean  uploadClient(String base64,String host, int port, String username, String password, String basePath,
+								 String filePath, String filename, InputStream input) {
+		boolean result = false;
 		try {
-	/*		long millis = System.currentTimeMillis();
-			//long millis = System.nanoTime();
-			//加上三位随机数
-			Random random = new Random();
-			int end3 = random.nextInt(999);
-			//如果不足三位前面补0 图片新名称
-			String name = millis + String.format("%03d", end3) +".jpg";
-	        FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
-			String imagePath = new DateTime().toString("yyyy/MM/dd");
-	        boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/",imagePath, name, in);
-	        System.out.println(flag);*/
-			//for (int i = 0;i<10; i++) {
-			//String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/09/", "4.jpg");
-			// System.out.println(bytes.length());
-			//}
-	     	/*InputStream fis = FileBase64ConvertUitl.decoderBase64File(bytes);
-			long millis = System.currentTimeMillis();
-			//long millis = System.nanoTime();
-			//加上三位随机数
-			Random random = new Random();
-			int end3 = random.nextInt(999);
-			//如果不足三位前面补0 图片新名称
-			String name = millis + String.format("%03d", end3) +".jpg";
-			//FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
-			String imagePath = new DateTime().toString("yyyy/MM/dd");
-			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads",imagePath, name, fis);
-	        //缩略图
-			*//*FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
-			String base64 = ImageUtil.compressImage(in,300,300);
-			InputStream is = FileBase64ConvertUitl.decoderBase64File(base64);
-			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/crmJavaFile/ftpuser/core/","2017/09/26", "1_S.jpg", is);*//**//*
-			//boolean flag1 =	downloadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/09/","1507516521889432.jpg", "E:\\");
-			System.out.println(flag);*//*
-			System.out.println(flag);*/
-			//boolean flag = delete("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/09/", "4.jpg");
-			/*FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
-			String imagePath = new DateTime().toString("yyyy/MM/dd");
-			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads",imagePath, "dsf.jpg", in);
-            System.out.println(flag);*/
-
-			/*String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/10/21/", "1508572674522267.jpg");
-			System.out.println(bytes.length());*/
-			/*long millis = System.currentTimeMillis();
-			Random random = new Random();
-			int end3 = random.nextInt(999);
-			//如果不足三位前面补0 图片新名称
-			String name = millis + String.format("%03d", end3) +".jpg";
-			FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
-			String imagePath = new DateTime().toString("yyyy/MM/dd");
-			boolean flag = uploadFile("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/",imagePath, name, in);
-			System.out.println(flag);*/
-		/*	FileInputStream in=new FileInputStream(new File("D:\\1.jpg"));
-			String image64 = FileBase64ConvertUitl.encodeBase64File(in);
-			System.out.println(image64);*/
-		/*	String bytes = getInputStream("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/11/14/", "1510653839270371.png");
-			System.out.println(bytes.length());*/
-			boolean flag = delete("192.168.1.124", 21, "zhanglei", "B4juNEg5", "/Uploads/2017/12/19", "_S1513663486445460.png");
-			System.out.println(flag);
+			InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(base64);
+			boolean flag = uploadFile(host, port, username, password, basePath,filePath, filename, inputStream);
+			return  flag;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return  result;
 	}
 
 

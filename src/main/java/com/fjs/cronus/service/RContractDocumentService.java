@@ -129,7 +129,7 @@ public class RContractDocumentService {
          List<RContractDocument> documentList = rContractDocumentMapper.ocrDocument(paramsMap);
          if (documentList.size() > 0){
              for (RContractDocument rcdocument : documentList) {
-                 String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL +"/" + rcdocument.getDocument().getDocumentSavepath(), rcdocument.getDocument().getDocumentSavename());
+                 String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL +"/" + rcdocument.getDocument().getDocumentSavepath(), "_S" + rcdocument.getDocument().getDocumentSavename());
                  list.add(bytes);
              }
          }

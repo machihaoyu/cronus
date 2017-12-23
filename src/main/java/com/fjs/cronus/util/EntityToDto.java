@@ -78,6 +78,9 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getIdCard())){
             dto.setIdentity(customerInfo.getIdCard());
         }
+        if (!StringUtils.isEmpty(customerInfo.getCooperationStatus())){
+            dto.setIdentity(customerInfo.getCooperationStatus());
+        }
 
 
 

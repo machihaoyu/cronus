@@ -57,6 +57,17 @@ public class CustomerListDTO {
     @ApiModelProperty(value = "身份证", required = false)
     private String identity;
 
+    @ApiModelProperty(value = "跟进状态", required = false)
+    private String cooptionstatus;
+
+    public String getCooptionstatus() {
+        return cooptionstatus;
+    }
+
+    public void setCooptionstatus(String cooptionstatus) {
+        this.cooptionstatus = cooptionstatus;
+    }
+
     public String getIdentity() {
         return identity;
     }

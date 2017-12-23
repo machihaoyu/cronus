@@ -896,21 +896,21 @@ public class DocumentService {
         try {
             String md5 = MD5Util.getMd5CodeInputStream(file);
             //开始上传图片
-            CronusDto uploadDto = uploadPcStreamDocument(file,name+ "." + suffix);
-            if(uploadDto != null && uploadDto.getData() != null){
-                String result = FastJsonUtils.obj2JsonString(uploadDto.getData());
+            String imagePath = new DateTime().toString("yyyy/MM/dd");
+            boolean flag=FtpUtil.uploadClient(base64,FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL+"/", imagePath, name+ "." + suffix, file);
+            if(flag == true){
                 //把json格式的数据转为对象
 
-                Map<String,Object>  map = FastJsonUtils.getSingleBean(result,Map.class);
-                String thumbName  = map.get("name").toString();
-                String thunbPath  = map.get("imagePath").toString();
-                String remotePath = map.get("remotePath").toString();
-                String url =  map.get("url").toString();
+                //Map<String,Object>  map = FastJsonUtils.getSingleBean(result,Map.class);
+                String thumbName  = name+ "." + suffix;
+                String thunbPath  = IMAGE_BASE_URL + "/"+ imagePath + "/";
+                String remotePath = "/"+ imagePath;
+                String url = IMAGE_BASE_URL +"/"+ imagePath + "/" + name;
                 //开始缩放图片
-                String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
+               // String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
                 try {
-                    InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(bytes);
-                    getThumbnail(inputStream, 300, 300, thumbName, thunbPath, "_S");
+                    InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(base64);
+                    getThumbnail(inputStream, 300, 300, thumbName, remotePath, "_S");
                 }catch (Exception e){
                     e.printStackTrace();
                 }

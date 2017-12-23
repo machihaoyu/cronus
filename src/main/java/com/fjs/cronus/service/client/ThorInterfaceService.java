@@ -11,6 +11,7 @@ import com.fjs.cronus.dto.api.uc.CityDto;
 import com.fjs.cronus.dto.api.uc.CompanyDto;
 import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
+import com.fjs.cronus.dto.cronus.SortUserInfoByPhoneDTO;
 import com.fjs.cronus.dto.uc.*;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
@@ -515,5 +516,7 @@ public interface ThorInterfaceService {
     @RequestMapping(value = "/api/v1/getSortUserInfo", method = RequestMethod.GET)
     CronusDto<UserSortInfoDTO> getSortUserInfo(@RequestHeader("Authorization") String token);
 
+    @RequestMapping(value = "/api/v1/getSortUserInfoByPhone",method = RequestMethod.GET)
+    CronusDto<SortUserInfoByPhoneDTO> getSortUserInfoByPhone(@RequestHeader("Authorization") String token,@RequestParam(value = "telephone")String telephone,@RequestParam(value = "userType") Integer userType);
 }
 

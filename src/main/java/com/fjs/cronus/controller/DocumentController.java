@@ -253,7 +253,7 @@ public class DocumentController {
                 //获取multiRequest 中所有的文件名
                 Integer size = uploadDocumentDto.getSize();
                 String base64 = uploadDocumentDto.getImageBase64();
-                InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(base64);
+                InputStream inputStream = FileBase64ConvertUitl.BaseToInputStream(base64);
                 String path = documentService.uploadClientDocumentOk(inputStream,fileName,null,telephone,category,source,size,token,base64);
                 fileList.add(path);
 
@@ -271,7 +271,7 @@ public class DocumentController {
         }
         return  resultDto;
     }
-    @ApiOperation(value="App端提交上传附件", notes="App端提交上传附件")
+    @ApiOperation(value="app获取附件列表", notes="app获取附件列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "telephone", value = "telephone", required = true, paramType = "query",dataType = "string"),
