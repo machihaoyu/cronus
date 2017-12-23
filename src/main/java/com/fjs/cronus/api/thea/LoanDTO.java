@@ -36,6 +36,16 @@ public class LoanDTO {
     @ApiModelProperty(value = "渠道来源（必填）")
     private String utmSource;
 
+    private Integer companyId;
+
+    public Integer getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(Integer companyId) {
+        this.companyId = companyId;
+    }
+
     public String getUtmSource() {
         return utmSource;
     }

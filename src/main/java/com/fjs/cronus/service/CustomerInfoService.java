@@ -7,8 +7,6 @@ import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPUserDto;
-import com.fjs.cronus.dto.api.crius.Contract;
-import com.fjs.cronus.dto.api.crius.ServiceContract;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
@@ -38,10 +36,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.util.StringUtils;
-import org.w3c.dom.ls.LSInput;
 
 
-import java.beans.Transient;
 import java.util.*;
 
 
@@ -819,7 +815,7 @@ public class CustomerInfoService {
         loanDTO.setUtmSource("下单");
         String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
         loanDTO.setTelephonenumber(telephone);
-        TheaApiDTO resultDto = theaService.inserLoan(loanDTO,token);
+        TheaApiDTO resultDto = theaService.insertLoan(loanDTO,token);
         if (resultDto != null && resultDto.getResult() == 0){
             flag = true;
         }else {

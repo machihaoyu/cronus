@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.crm.OcdcData;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.entity.AllocateEntity;
@@ -14,6 +15,7 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.AgainAllocateCustomer;
 import com.fjs.cronus.model.CustomerSalePushLog;
+import com.fjs.cronus.service.client.ThorInterfaceService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.util.DEC3Util;
 import org.apache.commons.collections.map.HashedMap;
@@ -29,6 +31,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -54,6 +57,9 @@ public class OcdcService {
 
     @Autowired
     private TheaClientService theaClientService;
+
+    @Autowired
+    private ThorInterfaceService thorUcService;
 
     @Autowired
     private CustomerSalePushLogService customerSalePushLogService;
@@ -98,6 +104,10 @@ public class OcdcService {
                                 allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                             } else {//有负责人分给对应的业务员
                                 sendMail(token, customerDTO);
+                                SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token, customerDTO.getOwnerUserId()).getData();
+                                if (simpleUserInfoDTO != null && simpleUserInfoDTO.getSub_company_id() != null) {
+                                    customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
+                                }
                                 autoAllocateService.addLoan(customerDTO, token);
                                 allocateEntity.setSuccess(true);
                             }
@@ -264,7 +274,7 @@ public class OcdcService {
 //        loan.setOwnUserId(customerDTO.getOwnerUserId());
 //        loan.setOwnUserName(customerDTO.getOwnUserName());
 //        loan.setUtmSource("自申请");
-//        theaClientService.inserLoan(loan, token);
+//        theaClientService.insertLoan(loan, token);
 //    }
 
     /**
@@ -316,7 +326,7 @@ public class OcdcService {
                 customerSalePushLog.setCustomerLevel(CommonEnum.CUSTOMER_LEVEL_0.getCodeDesc());
             }
             if (null != map.get("loan_amount") && StringUtils.isNotBlank(map.get("loan_amount").toString())) {
-                customerSalePushLog.setLoanAmount(map.get("loan_amount").decimalValue());
+                customerSalePushLog.setLoanAmount(new BigDecimal(map.get("loan_amount").asInt()));
             }
             if (null != map.get("spare_phone") && StringUtils.isNotBlank(map.get("spare_phone").toString())) {
                 customerSalePushLog.setSparePhone(map.get("spare_phone").asText());
