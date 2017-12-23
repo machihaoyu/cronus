@@ -13,6 +13,9 @@ public class AttachmentModel {
     @ApiModelProperty(name = "documentName", value = "附件名称")
     private String documentName;
 
+    @ApiModelProperty(name = "picture", value = "附件图片")
+    private String picture;
+
     public Integer getId() {
         return id;
     }
@@ -27,5 +30,13 @@ public class AttachmentModel {
 
     public void setDocumentName(String documentName) {
         this.documentName = documentName;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 }

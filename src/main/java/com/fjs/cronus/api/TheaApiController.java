@@ -43,12 +43,13 @@ public class TheaApiController {
     @ApiOperation(value = "C端获取附件分类信息接口", notes = "C端获取附件分类信息接口API")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "Authorization", value = "认证信息(网关)", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-        @ApiImplicitParam(name = "type", value = "1--身份证;2--户口簿;3--房产证;4--结婚证;5--放款凭证", required = true, paramType = "query", dataType = "int")
+        @ApiImplicitParam(name = "type", value = "1--身份证;2--户口簿;3--房产证;4--结婚证;5--放款凭证", required = true, paramType = "query", dataType = "int"),
+        @ApiImplicitParam(name = "telephone", value = "登录人手机号", required = true, paramType = "query", dataType = "string")
     })
     @RequestMapping(value = "/api/v1/getCategoryInfo", method = RequestMethod.GET)
-    public RespBaseDTO<List<AttachmentModel>> getCategoryInfo(@RequestHeader("Authorization") String token, @RequestParam("type") Integer type){
+    public RespBaseDTO<List<AttachmentModel>> getCategoryInfo(@RequestHeader("Authorization") String token, @RequestParam("type") Integer type, @RequestParam("telephone") String telephone){
         try{
-            List<AttachmentModel> attachmentModels = datumIntegrModelService.getCategoryInfo(type);
+            List<AttachmentModel> attachmentModels = datumIntegrModelService.getCategoryInfo(type,telephone);
             return new RespBaseDTO(attachmentModels);
         }catch (CronusException e) {
             return new RespBaseDTO(Integer.parseInt(e.getResponseError().getStatus()),e.getResponseError().getMessage());
@@ -57,11 +58,14 @@ public class TheaApiController {
 
 
     @ApiOperation(value = "C端获取收入证明附件分类信息接口", notes = "C端获取收入证明附件分类信息接口API")
-    @ApiImplicitParam(name = "Authorization", value = "认证信息(网关)", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "认证信息(网关)", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+        @ApiImplicitParam(name = "telephone", value = "登录人手机号", required = true, paramType = "query", dataType = "string")
+    })
     @RequestMapping(value = "/api/v1/getEarnCategoryInfo", method = RequestMethod.GET)
-    public RespBaseDTO<List<List<AttachmentModel>>> getEarnCategoryInfo(){
+    public RespBaseDTO<List<List<AttachmentModel>>> getEarnCategoryInfo(@RequestParam("telephone") String telephone){
         try{
-            List<List<AttachmentModel>> attachmentModels = datumIntegrModelService.getEarnCategoryInfo();
+            List<List<AttachmentModel>> attachmentModels = datumIntegrModelService.getEarnCategoryInfo(telephone);
             return new RespBaseDTO(attachmentModels);
         }catch (CronusException e) {
             return new RespBaseDTO(Integer.parseInt(e.getResponseError().getStatus()),e.getResponseError().getMessage());

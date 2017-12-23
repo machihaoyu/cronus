@@ -61,4 +61,33 @@ public interface DatumIntegrConstant {
 
     /** 个人资产证明--房产信息（备用房）分类名称 */
     String SPARE_ROOM = "房产信息（备用房）";
+
+
+
+    /** 缓存时间 */
+    Integer REDIS_CLIENT_CASE_LOANPRODUCT_TIME = 180;//TODO 要修改成 3600
+
+    /** 身份证缓存key */
+    String REDIS_CLIENT_IDENTITY = "category_info_identity";
+
+    /** 户口簿缓存key */
+    String REDIS_CLIENT_HOUSEHOLDREGISTER = "category_info_householdregister";
+
+    /** 房产证缓存key */
+    String REDIS_CLIENT_PROPERTYCERTIFICATE = "category_info_propertycertificate";
+
+    /** 结婚证缓存key */
+    String REDIS_CLIENT_MARRIAGECERTIFICATE = "category_info_marriagecertificate";
+
+    /** 放款凭证缓存key */
+    String REDIS_CLIENT_VOUCHER = "category_info_voucher";
+
+    /** 收入证明缓存key */
+    String REDIS_CLIENT_PROOFOFEARNINGS = "category_info_proofofearnings";
+
+    /** 银行流水缓存key */
+    String REDIS_CLIENT_BANK_STATEMENT = "category_info_bank_statement";
+
+    /** 个人资产缓存key */
+    String REDIS_CLIENT_FINANCIAL = "category_info_financial";
 }
