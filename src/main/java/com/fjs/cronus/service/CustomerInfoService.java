@@ -773,7 +773,8 @@ public class CustomerInfoService {
     }
 
     @Transactional
-    public boolean keepCustomer(Integer customerId,UserInfoDTO userInfoDTO,String token){
+    public CronusDto keepCustomer(Integer customerId,UserInfoDTO userInfoDTO,String token){
+        CronusDto resultDto = new CronusDto<>();
         boolean flag = false;
         Integer userId = null;
         if (!StringUtils.isEmpty(userInfoDTO.getUser_id())) {
@@ -815,13 +816,18 @@ public class CustomerInfoService {
         loanDTO.setUtmSource("下单");
         String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
         loanDTO.setTelephonenumber(telephone);
-        TheaApiDTO resultDto = theaService.inserLoan(loanDTO,token);
+        TheaApiDTO theaApiDTO = theaService.inserLoan(loanDTO,token);
         if (resultDto != null && resultDto.getResult() == 0){
             flag = true;
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultDto.setData(flag);
         }else {
-            throw new  CronusException(CronusException.Type.CRM_CONNECT_ERROR);
+            resultDto.setResult(theaApiDTO.getResult());
+            resultDto.setMessage(theaApiDTO.getMessage());
+            resultDto.setData(theaApiDTO.getData());
         }
-        return flag;
+        return resultDto;
     }
 
     public CustomerSourceDTO quitCustomerSource(Integer userId,String token){

@@ -562,16 +562,7 @@ public class CustomerController {
             }
 
 
-            boolean updateResult = customerInfoService.keepCustomer(customerId,userInfoDTO,token);
-            if (updateResult == true) {
-                theaApiDTO.setResult(CommonMessage.KEEP_SUCCESS.getCode());
-                theaApiDTO.setMessage(CommonMessage.KEEP_SUCCESS.getCodeDesc());
-            } else {
-                logger.error("-------------->keepLoan保留失败");
-                theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
-                theaApiDTO.setMessage(CommonMessage.KEEP_FAIL.getCodeDesc());
-                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
-            }
+            theaApiDTO = customerInfoService.keepCustomer(customerId,userInfoDTO,token);
         }catch (Exception e){
             logger.error("-------------->keepLoan保留失败",e);
             if(e instanceof CronusException){
