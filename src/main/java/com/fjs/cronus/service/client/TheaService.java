@@ -32,7 +32,7 @@ public interface TheaService {
     public TheaApiDTO<String> getConfigByName(@RequestParam(value = "name") String name);
 
     @RequestMapping(value = "/loan/v1/insertLoan", method = RequestMethod.POST)
-    public TheaApiDTO inserLoan(@RequestBody LoanDTO loanDTO,@RequestHeader("Authorization")String token);
+    public TheaApiDTO insertLoan(@RequestBody LoanDTO loanDTO, @RequestHeader("Authorization")String token);
 
     @RequestMapping(value = "/config/v1/name", method = RequestMethod.GET)
     public TheaApiDTO<String> findValueByName(@RequestHeader("Authorization") String token, @RequestParam(value = "name") String name);
@@ -57,6 +57,9 @@ public interface TheaService {
 
     @RequestMapping(value = "/config/v1/modify", method = RequestMethod.POST)
     public TheaApiDTO<Integer> updatebConfig(@RequestHeader("Authorization") String token, @RequestBody Config config);
+
+    @RequestMapping(value = "/config/v1/modify", method = RequestMethod.GET)
+    CriusApiDTO<Integer> updateConfig(@RequestParam("id") Integer id, @RequestParam("value") String value);
 
     @RequestMapping(value = "/config/v1/findByName", method = RequestMethod.GET)
     public TheaApiDTO<Config> findByName(@RequestHeader("Authorization") String token, @RequestParam(value = "name") String name);
