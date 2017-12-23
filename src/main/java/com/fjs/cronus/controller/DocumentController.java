@@ -8,6 +8,7 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.model.Document;
 import com.fjs.cronus.service.DocumentCategoryService;
 import com.fjs.cronus.service.DocumentService;
+import com.fjs.cronus.service.RContractDocumentService;
 import com.fjs.cronus.util.FileBase64ConvertUitl;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -43,6 +44,9 @@ public class DocumentController {
     DocumentService documentService;
     @Autowired
     DocumentCategoryService documentCategoryService;
+
+    @Autowired
+    RContractDocumentService rContractDocumentService;
     @ApiOperation(value="打开附件管理页面", notes="打开附件管理页面")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
@@ -267,4 +271,33 @@ public class DocumentController {
         }
         return  resultDto;
     }
+    @ApiOperation(value="App端提交上传附件", notes="App端提交上传附件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "telephone", value = "telephone", required = true, paramType = "query",dataType = "string"),
+            @ApiImplicitParam(name = "catagoryId", value = "catagoryId", required = true, paramType = "query",dataType = "int"),
+    })
+    @RequestMapping(value = "/getListBase64",method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto getListBase64(@RequestHeader("Authorization") String token,@RequestParam String telephone,Integer catagoryId){
+        logger.info("start uploadTopicPictureList!");
+        CronusDto resultDto = new CronusDto();
+        List<String> resultList = new ArrayList<>();
+        try {
+            resultList =  rContractDocumentService.getListBase64(telephone,catagoryId);
+            resultDto.setData(resultList);
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            logger.info("End CommonsMultipartResolver!");
+        } catch (Exception e) {
+            logger.error("上传图片失败", e);
+            if (e instanceof CronusException) {
+                CronusException cronusException = (CronusException)e;
+                throw cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return  resultDto;
+    }
+
 }

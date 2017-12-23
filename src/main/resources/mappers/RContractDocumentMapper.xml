@@ -45,6 +45,9 @@
   <if test="customerId != null and customerId != ''">
     and  r.customer_id = #{customerId}
   </if>
+  <if test="catagoryId != null and catagoryId != ''">
+    and  r.document_c_id = #{catagoryId}
+  </if>
     order by r.last_update_time desc
   </select>
   <select id="checkCustomerIsUpload" parameterType="java.util.Map" resultType="java.lang.Integer">

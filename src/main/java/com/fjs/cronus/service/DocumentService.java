@@ -21,6 +21,7 @@ import com.fjs.cronus.service.client.TalosService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.*;
 import io.swagger.models.auth.In;
+import net.coobird.thumbnailator.Thumbnails;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,16 +30,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.BufferedOutputStream;
+import java.io.*;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.*;
 
 import org.springframework.web.multipart.MultipartFile;
 import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 
 import javax.print.Doc;
@@ -350,7 +350,9 @@ public class DocumentService {
         CronusDto resultDto = new CronusDto();
         Map resultMap = new HashMap<>();
         try{
-            String base64 = ImageUtil.compressImage(inputStream,new_w,new_h);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Thumbnails.of(inputStream).scale(0.4f).toOutputStream(baos);
+            String base64 = new BASE64Encoder().encode(baos.toByteArray());
             if ("0".equals(base64)){
                 resultDto.setResult(ResultResource.CODE_SUCCESS);
                 resultDto.setMessage(ResultResource.THUMP_ERROR_MESSAGE);
@@ -373,6 +375,7 @@ public class DocumentService {
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDto.setData(resultMap);
+            baos.close();
             return resultDto;
         }catch (Exception e){
             e.printStackTrace();
@@ -615,8 +618,6 @@ public class DocumentService {
                try {
                    InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(bytes);
                    getThumbnail(inputStream, 300, 300, thumbName, thunbPath, "_S");
-                   InputStream inputStream1 = FileBase64ConvertUitl.decoderBase64File(bytes);
-                   getThumbnail(inputStream1, 500, 500, thumbName, thunbPath, "_M");
                }catch (Exception e){
                    e.printStackTrace();
                }
@@ -910,8 +911,6 @@ public class DocumentService {
                 try {
                     InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(bytes);
                     getThumbnail(inputStream, 300, 300, thumbName, thunbPath, "_S");
-                    InputStream inputStream1 = FileBase64ConvertUitl.decoderBase64File(bytes);
-                    getThumbnail(inputStream1, 500, 500, thumbName, thunbPath, "_M");
                 }catch (Exception e){
                     e.printStackTrace();
                 }
