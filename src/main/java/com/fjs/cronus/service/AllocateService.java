@@ -115,6 +115,7 @@ public class AllocateService {
         if (StringUtils.isEmpty(ids)){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
+        UserInfoDTO userInfoByID= ucService.getUserInfoByID(token,empId);
         //判断客户存在不存在首次分配未处理的的
         boolean result= validCustomerAllIsOperate(ids);
         if (result == true){
@@ -126,7 +127,7 @@ public class AllocateService {
             map.put("lastUpdateUser",userId);
             map.put("lastUpdateTime",date);
             map.put("paramsList",uniqueList);
-            map.put("own_user_name",userInfoDTO.getName());
+            map.put("own_user_name",userInfoByID.getName());
             //判断是否是首次分配
             Map<String,Object> idMap=new HashMap<>();
             idMap.put("paramsList",uniqueList);

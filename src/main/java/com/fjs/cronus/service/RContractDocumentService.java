@@ -2,16 +2,21 @@ package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.cronus.CustomerDTO;
+import com.fjs.cronus.dto.cronus.DocumentListBase64DTO;
 import com.fjs.cronus.dto.cronus.OcrDocumentDto;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.DocumentMapper;
 import com.fjs.cronus.mappers.RContractDocumentMapper;
 import com.fjs.cronus.model.Document;
 import com.fjs.cronus.model.RContractDocument;
+import com.fjs.cronus.util.FileBase64ConvertUitl;
+import com.fjs.cronus.util.FtpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import sun.misc.BASE64Encoder;
 
 import javax.print.Doc;
 import java.util.ArrayList;
@@ -29,8 +34,24 @@ public class RContractDocumentService {
     RContractDocumentMapper rContractDocumentMapper;
     @Value("${ftp.viewUrl}")
     private String viewUrl;
+    @Value("${ftp.address}")
+    private String FTP_ADDRESS;
+    @Value("${ftp.port}")
+    private Integer FTP_PORT;
+    @Value("${ftp.username}")
+    private String FTP_USERNAME;
+    @Value("${ftp.password}")
+    private String FTP_PASSWORD;
+    @Value("${ftp.baseUrl}")
+    private String FTP_BASE_PATH;
+    @Value("${ftp.basePath}")
+    private String IMAGE_BASE_URL;
     @Autowired
     DocumentMapper documentMapper;
+    @Autowired
+    CustomerInfoService customerInfoService;
+    @Autowired
+    DocumentService documentService;
     public CronusDto findDocByCustomerId(Integer customerId){
         CronusDto resultDto = new CronusDto();
         Map<String,Object> paramsMap = new HashMap<>();
@@ -96,5 +117,22 @@ public class RContractDocumentService {
          documentMapper.update(document);
          flag = true;
          return  flag;
+     }
+
+     public List<String> getListBase64(String telephone, Integer catagoryId){
+         List<String> list = new ArrayList<>();
+         CronusDto<CustomerDTO> resultDto = customerInfoService.fingByphone(telephone);
+         CustomerDTO customerDTO = resultDto.getData();
+         Map<String,Object> paramsMap = new HashMap<>();
+         paramsMap.put("customerId",customerDTO.getId());
+         paramsMap.put("catagoryId",catagoryId);
+         List<RContractDocument> documentList = rContractDocumentMapper.ocrDocument(paramsMap);
+         if (documentList.size() > 0){
+             for (RContractDocument rcdocument : documentList) {
+                 String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL +"/" + rcdocument.getDocument().getDocumentSavepath(), rcdocument.getDocument().getDocumentSavename());
+                 list.add(bytes);
+             }
+         }
+         return list;
      }
 }
