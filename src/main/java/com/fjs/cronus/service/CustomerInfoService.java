@@ -815,7 +815,7 @@ public class CustomerInfoService {
         loanDTO.setUtmSource("下单");
         String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
         loanDTO.setTelephonenumber(telephone);
-        TheaApiDTO resultDto = theaService.insertLoan(loanDTO,token);
+        TheaApiDTO resultDto = theaService.inserLoan(loanDTO,token);
         if (resultDto != null && resultDto.getResult() == 0){
             flag = true;
         }else {

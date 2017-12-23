@@ -52,7 +52,7 @@ public class TheaClientService {
      * @param loanDTO
      */
     public void inserLoan(LoanDTO loanDTO,String token) {
-        TheaApiDTO resultDto = theaService.insertLoan(loanDTO,token);
+        TheaApiDTO resultDto = theaService.inserLoan(loanDTO,token);
     }
 
     /**
