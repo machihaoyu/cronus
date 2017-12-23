@@ -76,7 +76,7 @@ public class AutoCleanService {
     public boolean autoCleanStatus() {
         ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
         String status = redisConfigOptions.get(CommonConst.AUTO_CLEAN_STATUS);
-        if (status.equals("1"))
+        if (StringUtils.isNotEmpty(status) && status.equals("1"))
             return true;
         else
             return false;
