@@ -76,7 +76,7 @@ public class AutoCleanService {
     public boolean autoCleanStatus() {
         ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
         String status = redisConfigOptions.get(CommonConst.AUTO_CLEAN_STATUS);
-        if (status.equals("1"))
+        if (StringUtils.isNotEmpty(status) && status.equals("1"))
             return true;
         else
             return false;
@@ -145,6 +145,10 @@ public class AutoCleanService {
             allUserIds.add(0);
             if (null != allUserIds && allUserIds.size() > 0) {
                 paramsMap.put("notInOwnUserIds", allUserIds);
+            }
+            String date = DateUtils.format(DateUtils.addDay(new Date(),-1),DateUtils.FORMAT_SHORT);
+            if (StringUtils.isNotEmpty(date)) {
+                paramsMap.put("receiveTime", date);
             }
             //查询需要清洗的交易ID的集合
             List<Integer> autoCleanCustomerIds = customerInfoService.selectForAutoClean(paramsMap);
