@@ -27,6 +27,17 @@ public class UploadCilentDTO implements Serializable {
     @ApiModelProperty(value = "文件大小",required = false)
     private Integer  size;
 
+    @ApiModelProperty(value = "文件id",required = false)
+    private Integer  documentId;
+
+    public Integer getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(Integer documentId) {
+        this.documentId = documentId;
+    }
+
     public Integer getSize() {
         return size;
     }

@@ -292,7 +292,7 @@ public class AutoAllocateService {
                 "系统管理员",
                 toId);
 
-        smsService.sendSmsForAutoAllocate(ownerUser.getTelephone(), customerName);
+//        smsService.sendSmsForAutoAllocate(ownerUser.getTelephone(), customerName);
     }
 
     private void sendCRMAssistantMessage(String customerCity, String customerName, String token) {

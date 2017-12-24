@@ -255,7 +255,7 @@ public class DocumentController {
                 Integer size = uploadDocumentDto.getSize();
                 String base64 = uploadDocumentDto.getImageBase64();
                 InputStream inputStream = FileBase64ConvertUitl.BaseToInputStream(base64);
-                String path = documentService.uploadClientDocumentOk(inputStream,fileName,null,telephone,category,source,size,token,base64);
+                String path = documentService.uploadClientDocumentOk(inputStream,fileName,null,telephone,category,source,size,token,base64,uploadDocumentDto.getDocumentId());
                 fileList.add(path);
 
                 resultDto.setData(fileList);

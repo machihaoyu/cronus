@@ -73,6 +73,9 @@
     <if test="customerId != null">
       and customer_id = #{customerId}
     </if>
+    <if test="documentId != null">
+      and document_id = #{documentId}
+    </if>
   </select>
   <insert id="addConDocument" parameterType="com.fjs.cronus.model.RContractDocument"   useGeneratedKeys="true" keyProperty="id">
     insert into r_contract_document
