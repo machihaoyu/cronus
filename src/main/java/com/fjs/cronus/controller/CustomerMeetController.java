@@ -19,6 +19,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,6 +117,17 @@ public class CustomerMeetController {
             if (customerInfo == null){
                 theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
                 theaApiDTO.setMessage("客户不存在");
+                return theaApiDTO;
+            }
+            //只有业务员本人才能添加
+            if (customerInfo.getOwnUserId() == null){
+                theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+                theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE_COMMUNICATE);
+                return theaApiDTO;
+            }
+            if (StringUtils.isNotEmpty(resultDto.getUser_info().getUser_id().toString()) && customerInfo.getOwnUserId() != Integer.parseInt(resultDto.getUser_info().getUser_id().toString())){
+                theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+                theaApiDTO.setMessage(CommonConst.NOAUTHCUSTOMERMEET);
                 return theaApiDTO;
             }
             if (customerInfo.getRemain() != 1){

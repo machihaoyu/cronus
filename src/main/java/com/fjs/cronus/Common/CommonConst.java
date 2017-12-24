@@ -258,5 +258,7 @@ public class CommonConst {
 
     public static String KEEPPARAMS = "MaxCustomerNum";
 
+    public static String NOAUTHCUSTOMERMEET ="没有权限,只有本人才能添加面见信息";
+
 }
 

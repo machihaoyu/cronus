@@ -133,6 +133,6 @@ public class RContractDocumentService {
            /*      list.add(bytes);
              }
          }*/
-         return bytes;
+          return bytes;
      }
 }
