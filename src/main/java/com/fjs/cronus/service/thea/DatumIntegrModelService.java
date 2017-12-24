@@ -264,7 +264,7 @@ public class DatumIntegrModelService {
                 return null;
             String stringList = rContractDocumentService.getListBase64(telephone, catagoryId);
            if (StringUtils.isNotEmpty(stringList)){
-               return stringList;
+               return "data:image/jpeg;base64," + stringList;
            }
         }catch (Exception e) {
             logger.error(e.getMessage(), e);
