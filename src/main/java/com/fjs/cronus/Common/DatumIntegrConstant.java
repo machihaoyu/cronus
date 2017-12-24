@@ -90,4 +90,13 @@ public interface DatumIntegrConstant {
 
     /** 个人资产缓存key */
     String REDIS_CLIENT_FINANCIAL = "category_info_financial";
+
+    /** 户口本重复显示数量 */
+    Integer HOUSEHOLDREGISTER_AMOUNT = 3;
+
+    /** 房产证重复显示数量 */
+    Integer HOUSEREGISTRATION_AMOUNT = 4;
+
+    /** 银行流水重复显示数量 */
+    Integer STATEMENT_AMOUNT = 3;
 }

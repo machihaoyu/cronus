@@ -1,6 +1,7 @@
 package com.fjs.cronus.api;
 
 import com.fjs.cronus.dto.RespBaseDTO;
+import com.fjs.cronus.dto.thea.EarnCategoryInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.model.AttachmentModel;
 import com.fjs.cronus.model.thea.DatumIntegrModelDTO;
@@ -63,9 +64,9 @@ public class TheaApiController {
         @ApiImplicitParam(name = "telephone", value = "登录人手机号", required = true, paramType = "query", dataType = "string")
     })
     @RequestMapping(value = "/api/v1/getEarnCategoryInfo", method = RequestMethod.GET)
-    public RespBaseDTO<List<List<AttachmentModel>>> getEarnCategoryInfo(@RequestParam("telephone") String telephone){
+    public RespBaseDTO<EarnCategoryInfoDTO> getEarnCategoryInfo(@RequestParam("telephone") String telephone){
         try{
-            List<List<AttachmentModel>> attachmentModels = datumIntegrModelService.getEarnCategoryInfo(telephone);
+            EarnCategoryInfoDTO attachmentModels = datumIntegrModelService.getEarnCategoryInfo(telephone);
             return new RespBaseDTO(attachmentModels);
         }catch (CronusException e) {
             return new RespBaseDTO(Integer.parseInt(e.getResponseError().getStatus()),e.getResponseError().getMessage());

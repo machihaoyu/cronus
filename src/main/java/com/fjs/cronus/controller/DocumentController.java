@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by msi on 2017/9/20.
@@ -279,12 +280,11 @@ public class DocumentController {
     })
     @RequestMapping(value = "/getListBase64",method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto<String> getListBase64(@RequestHeader("Authorization") String token,@RequestParam String telephone,Integer catagoryId){
+    public CronusDto<Map<String,String>> getListBase64(@RequestHeader("Authorization") String token,@RequestParam String telephone,Integer catagoryId){
         logger.info("start uploadTopicPictureList!");
         CronusDto resultDto = new CronusDto();
-        String resultList = new String();
         try {
-            resultList =  rContractDocumentService.getListBase64(telephone,catagoryId);
+            Map<String,String> resultList =  rContractDocumentService.getListBase64(telephone,catagoryId);
             resultDto.setData(resultList);
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDto.setResult(ResultResource.CODE_SUCCESS);

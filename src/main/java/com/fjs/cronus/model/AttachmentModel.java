@@ -1,5 +1,6 @@
 package com.fjs.cronus.model;
 
+import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -15,6 +16,9 @@ public class AttachmentModel {
 
     @ApiModelProperty(name = "picture", value = "附件图片")
     private String picture;
+
+    @ApiModelProperty(name = "documentId", value = "文档id")
+    private String documentId;
 
     public Integer getId() {
         return id;
@@ -39,4 +43,24 @@ public class AttachmentModel {
     public void setPicture(String picture) {
         this.picture = picture;
     }
+
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
+    }
+
+    /**
+     * 克隆
+     * @param attachmentModel
+     * @return
+     */
+    public static AttachmentModel copy(AttachmentModel attachmentModel){
+        String jsonString = JSONObject.toJSONString(attachmentModel);
+        AttachmentModel object = JSONObject.parseObject(jsonString, AttachmentModel.class);//通过中转，实现新的引用
+        return object;
+    }
+
 }

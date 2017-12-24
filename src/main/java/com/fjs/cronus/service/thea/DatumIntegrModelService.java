@@ -2,6 +2,7 @@ package com.fjs.cronus.service.thea;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.DatumIntegrConstant;
+import com.fjs.cronus.dto.thea.EarnCategoryInfoDTO;
 import com.fjs.cronus.enums.CategoryEnum;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.DatumIntegrModelMapper;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -121,9 +123,17 @@ public class DatumIntegrModelService {
                 list = JSONObject.parseArray(res, AttachmentModel.class);
             }else {
                 list = datumIntegrModelMapper.householdRegisterId();
+                List<AttachmentModel> modelList = null;
+                if (list != null){
+                    modelList = new ArrayList<>();
+                    for (AttachmentModel attachmentModel : list) {
+                        copy(modelList, attachmentModel, DatumIntegrConstant.HOUSEHOLDREGISTER_AMOUNT);
+                    }
+                }
+                list = modelList;
                 redisSet(DatumIntegrConstant.REDIS_CLIENT_HOUSEHOLDREGISTER, JSONObject.toJSONString(list));
             }
-            picSet(list,telephone);
+            picSets(list,telephone,DatumIntegrConstant.HOUSEHOLDREGISTER_AMOUNT);
             return list;
         } else if (CategoryEnum.PROPERTYCERTIFICATE.getCode().equals(enumByCode.getCode())) {
             //房产证
@@ -132,9 +142,17 @@ public class DatumIntegrModelService {
                 list = JSONObject.parseArray(res, AttachmentModel.class);
             }else {
                 list = datumIntegrModelMapper.houseRegistrationId();
+                List<AttachmentModel> modelList = null;
+                if (list != null){
+                    modelList = new ArrayList<>();
+                    for (AttachmentModel attachmentModel : list) {
+                        copy(modelList, attachmentModel, DatumIntegrConstant.HOUSEREGISTRATION_AMOUNT);
+                    }
+                }
+                list = modelList;
                 redisSet(DatumIntegrConstant.REDIS_CLIENT_PROPERTYCERTIFICATE, JSONObject.toJSONString(list));
             }
-            picSet(list,telephone);
+            picSets(list,telephone,DatumIntegrConstant.HOUSEREGISTRATION_AMOUNT);
             return list;
         } else if (CategoryEnum.MARRIAGECERTIFICATE.getCode().equals(enumByCode.getCode())) {
             //结婚证
@@ -162,12 +180,29 @@ public class DatumIntegrModelService {
         return list;
     }
 
+
+    /**
+     *  复制对象
+     * @param modelList
+     * @param attachmentModel
+     * @param size
+     */
+    private void copy(List<AttachmentModel> modelList, AttachmentModel attachmentModel, Integer size){
+        modelList.add(attachmentModel);
+        for (int i = 1; i < size; i++){
+            AttachmentModel copy = AttachmentModel.copy(attachmentModel);
+            modelList.add(copy);
+        }
+    }
+
+
     /**
      * 获取收入证明附件分类名称、id
      * @param telephone 登录人手机号
      * @return
      */
-    public List<List<AttachmentModel>> getEarnCategoryInfo(String telephone) {
+    public EarnCategoryInfoDTO getEarnCategoryInfo(String telephone) {
+        //收入证明
         String proofOfEarningsIdStr = redisGet(DatumIntegrConstant.REDIS_CLIENT_PROOFOFEARNINGS);
         List<AttachmentModel> proofOfEarningsIds;
         if (StringUtils.isNotEmpty(proofOfEarningsIdStr)){
@@ -178,16 +213,26 @@ public class DatumIntegrModelService {
         }
         picSet(proofOfEarningsIds, telephone);
 
+        //银行流水
         String bankStatementIdStr = redisGet(DatumIntegrConstant.REDIS_CLIENT_BANK_STATEMENT);
         List<AttachmentModel> bankStatementIds;
         if (StringUtils.isNotEmpty(bankStatementIdStr)){
             bankStatementIds = JSONObject.parseArray(bankStatementIdStr, AttachmentModel.class);
         }else {
             bankStatementIds = datumIntegrModelMapper.bankStatementId();
+            List<AttachmentModel> modelList = null;
+            if (bankStatementIds != null){
+                modelList = new ArrayList<>();
+                for (AttachmentModel attachmentModel : bankStatementIds){
+                    copy(modelList, attachmentModel, DatumIntegrConstant.STATEMENT_AMOUNT);
+                }
+            }
+            bankStatementIds = modelList;
             redisSet(DatumIntegrConstant.REDIS_CLIENT_BANK_STATEMENT, JSONObject.toJSONString(bankStatementIds));
         }
-        picSet(bankStatementIds, telephone);
+        picSets(bankStatementIds, telephone, DatumIntegrConstant.STATEMENT_AMOUNT);
 
+        //个人资产
         String financialAssetsIdStr = redisGet(DatumIntegrConstant.REDIS_CLIENT_FINANCIAL);
         List<AttachmentModel> financialAssetsIds;
         if (StringUtils.isNotEmpty(financialAssetsIdStr)){
@@ -198,11 +243,11 @@ public class DatumIntegrModelService {
         }
         picSet(financialAssetsIds, telephone);
 
-        List<List<AttachmentModel>> lists = new ArrayList<>(3);
-        lists.add(proofOfEarningsIds);
-        lists.add(bankStatementIds);
-        lists.add(financialAssetsIds);
-        return lists;
+        EarnCategoryInfoDTO earnCategoryInfoDTO = new EarnCategoryInfoDTO();
+        earnCategoryInfoDTO.setProofOfEarningsIds(proofOfEarningsIds);
+        earnCategoryInfoDTO.setBankStatementIds(bankStatementIds);
+        earnCategoryInfoDTO.setFinancialAssetsIds(financialAssetsIds);
+        return earnCategoryInfoDTO;
     }
 
 
@@ -214,9 +259,24 @@ public class DatumIntegrModelService {
         if (list == null || list.size() < 1)
             return;
         for (AttachmentModel attachmentModel : list) {
-            attachmentModel.setPicture(getCatagoryPic(telephone,attachmentModel.getId()));
+            getCatagoryPic(telephone,attachmentModel);
         }
     }
+
+    /**
+     * 封装多图片
+     * @param list
+     * @param telephone
+     * @param step 步进
+     */
+    private void picSets(List<AttachmentModel> list, String telephone, Integer step){
+        if (list == null || list.size() < 1)
+            return;
+        for (int i = 0; i < list.size(); i = i + step) {
+            getCatagoryPics(list, list.get(i), step, telephone, i);
+        }
+    }
+
 
     /**
      * 获取redis中的缓存
@@ -253,23 +313,53 @@ public class DatumIntegrModelService {
 
 
     /**
-     * 获取附件图片
+     * 获取单张附件图片
      * @param telephone 当前登录人手机号
-     * @param catagoryId 附件id
+     * @param attachmentModel 附件信息
      * @return
      */
-    public String getCatagoryPic(String telephone, Integer catagoryId){
+    public void getCatagoryPic(String telephone, AttachmentModel attachmentModel){
         try{
-            if (StringUtils.isEmpty(telephone) || catagoryId == null)
-                return null;
-            String stringList = rContractDocumentService.getListBase64(telephone, catagoryId);
-           if (StringUtils.isNotEmpty(stringList)){
-               return "data:image/jpeg;base64," + stringList;
+            if (StringUtils.isEmpty(telephone) || attachmentModel == null || attachmentModel.getId() == null)
+                return;
+            Map<String,String> map = rContractDocumentService.getListBase64(telephone, attachmentModel.getId());
+           if (map != null && StringUtils.isNotEmpty(map.get("documentId"))){
+               attachmentModel.setDocumentId(map.get("documentId"));
+               if (StringUtils.isNotEmpty(map.get("bytes")))
+                   attachmentModel.setPicture("data:image/jpeg;base64," + map.get("bytes"));
            }
         }catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        return null;
+    }
+
+    /**
+     * 获取多张附件图片
+     * @param list
+     * @param attachmentModel 当前需要获取的附件类型
+     * @param step 步进
+     * @param telephone
+     * @param j 外层循环角标,我也不知道自己写的啥,凑合看吧
+     */
+    private void getCatagoryPics(List<AttachmentModel> list, AttachmentModel attachmentModel, Integer step, String telephone, int j) {
+        try {
+            if (StringUtils.isEmpty(telephone) || attachmentModel == null || attachmentModel.getId() == null)
+                return;
+            List<Map<String, String>> baseList = rContractDocumentService.getBaseList(telephone, attachmentModel.getId());
+            if (baseList == null || baseList.size() < 1)
+                return;
+            for (int i = 0; i < baseList.size() && i < step; i++){
+                if (baseList.get(i) != null && StringUtils.isNotEmpty(baseList.get(i).get("documentId"))){
+                    AttachmentModel model = list.get(j);
+                    model.setDocumentId(baseList.get(i).get("documentId"));
+                    if (StringUtils.isNotEmpty(baseList.get(i).get("bytes")))
+                        model.setPicture("data:image/jpeg;base64," + baseList.get(i).get("bytes"));
+                }
+                j++;
+            }
+        }catch (Exception e){
+            logger.error(e.getMessage(), e);
+        }
     }
 
 }

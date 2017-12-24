@@ -119,20 +119,52 @@ public class RContractDocumentService {
          return  flag;
      }
 
-     public String getListBase64(String telephone, Integer catagoryId){
-         //List<String> list = new ArrayList<>();
+    /**
+     * 获取单张附件的base64、文档id
+     * @param telephone 登录人手机号
+     * @param catagoryId 附件类型id
+     * @return
+     */
+     public Map<String,String> getListBase64(String telephone, Integer catagoryId){
+        CronusDto<CustomerDTO> resultDto = customerInfoService.fingByphone(telephone);
+        CustomerDTO customerDTO = resultDto.getData();
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("customerId",customerDTO.getId());
+        paramsMap.put("catagoryId",catagoryId);
+        RContractDocument rcdocument = rContractDocumentMapper.ocrDocumentToClient(paramsMap);
+        String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, rcdocument.getDocument().getDocumentSavepath(), "_S" + rcdocument.getDocument().getDocumentSavename());
+        Map<String,String> map = new HashMap<>();
+        map.put("documentId",rcdocument.getDocumentId().toString());
+        map.put("bytes",bytes);
+        return map;
+     }
+
+
+    /**
+     * 获取多张附件的base64、文档id
+     * @param telephone
+     * @param catagoryId
+     * @return
+     */
+     public List<Map<String,String>> getBaseList(String telephone, Integer catagoryId){
          CronusDto<CustomerDTO> resultDto = customerInfoService.fingByphone(telephone);
          CustomerDTO customerDTO = resultDto.getData();
          Map<String,Object> paramsMap = new HashMap<>();
          paramsMap.put("customerId",customerDTO.getId());
          paramsMap.put("catagoryId",catagoryId);
-         RContractDocument rcdocument = rContractDocumentMapper.ocrDocumentToClient(paramsMap);
-       /*  if (documentList.size() > 0){
-             for (RContractDocument rcdocument : documentList) {*/
-                 String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, rcdocument.getDocument().getDocumentSavepath(), "_S" + rcdocument.getDocument().getDocumentSavename());
-           /*      list.add(bytes);
-             }
-         }*/
-          return bytes;
+         List<RContractDocument> rContractDocuments = rContractDocumentMapper.ocrDocument(paramsMap);
+         List<Map<String,String>> mapList = new ArrayList<>();
+         String bytes;
+         if (rContractDocuments != null) {
+            for (RContractDocument rContractDocument : rContractDocuments){
+                bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, rContractDocument.getDocument().getDocumentSavepath(), "_S" + rContractDocument.getDocument().getDocumentSavename());
+                Map<String,String> map = new HashMap<>();
+                map.put("documentId", rContractDocument.getDocumentId().toString());
+                map.put("bytes", bytes);
+                mapList.add(map);
+            }
+         }
+         return mapList;
      }
+
 }
