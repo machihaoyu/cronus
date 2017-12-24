@@ -108,6 +108,7 @@ public class OcdcService {
                                 //自动分配
                                 allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                             } else {//有负责人分给对应的业务员
+                                customerDTO.setLoanAmount(customerSalePushLog.getLoanAmount());
                                 sendMail(token, customerDTO);
                                 SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token, customerDTO.getOwnerUserId()).getData();
                                 if (simpleUserInfoDTO != null && simpleUserInfoDTO.getSub_company_id() != null) {
