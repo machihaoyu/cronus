@@ -653,7 +653,7 @@ public class CustomerInfoService {
         if (customerType.equals(CustomerEnum.agreement_customer.getName())){
             //成交用户
             customerInfo.setCustomerType(CustomerEnum.conversion_customer.getName());
-            customerInfo.setCustomerLevel(CustomerEnum.agreement_customer.getName());
+            customerInfo.setCustomerLevel(CustomerEnum.conversion_customer.getName());
             //开始更新
             customerInfoMapper.updateCustomer(customerInfo);
             //生成日志记录
