@@ -23,7 +23,7 @@ public class SmsService {
      * @return
      */
     public String sendSmsForAutoAllocate(String sendPhone, String customerName) {
-        String smsContent = "房金所为您分配了客户名："+customerName+"，请注意跟进。";
+        String smsContent = "[测试数据]房金所为您分配了客户名："+customerName+"，请注意跟进。";
         String smsResult = smsUtils.sendBatchMessage(sendPhone, smsContent);
         return smsResult;
     }
