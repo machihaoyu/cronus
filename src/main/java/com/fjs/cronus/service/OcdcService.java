@@ -25,12 +25,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -73,6 +76,8 @@ public class OcdcService {
     @Autowired
     private CustomerInfoMapper customerInfoMapper;
 
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     @Autowired
     private CustomerInfoService customerInfoService;
@@ -499,15 +504,17 @@ public class OcdcService {
      * @return
      */
     public String pushServiceSystem(String json) {
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(90000);
-        requestFactory.setReadTimeout(90000);
-        restTemplate.setRequestFactory(requestFactory);
-        MultiValueMap<String, String> postParameters = new LinkedMultiValueMap<String, String>();
-        postParameters.add("key", ocdcKey);
-        postParameters.add("data", json);
-        String str = restTemplate.postForObject(customerToService, postParameters, String.class);
-        return str;
+        if (phpSysConnectStatus()) {
+            SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+            requestFactory.setConnectTimeout(90000);
+            requestFactory.setReadTimeout(90000);
+            restTemplate.setRequestFactory(requestFactory);
+            MultiValueMap<String, String> postParameters = new LinkedMultiValueMap<String, String>();
+            postParameters.add("key", ocdcKey);
+            postParameters.add("data", json);
+            String str = restTemplate.postForObject(customerToService, postParameters, String.class);
+            return str;
+        }else return "";
     }
 
 
@@ -518,30 +525,41 @@ public class OcdcService {
      * @return
      */
     public String autoAllocateFeedback(List<String> successlist, List<String> failList) {
+        if (phpSysConnectStatus()) {
+            StringBuilder successes = new StringBuilder();
+            StringBuilder fails = new StringBuilder();
+            for (int i = 0; i < successlist.size(); i++) {
+                successes.append(successlist.get(i));
+                if (i < successlist.size() - 1)
+                    successes.append(",");
+            }
+            for (int i = 0; i < failList.size(); i++) {
+                fails.append(failList.get(i));
+                if (i < failList.size() - 1)
+                    fails.append(",");
+            }
 
-        StringBuilder successes = new StringBuilder();
-        StringBuilder fails = new StringBuilder();
-        for (int i = 0; i < successlist.size(); i++) {
-            successes.append(successlist.get(i));
-            if (i < successlist.size() - 1)
-                successes.append(",");
+            SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+            requestFactory.setConnectTimeout(90000);
+            requestFactory.setReadTimeout(90000);
+            restTemplate.setRequestFactory(requestFactory);
+            MultiValueMap<String, String> postParameters = new LinkedMultiValueMap<String, String>();
+            postParameters.add("key", ocdcKey);
+            postParameters.add("success", successes.toString());
+            postParameters.add("fail", fails.toString());
+            String str = restTemplate.postForObject(pushCallback, postParameters, String.class);
+            return str;
         }
-        for (int i = 0; i < failList.size(); i++) {
-            fails.append(failList.get(i));
-            if (i < failList.size() - 1)
-                fails.append(",");
-        }
+        else return "";
+    }
 
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(90000);
-        requestFactory.setReadTimeout(90000);
-        restTemplate.setRequestFactory(requestFactory);
-        MultiValueMap<String, String> postParameters = new LinkedMultiValueMap<String, String>();
-        postParameters.add("key", ocdcKey);
-        postParameters.add("success", successes.toString());
-        postParameters.add("fail", fails.toString());
-        String str = restTemplate.postForObject(pushCallback, postParameters, String.class);
-        return str;
+    public boolean phpSysConnectStatus() {
+        ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
+        String status = redisConfigOptions.get(CommonConst.PHPSYS_CONNECT_STATUS);
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(status) && status.equals("1"))
+            return true;
+        else
+            return false;
     }
 
 
