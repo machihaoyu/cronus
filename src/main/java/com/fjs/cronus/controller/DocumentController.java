@@ -27,10 +27,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by msi on 2017/9/20.
@@ -261,7 +258,7 @@ public class DocumentController {
                 resultDto.setData(fileList);
                 resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
                 resultDto.setResult(ResultResource.CODE_SUCCESS);
-                logger.info("End CommonsMultipartResolver!");
+                logger.warn("上传图片--------" + Calendar.getInstance().getTimeInMillis());
         } catch (Exception e) {
             logger.error("上传图片失败", e);
             if (e instanceof CronusException) {
