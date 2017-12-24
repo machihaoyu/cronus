@@ -552,7 +552,7 @@ public class CustomerController {
             }
             if (customerInfo.getCommunicateTime() == null ||customerInfo.getConfirm() == 3){
                 theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
-                theaApiDTO.setMessage("刚分配未沟通的客户不能保留");
+                theaApiDTO.setMessage("刚分配的无效和未沟通客户不能保留");
                 return theaApiDTO;
             }
             if (customerInfo.getConfirm() == 1){
