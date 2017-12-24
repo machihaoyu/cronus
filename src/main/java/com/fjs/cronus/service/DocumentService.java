@@ -36,6 +36,7 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.*;
 
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
@@ -844,7 +845,7 @@ public class DocumentService {
 
 
     public String uploadClientDocumentOk(InputStream file,String fileName,String contractId,String telephone,
-                                     String category,String source,Integer size,String token,String base64){
+                                     String category,String source,Integer size,String token,String base64,Integer documentId){
         //校验参数
         if (category == null || "".equals(category)){
             throw new CronusException(CronusException.Type.CRM_OCRDOCUMENTCAGORY_ERROR);
@@ -879,12 +880,25 @@ public class DocumentService {
         if (size > ResultResource.FILEMAXSIZE ){
             throw new CronusException(CronusException.Type.CRM_MAXSIZE_UPLOAD);
         }
+        //
         //校验文件格式
         String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
         if (!Arrays.<String> asList(ResultResource.FILETYPE).contains(suffix)){
             throw new CronusException(CronusException.Type.CRM_FILETYPR_UPLOAD);
         }
         //取当前时间的长整形值包含毫秒
+
+        if (!StringUtils.isEmpty(documentId)){
+            Map<String,Object> parmasMap = new HashMap<>();
+            parmasMap.put("documentId",documentId);
+            RContractDocument rContractDocument = rContractDocumentMapper.findByFeild(parmasMap);
+            rContractDocument.setIsDeleted(1);
+            //找到附件
+            Document document = documentMapper.selectByKey(rContractDocument.getDocumentId());
+            document.setIsDeleted(1);
+            documentMapper.update(document);
+            rContractDocumentMapper.update(rContractDocument);
+        }
         long millis = System.currentTimeMillis();
         //long millis = System.nanoTime();
         //加上三位随机数
