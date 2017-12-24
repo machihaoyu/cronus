@@ -1,15 +1,12 @@
 package com.fjs.cronus.util;
 
 import java.io.*;
-import java.util.Random;
+import java.util.Base64;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
-
-import org.joda.time.DateTime;
-import sun.misc.BASE64Encoder;
 
 public class FtpUtil {
 
@@ -203,7 +200,7 @@ public class FtpUtil {
 				}
 			}
 		}
-		return new BASE64Encoder().encode(bytes) ;
+		return Base64.getEncoder().encodeToString(bytes);
 	}
 
 	public static boolean delete(String host, int port, String username, String password, String remotePath,
