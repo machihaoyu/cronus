@@ -79,7 +79,7 @@ public class EntityToDto {
             dto.setIdentity(customerInfo.getIdCard());
         }
         if (!StringUtils.isEmpty(customerInfo.getCooperationStatus())){
-            dto.setIdentity(customerInfo.getCooperationStatus());
+            dto.setCooptionstatus(customerInfo.getCooperationStatus());
         }
 
 
