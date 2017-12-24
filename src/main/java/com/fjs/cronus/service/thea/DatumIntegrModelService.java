@@ -263,10 +263,11 @@ public class DatumIntegrModelService {
             if (StringUtils.isEmpty(telephone) || catagoryId == null)
                 return null;
 
-            List<String> stringList = rContractDocumentService.getListBase64(telephone, catagoryId);
-            if (stringList != null && stringList.size() > 0){
+            String stringList = rContractDocumentService.getListBase64(telephone, catagoryId);
+           /* if (stringList != null && stringList.size() > 0){
                 return stringList.get(0);
-            }
+            }*/
+           return stringList;
         }catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

@@ -22,4 +22,6 @@ public interface RContractDocumentMapper{
     List<Integer> findListByFeild(Map<String,Object> paramsMap);
 
     void update(RContractDocument rContractDocument);
+
+    RContractDocument ocrDocumentToClient(Map<String,Object> paramsMap);
 }

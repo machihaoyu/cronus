@@ -119,20 +119,20 @@ public class RContractDocumentService {
          return  flag;
      }
 
-     public List<String> getListBase64(String telephone, Integer catagoryId){
-         List<String> list = new ArrayList<>();
+     public String getListBase64(String telephone, Integer catagoryId){
+         //List<String> list = new ArrayList<>();
          CronusDto<CustomerDTO> resultDto = customerInfoService.fingByphone(telephone);
          CustomerDTO customerDTO = resultDto.getData();
          Map<String,Object> paramsMap = new HashMap<>();
          paramsMap.put("customerId",customerDTO.getId());
          paramsMap.put("catagoryId",catagoryId);
-         List<RContractDocument> documentList = rContractDocumentMapper.ocrDocument(paramsMap);
-         if (documentList.size() > 0){
-             for (RContractDocument rcdocument : documentList) {
-                 String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, rcdocument.getDocument().getDocumentSavepath(), "_S" + rcdocument.getDocument().getDocumentSavename());
-                 list.add(bytes);
+         RContractDocument rcdocument = rContractDocumentMapper.ocrDocumentToClient(paramsMap);
+       /*  if (documentList.size() > 0){
+             for (RContractDocument rcdocument : documentList) {*/
+                 String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL +"/" + rcdocument.getDocument().getDocumentSavepath(), "_S" + rcdocument.getDocument().getDocumentSavename());
+           /*      list.add(bytes);
              }
-         }
-         return list;
+         }*/
+         return bytes;
      }
 }

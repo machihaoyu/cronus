@@ -279,10 +279,10 @@ public class DocumentController {
     })
     @RequestMapping(value = "/getListBase64",method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto getListBase64(@RequestHeader("Authorization") String token,@RequestParam String telephone,Integer catagoryId){
+    public CronusDto<String> getListBase64(@RequestHeader("Authorization") String token,@RequestParam String telephone,Integer catagoryId){
         logger.info("start uploadTopicPictureList!");
         CronusDto resultDto = new CronusDto();
-        List<String> resultList = new ArrayList<>();
+        String resultList = new String();
         try {
             resultList =  rContractDocumentService.getListBase64(telephone,catagoryId);
             resultDto.setData(resultList);
