@@ -801,7 +801,7 @@ public class DocumentService {
                     message = "【请上传借款人身份证】";
                 }
                 if(!documentCids.contains(map.get(ResultResource.HOUSEREGISTER))){
-                    message = "【请上传户口本】";
+                    message = message + "【请上传户口本】";
                 }
 
                 if(!documentCids.contains(map.get(ResultResource.HOUSEHOLD)) && !documentCids.contains(map.get(ResultResource.CERTIFICATE))){
