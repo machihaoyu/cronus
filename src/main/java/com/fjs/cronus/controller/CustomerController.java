@@ -550,7 +550,7 @@ public class CustomerController {
                 }
                 communicationLog=communicationLogService.listByCustomerIdAndUserId(customerInfo.getId(),Integer.parseInt(userInfoDTO.getUser_id()),token);
             }
-            if (communicationLog.size() == 0){
+            if (customerInfo.getCommunicateTime() == null ||customerInfo.getConfirm() == 3){
                 theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
                 theaApiDTO.setMessage("刚分配未沟通的客户不能保留");
                 return theaApiDTO;
