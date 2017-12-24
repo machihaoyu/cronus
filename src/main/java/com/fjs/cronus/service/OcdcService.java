@@ -331,7 +331,8 @@ public class OcdcService {
                 customerSalePushLog.setCustomerLevel(CommonEnum.CUSTOMER_LEVEL_0.getCodeDesc());
             }
             if (null != map.get("loan_amount") && StringUtils.isNotBlank(map.get("loan_amount").toString())) {
-                customerSalePushLog.setLoanAmount(new BigDecimal(map.get("loan_amount").asInt()));
+                float value = (float)(Math.round(map.get("loan_amount").asLong()*100/10000))/100;
+                customerSalePushLog.setLoanAmount(new BigDecimal(value));
             }
             if (null != map.get("spare_phone") && StringUtils.isNotBlank(map.get("spare_phone").toString())) {
                 customerSalePushLog.setSparePhone(map.get("spare_phone").asText());
