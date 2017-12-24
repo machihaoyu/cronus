@@ -260,5 +260,8 @@ public class CommonConst {
 
     public static String NOAUTHCUSTOMERMEET ="没有权限,只有本人才能添加面见信息";
 
+    //反馈老系统
+    public static String PHPSYS_CONNECT_STATUS = "phpSysConnectStatus";
+
 }
 
