@@ -1451,8 +1451,8 @@ public class CustomerInfoService {
         customerInfo.setRetirementWages(customerDTO.getRetirementWages());
         Date date = new Date();
         //刚申请的客户
-        customerInfo.setCompanyId(Integer.valueOf(userInfoDTO.getCompany_id()));
-        customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
+        customerInfo.setCompanyId(0);//导入客户不属于任何分公司
+        customerInfo.setSubCompanyId(0);//导入客户不属于任何分公司
         customerInfo.setCustomerType(CommonConst.CUSTOMER_TYPE_MIND);
         customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
         customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);

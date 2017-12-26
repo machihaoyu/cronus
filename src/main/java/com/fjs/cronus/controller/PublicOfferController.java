@@ -295,6 +295,16 @@ public class PublicOfferController {
                 JSONObject jsonObject = JSONObject.parseObject(result);
                 String specUtmSource = jsonObject.getString(utmSource);
                 pan.setUtmSource(specUtmSource);
+                List<CityDto> subsCitys = ucService.getSubcompanyByUserId(token, userId, CommonConst.SYSTEMNAME);
+                List<String> subCitys = new ArrayList<String>();
+                if (!CollectionUtils.isEmpty(subsCitys)) {
+                    for (CityDto cityDto : subsCitys) {
+                        if (StringUtils.isNotEmpty(cityDto.getName())) {
+                            mainCitys.add(cityDto.getName());
+                        }
+                    }
+                }
+
             }else {
                 //公盘需要踢出三处客户以及过滤掉特殊渠道的
                 String result = theaClientService.findValueByName(token,CommonConst.SPECIAL_UTM_SOURCE);
@@ -377,7 +387,7 @@ public class PublicOfferController {
             pan.setCustomerClassify(customerClassify);
             pan.setCustomerSource(customerSource);
             pan.setCity(city);
-            queryResult  =panService.listByOffer(pan,userId,companyId,token,CommonConst.SYSTEMNAME,page,size,mainCitys,subCompanyIds,type,mountLevle,utmList,paramsList);
+            queryResult  =panService.specialListByOffer(pan,userId,companyId,token,CommonConst.SYSTEMNAME,page,size,mainCitys,subCompanyIds,type,mountLevle,utmList,paramsList);
             cronusDto.setData(queryResult);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());

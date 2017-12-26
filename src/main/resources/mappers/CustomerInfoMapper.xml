@@ -1540,7 +1540,7 @@
                 #{item}
             </foreach>
             OR
-            company_id in
+            sub_company_id in
             <foreach item="item" index="index" collection="subCompanyIds" open="("
                      separator="," close=")">
                 #{item}
@@ -1554,13 +1554,7 @@
             <foreach item="item" index="index" collection="mainCitys" open="("
                      separator="," close=")">
                 #{item}
-            </foreach>
-            or company_id not in
-            <foreach item="item" index="index" collection="subCompanyIds" open="("
-                     separator="," close=")">
-                #{item}
-            </foreach>
-            )
+            </foreach>)
         </if>
         <if test="utmList != null and utmList.size() > 0">
             and utm_source not IN
@@ -1652,7 +1646,7 @@
                 #{item}
             </foreach>
             OR
-            company_id in
+            sub_company_id in
             <foreach item="item" index="index" collection="subCompanyIds" open="("
                      separator="," close=")">
                 #{item}
@@ -1667,7 +1661,7 @@
                      separator="," close=")">
                 #{item}
             </foreach>
-            or company_id not in
+            or sub_company_id not in
             <foreach item="item" index="index" collection="subCompanyIds" open="("
                      separator="," close=")">
                 #{item}
@@ -1728,7 +1722,9 @@
                 last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
             </if>
             own_user_id = 0,
-            own_user_name = NULL
+            own_user_name = NULL,
+            sub_company_id = 0,
+            company_id= 0,
         </set>
         where id in
         <foreach collection="paramsList" index="index" item="paramsList" open="(" separator="," close=")">
@@ -1835,5 +1831,242 @@
                 <![CDATA[	and receive_time < #{receiveTime}  ]]>
             </if>
         </where>
+    </select>
+
+
+    <select id="specialListByOffer" resultMap="BaseResultMap" parameterType="Map">
+        select
+        <include refid="Base_Column_List" />
+        ,
+        <include refid="Blob_Column_List" />
+        from customer_info
+        where own_user_id =0
+        <if test="telephonenumber != null and '' != telephonenumber">
+            and telephonenumber = #{telephonenumber,jdbcType=VARCHAR}
+        </if>
+        <if test="city != null and '' != city">
+            and city = #{city,jdbcType=VARCHAR}
+        </if>
+        <if test="customerName != null and '' != customerName">
+            and customer_name = #{customerName,jdbcType=VARCHAR}
+        </if>
+        <if test="customerSource != null and '' != customerSource">
+            and customer_source = #{customerSource,jdbcType=VARCHAR}
+        </if>
+        <if test="utmSource != null and '' != utmSource">
+            and utm_source = #{utmSource,jdbcType=VARCHAR}
+        </if>
+        <if test="houseStatus != null and '' != houseStatus">
+            and house_status = #{houseStatus,jdbcType=VARCHAR}
+        </if>
+        <if test="cooperation_status != null and '' != cooperation_status">
+            and cooperation_status = #{cooperation_status,jdbcType=VARCHAR}
+        </if>
+        <if test="companyId != null and '' != companyId">
+            and company_id = #{companyId,jdbcType=INTEGER}
+        </if>
+        <if test="createTimeBegin != null and createTimeEnd !=null ">
+            and date(create_time) between #{createTimeBegin} and #{createTimeEnd}
+        </if>
+        <if test="lastUpdateTime != null and '' != lastUpdateTime">
+            and last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="createUser != null and '' != createUser">
+            and create_user = #{createUser,jdbcType=INTEGER}
+        </if>
+        <if test="lastUpdateUser != null and '' != lastUpdateUser">
+            and last_update_user = #{lastUpdateUser,jdbcType=INTEGER}
+        </if>
+        <if test="mountLevle != null">
+            <choose>
+                <when test="mountLevle == 1">
+                    and (loan_amount  &gt; 0 and  loan_amount &lt; 20)
+                </when>
+                <when test="mountLevle == 2">
+                    and (loan_amount  &gt; 20 and  loan_amount &lt; 50)
+                </when>
+
+                <when test="mountLevle == 3">
+                    and (loan_amount  &gt; 50 and  loan_amount &lt; 100)
+                </when>
+                <when test="mountLevle == 4">
+                    and (loan_amount  &gt; 100 and  loan_amount &lt; 500)
+                </when>
+                <when test="mountLevle == 5">
+                    and (loan_amount  &gt; 500 )
+                </when>
+            </choose>
+        </if>
+        <if test="mainCitys != null and mainCitys.size() > 0
+			and subCompanyIds != null and subCompanyIds.size() > 0
+			and type== null">
+            and(city in
+            <foreach item="item" index="index" collection="mainCitys" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+            OR
+            sub_company_id in
+            <foreach item="item" index="index" collection="subCompanyIds" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
+        <if test="mainCitys != null and mainCitys.size() > 0
+			and subCompanyIds != null and subCompanyIds.size() > 0
+			and type != null">
+            and(city not in
+            <foreach item="item" index="index" collection="mainCitys" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>)
+        </if>
+        <if test="mainCitys != null and mainCitys.size() > 0
+			and type == null">
+            and(city in
+            <foreach item="item" index="index" collection="mainCitys" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>)
+        </if>
+
+        <if test="utmList != null and utmList.size() > 0">
+            and utm_source not IN
+            <foreach item="item" index="index" collection="utmList" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="paramsList!=null and paramsList.size>0">
+            AND (cooperation_status IS NULL OR cooperation_status NOT in
+            <foreach item="item" index="index" collection="paramsList" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
+        and is_deleted=0
+        ORDER BY last_update_time DESC
+        limit ${start},${size}
+    </select>
+
+    <select id="specialListByOfferCount" resultType="Integer" parameterType="Map">
+        select
+        COUNT(*)
+        from customer_info
+        where own_user_id =0
+        <if test="telephonenumber != null and '' != telephonenumber">
+            and telephonenumber = #{telephonenumber,jdbcType=VARCHAR}
+        </if>
+        <if test="city != null and '' != city">
+            and city = #{city,jdbcType=VARCHAR}
+        </if>
+        <if test="customerName != null and '' != customerName">
+            and customer_name = #{customerName,jdbcType=VARCHAR}
+        </if>
+        <if test="customerSource != null and '' != customerSource">
+            and customer_source = #{customerSource,jdbcType=VARCHAR}
+        </if>
+        <if test="utmSource != null and '' != utmSource">
+            and utm_source = #{utmSource,jdbcType=VARCHAR}
+        </if>
+        <if test="houseStatus != null and '' != houseStatus">
+            and house_status = #{houseStatus,jdbcType=VARCHAR}
+        </if>
+        <if test="customerClassify != null and '' != customerClassify">
+            and customer_classify = #{customerClassify,jdbcType=VARCHAR}
+        </if>
+        <if test="companyId != null and '' != companyId">
+            and company_id = #{companyId,jdbcType=INTEGER}
+        </if>
+        <if test="createTimeBegin != null and createTimeEnd !=null ">
+            and date(create_time) between #{createTimeBegin} and #{createTimeEnd}
+        </if>
+        <if test="lastUpdateTime != null and '' != lastUpdateTime">
+            and last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="createUser != null and '' != createUser">
+            and create_user = #{createUser,jdbcType=INTEGER}
+        </if>
+        <if test="lastUpdateUser != null and '' != lastUpdateUser">
+            and last_update_user = #{lastUpdateUser,jdbcType=INTEGER}
+        </if>
+        <if test="mountLevle != null">
+            <choose>
+                <when test="mountLevle == 1">
+                    and (loan_amount  &gt; 0 and  loan_amount &lt; 20)
+                </when>
+                <when test="mountLevle == 2">
+                    and (loan_amount  &gt; 20 and  loan_amount &lt; 50)
+                </when>
+
+                <when test="mountLevle == 3">
+                    and (loan_amount  &gt; 50 and  loan_amount &lt; 100)
+                </when>
+                <when test="mountLevle == 4">
+                    and (loan_amount  &gt; 100 and  loan_amount &lt; 500)
+                </when>
+                <when test="mountLevle == 5">
+                    and (loan_amount  &gt; 500 )
+                </when>
+            </choose>
+        </if>
+        <if test="mainCitys != null and mainCitys.size() > 0
+			and subCompanyIds != null and subCompanyIds.size() > 0
+			and type== null">
+            and( city in
+            <foreach item="item" index="index" collection="mainCitys" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+            OR
+            sub_company_id in
+            <foreach item="item" index="index" collection="subCompanyIds" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
+        <if test="mainCitys != null and mainCitys.size() > 0
+			and subCompanyIds != null and subCompanyIds.size() > 0
+			and type != null">
+            and (city not in
+            <foreach item="item" index="index" collection="mainCitys" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+            or sub_company_id not in
+            <foreach item="item" index="index" collection="subCompanyIds" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
+        <if test="mainCitys != null and mainCitys.size() > 0
+			and type == null">
+            and(city in
+            <foreach item="item" index="index" collection="mainCitys" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>)
+        </if>
+
+        <if test="utmList != null and utmList.size() > 0">
+            and utm_source not IN
+            <foreach item="item" index="index" collection="utmList" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="paramsList!=null and paramsList.size>0">
+            AND (cooperation_status IS NULL OR  cooperation_status NOT in
+            <foreach item="item" index="index" collection="paramsList" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
+        and is_deleted=0
     </select>
 </mapper>

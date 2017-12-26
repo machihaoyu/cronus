@@ -233,6 +233,7 @@ public class PrdCustomerService {
             }
             prdCustomerDTO.setComunication(list);
         }
+        prdCustomerDTO.setLast_update_time(prdCustomer.getLastUpdateTime());
         return prdCustomerDTO;
     }
 

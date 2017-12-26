@@ -64,7 +64,7 @@ public class CommunicationLogService {
         customerUsefulDTO.setHouseStatus(customerUsefulDTO.getHouseStatus());
         //修改客户
         //有效客户
-        if(customerUsefulDTO.getLoanAmount() != null && Integer.valueOf(customerUsefulDTO.getLoanAmount().toString()) > 0){
+        if(customerUsefulDTO.getLoanAmount() != null){
             CustomerUseful customerUseful = customerUsefulService.selectByCustomerId(customerUsefulDTO.getCustomerId());
             if (customerUseful == null){
                 customerUseful=customerUsefulService.copyProperty(customerUsefulDTO);
@@ -100,7 +100,7 @@ public class CommunicationLogService {
             customerDto.setConfirm(CommonConst.CONFIRM__STATUS_EFFECT);
         }
         if (customerUsefulDTO.getLoanAmount() != null && customerUsefulDTO.getLoanAmount().intValue() == 0){
-            customerDto.setConfirm(CommonConst.CONFIRM__STATUS_NO);
+            customerDto.setConfirm(CommonConst.CONFIRM__STATUS_NOEFFECT);
         }
 //        loan.setStatus(CommonConst.LOAN_STATUS_COMMUNICATION);
         customerDto.setLastUpdateTime(date);
