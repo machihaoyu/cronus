@@ -74,11 +74,19 @@
 		<if test="communicationOrder != null ">
 			and communit_time is not null
 		</if>
+		<if test="type!=null">
+			<choose>
+			<when test="type == 1">
 		<if test="createTimeBegin != null and createTimeEnd !=null ">
-			and date(last_update_time) between #{createTimeBegin} and #{createTimeEnd}
+			and date(last_update_time) >= #{createTimeBegin} and date(last_update_time) &lt;= #{createTimeEnd}
 		</if>
-		<if test="createTimeBegin != null and createTimeEnd ==null">
-			and date(last_update_time) &lt; #{createTimeBegin}
+			</when>
+				<when test="type == 2">
+		<if test="createTimeBegin != null">
+			and date(last_update_time) &lt;= #{createTimeBegin}
+		</if>
+				</when>
+			</choose>
 		</if>
 		<if test="status != null and '' != status">  
 			and status = #{status,jdbcType=INTEGER}
@@ -148,11 +156,19 @@
 		<if test="communicationOrder != null ">
 			and communit_time is not null
 		</if>
-		<if test="createTimeBegin != null and createTimeEnd !=null ">
-			and date(last_update_time) between #{createTimeBegin} and #{createTimeEnd}
-		</if>
-		<if test="createTimeBegin != null and createTimeEnd ==null">
-			and date(last_update_time) &lt; #{createTimeBegin}
+		<if test="type!=null">
+			<choose>
+				<when test="type == 1">
+					<if test="createTimeBegin != null and createTimeEnd !=null ">
+						and date(last_update_time) >= #{createTimeBegin} and date(last_update_time) &lt;= #{createTimeEnd}
+					</if>
+				</when>
+				<when test="type == 2">
+					<if test="createTimeBegin != null">
+						and date(last_update_time) &lt;= #{createTimeBegin}
+					</if>
+				</when>
+			</choose>
 		</if>
 		<if test="status != null and '' != status">
 			and status = #{status,jdbcType=INTEGER}

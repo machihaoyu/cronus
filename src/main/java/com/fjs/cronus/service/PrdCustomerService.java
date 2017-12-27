@@ -316,6 +316,7 @@ public class PrdCustomerService {
             if (StringUtils.isNotEmpty(level)){
                 map.put("level",level);
             }
+                map.put("type",type);
             if (type==1){
                 map.put("createTimeBegin", getMonthAgo(new Date(),1));
                 map.put("createTimeEnd",getMonthAgo(new Date(),null));

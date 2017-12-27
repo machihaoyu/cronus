@@ -307,7 +307,7 @@ public class UploadController {
             content.add(cellValue);
         }
         Object[] datas = new String[content.size()][];
-        for (int i = 1; i < content.size(); i++) {
+        for (int i = 0; i < content.size(); i++) {
             List<Object> list = (List<Object>) content.get(i);
             Integer listSize=list.size();
             PrdCustomer prdCustomer=new PrdCustomer();
@@ -340,6 +340,7 @@ public class UploadController {
             }
             logger.info("市场推广导入:"+prdCustomer.toString());
             UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
+            prdCustomer.setCustomerType("意向客户");
             prdCustomerService.addPrdCustomer(prdCustomer,userInfoDTO);
         }
     }
