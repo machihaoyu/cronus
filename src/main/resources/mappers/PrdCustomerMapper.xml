@@ -37,7 +37,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from prd_customer
-		where 1=1
+		where status not in(-1,2)
 		<if test="customerName != null and '' != customerName">  
 			and customer_name = #{customerName,jdbcType=VARCHAR}
 		</if>
@@ -119,7 +119,7 @@
 	<select id="countByCondition" resultType="Integer" parameterType="com.fjs.cronus.model.PrdCustomer">
 		select count(*)
 		from prd_customer
-		where 1=1
+		where status not in(-1,2)
 		<if test="customerName != null and '' != customerName">
 			and customer_name = #{customerName,jdbcType=VARCHAR}
 		</if>

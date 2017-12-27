@@ -140,6 +140,13 @@ public class PrdCustomerService {
                 customerInfoMapper.updateCustomer(customerInfo);
                 //log
                 customerInfoService.insertLog(customerInfo, Integer.valueOf(userInfoDTO.getUser_id()));
+                //开始更新市场推广
+                prdCustomer.setStatus(2);
+                Integer resultUpdate = prdCustomerMapper.update(prdCustomer);
+                if (resultUpdate == null){
+                    throw new CronusException(CronusException.Type.MESSAGE_UPDATEPRDCUSTOMER_ERROR);
+                }
+
             }else {
                  //新插入一条
                 CustomerInfo customerInfo1 = new CustomerInfo();
@@ -154,6 +161,11 @@ public class PrdCustomerService {
                 customerInfoMapper.insertCustomer(customerInfo1);
                 //插入日志
                 customerInfoService.insertAddCustomerLog(customerInfo1,Integer.valueOf(userInfoDTO.getUser_id()));
+                prdCustomer.setStatus(2);
+                Integer resultUpdate = prdCustomerMapper.update(prdCustomer);
+                if (resultUpdate == null){
+                    throw new CronusException(CronusException.Type.MESSAGE_UPDATEPRDCUSTOMER_ERROR);
+                }
                 //TODO 像ocdc同步数据
                 try {
                     outPutService.synchronToOcdc(customerInfo1);
