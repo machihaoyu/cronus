@@ -148,9 +148,9 @@ public class PrdCustomerService {
                 customerInfo1.setOwnUserName(userInfoDTO.getName());
                 customerInfo1.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
                 customerInfo1.setLastUpdateTime(date);
-                customerInfo.setReceiveId(0);
-                customerInfo.setCommunicateId(0);
-                customerInfo.setAutostatus(0);
+                customerInfo1.setReceiveId(0);
+                customerInfo1.setCommunicateId(0);
+                customerInfo1.setAutostatus(0);
                 customerInfoMapper.insertCustomer(customerInfo1);
                 //插入日志
                 customerInfoService.insertAddCustomerLog(customerInfo1,Integer.valueOf(userInfoDTO.getUser_id()));

@@ -77,5 +77,6 @@ dependencies {
 	compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.16'
 	compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.0'
 	compile group: 'net.coobird', name: 'thumbnailator', version: '0.4.8'
+	compile("org.springframework.boot:spring-boot-devtools")
 
 }
