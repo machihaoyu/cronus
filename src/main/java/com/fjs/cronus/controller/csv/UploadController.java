@@ -342,6 +342,8 @@ public class UploadController {
             UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
             prdCustomer.setCustomerType("意向客户");
             prdCustomer.setLoanAmount(new BigDecimal(0));
+            prdCustomer.setViewUid(0);
+            prdCustomer.setViewTime(0);
             prdCustomerService.addPrdCustomer(prdCustomer,userInfoDTO);
         }
     }
