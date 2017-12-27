@@ -430,6 +430,16 @@ public class PrdCustomerService {
             //jsonArray
             prdCustomer.setCommunitContent(jsonArray.toJSONString());
                 prdCustomer.setCommunitTime(date);
+            }else {
+                JSONArray jsonArray = new JSONArray();
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("content",addPrdCustomerDTO.getContent());
+                jsonObject.put("create_user_id",userId);
+                jsonObject.put("create_time",Integer.valueOf(res));
+                jsonArray.add(jsonObject);
+                //jsonArray
+                prdCustomer.setCommunitContent(jsonArray.toJSONString());
+                prdCustomer.setCommunitTime(date);
             }
         }
     }
