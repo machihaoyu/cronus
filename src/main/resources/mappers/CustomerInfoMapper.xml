@@ -1974,8 +1974,8 @@
         <if test="houseStatus != null and '' != houseStatus">
             and house_status = #{houseStatus,jdbcType=VARCHAR}
         </if>
-        <if test="customerClassify != null and '' != customerClassify">
-            and customer_classify = #{customerClassify,jdbcType=VARCHAR}
+        <if test="cooperation_status != null and '' != cooperation_status">
+            and cooperation_status = #{cooperation_status,jdbcType=VARCHAR}
         </if>
         <if test="companyId != null and '' != companyId">
             and company_id = #{companyId,jdbcType=INTEGER}
@@ -2015,7 +2015,7 @@
         <if test="mainCitys != null and mainCitys.size() > 0
 			and subCompanyIds != null and subCompanyIds.size() > 0
 			and type== null">
-            and( city in
+            and(city in
             <foreach item="item" index="index" collection="mainCitys" open="("
                      separator="," close=")">
                 #{item}
@@ -2031,17 +2031,11 @@
         <if test="mainCitys != null and mainCitys.size() > 0
 			and subCompanyIds != null and subCompanyIds.size() > 0
 			and type != null">
-            and (city not in
+            and(city not in
             <foreach item="item" index="index" collection="mainCitys" open="("
                      separator="," close=")">
                 #{item}
-            </foreach>
-            or sub_company_id not in
-            <foreach item="item" index="index" collection="subCompanyIds" open="("
-                     separator="," close=")">
-                #{item}
-            </foreach>
-            )
+            </foreach>)
         </if>
         <if test="mainCitys != null and mainCitys.size() > 0
 			and type == null">
@@ -2060,7 +2054,7 @@
             </foreach>
         </if>
         <if test="paramsList!=null and paramsList.size>0">
-            AND (cooperation_status IS NULL OR  cooperation_status NOT in
+            AND (cooperation_status IS NULL OR cooperation_status NOT in
             <foreach item="item" index="index" collection="paramsList" open="("
                      separator="," close=")">
                 #{item}
