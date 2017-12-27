@@ -89,6 +89,10 @@ public class PrdCustomerController {
             }
         }catch (Exception e){
             logger.error("-------------->updatePrdCustomer更新市场推广盘失败:"+e);
+            if (e instanceof CronusException){
+                theaApiDTO.setResult(CommonMessage.UPDATE_FAIL_OWNER.getCode());
+                theaApiDTO.setMessage(CommonMessage.UPDATE_FAIL_OWNER.getCodeDesc());
+            }
             theaApiDTO.setResult(CommonMessage.UPDATE_FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.UPDATE_FAIL.getCodeDesc());
         }
