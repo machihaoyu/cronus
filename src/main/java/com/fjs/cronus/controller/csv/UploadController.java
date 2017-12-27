@@ -341,6 +341,7 @@ public class UploadController {
             logger.info("市场推广导入:"+prdCustomer.toString());
             UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
             prdCustomer.setCustomerType("意向客户");
+            prdCustomer.setLoanAmount(new BigDecimal(0));
             prdCustomerService.addPrdCustomer(prdCustomer,userInfoDTO);
         }
     }
