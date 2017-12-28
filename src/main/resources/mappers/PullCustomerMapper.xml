@@ -56,20 +56,20 @@
 		<if test="mountLevle != null">
 			<choose>
 				<when test="mountLevle == 1">
-					and (loan_amount  &gt; 0 and  loan_amount &lt; 20)
+					and (loan_amount  &gt;= 0 and  loan_amount &lt;= 20)
 				</when>
 				<when test="mountLevle == 2">
-					and (loan_amount  &gt; 20 and  loan_amount &lt; 50)
+					and (loan_amount  &gt;= 20 and  loan_amount &lt;= 50)
 				</when>
 
 				<when test="mountLevle == 3">
-					and (loan_amount  &gt; 50 and  loan_amount &lt; 100)
+					and (loan_amount  &gt;= 50 and  loan_amount &lt;= 100)
 				</when>
 				<when test="mountLevle == 4">
-					and (loan_amount  &gt; 100 and  loan_amount &lt; 500)
+					and (loan_amount  &gt;= 100 and  loan_amount &lt;= 500)
 				</when>
 				<when test="mountLevle == 5">
-					and (loan_amount  &gt; 500 )
+					and (loan_amount  &gt;= 500 )
 				</when>
 			</choose>
 		</if>
@@ -108,20 +108,20 @@
 		<if test="mountLevle != null">
 			<choose>
 				<when test="mountLevle == 1">
-					and (loan_amount  &gt; 0 and  loan_amount &lt; 20)
+					and (loan_amount  &gt;= 0 and  loan_amount &lt;= 20)
 				</when>
 				<when test="mountLevle == 2">
-					and (loan_amount  &gt; 20 and  loan_amount &lt; 50)
+					and (loan_amount  >= 20 and  loan_amount &lt;= 50)
 				</when>
 
 				<when test="mountLevle == 3">
-					and (loan_amount  &gt; 50 and  loan_amount &lt; 100)
+					and (loan_amount  &gt;= 50 and  loan_amount &lt;= 100)
 				</when>
 				<when test="mountLevle == 4">
-					and (loan_amount  &gt; 100 and  loan_amount &lt; 500)
+					and (loan_amount  &gt;= 100 and  loan_amount &lt;= 500)
 				</when>
 				<when test="mountLevle == 5">
-					and (loan_amount  &gt; 500 )
+					and (loan_amount  &gt;= 500 )
 				</when>
 			</choose>
 		</if>

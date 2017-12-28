@@ -208,7 +208,7 @@ public class AllocateController {
                 return theaApiDTO;
             }
         }
-        UserInfoDTO userInfoDTO=ucService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
+        UserInfoDTO userInfoDTO=resultDto.getUser_info();
         List<CustomerInfo> customerInfoList=new ArrayList<CustomerInfo>();
         try{
             customerInfoList=customerInfoService.getByIds(allocateDTO.getIds());
@@ -220,7 +220,7 @@ public class AllocateController {
             //添加分配日志
             for (CustomerInfo customerInfo :customerInfoList){
                 allocateLogService.addAllocatelog(customerInfo, customerInfo.getOwnUserId(),
-                        CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_2.getCode(), null);
+                        CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_2.getCode(), userInfoDTO);
             }
             //开始进行批量分配
             boolean updateResult = allocateService.batchAllocate(allocateDTO.getIds(),allocateDTO.getEmpId(),userInfoDTO,token);

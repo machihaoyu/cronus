@@ -241,6 +241,7 @@ public class CommonConst {
 
     public static String OPERARIONNO = "未沟通分配";
 
+    public static String OPERATIONBYHAND = "手动分配";
     public static String REMOVECUSTOMERALL ="removeCustomerAll";
 
     public static String ALLOCATEALL ="allocateAll";

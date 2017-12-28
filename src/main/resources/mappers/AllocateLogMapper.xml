@@ -159,9 +159,31 @@
         COUNT(*)
         FROM allocate_log cl
         WHERE
-        create_user_id = #{createUserId}
+        new_owner_id = #{createUserId}
         AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
         AND  operation = #{operation}
     </select>
-
+    <select id="getReceiveCount"  resultType="Integer"  parameterType="Map">
+        SELECT
+        DISTINCT(customer_id)
+        FROM allocate_log cl
+        WHERE
+        new_owner_id = #{createUserId}
+        AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
+        <if test="null != operationList and operationList.size() > 0">
+            AND  operation IN
+            <foreach item="item" index="index" collection="operationList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="receiveIds"  resultType="Integer"  parameterType="Map">
+        SELECT
+        DISTINCT(customer_id)
+        FROM allocate_log cl
+        WHERE
+        new_owner_id = #{createUserId}
+        AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
+        AND  operation = #{operation}
+    </select>
 </mapper>

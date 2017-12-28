@@ -143,7 +143,7 @@ public class PanService {
         paramMap.put("createUserId",userId);
         paramMap.put("operation",CommonConst.OPERATION);
         String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
-        paramMap.put("operation",CommonConst.OPERATION);
+       // paramMap.put("operation",CommonConst.OPERATION);
         paramMap.put("createTime",today);
         Integer count = allocateLogMapper.receiveCountByWhere(paramMap);
         if (count >= Integer.parseInt(maxCount)){
@@ -160,7 +160,7 @@ public class PanService {
         AllocateLog allocateLog = new AllocateLog();
         allocateLog.setCreateTime(new Date());
         allocateLog.setCustomerId(customerInfo.getId());
-        allocateLog.setOldOwnerId(0);
+        allocateLog.setOldOwnerId(customerInfo.getOwnUserId());
         allocateLog.setNewOwnerId(userId);
         allocateLog.setCreateUserId(userId);
         allocateLog.setCreateUserName(userName);

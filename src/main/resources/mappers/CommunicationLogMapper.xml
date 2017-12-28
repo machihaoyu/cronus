@@ -65,11 +65,24 @@
 			and date(create_time) between #{createTimeBegin} and #{createTimeEnd}
 		</if>
 	</select>
-	<select id="selectByTime" resultMap="ResultMap2" parameterType="Map">
+	<select id="selectByTime" resultMap="ResultMap2"  parameterType="Map">
 		SELECT
 		<include refid="Base_Column_List" />
 		from communication_log
 		where 1=1
 		AND next_contact_time > #{comiaTime}
+	</select>
+
+	<select id="allocateCommunication" resultType="java.lang.Integer" parameterType="Map">
+		SELECT DISTINCT(customer_id) from communication_log
+		where 1=1
+		<if test="null != list and list.size() > 0">
+			and customer_id IN
+			<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		and create_user = #{createUserId}
+		and DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
 	</select>
 </mapper>
