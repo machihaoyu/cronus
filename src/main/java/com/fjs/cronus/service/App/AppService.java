@@ -59,8 +59,8 @@ public class AppService {
         Date date = new Date();
         paramMap.put("createUserId",userId);
         paramMap.put("operationList", list);
-        //String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
-        String today = "2017-12-27";
+        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
+       // String today = "2017-12-27";
         // paramMap.put("operation",CommonConst.OPERATION);
         paramMap.put("createTime",today);
         List<Integer> allocateIds =allocateLogMapper.getReceiveCount(paramMap);
@@ -94,8 +94,6 @@ public class AppService {
         paramMap.put("createUserId",userId);
         paramMap.put("operation", CommonConst.OPERATION);
         String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
-        today = "2017-12-27";
-        // paramMap.put("operation",CommonConst.OPERATION);
         paramMap.put("createTime",today);
 
         List<Integer> keepCount = allocateLogMapper.receiveIds(paramMap);
@@ -105,7 +103,7 @@ public class AppService {
         Map<String,Object> paramMap = new HashMap<>();
         Date date = new Date();
         String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
-        today = "2017-12-27";
+        //today = "2017-12-27";
         paramMap.put("list",keepCount);
         paramMap.put("createTime",today);
         paramMap.put("createUserId",userId);
@@ -136,7 +134,6 @@ public class AppService {
                 ocrDocumentDto.setFlag(rcdocument.getDocument().getIsFlag());
                 ocrDocumentDto.setDocumentSavepath(ResultResource.DOWNLOADFOOTPATH + rcdocument.getDocument().getDocumentSavepath());
                 String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, rcdocument.getDocument().getDocumentSavepath(), rcdocument.getDocument().getDocumentSavename());
-
                 ocrDocumentDto.setUrl("data:image/jpeg;base64," + bytes);
                 ocrDocumentDtos.add(ocrDocumentDto);
             }
