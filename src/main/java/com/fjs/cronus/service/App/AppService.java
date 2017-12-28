@@ -133,7 +133,7 @@ public class AppService {
                 ocrDocumentDto.setDocumentSavename(rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDto.setFlag(rcdocument.getDocument().getIsFlag());
                 ocrDocumentDto.setDocumentSavepath(ResultResource.DOWNLOADFOOTPATH + rcdocument.getDocument().getDocumentSavepath());
-                String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, rcdocument.getDocument().getDocumentSavepath(), rcdocument.getDocument().getDocumentSavename());
+                String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD,ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath(), rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDto.setUrl("data:image/jpeg;base64," + bytes);
                 ocrDocumentDtos.add(ocrDocumentDto);
             }
