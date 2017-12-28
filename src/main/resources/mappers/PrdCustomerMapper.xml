@@ -51,13 +51,13 @@
 			<when test="city != null and '' != city">
 				and city = #{city,jdbcType=VARCHAR}
 			</when>
-	        <otherwise>
+	        <when test="citys != null and citys.size > 0">
 				and city not in
 				<foreach item="item" index="index" collection="citys" open="("
 						 separator="," close=")">
 					#{item}
 				</foreach>
-			</otherwise>
+			</when>
 		</choose>
 		<if test="houseStatus != null and '' != houseStatus">  
 			and house_status = #{houseStatus,jdbcType=CHAR}
@@ -133,13 +133,13 @@
 			<when test="city != null and '' != city">
 				and city = #{city,jdbcType=VARCHAR}
 			</when>
-			<otherwise>
+			<when test="citys != null and citys.size > 0">
 				and city not in
 				<foreach item="item" index="index" collection="citys" open="("
 						 separator="," close=")">
 					#{item}
 				</foreach>
-			</otherwise>
+			</when>
 		</choose>
 		<if test="houseStatus != null and '' != houseStatus">
 			and house_status = #{houseStatus,jdbcType=CHAR}

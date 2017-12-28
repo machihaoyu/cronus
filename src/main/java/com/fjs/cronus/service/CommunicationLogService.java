@@ -117,7 +117,6 @@ public class CommunicationLogService {
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
 
-        //面见
         if (customerUsefulDTO.getIsMeet() != null && customerUsefulDTO.getIsMeet() == CommonConst.IS_MEET__YES){
             customerMeet.setCustomerId(customerUsefulDTO.getCustomerId());
             customerMeet.setMeetTime(customerUsefulDTO.getMeetTime());
