@@ -264,5 +264,8 @@ public class CommonConst {
     //反馈老系统
     public static String PHPSYS_CONNECT_STATUS = "phpSysConnectStatus";
 
+    //B端附件信息 缓存
+    public static String OCRDOCUMENTKEY = "OCRDOCUMENTKEY";
+
 }
 

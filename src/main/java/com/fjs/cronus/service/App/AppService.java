@@ -10,6 +10,7 @@ import com.fjs.cronus.mappers.CommunicationLogMapper;
 import com.fjs.cronus.mappers.RContractDocumentMapper;
 import com.fjs.cronus.model.CommunicationLog;
 import com.fjs.cronus.model.RContractDocument;
+import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.FtpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,8 @@ public class AppService {
     private CommunicationLogMapper communicationLogMapper;
     @Autowired
     RContractDocumentMapper rContractDocumentMapper;
+    @Autowired
+    CronusRedisService cronusRedisService;
     @Value("${ftp.viewUrl}")
     private String viewUrl;
     @Value("${ftp.address}")
@@ -120,9 +123,13 @@ public class AppService {
         CronusDto resultDto = new CronusDto();
         Map<String,Object> paramsMap = new HashMap<>();
         paramsMap.put("customerId",customerId);
+        List<OcrDocumentDto> ocrDocumentDtos = null;
+        //查询缓存
+        ocrDocumentDtos= cronusRedisService.getRedisDocumentInfo(CommonConst.OCRDOCUMENTKEY + customerId);
+        if (ocrDocumentDtos == null || ocrDocumentDtos.size() == 0){
+        ocrDocumentDtos = new ArrayList<>();
         List<RContractDocument> documentList = rContractDocumentMapper.ocrDocument(paramsMap);
-        List<OcrDocumentDto> ocrDocumentDtos = new ArrayList<>();
-        if (documentList.size() > 0){
+        if (documentList.size() > 0) {
             for (RContractDocument rcdocument : documentList) {
                 OcrDocumentDto ocrDocumentDto = new OcrDocumentDto();
                 ocrDocumentDto.setDocument_id(rcdocument.getDocument().getId());
@@ -133,14 +140,18 @@ public class AppService {
                 ocrDocumentDto.setDocumentSavename(rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDto.setFlag(rcdocument.getDocument().getIsFlag());
                 ocrDocumentDto.setDocumentSavepath(ResultResource.DOWNLOADFOOTPATH + rcdocument.getDocument().getDocumentSavepath());
-                String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD,ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath(), rcdocument.getDocument().getDocumentSavename());
+                String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, ResultResource.DOWNLOADFOOTPATH + rcdocument.getDocument().getDocumentSavepath(), "_S"+ rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDto.setUrl("data:image/jpeg;base64," + bytes);
                 ocrDocumentDtos.add(ocrDocumentDto);
             }
-            resultDto.setData(ocrDocumentDtos);
-            resultDto.setResult(ResultResource.CODE_SUCCESS);
-            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            //开始存入缓存
+            cronusRedisService.setRedisDocumentInfo(CommonConst.OCRDOCUMENTKEY + customerId,ocrDocumentDtos);
+
         }
+        }
+        resultDto.setData(ocrDocumentDtos);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         return  resultDto;
     }
 }

@@ -65,7 +65,7 @@ public interface DatumIntegrConstant {
 
 
     /** 缓存时间 */
-    Integer REDIS_CLIENT_CASE_LOANPRODUCT_TIME = 180;//TODO 要修改成 3600
+    Integer REDIS_CLIENT_CASE_LOANPRODUCT_TIME = 3600;//TODO 要修改成 3600
 
     /** 身份证缓存key */
     String REDIS_CLIENT_IDENTITY = "category_info_identity";

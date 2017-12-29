@@ -64,4 +64,16 @@ public class CronusRedisService {
         redis.set(key,null,30, TimeUnit.DAYS);
     }
 
+    public void setRedisDocumentInfo(String key,List list){
+        ValueOperations<String,List> redis = listOperations.opsForValue();
+        redis.set(key,list,360, TimeUnit.SECONDS);
+    }
+
+    public List getRedisDocumentInfo(String key) {
+        ValueOperations<String,List> redis = listOperations.opsForValue();
+        List list = new ArrayList();
+        list = redis.get(key);
+        return list;
+    }
+
 }
