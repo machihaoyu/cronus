@@ -92,6 +92,7 @@ public class PrdCustomerController {
             if (e instanceof CronusException){
                 theaApiDTO.setResult(CommonMessage.UPDATE_FAIL_OWNER.getCode());
                 theaApiDTO.setMessage(CommonMessage.UPDATE_FAIL_OWNER.getCodeDesc());
+                return theaApiDTO;
             }
             theaApiDTO.setResult(CommonMessage.UPDATE_FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.UPDATE_FAIL.getCodeDesc());
