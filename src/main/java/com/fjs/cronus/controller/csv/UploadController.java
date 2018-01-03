@@ -126,8 +126,8 @@ public class UploadController {
 
         }catch (Exception e){
             logger.error("导入公盘失败",e);
-            theaApiDTO.setResult(CommonMessage.FAIL.getCode());
-            theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc());
+            theaApiDTO.setResult(CommonMessage.UPLOAD_CUSTOMERERROR.getCode());
+            theaApiDTO.setMessage(CommonMessage.UPLOAD_CUSTOMERERROR.getCodeDesc());
         }
         return theaApiDTO;
     }
