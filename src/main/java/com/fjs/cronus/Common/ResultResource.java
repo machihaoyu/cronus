@@ -8,6 +8,7 @@ public class ResultResource {
     public static String MESSAGE_SUCCESS = "成功";
     // 其他错误
     public static int CODE_ERROR = 0;
+    public static String CODE_REMOVE_MESSAGE="您没有权限！";
 
     public static int CODE_OTHER_ERROR = 999999;
     public static String MESSAGE_OTHER_ERROR = "其他错误";
