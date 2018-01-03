@@ -333,12 +333,12 @@ public class UserController {
         String city = editAllocateDTO.getCity();
         try {
             String userIds = allocateRedisService.delUserToAllocateTemplete(userId, city);
-            resultDto.setResult(CommonMessage.ADD_SUCCESS.getCode());
-            resultDto.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
+            resultDto.setResult(CommonMessage.DELETE_SUCCESS.getCode());
+            resultDto.setMessage(CommonMessage.DELETE_SUCCESS.getCodeDesc());
         } catch (Exception e) {
             logger.error("------------删除用户至分配队列失败-----------" + e);
-            resultDto.setResult(CommonMessage.ADD_FAIL.getCode());
-            resultDto.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
+            resultDto.setResult(CommonMessage.DELETE_SUCCESS.getCode());
+            resultDto.setMessage(CommonMessage.DELETE_SUCCESS.getCodeDesc());
         }
         return resultDto;
     }
