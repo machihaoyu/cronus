@@ -5,6 +5,7 @@ import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.dto.cronus.PanParamDTO;
@@ -94,7 +95,6 @@ public class PanService {
             }
             map.put("mainCitys",mainCitys);
             map.put("subCompanyIds",subCompanyIds);
-            map.put("type",type);
             map.put("start",(page-1)*size);
             map.put("size",size);
             if (utmList != null && utmList.size() > 0){
@@ -143,7 +143,7 @@ public class PanService {
         paramMap.put("createUserId",userId);
         paramMap.put("operation",CommonConst.OPERATION);
         String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
-        paramMap.put("operation",CommonConst.OPERATION);
+       // paramMap.put("operation",CommonConst.OPERATION);
         paramMap.put("createTime",today);
         Integer count = allocateLogMapper.receiveCountByWhere(paramMap);
         if (count >= Integer.parseInt(maxCount)){
@@ -160,7 +160,7 @@ public class PanService {
         AllocateLog allocateLog = new AllocateLog();
         allocateLog.setCreateTime(new Date());
         allocateLog.setCustomerId(customerInfo.getId());
-        allocateLog.setOldOwnerId(0);
+        allocateLog.setOldOwnerId(customerInfo.getOwnUserId());
         allocateLog.setNewOwnerId(userId);
         allocateLog.setCreateUserId(userId);
         allocateLog.setCreateUserName(userName);
@@ -184,7 +184,7 @@ public class PanService {
      */
     @Transactional
     public void receiveCustomerByType(CustomerInfo customerInfo,Integer userId,String token){
-        UserInfoDTO ucUserDTO = ucService.getUserInfoByID(token,userId);
+        AppUserDto ucUserDTO = ucService.getUserInfoByID(token,userId);
         Date date = new Date();
         if (customerInfo.getOwnUserId() != 0){
             throw new CronusException(CronusException.Type.MESSAGE_PULLCUSTOMEROWNER_ERROR);
@@ -195,6 +195,7 @@ public class PanService {
         customerInfo.setOwnUserName(ucUserDTO.getName());
         customerInfo.setReceiveTime(date);
         customerInfo.setSubCompanyId(Integer.valueOf(ucUserDTO.getSub_company_id()));
+        customerInfo.setCompanyId(Integer.valueOf(ucUserDTO.getCompany_id()));
         //更改领取人
         customerInfo.setReceiveId(userId);
         customerInfoMapper.updateCustomer(customerInfo);
@@ -207,5 +208,76 @@ public class PanService {
         customerInfoLog.setLogUserId(userId);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
+    }
+
+    public QueryResult<CustomerListDTO> specialListByOffer(PanParamDTO pan, Integer userId, Integer companyId , String token, String system,
+                                                    Integer page, Integer size, List<String> mainCitys, List<Integer> subCompanyIds, Integer type,Integer mountLevle,List<String> utmList,List<String>paramsList) {
+
+        QueryResult<CustomerListDTO> result = new QueryResult<>();
+        Map<String,Object> map=new HashedMap();
+        List<CustomerListDTO> resultDto = new ArrayList<>();
+        if (pan != null){
+            //客户姓名
+            if (StringUtils.isNotEmpty(pan.getCustomerName())) {
+                map.put("customerName",pan.getCustomerName());
+            }
+            //电话
+            if (StringUtils.isNotEmpty(pan.getTelephonenumber())) {
+                //手机号加密
+                map.put("telephonenumber", DEC3Util.des3EncodeCBC(pan.getTelephonenumber()));
+            }
+            //合作状态
+            if (StringUtils.isNotEmpty(pan.getCustomerClassify())) {
+                map.put("cooperation_status", pan.getCustomerClassify());
+            }
+            if (StringUtils.isNotEmpty(pan.getHouseStatus())) {
+                map.put("houseStatus", pan.getHouseStatus());
+            }
+            //公司
+            if (companyId != null) {
+                map.put("companyId", companyId);
+            }
+            if (StringUtils.isNotEmpty(pan.getUtmSource())) {
+                map.put("utmSource",pan.getUtmSource());
+            }
+            if (StringUtils.isNotEmpty(pan.getCity())) {
+                map.put("city",pan.getCity());
+            }
+            if (StringUtils.isNotEmpty(pan.getCustomerSource())){
+                map.put("customer_source",pan.getCustomerSource());
+            }
+            if (mountLevle != null){
+                map.put("mountLevle",mountLevle);
+            }
+            map.put("mainCitys",mainCitys);
+            map.put("subCompanyIds",subCompanyIds);
+            map.put("type",type);
+            map.put("start",(page-1)*size);
+            map.put("size",size);
+            if (utmList != null && utmList.size() > 0){
+                map.put("utmList",utmList);
+            }
+            if (paramsList != null && paramsList.size() > 0){
+                map.put("paramsList",paramsList);
+            }
+            PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
+            if (userInfoDTO == null){
+                throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
+            }
+            Integer lookphone =Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
+            Integer user_Id = Integer.parseInt(userInfoDTO.getUser_info().getUser_id());
+            List<CustomerInfo> customerInfoList = customerInfoMapper.specialListByOffer(map);
+            Integer total = customerInfoMapper.specialListByOfferCount(map);
+            if (customerInfoList != null && customerInfoList.size() > 0) {
+                for (CustomerInfo customerInfo : customerInfoList){
+                    CustomerListDTO customerDto = new CustomerListDTO();
+                    EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,userId);
+                    resultDto.add(customerDto);
+                }
+            }
+            result.setRows(resultDto);
+            result.setTotal(total.toString());
+        }
+        return  result;
     }
 }

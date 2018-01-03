@@ -2,6 +2,7 @@ package com.fjs.cronus.service.client;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.api.PhpApiDto;
+import com.fjs.cronus.config.FeignClientConfig;
 import com.fjs.cronus.dto.api.*;
 import com.fjs.cronus.dto.api.uc.*;
 import com.fjs.cronus.dto.api.uc.SubCompanyCityDto;
@@ -16,6 +17,7 @@ import java.util.List;
  * Created by Administrator on 2017/7/6 0006. url = "http://192.168.1.124:1120",
  */
 @FeignClient(value = "${client.feign.thor-backend}")
+//@FeignClient(value = "${client.feign.thor-backend}", url = "http://192.168.1.128:1120",configuration = FeignClientConfig.class)
 public interface ThorUcService {
 
     /**
@@ -318,4 +320,6 @@ public interface ThorUcService {
     @RequestMapping(value = "/api/v1/getRoleInfoByUser_id",method = RequestMethod.POST)
     public PhpApiDto<List> getRoleInfoByUser_id(@RequestHeader("Authorization") String token,
                                                 @RequestParam(value = "user_id") String user_id);
+
+
 }

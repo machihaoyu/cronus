@@ -140,6 +140,13 @@ public class PrdCustomerService {
                 customerInfoMapper.updateCustomer(customerInfo);
                 //log
                 customerInfoService.insertLog(customerInfo, Integer.valueOf(userInfoDTO.getUser_id()));
+                //开始更新市场推广
+                prdCustomer.setStatus(2);
+                Integer resultUpdate = prdCustomerMapper.update(prdCustomer);
+                if (resultUpdate == null){
+                    throw new CronusException(CronusException.Type.MESSAGE_UPDATEPRDCUSTOMER_ERROR);
+                }
+
             }else {
                  //新插入一条
                 CustomerInfo customerInfo1 = new CustomerInfo();
@@ -148,12 +155,17 @@ public class PrdCustomerService {
                 customerInfo1.setOwnUserName(userInfoDTO.getName());
                 customerInfo1.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
                 customerInfo1.setLastUpdateTime(date);
-                customerInfo.setReceiveId(0);
-                customerInfo.setCommunicateId(0);
-                customerInfo.setAutostatus(0);
+                customerInfo1.setReceiveId(0);
+                customerInfo1.setCommunicateId(0);
+                customerInfo1.setAutostatus(0);
                 customerInfoMapper.insertCustomer(customerInfo1);
                 //插入日志
                 customerInfoService.insertAddCustomerLog(customerInfo1,Integer.valueOf(userInfoDTO.getUser_id()));
+                prdCustomer.setStatus(2);
+                Integer resultUpdate = prdCustomerMapper.update(prdCustomer);
+                if (resultUpdate == null){
+                    throw new CronusException(CronusException.Type.MESSAGE_UPDATEPRDCUSTOMER_ERROR);
+                }
                 //TODO 像ocdc同步数据
                 try {
                     outPutService.synchronToOcdc(customerInfo1);
@@ -233,6 +245,7 @@ public class PrdCustomerService {
             }
             prdCustomerDTO.setComunication(list);
         }
+        prdCustomerDTO.setLast_update_time(prdCustomer.getLastUpdateTime());
         return prdCustomerDTO;
     }
 
@@ -315,6 +328,7 @@ public class PrdCustomerService {
             if (StringUtils.isNotEmpty(level)){
                 map.put("level",level);
             }
+                map.put("type",type);
             if (type==1){
                 map.put("createTimeBegin", getMonthAgo(new Date(),1));
                 map.put("createTimeEnd",getMonthAgo(new Date(),null));
@@ -427,6 +441,16 @@ public class PrdCustomerService {
             jsonArray.add(jsonObject);
             //jsonArray
             prdCustomer.setCommunitContent(jsonArray.toJSONString());
+                prdCustomer.setCommunitTime(date);
+            }else {
+                JSONArray jsonArray = new JSONArray();
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("content",addPrdCustomerDTO.getContent());
+                jsonObject.put("create_user_id",userId);
+                jsonObject.put("create_time",Integer.valueOf(res));
+                jsonArray.add(jsonObject);
+                //jsonArray
+                prdCustomer.setCommunitContent(jsonArray.toJSONString());
                 prdCustomer.setCommunitTime(date);
             }
         }

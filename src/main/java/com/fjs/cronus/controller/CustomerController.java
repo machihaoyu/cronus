@@ -95,14 +95,14 @@ public class CustomerController {
         }
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
         String[] authority=resultDto.getAuthority();
-        if(authority.length>0){
+       /* if(authority.length>0){
             List<String> authList= Arrays.asList(authority);
             if (authList.contains(CommonConst.CANCEL_LOAN_URL)){
                 cronusDto.setResult(CommonMessage.CANCEL_FAIL.getCode());
                 cronusDto.setMessage(CommonConst.NO_AUTHORIZE);
                 return cronusDto;
             }
-        }
+        }*/
         try {
             QueryResult queryResult = customerInfoService.customerList(userId,customerName,telephonenumber,
                     utmSource, ownUserName, customerSource, circle,companyId,page,size, remain,level,token);
@@ -588,14 +588,14 @@ public class CustomerController {
         Integer customerId = jsonObject.getInteger("customerId");
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
         String[] authority=resultDto.getAuthority();
-        if(authority.length>0){
+      /*  if(authority.length>0){
             List<String> authList= Arrays.asList(authority);
             if (authList.contains(CommonConst.CANCEL_LOAN_URL)){
                 theaApiDTO.setResult(CommonMessage.CANCEL_FAIL.getCode());
                 theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
                 return theaApiDTO;
             }
-        }
+        }*/
         UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
 
         CustomerInfo customerInfo=null;
@@ -681,6 +681,16 @@ public class CustomerController {
         CronusDto cronusDto = new CronusDto();
         //校验权限
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
+        String[] authority=resultDto.getAuthority();
+        if(authority.length>0){
+            List<String> authList= Arrays.asList(authority);
+            if (authList.contains(CommonConst.REMOVE_CUSTOMER)){
+                cronusDto.setResult(ResultResource.CODE_OTHER_ERROR);
+                cronusDto.setMessage(CommonConst.NO_AUTHORIZE);
+                return cronusDto;
+            }
+        }
+
         try {
             cronusDto  = customerInfoService.removeCustomerAll(removeDTO,token);
             return cronusDto;

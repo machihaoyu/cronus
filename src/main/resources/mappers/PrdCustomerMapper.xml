@@ -37,7 +37,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from prd_customer
-		where 1=1
+		where status not in(-1,2)
 		<if test="customerName != null and '' != customerName">  
 			and customer_name = #{customerName,jdbcType=VARCHAR}
 		</if>
@@ -51,13 +51,13 @@
 			<when test="city != null and '' != city">
 				and city = #{city,jdbcType=VARCHAR}
 			</when>
-	        <otherwise>
+	        <when test="citys != null and citys.size > 0">
 				and city not in
 				<foreach item="item" index="index" collection="citys" open="("
 						 separator="," close=")">
 					#{item}
 				</foreach>
-			</otherwise>
+			</when>
 		</choose>
 		<if test="houseStatus != null and '' != houseStatus">  
 			and house_status = #{houseStatus,jdbcType=CHAR}
@@ -74,11 +74,19 @@
 		<if test="communicationOrder != null ">
 			and communit_time is not null
 		</if>
+		<if test="type!=null">
+			<choose>
+			<when test="type == 1">
 		<if test="createTimeBegin != null and createTimeEnd !=null ">
-			and date(last_update_time) between #{createTimeBegin} and #{createTimeEnd}
+			and date(last_update_time) >= #{createTimeBegin} and date(last_update_time) &lt;= #{createTimeEnd}
 		</if>
-		<if test="createTimeBegin != null and createTimeEnd ==null">
-			and date(last_update_time) &lt; #{createTimeBegin}
+			</when>
+				<when test="type == 2">
+		<if test="createTimeBegin != null">
+			and date(last_update_time) &lt;= #{createTimeBegin}
+		</if>
+				</when>
+			</choose>
 		</if>
 		<if test="status != null and '' != status">  
 			and status = #{status,jdbcType=INTEGER}
@@ -86,17 +94,17 @@
 		<if test="mountLevle != null">
 			<choose>
 				<when test="mountLevle == 1">
-					and (loan_amount  &gt; 0 and  loan_amount &lt; 20)
+					and (loan_amount  &gt; 0 and  loan_amount &lt;= 20)
 				</when>
 				<when test="mountLevle == 2">
-					and (loan_amount  &gt; 20 and  loan_amount &lt; 50)
+					and (loan_amount  &gt; 20 and  loan_amount &lt;= 50)
 				</when>
 
 				<when test="mountLevle == 3">
-					and (loan_amount  &gt; 50 and  loan_amount &lt; 100)
+					and (loan_amount  &gt; 50 and  loan_amount &lt;= 100)
 				</when>
 				<when test="mountLevle == 4">
-					and (loan_amount  &gt; 100 and  loan_amount &lt; 500)
+					and (loan_amount  &gt; 100 and  loan_amount &lt;= 500)
 				</when>
 				<when test="mountLevle == 5">
 					and (loan_amount  &gt; 500 )
@@ -111,7 +119,7 @@
 	<select id="countByCondition" resultType="Integer" parameterType="com.fjs.cronus.model.PrdCustomer">
 		select count(*)
 		from prd_customer
-		where 1=1
+		where status not in(-1,2)
 		<if test="customerName != null and '' != customerName">
 			and customer_name = #{customerName,jdbcType=VARCHAR}
 		</if>
@@ -125,13 +133,13 @@
 			<when test="city != null and '' != city">
 				and city = #{city,jdbcType=VARCHAR}
 			</when>
-			<otherwise>
+			<when test="citys != null and citys.size > 0">
 				and city not in
 				<foreach item="item" index="index" collection="citys" open="("
 						 separator="," close=")">
 					#{item}
 				</foreach>
-			</otherwise>
+			</when>
 		</choose>
 		<if test="houseStatus != null and '' != houseStatus">
 			and house_status = #{houseStatus,jdbcType=CHAR}
@@ -148,11 +156,19 @@
 		<if test="communicationOrder != null ">
 			and communit_time is not null
 		</if>
-		<if test="createTimeBegin != null and createTimeEnd !=null ">
-			and date(last_update_time) between #{createTimeBegin} and #{createTimeEnd}
-		</if>
-		<if test="createTimeBegin != null and createTimeEnd ==null">
-			and date(last_update_time) &lt; #{createTimeBegin}
+		<if test="type!=null">
+			<choose>
+				<when test="type == 1">
+					<if test="createTimeBegin != null and createTimeEnd !=null ">
+						and date(last_update_time) >= #{createTimeBegin} and date(last_update_time) &lt;= #{createTimeEnd}
+					</if>
+				</when>
+				<when test="type == 2">
+					<if test="createTimeBegin != null">
+						and date(last_update_time) &lt;= #{createTimeBegin}
+					</if>
+				</when>
+			</choose>
 		</if>
 		<if test="status != null and '' != status">
 			and status = #{status,jdbcType=INTEGER}
@@ -160,17 +176,17 @@
 		<if test="mountLevle != null">
 			<choose>
 				<when test="mountLevle == 1">
-					and (loan_amount  &gt; 0 and  loan_amount &lt; 20)
+					and (loan_amount  &gt; 0 and  loan_amount &lt;= 20)
 				</when>
 				<when test="mountLevle == 2">
-					and (loan_amount  &gt; 20 and  loan_amount &lt; 50)
+					and (loan_amount  &gt; 20 and  loan_amount &lt;= 50)
 				</when>
 
 				<when test="mountLevle == 3">
-					and (loan_amount  &gt; 50 and  loan_amount &lt; 100)
+					and (loan_amount  &gt; 50 and  loan_amount &lt;= 100)
 				</when>
 				<when test="mountLevle == 4">
-					and (loan_amount  &gt; 100 and  loan_amount &lt; 500)
+					and (loan_amount  &gt; 100 and  loan_amount &lt;= 500)
 				</when>
 				<when test="mountLevle == 5">
 					and (loan_amount  &gt; 500 )

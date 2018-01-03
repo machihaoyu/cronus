@@ -40,6 +40,19 @@ public class PrdCustomerDTO {
     @ApiModelProperty(value = "沟通记录")
     private List comunication;
 
+
+    @ApiModelProperty(value = "跟进时间", required = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    private Date last_update_time;//跟进时间
+
+    public Date getLast_update_time() {
+        return last_update_time;
+    }
+
+    public void setLast_update_time(Date last_update_time) {
+        this.last_update_time = last_update_time;
+    }
+
     public List getComunication() {
         return comunication;
     }

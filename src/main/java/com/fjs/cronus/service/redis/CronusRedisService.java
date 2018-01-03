@@ -1,5 +1,6 @@
 package com.fjs.cronus.service.redis;
 
+import com.fjs.cronus.dto.cronus.RedisSubUserInfoDTO;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -62,6 +63,30 @@ public class CronusRedisService {
     public void clearRedisFailNonConmunicateAllocateInfo(String key){
         ValueOperations<String,List> redis = listOperations.opsForValue();
         redis.set(key,null,30, TimeUnit.DAYS);
+    }
+
+    public void setRedisDocumentInfo(String key,List list){
+        ValueOperations<String,List> redis = listOperations.opsForValue();
+        redis.set(key,list,360, TimeUnit.SECONDS);
+    }
+
+    public List getRedisDocumentInfo(String key) {
+        ValueOperations<String,List> redis = listOperations.opsForValue();
+        List list = new ArrayList();
+        list = redis.get(key);
+        return list;
+    }
+
+    public void setRedisSubUserInfo(String key,RedisSubUserInfoDTO list){
+        ValueOperations<String,Object> redis = valueOperations.opsForValue();
+        redis.set(key,list,360, TimeUnit.SECONDS);
+    }
+
+    public RedisSubUserInfoDTO getRedisSubUserInfo(String key) {
+        ValueOperations<String,Object> redis = valueOperations.opsForValue();
+        RedisSubUserInfoDTO redisSubUserInfoDTO = new RedisSubUserInfoDTO();
+        redisSubUserInfoDTO = (RedisSubUserInfoDTO)redis.get(key);
+        return redisSubUserInfoDTO;
     }
 
 }

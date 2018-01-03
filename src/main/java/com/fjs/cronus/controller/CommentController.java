@@ -4,6 +4,7 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.cronus.CommentDTO;
+import com.fjs.cronus.dto.uc.RoleDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.model.Comment;
@@ -84,6 +85,26 @@ public class CommentController {
                 if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
                     idList= thorUcService.getSubUserByUserId(token, userId);
                     if (!idList.contains(ownUserId.toString())){
+                        theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+                        theaApiDTO.setMessage(CommonConst.AUTH_MESSAGE);
+                        return theaApiDTO;
+                    }
+                    //查看当前业务员是不是团队长
+                    String roleIds = userInfoDTO.getRole_ids();
+                    String[] strArray = null;
+                    strArray = roleIds.split(",");
+                    List<String> listRole = new ArrayList<>();
+                    for (int i = 0; i < strArray.length; i++) {
+                        listRole.add(strArray[i]);
+                    }
+                    boolean flag = false;
+                    for (String str : listRole) {
+                        RoleDTO roleDTO = thorUcService.getRoleInfo(token, "name",str,Integer.valueOf(userInfoDTO.getCompany_id()));
+                        if (!"团队长".equals(roleDTO.getName())){
+                            flag = true;
+                        }
+                    }
+                    if (flag == false){
                         theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
                         theaApiDTO.setMessage(CommonConst.AUTH_MESSAGE);
                         return theaApiDTO;

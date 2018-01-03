@@ -195,4 +195,48 @@
     order by r.last_update_time desc
     limit 0,1
   </select>
+  <select id="ocrAppDocument" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    *
+    from r_contract_document r
+    left join document d on d.id = r.document_id
+    left join document_category c on r.document_c_id =c.id
+    where r.is_deleted = 0 AND  d.is_deleted = 0
+    <if test="crm_attach_ids!=null and crm_attach_ids.size>0">
+      and d.id in
+      <foreach collection="crm_attach_ids" item="crm_attach_ids"
+               index="index" open="(" close=")" separator=",">
+        ${crm_attach_ids}
+      </foreach>
+    </if>
+    <if test="customerId != null and customerId != ''">
+      and  r.customer_id = #{customerId}
+    </if>
+    <if test="catagoryId != null and catagoryId != ''">
+      and  r.document_c_id = #{catagoryId}
+    </if>
+    order by r.last_update_time desc
+    limit ${start},${size}
+  </select>
+  <select id="ocrAppDocumentCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+    select
+    COUNT(*)
+    from r_contract_document r
+    left join document d on d.id = r.document_id
+    left join document_category c on r.document_c_id =c.id
+    where r.is_deleted = 0 AND  d.is_deleted = 0
+    <if test="crm_attach_ids!=null and crm_attach_ids.size>0">
+      and d.id in
+      <foreach collection="crm_attach_ids" item="crm_attach_ids"
+               index="index" open="(" close=")" separator=",">
+        ${crm_attach_ids}
+      </foreach>
+    </if>
+    <if test="customerId != null and customerId != ''">
+      and  r.customer_id = #{customerId}
+    </if>
+    <if test="catagoryId != null and catagoryId != ''">
+      and  r.document_c_id = #{catagoryId}
+    </if>
+  </select>
 </mapper>

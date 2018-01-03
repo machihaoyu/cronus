@@ -12,6 +12,7 @@ public enum CommonMessage {
 
     UPDATE_SUCCESS(0,"更新成功"),
     UPDATE_FAIL(1,"更新失败"),
+    UPDATE_FAIL_OWNER(2,"转入失败，该客户已经有负责人"),
 
     DELETE_SUCCESS(0,"删除成功"),
     DELETE_FAIL(1,"删除失败"),

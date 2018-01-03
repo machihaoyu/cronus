@@ -27,4 +27,14 @@ public interface AllocateLogMapper extends MyMapper<AllocateLog> {
     public List<AllocateLog> getNewestAllocateLogByCustomerIds(Map<String,Object> paramsMap);
 
     public Integer receiveCountByWhere(Map<String,Object> paramsMap);
-}
+
+
+    /**
+     * t统计业务员分配的
+     * @param paramsMap
+     * @return
+     */
+    public List<Integer> getReceiveCount(Map<String,Object> paramsMap);
+
+    public List<Integer> receiveIds(Map<String,Object> paramsMap);
+ }

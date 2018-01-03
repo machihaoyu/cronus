@@ -78,4 +78,8 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
     public Map<String, Integer> countForAutoClean();
 
     public List<CustomerInfo> selectByParams(Map<String, Object> telStr);
+
+    List<CustomerInfo> specialListByOffer(Map<String,Object> paramsMap);
+
+    Integer  specialListByOfferCount(Map<String,Object> paramsMap);
 }

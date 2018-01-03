@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.AddCustomerMeetDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
@@ -79,7 +80,7 @@ public class CustomerMeetService {
         customerMeetDTO.setContent(customerMeet.getContent());
         customerMeetDTO.setUserId(customerMeet.getCreateUser());
         customerMeetDTO.setCustomerId(customerMeet.getCustomerId());
-        UserInfoDTO ucUserDTO = ucService.getUserInfoByID(token,customerMeet.getCreateUser());
+        AppUserDto ucUserDTO = ucService.getUserInfoByID(token,customerMeet.getCreateUser());
         customerMeetDTO.setUserName(ucUserDTO.getName());
         customerMeetDTO.setCreateTime(customerMeet.getCreateTime());
         return customerMeetDTO;

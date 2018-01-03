@@ -1,6 +1,7 @@
 package com.fjs.cronus.service.redis;
 
 import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,7 +24,7 @@ public class UcRedisService {
     RedisTemplate<String,Object> valueOperations;
     public void setRedisUcInfo(String key,List idList){
         ValueOperations<String,List> redis = listOperations.opsForValue();
-        redis.set(key,idList,30, TimeUnit.SECONDS);
+        redis.set(key,idList,300, TimeUnit.SECONDS);
     }
 
     public List getRedisUcInfo(String key) {
@@ -33,19 +34,19 @@ public class UcRedisService {
         return idList;
     }
 
-    public void setRedisUserInfo(String key, UserInfoDTO ucUserDTO){
+    public void setRedisUserInfo(String key, AppUserDto ucUserDTO){
         ValueOperations<String,Object> redis = valueOperations.opsForValue();
-        redis.set(key, ucUserDTO,30, TimeUnit.SECONDS);
+        redis.set(key, ucUserDTO,300, TimeUnit.SECONDS);
     }
-    public UserInfoDTO getRedisUserInfo(String key) {
+    public AppUserDto getRedisUserInfo(String key) {
         ValueOperations<String,Object> redis = valueOperations.opsForValue();
-        UserInfoDTO ucUserDTO = (UserInfoDTO)redis.get(key);
+        AppUserDto ucUserDTO = (AppUserDto)redis.get(key);
         return ucUserDTO;
     }
 
     public void setPhpUserInfo(String key,PHPLoginDto phpLoginDto){
         ValueOperations<String,Object> redis = valueOperations.opsForValue();
-        redis.set(key, phpLoginDto,30, TimeUnit.SECONDS);
+        redis.set(key, phpLoginDto,300, TimeUnit.SECONDS);
     }
     public PHPLoginDto getRedisPhpUserInfo(String key) {
         ValueOperations<String,Object> redis = valueOperations.opsForValue();

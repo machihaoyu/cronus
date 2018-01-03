@@ -7,16 +7,15 @@ import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
-import com.fjs.cronus.dto.api.uc.CityDto;
-import com.fjs.cronus.dto.api.uc.CompanyDto;
-import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
-import com.fjs.cronus.dto.api.uc.SubCompanyDto;
+import com.fjs.cronus.dto.api.uc.*;
 import com.fjs.cronus.dto.cronus.BaseUcDTO;
 import com.fjs.cronus.dto.cronus.SortUserInfoByPhoneDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.uc.*;
+import com.fjs.cronus.dto.uc.SubCompanyCityDto;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.client.ThorInterfaceService;
+import com.fjs.cronus.service.client.ThorUcService;
 import com.fjs.cronus.service.redis.UcRedisService;
 import com.fjs.cronus.util.FastJsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,8 @@ public class UcService {
     ThorInterfaceService thorInterfaceService;
     @Autowired
     UcRedisService ucRedisService;
-
+    @Autowired
+    ThorUcService thorUcService;
     public List getSubUserByUserId(String token,Integer user_id){
         CronusDto resultDto = new CronusDto();
         if (user_id == null){
@@ -49,7 +49,7 @@ public class UcService {
         }else {
             //查接口先查看用户的数据权限
             List idList = new ArrayList();
-            UserInfoDTO ucUserDTO = getUserInfoByID(token,user_id);
+            AppUserDto ucUserDTO = getUserInfoByID(token,user_id);
             if (ucUserDTO ==null){
                 throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
             }
@@ -76,20 +76,20 @@ public class UcService {
         }
     }
 
-    public UserInfoDTO getUserInfoByID(String token, Integer user_id){
+    public AppUserDto getUserInfoByID(String token, Integer user_id){
         //TODO 差缓存是否存在用户信息 不存在 插接口
-        UserInfoDTO ucUserDTO = null;
+        AppUserDto ucUserDTO = null;
         ucUserDTO = ucRedisService.getRedisUserInfo(ResultResource.USERINFOBYID + user_id);
         if (ucUserDTO != null){
             return ucUserDTO;
         }
-        com.fjs.cronus.dto.uc.BaseUcDTO ucDTO = thorInterfaceService.getUserInfoByField(token,null,user_id,null);
+        PhpApiDto<AppUserDto> ucDTO =thorUcService.getUserInfoByField(null,token,user_id,null);
         if (ucDTO.getRetData() !=null){
             //map 转json
             String result = FastJsonUtils.obj2JsonString(ucDTO.getRetData());
             //把json格式的数据转为对象
 
-            ucUserDTO = FastJsonUtils.getSingleBean(result,UserInfoDTO.class);
+            ucUserDTO = FastJsonUtils.getSingleBean(result,AppUserDto.class);
             //TODO 信息存入缓存 并设置失效时间
             ucRedisService.setRedisUserInfo(ResultResource.USERINFOBYID + user_id + ucUserDTO.getUser_id(), ucUserDTO);
 
@@ -236,6 +236,16 @@ public class UcService {
             userSortInfoDTO = result.getData();
         }
         return userSortInfoDTO;
+    }
+
+    public RoleDTO getRoleInfo(String token,String name,String value,Integer compantId){
+        PhpApiDto<RoleDTO> resultDto = new PhpApiDto<>();
+        RoleDTO roleDTO = new RoleDTO();
+        resultDto = thorInterfaceService.getRole(token,name,value,compantId);
+        if (resultDto.getRetData() != null) {
+            roleDTO = resultDto.getRetData();
+        }
+        return roleDTO;
     }
 
 }

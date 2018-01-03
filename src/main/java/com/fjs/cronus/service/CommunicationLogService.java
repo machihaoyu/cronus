@@ -4,6 +4,7 @@ package com.fjs.cronus.service;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.CommunicationDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
@@ -64,7 +65,7 @@ public class CommunicationLogService {
         customerUsefulDTO.setHouseStatus(customerUsefulDTO.getHouseStatus());
         //修改客户
         //有效客户
-        if(customerUsefulDTO.getLoanAmount() != null && Integer.valueOf(customerUsefulDTO.getLoanAmount().toString()) > 0){
+        if(customerUsefulDTO.getLoanAmount() != null){
             CustomerUseful customerUseful = customerUsefulService.selectByCustomerId(customerUsefulDTO.getCustomerId());
             if (customerUseful == null){
                 customerUseful=customerUsefulService.copyProperty(customerUsefulDTO);
@@ -100,7 +101,7 @@ public class CommunicationLogService {
             customerDto.setConfirm(CommonConst.CONFIRM__STATUS_EFFECT);
         }
         if (customerUsefulDTO.getLoanAmount() != null && customerUsefulDTO.getLoanAmount().intValue() == 0){
-            customerDto.setConfirm(CommonConst.CONFIRM__STATUS_NO);
+            customerDto.setConfirm(CommonConst.CONFIRM__STATUS_NOEFFECT);
         }
 //        loan.setStatus(CommonConst.LOAN_STATUS_COMMUNICATION);
         customerDto.setLastUpdateTime(date);
@@ -117,7 +118,6 @@ public class CommunicationLogService {
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
 
-        //面见
         if (customerUsefulDTO.getIsMeet() != null && customerUsefulDTO.getIsMeet() == CommonConst.IS_MEET__YES){
             customerMeet.setCustomerId(customerUsefulDTO.getCustomerId());
             customerMeet.setMeetTime(customerUsefulDTO.getMeetTime());
@@ -266,7 +266,7 @@ public class CommunicationLogService {
                 communicationDTO.setCreateTime(communicationLog1.getCreateTime());
                 communicationDTO.setOwnUserId(communicationLog1.getCreateUser());
                 //获取姓名
-                UserInfoDTO userInfoDTO = ucService.getUserInfoByID(token,communicationLog1.getCreateUser());
+                AppUserDto userInfoDTO = ucService.getUserInfoByID(token,communicationLog1.getCreateUser());
                 communicationDTO.setOwnUserName(userInfoDTO.getName());
                 List<Comment> commentList = commentService.getByCommunicationLogId(communicationLog1.getId());
                 if (commentList != null && commentList.size() > 0){

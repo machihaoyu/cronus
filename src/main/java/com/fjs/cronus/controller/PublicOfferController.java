@@ -1,15 +1,15 @@
 package com.fjs.cronus.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
-import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.CityDto;
 import com.fjs.cronus.dto.cronus.PanParamDTO;
+import com.fjs.cronus.dto.cronus.RedisSubUserInfoDTO;
 import com.fjs.cronus.dto.uc.SubCompanyCityDto;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
@@ -17,9 +17,9 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.PanService;
+import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
-import com.fjs.cronus.util.FastJsonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -53,6 +53,8 @@ public class PublicOfferController {
     CustomerInfoService customerInfoService;
     @Autowired
     PanService panService;
+    @Autowired
+    CronusRedisService cronusRedisService;
     @ApiOperation(value="获取公盘列表", notes="获取公盘列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
@@ -82,11 +84,12 @@ public class PublicOfferController {
                                                              @RequestHeader("Authorization")String token){
 
         CronusDto<QueryResult<CustomerListDTO>> cronusDto  = new CronusDto<>();
-
+        List<Integer> subCompanyIds=null;//自己能管理的分公司
+        List<String> canMangerMainCity =null;//自己能管理的城市
         QueryResult<CustomerListDTO> queryResult=null;
         //获取配置项
         try{
-            //从token中获取用户信息
+            //从token中获取用户信息//添加缓存
             PanParamDTO pan = new PanParamDTO();
             UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
             List<String> paramsList = new ArrayList<>();
@@ -114,71 +117,52 @@ public class PublicOfferController {
             }else {
                 throw new CronusException(CronusException.Type.MESSAGE_CONNECTTHEASYSTEM_ERROR);
             }
-            List<String> mainCitys=new ArrayList<String>();//主要城市
-            List<Integer> subCompanyIds=new ArrayList<>();//异地分公司
             if (StringUtils.isNotEmpty(utmSource)){
                 pan.setUtmSource(utmSource);
             }
-                //获取下属的城市
-                List<CityDto> subsCitys=ucService.getSubcompanyByUserId(token,userId,CommonConst.SYSTEMNAME);
-                List<String> subCitys=new ArrayList<String>();
-                if (!CollectionUtils.isEmpty(subsCitys)){
-                    for (CityDto cityDto:subsCitys){
-                        if (StringUtils.isNotEmpty(cityDto.getName())){
-                            subCitys.add(cityDto.getName());
+            //从缓存取得
+            RedisSubUserInfoDTO redisSubUserInfoDTO = cronusRedisService.getRedisSubUserInfo(CommonConst.CANMANGERMAINCITY + userId);
+            if (redisSubUserInfoDTO != null){
+                subCompanyIds = redisSubUserInfoDTO.getSubCompanyId();
+                canMangerMainCity = redisSubUserInfoDTO.getCanMangerMainCity();
+            }else {
+                canMangerMainCity = new ArrayList<>();
+                subCompanyIds = new ArrayList<>();
+                String mainCity = theaClientService.findValueByName(token, CommonConst.MAIN_CITY);
+                //获取异地城市
+                String remoteCity = theaClientService.findValueByName(token, CommonConst.REMOTE_CITY);
+                //获取自己的下属
+                List subIds = ucService.getSubUserByUserId(token, userId);
+                if (subIds != null && subIds.size() > 0) {
+                    for (int i =0; i< subIds.size();i++) {
+                        AppUserDto userInfoByID = ucService.getUserInfoByID(token, Integer.valueOf(subIds.get(i).toString()));
+                        if (!StringUtils.isEmpty(userInfoByID.getCity())) {
+                            if (mainCity.contains(userInfoByID.getCity())) {//说明在主要城市内
+                                if (!canMangerMainCity.contains(userInfoByID.getCity())) {
+                                    canMangerMainCity.add(userInfoByID.getCity());
+                                }
+                            }
+                            if (remoteCity.contains(userInfoByID.getCity())) {//说明是异地城市
+                                if (!subCompanyIds.contains(userInfoByID.getSub_company_id())) {
+                                    subCompanyIds.add(Integer.valueOf(userInfoByID.getSub_company_id()));
+                                }
+                            }
                         }
                     }
+                    //开始存入缓存
+                    RedisSubUserInfoDTO redis = new RedisSubUserInfoDTO();
+                    redis.setCanMangerMainCity(canMangerMainCity);
+                    redis.setSubCompanyId(subCompanyIds);
+                    cronusRedisService.setRedisSubUserInfo(CommonConst.CANMANGERMAINCITY + userId, redis);
                 }
-                //获取主要城市
-                String mainCity = theaClientService.findValueByName(token,CommonConst.MAIN_CITY);
-                String[] mainCityArray=mainCity.split(",");
-                int mainCitySize=mainCityArray.length;
-                for (int i=0;i<mainCitySize;i++){
-                    mainCitys.add(mainCityArray[i]);
-                }
-                mainCitys.retainAll(subCitys);
-                int citySize=mainCitys.size();
-                for(int i=0;i<citySize;i++){
-                    String cityName=mainCitys.get(i);
-                    cityName=cityName+"''";
-                }
-                //获取下属的分公司
-                List<SubCompanyCityDto> subCompanyDtos=ucService.getAllSubCompanyByUserId(token,userId,CommonConst.SYSTEMNAME);
-                List<String> subCompanys=new ArrayList<String>();
-                List<String> remoteCitys=new ArrayList<String>();
-                if (!CollectionUtils.isEmpty(subCompanyDtos)){
-                    for (SubCompanyCityDto subCompanyCityDto:subCompanyDtos){
-                        if (StringUtils.isNotEmpty(subCompanyCityDto.getCityName())){
-                            subCompanys.add(subCompanyCityDto.getCityName());
-                        }
-                    }
-                }
-                //获取异地分公司
-                String remoteCity=theaClientService.findValueByName(token,CommonConst.REMOTE_CITY);
-                String[] remoteCityArray=remoteCity.split(",");
-                int remoteCitySize=remoteCityArray.length;
-                for (int i=0;i<remoteCitySize;i++){
-                    remoteCitys.add(remoteCityArray[i]);
-                }
-                subCompanys.retainAll(remoteCitys);
-                //获取下属的异地分公司
-                List<SubCompanyCityDto> subCompanyCityDtoList2=new ArrayList<>();
-                for (SubCompanyCityDto subCompanyCityDto:subCompanyDtos){
-                    if (subCompanys.contains(subCompanyCityDto.getCityName()) && !subCompanyCityDtoList2.contains(subCompanyCityDto)){
-                        subCompanyCityDtoList2.add(subCompanyCityDto);
-                        subCompanyIds.add(subCompanyCityDto.getSubCompanyId());
-                    }
-                }
-//                for (SubCompanyCityDto subCompanyCityDto2:subCompanyCityDtoList2){
-//                    System.out.println(subCompanyCityDto2.toString());
-//                }
+            }
             pan.setCustomerName(customerName);
             pan.setTelephonenumber(telephonenumber);
             pan.setHouseStatus(houseStatus);
             pan.setCustomerClassify(customerClassify);
             pan.setCustomerSource(customerSource);
             pan.setCity(city);
-            queryResult  =panService.listByOffer(pan,userId,companyId,token,CommonConst.SYSTEMNAME,page,size,mainCitys,subCompanyIds,null,mountLevle,utmList,paramsList);
+            queryResult  =panService.listByOffer(pan,userId,companyId,token,CommonConst.SYSTEMNAME,page,size,canMangerMainCity,subCompanyIds,null,mountLevle,utmList,paramsList);
             cronusDto.setData(queryResult);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
@@ -289,12 +273,21 @@ public class PublicOfferController {
                 userId=Integer.parseInt(userInfoDTO.getUser_id());
             }
             List<String> mainCitys=new ArrayList<String>();//主要城市
-            List<Integer> subCompanyIds=new ArrayList<>();//异地分公司
             if (type == null){
                 String result = theaClientService.findValueByName(token,CommonConst.SPECIAL_UTM_SOURCE);
                 JSONObject jsonObject = JSONObject.parseObject(result);
                 String specUtmSource = jsonObject.getString(utmSource);
                 pan.setUtmSource(specUtmSource);
+                List<CityDto> subsCitys = ucService.getSubcompanyByUserId(token, userId, CommonConst.SYSTEMNAME);
+                List<String> subCitys = new ArrayList<String>();
+                if (!CollectionUtils.isEmpty(subsCitys)) {
+                    for (CityDto cityDto : subsCitys) {
+                        if (StringUtils.isNotEmpty(cityDto.getName())) {
+                            mainCitys.add(cityDto.getName());
+                        }
+                    }
+                }
+
             }else {
                 //公盘需要踢出三处客户以及过滤掉特殊渠道的
                 String result = theaClientService.findValueByName(token,CommonConst.SPECIAL_UTM_SOURCE);
@@ -318,58 +311,22 @@ public class PublicOfferController {
                     pan.setUtmSource(utmSource);
                 }
                 //获取下属的城市
-                List<CityDto> subsCitys = ucService.getSubcompanyByUserId(token, userId, CommonConst.SYSTEMNAME);
-                List<String> subCitys = new ArrayList<String>();
-                if (!CollectionUtils.isEmpty(subsCitys)) {
-                    for (CityDto cityDto : subsCitys) {
-                        if (StringUtils.isNotEmpty(cityDto.getName())) {
-                            subCitys.add(cityDto.getName());
-                        }
-                    }
+                String mainCity = theaClientService.findValueByName(token,CommonConst.MAIN_CITY);
+                //获取异地城市
+                String remoteCity=theaClientService.findValueByName(token,CommonConst.REMOTE_CITY);
+                //主要城市
+                String[] strArray = null;
+                strArray = mainCity.split(",");
+                for (int i = 0; i < strArray.length; i++) {
+                    mainCitys.add(strArray[i]);
                 }
-                //获取主要城市
-                String mainCity = theaClientService.findValueByName(token, CommonConst.MAIN_CITY);
-                String[] mainCityArray = mainCity.split(",");
-                int mainCitySize = mainCityArray.length;
-                for (int i = 0; i < mainCitySize; i++) {
-                    mainCitys.add(mainCityArray[i]);
+                //异地城市
+                String[] remoteArray = null;
+                remoteArray = remoteCity.split(",");
+                for (int i = 0; i < remoteArray.length; i++) {
+                    mainCitys.add(remoteArray[i]);
                 }
-                mainCitys.retainAll(subCitys);
-                int citySize = mainCitys.size();
-                for (int i = 0; i < citySize; i++) {
-                    String cityName = mainCitys.get(i);
-                    cityName = cityName + "''";
-                }
-                //获取下属的分公司
-                List<SubCompanyCityDto> subCompanyDtos = ucService.getAllSubCompanyByUserId(token, userId, CommonConst.SYSTEMNAME);
-                List<String> subCompanys = new ArrayList<String>();
-                List<String> remoteCitys = new ArrayList<String>();
-                if (!CollectionUtils.isEmpty(subCompanyDtos)) {
-                    for (SubCompanyCityDto subCompanyCityDto : subCompanyDtos) {
-                        if (StringUtils.isNotEmpty(subCompanyCityDto.getCityName())) {
-                            subCompanys.add(subCompanyCityDto.getCityName());
-                        }
-                    }
-                }
-                //获取异地分公司
-                String remoteCity = theaClientService.findValueByName(token, CommonConst.REMOTE_CITY);
-                String[] remoteCityArray = remoteCity.split(",");
-                int remoteCitySize = remoteCityArray.length;
-                for (int i = 0; i < remoteCitySize; i++) {
-                    remoteCitys.add(remoteCityArray[i]);
-                }
-                subCompanys.retainAll(remoteCitys);
-                //获取下属的异地分公司
-                List<SubCompanyCityDto> subCompanyCityDtoList2 = new ArrayList<>();
-                for (SubCompanyCityDto subCompanyCityDto : subCompanyDtos) {
-                    if (subCompanys.contains(subCompanyCityDto.getCityName()) && !subCompanyCityDtoList2.contains(subCompanyCityDto)) {
-                        subCompanyCityDtoList2.add(subCompanyCityDto);
-                        subCompanyIds.add(subCompanyCityDto.getSubCompanyId());
-                    }
-                }
-//                for (SubCompanyCityDto subCompanyCityDto2:subCompanyCityDtoList2){
-//                    System.out.println(subCompanyCityDto2.toString());
-//                }
+
             }
             pan.setCustomerName(customerName);
             pan.setTelephonenumber(telephonenumber);
@@ -377,7 +334,7 @@ public class PublicOfferController {
             pan.setCustomerClassify(customerClassify);
             pan.setCustomerSource(customerSource);
             pan.setCity(city);
-            queryResult  =panService.listByOffer(pan,userId,companyId,token,CommonConst.SYSTEMNAME,page,size,mainCitys,subCompanyIds,type,mountLevle,utmList,paramsList);
+            queryResult  =panService.specialListByOffer(pan,userId,companyId,token,CommonConst.SYSTEMNAME,page,size,mainCitys,null,type,mountLevle,utmList,paramsList);
             cronusDto.setData(queryResult);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());

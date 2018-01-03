@@ -110,8 +110,8 @@ public class CommonConst {
     public static String UPDATE_KEY_URL=SYSTEMNAME+"keyManager/update";
     public static String UPDATE_UTMSOURCERATE_URL=SYSTEMNAME+"utmSourceRate/update";
     public static String UPDATE_CONFIG_URL=SYSTEMNAME+"config/update";
-    public static String UPDATE_PULL_CUSTOMER_URL=SYSTEMNAME+"pullCustomer/update";
-    public static String UPDATE_PRDCUSTOMER_URL=SYSTEMNAME+"prdCustomer/update";
+    public static String UPDATE_PULL_CUSTOMER_URL=SYSTEMNAME+"/pullCustomer/update";
+    public static String UPDATE_PRDCUSTOMER_URL=SYSTEMNAME+"/prdCustomer/update";
 
     //系统配置 Start
 
@@ -132,10 +132,10 @@ public class CommonConst {
     public static String OPEN_UTMSOURCERATE_URL=SYSTEMNAME+"utmSourceRate/open";
 
     public static String DELETE_UTMSOURCERATE_URL=SYSTEMNAME+"utmSourceRate/delete";
-    public static String DELETE_PRDCUSTOMER_URL=SYSTEMNAME+"prdCustomer/delete";
+    public static String DELETE_PRDCUSTOMER_URL=SYSTEMNAME+"/prdCustomer/delete";
 
     //原始盘转入交易
-    public static String TRANSFER_PULL_CUSTOMER_URL=SYSTEMNAME+"pullCustomer/transfer";
+    public static String TRANSFER_PULL_CUSTOMER_URL=SYSTEMNAME+"/pullCustomer/transfer";
     //默认客户名
     public static String DEFAULT_CUSTOMER_NAME = "客户";
 
@@ -165,6 +165,8 @@ public class CommonConst {
     public static String KEEP_LOAN_URL=SYSTEMNAME+"loan/keep";
     //取消保留客户
     public static String CANCEL_LOAN_URL=SYSTEMNAME+"loan/cancel";
+    //离职员工批量转移
+    public static String REMOVE_CUSTOMER = SYSTEMNAME+"/Customer/removeCustomerAll";
     //自动清洗状态配置名
     public static String AUTO_CLEAN_STATUS = "autoCleanStatus";
     //需要屏蔽自动清洗的分公司
@@ -241,6 +243,7 @@ public class CommonConst {
 
     public static String OPERARIONNO = "未沟通分配";
 
+    public static String OPERATIONBYHAND = "手动分配";
     public static String REMOVECUSTOMERALL ="removeCustomerAll";
 
     public static String ALLOCATEALL ="allocateAll";
@@ -262,6 +265,14 @@ public class CommonConst {
 
     //反馈老系统
     public static String PHPSYS_CONNECT_STATUS = "phpSysConnectStatus";
+
+    //B端附件信息 缓存
+    public static String OCRDOCUMENTKEY = "OCRDOCUMENTKEY";
+    //缓存ke
+
+    public static String CANMANGERMAINCITY = "canMangerMainCity";
+
+    public static String CANMANGERREMOTECITY = "canMangerMainCity";
 
 }
 
