@@ -99,7 +99,7 @@ public class CommentController {
                     }
                     boolean flag = false;
                     for (String str : listRole) {
-                        RoleDTO roleDTO = thorUcService.getRoleInfo(token, "name",str,Integer.valueOf(userInfoDTO.getCompany_id()));
+                        RoleDTO roleDTO = thorUcService.getRoleInfo(token, "role_id",str,Integer.valueOf(userInfoDTO.getCompany_id()));
                         if ("团队长".equals(roleDTO.getName())){
                             flag = true;
                         }
