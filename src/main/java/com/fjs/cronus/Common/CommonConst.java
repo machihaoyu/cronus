@@ -266,6 +266,11 @@ public class CommonConst {
 
     //B端附件信息 缓存
     public static String OCRDOCUMENTKEY = "OCRDOCUMENTKEY";
+    //缓存ke
+
+    public static String CANMANGERMAINCITY = "canMangerMainCity";
+
+    public static String CANMANGERREMOTECITY = "canMangerMainCity";
 
 }
 

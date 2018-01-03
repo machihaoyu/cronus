@@ -5,6 +5,7 @@ import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.dto.cronus.PanParamDTO;
@@ -94,7 +95,6 @@ public class PanService {
             }
             map.put("mainCitys",mainCitys);
             map.put("subCompanyIds",subCompanyIds);
-            map.put("type",type);
             map.put("start",(page-1)*size);
             map.put("size",size);
             if (utmList != null && utmList.size() > 0){
@@ -184,7 +184,7 @@ public class PanService {
      */
     @Transactional
     public void receiveCustomerByType(CustomerInfo customerInfo,Integer userId,String token){
-        UserInfoDTO ucUserDTO = ucService.getUserInfoByID(token,userId);
+        AppUserDto ucUserDTO = ucService.getUserInfoByID(token,userId);
         Date date = new Date();
         if (customerInfo.getOwnUserId() != 0){
             throw new CronusException(CronusException.Type.MESSAGE_PULLCUSTOMEROWNER_ERROR);

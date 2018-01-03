@@ -6,6 +6,7 @@ import com.fjs.cronus.Common.CustomerEnum;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.*;
+import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.cronus.CallbackLogDTO;
 import com.fjs.cronus.dto.cronus.RepeatCustomerSaleDTO;
@@ -165,7 +166,7 @@ public class CallbackService {
             callbackCustomerDTO.setCustomerName(customerInfo.getCustomerName());
             callbackCustomerDTO.setLoanAmount(customerInfo.getLoanAmount());
             if (customerInfo.getOwnUserId() != null && customerInfo.getOwnUserId() != 0){
-                 com.fjs.cronus.dto.uc.UserInfoDTO ucUserDTO = ucService.getUserInfoByID(token,customerInfo.getOwnUserId());
+                 AppUserDto ucUserDTO = ucService.getUserInfoByID(token,customerInfo.getOwnUserId());
                  callbackCustomerDTO.setOwnUserName(ucUserDTO.getName());
                  callbackCustomerDTO.setOwnUserId(customerInfo.getOwnUserId());
                  callbackCustomerDTO.setSub_company(ucUserDTO.getSub_company_name() + "(" + ucUserDTO.getCompany_name() + ")");

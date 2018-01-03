@@ -4,6 +4,7 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.SellUserDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
@@ -115,7 +116,7 @@ public class AllocateService {
         if (StringUtils.isEmpty(ids)){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
-        UserInfoDTO userInfoByID= ucService.getUserInfoByID(token,empId);
+        AppUserDto userInfoByID= ucService.getUserInfoByID(token,empId);
         //判断客户存在不存在首次分配未处理的的
         boolean result= validCustomerAllIsOperate(ids);
         if (result == true){

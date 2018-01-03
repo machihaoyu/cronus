@@ -7,12 +7,10 @@ import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.CronusDto;
 
-import com.fjs.cronus.dto.api.uc.CityDto;
-import com.fjs.cronus.dto.api.uc.CompanyDto;
-import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
-import com.fjs.cronus.dto.api.uc.SubCompanyDto;
+import com.fjs.cronus.dto.api.uc.*;
 import com.fjs.cronus.dto.cronus.SortUserInfoByPhoneDTO;
 import com.fjs.cronus.dto.uc.*;
+import com.fjs.cronus.dto.uc.SubCompanyCityDto;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -518,5 +516,12 @@ public interface ThorInterfaceService {
 
     @RequestMapping(value = "/api/v1/getSortUserInfoByPhone",method = RequestMethod.GET)
     CronusDto<SortUserInfoByPhoneDTO> getSortUserInfoByPhone(@RequestHeader("Authorization") String token,@RequestParam(value = "telephone")String telephone,@RequestParam(value = "userType") Integer userType);
+
+
+    @RequestMapping(value = "/api/v1/getRoleInfo", method = RequestMethod.POST)
+    PhpApiDto<RoleDTO> getRole(@RequestHeader("Authorization") String token, @RequestParam(value = "name") String name, @RequestParam(value = "value") String value,
+                                   @RequestParam(value = "company_id", required = false) Integer company_id);
+
+
 }
 

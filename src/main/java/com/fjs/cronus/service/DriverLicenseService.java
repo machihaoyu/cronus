@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.OcrDocumentDto;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.ocr.DriverLicenseDTO;
@@ -186,7 +187,7 @@ public class DriverLicenseService {
             ocrDriverLicense.setDriverEndDate(driver_end_date);
         }
         Integer user_id = ucService.getUserIdByToken(token);
-        UserInfoDTO ucUserDTO = ucService.getUserInfoByID(token,user_id);
+        AppUserDto ucUserDTO = ucService.getUserInfoByID(token,user_id);
         if (ucUserDTO == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }

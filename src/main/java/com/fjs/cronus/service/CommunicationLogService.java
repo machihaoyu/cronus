@@ -4,6 +4,7 @@ package com.fjs.cronus.service;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.CommunicationDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
@@ -265,7 +266,7 @@ public class CommunicationLogService {
                 communicationDTO.setCreateTime(communicationLog1.getCreateTime());
                 communicationDTO.setOwnUserId(communicationLog1.getCreateUser());
                 //获取姓名
-                UserInfoDTO userInfoDTO = ucService.getUserInfoByID(token,communicationLog1.getCreateUser());
+                AppUserDto userInfoDTO = ucService.getUserInfoByID(token,communicationLog1.getCreateUser());
                 communicationDTO.setOwnUserName(userInfoDTO.getName());
                 List<Comment> commentList = commentService.getByCommunicationLogId(communicationLog1.getId());
                 if (commentList != null && commentList.size() > 0){

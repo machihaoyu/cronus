@@ -7,6 +7,7 @@ import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPUserDto;
+import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
@@ -1080,7 +1081,7 @@ public class CustomerInfoService {
                 return resultDto;
             }
             //判断这个负责人是不是在职的
-            UserInfoDTO userInfoDTO = ucService.getUserInfoByID(token,removeDTO.getEmpId());
+            AppUserDto userInfoDTO = ucService.getUserInfoByID(token,removeDTO.getEmpId());
             if (userInfoDTO ==null  ||  !"1".equals(userInfoDTO.getStatus())){
                 resultDto.setData(flag);
                 resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTOERSTATUS_ERROR);
@@ -1300,7 +1301,7 @@ public class CustomerInfoService {
            //处理
            // String customerIds = listToString(mustUpCustomerIds);
             //查询到这些用户信息
-            UserInfoDTO userDTO = ucService.getUserInfoByID(token,toUser);
+            AppUserDto userDTO = ucService.getUserInfoByID(token,toUser);
             //开始更新
             Map<String,Object> paramsMap = new HashMap<>();
             //获取当前登录用户信息
