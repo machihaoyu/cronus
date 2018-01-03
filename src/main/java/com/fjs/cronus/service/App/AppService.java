@@ -4,6 +4,7 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.App.ReceiveAndKeepCountDTO;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.OcrDocumentDto;
 import com.fjs.cronus.mappers.AllocateLogMapper;
 import com.fjs.cronus.mappers.CommunicationLogMapper;
@@ -119,16 +120,19 @@ public class AppService {
      * @param customerId
      * @return
      */
-    public CronusDto findDocByCustomerId(Integer customerId){
-        CronusDto resultDto = new CronusDto();
+    public QueryResult<OcrDocumentDto> findDocByCustomerId(Integer customerId, Integer page, Integer size){
+        QueryResult<OcrDocumentDto>  queryResult = new QueryResult<OcrDocumentDto> ();
         Map<String,Object> paramsMap = new HashMap<>();
         paramsMap.put("customerId",customerId);
+        paramsMap.put("start",(page-1) * size);
+        paramsMap.put("size",size);
         List<OcrDocumentDto> ocrDocumentDtos = null;
         //查询缓存
-        ocrDocumentDtos= cronusRedisService.getRedisDocumentInfo(CommonConst.OCRDOCUMENTKEY + customerId);
-        if (ocrDocumentDtos == null || ocrDocumentDtos.size() == 0){
+      //  ocrDocumentDtos= cronusRedisService.getRedisDocumentInfo(CommonConst.OCRDOCUMENTKEY + customerId);
+        //if (ocrDocumentDtos == null || ocrDocumentDtos.size() == 0){
         ocrDocumentDtos = new ArrayList<>();
-        List<RContractDocument> documentList = rContractDocumentMapper.ocrDocument(paramsMap);
+        List<RContractDocument> documentList = rContractDocumentMapper.ocrAppDocument(paramsMap);
+        Integer count  = rContractDocumentMapper.ocrAppDocumentCount(paramsMap);
         if (documentList.size() > 0) {
             for (RContractDocument rcdocument : documentList) {
                 OcrDocumentDto ocrDocumentDto = new OcrDocumentDto();
@@ -145,13 +149,11 @@ public class AppService {
                 ocrDocumentDtos.add(ocrDocumentDto);
             }
             //开始存入缓存
-            cronusRedisService.setRedisDocumentInfo(CommonConst.OCRDOCUMENTKEY + customerId,ocrDocumentDtos);
-
+           // cronusRedisService.setRedisDocumentInfo(CommonConst.OCRDOCUMENTKEY + customerId,ocrDocumentDtos);
         }
-        }
-        resultDto.setData(ocrDocumentDtos);
-        resultDto.setResult(ResultResource.CODE_SUCCESS);
-        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
-        return  resultDto;
+       // }
+        queryResult.setRows(ocrDocumentDtos);
+        queryResult.setTotal(count +"");
+        return  queryResult;
     }
 }

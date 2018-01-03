@@ -160,7 +160,7 @@ public class AllocateService {
                 try {
                     String names = listToString(nameList);
                     String content = userInfoDTO.getName() +"分配给了你"+ customerInfoList.size()+"个客户,"+"客户名分别是"+names+ "请注意跟进。";
-                    theaClientService.sendMail(token,content,userId,userId,null,userId);
+                    theaClientService.sendMail(token,content,userId,userId,null,empId);
                 }catch (Exception e){
                     e.printStackTrace();
                 }

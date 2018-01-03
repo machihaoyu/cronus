@@ -24,4 +24,8 @@ public interface RContractDocumentMapper{
     void update(RContractDocument rContractDocument);
 
     RContractDocument ocrDocumentToClient(Map<String,Object> paramsMap);
+
+    List<RContractDocument> ocrAppDocument(Map<String,Object> paramsMap);
+
+    Integer ocrAppDocumentCount(Map<String,Object> paramsMap);
 }
