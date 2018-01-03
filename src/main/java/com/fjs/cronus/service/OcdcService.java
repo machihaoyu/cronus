@@ -148,7 +148,7 @@ public class OcdcService {
                                 againAllocateCustomer.setDataId(customerSalePushLog.getOcdcId());
                                 againAllocateCustomer.setJsonData(map);
                                 againAllocateCustomer.setCreateTime(new Date());
-                                againAllocateCustomer.setUpdataTime(new Date());
+                                againAllocateCustomer.setUpdateTime(new Date());
                                 againAllocateCustomerService.addAgainAllocateCustomer(againAllocateCustomer);
                                 break;
                             case "4":

@@ -16,9 +16,9 @@ public class AgainAllocateCustomer {
 
      private String jsonData;
 
-     private Integer startus;
+     private Integer status;
 
-     private Date updataTime;
+     private Date updateTime;
 
      private Date createTime;
 
@@ -46,20 +46,20 @@ public class AgainAllocateCustomer {
         this.jsonData = jsonData;
     }
 
-    public Integer getStartus() {
-        return startus;
+    public Integer getStatus() {
+        return status;
     }
 
-    public void setStartus(Integer startus) {
-        this.startus = startus;
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
-    public Date getUpdataTime() {
-        return updataTime;
+    public Date getUpdateTime() {
+        return updateTime;
     }
 
-    public void setUpdataTime(Date updataTime) {
-        this.updataTime = updataTime;
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 
     public Date getCreateTime() {
