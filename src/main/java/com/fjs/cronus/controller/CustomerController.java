@@ -690,7 +690,6 @@ public class CustomerController {
                 return cronusDto;
             }
         }
-
         try {
             cronusDto  = customerInfoService.removeCustomerAll(removeDTO,token);
             return cronusDto;

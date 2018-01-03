@@ -38,8 +38,12 @@ public enum CommonMessage {
     TRANSFER_MONEY_SUCCESS(0,"订转佣成功"),
     TRANSFER_MONEY_FAIL(1,"订转佣失败"),
 
+    UPLOAD_CUSTOMERERROR(1,"由于服务器原因上传失败，请联系管理员"),
+
     CANCEL_SUCCESS(0,"取消保留客户成功"),
     CANCEL_FAIL(1,"取消保留客户失败");
+
+
 
 
 
