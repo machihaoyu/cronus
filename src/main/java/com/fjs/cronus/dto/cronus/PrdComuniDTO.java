@@ -12,7 +12,7 @@ public class PrdComuniDTO implements Serializable {
 
    private String content;
 
-   private Integer create_time;
+   private String create_time;
 
    private String create_user_name;
 
@@ -40,11 +40,11 @@ public class PrdComuniDTO implements Serializable {
         this.content = content;
     }
 
-    public Integer getCreate_time() {
+    public String getCreate_time() {
         return create_time;
     }
 
-    public void setCreate_time(Integer create_time) {
+    public void setCreate_time(String create_time) {
         this.create_time = create_time;
     }
 }

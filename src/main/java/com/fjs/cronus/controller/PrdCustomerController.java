@@ -74,10 +74,8 @@ public class PrdCustomerController {
                 return theaApiDTO;
             }
         }
-        UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
+        UserInfoDTO userInfoDTO=resultDto.getUser_info();
         try{
-
-
             int createResult = prdCustomerService.updatePrdCustomer(prdCustomerDTO,userInfoDTO);
             if (createResult >0) {
                 theaApiDTO.setResult(CommonMessage.UPDATE_SUCCESS.getCode());
@@ -120,7 +118,7 @@ public class PrdCustomerController {
                 return theaApiDTO;
             }
         }
-        UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
+        UserInfoDTO userInfoDTO=resultDto.getUser_info();
         try{
             if (id != null){
                 int deleteResult = prdCustomerService.delete(id,userInfoDTO);

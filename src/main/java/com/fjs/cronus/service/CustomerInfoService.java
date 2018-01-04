@@ -235,11 +235,10 @@ public class CustomerInfoService {
     }
 
     @Transactional
-    public CronusDto addCRMCustomer(AddCustomerDTO customerDTO, String token){
+    public CronusDto addCRMCustomer(AddCustomerDTO customerDTO, UserInfoDTO userInfoDTO,String token){
         CronusDto cronusDto = new CronusDto();
         //判断必传字段*/
         //json转map 参数，教研参数
-        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
         if (userInfoDTO.getUser_id() == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户信息出错!");
         }
@@ -400,11 +399,11 @@ public class CustomerInfoService {
      * @return
      */
     @Transactional
-    public CronusDto editCustomerOk(CustomerDTO customerDTO, String token){
+    public CronusDto editCustomerOk(CustomerDTO customerDTO,UserInfoDTO userInfoDTO, String token){
         CronusDto resultDto = new CronusDto();
         //校验权限
         //校验参数手机号不更新
-        Integer user_id = ucService.getUserIdByToken(token);
+        Integer user_id =Integer.valueOf(userInfoDTO.getUser_id());
         if (user_id == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "信息出错!");
         }
@@ -1067,7 +1066,7 @@ public class CustomerInfoService {
         }
     }
 
-    public CronusDto<Boolean> removeCustomerAll(RemoveDTO removeDTO,String token){
+    public CronusDto<Boolean> removeCustomerAll(RemoveDTO removeDTO,UserInfoDTO userInfoDTO,String token){
             Date date = new Date();
             CronusDto<Boolean> resultDto = new CronusDto<>();
             boolean flag = false;
@@ -1081,7 +1080,6 @@ public class CustomerInfoService {
                 return resultDto;
             }
             //判断这个负责人是不是在职的
-            AppUserDto userInfoDTO = ucService.getUserInfoByID(token,removeDTO.getEmpId());
             if (userInfoDTO ==null  ||  !"1".equals(userInfoDTO.getStatus())){
                 resultDto.setData(flag);
                 resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTOERSTATUS_ERROR);
@@ -1124,7 +1122,7 @@ public class CustomerInfoService {
             ownIds =  new ArrayList<Integer>(new HashSet<>(ownIds));
             //得到用户的信息逗号隔开
             String strIds  = listToString(uniqueList);
-            List<PHPUserDto> userList = ucService.getUserByIds(token,strIds,null,null,null,null,null,null,null);
+           // List<PHPUserDto> userList = ucService.getUserByIds(token,strIds,null,null,null,null,null,null,null);
             // TODO 下面开始更改这些客户的信息
           /*  flag = removeToUser(uniqueList,removeDTO.getEmpId(),userInfoDTO.getName(),token,userInfoDTO.getUser_id(),userInfoDTO.getName());
             if (flag == false){

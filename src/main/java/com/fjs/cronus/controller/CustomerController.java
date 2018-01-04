@@ -23,6 +23,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.catalina.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,16 +94,6 @@ public class CustomerController {
         if (userId == null){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
-        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
-        String[] authority=resultDto.getAuthority();
-       /* if(authority.length>0){
-            List<String> authList= Arrays.asList(authority);
-            if (authList.contains(CommonConst.CANCEL_LOAN_URL)){
-                cronusDto.setResult(CommonMessage.CANCEL_FAIL.getCode());
-                cronusDto.setMessage(CommonConst.NO_AUTHORIZE);
-                return cronusDto;
-            }
-        }*/
         try {
             QueryResult queryResult = customerInfoService.customerList(userId,customerName,telephonenumber,
                     utmSource, ownUserName, customerSource, circle,companyId,page,size, remain,level,token);
@@ -264,7 +255,8 @@ public class CustomerController {
                     return cronusDto;
                 }
             }
-            cronusDto = customerInfoService.editCustomerOk(customerDTO,token);
+            UserInfoDTO userInfoDTO = resultDto.getUser_info();
+            cronusDto = customerInfoService.editCustomerOk(customerDTO,userInfoDTO,token);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->editCustomerOk提交失败", e);
@@ -690,8 +682,9 @@ public class CustomerController {
                 return cronusDto;
             }
         }
+        UserInfoDTO userInfoDTO = resultDto.getUser_info();
         try {
-            cronusDto  = customerInfoService.removeCustomerAll(removeDTO,token);
+            cronusDto  = customerInfoService.removeCustomerAll(removeDTO,userInfoDTO,token);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->removeCustomer离职员工批量转移操作失败",e);
@@ -724,8 +717,9 @@ public class CustomerController {
                 return cronusDto;
             }
         }
+        UserInfoDTO userInfoDTO = resultDto.getUser_info();
         try {
-            cronusDto = customerInfoService.addCRMCustomer(customerDTO,token);
+            cronusDto = customerInfoService.addCRMCustomer(customerDTO,userInfoDTO,token);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->addCRMCustomer新增客户失败", e);

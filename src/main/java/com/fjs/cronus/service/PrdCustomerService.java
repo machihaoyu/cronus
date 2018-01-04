@@ -240,7 +240,8 @@ public class PrdCustomerService {
                 prdComuniDTO.setCreate_user_name(userInfoDTO.getName());
                 prdComuniDTO.setContent(jsonObject.get("content").toString());
                 prdComuniDTO.setCreate_user_id(jsonObject.getInteger("create_user_id"));
-                prdComuniDTO.setCreate_time(jsonObject.getInteger("create_time"));
+                String time = DateUtils.getDateString(jsonObject.getInteger("create_time"));
+                prdComuniDTO.setCreate_time(time);
                 list.add(prdComuniDTO);
             }
             prdCustomerDTO.setComunication(list);

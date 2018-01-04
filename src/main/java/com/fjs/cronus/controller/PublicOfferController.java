@@ -197,7 +197,7 @@ public class PublicOfferController {
                 return theaApiDTO;
             }
         }
-        UserInfoDTO userInfoDTO=ucService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
+        UserInfoDTO userInfoDTO=resultDto.getUser_info();
         CustomerInfo customerInfo = null;
         try{
             Integer userId=null;

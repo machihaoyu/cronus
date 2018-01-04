@@ -390,17 +390,33 @@ public final class DateUtils {
         return weekDays[w];
     }
 
-
+    /**
+     * 时间戳转化为时间
+     * @param args
+     */
+    public static String getDateString(Integer time){
+        String d = null;
+        try {
+            SimpleDateFormat df = new SimpleDateFormat(FORMAT_LONG);
+            long result =  Long.parseLong(time.toString());
+            d = df.format(result*1000);
+            return d;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return d;
+    }
     public static void main(String [] args){
         try {
-         /*   DateUtils  dateUtil = new DateUtils();*/
+        /* *//*   DateUtils  dateUtil = new DateUtils();*//*
             int gethour = getHour(new Date());
             int minute = getMinute(new Date());
             int week = dayForWeek(new Date());
             System.out.println(gethour);
             System.out.println(minute);
-            System.out.println(week);
-
+            System.out.println(week);*/
+            String d = getDateString(1515035116);
+            System.out.println(d);
         } catch (Exception e) {
             // TODO: handle exception
         }
