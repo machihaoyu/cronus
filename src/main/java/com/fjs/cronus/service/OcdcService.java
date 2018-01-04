@@ -17,6 +17,7 @@ import com.fjs.cronus.model.AgainAllocateCustomer;
 import com.fjs.cronus.model.CustomerSalePushLog;
 import com.fjs.cronus.service.client.ThorInterfaceService;
 import com.fjs.cronus.service.thea.TheaClientService;
+import com.fjs.cronus.service.thea.ThorClientService;
 import com.fjs.cronus.util.DEC3Util;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
@@ -62,9 +63,6 @@ public class OcdcService {
     private TheaClientService theaClientService;
 
     @Autowired
-    private ThorInterfaceService thorUcService;
-
-    @Autowired
     private CustomerSalePushLogService customerSalePushLogService;
 
     @Autowired
@@ -81,6 +79,9 @@ public class OcdcService {
 
     @Autowired
     private CustomerInfoService customerInfoService;
+
+    @Autowired
+    private ThorClientService thorClientService;
 
     public List<String> addOcdcCustomer(OcdcData ocdcData, AllocateSource allocateSource, String token) {
 
@@ -110,7 +111,7 @@ public class OcdcService {
                             } else {//有负责人分给对应的业务员
                                 customerDTO.setLoanAmount(customerSalePushLog.getLoanAmount());
                                 sendMail(token, customerDTO);
-                                SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token, customerDTO.getOwnerUserId()).getData();
+                                SimpleUserInfoDTO simpleUserInfoDTO = thorClientService.getUserInfoById(token, customerDTO.getOwnerUserId());
                                 if (simpleUserInfoDTO != null && simpleUserInfoDTO.getSub_company_id() != null) {
                                     customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
                                 }

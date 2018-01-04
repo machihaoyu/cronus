@@ -7,6 +7,7 @@ import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.LoanDTO4;
 import com.fjs.cronus.dto.thea.MailBatchDTO;
 import com.fjs.cronus.dto.thea.WorkDayDTO;
+import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.client.TheaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,25 +39,37 @@ public class TheaClientService {
 
     /**
      * 获取交易系统配置
+     *
      * @param name
      * @return
      */
     public String getConfigByName(String name) {
+        String result = "";
         TheaApiDTO<String> resultDto = theaService.getConfigByName(name);
-        String result = resultDto.getData();
+        if (resultDto.getResult() == 0) {
+            result = resultDto.getData();
+        } else throw new CronusException(CronusException.Type.MESSAGE_CONNECTTHEASYSTEM_ERROR, resultDto.getMessage());
         return result;
     }
 
     /**
      * 新增交易
+     *
      * @param loanDTO
      */
-    public void insertLoan(LoanDTO loanDTO, String token) {
-        TheaApiDTO resultDto = theaService.insertLoan(loanDTO,token);
+    public String insertLoan(LoanDTO loanDTO, String token) {
+        TheaApiDTO resultDto = theaService.insertLoan(loanDTO, token);
+        if (resultDto.getResult() == 0) {
+            return resultDto.getData().toString();
+        } else {
+            logger.warn(resultDto.getMessage());
+            throw new CronusException(CronusException.Type.CRM_CONNECT_ERROR, resultDto.getMessage());
+        }
     }
 
     /**
      * 调用交易系统消息接口
+     *
      * @param token
      * @param content
      * @param createUser
@@ -75,27 +88,27 @@ public class TheaClientService {
         TheaApiDTO<String> resultDto = theaService.sendMail(token, mailDTO);
     }
 
-    public void sendMailBatch(String token,MailBatchDTO mailBatchDTO)
-    {
+    public void sendMailBatch(String token, MailBatchDTO mailBatchDTO) {
         theaService.insertCleanMailBatch(token, mailBatchDTO);
     }
 
-    public Integer serviceContractToUser(String token,String customerIds,Integer toUser){
+    public Integer serviceContractToUser(String token, String customerIds, Integer toUser) {
         Integer result = 1;
-        TheaApiDTO resultDto = theaService.serviceContractToUser(token,customerIds,toUser);
+        TheaApiDTO resultDto = theaService.serviceContractToUser(token, customerIds, toUser);
         return result;
     }
-    public Integer cancelAll(String token,String customerId,Integer newOwnnerId){
+
+    public Integer cancelAll(String token, String customerId, Integer newOwnnerId) {
         Integer result = 1;
 
         LoanDTO4 loanDTO4 = new LoanDTO4();
         loanDTO4.setIds(customerId);
         loanDTO4.setNewOwnnerId(newOwnnerId);
-        TheaApiDTO resultDto = theaService.cancelAll(token,loanDTO4);
-        if (resultDto!=null){
+        TheaApiDTO resultDto = theaService.cancelAll(token, loanDTO4);
+        if (resultDto != null) {
             result = Integer.valueOf(resultDto.getResult());
-            if (result == 0){
-                return  result;
+            if (result == 0) {
+                return result;
             }
         }
         return result;

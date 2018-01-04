@@ -16,6 +16,7 @@ import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.enums.AllocateEnum;
 import com.fjs.cronus.enums.AllocateSource;
+import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UserMonthInfo;
@@ -23,6 +24,7 @@ import com.fjs.cronus.service.client.ThorInterfaceService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;
+import com.fjs.cronus.service.thea.ThorClientService;
 import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
@@ -83,6 +85,9 @@ public class AutoAllocateService {
 
     @Autowired
     private SmsService smsService;
+
+    @Autowired
+    private ThorClientService thorClientService;
 
     /**
      * 判断是不是客户主动申请渠道
@@ -149,7 +154,7 @@ public class AutoAllocateService {
             if (null != customerDTO.getId() && customerDTO.getId() > 0) {
                 customerId = customerDTO.getId();
                 if (null != customerDTO.getOwnerUserId() && customerDTO.getOwnerUserId() > 0) {
-                    simpleUserInfoDTO = thorUcService.getUserInfoById(token, customerDTO.getOwnerUserId()).getData();
+                    simpleUserInfoDTO = thorClientService.getUserInfoById(token, customerDTO.getOwnerUserId());
                     if (null != ownerUser.getSub_company_id()) {
                         customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
                     } else {
@@ -175,7 +180,7 @@ public class AutoAllocateService {
                         case "1":
                         case "3":
                             if (customerDTO.getOwnerUserId() != null && customerDTO.getOwnerUserId() > 0) {
-                                simpleUserInfoDTO = thorUcService.getUserInfoById(token, customerDTO.getOwnerUserId()).getData();
+                                simpleUserInfoDTO = thorClientService.getUserInfoById(token, customerDTO.getOwnerUserId());
                                 if (null != simpleUserInfoDTO.getSub_company_id()) {
                                     customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
                                 } else {
@@ -249,25 +254,25 @@ public class AutoAllocateService {
         return allocateEntity;
     }
 
-    private void addCustomer(CustomerDTO customerDTO, String token) {
-        SimpleUserInfoDTO simpleUserInfoDTO;
-        if (customerDTO.getOwnerUserId() != null && customerDTO.getOwnerUserId() > 0) {
-            simpleUserInfoDTO = thorUcService.getUserInfoById(token, customerDTO.getOwnerUserId()).getData();
-            if (null != simpleUserInfoDTO.getSub_company_id()) {
-                customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
-            } else {
-                customerDTO.setSubCompanyId(0);
-            }
-        }
-        //保存数据
-        customerDTO.setLastUpdateTime(new Date());
-        customerInfoService.addCustomer(customerDTO, token);
-    }
+//    private void addCustomer(CustomerDTO customerDTO, String token) {
+//        SimpleUserInfoDTO simpleUserInfoDTO;
+//        if (customerDTO.getOwnerUserId() != null && customerDTO.getOwnerUserId() > 0) {
+//            simpleUserInfoDTO = thorUcService.getUserInfoById(token, customerDTO.getOwnerUserId()).getData();
+//            if (null != simpleUserInfoDTO.getSub_company_id()) {
+//                customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
+//            } else {
+//                customerDTO.setSubCompanyId(0);
+//            }
+//        }
+//        //保存数据
+//        customerDTO.setLastUpdateTime(new Date());
+//        customerInfoService.addCustomer(customerDTO, token);
+//    }
 
     /**
      * 主动申请渠道添加交易
-     *
      * @param customerDTO
+     * @param token
      */
     public void addLoan(CustomerDTO customerDTO, String token) {
 //        if (isActiveApplicationChannel(customerDTO)) {
@@ -314,7 +319,7 @@ public class AutoAllocateService {
 
         UserInfoDTO userInfoDTO = new UserInfoDTO();
 
-        Integer salerId = 0;
+        Integer salerId;
         if (null != extJson.get("sale_id") &&
                 StringUtils.isNotBlank(extJson.get("sale_id").toString())) {
             //如果sale_id的格式出现异常，强转失败，则继续走下一步的逻辑
@@ -324,13 +329,12 @@ public class AutoAllocateService {
                     BaseUcDTO<UserInfoDTO> thorApiDTO = thorUcService.getUserInfoByField(token, null, salerId, null);
                     if (0 == thorApiDTO.getErrNum() && thorApiDTO.getRetData() != null) {
                         userInfoDTO = thorApiDTO.getRetData();
-                        salerId = Integer.valueOf(userInfoDTO.getUser_id());
+//                        salerId = Integer.valueOf(userInfoDTO.getUser_id());
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.error("OCDC推送信息中，自带业务员ID强转/获取信息失败。telephonenumber:" + customerDTO.getTelephonenumber());
-                salerId = 0;
             }
         }
         //房速贷推送过来的带业务员手机号的客户
@@ -344,10 +348,11 @@ public class AutoAllocateService {
                         phone, token, null, null);
                 if (0 == thorApiDTO.getErrNum() && thorApiDTO.getRetData() != null) {
                     userInfoDTO = thorApiDTO.getRetData();
-                    salerId = Integer.valueOf(userInfoDTO.getUser_id());
-                } else {
-                    salerId = 0;
+//                    salerId = Integer.valueOf(userInfoDTO.getUser_id());
                 }
+//                else {
+//                    salerId = 0;
+//                }
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.error("请求Thor接口getUserInfoByField失败。phone:" + phone);

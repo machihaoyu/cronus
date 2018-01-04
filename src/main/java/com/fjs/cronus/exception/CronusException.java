@@ -200,6 +200,7 @@ public class CronusException extends BaseException {
 
 		AUTO_CLEAN_ERROR("6093","自动清洗错误"),
 
+        MESSAGE_CONNECT_THOR_SYSTEM_ERROR("6094","链接用户系统错误"),
 
         ;
         private String status;
