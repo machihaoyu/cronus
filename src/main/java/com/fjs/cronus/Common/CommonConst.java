@@ -90,7 +90,7 @@ public class CommonConst {
     public static String NO_AUTHORIZE = "没有权限";
     public static String NO_AUTHORIZE_COMMUNICATE = "没有权限,只有本人才能添加沟通";
     //权限列表
-    public static String SYSTEMNAME="thea";//"sale"
+    public static String SYSTEMNAME="sale";//"thea"
     public static String ADD_COMM_LOG_URL=SYSTEMNAME+"communicationLog/add";
     public static String ADD_CUSTOMER_URL=SYSTEMNAME+"/Customer/add";
     public static String EDIT_CUSTOMER_URL = SYSTEMNAME+"/Customer/edit";
@@ -154,7 +154,7 @@ public class CommonConst {
     public static String SYSTEM_NAME = "房金所系统";
 
     //系统名
-    public static String SYSTEM_NAME_ENGLISH = "thea";//"sale"
+    public static String SYSTEM_NAME_ENGLISH = "sale";//"thea"
     //系统ID
     public static Integer SYSTEM_ID = 75;
     //扔回客户
