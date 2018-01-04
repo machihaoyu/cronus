@@ -1,6 +1,9 @@
 package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.ResultResource;
+import com.fjs.cronus.dto.App.ThreeCateDTO;
+import com.fjs.cronus.dto.App.ThreeCategoryDTO;
+import com.fjs.cronus.dto.App.ThreeDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.cronus.DocumentCategoryDTO;
 import com.fjs.cronus.dto.cronus.ThreeCategoryDto;
@@ -61,7 +64,7 @@ public class DocumentCategoryService {
         CronusDto resultDto = new CronusDto();
         //根据父类id查找信息
         //拼装参数
-        List<ThreeCategoryDto> threeCategoryDtos = new ArrayList<>();
+        List<ThreeCategoryDTO> threeCategoryDtos = new ArrayList<>();
         Map<String,Object> paramsMap = new HashMap<>();
         //获取paraentId 为0的
         paramsMap.put("documentCParentId",0);
@@ -69,56 +72,42 @@ public class DocumentCategoryService {
         paramsMap.clear();
         if (documentCategoryList != null && documentCategoryList.size() > 0){
             for (DocumentCategory documentCategory : documentCategoryList) {
-                ThreeCategoryDto threeCategoryDto = new ThreeCategoryDto();
-                DocumentCategoryDTO documentCategoryDTO = new DocumentCategoryDTO();
-                documentCategoryDTO.setId(documentCategory.getId());
-                documentCategoryDTO.setDocumentCNameHeader(documentCategory.getDocumentCNameHeader());
-                documentCategoryDTO.setDocumentCName(documentCategory.getDocumentCNameHeader()+" "+documentCategory.getDocumentCName());
-                documentCategoryDTO.setDocumentCParentId(documentCategory.getDocumentCParentId());
-                threeCategoryDto.setName(documentCategory.getId().toString());
-                threeCategoryDto.setValue(documentCategoryDTO);
-                threeCategoryDto.setParent(documentCategory.getDocumentCParentId().toString());
-                threeCategoryDtos.add(threeCategoryDto);
-                //找到所有的第二级
+                ThreeCategoryDTO threeCategoryDTO = new ThreeCategoryDTO();
+                List<ThreeCateDTO> twoCategoryDto = new ArrayList<>();
+                threeCategoryDTO.setId(documentCategory.getId());
+                threeCategoryDTO.setDocumentCName(documentCategory.getDocumentCNameHeader()+" "+documentCategory.getDocumentCName());
+                threeCategoryDTO.setDocumentCParentId(documentCategory.getDocumentCParentId());
                 paramsMap.put("documentCParentId",documentCategory.getId());
                 List<DocumentCategory> documentCategoryTwoList = documentCategoryMapper.getNextCategory(paramsMap);
                 paramsMap.clear();
                 if (documentCategoryTwoList != null && documentCategoryTwoList.size() > 0){
                     for (DocumentCategory documentCategory2 : documentCategoryTwoList) {
-                        ThreeCategoryDto threeCategoryDto2 = new ThreeCategoryDto();
-                        DocumentCategoryDTO documentCategoryDTO2 = new DocumentCategoryDTO();
-                        documentCategoryDTO2.setId(documentCategory2.getId());
-                        documentCategoryDTO2.setDocumentCNameHeader(documentCategory2.getDocumentCNameHeader());
-                        documentCategoryDTO2.setDocumentCName(documentCategory2.getDocumentCNameHeader()+" "+documentCategory.getDocumentCName());
-                        documentCategoryDTO2.setDocumentCParentId(documentCategory2.getDocumentCParentId());
-                        threeCategoryDto2.setName(documentCategory2.getId().toString());
-                        threeCategoryDto2.setValue(documentCategoryDTO2);
-                        threeCategoryDto2.setParent(documentCategory2.getDocumentCParentId().toString());
-                        threeCategoryDtos.add(threeCategoryDto2);
+                        ThreeCateDTO threeCateDTO = new ThreeCateDTO();
+                        List<ThreeDTO> threeCategoryDto = new ArrayList<>();
+                        threeCateDTO.setId(documentCategory2.getId());
+                        threeCateDTO.setDocumentCName(documentCategory2.getDocumentCNameHeader()+" "+documentCategory2.getDocumentCName());
+                        threeCateDTO.setDocumentCParentId(documentCategory2.getDocumentCParentId());
                         //查询第三级
                         paramsMap.put("documentCParentId",documentCategory2.getId());
                         List<DocumentCategory> documentCategoryThreeList = documentCategoryMapper.getNextCategory(paramsMap);
                         paramsMap.clear();
                         if (documentCategoryThreeList != null && documentCategoryThreeList.size() > 0){
                             for (DocumentCategory documentCategory3 : documentCategoryThreeList) {
-                                ThreeCategoryDto threeCategoryDto3 = new ThreeCategoryDto();
-                                DocumentCategoryDTO documentCategoryDTO3 = new DocumentCategoryDTO();
-                                documentCategoryDTO3.setId(documentCategory3.getId());
-                                documentCategoryDTO3.setDocumentCNameHeader(documentCategory3.getDocumentCNameHeader());
-                                documentCategoryDTO3.setDocumentCName(documentCategory3.getDocumentCNameHeader()+" "+documentCategory.getDocumentCName());
-                                documentCategoryDTO3.setDocumentCParentId(documentCategory3.getDocumentCParentId());
-                                threeCategoryDto3.setName(documentCategory3.getId().toString());
-                                threeCategoryDto3.setValue(documentCategoryDTO3);
-                                threeCategoryDto3.setParent(documentCategory3.getDocumentCParentId().toString());
-                                threeCategoryDtos.add(threeCategoryDto3);
+                                ThreeDTO threeDTO = new ThreeDTO();
+                                threeDTO.setId(documentCategory3.getId());
+                                threeDTO.setDocumentCName(documentCategory3.getDocumentCNameHeader()+" "+documentCategory3.getDocumentCName());
+                                threeDTO.setDocumentCParentId(documentCategory3.getDocumentCParentId());
+                                threeCategoryDto.add(threeDTO);
                             }
+                            threeCateDTO.setSonDto(threeCategoryDto);
 
                         }
+                        threeCateDTO.setSonDto(threeCategoryDto);
+                        twoCategoryDto.add(threeCateDTO);
                     }
-
-
                 }
-
+                threeCategoryDTO.setChildDto(twoCategoryDto);
+                threeCategoryDtos.add(threeCategoryDTO);
             }
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
@@ -127,7 +116,7 @@ public class DocumentCategoryService {
         }
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
-        resultDto.setData("");
+        resultDto.setData(threeCategoryDtos);
         return  resultDto;
 
     }

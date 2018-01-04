@@ -11,6 +11,7 @@ import com.fjs.cronus.dto.cronus.OcrDocumentDto;
 import com.fjs.cronus.dto.cronus.RemoveDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.App.AppService;
+import com.fjs.cronus.service.DocumentCategoryService;
 import com.fjs.cronus.service.RContractDocumentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -23,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -37,7 +39,8 @@ public class AppController {
     @Autowired
     AppService appService;
     private  static  final Logger logger = LoggerFactory.getLogger(AppController.class);
-
+    @Autowired
+    DocumentCategoryService documentCategoryService;
     @ApiOperation(value="App获取业务员当天的沟通数与领取数", notes="App获取业务员当天的沟通数与领取数")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")})
@@ -99,6 +102,21 @@ public class AppController {
         }
     }
 
-
+    @ApiOperation(value="App获取附件三价联动的信息", notes="App获取附件三价联动的信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/getClientCatory", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto getClientCatory(HttpServletRequest request){
+        CronusDto cronusDto = new CronusDto();
+        try {
+            cronusDto = documentCategoryService.getThreeCategory();
+        }catch (Exception e){
+            logger.error("--------------->getNextCategory 获取附件三价联动的信息", e);
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return  cronusDto;
+    }
 
 }
