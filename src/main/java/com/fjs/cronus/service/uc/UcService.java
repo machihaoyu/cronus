@@ -15,7 +15,6 @@ import com.fjs.cronus.dto.uc.*;
 import com.fjs.cronus.dto.uc.SubCompanyCityDto;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.client.ThorInterfaceService;
-import com.fjs.cronus.service.client.ThorUcService;
 import com.fjs.cronus.service.redis.UcRedisService;
 import com.fjs.cronus.util.FastJsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +34,8 @@ public class UcService {
     ThorInterfaceService thorInterfaceService;
     @Autowired
     UcRedisService ucRedisService;
-    @Autowired
-    ThorUcService thorUcService;
+//    @Autowired
+//    ThorUcService thorUcService;
     public List getSubUserByUserId(String token,Integer user_id){
         CronusDto resultDto = new CronusDto();
         if (user_id == null){
@@ -83,7 +82,7 @@ public class UcService {
         if (ucUserDTO != null){
             return ucUserDTO;
         }
-        PhpApiDto<AppUserDto> ucDTO =thorUcService.getUserInfoByField(null,token,user_id,null);
+        PhpApiDto<AppUserDto> ucDTO =thorInterfaceService.getUserInfoByFields(null,token,user_id,null);
         if (ucDTO.getRetData() !=null){
             //map 转json
             String result = FastJsonUtils.obj2JsonString(ucDTO.getRetData());

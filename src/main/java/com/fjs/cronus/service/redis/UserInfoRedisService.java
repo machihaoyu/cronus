@@ -3,9 +3,7 @@ package com.fjs.cronus.service.redis;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.api.PhpApiDto;
-import com.fjs.cronus.config.RedisConfig;
-import com.fjs.cronus.dto.api.uc.AppUserDto;
-import com.fjs.cronus.service.client.ThorUcService;
+import com.fjs.cronus.service.client.ThorInterfaceService;
 import com.fjs.cronus.util.CommonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +39,11 @@ public class UserInfoRedisService {
     /**
      * 获取用户所有下属业务员的IDS
      */
+//    @Autowired
+//    ThorUcService thorUcService;
+
     @Autowired
-    ThorUcService thorUcService;
+    private ThorInterfaceService thorInterfaceService;
 
     public String getSubUserIds(String token,Integer userId){
         ValueOperations<String, String> redisOptions = stringRedisTemplate.opsForValue();
@@ -50,7 +51,7 @@ public class UserInfoRedisService {
         if (StringUtils.isNotBlank(userIds)) {
             return userIds;
         } else {
-            PhpApiDto<List<String>> phpApiDto = thorUcService.getSubUserByUserId(token, userId,CommonConst.SYSTEMNAME,4);
+            PhpApiDto<List<String>> phpApiDto = thorInterfaceService.getSubUserByUserId(token, userId,CommonConst.SYSTEMNAME,4);
             if (null != phpApiDto.getRetData() && phpApiDto.getRetData().size() > 0) {
                 userIds = CommonUtil.initStrListToStr(phpApiDto.getRetData());
                 this.setSebUserIds(userId,userIds);
