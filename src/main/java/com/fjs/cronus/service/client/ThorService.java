@@ -690,5 +690,8 @@ public interface ThorService {
     PhpApiDto<List<String>> getSubUserByUserId(@RequestHeader("Authorization") String token, @RequestParam("user_id") Integer userId, @RequestParam(value = "system") String system, @RequestParam(value = "data_type") Integer dataType);
 
 
+    @RequestMapping(value = "/api/v1/getSubCompanyToCronus", method = RequestMethod.GET)
+    PhpApiDto<List<CronusSubInfoDTO>> getSubCompanyToCronus(@RequestHeader("Authorization") String token,@RequestParam(value = "userId") Integer  userId,@RequestParam(value = "systemName") String systemName);
+
 }
 
