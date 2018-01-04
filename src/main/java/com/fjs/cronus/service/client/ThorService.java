@@ -27,7 +27,7 @@ import java.util.Map;
  */
 //@FeignClient(value = "${client.feign.thor-backend}", url = "http://192.168.1.128:1120",configuration = FeignClientConfig.class)
 @FeignClient(value = "${client.feign.thor-backend}", configuration = FeignClientConfig.class)
-public interface ThorInterfaceService {
+public interface ThorService {
 
 
     /**

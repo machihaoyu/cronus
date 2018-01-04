@@ -22,7 +22,7 @@ import com.fjs.cronus.model.UserMonthInfo;
 import com.fjs.cronus.service.AllocateLogService;
 import com.fjs.cronus.service.UserMonthInfoService;
 import com.fjs.cronus.service.UserService;
-import com.fjs.cronus.service.client.ThorInterfaceService;
+import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.util.DateUtils;
 import io.swagger.annotations.ApiImplicitParam;
@@ -52,7 +52,7 @@ public class UserController {
 //    private ThorUcService thorUcService;
 
     @Autowired
-    private ThorInterfaceService thorInterfaceService;
+    private ThorService thorService;
 
     @Autowired
     private UserService userService;
@@ -84,7 +84,7 @@ public class UserController {
         PhpQueryResultDto resultDto = new PhpQueryResultDto();
         //获取当前用户信息
         String token = request.getHeader("Authorization");
-        CronusDto<UserInfoDTO> thorApiDTO = thorInterfaceService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
+        CronusDto<UserInfoDTO> thorApiDTO = thorService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
         UserInfoDTO userInfoDTO = thorApiDTO.getData();
         Integer user_id = null;
         Integer dataType = null;
@@ -102,7 +102,7 @@ public class UserController {
         }
         ThorQueryDto subThorApiDTO = null;
         try {
-            PhpApiDto<List<String>> phpApiDto = thorInterfaceService.getSubUserByUserId(token, user_id, CommonConst.SYSTEMNAME, dataType);
+            PhpApiDto<List<String>> phpApiDto = thorService.getSubUserByUserId(token, user_id, CommonConst.SYSTEMNAME, dataType);
             List<String> list = phpApiDto.getRetData();
             StringBuffer idList = new StringBuffer();
             int size = list.size();
@@ -121,7 +121,7 @@ public class UserController {
                 pageSize = 5;
             }
             String department_ids = userInfoDTO.getDepartment_id();
-            subThorApiDTO = thorInterfaceService.getUserByIds(token, null, null, subCompanyId,
+            subThorApiDTO = thorService.getUserByIds(token, null, null, subCompanyId,
                     flag, page, pageSize, name, null);
         } catch (Exception e) {
             resultDto.setErrNum(1);
@@ -145,7 +145,7 @@ public class UserController {
         List<SubCompanyDto> subCompanyDtos = new ArrayList<>();
         //获取公司信息
         String token = request.getHeader("Authorization");
-        CronusDto<UserInfoDTO> thorApiDTO = thorInterfaceService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
+        CronusDto<UserInfoDTO> thorApiDTO = thorService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
         UserInfoDTO userInfoDTO = thorApiDTO.getData();
         Integer user_id = null;
         Integer dataType = null;
@@ -186,7 +186,7 @@ public class UserController {
         List<PhpDepartmentModel> list = null;
         //获取分公司信息
         String token = request.getHeader("Authorization");
-        CronusDto<UserInfoDTO> thorApiDTO = thorInterfaceService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
+        CronusDto<UserInfoDTO> thorApiDTO = thorService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
         UserInfoDTO userInfoDTO = thorApiDTO.getData();
         Integer user_id = null;
         if (userInfoDTO != null && StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {

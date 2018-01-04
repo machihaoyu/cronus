@@ -3,7 +3,7 @@ package com.fjs.cronus.service.redis;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.api.PhpApiDto;
-import com.fjs.cronus.service.client.ThorInterfaceService;
+import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.util.CommonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ public class UserInfoRedisService {
 //    ThorUcService thorUcService;
 
     @Autowired
-    private ThorInterfaceService thorInterfaceService;
+    private ThorService thorService;
 
     public String getSubUserIds(String token,Integer userId){
         ValueOperations<String, String> redisOptions = stringRedisTemplate.opsForValue();
@@ -51,7 +51,7 @@ public class UserInfoRedisService {
         if (StringUtils.isNotBlank(userIds)) {
             return userIds;
         } else {
-            PhpApiDto<List<String>> phpApiDto = thorInterfaceService.getSubUserByUserId(token, userId,CommonConst.SYSTEMNAME,4);
+            PhpApiDto<List<String>> phpApiDto = thorService.getSubUserByUserId(token, userId,CommonConst.SYSTEMNAME,4);
             if (null != phpApiDto.getRetData() && phpApiDto.getRetData().size() > 0) {
                 userIds = CommonUtil.initStrListToStr(phpApiDto.getRetData());
                 this.setSebUserIds(userId,userIds);

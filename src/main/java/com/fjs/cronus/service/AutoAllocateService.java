@@ -16,11 +16,10 @@ import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.enums.AllocateEnum;
 import com.fjs.cronus.enums.AllocateSource;
-import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UserMonthInfo;
-import com.fjs.cronus.service.client.ThorInterfaceService;
+import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;
@@ -53,7 +52,7 @@ public class AutoAllocateService {
 //    private ConfigRedisService configRedisService;
 
     @Autowired
-    private ThorInterfaceService thorUcService;
+    private ThorService thorUcService;
 
     @Autowired
     private AllocateRedisService allocateRedisService;
@@ -74,7 +73,7 @@ public class AutoAllocateService {
 //    private LoanLogService loanLogService;
 
     @Autowired
-    ThorInterfaceService thorInterfaceService;
+    ThorService thorService;
 
     @Autowired
     private AgainAllocateCustomerService againAllocateCustomerService;
@@ -302,7 +301,7 @@ public class AutoAllocateService {
 
     private void sendCRMAssistantMessage(String customerCity, String customerName, String token) {
 
-        BaseUcDTO<List<CrmUserDTO>> crmUser = thorInterfaceService.getCRMUser(token, customerCity);
+        BaseUcDTO<List<CrmUserDTO>> crmUser = thorService.getCRMUser(token, customerCity);
         List<CrmUserDTO> crmUserDTOList = crmUser.getRetData();
         for (CrmUserDTO crmUserDTO :
                 crmUserDTOList) {

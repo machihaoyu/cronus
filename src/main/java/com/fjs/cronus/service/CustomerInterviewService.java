@@ -16,7 +16,7 @@ import com.fjs.cronus.model.CustomerInterviewBaseInfo;
 import com.fjs.cronus.model.CustomerInterviewCarInfo;
 import com.fjs.cronus.model.CustomerInterviewHouseInfo;
 import com.fjs.cronus.model.CustomerInterviewInsuranceInfo;
-import com.fjs.cronus.service.client.ThorInterfaceService;
+import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.FastJsonUtils;
@@ -35,7 +35,7 @@ public class CustomerInterviewService {
     @Autowired
     CustomerInterviewBaseInfoMapper customerInterviewBaseInfoMapper;
     @Autowired
-    ThorInterfaceService thorInterfaceService;
+    ThorService thorService;
     @Autowired
     UcService ucService;
     @Autowired
@@ -49,7 +49,7 @@ public class CustomerInterviewService {
         QueryResult resultDto = new QueryResult();
         Map<String,Object> paramsMap =  new HashMap<>();
         //TODO 通过token查询到用户的id 查询自己以及下属员工
-        String  result = thorInterfaceService.getCurrentUserInfo(token,null);
+        String  result = thorService.getCurrentUserInfo(token,null);
         try {
             BaseUcDTO dto = FastJsonUtils.getSingleBean(result,BaseUcDTO.class);
             UcUserDTO userDTO = FastJsonUtils.getSingleBean(dto.getData().toString(),UcUserDTO.class);
