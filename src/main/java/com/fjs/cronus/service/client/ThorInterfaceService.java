@@ -24,6 +24,7 @@ import java.util.Map;
  */
 //@FeignClient(value = "${client.feign.thor-backend}", url = "http://192.168.1.128:1120",configuration = FeignClientConfig.class)
 @FeignClient(value = "${client.feign.thor-backend}", configuration = FeignClientConfig.class)
+//@FeignClient(value = "THOR20-BACKEND-ZL", url = "http://192.168.2.33:8099",configuration = FeignClientConfig.class)
 public interface ThorInterfaceService {
 
 
@@ -523,5 +524,7 @@ public interface ThorInterfaceService {
                                    @RequestParam(value = "company_id", required = false) Integer company_id);
 
 
+    @RequestMapping(value = "/api/v1/getSubCompanyToCronus", method = RequestMethod.GET)
+    PhpApiDto<List<CronusSubInfoDTO>> getSubCompanyToCronus(@RequestHeader("Authorization") String token, @RequestParam(value = "userId") Integer  userId, @RequestParam(value = "systemName") String systemName );
 }
 

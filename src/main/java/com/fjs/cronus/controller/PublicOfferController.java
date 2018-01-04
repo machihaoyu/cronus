@@ -10,6 +10,7 @@ import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.CityDto;
 import com.fjs.cronus.dto.cronus.PanParamDTO;
 import com.fjs.cronus.dto.cronus.RedisSubUserInfoDTO;
+import com.fjs.cronus.dto.uc.CronusSubInfoDTO;
 import com.fjs.cronus.dto.uc.SubCompanyCityDto;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
@@ -131,25 +132,22 @@ public class PublicOfferController {
                 String mainCity = theaClientService.findValueByName(token, CommonConst.MAIN_CITY);
                 //获取异地城市
                 String remoteCity = theaClientService.findValueByName(token, CommonConst.REMOTE_CITY);
-                //获取自己的下属
-                List subIds = ucService.getSubUserByUserId(token, userId);
-                if (subIds != null && subIds.size() > 0) {
-                    for (int i =0; i< subIds.size();i++) {
-                        AppUserDto userInfoByID = ucService.getUserInfoByID(token, Integer.valueOf(subIds.get(i).toString()));
-                        if (!StringUtils.isEmpty(userInfoByID.getCity())) {
-                            if (mainCity.contains(userInfoByID.getCity())) {//说明在主要城市内
-                                if (!canMangerMainCity.contains(userInfoByID.getCity())) {
-                                    canMangerMainCity.add(userInfoByID.getCity());
+                List<CronusSubInfoDTO> cronusSubInfoDTOS = ucService.getSubCompanyToCronus(token, userId, "sale");
+                if (cronusSubInfoDTOS != null && cronusSubInfoDTOS.size() > 0) {
+                    for (CronusSubInfoDTO cronusSubInfoDTO : cronusSubInfoDTOS) {
+                        if (!StringUtils.isEmpty(cronusSubInfoDTO.getCityName())) {
+                            if (mainCity.contains(cronusSubInfoDTO.getCityName())) {//说明在主要城市内
+                                if (!canMangerMainCity.contains(cronusSubInfoDTO.getCityName())) {
+                                    canMangerMainCity.add(cronusSubInfoDTO.getCityName());
                                 }
                             }
-                            if (remoteCity.contains(userInfoByID.getCity())) {//说明是异地城市
-                                if (!subCompanyIds.contains(userInfoByID.getSub_company_id())) {
-                                    subCompanyIds.add(Integer.valueOf(userInfoByID.getSub_company_id()));
+                            if (remoteCity.contains(cronusSubInfoDTO.getCityName())) {//说明是异地城市
+                                if (!subCompanyIds.contains(cronusSubInfoDTO.getCityName())) {
+                                    subCompanyIds.add(Integer.valueOf(cronusSubInfoDTO.getSubCompanyId()));
                                 }
                             }
                         }
                     }
-                    //开始存入缓存
                     RedisSubUserInfoDTO redis = new RedisSubUserInfoDTO();
                     redis.setCanMangerMainCity(canMangerMainCity);
                     redis.setSubCompanyId(subCompanyIds);

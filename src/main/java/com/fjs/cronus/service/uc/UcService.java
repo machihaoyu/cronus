@@ -247,5 +247,13 @@ public class UcService {
         }
         return roleDTO;
     }
+    public List<CronusSubInfoDTO> getSubCompanyToCronus(String token,Integer userId,String system){
+        List<CronusSubInfoDTO> cronusSubInfoDTOS = new ArrayList<>();
+        PhpApiDto<List<CronusSubInfoDTO>> resultDto = thorInterfaceService.getSubCompanyToCronus(token,userId,system);
+        if (resultDto.getRetData() != null) {
+            cronusSubInfoDTOS = resultDto.getRetData();
+        }
+        return  cronusSubInfoDTOS;
+    }
 
 }
