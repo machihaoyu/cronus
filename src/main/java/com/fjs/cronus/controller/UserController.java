@@ -5,12 +5,12 @@ import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.Common.ResultDescription;
 import com.fjs.cronus.api.PhpApiDto;
+import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.EditAllocateDTO;
 import com.fjs.cronus.dto.EditUserMonthInfoDTO;
 import com.fjs.cronus.dto.UserMonthInfoDTO;
 import com.fjs.cronus.dto.api.PhpQueryResultDto;
 import com.fjs.cronus.dto.api.TheaApiDTO;
-import com.fjs.cronus.dto.api.ThorApiDTO;
 import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.uc.CrmCitySubCompanyDto;
@@ -22,14 +22,13 @@ import com.fjs.cronus.model.UserMonthInfo;
 import com.fjs.cronus.service.AllocateLogService;
 import com.fjs.cronus.service.UserMonthInfoService;
 import com.fjs.cronus.service.UserService;
-import com.fjs.cronus.service.client.ThorUcService;
+import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.util.DateUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +48,12 @@ import java.util.*;
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
+//    @Autowired
+//    private ThorUcService thorUcService;
+
     @Autowired
-    private ThorUcService thorUcService;
+    private ThorService thorService;
+
     @Autowired
     private UserService userService;
 
@@ -81,7 +84,7 @@ public class UserController {
         PhpQueryResultDto resultDto = new PhpQueryResultDto();
         //获取当前用户信息
         String token = request.getHeader("Authorization");
-        ThorApiDTO<UserInfoDTO> thorApiDTO = thorUcService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
+        CronusDto<UserInfoDTO> thorApiDTO = thorService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
         UserInfoDTO userInfoDTO = thorApiDTO.getData();
         Integer user_id = null;
         Integer dataType = null;
@@ -99,7 +102,7 @@ public class UserController {
         }
         ThorQueryDto subThorApiDTO = null;
         try {
-            PhpApiDto<List<String>> phpApiDto = thorUcService.getSubUserByUserId(token, user_id, CommonConst.SYSTEMNAME, dataType);
+            PhpApiDto<List<String>> phpApiDto = thorService.getSubUserByUserId(token, user_id, CommonConst.SYSTEMNAME, dataType);
             List<String> list = phpApiDto.getRetData();
             StringBuffer idList = new StringBuffer();
             int size = list.size();
@@ -118,7 +121,7 @@ public class UserController {
                 pageSize = 5;
             }
             String department_ids = userInfoDTO.getDepartment_id();
-            subThorApiDTO = thorUcService.getUserInfoByIds(token, null, null, subCompanyId,
+            subThorApiDTO = thorService.getUserByIds(token, null, null, subCompanyId,
                     flag, page, pageSize, name, null);
         } catch (Exception e) {
             resultDto.setErrNum(1);
@@ -142,7 +145,7 @@ public class UserController {
         List<SubCompanyDto> subCompanyDtos = new ArrayList<>();
         //获取公司信息
         String token = request.getHeader("Authorization");
-        ThorApiDTO<UserInfoDTO> thorApiDTO = thorUcService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
+        CronusDto<UserInfoDTO> thorApiDTO = thorService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
         UserInfoDTO userInfoDTO = thorApiDTO.getData();
         Integer user_id = null;
         Integer dataType = null;
@@ -183,7 +186,7 @@ public class UserController {
         List<PhpDepartmentModel> list = null;
         //获取分公司信息
         String token = request.getHeader("Authorization");
-        ThorApiDTO<UserInfoDTO> thorApiDTO = thorUcService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
+        CronusDto<UserInfoDTO> thorApiDTO = thorService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
         UserInfoDTO userInfoDTO = thorApiDTO.getData();
         Integer user_id = null;
         if (userInfoDTO != null && StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {

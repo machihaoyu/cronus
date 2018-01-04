@@ -6,11 +6,10 @@ import com.fjs.cronus.api.thea.Loan;
 import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.thea.MailBatchDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
-import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.model.*;
 import com.fjs.cronus.service.client.TheaService;
-import com.fjs.cronus.service.client.ThorUcService;
+import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DateUtils;
@@ -48,8 +47,10 @@ public class AutoCleanService {
     @Autowired
     private AutoCleanManageService autoCleanManageService;
 
+//    @Autowired
+//    private ThorUcService thorUcService;
     @Autowired
-    private ThorUcService thorUcService;
+    private ThorService thorService;
 
     @Autowired
     private AllocateLogService allocateLogService;
@@ -196,7 +197,7 @@ public class AutoCleanService {
             redisConfigOptions.set(CommonConst.AUTO_CLEAN_STATUS, CommonEnum.NO.getCode().toString());
             //获取所有的业务员
             //添加消息信息！
-            BaseUcDTO<List<Integer>> baseUcDTO = thorUcService.getAllSalesman(publicToken, "all");
+            BaseUcDTO<List<Integer>> baseUcDTO = thorService.getAllSalesman(publicToken, "all");
             List<Integer> toIds = new ArrayList<>();
             if (baseUcDTO.getErrNum() == 0) {
                 toIds = baseUcDTO.getRetData();

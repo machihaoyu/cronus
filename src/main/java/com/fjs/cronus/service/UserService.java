@@ -1,11 +1,10 @@
 package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CommonConst;
-import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.config.RedisConfig;
+import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.UserMonthInfoDTO;
-import com.fjs.cronus.dto.api.ThorApiDTO;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.CityDto;
 import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
@@ -15,7 +14,7 @@ import com.fjs.cronus.dto.uc.CrmCitySubCompanyDto;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerUseful;
 import com.fjs.cronus.model.UserMonthInfo;
-import com.fjs.cronus.service.client.ThorUcService;
+import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.UserInfoRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;
@@ -41,8 +40,11 @@ public class UserService {
     @Value("${token.current}")
     private String publicToken;
 
+//    @Autowired
+//    private ThorUcService thorUcService;
+
     @Autowired
-    private ThorUcService thorUcService;
+    private ThorService thorService;
 
     @Autowired
     private RedisConfig redisConfig;
@@ -75,7 +77,7 @@ public class UserService {
         List<SubCompanyDto> subCompanyDtos = new ArrayList<SubCompanyDto>();
 
         long startTime = System.currentTimeMillis();
-        PhpApiDto<List<SubCompanyDto>> phpApiDto = thorUcService.getAllCompanyByUserId(token, user_id, CommonConst.SYSTEMNAME);
+        PhpApiDto<List<SubCompanyDto>> phpApiDto = thorService.getAllCompanyByUserId(token, user_id, CommonConst.SYSTEMNAME);
 
         long endTime = System.currentTimeMillis();
         float seconds = (endTime - startTime) / 1000F;
@@ -87,8 +89,7 @@ public class UserService {
 
 
     public Map<String, List<UserMonthInfoDTO>> getUserMonthInfoList(String city, Integer companyId, String effectiveDate, Integer userIdByOption) throws Exception {
-        BaseUcDTO<List<String>> baseUcDTO = thorUcService.getUserIds(publicToken, null, null,
-                null, null, companyId, null);
+        BaseUcDTO<List<String>> baseUcDTO = thorService.getUserIds(publicToken, null, null,null, null, companyId, null);
         if (null == baseUcDTO.getRetData() || baseUcDTO.getRetData().size() == 0) {
             return null;
         }
@@ -235,7 +236,7 @@ public class UserService {
 
     public List<PhpDepartmentModel> getSubCompanys(String token, Integer companyId) {
         List<PhpDepartmentModel> phpDepartmentModelList = new ArrayList<PhpDepartmentModel>();
-        PhpApiDto<List<PhpDepartmentModel>> phpApiDto = thorUcService.getSubCompanys(token, null, 1, null, companyId);
+        PhpApiDto<List<PhpDepartmentModel>> phpApiDto = thorService.getSubCompanies(token, null, 1, null, companyId);
         System.out.println(phpApiDto.getRetData());
         phpDepartmentModelList = phpApiDto.getRetData();
         return phpDepartmentModelList;
@@ -267,7 +268,7 @@ public class UserService {
         List<CrmCitySubCompanyDto> crmCitySubCompanyDtoList = new ArrayList<>();
         //获取用户可操作的城市
         PhpApiDto<List<CityDto>> phpApiDto =
-                thorUcService.getSubcompanyByUserId(token, userId, CommonConst.SYSTEMNAME);
+                thorService.getSubcompanyByUserId(token, userId, CommonConst.SYSTEMNAME);
         if (null == phpApiDto.getRetData() || phpApiDto.getRetData().size() == 0) {
             return crmCitySubCompanyDtoList;
         }
@@ -282,7 +283,7 @@ public class UserService {
                 citiesStr.append(",");
             }
         }
-        ThorApiDTO<List<CrmCitySubCompanyDto>> phpApiDto1 = thorUcService.getSubCompanyByCitys(token, citiesStr.toString());
+        CronusDto<List<CrmCitySubCompanyDto>> phpApiDto1 = thorService.getSubCompanyByCitys(token, citiesStr.toString());
         crmCitySubCompanyDtoList = phpApiDto1.getData();
         return crmCitySubCompanyDtoList;
     }
@@ -300,7 +301,7 @@ public class UserService {
                 return appUserDto;
             }
         }
-        PhpApiDto<AppUserDto> apiDto = thorUcService.getUserInfoByField(telephone, publicToken, userId, ownUserName);
+        PhpApiDto<AppUserDto> apiDto = thorService.getUserInfoByFields(telephone, publicToken, userId, ownUserName);
         if (apiDto.getErrNum() == 0) {
             appUserDto = apiDto.getRetData();
         }

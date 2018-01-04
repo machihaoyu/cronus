@@ -14,8 +14,7 @@ import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.uc.*;
 import com.fjs.cronus.dto.uc.SubCompanyCityDto;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.service.client.ThorInterfaceService;
-import com.fjs.cronus.service.client.ThorUcService;
+import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.UcRedisService;
 import com.fjs.cronus.util.FastJsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +31,11 @@ import java.util.List;
 public class UcService {
 
     @Autowired
-    ThorInterfaceService thorInterfaceService;
+    ThorService thorService;
     @Autowired
     UcRedisService ucRedisService;
-    @Autowired
-    ThorUcService thorUcService;
+//    @Autowired
+//    ThorUcService thorUcService;
     public List getSubUserByUserId(String token,Integer user_id){
         CronusDto resultDto = new CronusDto();
         if (user_id == null){
@@ -64,7 +63,7 @@ public class UcService {
                 ucRedisService.setRedisUcInfo(ResultResource.SUBUSERBYIDS + user_id,idList);
                 return  idList;
             }
-            com.fjs.cronus.dto.uc.BaseUcDTO baseDto = thorInterfaceService.getSubUserByUserId(token,user_id,ResultResource.SYSTEMNAME);
+            com.fjs.cronus.dto.uc.BaseUcDTO baseDto = thorService.getSubUserByUserId(token,user_id,ResultResource.SYSTEMNAME);
             if (baseDto.getRetData() != null){
                 //转json
                 String result = FastJsonUtils.obj2JsonString(baseDto.getRetData());
@@ -83,7 +82,7 @@ public class UcService {
         if (ucUserDTO != null){
             return ucUserDTO;
         }
-        PhpApiDto<AppUserDto> ucDTO =thorUcService.getUserInfoByField(null,token,user_id,null);
+        PhpApiDto<AppUserDto> ucDTO = thorService.getUserInfoByFields(null,token,user_id,null);
         if (ucDTO.getRetData() !=null){
             //map 转json
             String result = FastJsonUtils.obj2JsonString(ucDTO.getRetData());
@@ -101,7 +100,7 @@ public class UcService {
         Integer user_id = null;
         CronusDto resultDto = new CronusDto();
         //根据token查询当前用户id
-        String result = thorInterfaceService.getCurrentUserInfo(token,null);
+        String result = thorService.getCurrentUserInfo(token,null);
         BaseUcDTO dto = FastJsonUtils.getSingleBean(result,BaseUcDTO.class);
         UcUserDTO userDTO = FastJsonUtils.getSingleBean(dto.getData().toString(),UcUserDTO.class);
         if (userDTO != null){
@@ -114,7 +113,7 @@ public class UcService {
         Integer user_id = null;
         CronusDto resultDto = new CronusDto();
         //根据token查询当前用户id
-        String result = thorInterfaceService.getCurrentUserInfo(token,systemName);
+        String result = thorService.getCurrentUserInfo(token,systemName);
         BaseUcDTO dto = FastJsonUtils.getSingleBean(result,BaseUcDTO.class);
         com.fjs.cronus.dto.uc.UserInfoDTO userDTO = FastJsonUtils.getSingleBean(dto.getData().toString(),com.fjs.cronus.dto.uc.UserInfoDTO.class);
         return userDTO;
@@ -126,7 +125,7 @@ public class UcService {
         //先从redis中取到信息
         phpLoginDto  = ucRedisService.getRedisPhpUserInfo(token);
         if (phpLoginDto == null) {
-            String result = thorInterfaceService.getAllUserInfo(token, systemName);
+            String result = thorService.getAllUserInfo(token, systemName);
             phpLoginDto = FastJsonUtils.getSingleBean(result, PHPLoginDto.class);
             ucRedisService.setPhpUserInfo(token,phpLoginDto);
         }
@@ -136,7 +135,7 @@ public class UcService {
 
     public SimpleUserInfoDTO getSystemUserInfo(String token, Integer userId){
         SimpleUserInfoDTO userInfoDTO = new SimpleUserInfoDTO();
-        String result= thorInterfaceService.getSystemUserInfo(token,userId);
+        String result= thorService.getSystemUserInfo(token,userId);
         BaseUcDTO dto = FastJsonUtils.getSingleBean(result,BaseUcDTO.class);
         userInfoDTO = FastJsonUtils.getSingleBean(dto.getData().toString(),SimpleUserInfoDTO.class);
         return  userInfoDTO;
@@ -145,7 +144,7 @@ public class UcService {
     public List<CityDto> getSubcompanyByUserId( String token,Integer userId,String systemName){
 
         List<CityDto> resultList = new ArrayList<>();
-        PhpApiDto<List<CityDto>> resultDto  = thorInterfaceService.getSubcompanyByUserId(token,userId,systemName);
+        PhpApiDto<List<CityDto>> resultDto  = thorService.getSubcompanyByUserId(token,userId,systemName);
         if (resultDto.getRetData() != null){
             resultList = resultDto.getRetData();
         }
@@ -155,7 +154,7 @@ public class UcService {
     public List<CrmCitySubCompanyDto> getSubCompanyByCitys(String token,String citys){
 
         List<CrmCitySubCompanyDto> resultList = new ArrayList<>();
-        CronusDto<List<CrmCitySubCompanyDto>> resultDto  = thorInterfaceService.getSubCompanyByCitys(token,citys);
+        CronusDto<List<CrmCitySubCompanyDto>> resultDto  = thorService.getSubCompanyByCitys(token,citys);
         if (resultDto.getData() != null){
             resultList = resultDto.getData();
         }
@@ -165,7 +164,7 @@ public class UcService {
     public List<SubCompanyCityDto> getAllSubCompanyByUserId(String token, Integer userId, String systemName){
 
         List<SubCompanyCityDto> resultList = new ArrayList<>();
-        PhpApiDto<List<SubCompanyCityDto>> resultDto  = thorInterfaceService.getAllSubCompanyByUserId(token,userId,systemName);
+        PhpApiDto<List<SubCompanyCityDto>> resultDto  = thorService.getAllSubCompanyByUserId(token,userId,systemName);
         if (resultDto.getRetData() != null){
             resultList = resultDto.getRetData();
         }
@@ -174,7 +173,7 @@ public class UcService {
 
     public List<SubCompanyDto> getAllCompanyByUserId(String token, Integer userId, String systemName){
         List<SubCompanyDto> resultList = new ArrayList<>();
-        PhpApiDto<List<SubCompanyDto>>resultDto =  thorInterfaceService.getAllCompanyByUserId(token,userId,systemName);
+        PhpApiDto<List<SubCompanyDto>>resultDto =  thorService.getAllCompanyByUserId(token,userId,systemName);
         if (resultDto.getRetData() != null){
             resultList = resultDto.getRetData();
         }
@@ -192,7 +191,7 @@ public class UcService {
 
         List<PHPUserDto> resultList = new ArrayList<>();
 
-        ThorQueryDto< List<PHPUserDto>> resultDto = thorInterfaceService.getUserByIds(token,user_ids,department_ids,sub_company_id,flag,page,size,name,status);
+        ThorQueryDto< List<PHPUserDto>> resultDto = thorService.getUserByIds(token,user_ids,department_ids,sub_company_id,flag,page,size,name,status);
 
         if (resultDto.getRetData() != null){
             resultList = resultDto.getRetData();
@@ -203,7 +202,7 @@ public class UcService {
 
     public List<PhpDepartmentModel> getSubCompanys(String token, Integer companyId) {
         List<PhpDepartmentModel> phpDepartmentModelList = new ArrayList<PhpDepartmentModel>();
-        PhpApiDto<List<PhpDepartmentModel>> phpApiDto = thorInterfaceService.getSubCompany(token, null,1, null,companyId);
+        PhpApiDto<List<PhpDepartmentModel>> phpApiDto = thorService.getSubCompany(token, null,1, null,companyId);
         phpDepartmentModelList = phpApiDto.getRetData();
         return phpDepartmentModelList;
     }
@@ -211,7 +210,7 @@ public class UcService {
     public List<CompanyDto> listAllEnableCompany(String token){
 
         List<CompanyDto> companyDtos = new ArrayList<>();
-        CronusDto<List<CompanyDto>> resultDto  = thorInterfaceService.listAllEnableCompany(token);
+        CronusDto<List<CompanyDto>> resultDto  = thorService.listAllEnableCompany(token);
 
         if (resultDto.getData() != null){
             companyDtos = resultDto.getData();
@@ -222,7 +221,7 @@ public class UcService {
 
    public UserSortInfoDTO getSortUserInfo(String token) {
        UserSortInfoDTO userSortInfoDTO = new UserSortInfoDTO();
-       CronusDto<UserSortInfoDTO> result = thorInterfaceService.getSortUserInfo(token);
+       CronusDto<UserSortInfoDTO> result = thorService.getSortUserInfo(token);
        if (result.getData() != null) {
            userSortInfoDTO = result.getData();
        }
@@ -231,7 +230,7 @@ public class UcService {
 
     public SortUserInfoByPhoneDTO getSortUserInfoByPhone(String token,String telephone) {
         SortUserInfoByPhoneDTO userSortInfoDTO = new SortUserInfoByPhoneDTO();
-        CronusDto<SortUserInfoByPhoneDTO> result = thorInterfaceService.getSortUserInfoByPhone(token,telephone,2);
+        CronusDto<SortUserInfoByPhoneDTO> result = thorService.getSortUserInfoByPhone(token,telephone,2);
         if (result.getData() != null) {
             userSortInfoDTO = result.getData();
         }
@@ -241,7 +240,7 @@ public class UcService {
     public RoleDTO getRoleInfo(String token,String name,String value,Integer compantId){
         PhpApiDto<RoleDTO> resultDto = new PhpApiDto<>();
         RoleDTO roleDTO = new RoleDTO();
-        resultDto = thorInterfaceService.getRole(token,name,value,compantId);
+        resultDto = thorService.getRole(token,name,value,compantId);
         if (resultDto.getRetData() != null) {
             roleDTO = resultDto.getRetData();
         }

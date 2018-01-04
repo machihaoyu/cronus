@@ -1,12 +1,15 @@
 package com.fjs.cronus.service.client;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.config.FeignClientConfig;
 
 import com.fjs.cronus.dto.api.PHPUserDto;
+import com.fjs.cronus.dto.api.PhpQueryResultDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.CronusDto;
 
+import com.fjs.cronus.dto.api.ThorApiDTO;
 import com.fjs.cronus.dto.api.uc.*;
 import com.fjs.cronus.dto.cronus.SortUserInfoByPhoneDTO;
 import com.fjs.cronus.dto.uc.*;
@@ -24,9 +27,17 @@ import java.util.Map;
  */
 //@FeignClient(value = "${client.feign.thor-backend}", url = "http://192.168.1.128:1120",configuration = FeignClientConfig.class)
 @FeignClient(value = "${client.feign.thor-backend}", configuration = FeignClientConfig.class)
-//@FeignClient(value = "THOR20-BACKEND-ZL", url = "http://192.168.2.33:8099",configuration = FeignClientConfig.class)
-public interface ThorInterfaceService {
+public interface ThorService {
 
+
+    /**
+     * UC登录接口
+     *
+     * @param param
+     * @return
+     */
+    @RequestMapping(value = "/loginSystem", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    ThorApiDTO loginByUC(@RequestBody JSONObject param);
 
     /**
      * 登录系统带用户情报
@@ -38,6 +49,15 @@ public interface ThorInterfaceService {
     PhpLoginDTO loginWithUserInfo(@RequestParam(value = "username") String username,
                                   @RequestParam(value = "password") String password,
                                   @RequestParam(value = "system") String system);
+
+    /**
+     * 当前用户是否是房金所员工, 0 本公司，1 合作渠道
+     * @param token
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/checkUserCompany", method = RequestMethod.GET)
+    ThorApiDTO<String> checkUserCompany(@RequestHeader("Authorization") String token);
+
 
 
     /**
@@ -180,6 +200,23 @@ public interface ThorInterfaceService {
                          @RequestParam(value = "status", required = false) Integer status,
                          @RequestParam(value = "sub_company_id", required = false) Integer sub_company_id);
 
+
+    /**
+     * 获取用户集合
+     * @param token
+     * @param company_id
+     * @param department_id
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getUserIds", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    BaseUcDTO getUserIds(@RequestHeader("Authorization") String token,
+                         @RequestParam(value = "company_id", required = false) Integer company_id,
+                         @RequestParam(value = "department_id", required = false) Integer department_id,
+                         @RequestParam(value = "role_id", required = false) Integer role_id,
+                         @RequestParam(value = "status", required = false) Integer status,
+                         @RequestParam(value = "sub_company_id", required = false) Integer sub_company_id,
+                         @RequestParam(value = "sub_company_ids", required = false) String sub_company_ids);
+
     /**
      * 查询角色信息
      * @param token 认证信息
@@ -239,6 +276,21 @@ public interface ThorInterfaceService {
                              @RequestParam(value = "type") Integer type,
                              @RequestParam(value = "company_id") Integer company_id);
 
+    /**
+     * 获取分公司
+     * @param token
+     * @param where
+     * @param type
+     * @param city
+     * @param company_id
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getSubCompanys",method = RequestMethod.POST)
+    PhpApiDto<List<PhpDepartmentModel>> getSubCompanies(@RequestHeader("Authorization") String token,
+                                                       @RequestParam(value = "where") String where,
+                                                       @RequestParam(value = "type") Integer type,
+                                                       @RequestParam(value = "city") String city,
+                                                       @RequestParam(value = "company_id") Integer company_id);
 
     /**
      * 得到下属部门列表
@@ -308,6 +360,18 @@ public interface ThorInterfaceService {
                                  @RequestParam(value = "telephone",required = false) String telephone,
                                  @RequestParam(value = "user_id",required = false) Integer user_id,
                                  @RequestParam(value = "name",required = false) String name);
+
+
+    /**
+     * 通过属性得到用户信息
+     * @param telephone
+     * @param token
+     * @param userId
+     * @param name
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getUserInfoByField", method = RequestMethod.POST)
+    PhpApiDto<AppUserDto> getUserInfoByFields(@RequestParam("telephone") String telephone, @RequestHeader("Authorization") String token, @RequestParam("user_id") Integer userId, @RequestParam("name") String name);
 
 
     /**
@@ -382,7 +446,7 @@ public interface ThorInterfaceService {
      * @see /swagger-ui.html#!/php-api-user-controller/getSubUserByUserIdUsingPOST
      * @param token
      * @param user_id
-     * @param data_type
+     * @param
      * @return
      */
     @RequestMapping(value = "/api/v1/getSubUserByUserId",method = RequestMethod.POST)
@@ -524,7 +588,107 @@ public interface ThorInterfaceService {
                                    @RequestParam(value = "company_id", required = false) Integer company_id);
 
 
-    @RequestMapping(value = "/api/v1/getSubCompanyToCronus", method = RequestMethod.GET)
-    PhpApiDto<List<CronusSubInfoDTO>> getSubCompanyToCronus(@RequestHeader("Authorization") String token, @RequestParam(value = "userId") Integer  userId, @RequestParam(value = "systemName") String systemName );
+
+    /**
+     * 根据系统名获取有权限的模块名
+     *
+     * @param token
+     * @param systemName
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getModuleAuthBySystemName", method = RequestMethod.GET)
+    String getModuleAuthBySystemName(@RequestHeader("Authorization") String token, @RequestParam(value = "systemName") String systemName);
+
+    /**
+     * 根据模块名获取有权限的方法名
+     *
+     * @param token
+     * @param moduleName
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getActionAuthByModuleName", method = RequestMethod.GET)
+    String getActionAuthByModuleName(@RequestHeader("Authorization") String token, @RequestParam(value = "moduleName") String moduleName);
+
+
+    /**
+     * 获取分公司以及其下的团队列表
+     */
+    @RequestMapping(value = "/v1/getLinkSubTeams", method = RequestMethod.GET)
+    String getcompanyTeams(@RequestHeader("Authorization") String token);
+
+
+    /**
+     * 数据权限
+     *
+     * @param token
+     * @param systemName
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getDataTypeAuthBySystem", method = RequestMethod.GET)
+    String getDataTypeAuthBySystem(@RequestHeader("Authorization") String token, @RequestParam(value = "systemName") String systemName);
+
+
+    /**
+     * 获得团队列表
+     *
+     * @param token
+     * @param subCompanyId
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getSubTeamList", method = RequestMethod.GET)
+    String getSubTeamList(@RequestHeader("Authorization") String token, @RequestParam(value = "sub_company_id") Integer subCompanyId);
+
+    /**
+     * 根据token返回个人ID,团队ID,分公司ID
+     *
+     * @param token
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getUserTeamInfo", method = RequestMethod.GET)
+    String getAllIdsoByToken(@RequestHeader("Authorization") String token);
+
+
+    /**
+     * 获取部门信息
+     * @param token
+     * @param jsonObject
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getDepartmentTheaByWhere",method = RequestMethod.POST)
+    PhpApiDto getDepartmentTheaByWhere(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject);
+
+
+    /**
+     * 根据id获取公司信息
+     * @param token
+     * @param companyId
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/editCompany", method = RequestMethod.GET)
+    ThorApiDTO<CompanyDto> editCompany(@RequestHeader("Authorization") String token, @RequestParam(value = "companyId") Integer companyId);
+
+
+    /**
+     * 根据公司id获取id,name
+     * @param token
+     * @param companyId
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/selectCompanyById", method = RequestMethod.GET)
+    ThorApiDTO<CompanyTheaSystemDto>  selectCompanyById(@RequestHeader("Authorization") String token, @RequestParam(value = "companyId") Integer companyId);
+
+
+    /**
+     * 得到下属员工
+     * @param token
+     * @param userId
+     * @param system
+     *
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getSubUserByUserId", method = RequestMethod.POST)
+    PhpApiDto<List<String>> getSubUserByUserId(@RequestHeader("Authorization") String token, @RequestParam("user_id") Integer userId, @RequestParam(value = "system") String system, @RequestParam(value = "data_type") Integer dataType);
+
+
 }
 

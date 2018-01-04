@@ -21,7 +21,7 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.AllocateLogService;
 import com.fjs.cronus.service.AllocateService;
 import com.fjs.cronus.service.CustomerInfoService;
-import com.fjs.cronus.service.client.ThorInterfaceService;
+import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.uc.UcService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -58,7 +58,7 @@ public class AllocateController {
     UcService ucService;
 
     @Autowired
-    ThorInterfaceService thorInterfaceService;
+    ThorService thorService;
 
     @Autowired
     AllocateLogService allocateLogService;
@@ -174,7 +174,7 @@ public class AllocateController {
             if (pageSize == null) {
                 pageSize = 5;
             }
-            subThorApiDTO = thorInterfaceService.getUserByIds(token, idList.toString(), null, subCompanyId,
+            subThorApiDTO = thorService.getUserByIds(token, idList.toString(), null, subCompanyId,
                     flag, page, pageSize, name, 1);
         } catch (Exception e) {
             resultDto.setErrNum(1);

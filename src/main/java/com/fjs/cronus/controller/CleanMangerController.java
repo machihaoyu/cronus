@@ -1,13 +1,8 @@
 package com.fjs.cronus.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
-import com.fjs.cronus.api.thea.Config;
 import com.fjs.cronus.dto.*;
-import com.fjs.cronus.dto.cronus.BaseUcDTO;
-import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
@@ -16,8 +11,7 @@ import com.fjs.cronus.service.AutoCleanManageService;
 import com.fjs.cronus.service.AutoCleanService;
 import com.fjs.cronus.service.CleanMangerService;
 import com.fjs.cronus.service.client.TheaService;
-import com.fjs.cronus.service.client.ThorInterfaceService;
-import com.fjs.cronus.util.FastJsonUtils;
+import com.fjs.cronus.service.client.ThorService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -26,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -35,10 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by yinzf on 2017/11/21.
@@ -54,7 +44,7 @@ public class CleanMangerController {
     @Autowired
     private CleanMangerService cleanMangerService;
     @Autowired
-    private ThorInterfaceService thorUcService;
+    private ThorService thorUcService;
     @Autowired
     private TheaService theaService;
     @Autowired

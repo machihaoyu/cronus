@@ -3,11 +3,9 @@ package com.fjs.cronus.service;
 import com.fjs.cronus.dto.AutoCleanManageDTO;
 import com.fjs.cronus.dto.AutoCleanManageDTO2;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
-import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.mappers.AutoCleanManageMapper;
 import com.fjs.cronus.model.AutoCleanManage;
-import com.fjs.cronus.model.CustomerMeet;
-import com.fjs.cronus.service.client.ThorInterfaceService;
+import com.fjs.cronus.service.client.ThorService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +25,7 @@ public class AutoCleanManageService {
     @Autowired
     private AutoCleanManageMapper autoCleanManageMapper;
     @Autowired
-    private ThorInterfaceService thorUcService;
+    private ThorService thorUcService;
 
     /**
      * 获取集合
