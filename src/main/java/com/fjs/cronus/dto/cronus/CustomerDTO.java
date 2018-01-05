@@ -256,6 +256,9 @@ public class CustomerDTO {
         this.receiveTime = receiveTime;
     }
 
+    @ApiModelProperty(value = "是否保留  0不保留1保留2已签合同",notes = "是否保留  0不保留1保留2已签合同")
+    private Integer remain;
+
     /*   @ApiModelProperty(value = "海贷魔方 扩展字段",notes = "海贷魔方 扩展字段")
     private String ext;
 
@@ -936,5 +939,13 @@ public class CustomerDTO {
 
     public void setRetirementWages(String retirementWages) {
         this.retirementWages = retirementWages;
+    }
+
+    public Integer getRemain() {
+        return remain;
+    }
+
+    public void setRemain(Integer remain) {
+        this.remain = remain;
     }
 }

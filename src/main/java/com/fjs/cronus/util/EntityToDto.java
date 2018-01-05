@@ -577,6 +577,9 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getLoanAmount())){
             dto.setLoanAmount(customerInfo.getLoanAmount());
         }
+        if (!StringUtils.isEmpty(customerInfo.getRemain())){
+            dto.setRemain(customerInfo.getRemain());
+        }
     }
 
     public static void CustomerInterviewEntityToCustomerInterviewDto(CustomerInterviewBaseInfo customerInfo, CustomerInterVibaseInfoDTO dto){

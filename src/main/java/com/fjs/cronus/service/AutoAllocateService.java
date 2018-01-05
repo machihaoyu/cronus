@@ -190,6 +190,11 @@ public class AutoAllocateService {
                             }
                             //保存数据
                             customerDTO.setLastUpdateTime(new Date());
+                            if (allocateEntity.getAllocateStatus().getCode().equals("3"))
+                            {
+                                customerDTO.setRemain(CommonConst.REMAIN_STATUS_YES);
+                            }
+                            else {customerDTO.setRemain(CommonConst.REMAIN_STATUS_NO);}
                             CronusDto cronusDto1 = customerInfoService.addOcdcCustomer(customerDTO, token);
                             if (cronusDto1.getResult() == 0) {
                                 customerDTO.setId(Integer.parseInt(cronusDto1.getData().toString()));

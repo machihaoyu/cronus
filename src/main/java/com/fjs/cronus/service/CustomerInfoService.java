@@ -204,7 +204,7 @@ public class CustomerInfoService {
         Date date = new Date();
         //刚申请的客户
         customerInfo.setCustomerType(CommonConst.CUSTOMER_TYPE_MIND);
-        customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
+//        customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
         customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
         customerInfo.setReceiveTime(date);
         customerInfo.setFirstCommunicateTime(date);
