@@ -28,25 +28,26 @@ public class AgainAllocateCustomerService {
      * @param
      * @return
      */
-    public Integer saveStatusByDataId(Map<String, Object> map){
+    public Integer saveStatusByDataId(Map<String, Object> map) {
         return againAllocateCustomerMapper.saveStatusByDataId(map);
     }
 
     /**
      * 添加客戶到再分配池
+     *
      * @param againAllocateCustomer
      * @return
      */
-    public Integer addAgainAllocateCustomer(AgainAllocateCustomer againAllocateCustomer){
+    public Integer addAgainAllocateCustomer(AgainAllocateCustomer againAllocateCustomer) {
         return againAllocateCustomerMapper.addAgainAllocateCustomer(againAllocateCustomer);
     }
 
     /**
      * 获取分配池中未分配的客户
+     *
      * @return
      */
-    public List<AgainAllocateCustomer> getNonAllocateCustomer()
-    {
+    public List<AgainAllocateCustomer> getNonAllocateCustomer() {
         return againAllocateCustomerMapper.getNonAllocateCustomer();
     }
 }

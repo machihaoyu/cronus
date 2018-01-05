@@ -50,7 +50,7 @@ import java.util.List;
 @RequestMapping("/api/v1")
 public class AllocateController {
 
-    private  static  final Logger logger = LoggerFactory.getLogger(AllocateController.class);
+    private static final Logger logger = LoggerFactory.getLogger(AllocateController.class);
 
     @Autowired
     AllocateService allocateService;
@@ -66,7 +66,7 @@ public class AllocateController {
     @Autowired
     CustomerInfoService customerInfoService;
 
-    @ApiOperation(value="sellUser获取可操作城市列表", notes="sellUser获取可操作城市列表")
+    @ApiOperation(value = "sellUser获取可操作城市列表", notes = "sellUser获取可操作城市列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customer_ids", value = "客户id，逗号隔开 1,2,3", paramType = "query", dataType = "string"),
@@ -74,26 +74,26 @@ public class AllocateController {
     })
     @RequestMapping(value = "/sellUser", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto sellUser(@RequestHeader("Authorization")String token,
-                             @RequestParam(value = "customer_ids",required = false)String customer_ids,
-                             @RequestParam(value = "action",required = false)String action){
+    public CronusDto sellUser(@RequestHeader("Authorization") String token,
+                              @RequestParam(value = "customer_ids", required = false) String customer_ids,
+                              @RequestParam(value = "action", required = false) String action) {
         CronusDto cronusDto = new CronusDto();
         Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-        if (userId == null){
+        if (userId == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
-        try{
-            cronusDto = allocateService.sellUser(token,customer_ids,action,userId);
-        }catch (Exception e){
-            logger.error("--------------->sellUser获取可操作城市列表",e);
+        try {
+            cronusDto = allocateService.sellUser(token, customer_ids, action, userId);
+        } catch (Exception e) {
+            logger.error("--------------->sellUser获取可操作城市列表", e);
             if (e instanceof CronusException) {
-                CronusException thorException = (CronusException)e;
+                CronusException thorException = (CronusException) e;
                 throw thorException;
             }
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
 
-        return  cronusDto;
+        return cronusDto;
     }
 
     @ApiOperation(value = "根据公司获取下面的子公司", notes = "根据公司获取下面的子公司")
@@ -138,7 +138,7 @@ public class AllocateController {
     @RequestMapping(value = "/getSubUserByUserId", method = RequestMethod.GET)
     @ResponseBody
     public PhpQueryResultDTO getSubUserByUserId(HttpServletRequest request, @RequestParam(required = false) Integer subCompanyId, @RequestParam(required = false) String flag,
-                                                @RequestParam(required = false)String name, @RequestParam(required = false) Integer page,
+                                                @RequestParam(required = false) String name, @RequestParam(required = false) Integer page,
                                                 @RequestParam(required = false) Integer pageSize) {
         PhpQueryResultDTO resultDto = new PhpQueryResultDTO();
         //获取当前用户信息
@@ -185,45 +185,46 @@ public class AllocateController {
         resultDto.setRetData(subThorApiDTO.getRetData());
         return resultDto;
     }
-    @ApiOperation(value="批量分配", notes="批量分配")
+
+    @ApiOperation(value = "批量分配", notes = "批量分配")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
     })
     @RequestMapping(value = "/allocateLoan", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto allocateLoan(@Valid @RequestBody AllocateDTO allocateDTO, BindingResult result, HttpServletRequest request){
-        logger.info("分配的日志："+allocateDTO.toString());
-        CronusDto  theaApiDTO=new CronusDto ();
-        if(result.hasErrors()){
+    public CronusDto allocateLoan(@Valid @RequestBody AllocateDTO allocateDTO, BindingResult result, HttpServletRequest request) {
+        logger.info("分配的日志：" + allocateDTO.toString());
+        CronusDto theaApiDTO = new CronusDto();
+        if (result.hasErrors()) {
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
         }
-        String token=request.getHeader("Authorization");
+        String token = request.getHeader("Authorization");
         PHPLoginDto resultDto = ucService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
-        String[] authority=resultDto.getAuthority();
-        if(authority.length>0){
-            List<String> authList= Arrays.asList(authority);
-            if (authList.contains(CommonConst.ALLOCATE_LOAN_URL)){
+        String[] authority = resultDto.getAuthority();
+        if (authority.length > 0) {
+            List<String> authList = Arrays.asList(authority);
+            if (authList.contains(CommonConst.ALLOCATE_LOAN_URL)) {
                 theaApiDTO.setResult(CommonMessage.ALLOCATE_FAIL.getCode());
                 theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
                 return theaApiDTO;
             }
         }
-        UserInfoDTO userInfoDTO=resultDto.getUser_info();
-        List<CustomerInfo> customerInfoList=new ArrayList<CustomerInfo>();
-        try{
-            customerInfoList=customerInfoService.getByIds(allocateDTO.getIds());
-            if (customerInfoList.size() == 0){
+        UserInfoDTO userInfoDTO = resultDto.getUser_info();
+        List<CustomerInfo> customerInfoList = new ArrayList<CustomerInfo>();
+        try {
+            customerInfoList = customerInfoService.getByIds(allocateDTO.getIds());
+            if (customerInfoList.size() == 0) {
                 theaApiDTO.setResult(CommonMessage.ALLOCATE_FAIL.getCode());
                 theaApiDTO.setMessage(CronusException.Type.CEM_CUSTOMERINTERVIEW.toString());
                 throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
             }
             //添加分配日志
-            for (CustomerInfo customerInfo :customerInfoList){
+            for (CustomerInfo customerInfo : customerInfoList) {
                 allocateLogService.addAllocatelog(customerInfo, customerInfo.getOwnUserId(),
                         CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_2.getCode(), userInfoDTO);
             }
             //开始进行批量分配
-            boolean updateResult = allocateService.batchAllocate(allocateDTO.getIds(),allocateDTO.getEmpId(),userInfoDTO,token);
+            boolean updateResult = allocateService.batchAllocate(allocateDTO.getIds(), allocateDTO.getEmpId(), userInfoDTO, token);
             if (updateResult == true) {
                 theaApiDTO.setResult(CommonMessage.ALLOCATE_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.ALLOCATE_SUCCESS.getCodeDesc());
@@ -233,46 +234,47 @@ public class AllocateController {
                 theaApiDTO.setMessage(CommonMessage.ALLOCATE_FAIL.getCodeDesc());
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
             }
-        }catch (Exception e){
-            logger.error("-------------->allocateLoan分配失败",e);
+        } catch (Exception e) {
+            logger.error("-------------->allocateLoan分配失败", e);
             theaApiDTO.setResult(CommonMessage.ALLOCATE_FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.ALLOCATE_FAIL.getCodeDesc());
         }
         return theaApiDTO;
     }
-    @ApiOperation(value="根据交易id查看分配日志", notes="根据交易id查看分配日志")
+
+    @ApiOperation(value = "根据交易id查看分配日志", notes = "根据交易id查看分配日志")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query",  dataType = "int"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/allocateLogList", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<List<AllocateLogDTO>> listAllocateLog(HttpServletRequest request, @RequestParam Integer customerId){
-        CronusDto theaApiDTO =new CronusDto();
-        List<AllocateLog> allocateLogList=new ArrayList<AllocateLog>();
-        List<AllocateLogDTO> allocateLogDTOS=new ArrayList<AllocateLogDTO>();
+    public CronusDto<List<AllocateLogDTO>> listAllocateLog(HttpServletRequest request, @RequestParam Integer customerId) {
+        CronusDto theaApiDTO = new CronusDto();
+        List<AllocateLog> allocateLogList = new ArrayList<AllocateLog>();
+        List<AllocateLogDTO> allocateLogDTOS = new ArrayList<AllocateLogDTO>();
 
-        String token=request.getHeader("Authorization");
-        try{
-            allocateLogList=allocateLogService.listByCondition(customerId);
-            if (allocateLogList.size() > 0){
-                for (AllocateLog allocateLog:allocateLogList){
-                    AllocateLogDTO allocateLogDTO=new AllocateLogDTO();
+        String token = request.getHeader("Authorization");
+        try {
+            allocateLogList = allocateLogService.listByCondition(customerId);
+            if (allocateLogList.size() > 0) {
+                for (AllocateLog allocateLog : allocateLogList) {
+                    AllocateLogDTO allocateLogDTO = new AllocateLogDTO();
                     allocateLogDTO = allocateLogService.copyProperty(allocateLog);
                     //查找旧业务员姓名
                     SimpleUserInfoDTO simpleUserInfoDTO = null;
-                    if (allocateLogDTO.getOldOwnerId() == null || allocateLogDTO.getOldOwnerId() == 0){
+                    if (allocateLogDTO.getOldOwnerId() == null || allocateLogDTO.getOldOwnerId() == 0) {
                         allocateLogDTO.setOldOwnerName(null);
-                    }else {
-                         simpleUserInfoDTO = ucService.getSystemUserInfo(token, allocateLogDTO.getOldOwnerId());
+                    } else {
+                        simpleUserInfoDTO = ucService.getSystemUserInfo(token, allocateLogDTO.getOldOwnerId());
                         if (simpleUserInfoDTO == null) {
                             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
                         }
                         allocateLogDTO.setOldOwnerName(simpleUserInfoDTO.getName());
                     }
-                    if (allocateLogDTO.getNewOwnerId() == null || allocateLogDTO.getNewOwnerId() == 0){
+                    if (allocateLogDTO.getNewOwnerId() == null || allocateLogDTO.getNewOwnerId() == 0) {
                         allocateLogDTO.setOldOwnerName(null);
-                    }else {
+                    } else {
                         simpleUserInfoDTO = ucService.getSystemUserInfo(token, allocateLogDTO.getNewOwnerId());
                         if (simpleUserInfoDTO == null) {
                             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
@@ -285,8 +287,8 @@ public class AllocateController {
             }
             theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
             theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
-        }catch (Exception e){
-            logger.error("根据交易id查看分配日志",e);
+        } catch (Exception e) {
+            logger.error("根据交易id查看分配日志", e);
             theaApiDTO.setResult(CommonMessage.FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc());
         }

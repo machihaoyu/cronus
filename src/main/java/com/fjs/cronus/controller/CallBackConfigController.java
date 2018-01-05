@@ -28,8 +28,9 @@ public class CallBackConfigController {
 
     @Autowired
     CallbackConfigService callbackConfigService;
-    private  static  final Logger logger = LoggerFactory.getLogger(CallBackConfigController.class);
-    @ApiOperation(value="打开回访配置页面", notes="打开回访配置页面")
+    private static final Logger logger = LoggerFactory.getLogger(CallBackConfigController.class);
+
+    @ApiOperation(value = "打开回访配置页面", notes = "打开回访配置页面")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
     })
@@ -38,22 +39,22 @@ public class CallBackConfigController {
     public CronusDto editCallbackConfig() {
         CronusDto cronusDto = new CronusDto();
         try {
-            cronusDto  = callbackConfigService.editCallbackConfig();
+            cronusDto = callbackConfigService.editCallbackConfig();
         } catch (Exception e) {
             logger.error("--------------->editCallbackConfig打开配置页面失败", e);
             if (e instanceof CronusException) {
-                CronusException thorException = (CronusException)e;
+                CronusException thorException = (CronusException) e;
                 throw thorException;
             }
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
 
-        return  cronusDto;
+        return cronusDto;
 
 
     }
 
-    @ApiOperation(value="提交回访配置页面", notes="提交回访配置页面")
+    @ApiOperation(value = "提交回访配置页面", notes = "提交回访配置页面")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "callbackConfigList", value = "", required = true, paramType = "body", dataType = "CallbackConfigList")
@@ -61,26 +62,26 @@ public class CallBackConfigController {
     })
     @RequestMapping(value = "/editCallbackConfigOk", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto editCallbackConfigOk(@RequestBody CallbackConfigList callbackConfigList,@RequestHeader("Authorization") String token) {
+    public CronusDto editCallbackConfigOk(@RequestBody CallbackConfigList callbackConfigList, @RequestHeader("Authorization") String token) {
         CronusDto cronusDto = new CronusDto();
 
-        if(callbackConfigList == null){
+        if (callbackConfigList == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
         try {
 
-            cronusDto  = callbackConfigService.editCallbackConfigOk(callbackConfigList,token);
+            cronusDto = callbackConfigService.editCallbackConfigOk(callbackConfigList, token);
 
         } catch (Exception e) {
             logger.error("--------------->callbackCustomerList获取用户信息失败", e);
             if (e instanceof CronusException) {
-                CronusException thorException = (CronusException)e;
+                CronusException thorException = (CronusException) e;
                 throw thorException;
             }
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
 
-        return  cronusDto;
+        return cronusDto;
 
 
     }

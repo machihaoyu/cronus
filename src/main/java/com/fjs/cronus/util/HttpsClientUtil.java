@@ -1,23 +1,12 @@
 package com.fjs.cronus.util;
 
 import java.io.BufferedReader;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-
 import java.net.URL;
-import java.security.KeyStore;
 import java.security.cert.CertificateException;
-
 import java.security.cert.X509Certificate;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
@@ -26,7 +15,6 @@ import javax.net.ssl.X509TrustManager;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.cronus.PhoneAreaDTO;
 import com.fjs.cronus.dto.cronus.PhoneResultDTO;
-import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -58,7 +58,6 @@ public class ScheduledJob {
         //调用任务
         communicationLogService.sendMessToCustomer(token);
         customerMeetService.sendMessMeetToCustomer(token);
-        System.out.println(1);
         ocdcService.waitingPoolAllocate(token);
 
         autoAllocateService.nonCommunicateAgainAllocate(token);

@@ -23,13 +23,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1")
 public class OcrInfoControlller {
 
-    private  static  final Logger logger = LoggerFactory.getLogger(OcrInfoControlller.class);
+    private static final Logger logger = LoggerFactory.getLogger(OcrInfoControlller.class);
 
     @Autowired
     OcrInfoService ocrInfoService;
     @Autowired
     DocumentService documentService;
-    @ApiOperation(value="获取附件列表", notes="获取附件列表")
+
+    @ApiOperation(value = "获取附件列表", notes = "获取附件列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "create_user_id", value = "create_user_id", required = false, paramType = "query", dataType = "int"),
@@ -43,26 +44,26 @@ public class OcrInfoControlller {
     })
     @RequestMapping(value = "/getOcrInfoList", method = RequestMethod.GET)
     @ResponseBody
-    public QueryResult getOcrInfoList(@RequestParam(value = "create_user_id",required = false) Integer create_user_id,
-                                      @RequestParam(value = "customer_telephone",required = false) String customer_telephone,
-                                      @RequestParam(value = "customer_name",required = false) String customer_name,
-                                      @RequestParam(value = "status",required = false) String status,
-                                      @RequestParam(value = "order",required = false) String order,
-                                      @RequestParam(value = "ocr_type",required = true) Integer ocr_type,
-                                      @RequestParam(value = "page",required = true) Integer page,
-                                      @RequestParam(value = "size",required = true) Integer size){
+    public QueryResult getOcrInfoList(@RequestParam(value = "create_user_id", required = false) Integer create_user_id,
+                                      @RequestParam(value = "customer_telephone", required = false) String customer_telephone,
+                                      @RequestParam(value = "customer_name", required = false) String customer_name,
+                                      @RequestParam(value = "status", required = false) String status,
+                                      @RequestParam(value = "order", required = false) String order,
+                                      @RequestParam(value = "ocr_type", required = true) Integer ocr_type,
+                                      @RequestParam(value = "page", required = true) Integer page,
+                                      @RequestParam(value = "size", required = true) Integer size) {
         QueryResult resultDto = new QueryResult();
-        try{
-            resultDto  = ocrInfoService.getOcrInfoList(create_user_id,customer_telephone,customer_name,status,ocr_type,page,size,order);
+        try {
+            resultDto = ocrInfoService.getOcrInfoList(create_user_id, customer_telephone, customer_name, status, ocr_type, page, size, order);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("--------------->getOcrInfoList 获取信息出错", e);
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
-        return  resultDto;
+        return resultDto;
     }
 
-    @ApiOperation(value="编辑OCR信息", notes="编辑OCR信息")
+    @ApiOperation(value = "编辑OCR信息", notes = "编辑OCR信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "id", value = "1", required = true, paramType = "query", dataType = "int"),
@@ -70,8 +71,8 @@ public class OcrInfoControlller {
     })
     @RequestMapping(value = "/editOcrInfo", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto editOcrInfo(@RequestParam(value = "id",required = true) Integer id,
-                                 @RequestParam(value = "ocr_type",required = true) Integer ocr_type) {
+    public CronusDto editOcrInfo(@RequestParam(value = "id", required = true) Integer id,
+                                 @RequestParam(value = "ocr_type", required = true) Integer ocr_type) {
         CronusDto cronusDto = new CronusDto();
         try {
             //   String customerids = jsonObject.getString("customerids");
@@ -81,11 +82,11 @@ public class OcrInfoControlller {
             if (ocr_type == null || "".equals(ocr_type)) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
             }
-            cronusDto = ocrInfoService.editOcrInfo(id,ocr_type);
+            cronusDto = ocrInfoService.editOcrInfo(id, ocr_type);
             return cronusDto;
         } catch (Exception e) {
             if (e instanceof CronusException) {
-                CronusException thorException = (CronusException)e;
+                CronusException thorException = (CronusException) e;
                 throw thorException;
             }
             logger.error("--------------->editOcrInfo 编辑OCR信息操作出错", e);
@@ -93,38 +94,39 @@ public class OcrInfoControlller {
         }
     }
 
-    @ApiOperation(value="提交编辑OCR信息", notes="提交编辑OCR信息")
+    @ApiOperation(value = "提交编辑OCR信息", notes = "提交编辑OCR信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
     })
     @RequestMapping(value = "/editOcrInfoOK", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto editOcrInfoOK(@RequestBody JSONObject jsonObject,@RequestHeader("Authorization") String token) {
+    public CronusDto editOcrInfoOK(@RequestBody JSONObject jsonObject, @RequestHeader("Authorization") String token) {
         CronusDto cronusDto = new CronusDto();
         try {
             Integer id = jsonObject.getInteger("id");
             if (id == null || "".equals(id)) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
             }
-            cronusDto = ocrInfoService.editOcrInfoOK(jsonObject,token);
+            cronusDto = ocrInfoService.editOcrInfoOK(jsonObject, token);
             return cronusDto;
         } catch (Exception e) {
             if (e instanceof CronusException) {
-                CronusException thorException = (CronusException)e;
+                CronusException thorException = (CronusException) e;
                 throw thorException;
             }
             logger.error("--------------->editOcrInfo 编辑OCR信息操作出错", e);
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
-    @ApiOperation(value="图文识别回调接口", notes="图文识别回调接口")
+
+    @ApiOperation(value = "图文识别回调接口", notes = "图文识别回调接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "jsonObject", value = "jsonObject", required = true, paramType = "body", dataType = "JSONObject"),
     })
     @RequestMapping(value = "/callbackOcrInfo", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto callbackOcrInfo(@RequestBody JSONObject jsonObject,@RequestHeader("Authorization") String token) {
+    public CronusDto callbackOcrInfo(@RequestBody JSONObject jsonObject, @RequestHeader("Authorization") String token) {
         CronusDto cronusDto = new CronusDto();
         try {
             Integer id = jsonObject.getInteger("id");
@@ -138,7 +140,7 @@ public class OcrInfoControlller {
             return cronusDto;
         } catch (Exception e) {
             if (e instanceof CronusException) {
-                CronusException thorException = (CronusException)e;
+                CronusException thorException = (CronusException) e;
                 throw thorException;
             }
             logger.error("--------------->callbackOcrInfo 图文识别回调接口出错", e);

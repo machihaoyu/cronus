@@ -1,5 +1,6 @@
 package com.fjs.cronus.util;
 
+import com.fjs.cronus.Common.CommonConst;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.BASE64Decoder;
@@ -64,7 +65,7 @@ public class DEC3Util {
     public static String des3EncodeCBC(String data) {
         String result = null;
         try{
-            Cipher cipher = Cipher.getInstance("desede" + "/CBC/PKCS5Padding");
+            Cipher cipher = Cipher.getInstance(CommonConst.DESCCODEKEY + CommonConst.DESCCODEDESCPRETION);
             cipher.init(Cipher.ENCRYPT_MODE, deskey, iv);
             byte[] bOut = cipher.doFinal(data.getBytes(code));
             BASE64Encoder base64Encoder = new BASE64Encoder();
@@ -82,7 +83,7 @@ public class DEC3Util {
     public static String des3DecodeCBC(String data) {
         String result = null;
         try {
-            Cipher cipher = Cipher.getInstance("desede" + "/CBC/PKCS5Padding");
+            Cipher cipher = Cipher.getInstance(CommonConst.DESCCODEKEY + CommonConst.DESCCODEDESCPRETION);
             cipher.init(Cipher.DECRYPT_MODE, deskey, iv);
             BASE64Decoder base64Decoder = new BASE64Decoder();
             byte[] bOut = cipher.doFinal(base64Decoder.decodeBuffer(data));
@@ -97,7 +98,7 @@ public class DEC3Util {
         String data = "18912050027";
         System.out.println("CBC加密解密");
         String str5 = DEC3Util.des3EncodeCBC(data);
-        String str6 = DEC3Util.des3DecodeCBC("FdT6QhpkAU3JzRDNlJ1uiQ==");
+        String str6 = DEC3Util.des3DecodeCBC("WAfcUkwUOlTwvbUfWnV5kg==");
         System.out.println("加密结果：" + str5);
         System.out.println("解密结果：" + str6);
     }

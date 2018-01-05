@@ -26,12 +26,13 @@ import java.util.List;
 @Controller
 @RequestMapping("/api/v1")
 public class LeavelLinkAgeController {
-    private  static  final Logger logger = LoggerFactory.getLogger(LeavelLinkAgeController.class);
+    private static final Logger logger = LoggerFactory.getLogger(LeavelLinkAgeController.class);
     @Autowired
     CityService cityService;
     @Autowired
     LicensePlateService licensePlateService;
-    @ApiOperation(value="getPCCityTwoLinkAge",notes="城市俩级联动")
+
+    @ApiOperation(value = "getPCCityTwoLinkAge", notes = "城市俩级联动")
     @ApiImplicitParams(
             {@ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             })
@@ -46,9 +47,9 @@ public class LeavelLinkAgeController {
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDto.setData(cityDtoList);
         } catch (Exception e) {
-            logger.error("--------------->getPCCityTwoLinkAge",e);
+            logger.error("--------------->getPCCityTwoLinkAge", e);
             if (e instanceof CronusException) {
-                CronusException thorException = (CronusException)e;
+                CronusException thorException = (CronusException) e;
                 throw thorException;
             }
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
@@ -57,7 +58,7 @@ public class LeavelLinkAgeController {
         return resultDto;
     }
 
-    @ApiOperation(value="getPCCityThreeLinkAge",notes="三级联动")
+    @ApiOperation(value = "getPCCityThreeLinkAge", notes = "三级联动")
     @ApiImplicitParams(
             {@ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             })
@@ -72,16 +73,17 @@ public class LeavelLinkAgeController {
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDto.setData(cityDtoList);
         } catch (Exception e) {
-            logger.error("--------------->getCityByProvinceDirec",e);
+            logger.error("--------------->getCityByProvinceDirec", e);
             if (e instanceof CronusException) {
-                CronusException thorException = (CronusException)e;
+                CronusException thorException = (CronusException) e;
                 throw thorException;
             }
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
         return resultDto;
     }
-    @ApiOperation(value="getCarPlate",notes="车牌归属地俩级联动")
+
+    @ApiOperation(value = "getCarPlate", notes = "车牌归属地俩级联动")
     @ApiImplicitParams(
             {@ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             })
@@ -96,9 +98,9 @@ public class LeavelLinkAgeController {
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDto.setData(cityDtoList);
         } catch (Exception e) {
-            logger.error("--------------->getPCCityTwoLinkAge",e);
+            logger.error("--------------->getPCCityTwoLinkAge", e);
             if (e instanceof CronusException) {
-                CronusException thorException = (CronusException)e;
+                CronusException thorException = (CronusException) e;
                 throw thorException;
             }
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);

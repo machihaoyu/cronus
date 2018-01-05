@@ -27,27 +27,27 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 @RequestMapping("customerUseful/v1")
 public class CustomerUsefulController {
-    private  static  final Logger logger = LoggerFactory.getLogger(CustomerUsefulController.class);
+    private static final Logger logger = LoggerFactory.getLogger(CustomerUsefulController.class);
 
     @Autowired
     private CustomerUsefulService customerUsefulService;
     @Autowired
     private UcService thorUcService;
-   /* @Autowired
-    private LoanService loanService;*/
+    /* @Autowired
+     private LoanService loanService;*/
     @Autowired
     private CustomerInfoService iCustomerService;
 
-    @ApiOperation(value="根据交易id获取确认信息", notes="根据交易id获取确认信息")
+    @ApiOperation(value = "根据交易id获取确认信息", notes = "根据交易id获取确认信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "loanId", value = "交易id", required = true, paramType = "query",  dataType = "int"),
+            @ApiImplicitParam(name = "loanId", value = "交易id", required = true, paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/selectById", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<QueryResult<CustomerUsefulDTO>> selectById(@RequestParam(required = true) Integer loanId, HttpServletRequest request){
-        CronusDto theaApiDTO=new CronusDto<>();
-        CustomerUsefulDTO customerUsefulDTO=null;
+    public CronusDto<QueryResult<CustomerUsefulDTO>> selectById(@RequestParam(required = true) Integer loanId, HttpServletRequest request) {
+        CronusDto theaApiDTO = new CronusDto<>();
+        CustomerUsefulDTO customerUsefulDTO = null;
        /* try{
             String token=request.getHeader("Authorization");
             UserInfoDTO userInfoDTO = thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);

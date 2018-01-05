@@ -23,8 +23,6 @@ import java.util.Map;
 @Service
 public class ToolService {
 
-
-
     @Autowired
     CustomerInfoMapper customerInfoMapper;
 
@@ -39,7 +37,6 @@ public class ToolService {
         if(customerInfo == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMERUNFIND_ERROR);
         }
-        String telephoneNumber = customerInfo.getTelephonenumber();
         String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
         String url = phoneAreaUrl + telephone;
         String resultStr = HttpsClientUtil.sendHttps(url);
@@ -53,5 +50,15 @@ public class ToolService {
         cronusDto.setResult(ResultResource.CODE_SUCCESS);
         cronusDto.setData(phoneAreaDTO);
         return  cronusDto;
+    }
+    public CronusDto getPhoneDesc(String telephone){
+
+        CronusDto cronusDto = new CronusDto();
+        String result = DEC3Util.des3EncodeCBC(telephone);
+        cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        cronusDto.setResult(ResultResource.CODE_SUCCESS);
+        cronusDto.setData(result);
+        return cronusDto;
+
     }
 }

@@ -47,8 +47,7 @@ public class OcdcController {
         try {
             resultDto.setData(ocdcService.addOcdcCustomer(ocdcData, AllocateSource.OCDC, token));
             resultDto.setResult(0);
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             resultDto.setResult(1);
         }
         return resultDto;

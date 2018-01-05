@@ -66,115 +66,116 @@ public class CustomerInfoService {
     TheaClientService theaClientService;
     @Autowired
     OutPutService outPutService;
-    public  List<CustomerInfo> findList(){
+
+    public List<CustomerInfo> findList() {
         List<CustomerInfo> resultList = new ArrayList();
         resultList = customerInfoMapper.selectAll();
-        return  resultList;
+        return resultList;
     }
 
-    public QueryResult customerList(Integer  userId,String customerName,String telephonenumber,String utmSource, String ownUserName,
-                                    String customerSource, Integer circle, Integer companyId,Integer page,Integer size,Integer remain,String level,String token){
+    public QueryResult customerList(Integer userId, String customerName, String telephonenumber, String utmSource, String ownUserName,
+                                    String customerSource, Integer circle, Integer companyId, Integer page, Integer size, Integer remain, String level, String token) {
         QueryResult result = new QueryResult();
-        Map<String,Object> paramsMap = new HashMap<>();
+        Map<String, Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
         List<CustomerListDTO> dtoList = new ArrayList<>();
-        PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
-        if (userInfoDTO == null){
+        PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO == null) {
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
         }
-        if (!StringUtils.isEmpty(customerName)){
-            paramsMap.put("customerName",customerName);
+        if (!StringUtils.isEmpty(customerName)) {
+            paramsMap.put("customerName", customerName);
         }
-        if (!StringUtils.isEmpty(utmSource)){
-            paramsMap.put("utmSource",utmSource);
+        if (!StringUtils.isEmpty(utmSource)) {
+            paramsMap.put("utmSource", utmSource);
         }
-        if (!StringUtils.isEmpty(ownUserName)){
-            paramsMap.put("ownUserName",ownUserName);
+        if (!StringUtils.isEmpty(ownUserName)) {
+            paramsMap.put("ownUserName", ownUserName);
         }
-        if (!StringUtils.isEmpty(customerSource)){
-            paramsMap.put("customerSource",customerSource);
+        if (!StringUtils.isEmpty(customerSource)) {
+            paramsMap.put("customerSource", customerSource);
         }
-        if (circle != null){
-            paramsMap.put("circle",circle);
+        if (circle != null) {
+            paramsMap.put("circle", circle);
         }
-        if (companyId != null){
-            paramsMap.put("companyId",companyId);
+        if (companyId != null) {
+            paramsMap.put("companyId", companyId);
         }
-        if (remain != null){
-            paramsMap.put("remain",remain);
+        if (remain != null) {
+            paramsMap.put("remain", remain);
         }
-        if (!StringUtils.isEmpty(level )){
-            paramsMap.put("level",level);
+        if (!StringUtils.isEmpty(level)) {
+            paramsMap.put("level", level);
         }
         //手机需要解密加密
-        if (!StringUtils.isEmpty(telephonenumber)){
-              paramsMap.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
+        if (!StringUtils.isEmpty(telephonenumber)) {
+            paramsMap.put("telephonenumber", DEC3Util.des3EncodeCBC(telephonenumber));
         }
         //获取下属员工
-        List<Integer> ids = ucService.getSubUserByUserId(token,userId);
-        paramsMap.put("owerId",ids);
-        paramsMap.put("start",(page-1) * size);
-        paramsMap.put("size",size);
-        Integer lookphone =Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
+        List<Integer> ids = ucService.getSubUserByUserId(token, userId);
+        paramsMap.put("owerId", ids);
+        paramsMap.put("start", (page - 1) * size);
+        paramsMap.put("size", size);
+        Integer lookphone = Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
         resultList = customerInfoMapper.customerList(paramsMap);
         Integer count = customerInfoMapper.customerListCount(paramsMap);
-        if (resultList != null && resultList.size() > 0){
+        if (resultList != null && resultList.size() > 0) {
             for (CustomerInfo customerInfo : resultList) {
                 CustomerListDTO customerDto = new CustomerListDTO();
-                EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,userId);
+                EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
                 //判断自己的lookphone
                 dtoList.add(customerDto);
             }
             result.setRows(dtoList);
         }
         result.setTotal(count.toString());
-        return  result;
+        return result;
     }
 
     @Transactional
-    public CronusDto addCustomer(CustomerDTO customerDTO, String token){
+    public CronusDto addCustomer(CustomerDTO customerDTO, String token) {
         CronusDto cronusDto = new CronusDto();
-         //判断必传字段*/
-         //json转map 参数，教研参数
-        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
-        if (userInfoDTO.getUser_id() == null){
+        //判断必传字段*/
+        //json转map 参数，教研参数
+        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO.getUser_id() == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户信息出错!");
         }
-         validAddData(customerDTO);
-         //实体与DTO相互转换
-         CustomerInfo customerInfo = new CustomerInfo();
-         EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
-         //新加字段
-         List<EmplouInfo> emplouInfos = customerDTO.getEmployedInfo();
+        validAddData(customerDTO);
+        //实体与DTO相互转换
+        CustomerInfo customerInfo = new CustomerInfo();
+        EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
+        //新加字段
+        List<EmplouInfo> emplouInfos = customerDTO.getEmployedInfo();
         //转Json在转String
         if (emplouInfos != null && emplouInfos.size() > 0) {
             String jsonString = JSONArray.toJSONString(emplouInfos);
             customerInfo.setEmployedInfo(jsonString);
         }
-         customerInfo.setRetirementWages(customerDTO.getRetirementWages());
-         Date date = new Date();
-         //刚申请的客户
-         customerInfo.setCompanyId(Integer.valueOf(userInfoDTO.getCompany_id()));
-         customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
-         customerInfo.setCustomerType(CommonConst.CUSTOMER_TYPE_MIND);
-         customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
-         customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
-         customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
-         customerInfo.setCreateTime(date);
-         customerInfo.setCreateUser(Integer.valueOf(userInfoDTO.getUser_id()));
-         customerInfo.setLastUpdateTime(date);
-         customerInfo.setIsDeleted(0);
-         customerInfo.setReceiveId(0);
-         customerInfo.setAutostatus(1);//自动分配
-         customerInfo.setCommunicateId(0);
-         customerInfoMapper.insertCustomer(customerInfo);
-         if (customerInfo.getId() == null){
-             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
-         }
-         //开始插入log表
+        customerInfo.setRetirementWages(customerDTO.getRetirementWages());
+        Date date = new Date();
+        //刚申请的客户
+        customerInfo.setCompanyId(Integer.valueOf(userInfoDTO.getCompany_id()));
+        customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
+        customerInfo.setCustomerType(CommonConst.CUSTOMER_TYPE_MIND);
+        customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
+        customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
+        customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
+        customerInfo.setCreateTime(date);
+        customerInfo.setCreateUser(Integer.valueOf(userInfoDTO.getUser_id()));
+        customerInfo.setLastUpdateTime(date);
+        customerInfo.setIsDeleted(0);
+        customerInfo.setReceiveId(0);
+        customerInfo.setAutostatus(1);//自动分配
+        customerInfo.setCommunicateId(0);
+        customerInfoMapper.insertCustomer(customerInfo);
+        if (customerInfo.getId() == null) {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
+        }
+        //开始插入log表
         //生成日志记录
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription("增加一条客户记录");
         customerInfoLog.setLogUserId(Integer.valueOf(userInfoDTO.getUser_id()));
@@ -183,15 +184,15 @@ public class CustomerInfoService {
         cronusDto.setResult(ResultResource.CODE_SUCCESS);
         cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         cronusDto.setData(customerInfo.getId());
-        return  cronusDto;
+        return cronusDto;
     }
 
     @Transactional
-    public CronusDto addOcdcCustomer(CustomerDTO customerDTO, String token){
+    public CronusDto addOcdcCustomer(CustomerDTO customerDTO, String token) {
         CronusDto cronusDto = new CronusDto();
         //实体与DTO相互转换
         CustomerInfo customerInfo = new CustomerInfo();
-        EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
+        EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
         //新加字段
         List<EmplouInfo> emplouInfos = customerDTO.getEmployedInfo();
         //转Json在转String
@@ -216,13 +217,13 @@ public class CustomerInfoService {
         customerInfo.setAutostatus(1);//自动分配
         customerInfo.setCommunicateId(0);
         customerInfoMapper.insertCustomer(customerInfo);
-        if (customerInfo.getId() == null){
+        if (customerInfo.getId() == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
         }
         //开始插入log表
         //生成日志记录
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription("增加一条客户记录");
         customerInfoLog.setLogUserId(0);//系统
@@ -231,46 +232,46 @@ public class CustomerInfoService {
         cronusDto.setResult(ResultResource.CODE_SUCCESS);
         cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         cronusDto.setData(customerInfo.getId());
-        return  cronusDto;
+        return cronusDto;
     }
 
     @Transactional
-    public CronusDto addCRMCustomer(AddCustomerDTO customerDTO, UserInfoDTO userInfoDTO,String token){
+    public CronusDto addCRMCustomer(AddCustomerDTO customerDTO, UserInfoDTO userInfoDTO, String token) {
         CronusDto cronusDto = new CronusDto();
         //判断必传字段*/
         //json转map 参数，教研参数
-        if (userInfoDTO.getUser_id() == null){
+        if (userInfoDTO.getUser_id() == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户信息出错!");
         }
         String customerName = customerDTO.getCustomerName();
         String telephonenumber = customerDTO.getTelephonenumber();
-        if (customerName == null || "".equals(customerName)){
+        if (customerName == null || "".equals(customerName)) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERNAME_ERROR);
         }
         if (telephonenumber == null || "".equals(telephonenumber)) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONE_ERROR);
         }
-        if (PhoneFormatCheckUtils.isChinaPhoneLegal(telephonenumber) == false){
+        if (PhoneFormatCheckUtils.isChinaPhoneLegal(telephonenumber) == false) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONE_ERROR);
         }
         //判断手机号是否被注册
-            Map<String,Object> paramsMap = new HashMap<>();
-            paramsMap.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
-            paramsMap.put("start",0);
-            paramsMap.put("size",10);
-            List<CustomerInfo> customerInfos = customerInfoMapper.customerList(paramsMap);
-            if (customerInfos.size() > 0){
-                cronusDto.setResult(ResultResource.CODE_OTHER_ERROR);
-                cronusDto.setMessage(ResultResource.PHNOEERROR);
-                return cronusDto;
-    }
+        Map<String, Object> paramsMap = new HashMap<>();
+        paramsMap.put("telephonenumber", DEC3Util.des3EncodeCBC(telephonenumber));
+        paramsMap.put("start", 0);
+        paramsMap.put("size", 10);
+        List<CustomerInfo> customerInfos = customerInfoMapper.customerList(paramsMap);
+        if (customerInfos.size() > 0) {
+            cronusDto.setResult(ResultResource.CODE_OTHER_ERROR);
+            cronusDto.setMessage(ResultResource.PHNOEERROR);
+            return cronusDto;
+        }
 
         //实体与DTO相互转换
         //对手机号加密
         CustomerInfo customerInfo = new CustomerInfo();
         Date date = new Date();
         customerInfo.setCustomerName(customerDTO.getCustomerName());
-        String telephone =DEC3Util.des3EncodeCBC(customerDTO.getTelephonenumber());
+        String telephone = DEC3Util.des3EncodeCBC(customerDTO.getTelephonenumber());
         customerInfo.setTelephonenumber(telephone);
         customerInfo.setCustomerSource(customerDTO.getCustomerSource());
         customerInfo.setUtmSource(customerDTO.getUtmSource());
@@ -291,13 +292,13 @@ public class CustomerInfoService {
         customerInfo.setOwnUserName(userInfoDTO.getName());
         customerInfo.setAutostatus(0);
         customerInfoMapper.insertCustomer(customerInfo);
-        if (customerInfo.getId() == null){
+        if (customerInfo.getId() == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
         }
         //开始插入log表
         //生成日志记录
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription("增加一条客户记录");
         customerInfoLog.setLogUserId(Integer.valueOf(userInfoDTO.getUser_id()));
@@ -308,28 +309,29 @@ public class CustomerInfoService {
         cronusDto.setResult(ResultResource.CODE_SUCCESS);
         cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         cronusDto.setData(customerInfo.getId());
-        return  cronusDto;
+        return cronusDto;
     }
 
-    public CronusDto<Integer> fingBytelephone(String telephonenumber){
-        CronusDto resultDto =  new CronusDto();
+    public CronusDto<Integer> fingBytelephone(String telephonenumber) {
+        CronusDto resultDto = new CronusDto();
         //手机需要加密
-        Map<String,Object> paramsMap = new HashMap<>();
-        CustomerDTO dto= new CustomerDTO();
-        String encryptTelephone =DEC3Util.des3EncodeCBC(telephonenumber);
-        paramsMap.put("telephonenumber",encryptTelephone);
+        Map<String, Object> paramsMap = new HashMap<>();
+        CustomerDTO dto = new CustomerDTO();
+        String encryptTelephone = DEC3Util.des3EncodeCBC(telephonenumber);
+        paramsMap.put("telephonenumber", encryptTelephone);
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
-        if (customerInfo == null){
+        if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerInfo.getId());
-        return  resultDto;
+        return resultDto;
     }
-    public CronusDto findCustomerListByIds (String customerids,String customerName){
+
+    public CronusDto findCustomerListByIds(String customerids, String customerName) {
         CronusDto resultDto = new CronusDto();
-        Map<String,Object> paramsMap = new HashMap<>();
+        Map<String, Object> paramsMap = new HashMap<>();
         List paramsList = new ArrayList();
         //截取逗号
         if (customerids != null && !"".equals(customerids)) {
@@ -340,17 +342,17 @@ public class CustomerInfoService {
             }
             paramsMap.put("paramsList", paramsList);
         }
-        if (!StringUtils.isEmpty(customerName)){
-            paramsMap.put("customerName",customerName);
+        if (!StringUtils.isEmpty(customerName)) {
+            paramsMap.put("customerName", customerName);
         }
         List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerListByFeild(paramsMap);
         //遍历
         List<CustomerDTO> customerDtos = new ArrayList<>();
-       for (CustomerInfo customerInfo: customerInfoList) {
+        for (CustomerInfo customerInfo : customerInfoList) {
             CustomerDTO customerDto = new CustomerDTO();
-            EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
+            EntityToDto.customerEntityToCustomerDto(customerInfo, customerDto);
             String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-           customerDto.setTelephonenumber(telephone);
+            customerDto.setTelephonenumber(telephone);
             customerDto.setUtmSource(customerInfo.getUtmSource());
             customerDtos.add(customerDto);
         }
@@ -359,31 +361,32 @@ public class CustomerInfoService {
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             resultDto.setData(customerDtos);
         }
-        return  resultDto;
+        return resultDto;
     }
-    public CronusDto<CustomerDTO> editCustomer(Integer customerId,String token){
+
+    public CronusDto<CustomerDTO> editCustomer(Integer customerId, String token) {
         CronusDto<CustomerDTO> resultDto = new CronusDto();
-        Map<String,Object> paramsMap = new HashMap<>();
+        Map<String, Object> paramsMap = new HashMap<>();
         //获取业务员信息
-        PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
-        if (userInfoDTO == null){
+        PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO == null) {
             throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
         }
         Integer lookphone = Integer.valueOf(userInfoDTO.getUser_info().getLook_phone());
-        paramsMap.put("id",customerId);
+        paramsMap.put("id", customerId);
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
-        if (customerInfo == null){
+        if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
         CustomerDTO customerDto = new CustomerDTO();
-        EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
+        EntityToDto.customerEntityToCustomerDto(customerInfo, customerDto);
         //对手机号进行加
         String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
         customerDto.setTelephonenumber(telephone);
         customerDto.setRetirementWages(customerInfo.getRetirementWages());
         String employedInfo = customerInfo.getEmployedInfo();
         List<EmplouInfo> emplouInfos = new ArrayList<>();
-        if (!StringUtils.isEmpty(employedInfo)){
+        if (!StringUtils.isEmpty(employedInfo)) {
             JSONArray jsonArray = JSONArray.parseArray(employedInfo);
             emplouInfos = jsonArray.toJavaList(EmplouInfo.class);
             customerDto.setEmployedInfo(emplouInfos);
@@ -391,42 +394,43 @@ public class CustomerInfoService {
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerDto);
-        return  resultDto;
+        return resultDto;
     }
 
     /**
      * 提交编辑用户
+     *
      * @return
      */
     @Transactional
-    public CronusDto editCustomerOk(CustomerDTO customerDTO,UserInfoDTO userInfoDTO, String token){
+    public CronusDto editCustomerOk(CustomerDTO customerDTO, UserInfoDTO userInfoDTO, String token) {
         CronusDto resultDto = new CronusDto();
         //校验权限
         //校验参数手机号不更新
-        Integer user_id =Integer.valueOf(userInfoDTO.getUser_id());
-        if (user_id == null){
+        Integer user_id = Integer.valueOf(userInfoDTO.getUser_id());
+        if (user_id == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "信息出错!");
         }
-        Map<String,Object> paramsMap = new HashMap<>();
-        if (customerDTO.getId() == null || "".equals(customerDTO.getId()) ){
+        Map<String, Object> paramsMap = new HashMap<>();
+        if (customerDTO.getId() == null || "".equals(customerDTO.getId())) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
-        if (customerDTO.getCustomerName() == null || "".equals(customerDTO.getCustomerName()) ){
+        if (customerDTO.getCustomerName() == null || "".equals(customerDTO.getCustomerName())) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERNAME_ERROR);
         }
-        if (customerDTO.getHouseStatus() == null || "".equals(customerDTO.getHouseStatus())){
+        if (customerDTO.getHouseStatus() == null || "".equals(customerDTO.getHouseStatus())) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEHOUSE_ERROR);
         }
         Integer id = customerDTO.getId();
-        paramsMap.put("id",id);
-        CustomerInfo customerInfo  = customerInfoMapper.findByFeild(paramsMap);
-        if (customerInfo == null){
+        paramsMap.put("id", id);
+        CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
+        if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
         Date date = new Date();
-        EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
+        EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
         customerInfo.setRetirementWages(customerDTO.getRetirementWages());
-        List<EmplouInfo> emplouInfos= customerDTO.getEmployedInfo();
+        List<EmplouInfo> emplouInfos = customerDTO.getEmployedInfo();
         if (emplouInfos != null && emplouInfos.size() > 0) {
             String jsonString = JSONArray.toJSONString(emplouInfos);
             customerInfo.setEmployedInfo(jsonString);
@@ -436,7 +440,7 @@ public class CustomerInfoService {
         customerInfoMapper.updateCustomer(customerInfo);
         //生成日志记录
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription("编辑客户信息");
         customerInfoLog.setLogUserId(user_id);
@@ -445,25 +449,25 @@ public class CustomerInfoService {
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerInfo.getId());
-        return  resultDto;
+        return resultDto;
     }
 
-    public CronusDto editCustomerSys(CustomerDTO customerDTO, String token){
+    public CronusDto editCustomerSys(CustomerDTO customerDTO, String token) {
         CronusDto resultDto = new CronusDto();
         //校验参数手机号不更新
         Integer user_id = ucService.getUserIdByToken(token);
-        if (user_id == null){
+        if (user_id == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "信息出错!");
         }
-        Map<String,Object> paramsMap = new HashMap<>();
+        Map<String, Object> paramsMap = new HashMap<>();
         Integer id = customerDTO.getId();
-        paramsMap.put("id",id);
-        CustomerInfo customerInfo  = customerInfoMapper.findByFeild(paramsMap);
-        if (customerInfo == null){
+        paramsMap.put("id", id);
+        CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
+        if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
         Date date = new Date();
-        BeanUtils.copyProperties(customerDTO,customerInfo);
+        BeanUtils.copyProperties(customerDTO, customerInfo);
 
         customerInfo.setLastUpdateTime(date);
         customerInfo.setConfirm(0);
@@ -472,7 +476,7 @@ public class CustomerInfoService {
         customerInfoMapper.updateCustomerSys(customerInfo);
         //生成日志记录
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription("自动分配更新客户");
         customerInfoLog.setLogUserId(user_id);
@@ -481,76 +485,77 @@ public class CustomerInfoService {
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerInfo.getId());
-        return  resultDto;
+        return resultDto;
     }
 
-    public List findCustomerByType(String customerType){
-        Map<String,Object> paramsMap = new HashMap<>();
+    public List findCustomerByType(String customerType) {
+        Map<String, Object> paramsMap = new HashMap<>();
         List<Integer> customerInfoList = new ArrayList<>();
-        if (!StringUtils.isEmpty(customerType)){
-        paramsMap.put("customerType",customerType);
-        }else {
+        if (!StringUtils.isEmpty(customerType)) {
+            paramsMap.put("customerType", customerType);
+        } else {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
         customerInfoList = customerInfoMapper.findCustomerByType(paramsMap);
         //遍历
         if (customerInfoList != null && customerInfoList.size() > 0) {
-           return  customerInfoList;
+            return customerInfoList;
         }
-        return  customerInfoList;
+        return customerInfoList;
 
     }
 
-    public void validAddData(CustomerDTO customerInfo){
+    public void validAddData(CustomerDTO customerInfo) {
         String customerName = customerInfo.getCustomerName();
         String telephonenumber = customerInfo.getTelephonenumber();
         Integer customerId = customerInfo.getId();
 
-        if (customerName == null || "".equals(customerName)){
+        if (customerName == null || "".equals(customerName)) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERNAME_ERROR);
         }
         if (telephonenumber == null || "".equals(telephonenumber)) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONE_ERROR);
         }
-        if (PhoneFormatCheckUtils.isChinaPhoneLegal(telephonenumber) == false){
+        if (PhoneFormatCheckUtils.isChinaPhoneLegal(telephonenumber) == false) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONE_ERROR);
         }
         //判断手机号是否被注册
-        if (customerId == null){
-            Map<String,Object> paramsMap = new HashMap<>();
-            paramsMap.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
-            paramsMap.put("start",0);
-            paramsMap.put("size",10);
+        if (customerId == null) {
+            Map<String, Object> paramsMap = new HashMap<>();
+            paramsMap.put("telephonenumber", DEC3Util.des3EncodeCBC(telephonenumber));
+            paramsMap.put("start", 0);
+            paramsMap.put("size", 10);
             List<CustomerInfo> customerInfos = customerInfoMapper.customerList(paramsMap);
-            if (customerInfos.size() > 0){
+            if (customerInfos.size() > 0) {
                 throw new CronusException(CronusException.Type.CRM_CUSTOMERPHONERE_ERROR);
             }
         }
     }
-    public CronusDto<CustomerDTO> findCustomerByFeild(Integer customerId,String telephoneNumber){
+
+    public CronusDto<CustomerDTO> findCustomerByFeild(Integer customerId, String telephoneNumber) {
         CronusDto resultDto = new CronusDto();
-        Map<String,Object> paramsMap = new HashMap<>();
+        Map<String, Object> paramsMap = new HashMap<>();
         if (!StringUtils.isEmpty(customerId)) {
             paramsMap.put("id", customerId);
         }
-        if (!StringUtils.isEmpty(telephoneNumber)){
+        if (!StringUtils.isEmpty(telephoneNumber)) {
             //手机号加密
 
             paramsMap.put("telephonenumber", DEC3Util.des3EncodeCBC(telephoneNumber));
         }
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
-        if (customerInfo == null){
+        if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
         CustomerDTO customerDto = new CustomerDTO();
-        EntityToDto.customerEntityToCustomerDto(customerInfo,customerDto);
+        EntityToDto.customerEntityToCustomerDto(customerInfo, customerDto);
         //d对手机进行解密
         String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
         customerDto.setTelephonenumber(telephone);
         customerDto.setRetirementWages(customerInfo.getRetirementWages());
         String employedInfo = customerInfo.getEmployedInfo();
         List<EmplouInfo> emplouInfos = new ArrayList<>();
-        if (!StringUtils.isEmpty(employedInfo)){
+        if (!StringUtils.isEmpty(employedInfo)) {
             JSONArray jsonArray = JSONArray.parseArray(employedInfo);
             emplouInfos = jsonArray.toJavaList(EmplouInfo.class);
             customerDto.setEmployedInfo(emplouInfos);
@@ -558,13 +563,14 @@ public class CustomerInfoService {
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerDto);
-        return  resultDto;
+        return resultDto;
     }
-    public  CronusDto findCustomerByCity(String city){
+
+    public CronusDto findCustomerByCity(String city) {
         CronusDto resultDto = new CronusDto();
-        Map<String,Object> paramsMap = new HashMap<>();
-        if (!StringUtils.isEmpty(city)){
-            paramsMap.put("city",city);
+        Map<String, Object> paramsMap = new HashMap<>();
+        if (!StringUtils.isEmpty(city)) {
+            paramsMap.put("city", city);
         }
         List<Integer> customerIds = new ArrayList<>();
         List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerListByFeild(paramsMap);
@@ -576,19 +582,20 @@ public class CustomerInfoService {
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerIds);
-        return  resultDto;
+        return resultDto;
     }
-    public  CronusDto findCustomerByOtherCity(String citys){
+
+    public CronusDto findCustomerByOtherCity(String citys) {
         CronusDto resultDto = new CronusDto();
         //处理参数
         String[] strArray = null;
         strArray = citys.split(",");
         List<String> list = new ArrayList();
-        for (int i= 0;i<strArray.length;i++){
-            list.add("'"+ strArray[i] + "'");
+        for (int i = 0; i < strArray.length; i++) {
+            list.add("'" + strArray[i] + "'");
         }
-        Map<String,Object> paramsMap = new HashMap<>();
-        paramsMap.put("cityList",list);
+        Map<String, Object> paramsMap = new HashMap<>();
+        paramsMap.put("cityList", list);
         List<Integer> customerIds = new ArrayList<>();
         List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerByOtherCity(paramsMap);
         if (customerInfoList != null && customerInfoList.size() > 0) {
@@ -599,29 +606,30 @@ public class CustomerInfoService {
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerIds);
-        return  resultDto;
+        return resultDto;
     }
+
     @Transactional
-    public CronusDto<Boolean> editCustomerType(Integer customer_id ,Integer user_id){
+    public CronusDto<Boolean> editCustomerType(Integer customer_id, Integer user_id) {
         CronusDto resultDto = new CronusDto();
         //根据uid查询到客户相关信息
         boolean flag = false;
-        Map<String,Object> paramsMap = new HashMap<>();
-        paramsMap.put("id",customer_id);
+        Map<String, Object> paramsMap = new HashMap<>();
+        paramsMap.put("id", customer_id);
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
-        if (customerInfo == null){
+        if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CEM_CUSTOMERIDENTITYINFO_ERROR);
         }
         //开始更改信息由意向客户改为协议客户
         String customerType = customerInfo.getCustomerType();
-        if (customerType.equals(CustomerEnum.intentional_customer.getName())){
+        if (customerType.equals(CustomerEnum.intentional_customer.getName())) {
             //改成协议客户
             customerInfo.setCustomerType(CustomerEnum.agreement_customer.getName());
             customerInfo.setCustomerLevel(CustomerEnum.agreement_customer.getName());
             customerInfoMapper.updateCustomer(customerInfo);
             CustomerInfoLog customerInfoLog = new CustomerInfoLog();
             Date date = new Date();
-            EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+            EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
             customerInfoLog.setLogCreateTime(date);
             customerInfoLog.setLogDescription("签章协议");
             customerInfoLog.setLogUserId(user_id);
@@ -638,19 +646,19 @@ public class CustomerInfoService {
     }
 
     @Transactional
-    public CronusDto<Boolean> editCustomerTypeTOConversion(Integer customer_id ,Integer user_id){
+    public CronusDto<Boolean> editCustomerTypeTOConversion(Integer customer_id, Integer user_id) {
         CronusDto resultDto = new CronusDto();
         //根据uid查询到客户相关信息
         boolean flag = false;
-        Map<String,Object> paramsMap = new HashMap<>();
-        paramsMap.put("id",customer_id);
+        Map<String, Object> paramsMap = new HashMap<>();
+        paramsMap.put("id", customer_id);
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
-        if (customerInfo == null){
+        if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CEM_CUSTOMERIDENTITYINFO_ERROR);
         }
         //协议客户改为成交用户
         String customerType = customerInfo.getCustomerType();
-        if (customerType.equals(CustomerEnum.agreement_customer.getName())){
+        if (customerType.equals(CustomerEnum.agreement_customer.getName())) {
             //成交用户
             customerInfo.setCustomerType(CustomerEnum.conversion_customer.getName());
             customerInfo.setCustomerLevel(CustomerEnum.conversion_customer.getName());
@@ -659,7 +667,7 @@ public class CustomerInfoService {
             //生成日志记录
             CustomerInfoLog customerInfoLog = new CustomerInfoLog();
             Date date = new Date();
-            EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+            EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
             customerInfoLog.setLogCreateTime(date);
             customerInfoLog.setLogDescription("成交用户");
             customerInfoLog.setLogUserId(user_id);
@@ -672,6 +680,7 @@ public class CustomerInfoService {
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         return resultDto;
     }
+
     public CustomerInfo findCustomerById(Integer customerId) {
 
         Map<String, Object> paramsMap = new HashMap<>();
@@ -683,55 +692,55 @@ public class CustomerInfoService {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
         //对手机号进行解密
-       // customerInfo.setTelephonenumber(DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber()));
+        // customerInfo.setTelephonenumber(DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber()));
         return customerInfo;
     }
 
-    public QueryResult<CustomerListDTO> allocationCustomerList(String customerName,String utmSource,String customerSource,Integer autostatus,Integer page,Integer size,Integer type,String telephonenumber,String token){
+    public QueryResult<CustomerListDTO> allocationCustomerList(String customerName, String utmSource, String customerSource, Integer autostatus, Integer page, Integer size, Integer type, String telephonenumber, String token) {
         List<CustomerInfo> resultList = new ArrayList<>();
-        Map<String,Object> paramsMap = new HashMap<>();
+        Map<String, Object> paramsMap = new HashMap<>();
         List<CustomerListDTO> doList = new ArrayList<>();
         QueryResult<CustomerListDTO> result = new QueryResult<>();
-        PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
-        if (userInfoDTO == null){
+        PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO == null) {
             throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
         }
-        Integer lookphone =Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
+        Integer lookphone = Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
         Integer userId = Integer.parseInt(userInfoDTO.getUser_info().getUser_id());
         //获取下属id
-        List<Integer> ownerIds = ucService.getSubUserByUserId(token,userId);
+        List<Integer> ownerIds = ucService.getSubUserByUserId(token, userId);
         Integer count = null;
-        if (!StringUtils.isEmpty(customerName)){
-            paramsMap.put("customerName",customerName);
+        if (!StringUtils.isEmpty(customerName)) {
+            paramsMap.put("customerName", customerName);
         }
-        if (!StringUtils.isEmpty(utmSource)){
-            paramsMap.put("utmSource",utmSource);
+        if (!StringUtils.isEmpty(utmSource)) {
+            paramsMap.put("utmSource", utmSource);
         }
-        if (!StringUtils.isEmpty(telephonenumber)){
-            paramsMap.put("telephonenumber",telephonenumber);
+        if (!StringUtils.isEmpty(telephonenumber)) {
+            paramsMap.put("telephonenumber", telephonenumber);
         }
-        if (!StringUtils.isEmpty(customerSource)){
-            paramsMap.put("customerSource",customerSource);
+        if (!StringUtils.isEmpty(customerSource)) {
+            paramsMap.put("customerSource", customerSource);
         }
-        if (autostatus != null){
-            paramsMap.put("autostatus",autostatus);
+        if (autostatus != null) {
+            paramsMap.put("autostatus", autostatus);
         }
-        if (ownerIds != null && ownerIds.size() > 0){
-            paramsMap.put("ownerIds",ownerIds);
+        if (ownerIds != null && ownerIds.size() > 0) {
+            paramsMap.put("ownerIds", ownerIds);
         }
-        paramsMap.put("start",(page-1) * size);
-        paramsMap.put("size",size);
-        if (type == 1){//已沟通客户 判断沟通时间不为null;
+        paramsMap.put("start", (page - 1) * size);
+        paramsMap.put("size", size);
+        if (type == 1) {//已沟通客户 判断沟通时间不为null;
             resultList = customerInfoMapper.communicatedList(paramsMap);
             count = customerInfoMapper.communicatedListCount(paramsMap);
-        }else {
+        } else {
             resultList = customerInfoMapper.allocationCustomerList(paramsMap);
             count = customerInfoMapper.allocationCustomerListCount(paramsMap);
         }
-        if (resultList != null && resultList.size() > 0){
+        if (resultList != null && resultList.size() > 0) {
             for (CustomerInfo customerInfo : resultList) {
                 CustomerListDTO customerDto = new CustomerListDTO();
-                EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,userId);
+                EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
                 doList.add(customerDto);
             }
             result.setRows(doList);
@@ -739,14 +748,15 @@ public class CustomerInfoService {
         }
         result.setRows(doList);
         result.setTotal(count.toString());
-        return  result;
+        return result;
     }
+
     //不分页查询客户
-    public List<CustomerInfo> listByCondition(CustomerInfo customerInfo,UserInfoDTO userInfoDTO,String token,String systemName){
+    public List<CustomerInfo> listByCondition(CustomerInfo customerInfo, UserInfoDTO userInfoDTO, String token, String systemName) {
 
         List<CustomerInfo> resultList = new ArrayList<>();
         List ids = new ArrayList();
-        Map<String,Object> paramsMap = new HashMap<>();
+        Map<String, Object> paramsMap = new HashMap<>();
         //判断当前登录用户所属公司
         Integer companyId = null;
         if (!StringUtils.isEmpty(userInfoDTO.getCompany_id())) {
@@ -755,7 +765,7 @@ public class CustomerInfoService {
         }
         //得到下属员工
         ids.add(Integer.valueOf(userInfoDTO.getUser_id()));
-        paramsMap.put("owerId",ids);
+        paramsMap.put("owerId", ids);
         if (customerInfo != null) {
             if (customerInfo.getRemain() != null) {
                 paramsMap.put("remain", customerInfo.getRemain());
@@ -763,17 +773,17 @@ public class CustomerInfoService {
             if (customerInfo.getCompanyId() != null) {
                 paramsMap.put("companyId", companyId);
             }
-            if (customerInfo.getCustomerType() != null){
+            if (customerInfo.getCustomerType() != null) {
                 paramsMap.put("customerType", customerInfo.getCustomerType());
             }
         }
         resultList = customerInfoMapper.findCustomerListByFeild(paramsMap);
 
-        return  resultList;
+        return resultList;
     }
 
     @Transactional
-    public CronusDto keepCustomer(Integer customerId,UserInfoDTO userInfoDTO,String token){
+    public CronusDto keepCustomer(Integer customerId, UserInfoDTO userInfoDTO, String token) {
         CronusDto resultDto = new CronusDto();
         boolean flag = false;
         Integer userId = null;
@@ -799,7 +809,7 @@ public class CustomerInfoService {
         customerInfoMapper.updateCustomer(customerInfo);
         //插入日志
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription(CommonEnum.LOAN_OPERATION_TYPE_11.getCodeDesc());
         customerInfoLog.setLogUserId(userId);
@@ -816,13 +826,13 @@ public class CustomerInfoService {
         loanDTO.setUtmSource("下单");
         String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
         loanDTO.setTelephonenumber(telephone);
-        TheaApiDTO theaApiDTO = theaService.insertLoan(loanDTO,token);
-        if (theaApiDTO != null && theaApiDTO.getResult() == 0){
+        TheaApiDTO theaApiDTO = theaService.insertLoan(loanDTO, token);
+        if (theaApiDTO != null && theaApiDTO.getResult() == 0) {
             flag = true;
             resultDto.setData(flag);
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDto.setResult(ResultResource.CODE_SUCCESS);
-        }else {
+        } else {
             resultDto.setData(theaApiDTO.getData());
             resultDto.setMessage(theaApiDTO.getMessage());
             resultDto.setResult(theaApiDTO.getResult());
@@ -830,76 +840,77 @@ public class CustomerInfoService {
         return resultDto;
     }
 
-    public CustomerSourceDTO quitCustomerSource(Integer userId,String token){
+    public CustomerSourceDTO quitCustomerSource(Integer userId, String token) {
         //查询数据库中所有的组
         CustomerSourceDTO customerSourceDTO = new CustomerSourceDTO();
         List<String> customerSourceByGroup = customerInfoMapper.customerSourceByGroup();
         //获取当前登录用户能管理的总公司
 
-        List<SubCompanyDto> companys = ucService.getAllCompanyByUserId(token,userId,CommonConst.SYSTEM_NAME_ENGLISH);
+        List<SubCompanyDto> companys = ucService.getAllCompanyByUserId(token, userId, CommonConst.SYSTEM_NAME_ENGLISH);
 
         customerSourceDTO.setCompanyDtos(companys);
         customerSourceDTO.setSource(customerSourceByGroup);
-        return  customerSourceDTO;
+        return customerSourceDTO;
     }
 
-    public List<String> getAllCustomerSource(){
+    public List<String> getAllCustomerSource() {
         List<String> customerSourceByGroup = new ArrayList<>();
         customerSourceByGroup = customerInfoMapper.customerSourceByGroup();
-        return  customerSourceByGroup;
+        return customerSourceByGroup;
     }
-    public QueryResult<CustomerListDTO> resignCustomerList(String token,String customerName,String telephonenumber,String utmSource,String ownUserName,String customerSource,
-                                                           String level,Integer companyId,Integer page,Integer size){
-        QueryResult<CustomerListDTO> queryResult = new  QueryResult();
+
+    public QueryResult<CustomerListDTO> resignCustomerList(String token, String customerName, String telephonenumber, String utmSource, String ownUserName, String customerSource,
+                                                           String level, Integer companyId, Integer page, Integer size) {
+        QueryResult<CustomerListDTO> queryResult = new QueryResult();
         List<CustomerListDTO> resultList = new ArrayList<>();
-        Map<String,Object> paramMap = new HashMap<>();
+        Map<String, Object> paramMap = new HashMap<>();
         List<Integer> ids = new ArrayList<>();
         //获取离职员工的ids
-        List<PHPUserDto> userDtos = ucService.getUserByIds(token,null,null,null,"eq",null,null,null,3);
-        if (userDtos != null && userDtos.size() > 0){
+        List<PHPUserDto> userDtos = ucService.getUserByIds(token, null, null, null, "eq", null, null, null, 3);
+        if (userDtos != null && userDtos.size() > 0) {
             for (PHPUserDto userDto : userDtos) {
                 ids.add(Integer.valueOf(userDto.getUser_id()));
             }
-            paramMap.put("owerId",ids);
-            if (!StringUtils.isEmpty(customerName)){
-                paramMap.put("customerName",customerName);
+            paramMap.put("owerId", ids);
+            if (!StringUtils.isEmpty(customerName)) {
+                paramMap.put("customerName", customerName);
             }
 
-            if (!StringUtils.isEmpty(telephonenumber)){
+            if (!StringUtils.isEmpty(telephonenumber)) {
                 List paramsList = new ArrayList();
                 paramsList.add(DEC3Util.des3EncodeCBC(telephonenumber));
                 paramsList.add(telephonenumber);
-                paramMap.put("paramsList",paramsList);
+                paramMap.put("paramsList", paramsList);
             }
-            if (!StringUtils.isEmpty(utmSource)){
-                paramMap.put("utmSource",utmSource);
+            if (!StringUtils.isEmpty(utmSource)) {
+                paramMap.put("utmSource", utmSource);
             }
-            if (!StringUtils.isEmpty(ownUserName)){
-                paramMap.put("ownUserName",ownUserName);
+            if (!StringUtils.isEmpty(ownUserName)) {
+                paramMap.put("ownUserName", ownUserName);
             }
-            if (!StringUtils.isEmpty(customerSource)){
-                paramMap.put("customerSource",customerSource);
+            if (!StringUtils.isEmpty(customerSource)) {
+                paramMap.put("customerSource", customerSource);
             }
-            if (!StringUtils.isEmpty(level)){
-                paramMap.put("level",level);
+            if (!StringUtils.isEmpty(level)) {
+                paramMap.put("level", level);
             }
-            if (!StringUtils.isEmpty(companyId)){
-                paramMap.put("companyId",companyId);
+            if (!StringUtils.isEmpty(companyId)) {
+                paramMap.put("companyId", companyId);
             }
-            paramMap.put("start",(page-1) * size);
-            paramMap.put("size",size);
-            PHPLoginDto phpLoginDto = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
-            if (phpLoginDto == null){
+            paramMap.put("start", (page - 1) * size);
+            paramMap.put("size", size);
+            PHPLoginDto phpLoginDto = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
+            if (phpLoginDto == null) {
                 throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
             }
             List<CustomerInfo> customerInfoList = customerInfoMapper.customerList(paramMap);
-            Integer lookphone =Integer.parseInt(phpLoginDto.getUser_info().getLook_phone());
+            Integer lookphone = Integer.parseInt(phpLoginDto.getUser_info().getLook_phone());
             Integer userId = Integer.parseInt(phpLoginDto.getUser_info().getLook_phone());
-            if (customerInfoList != null && customerInfoList.size() > 0){
+            if (customerInfoList != null && customerInfoList.size() > 0) {
 
                 for (CustomerInfo customerInfo : customerInfoList) {
                     CustomerListDTO customerDto = new CustomerListDTO();
-                    EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,userId);
+                    EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
                     resultList.add(customerDto);
                 }
                 queryResult.setRows(resultList);
@@ -913,8 +924,8 @@ public class CustomerInfoService {
     }
 
     @Transactional
-    public boolean cancelkeepCustomer(Integer customerId,UserInfoDTO userInfoDTO,String token){
-           boolean flag = false;
+    public boolean cancelkeepCustomer(Integer customerId, UserInfoDTO userInfoDTO, String token) {
+        boolean flag = false;
         Integer userId = null;
         if (org.apache.commons.lang3.StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
             userId = Integer.parseInt(userInfoDTO.getUser_id());
@@ -936,22 +947,22 @@ public class CustomerInfoService {
 
         //插入日志
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription(CommonEnum.LOAN_OPERATION_TYPE_12.getCodeDesc());
         customerInfoLog.setLogUserId(userId);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
-        TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token,customerId.toString());
-        if (resultDto != null && resultDto.getResult() == 0){
+        TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token, customerId.toString());
+        if (resultDto != null && resultDto.getResult() == 0) {
             flag = true;
         }
         return flag;
     }
 
-    public List<CustomerInfo> getByIds(String ids){
+    public List<CustomerInfo> getByIds(String ids) {
         List<CustomerInfo> resultList = new ArrayList<>();
-        Map<String,Object> paramsMap = new HashMap<>();
+        Map<String, Object> paramsMap = new HashMap<>();
         List<Integer> paramsList = new ArrayList<>();
         if (ids != null && !"".equals(ids)) {
             String[] strArray = null;
@@ -962,52 +973,52 @@ public class CustomerInfoService {
             paramsMap.put("paramsList", paramsList);
         }
         resultList = customerInfoMapper.findCustomerListByFeild(paramsMap);
-        if (resultList != null && resultList.size() > 0){
+        if (resultList != null && resultList.size() > 0) {
             for (CustomerInfo customerInfo : resultList) {
-                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber()) ;
+                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
                 customerInfo.setTelephonenumber(telephone);
             }
         }
-        return  resultList;
+        return resultList;
     }
 
     @Transactional
-    public CronusDto removeCustomer(String ids,String token){
+    public CronusDto removeCustomer(String ids, String token) {
         boolean flag = false;
         CronusDto cronusDto = new CronusDto();
-        if (StringUtils.isEmpty(ids)){
+        if (StringUtils.isEmpty(ids)) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
-        UserInfoDTO userInfoDTO=ucService.getUserIdByToken(token,CommonConst.SYSTEMNAME);
+        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
         //根据编号查询到客户
         List<CustomerInfo> customerInfoList = getByIds(ids);
-        if (customerInfoList == null || customerInfoList.size() == 0){
+        if (customerInfoList == null || customerInfoList.size() == 0) {
             throw new CronusException(CronusException.Type.MESSAGE_NOT_EXIST_LOAN);
         }
         for (CustomerInfo customerInfo : customerInfoList) {
-            if (customerInfo.getRemain() == CommonConst.CONFIRM__STATUS_NO){
+            if (customerInfo.getRemain() == CommonConst.CONFIRM__STATUS_NO) {
                 cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
                 cronusDto.setMessage("" + customerInfo.getCustomerName() + "--已被保留,不能丢回!");
                 return cronusDto;
             }
             //判断是否是意向客户
-            if (!customerInfo.getCustomerType().equals(CommonConst.CUSTOMER_TYPE_MIND) ){
+            if (!customerInfo.getCustomerType().equals(CommonConst.CUSTOMER_TYPE_MIND)) {
                 cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
                 cronusDto.setMessage("" + customerInfo.getCustomerName() + "该客户不是意向客户,不能丢回");
                 return cronusDto;
             }
             //负责人是不是自己
-            if (!StringUtils.isEmpty(userInfoDTO.getUser_id()) && customerInfo.getOwnUserId() != Integer.parseInt(userInfoDTO.getUser_id())){
+            if (!StringUtils.isEmpty(userInfoDTO.getUser_id()) && customerInfo.getOwnUserId() != Integer.parseInt(userInfoDTO.getUser_id())) {
                 cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
                 cronusDto.setMessage("" + customerInfo.getCustomerName() + "--必须负责人自己才能操作!");
                 return cronusDto;
             }
             //是否沟通过
-            List<CommunicationLog> communicationLogList= new ArrayList<CommunicationLog>();
-            if (!StringUtils.isEmpty(userInfoDTO.getUser_id())){
-                communicationLogList=communicationLogService.listByCustomerIdAndUserId(customerInfo.getId(),Integer.parseInt(userInfoDTO.getUser_id()),token);
+            List<CommunicationLog> communicationLogList = new ArrayList<CommunicationLog>();
+            if (!StringUtils.isEmpty(userInfoDTO.getUser_id())) {
+                communicationLogList = communicationLogService.listByCustomerIdAndUserId(customerInfo.getId(), Integer.parseInt(userInfoDTO.getUser_id()), token);
             }
-            if (communicationLogList.size() == 0){
+            if (communicationLogList.size() == 0) {
                 cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
                 cronusDto.setMessage("" + customerInfo.getCustomerName() + "--领取后, 必须添加过沟通才能扔回公盘!");
                 return cronusDto;
@@ -1015,24 +1026,24 @@ public class CustomerInfoService {
 
         }
         //开始批量移除客户到公盘
-        batchRemove(ids,Integer.valueOf(userInfoDTO.getUser_id()));
+        batchRemove(ids, Integer.valueOf(userInfoDTO.getUser_id()));
         //开始废弃交易
-        TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token,ids);
-        if (resultDto == null || resultDto.getResult() != 0){
+        TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token, ids);
+        if (resultDto == null || resultDto.getResult() != 0) {
             throw new CronusException(CronusException.Type.CRM_CONNECT_ERROR);
         }
         flag = true;
         cronusDto.setData(flag);
         cronusDto.setResult(CommonMessage.REMOVE_SUCCESS.getCode());
         cronusDto.setMessage(CommonMessage.REMOVE_SUCCESS.getCodeDesc());
-        return  cronusDto;
+        return cronusDto;
     }
 
     @Transactional
-    public void batchRemove(String ids,Integer userId){
+    public void batchRemove(String ids, Integer userId) {
         Date date = new Date();
         String[] arr = ids.split(",");
-        Map<String,Object> paramsMap = new HashMap<>();
+        Map<String, Object> paramsMap = new HashMap<>();
         List<Integer> paramsList = new ArrayList<>();
         if (ids != null && !"".equals(ids)) {
             String[] strArray = null;
@@ -1041,15 +1052,15 @@ public class CustomerInfoService {
                 paramsList.add(Integer.parseInt(strArray[i]));
             }
         }
-        if (paramsList != null && paramsList.size() > 0){
+        if (paramsList != null && paramsList.size() > 0) {
             //开始插入日志
             for (Integer id : paramsList) {
                 //查询到此客户
                 CustomerInfo customerInfo = findCustomerById(id);
-                if (customerInfo != null){
+                if (customerInfo != null) {
                     //开始插入日志
                     CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-                    EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+                    EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
                     customerInfoLog.setLogCreateTime(date);
                     customerInfoLog.setLogDescription(CommonEnum.LOAN_OPERATION_TYPE_9.getCodeDesc());
                     customerInfoLog.setLogUserId(userId);
@@ -1059,39 +1070,39 @@ public class CustomerInfoService {
             }
 
             //开始移除公盘
-            paramsMap.put("paramsList",paramsList);
-            paramsMap.put("lastUpdateUser",userId);
-            paramsMap.put("lastUpdateTime",date);
+            paramsMap.put("paramsList", paramsList);
+            paramsMap.put("lastUpdateUser", userId);
+            paramsMap.put("lastUpdateTime", date);
             customerInfoMapper.batchRemove(paramsMap);
         }
     }
 
-    public CronusDto<Boolean> removeCustomerAll(RemoveDTO removeDTO,UserInfoDTO userInfoDTO,String token){
-            Date date = new Date();
-            CronusDto<Boolean> resultDto = new CronusDto<>();
-            boolean flag = false;
-            //判断有没有选择负责人
-            Map<String,Object> paramMap = new HashMap<>();
-            List<Integer> ownIds = new ArrayList<>();//负责人
-            if (StringUtils.isEmpty(removeDTO.getEmpId())){
-                resultDto.setData(flag);
-                resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTOERAll_ERROR);
-                resultDto.setResult(ResultResource.CODE_SUCCESS);
-                return resultDto;
-            }
-            //判断这个负责人是不是在职的
-            if (userInfoDTO ==null  ||  !"1".equals(userInfoDTO.getStatus())){
-                resultDto.setData(flag);
-                resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTOERSTATUS_ERROR);
-                resultDto.setResult(ResultResource.CODE_SUCCESS);
-                return resultDto;
-            }
-            if (StringUtils.isEmpty(removeDTO.getIds())){
-                resultDto.setData(flag);
-                resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTNOTNULL_ERROR);
-                resultDto.setResult(ResultResource.CODE_SUCCESS);
-                return resultDto;
-            }
+    public CronusDto<Boolean> removeCustomerAll(RemoveDTO removeDTO, UserInfoDTO userInfoDTO, String token) {
+        Date date = new Date();
+        CronusDto<Boolean> resultDto = new CronusDto<>();
+        boolean flag = false;
+        //判断有没有选择负责人
+        Map<String, Object> paramMap = new HashMap<>();
+        List<Integer> ownIds = new ArrayList<>();//负责人
+        if (StringUtils.isEmpty(removeDTO.getEmpId())) {
+            resultDto.setData(flag);
+            resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTOERAll_ERROR);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            return resultDto;
+        }
+        //判断这个负责人是不是在职的
+        if (userInfoDTO == null || !"1".equals(userInfoDTO.getStatus())) {
+            resultDto.setData(flag);
+            resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTOERSTATUS_ERROR);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            return resultDto;
+        }
+        if (StringUtils.isEmpty(removeDTO.getIds())) {
+            resultDto.setData(flag);
+            resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTNOTNULL_ERROR);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            return resultDto;
+        }
         List<Integer> paramsList = new ArrayList<>();
         if (removeDTO.getIds() != null && !"".equals(removeDTO.getIds())) {
             String[] strArray = null;
@@ -1104,25 +1115,25 @@ public class CustomerInfoService {
         List<Integer> uniqueList = new ArrayList<Integer>(new HashSet<>(paramsList));
         //判断客户存在不存在首次分配未处理的的
         boolean result = allocateService.validCustomerAllIsOperate(removeDTO.getIds());
-        if (result == false){
+        if (result == false) {
             resultDto.setData(flag);
             resultDto.setMessage(ResultResource.CRM_CUSOMERALLACATE_ERROR);
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             return resultDto;
         }
         //查询这些客户的信息
-        paramMap.put("paramsList",uniqueList);
+        paramMap.put("paramsList", uniqueList);
         List<CustomerInfo> customerInfoList = customerInfoMapper.findCustomerListByFeild(paramMap);
         //得到这些业务员的负责人
         if (customerInfoList != null && customerInfoList.size() > 0) {
             for (CustomerInfo customerInfo : customerInfoList) {
                 ownIds.add(customerInfo.getOwnUserId());
             }
-           //对负责人去除操作
-            ownIds =  new ArrayList<Integer>(new HashSet<>(ownIds));
+            //对负责人去除操作
+            ownIds = new ArrayList<Integer>(new HashSet<>(ownIds));
             //得到用户的信息逗号隔开
-            String strIds  = listToString(uniqueList);
-           // List<PHPUserDto> userList = ucService.getUserByIds(token,strIds,null,null,null,null,null,null,null);
+            String strIds = listToString(uniqueList);
+            // List<PHPUserDto> userList = ucService.getUserByIds(token,strIds,null,null,null,null,null,null,null);
             // TODO 下面开始更改这些客户的信息
           /*  flag = removeToUser(uniqueList,removeDTO.getEmpId(),userInfoDTO.getName(),token,userInfoDTO.getUser_id(),userInfoDTO.getName());
             if (flag == false){
@@ -1131,18 +1142,18 @@ public class CustomerInfoService {
             //调用交易系统修改
             try {
                 Integer thearesult = theaClientService.serviceContractToUser(token, strIds, removeDTO.getEmpId());
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             try {
-                Integer thearesult1 = theaClientService.cancelAll(token,strIds,removeDTO.getEmpId());
-            }catch (Exception e){
+                Integer thearesult1 = theaClientService.cancelAll(token, strIds, removeDTO.getEmpId());
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             for (CustomerInfo customerInfo : customerInfoList) {
                 Integer remain = customerInfo.getRemain();
-                if (remain != 2){
-                    remain =0;
+                if (remain != 2) {
+                    remain = 0;
                 }
                 customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
                 customerInfo.setOwnUserId(removeDTO.getEmpId());
@@ -1153,13 +1164,13 @@ public class CustomerInfoService {
                 customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
                 customerInfoMapper.updateCustomer(customerInfo);
             }
-            removeCustomerAddLog(customerInfoList,removeDTO.getEmpId(),Integer.valueOf(userInfoDTO.getUser_id()),userInfoDTO.getName());
-            flag =true;
+            removeCustomerAddLog(customerInfoList, removeDTO.getEmpId(), Integer.valueOf(userInfoDTO.getUser_id()), userInfoDTO.getName());
+            flag = true;
         }
-             resultDto.setData(flag);
-            resultDto.setMessage(ResultResource.CRM_MOVE_SUCESSS);
-            resultDto.setResult(ResultResource.CODE_SUCCESS);
-            return  resultDto;
+        resultDto.setData(flag);
+        resultDto.setMessage(ResultResource.CRM_MOVE_SUCESSS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        return resultDto;
     }
 
   /*  public boolean removeToUser(List<Integer> customerids,Integer touser,String touserName,String token,String userId,String userName){
@@ -1287,40 +1298,40 @@ public class CustomerInfoService {
     }*/
 
     /**
-     *
      * @return
      */
     @Transactional
-    public boolean saveRemoveInfo(List<Integer> mustUpCustomerIds,Integer toUser,String token){
+    public boolean saveRemoveInfo(List<Integer> mustUpCustomerIds, Integer toUser, String token) {
         boolean flag = false;
         Date date = new Date();
         //如果客户为要修改的状态,修改客户信
-        if (mustUpCustomerIds != null && mustUpCustomerIds.size() > 0){
-           //处理
-           // String customerIds = listToString(mustUpCustomerIds);
+        if (mustUpCustomerIds != null && mustUpCustomerIds.size() > 0) {
+            //处理
+            // String customerIds = listToString(mustUpCustomerIds);
             //查询到这些用户信息
-            AppUserDto userDTO = ucService.getUserInfoByID(token,toUser);
+            AppUserDto userDTO = ucService.getUserInfoByID(token, toUser);
             //开始更新
-            Map<String,Object> paramsMap = new HashMap<>();
+            Map<String, Object> paramsMap = new HashMap<>();
             //获取当前登录用户信息
             Integer userId = ucService.getUserIdByToken(token);
-            paramsMap.put("paramsList",mustUpCustomerIds);
-            paramsMap.put("subcompanyId",userDTO.getSub_company_id());
-            paramsMap.put("ownerUserId",toUser);
-            paramsMap.put("receiveTime",date);
-            paramsMap.put("lastUpdateTime",date);
-            paramsMap.put("lastUpdateUser",userId);
+            paramsMap.put("paramsList", mustUpCustomerIds);
+            paramsMap.put("subcompanyId", userDTO.getSub_company_id());
+            paramsMap.put("ownerUserId", toUser);
+            paramsMap.put("receiveTime", date);
+            paramsMap.put("lastUpdateTime", date);
+            paramsMap.put("lastUpdateUser", userId);
             customerInfoMapper.batchUpdate(paramsMap);
         }
-        flag =true;
-        return  flag;
+        flag = true;
+        return flag;
     }
-    public void  removeCustomerAddLog(List<CustomerInfo> customerInfos, Integer toUser,Integer userId,String userName){
+
+    public void removeCustomerAddLog(List<CustomerInfo> customerInfos, Integer toUser, Integer userId, String userName) {
         //遍历添加日志
         Date date = new Date();
         if (customerInfos != null && customerInfos.size() > 0) {
-            for (CustomerInfo customerInfo : customerInfos){
-                 //添加分配日志
+            for (CustomerInfo customerInfo : customerInfos) {
+                //添加分配日志
                 AllocateLog allocateLog = new AllocateLog();
                 allocateLog.setCreateTime(new Date());
                 allocateLog.setCustomerId(customerInfo.getId());
@@ -1329,17 +1340,17 @@ public class CustomerInfoService {
                 allocateLog.setCreateUserId(userId);
                 allocateLog.setCreateUserName(userName);
                 //json化字符串
-                JSONObject jsonObject = (JSONObject)JSONObject.toJSON(customerInfo);
+                JSONObject jsonObject = (JSONObject) JSONObject.toJSON(customerInfo);
                 allocateLog.setResult(jsonObject.toJSONString());
                 allocateLog.setCreateTime(date);
                 allocateLog.setOperation(CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_9.getCodeDesc());
                 Integer result = allocateLogMapper.insert(allocateLog);
-                if (result == null){
-                    throw  new CronusException(CronusException.Type.CRM_CUSTOMERLOG_ERROR);
+                if (result == null) {
+                    throw new CronusException(CronusException.Type.CRM_CUSTOMERLOG_ERROR);
                 }
                 //开始添加客户操作日志
                 CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-                EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+                EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
                 customerInfoLog.setLogCreateTime(date);
                 customerInfoLog.setLogDescription("增加一条客户记录");
                 customerInfoLog.setLogUserId(userId);
@@ -1348,11 +1359,13 @@ public class CustomerInfoService {
             }
         }
     }
-    public  List<SubCompanyDto>  getAllCompany(String token,Integer userId){
-        List<SubCompanyDto> companys = ucService.getAllCompanyByUserId(token,userId,CommonConst.SYSTEM_NAME_ENGLISH);
+
+    public List<SubCompanyDto> getAllCompany(String token, Integer userId) {
+        List<SubCompanyDto> companys = ucService.getAllCompanyByUserId(token, userId, CommonConst.SYSTEM_NAME_ENGLISH);
         return companys;
     }
-    public String listToString(List list){
+
+    public String listToString(List list) {
 
         StringBuilder str = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
@@ -1365,15 +1378,15 @@ public class CustomerInfoService {
             }
 
         }
-        return  str.toString();
+        return str.toString();
     }
 
     @Transactional
-    public void insertLog(CustomerInfo customerInfo,Integer userId){
+    public void insertLog(CustomerInfo customerInfo, Integer userId) {
         //生成日志记录
         Date date = new Date();
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription("编辑客户信息");
         customerInfoLog.setLogUserId(userId);
@@ -1382,11 +1395,11 @@ public class CustomerInfoService {
     }
 
     @Transactional
-    public void insertAddCustomerLog(CustomerInfo customerInfo,Integer userId){
+    public void insertAddCustomerLog(CustomerInfo customerInfo, Integer userId) {
         //生成日志记录
         Date date = new Date();
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription("新增客户信息");
         customerInfoLog.setLogUserId(userId);
@@ -1394,33 +1407,33 @@ public class CustomerInfoService {
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
     }
 
-    public CronusDto<CustomerDTO> fingByphone(String telephonenumber){
-        CronusDto resultDto =  new CronusDto();
+    public CronusDto<CustomerDTO> fingByphone(String telephonenumber) {
+        CronusDto resultDto = new CronusDto();
         //手机需要加密
-        CustomerDTO dto= new CustomerDTO();
-        Map<String,Object> mapc=new HashedMap();
-        mapc.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
-        List <CustomerInfo> customerInfos = customerInfoMapper.selectByOCDCPhone(mapc);
-        if (customerInfos != null && customerInfos.size() >0 ) {
+        CustomerDTO dto = new CustomerDTO();
+        Map<String, Object> mapc = new HashedMap();
+        mapc.put("telephonenumber", DEC3Util.des3EncodeCBC(telephonenumber));
+        List<CustomerInfo> customerInfos = customerInfoMapper.selectByOCDCPhone(mapc);
+        if (customerInfos != null && customerInfos.size() > 0) {
             EntityToDto.customerEntityToCustomerDto(customerInfos.get(0), dto);
         }
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(dto);
-        return  resultDto;
+        return resultDto;
     }
 
-    public List<Integer> customerListToCheck(String customerName,String utmSource,String city,String token){
-        Map<String,Object> paramsMap = new HashMap<>();
+    public List<Integer> customerListToCheck(String customerName, String utmSource, String city, String token) {
+        Map<String, Object> paramsMap = new HashMap<>();
         List<Integer> customerInfoList = new ArrayList<>();
-        if (!StringUtils.isEmpty(customerName)){
-            paramsMap.put("customerName",customerName);
+        if (!StringUtils.isEmpty(customerName)) {
+            paramsMap.put("customerName", customerName);
         }
-        if (!StringUtils.isEmpty(utmSource)){
-            paramsMap.put("utmSource",utmSource);
+        if (!StringUtils.isEmpty(utmSource)) {
+            paramsMap.put("utmSource", utmSource);
         }
-        if (!StringUtils.isEmpty(city)){
-            paramsMap.put("city",city);
+        if (!StringUtils.isEmpty(city)) {
+            paramsMap.put("city", city);
         }
         customerInfoList = customerInfoMapper.findCustomerByType(paramsMap);
         return customerInfoList;
@@ -1428,18 +1441,18 @@ public class CustomerInfoService {
 
 
     @Transactional
-    public CronusDto addUploadCustomer(CustomerDTO customerDTO, String token){
+    public CronusDto addUploadCustomer(CustomerDTO customerDTO, String token) {
         CronusDto cronusDto = new CronusDto();
         //判断必传字段*/
         //json转map 参数，教研参数
-        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token,CommonConst.SYSTEM_NAME_ENGLISH);
-        if (userInfoDTO.getUser_id() == null){
+        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO.getUser_id() == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户信息出错!");
         }
         validAddData(customerDTO);
         //实体与DTO相互转换
         CustomerInfo customerInfo = new CustomerInfo();
-        EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
+        EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
         //新加字段
         List<EmplouInfo> emplouInfos = customerDTO.getEmployedInfo();
         //转Json在转String
@@ -1465,13 +1478,13 @@ public class CustomerInfoService {
         customerInfo.setOwnUserId(0);
         customerInfo.setAutostatus(0);
         customerInfoMapper.insertCustomer(customerInfo);
-        if (customerInfo.getId() == null){
+        if (customerInfo.getId() == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
         }
         //开始插入log表
         //生成日志记录
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription("增加一条客户记录");
         customerInfoLog.setLogUserId(Integer.valueOf(userInfoDTO.getUser_id()));
@@ -1481,19 +1494,19 @@ public class CustomerInfoService {
         cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         cronusDto.setData(customerInfo.getId());
         //推送到ocdc
-        try{
+        try {
             outPutService.synchronToOcdc(customerInfo);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return  cronusDto;
+        return cronusDto;
     }
 
-    public CronusDto editCustomerSys(CustomerInfo customerInfo, String token){
+    public CronusDto editCustomerSys(CustomerInfo customerInfo, String token) {
         CronusDto resultDto = new CronusDto();
         //校验参数手机号不更新
         Integer user_id = ucService.getUserIdByToken(token);
-        if (user_id == null){
+        if (user_id == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "信息出错!");
         }
 //        customerInfo.setLastUpdateTime(date);
@@ -1503,7 +1516,7 @@ public class CustomerInfoService {
         customerInfoMapper.updateCustomerSys(customerInfo);
         //生成日志记录
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
         customerInfoLog.setLogCreateTime(new Date());
         customerInfoLog.setLogDescription("自动分配更新客户");
         customerInfoLog.setLogUserId(user_id);
@@ -1512,20 +1525,20 @@ public class CustomerInfoService {
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerInfo.getId());
-        return  resultDto;
+        return resultDto;
     }
 
-    public CronusDto<List<CustomerInfo>> selectNonCommunicateInTime(){
-        CronusDto resultDto =  new CronusDto();
+    public CronusDto<List<CustomerInfo>> selectNonCommunicateInTime() {
+        CronusDto resultDto = new CronusDto();
         //手机需要加密
-        List <CustomerInfo> customerInfos = customerInfoMapper.selectNonCommunicateInTime();
+        List<CustomerInfo> customerInfos = customerInfoMapper.selectNonCommunicateInTime();
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerInfos);
-        return  resultDto;
+        return resultDto;
     }
 
-    public Map<String, Integer> countForAutoClean(){
+    public Map<String, Integer> countForAutoClean() {
         return customerInfoMapper.countForAutoClean();
     }
 
@@ -1540,51 +1553,50 @@ public class CustomerInfoService {
         return customerInfoList;
     }
 
-    public List<Integer> selectForAutoClean(Map<String, Object> paramsMap){
+    public List<Integer> selectForAutoClean(Map<String, Object> paramsMap) {
         return customerInfoMapper.selectForAutoClean(paramsMap);
     }
 
-    public void batchUpdate(Map<String,Object> paramsMap)
-    {
+    public void batchUpdate(Map<String, Object> paramsMap) {
         customerInfoMapper.batchUpdate(paramsMap);
     }
 
 
-
     /**
      * 提交编辑用户
+     *
      * @return
      */
     @Transactional
-    public CronusDto editClientCustomerOk(CustomerDTO customerDTO, String token){
+    public CronusDto editClientCustomerOk(CustomerDTO customerDTO, String token) {
         CronusDto resultDto = new CronusDto();
         //校验权限
         //校验参数手机号不更新
-       // UserSortInfoDTO userSortInfoDTO = ucService.getSortUserInfo(token);
+        // UserSortInfoDTO userSortInfoDTO = ucService.getSortUserInfo(token);
       /*  if (userSortInfoDTO == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "信息出错!");
         }*/
-        SortUserInfoByPhoneDTO userSortInfoDTO = ucService.getSortUserInfoByPhone(token,customerDTO.getTelephonenumber());
-        Map<String,Object> paramsMap = new HashMap<>();
-        if (customerDTO.getId() == null || "".equals(customerDTO.getId()) ){
+        SortUserInfoByPhoneDTO userSortInfoDTO = ucService.getSortUserInfoByPhone(token, customerDTO.getTelephonenumber());
+        Map<String, Object> paramsMap = new HashMap<>();
+        if (customerDTO.getId() == null || "".equals(customerDTO.getId())) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
-        if (customerDTO.getCustomerName() == null || "".equals(customerDTO.getCustomerName()) ){
+        if (customerDTO.getCustomerName() == null || "".equals(customerDTO.getCustomerName())) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERNAME_ERROR);
         }
-        if (customerDTO.getHouseStatus() == null || "".equals(customerDTO.getHouseStatus())){
+        if (customerDTO.getHouseStatus() == null || "".equals(customerDTO.getHouseStatus())) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEHOUSE_ERROR);
         }
         Integer id = customerDTO.getId();
-        paramsMap.put("id",id);
-        CustomerInfo customerInfo  = customerInfoMapper.findByFeild(paramsMap);
-        if (customerInfo == null){
+        paramsMap.put("id", id);
+        CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
+        if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
         Date date = new Date();
-        EntityToDto.customerCustomerDtoToEntity(customerDTO,customerInfo);
+        EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
         customerInfo.setRetirementWages(customerDTO.getRetirementWages());
-        List<EmplouInfo> emplouInfos= customerDTO.getEmployedInfo();
+        List<EmplouInfo> emplouInfos = customerDTO.getEmployedInfo();
         if (emplouInfos != null && emplouInfos.size() > 0) {
             String jsonString = JSONArray.toJSONString(emplouInfos);
             customerInfo.setEmployedInfo(jsonString);
@@ -1594,7 +1606,7 @@ public class CustomerInfoService {
         customerInfoMapper.updateCustomer(customerInfo);
         //生成日志记录
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        EntityToDto.customerEntityToCustomerLog(customerInfo,customerInfoLog);
+        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
         customerInfoLog.setLogCreateTime(date);
         customerInfoLog.setLogDescription("编辑客户信息");
         customerInfoLog.setLogUserId(Integer.valueOf(userSortInfoDTO.getUser_id()));
@@ -1603,31 +1615,31 @@ public class CustomerInfoService {
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerInfo.getId());
-        return  resultDto;
+        return resultDto;
     }
 
-    public String getTelePhone(Integer customerId,String token){
+    public String getTelePhone(Integer customerId, String token) {
 
-      CustomerInfo customerInfo = findCustomerById(customerId);
-      if(customerInfo == null ){
-          throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
-      }
-      //解密
+        CustomerInfo customerInfo = findCustomerById(customerId);
+        if (customerInfo == null) {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        //解密
         String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-       return telephone;
+        return telephone;
     }
 
-    public ScrmbDTO getCommunByCustomerId(Integer customerId){
+    public ScrmbDTO getCommunByCustomerId(Integer customerId) {
 
         ScrmbDTO scrmbDTO = new ScrmbDTO();
         CustomerInfo customerInfo = findCustomerById(customerId);
-        if(customerInfo == null ){
+        if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
         scrmbDTO.setCustomerId(customerInfo.getId());
         scrmbDTO.setCommunicateTime(customerInfo.getCommunicateTime());
         scrmbDTO.setConfirm(customerInfo.getConfirm());
         scrmbDTO.setCustomerName(customerInfo.getCustomerName());
-        return  scrmbDTO;
+        return scrmbDTO;
     }
 }

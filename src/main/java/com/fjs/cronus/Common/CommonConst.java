@@ -274,5 +274,10 @@ public class CommonConst {
 
     public static String CANMANGERREMOTECITY = "canMangerMainCity";
 
+
+    public static String DESCCODEKEY = "desede";
+
+    public static String DESCCODEDESCPRETION = "/CBC/PKCS5Padding";
+
 }
 

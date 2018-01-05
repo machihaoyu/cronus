@@ -37,7 +37,7 @@ import java.util.List;
 @Api(description = "自动清洗控制器")
 @RequestMapping("/api/cleanManger/v1")
 public class CleanMangerController {
-    private  static  final Logger logger = LoggerFactory.getLogger(CleanMangerController.class);
+    private static final Logger logger = LoggerFactory.getLogger(CleanMangerController.class);
 
     @Autowired
     private AutoCleanManageService autoCleanManageService;
@@ -186,21 +186,21 @@ public class CleanMangerController {
         return theaApiDTO;
     }*/
 
-    @ApiOperation(value="新增自动清洗管理", notes="新增自动清洗管理")
+    @ApiOperation(value = "新增自动清洗管理", notes = "新增自动清洗管理")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")})
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
     @ResponseBody
     @Transactional
-    public TheaApiDTO insert(@Valid @RequestBody AutoCleanManageDTO autoCleanManageDTO, BindingResult result, HttpServletRequest request){
+    public TheaApiDTO insert(@Valid @RequestBody AutoCleanManageDTO autoCleanManageDTO, BindingResult result, HttpServletRequest request) {
         TheaApiDTO theaApiDTO = new TheaApiDTO();
         logger.info("新增自动清洗管理的数据：" + autoCleanManageDTO.toString());
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
         }
-        String token=request.getHeader("Authorization");
-        CronusDto<UserInfoDTO> thorApiDTO=thorUcService.getUserInfoByToken(token,CommonConst.SYSTEMNAME);
-        UserInfoDTO userInfoDTO=thorApiDTO.getData();
+        String token = request.getHeader("Authorization");
+        CronusDto<UserInfoDTO> thorApiDTO = thorUcService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
+        UserInfoDTO userInfoDTO = thorApiDTO.getData();
         if (autoCleanManageDTO.getUserId() == null) {
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
             theaApiDTO.setMessage("userId不能为空");
@@ -211,33 +211,33 @@ public class CleanMangerController {
             theaApiDTO.setMessage("type不能为空");
             return theaApiDTO;
         }
-        if (autoCleanManageDTO.getType() == 2 && StringUtils.isEmpty(autoCleanManageDTO.getUtmSource())){
+        if (autoCleanManageDTO.getType() == 2 && StringUtils.isEmpty(autoCleanManageDTO.getUtmSource())) {
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
             theaApiDTO.setMessage("utmSource不能为空");
             return theaApiDTO;
         }
-        if (autoCleanManageDTO.getType() == 2 && StringUtils.isEmpty(autoCleanManageDTO.getCustomerSource())){
+        if (autoCleanManageDTO.getType() == 2 && StringUtils.isEmpty(autoCleanManageDTO.getCustomerSource())) {
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
             theaApiDTO.setMessage("customerSource不能为空");
             return theaApiDTO;
         }
         if (autoCleanManageDTO.getUserId() != null && StringUtils.isEmpty(autoCleanManageDTO.getUtmSource())
-                && StringUtils.isEmpty(autoCleanManageDTO.getCustomerSource())){
+                && StringUtils.isEmpty(autoCleanManageDTO.getCustomerSource())) {
             List<AutoCleanManage> autoCleanManageList = autoCleanManageService.selectByUserId(autoCleanManageDTO.getUserId());
-            if (!CollectionUtils.isEmpty(autoCleanManageList)){
+            if (!CollectionUtils.isEmpty(autoCleanManageList)) {
                 theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
                 theaApiDTO.setMessage("客户已存在");
                 return theaApiDTO;
             }
         }
-        try{
+        try {
             AutoCleanManage autoCleanManage = autoCleanManageService.copyProperty(autoCleanManageDTO);
             Integer userId = null;
             if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
                 userId = Integer.parseInt(userInfoDTO.getUser_id());
             }
-            int createResult = autoCleanManageService.add(autoCleanManage,userId);
-            if (createResult >0) {
+            int createResult = autoCleanManageService.add(autoCleanManage, userId);
+            if (createResult > 0) {
                 theaApiDTO.setResult(CommonMessage.ADD_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
             } else {
@@ -246,8 +246,8 @@ public class CleanMangerController {
                 theaApiDTO.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
             }
-        }catch (Exception e){
-            logger.error("-------------->insert创建自动清洗失败",e);
+        } catch (Exception e) {
+            logger.error("-------------->insert创建自动清洗失败", e);
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
         }
@@ -255,84 +255,84 @@ public class CleanMangerController {
         return theaApiDTO;
     }
 
-    @ApiOperation(value="获取自动清洗屏蔽列表", notes="获取屏蔽列表")
+    @ApiOperation(value = "获取自动清洗屏蔽列表", notes = "获取屏蔽列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
     })
     @RequestMapping(value = "/getAutoCleanList", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto getAutoCleanList(HttpServletRequest request){
+    public CronusDto getAutoCleanList(HttpServletRequest request) {
         CronusDto cronusDto = new CronusDto();
-        String token=request.getHeader("Authorization");
+        String token = request.getHeader("Authorization");
         List<AutoCleanManageDTO2> autoCleanManageList = null;
-        try{
+        try {
             autoCleanManageList = autoCleanManageService.getList(token);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
-        }catch (Exception e){
+        } catch (Exception e) {
             cronusDto.setResult(CommonMessage.FAIL.getCode());
             cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
-            logger.error("获取屏蔽列表失败：",e);
+            logger.error("获取屏蔽列表失败：", e);
         }
         cronusDto.setData(autoCleanManageList);
 
         return cronusDto;
     }
 
-    @ApiOperation(value="列表展开", notes="列表展开")
+    @ApiOperation(value = "列表展开", notes = "列表展开")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "userId", value = "业务员id", paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/getChildById", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto getChildById(HttpServletRequest request,@RequestParam(required = true)Integer userId){
+    public CronusDto getChildById(HttpServletRequest request, @RequestParam(required = true) Integer userId) {
         CronusDto cronusDto = new CronusDto();
-        String token=request.getHeader("Authorization");
+        String token = request.getHeader("Authorization");
         List<AutoCleanManageDTO> autoCleanManageList = null;
-        try{
+        try {
             autoCleanManageList = autoCleanManageService.getByUserId(userId);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
-        }catch (Exception e){
+        } catch (Exception e) {
             cronusDto.setResult(CommonMessage.FAIL.getCode());
             cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
-            logger.error("展开屏蔽列表失败：",e);
+            logger.error("展开屏蔽列表失败：", e);
         }
         cronusDto.setData(autoCleanManageList);
         return cronusDto;
     }
 
-    @ApiOperation(value="删除屏蔽", notes="删除屏蔽")
+    @ApiOperation(value = "删除屏蔽", notes = "删除屏蔽")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "id", value = "id", paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/deleteById", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto deleteById(HttpServletRequest request,@RequestParam(required = true)Integer id){
+    public CronusDto deleteById(HttpServletRequest request, @RequestParam(required = true) Integer id) {
         CronusDto cronusDto = new CronusDto();
-        String token=request.getHeader("Authorization");
-        CronusDto<UserInfoDTO> thorApiDTO=thorUcService.getUserInfoByToken(token,CommonConst.SYSTEMNAME);
-        UserInfoDTO userInfoDTO=thorApiDTO.getData();
+        String token = request.getHeader("Authorization");
+        CronusDto<UserInfoDTO> thorApiDTO = thorUcService.getUserInfoByToken(token, CommonConst.SYSTEMNAME);
+        UserInfoDTO userInfoDTO = thorApiDTO.getData();
         Integer userId = null;
-        try{
-            if (userInfoDTO != null &&StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
+        try {
+            if (userInfoDTO != null && StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
                 userId = Integer.parseInt(userInfoDTO.getUser_id());
             }
-            int num = autoCleanManageService.deleteById(id,userId);
-            if (num > 0){
+            int num = autoCleanManageService.deleteById(id, userId);
+            if (num > 0) {
                 cronusDto.setResult(CommonMessage.SUCCESS.getCode());
                 cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
-            }else{
+            } else {
                 cronusDto.setResult(CommonMessage.FAIL.getCode());
                 cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
                 logger.info("删除屏蔽失败");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             cronusDto.setResult(CommonMessage.FAIL.getCode());
             cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
-            logger.error("删除屏蔽失败：",e);
+            logger.error("删除屏蔽失败：", e);
         }
         return cronusDto;
     }

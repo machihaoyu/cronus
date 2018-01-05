@@ -37,7 +37,7 @@ import java.util.List;
 @Api(description = "评论控制器")
 @RequestMapping("/api/v1")
 public class CommentController {
-    private  static  final Logger logger = LoggerFactory.getLogger(CommentController.class);
+    private static final Logger logger = LoggerFactory.getLogger(CommentController.class);
 
     @Autowired
     private UcService thorUcService;
@@ -46,33 +46,33 @@ public class CommentController {
     @Autowired
     private CommunicationLogService communicationLogService;
 
-    @ApiOperation(value="新增评论", notes="新增评论")
+    @ApiOperation(value = "新增评论", notes = "新增评论")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")})
     @RequestMapping(value = "/insertComment", method = RequestMethod.POST)
     @ResponseBody
     @Transactional
-    public CronusDto insertComment(@Valid @RequestBody CommentDTO commentDTO, BindingResult result, HttpServletRequest request){
+    public CronusDto insertComment(@Valid @RequestBody CommentDTO commentDTO, BindingResult result, HttpServletRequest request) {
         logger.info("新增评论的数据：" + commentDTO.toString());
         CronusDto theaApiDTO = new CronusDto();
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
-        try{
-            String token=request.getHeader("Authorization");
-            UserInfoDTO userInfoDTO=thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
+        try {
+            String token = request.getHeader("Authorization");
+            UserInfoDTO userInfoDTO = thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
             Integer userId = null;
-            if (userInfoDTO != null && StringUtils.isNotEmpty(userInfoDTO.getUser_id())){
+            if (userInfoDTO != null && StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
                 userId = Integer.parseInt(userInfoDTO.getUser_id());
             }
-            if (commentDTO.getCommunicationLogId() == null){
+            if (commentDTO.getCommunicationLogId() == null) {
                 theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
                 theaApiDTO.setMessage(CommonConst.Communication_LOG_ID_NULL);
                 return theaApiDTO;
             }
             //只有业务员的团队长才能评论
             CommunicationLog communicationLog = communicationLogService.getByPrimaryKey(commentDTO.getCommunicationLogId());
-            if (communicationLog == null){
+            if (communicationLog == null) {
                 theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
                 theaApiDTO.setMessage(CommonConst.CUSTOMER_NO_EXIST);
                 return theaApiDTO;
@@ -83,8 +83,8 @@ public class CommentController {
                 Integer dataType = Integer.parseInt(userInfoDTO.getData_type());
                 //查看下属
                 if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
-                    idList= thorUcService.getSubUserByUserId(token, userId);
-                    if (!idList.contains(ownUserId.toString())){
+                    idList = thorUcService.getSubUserByUserId(token, userId);
+                    if (!idList.contains(ownUserId.toString())) {
                         theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
                         theaApiDTO.setMessage(CommonConst.AUTH_MESSAGE);
                         return theaApiDTO;
@@ -99,24 +99,24 @@ public class CommentController {
                     }
                     boolean flag = false;
                     for (String str : listRole) {
-                        RoleDTO roleDTO = thorUcService.getRoleInfo(token, "role_id",str,Integer.valueOf(userInfoDTO.getCompany_id()));
-                        if ("团队长".equals(roleDTO.getName())){
+                        RoleDTO roleDTO = thorUcService.getRoleInfo(token, "role_id", str, Integer.valueOf(userInfoDTO.getCompany_id()));
+                        if ("团队长".equals(roleDTO.getName())) {
                             flag = true;
                         }
                     }
-                    if (flag == false){
+                    if (flag == false) {
                         theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
                         theaApiDTO.setMessage(CommonConst.AUTH_MESSAGE);
                         return theaApiDTO;
                     }
                 }
             }
-            if (StringUtils.isEmpty(commentDTO.getContent())){
+            if (StringUtils.isEmpty(commentDTO.getContent())) {
                 theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
                 theaApiDTO.setMessage(CommonConst.COMMENT_NULL);
                 return theaApiDTO;
             }
-            boolean addResult = commentService.add(commentDTO,userInfoDTO,communicationLog,token);
+            boolean addResult = commentService.add(commentDTO, userInfoDTO, communicationLog, token);
             if (addResult == true) {
                 theaApiDTO.setResult(CommonMessage.ADD_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
@@ -126,35 +126,35 @@ public class CommentController {
                 theaApiDTO.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
             }
-        }catch (Exception e){
-            logger.error("-------------->insertComment新建评论失败",e);
+        } catch (Exception e) {
+            logger.error("-------------->insertComment新建评论失败", e);
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
         }
         return theaApiDTO;
     }
 
-    @ApiOperation(value="根据沟通记录id获取评论内容", notes="根据沟通记录id获取评论内容")
+    @ApiOperation(value = "根据沟通记录id获取评论内容", notes = "根据沟通记录id获取评论内容")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "communicationLogId", value = "沟通记录id", required = true, paramType = "query",  dataType = "int"),
+            @ApiImplicitParam(name = "communicationLogId", value = "沟通记录id", required = true, paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/selectByCommennicationLogId", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto selectByCommennicationLogId(@RequestParam(required = true) Integer communicationLogId, HttpServletRequest request){
+    public CronusDto selectByCommennicationLogId(@RequestParam(required = true) Integer communicationLogId, HttpServletRequest request) {
         CronusDto theaApiDTO = new CronusDto();
         List<Comment> commentList = null;
-        try{
-            if (communicationLogId != null){
+        try {
+            if (communicationLogId != null) {
                 commentList = commentService.getByCommunicationLogId(communicationLogId);
                 theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
-            }else{
+            } else {
                 theaApiDTO.setResult(CommonMessage.FAIL.getCode());
                 theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc());
             }
-        }catch (Exception e){
-            logger.error("根据CommennicationLogId获取评论内容失败",e);
+        } catch (Exception e) {
+            logger.error("根据CommennicationLogId获取评论内容失败", e);
             theaApiDTO.setResult(CommonMessage.FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc());
         }
