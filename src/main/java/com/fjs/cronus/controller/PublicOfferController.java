@@ -131,7 +131,7 @@ public class PublicOfferController {
                 String mainCity = theaClientService.findValueByName(token, CommonConst.MAIN_CITY);
                 //获取异地城市
                 String remoteCity = theaClientService.findValueByName(token, CommonConst.REMOTE_CITY);
-                List<CronusSubInfoDTO> cronusSubInfoDTOS = ucService.getSubCompanyToCronus(token, userId, "sale");
+                List<CronusSubInfoDTO> cronusSubInfoDTOS = ucService.getSubCompanyToCronus(token, userId, CommonConst.SYSTEM_NAME_ENGLISH);
                 if (cronusSubInfoDTOS != null && cronusSubInfoDTOS.size() > 0) {
                     for (CronusSubInfoDTO cronusSubInfoDTO : cronusSubInfoDTOS) {
                         if (!StringUtils.isEmpty(cronusSubInfoDTO.getCityName())) {

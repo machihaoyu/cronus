@@ -143,17 +143,17 @@ public class PullCustomerController {
         if (result.hasErrors()) {
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
         }
-        UserInfoDTO userInfoDTO = thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
         PHPLoginDto resultDto = thorUcService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
-        String[] authority = resultDto.getAuthority();
-        if (authority.length > 0) {
+        UserInfoDTO userInfoDTO = resultDto.getUser_info();
+       /*    String[] authority = resultDto.getAuthority();
+           if (authority.length > 0) {
             List<String> authList = Arrays.asList(authority);
             if (authList.contains(CommonConst.UPDATE_PULL_CUSTOMER_URL)) {
                 theaApiDTO.setResult(CommonMessage.UPDATE_FAIL.getCode());
                 theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
                 return theaApiDTO;
             }
-        }
+        }*/
         //判断是否全是下属
         try {
             PullCustomer pullCustomer = pullCustomerService.selectById(pullCustomerDTO.getId());
@@ -215,8 +215,8 @@ public class PullCustomerController {
         }
         String token = request.getHeader("Authorization");
         UserInfoDTO userInfoDTO = thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
-        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
-        String[] authority = resultDto.getAuthority();
+       // PHPLoginDto resultDto = thorUcService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
+     /*   String[] authority = resultDto.getAuthority();
         if (authority.length > 0) {
             List<String> authList = Arrays.asList(authority);
             if (authList.contains(CommonConst.TRANSFER_PULL_CUSTOMER_URL)) {
@@ -224,7 +224,7 @@ public class PullCustomerController {
                 theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
                 return theaApiDTO;
             }
-        }
+        }*/
         //判断是否是其下属
         List<Integer> ids = thorUcService.getSubUserByUserId(token, Integer.valueOf(pullCustomer.getSaleId()));
         if (!ids.contains(userInfoDTO.getUser_id())) {

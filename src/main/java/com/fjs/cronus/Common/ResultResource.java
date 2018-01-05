@@ -4,7 +4,7 @@ package com.fjs.cronus.Common;
  * Created by msi on 2017/9/14.
  */
 public class ResultResource {
-    public static int CODE_SUCCESS = 0;
+
     public static String MESSAGE_SUCCESS = "成功";
     // 其他错误
     public static int CODE_ERROR = 0;
@@ -30,7 +30,7 @@ public class ResultResource {
 
     public static String OCRSTATUS = "已校验";
 
-    public static String SYSTEMNAME ="sale";//"sale"
+    public static String SYSTEMNAME ="thea";//"sale"
 
     public static String DELETEERROR = "删除文件失败！";
 

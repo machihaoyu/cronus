@@ -4,50 +4,19 @@ package com.fjs.cronus.Common;
  * Created by yinzf on 2017/9/14.
  */
 public class CommonConst {
-    //员工查看权限
-    public static int USER_TYPE_SELF = 1;//只能查看自己
-    public static int USER_TYPE_TEAM = 2;//团队长及下属
-    public static int USER_TYPE_SUB = 3;//分公司
-    public static int USER_TYPE_ALL = 4;//查看所有
 
     //删除标识
     public static int DATA_NORMAIL = 0;
     public static int DATA__DELETE = 1;
 
-    //渠道利率状态
-    public static int UTM_SOURCE_RATE_OK = 1;
-    public static int UTM_SOURCE_RATE_CLOSE = 0;
 
     public static String ID_NULL = "id不能为空";
     public static String STATUS_NULL = "status不能为空";
     public static String UNVALID_PARA = "非法的参数";
 
-    //业绩状态
-    public static int ACHIEVEMENT_STASUS_NOCONFIRM = 0;//未确认
-    public static int ACHIEVEMENT_STASUS_YESCONFIRM = 1;//已确认
-    public static int ACHIEVEMENT_STASUS_ABONDON = 2;//废弃的
-    public static int ACHIEVEMENT_STASUS_NOEFFICTIVE = 3;//未生效的
-
     //客户等级
     public static String CUSTOMER_TYPE_MIND = "意向客户";
-    public static String CUSTOMER_TYPE_CONTRACT = "合同客户";
-    public static String CUSTOMER_TYPE_TURNOVER = "成交客户";
 
-    //业绩确认
-    public static int CONFIRM_SUCC = 0;
-    public static String CONFIRM_MESSAGE_SUCC = "确认成功";
-
-    public static int CONFIRM_FAIL = 1;
-    public static String CONFIRM_MESSAGE_FAIL = "确认失败";
-
-    //交易状态
-    public static int LOAN_STATUS_APPLY = 1;//已申请
-    public static int LOAN_STATUS_MEET = 2;//已面见
-    public static int LOAN_STATUS_SERVICE = 3;//已签协议
-    public static int LOAN_STATUS_LOAN = 4;//已放款
-    public static int LOAN_STATUS_WAIT = 5;//结案申请
-    public static int LOAN_STATUS_END = 6;//结案完结
-    public static int LOAN_STATUS_FAIL = 7;//已废弃
 
     public static int CONFIRM__STATUS_NO = 1;//未确认
     public static int CONFIRM__STATUS_EFFECT = 2;//有效客户
@@ -74,7 +43,6 @@ public class CommonConst {
 
     //默认客户名
     //客户来源
-    public static Integer LAI_YUAN_OCDC = 0;
 
 
     //主要城市配置名
@@ -90,28 +58,15 @@ public class CommonConst {
     public static String NO_AUTHORIZE = "没有权限";
     public static String NO_AUTHORIZE_COMMUNICATE = "没有权限,只有本人才能添加沟通";
     //权限列表
-    public static String SYSTEMNAME="sale";//"thea"
-    public static String ADD_COMM_LOG_URL=SYSTEMNAME+"communicationLog/add";
-    public static String ADD_CUSTOMER_URL=SYSTEMNAME+"/Customer/add";
-    public static String EDIT_CUSTOMER_URL = SYSTEMNAME+"/Customer/edit";
+    public static String SYSTEMNAME="thea";//"thea"
+    public static String ADD_CUSTOMER_URL=SYSTEMNAME+"/customer/addCRMCustomer";
+    public static String EDIT_CUSTOMER_URL = SYSTEMNAME+"/customer/editCustomerOk";
 
-    public static String PRDCUSTOMERADD = SYSTEMNAME +"/Prd/import";
-    public static String PUBLICCUSTOMER = SYSTEMNAME +"/Prd/import";
-    public static String REMOVECUSTOMER = SYSTEMNAME +"/Customer/removeCustomerAll";
+    public static String PRDCUSTOMERADD = SYSTEMNAME +"/prdCustomer/prdImport";
+    public static String PUBLICCUSTOMER = SYSTEMNAME +"/customer/publicImport";
 
-    public static String ADD_RECE_URL=SYSTEMNAME+"rece/add";
-    public static String ADD_ACHIVEMENT_URL=SYSTEMNAME+"achievement/add";
-    public static String ADD_KEY_URL=SYSTEMNAME+"keyManager/add";
-    public static String ADD_API_URL=SYSTEMNAME+"apiData/add";
-    public static String ADD_UTMSOURCERATE_URL=SYSTEMNAME+"utmSourceRate/add";
-    public static String ADD_CONFIG_URL=SYSTEMNAME+"config/add";
 
-    public static String UPDATE_LOAN_URL=SYSTEMNAME+"/Customer/update";
-    public static String UPDATE_KEY_URL=SYSTEMNAME+"keyManager/update";
-    public static String UPDATE_UTMSOURCERATE_URL=SYSTEMNAME+"utmSourceRate/update";
-    public static String UPDATE_CONFIG_URL=SYSTEMNAME+"config/update";
-    public static String UPDATE_PULL_CUSTOMER_URL=SYSTEMNAME+"/pullCustomer/update";
-    public static String UPDATE_PRDCUSTOMER_URL=SYSTEMNAME+"/prdCustomer/update";
+    public static String UPDATE_PRDCUSTOMER_URL=SYSTEMNAME+"/PrdCustomer/updatePrdCustomer";
 
     //系统配置 Start
 
@@ -124,18 +79,10 @@ public class CommonConst {
     public static String ACTIVE_APPLICATION_CHANNEL = "activeApplicationChannel";
     public static String CAN_ALLOCATE_CITY = "canAllocateCity";
 
-    //系统配置end
-    //业绩确认
-    public static String CONFIRM_ACHIVEMENT_URL=SYSTEMNAME+"achievement/confirm";
-
-    public static String CLOSE_UTMSOURCERATE_URL=SYSTEMNAME+"utmSourceRate/close";
-    public static String OPEN_UTMSOURCERATE_URL=SYSTEMNAME+"utmSourceRate/open";
-
-    public static String DELETE_UTMSOURCERATE_URL=SYSTEMNAME+"utmSourceRate/delete";
-    public static String DELETE_PRDCUSTOMER_URL=SYSTEMNAME+"/prdCustomer/delete";
+    public static String DELETE_PRDCUSTOMER_URL=SYSTEMNAME+"/PrdCustomer/deletePrdCustomer";
 
     //原始盘转入交易
-    public static String TRANSFER_PULL_CUSTOMER_URL=SYSTEMNAME+"/pullCustomer/transfer";
+
     //默认客户名
     public static String DEFAULT_CUSTOMER_NAME = "客户";
 
@@ -145,34 +92,24 @@ public class CommonConst {
     public static String UTM_SOURCE_FANGXIN = "fangxin";
 
     //领取客户
-    public static String PULL_LOAN_URL=SYSTEMNAME+"loan/pull";
+    public static String PULL_LOAN_URL=SYSTEMNAME+"/PublicOffer/pullPan";
 
-    //订转佣
-    public static String TRANSFER_LOAN_URL=SYSTEMNAME+"loan/selectByLoanIds";
 
     //系统名
     public static String SYSTEM_NAME = "房金所系统";
 
     //系统名
-    public static String SYSTEM_NAME_ENGLISH = "sale";//"thea"
+    public static String SYSTEM_NAME_ENGLISH = "thea";//"thea"
     //系统ID
     public static Integer SYSTEM_ID = 75;
-    //扔回客户
-    public static String REMOVE_LOAN_URL=SYSTEMNAME+"loan/remove";
     //分配客户
-    public static String ALLOCATE_LOAN_URL=SYSTEMNAME+"/Customer/allocateAll";
-    //保留客户
-    public static String KEEP_LOAN_URL=SYSTEMNAME+"loan/keep";
-    //取消保留客户
-    public static String CANCEL_LOAN_URL=SYSTEMNAME+"loan/cancel";
+    public static String ALLOCATE_LOAN_URL=SYSTEMNAME+"/AllocateController/allocateLoan";
+
     //离职员工批量转移
-    public static String REMOVE_CUSTOMER = SYSTEMNAME+"/Customer/removeCustomerAll";
+    public static String REMOVE_CUSTOMER = SYSTEMNAME+"/customer/removeCustomer";
     //自动清洗状态配置名
     public static String AUTO_CLEAN_STATUS = "autoCleanStatus";
-    //需要屏蔽自动清洗的分公司
-    public static String CAN_NOT_CLEAN_CUSTOMER_COMPANY = "CanNotCleanCustomerCompany";
-    //需要屏蔽自动清洗的用户ID
-    public static String CAN_NOT_CLEAN_CUSTOMER_USER_ID = "CanNotCleanCustomerUserId";
+
 
     public static String CANPUUMAXCOUNT = "MaxReceiveCustomer";
     //沟通日志类型
@@ -229,14 +166,8 @@ public class CommonConst {
     public static String COOPERATION_STATUS_NULL = "跟进状态为空";
     public static String AUTH_MESSAGE = "只有该业务员的团队长才能评论";
 
-    public static String SUB_COMPANY_ID_NULL = "分公司id为空";
 
-    public static String SUB_COMPANY_EXIST = "分公司已屏蔽";
-    public static String EXIST = "已存在";
 
-    public static String USE_TIME_NULL = "期望用款时间为空";
-    public static String DEADLINE_NULL = "期望贷款期限为空";
-    public static String REPAYMENT_TYPE_NULL = "期望还款方式为空";
 
 
     public static String  OPERARIONAll = "自动分配";
