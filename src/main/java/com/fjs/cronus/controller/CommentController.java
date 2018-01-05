@@ -3,6 +3,7 @@ package com.fjs.cronus.controller;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.CommentDTO;
 import com.fjs.cronus.dto.uc.RoleDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
@@ -78,6 +79,8 @@ public class CommentController {
                 return theaApiDTO;
             }
             Integer ownUserId = communicationLog.getCreateUser();
+            //查询到负责人的
+            AppUserDto appUserDto = thorUcService.getUserInfoByID(token,ownUserId);
             List<Integer> idList = new ArrayList<Integer>();
             if (StringUtils.isNotEmpty(userInfoDTO.getData_type())) {
                 Integer dataType = Integer.parseInt(userInfoDTO.getData_type());
@@ -105,6 +108,12 @@ public class CommentController {
                         }
                     }
                     if (flag == false) {
+                        theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+                        theaApiDTO.setMessage(CommonConst.AUTH_MESSAGE);
+                        return theaApiDTO;
+                    }
+                    //判断是不是当前业务员的团队长
+                    if (!userInfoDTO.getDepartment_id().equals(appUserDto.getDepartment_id())){
                         theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
                         theaApiDTO.setMessage(CommonConst.AUTH_MESSAGE);
                         return theaApiDTO;
