@@ -102,13 +102,13 @@ public class OcdcService {
                     CustomerDTO customerDTO = getCustomer(customerSalePushLog.getTelephonenumber());
                     if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) { //重复客户
                         customerDTO.setTelephonenumber(customerSalePushLog.getTelephonenumber());
+                        customerDTO.setLoanAmount(customerSalePushLog.getLoanAmount());
                         if (isActiveApplicationChannel(customerSalePushLog)) {//主动申请渠道
                             //无负责人
                             if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
                                 //自动分配
                                 allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                             } else {//有负责人分给对应的业务员
-                                customerDTO.setLoanAmount(customerSalePushLog.getLoanAmount());
                                 sendMail(token, customerDTO);
                                 SimpleUserInfoDTO simpleUserInfoDTO = thorClientService.getUserInfoById(token, customerDTO.getOwnerUserId());
                                 if (simpleUserInfoDTO != null && simpleUserInfoDTO.getSub_company_id() != null) {
