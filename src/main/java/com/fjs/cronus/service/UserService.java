@@ -283,8 +283,10 @@ public class UserService {
                 citiesStr.append(",");
             }
         }
-        CronusDto<List<CrmCitySubCompanyDto>> phpApiDto1 = thorService.getSubCompanyByCitys(token, citiesStr.toString());
-        crmCitySubCompanyDtoList = phpApiDto1.getData();
+        if (StringUtils.isNoneEmpty(citiesStr)) {
+            CronusDto<List<CrmCitySubCompanyDto>> phpApiDto1 = thorService.getSubCompanyByCitys(token, citiesStr.toString());
+            crmCitySubCompanyDtoList = phpApiDto1.getData();
+        }
         return crmCitySubCompanyDtoList;
     }
 
