@@ -15,7 +15,7 @@
     <insert id="addAgainAllocateCustomer" parameterType="com.fjs.cronus.model.AgainAllocateCustomer" >
         insert into again_allocate_customer (data_id, json_data,
         update_time, create_time)
-        values (#{dataId}, #{jsonData},#{updataTime}, #{createTime})
+        values (#{dataId}, #{jsonData},#{updateTime}, #{createTime})
     </insert>
     <update id="saveStatusByDataId" parameterType="com.fjs.cronus.model.AgainAllocateCustomer">
         UPDATE again_allocate_customer
