@@ -31,7 +31,7 @@ public class SmsService {
     public String sendNonCommunicate(String customerName,String telephonenumber)
     {
         String smsContent = "系统将新客户分配给了你,姓名:"+customerName+",请注意跟进(15分钟内未添加沟通日志，客户自动划走)";
-        String smsResult = smsUtils.sendBatchMessage(telephonenumber, smsContent);
+        String smsResult = "";//smsUtils.sendBatchMessage(telephonenumber, smsContent);
         return smsResult;
     }
 
