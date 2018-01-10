@@ -519,9 +519,9 @@ public class CustomerController {
             if (org.apache.commons.lang3.StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
                 customerInfo.setOwnUserId(Integer.parseInt(userInfoDTO.getUser_id()));
             }
-            List<CustomerInfo> customerInfoList = customerInfoService.listByCondition(customerInfo, userInfoDTO, token, CommonConst.SYSTEMNAME);
+            Integer customerCount  = customerInfoService.getKeepCount(userInfoDTO);
             String maxCount = theaClientService.findValueByName(token, CommonConst.KEEPPARAMS);
-            if (customerInfoList.size() > Integer.valueOf(maxCount)) {
+            if (customerCount > Integer.valueOf(maxCount)) {
                 theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
                 theaApiDTO.setMessage("您保留的客户已满，不能保留");
                 return theaApiDTO;

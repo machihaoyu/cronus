@@ -221,7 +221,7 @@ public class MultiThreadedHttpConnection {
 		CustomerInfo customerInfo = new CustomerInfo();
 		customerInfo.setTelephonenumber("");
 		JSONObject jsonObject = (JSONObject)JSONObject.toJSON(customerInfo);
-	    final String ocdcUrl = "http://beta-ocdc.fang-crm.com/Api/Index/save&key=356a192b7oo3b06c54574d18c28d46e63as428ab";
+	    final String ocdcUrl = "https://www.haidaimf.com/interface/changeCustPhone.do";
 		CronusDto<String> cronusDto = MultiThreadedHttpConnection.getInstance().sendDataByPost(ocdcUrl,jsonObject.toJSONString());
 		System.out.println(cronusDto.getData());
 
