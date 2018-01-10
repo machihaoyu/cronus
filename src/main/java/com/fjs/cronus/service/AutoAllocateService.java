@@ -190,7 +190,7 @@ public class AutoAllocateService {
                             }
                             //保存数据
                             customerDTO.setLastUpdateTime(new Date());
-                            if (allocateEntity.getAllocateStatus().getCode().equals("3"))
+                            if (allocateEntity.getAllocateStatus().getCode().equals("3")||allocateEntity.getAllocateStatus().getCode().equals("1"))
                             {
                                 customerDTO.setRemain(CommonConst.REMAIN_STATUS_YES);
                             }
