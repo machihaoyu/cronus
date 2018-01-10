@@ -58,6 +58,7 @@ public class TheaClientService {
      * @param loanDTO
      */
     public String insertLoan(LoanDTO loanDTO, String token) {
+        logger.warn("---添加交易Telephonenumber:---"+loanDTO.getTelephonenumber());
         TheaApiDTO resultDto = theaService.insertLoan(loanDTO, token);
         if (resultDto.getResult() == 0) {
             return resultDto.getData().toString();
