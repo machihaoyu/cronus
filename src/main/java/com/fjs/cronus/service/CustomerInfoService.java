@@ -1642,4 +1642,19 @@ public class CustomerInfoService {
         scrmbDTO.setCustomerName(customerInfo.getCustomerName());
         return scrmbDTO;
     }
+
+
+    public Integer getKeepCount(UserInfoDTO userInfoDTO){
+
+        List<CustomerInfo> resultList = new ArrayList<>();
+        List ids = new ArrayList();
+        Map<String, Object> paramsMap = new HashMap<>();
+        //判断当前登录用户所属公司
+        ids.add(Integer.valueOf(userInfoDTO.getUser_id()));
+        paramsMap.put("owerId", ids);
+        paramsMap.put("remain",1);//保留状态
+        paramsMap.put("customerType","意向客户");
+        resultList = customerInfoMapper.findCustomerListByFeild(paramsMap);
+        return resultList.size();
+    }
 }

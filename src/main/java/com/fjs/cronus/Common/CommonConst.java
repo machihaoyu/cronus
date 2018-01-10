@@ -210,5 +210,8 @@ public class CommonConst {
 
     public static String DESCCODEDESCPRETION = "/CBC/PKCS5Padding";
 
+    public static final String THEA_IMG_OSS_FILE_SEPARATOR = "/";
+
+    public static final String THEA_PERFEX ="/Uploads/";
 }
 

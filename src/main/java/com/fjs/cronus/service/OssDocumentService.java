@@ -6,7 +6,6 @@ import com.fjs.cronus.Common.OcrInfoEnum;
 import com.fjs.cronus.Common.ProductTyoeEnum;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.UploadDocumentDto;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.ocr.*;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
@@ -20,7 +19,6 @@ import com.fjs.cronus.model.RContractDocument;
 import com.fjs.cronus.service.client.TalosService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.*;
-import io.swagger.models.auth.In;
 import net.coobird.thumbnailator.Thumbnails;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -40,31 +38,49 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
-
-
-import javax.print.Doc;
 import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by msi on 2017/9/20.
  */
 @Service
-public class DocumentService {
+public class OssDocumentService {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
-    @Value("${ftp.address}")
-    private String FTP_ADDRESS;
-    @Value("${ftp.port}")
-    private Integer FTP_PORT;
-    @Value("${ftp.username}")
-    private String FTP_USERNAME;
-    @Value("${ftp.password}")
-    private String FTP_PASSWORD;
-    @Value("${ftp.baseUrl}")
-    private String FTP_BASE_PATH;
-    @Value("${ftp.basePath}")
-    private String IMAGE_BASE_URL;
+    private static String endpoint;
 
+    private static String accessKeyId;
+
+    private static String accessKeySecret;
+
+    private static String bucketName;
+
+    private static String aliyunOssUrl;
+
+    @Value("${aliyun.oss.endpoint}")
+    public void setEndpoint(String endpoint) {
+        OssDocumentService.endpoint = endpoint;
+    }
+
+    @Value("${aliyun.oss.accessKeyId}")
+    public void setAccessKeyId(String accessKeyId) {
+        OssDocumentService.accessKeyId = accessKeyId;
+    }
+
+    @Value("${aliyun.oss.accessKeySecret}")
+    public void setAccessKeySecret(String accessKeySecret) {
+        OssDocumentService.accessKeySecret = accessKeySecret;
+    }
+
+    @Value("${aliyun.oss.bucketName}")
+    public void setBucketName(String bucketName) {
+        OssDocumentService.bucketName = bucketName;
+    }
+
+    @Value("${aliyun.oss.url}")
+    public void setAliyunOssUrl(String aliyunOssUrl) {
+        OssDocumentService.aliyunOssUrl = aliyunOssUrl;
+    }
     @Autowired
     UcService ucService;
     @Autowired
@@ -214,43 +230,6 @@ public class DocumentService {
         newDocumentDTO.setStatus(status);
         return newDocumentDTO;
     }
-    public CronusDto getThumbnail(InputStream inputStream, int new_w, int new_h, String thumbName, String thunbPath, String flag) {
-        CronusDto resultDto = new CronusDto();
-        Map resultMap = new HashMap<>();
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            Thumbnails.of(inputStream).scale(0.4f).toOutputStream(baos);
-            String base64 = new BASE64Encoder().encode(baos.toByteArray());
-            if ("0".equals(base64)) {
-                resultDto.setResult(ResultResource.CODE_SUCCESS);
-                resultDto.setMessage(ResultResource.THUMP_ERROR_MESSAGE);
-                return resultDto;
-            }
-            String imagePath = thunbPath;
-            String name = flag + thumbName;
-            InputStream is = FileBase64ConvertUitl.decoderBase64File(base64);
-            boolean result = FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL, imagePath, name, is);
-            if (!result) {
-                resultDto.setResult(ResultResource.UPLOAD_ERROR);
-                resultDto.setMessage(ResultResource.UPLOAD_ERROR_MESSAGE);
-                return resultDto;
-            }
-            //上传成功
-            resultMap.put("url", IMAGE_BASE_URL + imagePath + "/" + name);
-            resultMap.put("remotePath", IMAGE_BASE_URL + imagePath + "/");//相对路径
-            resultMap.put("name", name);//文件名
-            resultMap.put("imagePath", imagePath);
-            resultDto.setResult(ResultResource.CODE_SUCCESS);
-            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
-            resultDto.setData(resultMap);
-            baos.close();
-            return resultDto;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return resultDto;
-    }
-
     public boolean addOcrInfo(Integer category, Integer customer_id, String imageBase64, Integer rc_document_id, Integer user_id, String token, UserSortInfoDTO userSortInfoDTO, UserInfoDTO userInfoDTO) {
         final long step1Time = System.currentTimeMillis();
         try {
@@ -264,8 +243,8 @@ public class DocumentService {
             try {
                 logger.warn("开始通信");
                 ReqParamDTO reqParamDTO = addOcrDealParam(category, customer_id, imageBase64, rc_document_id, user_id, token, userSortInfoDTO, userInfoDTO);
-                //调用图文识别接口
-                talosService.ocrService(reqParamDTO, token);
+                //TODO 调用图文识别接口
+                //talosService.ocrService(reqParamDTO, token);
             } catch (Exception e) {
                 logger.error("charge error ", e);
             } finally {
@@ -462,7 +441,7 @@ public class DocumentService {
         try {
             String md5 = MD5Util.getMd5CodeInputStream(file.getInputStream());
             //开始上传图片
-            CronusDto uploadDto = uploadPcStreamDocument(file.getInputStream(), name + "." + suffix);
+            CronusDto uploadDto = uploadPcStreamDocument(file.getInputStream(), fileName,name+suffix);
             if (uploadDto != null && uploadDto.getData() != null) {
                 String result = FastJsonUtils.obj2JsonString(uploadDto.getData());
                 //把json格式的数据转为对象
@@ -473,13 +452,13 @@ public class DocumentService {
                 String remotePath = map.get("remotePath").toString();
                 String url = map.get("url").toString();
                 //开始缩放图片
-                String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
-                try {
+               // String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
+              /*  try {
                     InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(bytes);
                     getThumbnail(inputStream, 300, 300, thumbName, thunbPath, "_S");
                 } catch (Exception e) {
                     e.printStackTrace();
-                }
+                }*/
                 //TODO 验证是否生成
                 if (contractId != null && !"".equals(contractId)) {
                     Integer contratId = Integer.valueOf(contractId);
@@ -517,23 +496,23 @@ public class DocumentService {
         return null;
     }
 
-    public CronusDto uploadPcStreamDocument(InputStream inputStream, String name) {
+    public CronusDto uploadPcStreamDocument(InputStream inputStream, String fileName,String newName) {
         CronusDto resultDto = new CronusDto();
         Map resultMap = new HashMap<>();
         //base64 解析成文件流
         try {
-            //文件路径
             String imagePath = new DateTime().toString("yyyy/MM/dd");
-            boolean flag = FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL + "/", imagePath, name, inputStream);
-            if (!flag) {
+            String keyUrl = CommonConst.THEA_PERFEX + imagePath + "/" + newName;
+            String url = OssUtil.uploadImag(fileName,inputStream,keyUrl);
+            if (StringUtils.isEmpty(url)) {
                 resultDto.setResult(ResultResource.UPLOAD_ERROR);
                 resultDto.setMessage(ResultResource.UPLOAD_ERROR_MESSAGE);
                 return resultDto;
             }
             //上传成功
-            resultMap.put("url", IMAGE_BASE_URL + "/" + imagePath + "/" + name);
-            resultMap.put("remotePath", IMAGE_BASE_URL + "/" + imagePath + "/");//相对路径
-            resultMap.put("name", name);//文件名
+            resultMap.put("url", url);
+            resultMap.put("remotePath", CommonConst.THEA_PERFEX + imagePath + "/");//相对路径
+            resultMap.put("name", newName);//文件名
             resultMap.put("imagePath", imagePath);
 
             resultDto.setResult(ResultResource.CODE_SUCCESS);
@@ -544,37 +523,6 @@ public class DocumentService {
             e.printStackTrace();
         }
         return resultDto;
-    }
-
-    public void downloadDocument(HttpServletResponse response, String remotePath, String fileName) {
-
-        //判断参数
-        if (remotePath == null || "".equals(remotePath)) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
-        }
-        if (fileName == null || "".equals(fileName)) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
-        }
-        //从ftp服务器获取io
-        try {
-            String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, fileName);
-            byte[] buffer = new BASE64Decoder().decodeBuffer(bytes);
-            if (buffer == null || buffer.length == 0) {
-                throw new CronusException(CronusException.Type.CRM_DOWNLOADERROR_ERROR);
-            }
-            // 清空response
-            response.reset();
-            OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
-            response.setContentType("application/octet-stream");
-
-            //如果输出的是中文名的文件，在此处就要用URLEncoder.encode方法进行处理
-            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
-            toClient.write(buffer);
-            toClient.flush();
-            toClient.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public CronusDto deleteDocument(String remotePath, String fileName, Integer id) {
@@ -688,127 +636,5 @@ public class DocumentService {
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(true);
         return resultDto;
-    }
-
-
-    public String uploadClientDocumentOk(InputStream file, String fileName, String contractId, String telephone,
-                                         String category, String source, Integer size, String token, String base64, Integer documentId) {
-        //校验参数
-        if (category == null || "".equals(category)) {
-            throw new CronusException(CronusException.Type.CRM_OCRDOCUMENTCAGORY_ERROR);
-        }
-        Integer categoryParam = Integer.valueOf(category);
-        Integer contractIdParam = null;
-        Integer customerIdParam = null;
-        if (contractId != null && !"".equals(contractId)) {
-            contractIdParam = Integer.valueOf(contractId);
-        }
-        //根据手机号查询
-        CronusDto<CustomerDTO> resultDTO = customerInfoService.findCustomerByFeild(null, telephone);
-        CustomerDTO customerInfoDTO = resultDTO.getData();
-        if (customerInfoDTO == null) {
-            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
-        }
-        //参数类型转换
-        customerIdParam = customerInfoDTO.getId();
-
-        UserSortInfoDTO userInfoDTO = ucService.getSortUserInfo(token);
-        if (userInfoDTO == null) {
-            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
-        }
-        Integer user_id = Integer.valueOf(userInfoDTO.getUser_id());
-        if (user_id == null) {
-            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
-        }
-        //校验文件的类型与大小
-        if (file == null) {
-            throw new CronusException(CronusException.Type.CRM_NOTNULL_UPLOAD);
-        }
-        if (size > ResultResource.FILEMAXSIZE) {
-            throw new CronusException(CronusException.Type.CRM_MAXSIZE_UPLOAD);
-        }
-        //
-        //校验文件格式
-        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
-        if (!Arrays.<String>asList(ResultResource.FILETYPE).contains(suffix)) {
-            throw new CronusException(CronusException.Type.CRM_FILETYPR_UPLOAD);
-        }
-        //取当前时间的长整形值包含毫秒
-
-        if (!StringUtils.isEmpty(documentId)) {
-            Map<String, Object> parmasMap = new HashMap<>();
-            parmasMap.put("documentId", documentId);
-            RContractDocument rContractDocument = rContractDocumentMapper.findByFeild(parmasMap);
-            rContractDocument.setIsDeleted(1);
-            //找到附件
-            Document document = documentMapper.selectByKey(rContractDocument.getDocumentId());
-            document.setIsDeleted(1);
-            documentMapper.update(document);
-            rContractDocumentMapper.update(rContractDocument);
-        }
-        long millis = System.currentTimeMillis();
-        //long millis = System.nanoTime();
-        //加上三位随机数
-        Random random = new Random();
-        int end3 = random.nextInt(999);
-        //如果不足三位前面补0 图片新名称
-        String name = millis + String.format("%03d", end3);
-        //生成文件md5
-        try {
-            String md5 = MD5Util.getMd5CodeInputStream(file);
-            //开始上传图片
-            String imagePath = new DateTime().toString("yyyy/MM/dd");
-            boolean flag = FtpUtil.uploadClient(base64, FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL + "/", imagePath, name + "." + suffix, file);
-            if (flag == true) {
-                //把json格式的数据转为对象
-
-                //Map<String,Object>  map = FastJsonUtils.getSingleBean(result,Map.class);
-                String thumbName = name + "." + suffix;
-                String thunbPath = IMAGE_BASE_URL + "/" + imagePath + "/";
-                String remotePath = "/" + imagePath;
-                String url = IMAGE_BASE_URL + "/" + imagePath + "/" + name;
-                //开始缩放图片
-                // String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
-                try {
-                    InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(base64);
-                    getThumbnail(inputStream, 300, 300, thumbName, remotePath, "_S");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                //TODO 验证是否生成
-                if (contractId != null && !"".equals(contractId)) {
-                    Integer contratId = Integer.valueOf(contractId);
-                    //TODO 通过合同查询客户id
-                }
-                //封装参数
-                UploadDocumentDTO paramsDto = new UploadDocumentDTO();
-                paramsDto.setName(fileName);
-                paramsDto.setExt(suffix);
-                paramsDto.setMd5(md5);
-                paramsDto.setSavename(thumbName);
-                paramsDto.setSavepath(thunbPath);
-                paramsDto.setSize(size);
-                paramsDto.setSource(source);
-                paramsDto.setType(suffix);
-                paramsDto.setKey(name);
-
-                NewDocumentDTO documentDto = newDocument(paramsDto, user_id, categoryParam, customerIdParam, contractIdParam, userInfoDTO.getName());
-                if (documentDto.getStatus() == -1) {
-                    throw new CronusException(CronusException.Type.CRM_CONTROCTDOCU_ERROR);
-                }
-                //调用图文识别接口
-                Integer rc_document_id = documentDto.getContract_document_id();
-                //异步无回调
-                //把附件转为base64
-                // String imageBase64 = FileBase64ConvertUitl.encodeBase64File(file);
-                addOcrInfo(categoryParam, customerIdParam, base64, rc_document_id, user_id, token, userInfoDTO, null);
-                return url;
-            } else {
-                throw new CronusException(CronusException.Type.CRM_UPLOADERROR_ERROR);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }
