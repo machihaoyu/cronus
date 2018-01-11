@@ -95,7 +95,7 @@ public class DEC3Util {
     }
 
     public static void main(String[] args) throws Exception {
-        String data = "18912050027";
+        String data = "18652149866";
         System.out.println("CBC加密解密");
         String str5 = DEC3Util.des3EncodeCBC(data);
         String str6 = DEC3Util.des3DecodeCBC("WAfcUkwUOlTwvbUfWnV5kg==");

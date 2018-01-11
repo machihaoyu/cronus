@@ -11,6 +11,7 @@ import com.fjs.cronus.mappers.CommunicationLogMapper;
 import com.fjs.cronus.mappers.RContractDocumentMapper;
 import com.fjs.cronus.model.CommunicationLog;
 import com.fjs.cronus.model.RContractDocument;
+import com.fjs.cronus.service.DocumentService;
 import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.FtpUtil;
@@ -41,20 +42,42 @@ public class AppService {
     RContractDocumentMapper rContractDocumentMapper;
     @Autowired
     CronusRedisService cronusRedisService;
-    @Value("${ftp.viewUrl}")
-    private String viewUrl;
-    @Value("${ftp.address}")
-    private String FTP_ADDRESS;
-    @Value("${ftp.port}")
-    private Integer FTP_PORT;
-    @Value("${ftp.username}")
-    private String FTP_USERNAME;
-    @Value("${ftp.password}")
-    private String FTP_PASSWORD;
-    @Value("${ftp.baseUrl}")
-    private String FTP_BASE_PATH;
-    @Value("${ftp.basePath}")
-    private String IMAGE_BASE_URL;
+
+
+    private static String endpoint;
+
+    private static String accessKeyId;
+
+    private static String accessKeySecret;
+
+    private static String bucketName;
+
+    private static String aliyunOssUrl;
+
+    @Value("${aliyun.oss.endpoint}")
+    public void setEndpoint(String endpoint) {
+        AppService.endpoint = endpoint;
+    }
+
+    @Value("${aliyun.oss.accessKeyId}")
+    public void setAccessKeyId(String accessKeyId) {
+        AppService.accessKeyId = accessKeyId;
+    }
+
+    @Value("${aliyun.oss.accessKeySecret}")
+    public void setAccessKeySecret(String accessKeySecret) {
+        AppService.accessKeySecret = accessKeySecret;
+    }
+
+    @Value("${aliyun.oss.bucketName}")
+    public void setBucketName(String bucketName) {
+        AppService.bucketName = bucketName;
+    }
+
+    @Value("${aliyun.oss.url}")
+    public void setAliyunOssUrl(String aliyunOssUrl) {
+        AppService.aliyunOssUrl = aliyunOssUrl;
+    }
     public CronusDto<ReceiveAndKeepCountDTO> getReceiveAndKeepCount(Integer userId){
 
         CronusDto resultDto = new CronusDto();
@@ -127,9 +150,6 @@ public class AppService {
         paramsMap.put("start",(page-1) * size);
         paramsMap.put("size",size);
         List<OcrDocumentDto> ocrDocumentDtos = null;
-        //查询缓存
-      //  ocrDocumentDtos= cronusRedisService.getRedisDocumentInfo(CommonConst.OCRDOCUMENTKEY + customerId);
-        //if (ocrDocumentDtos == null || ocrDocumentDtos.size() == 0){
         ocrDocumentDtos = new ArrayList<>();
         List<RContractDocument> documentList = rContractDocumentMapper.ocrAppDocument(paramsMap);
         Integer count  = rContractDocumentMapper.ocrAppDocumentCount(paramsMap);
@@ -144,14 +164,10 @@ public class AppService {
                 ocrDocumentDto.setDocumentSavename(rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDto.setFlag(rcdocument.getDocument().getIsFlag());
                 ocrDocumentDto.setDocumentSavepath(ResultResource.DOWNLOADFOOTPATH + rcdocument.getDocument().getDocumentSavepath());
-                String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, ResultResource.DOWNLOADFOOTPATH + rcdocument.getDocument().getDocumentSavepath(), "_S"+ rcdocument.getDocument().getDocumentSavename());
-                ocrDocumentDto.setUrl("data:image/jpeg;base64," + bytes);
+                ocrDocumentDto.setUrl(aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDtos.add(ocrDocumentDto);
             }
-            //开始存入缓存
-           // cronusRedisService.setRedisDocumentInfo(CommonConst.OCRDOCUMENTKEY + customerId,ocrDocumentDtos);
         }
-       // }
         queryResult.setRows(ocrDocumentDtos);
         queryResult.setTotal(count +"");
         return  queryResult;

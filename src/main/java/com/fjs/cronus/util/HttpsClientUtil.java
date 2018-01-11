@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -15,6 +16,7 @@ import javax.net.ssl.X509TrustManager;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.cronus.PhoneAreaDTO;
 import com.fjs.cronus.dto.cronus.PhoneResultDTO;
+import org.apache.http.client.methods.HttpPost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

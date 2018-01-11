@@ -154,7 +154,7 @@ public class PanService {
         if (customerInfo == null){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
-        //开始改变装太
+        //开始改变
         receiveCustomerByType(customerInfo,userId,token);
         //增加分配日志
         AllocateLog allocateLog = new AllocateLog();

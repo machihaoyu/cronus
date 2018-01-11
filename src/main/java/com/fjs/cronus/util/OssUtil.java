@@ -2,19 +2,12 @@ package com.fjs.cronus.util;
 
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.model.BucketInfo;
-import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.PutObjectRequest;
-import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.exception.CronusException;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.URLEncoder;
 import java.util.Date;
 
 /**
@@ -91,34 +84,5 @@ public class OssUtil {
                 }
             }
         }
-    }
-
-    public static String downLoad(HttpServletResponse response,String filename, String key) {
-        OSSClient ossClient = null;
-        try {
-            ossClient = init();
-            logger.info("start download!");
-            OSSObject ossObject = ossClient.getObject(bucketName,key);
-            BufferedInputStream in=new BufferedInputStream(ossObject.getObjectContent());
-            BufferedOutputStream out=new BufferedOutputStream(response.getOutputStream());
-            response.setHeader("Content-Disposition","attachment;filename="+ URLEncoder.encode(filename,"utf-8"));
-            IOUtils.copyLarge(in,out);
-            if(out!=null){
-                out.flush();
-                out.close();
-            }
-            if(in!=null){
-                in.close();
-            }
-            logger.info("End download!");
-            return null;
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
-        } finally {
-            if (null != ossClient)
-                ossClient.shutdown();
-        }
-
     }
 }

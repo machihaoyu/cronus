@@ -212,6 +212,6 @@ public class CommonConst {
 
     public static final String THEA_IMG_OSS_FILE_SEPARATOR = "/";
 
-    public static final String THEA_PERFEX ="/Uploads/";
+    public static final String THEA_PERFEX ="Uploads/";
 }
 
