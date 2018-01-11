@@ -30,7 +30,7 @@ public interface TheaService {
     public TheaApiDTO<LoanDTO> selectByCustomerId(@RequestHeader("Authorization") String token, @RequestParam(value = "customerId") Integer customerId);
 
     @RequestMapping(value = "/config/v1/name", method = RequestMethod.GET)
-    public TheaApiDTO<String> getConfigByName(@RequestParam(value = "name") String name);
+    public TheaApiDTO<String> getConfigByName(@RequestHeader("Authorization") String token,@RequestParam(value = "name") String name);
 
     @RequestMapping(value = "/loan/v1/insertLoan", method = RequestMethod.POST)
     public TheaApiDTO insertLoan(@RequestBody LoanDTO loanDTO, @RequestHeader("Authorization")String token);

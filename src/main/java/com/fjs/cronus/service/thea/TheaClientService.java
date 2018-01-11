@@ -12,6 +12,7 @@ import com.fjs.cronus.service.client.TheaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +28,8 @@ public class TheaClientService {
     @Autowired
     TheaService theaService;
 
+    @Value("${token.current}")
+    private String publicToken;
 
     public String findValueByName(String token, String name) {
 
@@ -45,7 +48,7 @@ public class TheaClientService {
      */
     public String getConfigByName(String name) {
         String result = "";
-        TheaApiDTO<String> resultDto = theaService.getConfigByName(name);
+        TheaApiDTO<String> resultDto = theaService.getConfigByName("bearer " + publicToken, name);
         if (resultDto.getResult() == 0) {
             result = resultDto.getData();
         } else throw new CronusException(CronusException.Type.MESSAGE_CONNECTTHEASYSTEM_ERROR, resultDto.getMessage());
