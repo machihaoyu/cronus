@@ -65,6 +65,40 @@ public class DocumentService {
     @Value("${ftp.basePath}")
     private String IMAGE_BASE_URL;
 
+    private static String endpoint;
+
+    private static String accessKeyId;
+
+    private static String accessKeySecret;
+
+    private static String bucketName;
+
+    private static String aliyunOssUrl;
+
+    @Value("${aliyun.oss.endpoint}")
+    public void setEndpoint(String endpoint) {
+        DocumentService.endpoint = endpoint;
+    }
+
+    @Value("${aliyun.oss.accessKeyId}")
+    public void setAccessKeyId(String accessKeyId) {
+        DocumentService.accessKeyId = accessKeyId;
+    }
+
+    @Value("${aliyun.oss.accessKeySecret}")
+    public void setAccessKeySecret(String accessKeySecret) {
+        DocumentService.accessKeySecret = accessKeySecret;
+    }
+
+    @Value("${aliyun.oss.bucketName}")
+    public void setBucketName(String bucketName) {
+        DocumentService.bucketName = bucketName;
+    }
+
+    @Value("${aliyun.oss.url}")
+    public void setAliyunOssUrl(String aliyunOssUrl) {
+        DocumentService.aliyunOssUrl = aliyunOssUrl;
+    }
     @Autowired
     UcService ucService;
     @Autowired
@@ -214,7 +248,7 @@ public class DocumentService {
         newDocumentDTO.setStatus(status);
         return newDocumentDTO;
     }
-    public CronusDto getThumbnail(InputStream inputStream, int new_w, int new_h, String thumbName, String thunbPath, String flag) {
+  /*  public CronusDto getThumbnail(InputStream inputStream, int new_w, int new_h, String thumbName, String thunbPath, String flag) {
         CronusDto resultDto = new CronusDto();
         Map resultMap = new HashMap<>();
         try {
@@ -249,7 +283,7 @@ public class DocumentService {
             e.printStackTrace();
         }
         return resultDto;
-    }
+    }*/
 
     public boolean addOcrInfo(Integer category, Integer customer_id, String imageBase64, Integer rc_document_id, Integer user_id, String token, UserSortInfoDTO userSortInfoDTO, UserInfoDTO userInfoDTO) {
         final long step1Time = System.currentTimeMillis();
@@ -462,7 +496,7 @@ public class DocumentService {
         try {
             String md5 = MD5Util.getMd5CodeInputStream(file.getInputStream());
             //开始上传图片
-            CronusDto uploadDto = uploadPcStreamDocument(file.getInputStream(), name + "." + suffix);
+            CronusDto uploadDto = uploadPcStreamDocument(file.getInputStream(), fileName,name + "." + suffix);
             if (uploadDto != null && uploadDto.getData() != null) {
                 String result = FastJsonUtils.obj2JsonString(uploadDto.getData());
                 //把json格式的数据转为对象
@@ -472,14 +506,14 @@ public class DocumentService {
                 String thunbPath = map.get("imagePath").toString();
                 String remotePath = map.get("remotePath").toString();
                 String url = map.get("url").toString();
-                //开始缩放图片
+              /*  //开始缩放图片
                 String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
                 try {
                     InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(bytes);
                     getThumbnail(inputStream, 300, 300, thumbName, thunbPath, "_S");
                 } catch (Exception e) {
                     e.printStackTrace();
-                }
+                }*/
                 //TODO 验证是否生成
                 if (contractId != null && !"".equals(contractId)) {
                     Integer contratId = Integer.valueOf(contractId);
@@ -517,23 +551,23 @@ public class DocumentService {
         return null;
     }
 
-    public CronusDto uploadPcStreamDocument(InputStream inputStream, String name) {
+    public CronusDto uploadPcStreamDocument(InputStream inputStream, String fileName,String newName) {
         CronusDto resultDto = new CronusDto();
         Map resultMap = new HashMap<>();
         //base64 解析成文件流
         try {
-            //文件路径
             String imagePath = new DateTime().toString("yyyy/MM/dd");
-            boolean flag = FtpUtil.uploadFile(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL + "/", imagePath, name, inputStream);
-            if (!flag) {
+            String keyUrl = CommonConst.THEA_PERFEX + imagePath + "/" + newName;
+            String url = OssUtil.uploadImag(fileName, inputStream, keyUrl);
+            if (StringUtils.isEmpty(url)) {
                 resultDto.setResult(ResultResource.UPLOAD_ERROR);
                 resultDto.setMessage(ResultResource.UPLOAD_ERROR_MESSAGE);
                 return resultDto;
             }
             //上传成功
-            resultMap.put("url", IMAGE_BASE_URL + "/" + imagePath + "/" + name);
-            resultMap.put("remotePath", IMAGE_BASE_URL + "/" + imagePath + "/");//相对路径
-            resultMap.put("name", name);//文件名
+            resultMap.put("url", url);
+            resultMap.put("remotePath", CommonConst.THEA_PERFEX + imagePath + "/");//相对路径
+            resultMap.put("name", newName);//文件名
             resultMap.put("imagePath", imagePath);
 
             resultDto.setResult(ResultResource.CODE_SUCCESS);
@@ -755,26 +789,32 @@ public class DocumentService {
         String name = millis + String.format("%03d", end3);
         //生成文件md5
         try {
+            InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(base64);
             String md5 = MD5Util.getMd5CodeInputStream(file);
             //开始上传图片
             String imagePath = new DateTime().toString("yyyy/MM/dd");
-            boolean flag = FtpUtil.uploadClient(base64, FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL + "/", imagePath, name + "." + suffix, file);
-            if (flag == true) {
+            //boolean flag = FtpUtil.uploadClient(base64, FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, IMAGE_BASE_URL + "/", imagePath, name + "." + suffix, file);
+            CronusDto uploadDto = uploadPcStreamDocument(inputStream, fileName,name + "." + suffix);
+            if (!StringUtils.isEmpty(uploadDto.getData())) {
                 //把json格式的数据转为对象
 
                 //Map<String,Object>  map = FastJsonUtils.getSingleBean(result,Map.class);
-                String thumbName = name + "." + suffix;
-                String thunbPath = IMAGE_BASE_URL + "/" + imagePath + "/";
-                String remotePath = "/" + imagePath;
-                String url = IMAGE_BASE_URL + "/" + imagePath + "/" + name;
+                String result = FastJsonUtils.obj2JsonString(uploadDto.getData());
+                //把json格式的数据转为对象
+
+                Map<String, Object> map = FastJsonUtils.getSingleBean(result, Map.class);
+                String thumbName = map.get("name").toString();
+                String thunbPath = map.get("imagePath").toString();
+                String remotePath = map.get("remotePath").toString();
+                String url = map.get("url").toString();
                 //开始缩放图片
                 // String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, remotePath, thumbName);
-                try {
+               /* try {
                     InputStream inputStream = FileBase64ConvertUitl.decoderBase64File(base64);
                     getThumbnail(inputStream, 300, 300, thumbName, remotePath, "_S");
                 } catch (Exception e) {
                     e.printStackTrace();
-                }
+                }*/
                 //TODO 验证是否生成
                 if (contractId != null && !"".equals(contractId)) {
                     Integer contratId = Integer.valueOf(contractId);

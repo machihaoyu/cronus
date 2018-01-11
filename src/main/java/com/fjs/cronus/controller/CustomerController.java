@@ -465,11 +465,6 @@ public class CustomerController {
 
 
         CronusDto<QueryResult<CustomerListDTO>> cronusDto = new CronusDto();
-        //获取当前用户登录的id
-    /*    Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-        if (userId == null){
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
-        }*/
         if (type == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
@@ -521,7 +516,7 @@ public class CustomerController {
             }
             Integer customerCount  = customerInfoService.getKeepCount(userInfoDTO);
             String maxCount = theaClientService.findValueByName(token, CommonConst.KEEPPARAMS);
-            if (customerCount > Integer.valueOf(maxCount)) {
+            if (customerCount >= Integer.valueOf(maxCount)) {
                 theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
                 theaApiDTO.setMessage("您保留的客户已满，不能保留");
                 return theaApiDTO;
@@ -558,8 +553,6 @@ public class CustomerController {
                 theaApiDTO.setMessage("刚沟通未确认的客户不能保留");
                 return theaApiDTO;
             }
-
-
             theaApiDTO = customerInfoService.keepCustomer(customerId, userInfoDTO, token);
         } catch (Exception e) {
             logger.error("-------------->keepLoan保留失败", e);

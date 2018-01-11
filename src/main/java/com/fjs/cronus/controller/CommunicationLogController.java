@@ -139,7 +139,7 @@ public class CommunicationLogController {
             return theaApiDTO;
         }
         try {
-            //CustomerInfo customer=iCustomerService.findCustomerById(customerUsefulDTO.getCustomerId());
+            //CustomerInfo customer=
             int createResult = communicationLogService.addLog(customerUsefulDTO, customerInfo, userInfoDTO, token);
             if (createResult > 0) {
                 theaApiDTO.setResult(CommonMessage.ADD_SUCCESS.getCode());

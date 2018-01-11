@@ -2,24 +2,19 @@ package com.fjs.cronus.controller;
 
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.UploadDocumentDto;
 import com.fjs.cronus.dto.cronus.UploadCilentDTO;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.model.Document;
 import com.fjs.cronus.service.DocumentCategoryService;
 import com.fjs.cronus.service.DocumentService;
 import com.fjs.cronus.service.RContractDocumentService;
 import com.fjs.cronus.util.FileBase64ConvertUitl;
-import com.fjs.cronus.util.OssUtil;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -142,7 +137,7 @@ public class DocumentController {
         return resultDto;
     }
 
-    @ApiOperation(value = "下载附件", notes = "下载附件")
+    /*@ApiOperation(value = "下载附件", notes = "下载附件")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
     })
@@ -170,7 +165,7 @@ public class DocumentController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
-
+*/
     @ApiOperation(value = "删除附件", notes = "删除附件")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),

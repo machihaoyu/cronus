@@ -46,6 +46,42 @@ public class RContractDocumentService {
     private String FTP_BASE_PATH;
     @Value("${ftp.basePath}")
     private String IMAGE_BASE_URL;
+    private static String endpoint;
+
+    private static String accessKeyId;
+
+    private static String accessKeySecret;
+
+    private static String bucketName;
+
+    private static String aliyunOssUrl;
+
+    @Value("${aliyun.oss.endpoint}")
+    public void setEndpoint(String endpoint) {
+        RContractDocumentService.endpoint = endpoint;
+    }
+
+    @Value("${aliyun.oss.accessKeyId}")
+    public void setAccessKeyId(String accessKeyId) {
+        RContractDocumentService.accessKeyId = accessKeyId;
+    }
+
+    @Value("${aliyun.oss.accessKeySecret}")
+    public void setAccessKeySecret(String accessKeySecret) {
+        RContractDocumentService.accessKeySecret = accessKeySecret;
+    }
+
+    @Value("${aliyun.oss.bucketName}")
+    public void setBucketName(String bucketName) {
+        RContractDocumentService.bucketName = bucketName;
+    }
+
+    @Value("${aliyun.oss.url}")
+    public void setAliyunOssUrl(String aliyunOssUrl) {
+        RContractDocumentService.aliyunOssUrl = aliyunOssUrl;
+    }
+
+
     @Autowired
     DocumentMapper documentMapper;
     @Autowired
@@ -69,7 +105,7 @@ public class RContractDocumentService {
                 ocrDocumentDto.setDocumentSavename(rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDto.setFlag(rcdocument.getDocument().getIsFlag());
                 ocrDocumentDto.setDocumentSavepath(ResultResource.DOWNLOADFOOTPATH + rcdocument.getDocument().getDocumentSavepath());
-                ocrDocumentDto.setUrl(viewUrl + rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
+                ocrDocumentDto.setUrl(aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDtos.add(ocrDocumentDto);
             }
             resultDto.setData(ocrDocumentDtos);
