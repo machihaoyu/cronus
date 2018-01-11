@@ -59,8 +59,8 @@ public interface TheaService {
     @RequestMapping(value = "/config/v1/modify", method = RequestMethod.POST)
     public TheaApiDTO<Integer> updatebConfig(@RequestHeader("Authorization") String token, @RequestBody Config config);
 
-    @RequestMapping(value = "/config/v1/modify", method = RequestMethod.GET)
-    CriusApiDTO<Integer> updateConfig(@RequestParam("id") Integer id, @RequestParam("value") String value);
+//    @RequestMapping(value = "/config/v1/modify", method = RequestMethod.GET)
+//    CriusApiDTO<Integer> updateConfig(@RequestParam("id") Integer id, @RequestParam("value") String value);
 
     @RequestMapping(value = "/config/v1/findByName", method = RequestMethod.GET)
     public TheaApiDTO<Config> findByName(@RequestHeader("Authorization") String token, @RequestParam(value = "name") String name);
