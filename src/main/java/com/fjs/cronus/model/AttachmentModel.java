@@ -20,6 +20,9 @@ public class AttachmentModel {
     @ApiModelProperty(name = "documentId", value = "文档id")
     private String documentId;
 
+    @ApiModelProperty(name = "confirm", value = "是否确认：0--待确认;1--已确认")
+    private Integer confirm = 0;
+
     public Integer getId() {
         return id;
     }
@@ -50,6 +53,14 @@ public class AttachmentModel {
 
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
+    }
+
+    public Integer getConfirm() {
+        return confirm;
+    }
+
+    public void setConfirm(Integer confirm) {
+        this.confirm = confirm;
     }
 
     /**

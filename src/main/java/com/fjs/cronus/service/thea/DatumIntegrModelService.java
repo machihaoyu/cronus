@@ -352,8 +352,9 @@ public class DatumIntegrModelService {
                 if (baseList.get(i) != null && StringUtils.isNotEmpty(baseList.get(i).get("documentId"))){
                     AttachmentModel model = list.get(j);
                     model.setDocumentId(baseList.get(i).get("documentId"));
-                    if (StringUtils.isNotEmpty(baseList.get(i).get("bytes")))
-                        model.setPicture("data:image/jpeg;base64," + baseList.get(i).get("bytes"));
+                    if (StringUtils.isNotEmpty(baseList.get(i).get("url")))
+                        model.setPicture(baseList.get(i).get("url"));
+                    model.setConfirm(Integer.parseInt(baseList.get(i).get("confirm")));
                 }
                 j++;
             }

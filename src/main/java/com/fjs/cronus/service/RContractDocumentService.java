@@ -190,13 +190,16 @@ public class RContractDocumentService {
          paramsMap.put("catagoryId",catagoryId);
          List<RContractDocument> rContractDocuments = rContractDocumentMapper.ocrDocument(paramsMap);
          List<Map<String,String>> mapList = new ArrayList<>();
-         String bytes;
+         Integer confirm = 1;
          if (rContractDocuments != null) {
             for (RContractDocument rContractDocument : rContractDocuments){
-                bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, rContractDocument.getDocument().getDocumentSavepath(), "_S" + rContractDocument.getDocument().getDocumentSavename());
                 Map<String,String> map = new HashMap<>();
                 map.put("documentId", rContractDocument.getDocumentId().toString());
-                map.put("bytes", bytes);
+                map.put("url", aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rContractDocument.getDocument().getDocumentSavepath() + rContractDocument.getDocument().getDocumentSavename());
+                if (confirm.equals(rContractDocument.getDocument().getIsFlag()))
+                    map.put("confirm", "0");
+                else
+                    map.put("confirm", "1");
                 mapList.add(map);
             }
          }
