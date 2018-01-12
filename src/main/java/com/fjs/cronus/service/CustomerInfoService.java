@@ -714,6 +714,9 @@ public class CustomerInfoService {
             paramsMap.put("customerName", customerName);
         }
         if (!StringUtils.isEmpty(utmSource)) {
+            if ("自申请".equals(utmSource)){
+                utmSource = "c-app";
+            }
             paramsMap.put("utmSource", utmSource);
         }
         if (!StringUtils.isEmpty(telephonenumber)) {
