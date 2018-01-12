@@ -289,7 +289,7 @@ public class UserController {
             logger.error("-----------查询用户可操作的分公司失败！！--------" + e);
             resultDTO.setData(null);
             resultDTO.setResult(ResultDescription.CODE_FAIL);
-            resultDTO.setMessage(ResultDescription.MESSAGE_FAIL);
+            resultDTO.setMessage(e.getMessage());
         }
         return resultDTO;
     }
