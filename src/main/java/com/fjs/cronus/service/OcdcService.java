@@ -86,6 +86,7 @@ public class OcdcService {
 
         CronusDto resultDto = new CronusDto();
         List<String> successList = new ArrayList<>();
+        List<String> ocdcMessage = new ArrayList<>();
         List<String> failList = new ArrayList<>();
         //遍历OCDC数据信息
         List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<CustomerSalePushLog>();
@@ -97,16 +98,27 @@ public class OcdcService {
                 JsonNode node = objectMapper.readValue(map, JsonNode.class);
                 CustomerSalePushLog customerSalePushLog = this.queryCustomerSalePushLogByOcdcPushData(node);
 
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(customerSalePushLog.getOcdcId().toString());
+                stringBuilder.append("-");
+                stringBuilder.append(customerSalePushLog.getTelephonenumber());
+                stringBuilder.append("-");
                 try {
                     AllocateEntity allocateEntity = new AllocateEntity();
                     CustomerDTO customerDTO = getCustomer(customerSalePushLog.getTelephonenumber());
                     if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) { //重复客户
+                        stringBuilder.append("重复客户");
+                        stringBuilder.append("-");
                         customerDTO.setTelephonenumber(customerSalePushLog.getTelephonenumber());
                         customerDTO.setLoanAmount(customerSalePushLog.getLoanAmount());
                         if (isActiveApplicationChannel(customerSalePushLog)) {//主动申请渠道
+                            stringBuilder.append("主动申请渠道");
+                            stringBuilder.append("-");
                             //无负责人
                             if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
                                 //自动分配
+                                stringBuilder.append("自动分配");
+                                stringBuilder.append("-");
                                 allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                             } else {//有负责人分给对应的业务员
                                 sendMail(token, customerDTO);
@@ -114,28 +126,44 @@ public class OcdcService {
                                 if (simpleUserInfoDTO != null && simpleUserInfoDTO.getSub_company_id() != null) {
                                     customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
                                 }
-                                autoAllocateService.addLoan(customerDTO, token);
+                                stringBuilder.append("分给对应的业务员添加交易");
+                                stringBuilder.append("-");
+                                String loan = autoAllocateService.addLoan(customerDTO, token);
+                                stringBuilder.append(loan);
+                                stringBuilder.append("-");
                                 allocateEntity.setSuccess(true);
                             }
                         } else {
                             if (isThreeNonCustomer(customerSalePushLog) || isRepeatPushInTime(customerSalePushLog)) {
                                 allocateEntity.setSuccess(true);
+                                stringBuilder.append("三无-重复时间申请");
+                                stringBuilder.append("-");
                             } else {
                                 //有无负责人,有负责人跟进，没有自动分配
                                 if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
                                     //自动分配
+                                    stringBuilder.append("自动分配");
+                                    stringBuilder.append("-");
                                     allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                                 } else {
                                     //发消息业务员，提醒跟进
+                                    stringBuilder.append("有负责人，发消息");
+                                    stringBuilder.append("-");
                                     sendMail(token, customerDTO);
                                     allocateEntity.setSuccess(true);
                                 }
                             }
                         }
                     } else {
+                        stringBuilder.append("新客户，自动分配");
+                        stringBuilder.append("-");
                         BeanUtils.copyProperties(customerSalePushLog, customerDTO);
                         allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                     }
+                    stringBuilder.append(allocateEntity.getDescription());
+                    stringBuilder.append("-");
+                    stringBuilder.append(allocateEntity.getAllocateStatus().getDesc());
+                    stringBuilder.append("-");
                     if (allocateEntity.getAllocateStatus() != null) {
                         switch (allocateEntity.getAllocateStatus().getCode()) {
                             case "0":
@@ -156,15 +184,18 @@ public class OcdcService {
                                 break;
                         }
                     }
+
                     if (allocateEntity.isSuccess()) {
                         successList.add(customerSalePushLog.getOcdcId().toString());
                     } else {
                         failList.add(customerSalePushLog.getOcdcId().toString());
                     }
                 } catch (RuntimeException e) {
+                    stringBuilder.append(e.getMessage());
                     logger.warn(e.getMessage());
                     failList.add(customerSalePushLog.getOcdcId().toString());
                 }
+                ocdcMessage.add(stringBuilder.toString());
                 customerSalePushLogList.add(customerSalePushLog);
             }
         } catch (Exception e) {
@@ -173,7 +204,7 @@ public class OcdcService {
         //保存OCDC推送日志
         customerSalePushLogService.insertList(customerSalePushLogList);
         autoAllocateFeedback(successList, failList);
-        return successList;
+        return ocdcMessage;
     }
 
     private CustomerDTO getCustomer(String telephone) {
