@@ -48,7 +48,7 @@ public class TheaClientService {
      */
     public String getConfigByName(String name) {
         String result = "";
-        TheaApiDTO<String> resultDto = theaService.getConfigByName("bearer " + publicToken, name);
+        TheaApiDTO<String> resultDto = theaService.getConfigByName(publicToken, name);
         if (resultDto.getResult() == 0) {
             result = resultDto.getData();
         } else throw new CronusException(CronusException.Type.MESSAGE_CONNECTTHEASYSTEM_ERROR, resultDto.getMessage());
@@ -63,12 +63,7 @@ public class TheaClientService {
     public String insertLoan(LoanDTO loanDTO, String token) {
         logger.warn("---添加交易Telephonenumber:---"+loanDTO.getTelephonenumber());
         TheaApiDTO resultDto = theaService.insertLoan(loanDTO, token);
-        if (resultDto.getResult() == 0) {
-            return resultDto.getData().toString();
-        } else {
-            logger.warn(resultDto.getMessage());
-            throw new CronusException(CronusException.Type.CRM_CONNECT_ERROR, resultDto.getMessage());
-        }
+        return resultDto.getMessage();
     }
 
     /**
