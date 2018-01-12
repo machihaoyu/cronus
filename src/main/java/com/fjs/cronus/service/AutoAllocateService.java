@@ -278,7 +278,7 @@ public class AutoAllocateService {
      * @param customerDTO
      * @param token
      */
-    public void addLoan(CustomerDTO customerDTO, String token) {
+    public String addLoan(CustomerDTO customerDTO, String token) {
 //        if (isActiveApplicationChannel(customerDTO)) {
         LoanDTO loanDTO = new LoanDTO();
         loanDTO.setTelephonenumber(customerDTO.getTelephonenumber());
@@ -289,7 +289,7 @@ public class AutoAllocateService {
         loanDTO.setOwnUserName(customerDTO.getOwnUserName());
         loanDTO.setCompanyId(customerDTO.getSubCompanyId());
         loanDTO.setUtmSource("自申请");
-        theaClientService.insertLoan(loanDTO, token);
+        return theaClientService.insertLoan(loanDTO, token);
 //        }
     }
 

@@ -8,6 +8,15 @@ import com.fjs.cronus.enums.AllocateEnum;
 public class AllocateEntity {
     private boolean success;
     private AllocateEnum allocateStatus;
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public boolean isSuccess() {
         return success;
