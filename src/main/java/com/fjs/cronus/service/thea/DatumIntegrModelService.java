@@ -325,8 +325,9 @@ public class DatumIntegrModelService {
             Map<String,String> map = rContractDocumentService.getListBase64(telephone, attachmentModel.getId());
            if (map != null && StringUtils.isNotEmpty(map.get("documentId"))){
                attachmentModel.setDocumentId(map.get("documentId"));
-               if (StringUtils.isNotEmpty(map.get("bytes")))
-                   attachmentModel.setPicture("data:image/jpeg;base64," + map.get("bytes"));
+               if (StringUtils.isNotEmpty(map.get("url")))
+                   attachmentModel.setPicture(map.get("url"));
+               attachmentModel.setConfirm(Integer.parseInt(map.get("confirm")));
            }
         }catch (Exception e) {
             logger.error(e.getMessage(), e);

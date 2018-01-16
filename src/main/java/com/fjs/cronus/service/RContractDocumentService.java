@@ -168,10 +168,14 @@ public class RContractDocumentService {
         paramsMap.put("customerId",customerDTO.getId());
         paramsMap.put("catagoryId",catagoryId);
         RContractDocument rcdocument = rContractDocumentMapper.ocrDocumentToClient(paramsMap);
-        String bytes = FtpUtil.getInputStream(FTP_ADDRESS, FTP_PORT, FTP_USERNAME, FTP_PASSWORD, rcdocument.getDocument().getDocumentSavepath(), "_S" + rcdocument.getDocument().getDocumentSavename());
+        Integer confirm = 1;
         Map<String,String> map = new HashMap<>();
         map.put("documentId",rcdocument.getDocumentId().toString());
-        map.put("bytes",bytes);
+        map.put("url", aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
+        if (confirm.equals(rcdocument.getDocument().getIsFlag()))
+            map.put("confirm", "0");
+        else
+            map.put("confirm", "1");
         return map;
      }
 

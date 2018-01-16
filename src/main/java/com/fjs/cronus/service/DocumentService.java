@@ -75,6 +75,8 @@ public class DocumentService {
 
     private static String aliyunOssUrl;
 
+    @Value("${token.current}")
+    private String currenToken;
     @Value("${aliyun.oss.endpoint}")
     public void setEndpoint(String endpoint) {
         DocumentService.endpoint = endpoint;
@@ -299,7 +301,7 @@ public class DocumentService {
                 logger.warn("开始通信");
                 ReqParamDTO reqParamDTO = addOcrDealParam(category, customer_id, imageBase64, rc_document_id, user_id, token, userSortInfoDTO, userInfoDTO);
                 //调用图文识别接口
-                talosService.ocrService(reqParamDTO, token);
+                talosService.ocrService(reqParamDTO, currenToken);
             } catch (Exception e) {
                 logger.error("charge error ", e);
             } finally {
@@ -826,7 +828,7 @@ public class DocumentService {
                 paramsDto.setExt(suffix);
                 paramsDto.setMd5(md5);
                 paramsDto.setSavename(thumbName);
-                paramsDto.setSavepath(thunbPath);
+                paramsDto.setSavepath(thunbPath + "/");
                 paramsDto.setSize(size);
                 paramsDto.setSource(source);
                 paramsDto.setType(suffix);
