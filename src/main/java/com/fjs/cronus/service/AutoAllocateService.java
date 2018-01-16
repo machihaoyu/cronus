@@ -231,7 +231,8 @@ public class AutoAllocateService {
                     allocateLogService.autoAllocateAddAllocatelog(customerInfo.getId(), customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode());
                     if (isActiveApplicationChannel(customerDTO)) {
-                        addLoan(customerDTO, token);
+                        String loan = addLoan(customerDTO, token);
+                        allocateEntity.setDescription(loan);
                     }
                     sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     break;
@@ -245,7 +246,8 @@ public class AutoAllocateService {
                     allocateLogService.addAllocatelog(customerInfot, customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_5.getCode(), null);
                     if (isActiveApplicationChannel(customerDTO)) {
-                        addLoan(customerDTO, token);
+                        String loan = addLoan(customerDTO, token);
+                        allocateEntity.setDescription(loan);
                     }
                     sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     break;
@@ -255,6 +257,7 @@ public class AutoAllocateService {
 
         } catch (Exception e) {
             logger.error("-------------------自动分配失败:ocdcDataId=" + customerDTO.getTelephonenumber() + "-------------------", e);
+            allocateEntity.setDescription("自动分配失败");
             allocateEntity.setSuccess(false);
         }
         return allocateEntity;
