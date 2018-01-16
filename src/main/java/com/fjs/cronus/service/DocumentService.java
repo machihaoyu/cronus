@@ -559,7 +559,7 @@ public class DocumentService {
         //base64 解析成文件流
         try {
             String imagePath = new DateTime().toString("yyyy/MM/dd");
-            String keyUrl = CommonConst.THEA_PERFEX + imagePath + "/" + newName;
+            String keyUrl = "/" + CommonConst.THEA_PERFEX + imagePath + "/" + newName;
             String url = OssUtil.uploadImag(fileName, inputStream, keyUrl);
             if (StringUtils.isEmpty(url)) {
                 resultDto.setResult(ResultResource.UPLOAD_ERROR);
