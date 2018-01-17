@@ -202,6 +202,14 @@ public class PublicOfferController {
                 userId = Integer.parseInt(userInfoDTO.getUser_id());
             }
             //领取操作
+            //
+            String maxCount = theaClientService.findValueByName(token, CommonConst.CANPUUMAXCOUNT);
+            Integer count = panService.keepCount(userId);
+            if (count >= Integer.parseInt(maxCount)){
+                theaApiDTO.setResult(CommonMessage.PULLCUSTOMER_ERROR.getCode());
+                theaApiDTO.setMessage(CommonMessage.PULLCUSTOMER_ERROR.getCodeDesc());
+                return theaApiDTO;
+            }
             boolean updateResult = panService.pullPan(customerId, userId, token, userInfoDTO.getName());
             if (updateResult == true) {
                 theaApiDTO.setResult(CommonMessage.PULL_SUCCESS.getCode());
