@@ -854,7 +854,7 @@ public class DocumentService {
                 //TODO 调用发送消息接口
                 try{
                     DocumentCategory documentCategory= documentCategoryMapper.selectByKey(Integer.valueOf(category));
-                    MsgTmplDTO msgTmplDTO = echoService.queryMsgTmpl(token,postAtt);
+                    MsgTmplDTO msgTmplDTO = echoService.queryMsgTmpl(postAtt);
                     String content = MessageFormat.format(msgTmplDTO.getTmpl(),documentCategory.getDocumentCName());
                     StationMsgReqDTO stationMsgReqDTO = new StationMsgReqDTO();
                     stationMsgReqDTO.setMsgClassify(postAtt);
@@ -862,7 +862,7 @@ public class DocumentService {
                     stationMsgReqDTO.setSource("C");
                     stationMsgReqDTO.setMsgContent(content);
                     stationMsgReqDTO.setUserPhone(userInfoDTO.getTelephone());
-                    echoService.addStationMsg(token,stationMsgReqDTO);
+                    echoService.addStationMsg(stationMsgReqDTO);
                 }catch (Exception e){
                     e.printStackTrace();
                 }

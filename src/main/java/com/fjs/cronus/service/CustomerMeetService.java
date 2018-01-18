@@ -77,7 +77,7 @@ public class CustomerMeetService {
         jsonObject.put("customerId",customerMeetDTO.getCustomerId());
         TheaApiDTO resultDTO = theaService.changeStatusByCustomerId(token,jsonObject);
         try{
-            MsgTmplDTO msgTmplDTO = echoService.queryMsgTmpl(token,meetsuccess);
+            MsgTmplDTO msgTmplDTO = echoService.queryMsgTmpl(meetsuccess);
             StationMsgReqDTO stationMsgReqDTO = new StationMsgReqDTO();
             stationMsgReqDTO.setMsgClassify(meetsuccess);
             stationMsgReqDTO.setMsgTitle(msgTmplDTO.getTitle());
@@ -85,7 +85,7 @@ public class CustomerMeetService {
             stationMsgReqDTO.setMsgContent(msgTmplDTO.getTmpl());
             String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
             stationMsgReqDTO.setUserPhone(telephone);
-            echoService.addStationMsg(token,stationMsgReqDTO);
+            echoService.addStationMsg(stationMsgReqDTO);
             logger.debug("发送短信成功" +stationMsgReqDTO.toString() );
         }catch (Exception e){e.printStackTrace();}
         return customerMeetMapper.insert(customerMeet);
