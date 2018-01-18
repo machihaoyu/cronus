@@ -3,6 +3,9 @@ package com.fjs.cronus.service;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.api.thea.MailDTO;
+import com.fjs.cronus.controller.CustomerInterviewController;
+import com.fjs.cronus.dto.Echo.MsgTmplDTO;
+import com.fjs.cronus.dto.Echo.StationMsgReqDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.AddCustomerMeetDTO;
@@ -15,15 +18,21 @@ import com.fjs.cronus.mappers.CustomerMeetMapper;
 import com.fjs.cronus.model.CommunicationLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerMeet;
+import com.fjs.cronus.service.Echo.EchoService;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +53,12 @@ public class CustomerMeetService {
     TheaService theaService;
     @Autowired
     TheaClientService theaClientService;
+    @Autowired
+    EchoService echoService;
+    @Value("${Echo.meetsuccess}")
+    private String meetsuccess;
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomerMeetService.class);
     @Transactional
     public Integer addCustomerMeet(AddCustomerMeetDTO customerMeetDTO, PHPLoginDto userInfoDTO, CustomerInfo customerInfo,String token){
         Date date = new Date();
@@ -61,6 +76,18 @@ public class CustomerMeetService {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("customerId",customerMeetDTO.getCustomerId());
         TheaApiDTO resultDTO = theaService.changeStatusByCustomerId(token,jsonObject);
+        try{
+            MsgTmplDTO msgTmplDTO = echoService.queryMsgTmpl(token,meetsuccess);
+            StationMsgReqDTO stationMsgReqDTO = new StationMsgReqDTO();
+            stationMsgReqDTO.setMsgClassify(meetsuccess);
+            stationMsgReqDTO.setMsgTitle(msgTmplDTO.getTitle());
+            stationMsgReqDTO.setSource("C");
+            stationMsgReqDTO.setMsgContent(msgTmplDTO.getTmpl());
+            String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+            stationMsgReqDTO.setUserPhone(telephone);
+            echoService.addStationMsg(token,stationMsgReqDTO);
+            logger.debug("发送短信成功" +stationMsgReqDTO.toString() );
+        }catch (Exception e){e.printStackTrace();}
         return customerMeetMapper.insert(customerMeet);
     }
 

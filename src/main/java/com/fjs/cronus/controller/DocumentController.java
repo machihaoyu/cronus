@@ -2,6 +2,7 @@ package com.fjs.cronus.controller;
 
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.cronus.SaasDocumentDTO;
 import com.fjs.cronus.dto.cronus.UploadCilentDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.DocumentCategoryService;
@@ -259,6 +260,43 @@ public class DocumentController {
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             logger.info("End CommonsMultipartResolver!");
+        } catch (Exception e) {
+            logger.error("上传图片失败", e);
+            if (e instanceof CronusException) {
+                CronusException cronusException = (CronusException) e;
+                throw cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return resultDto;
+    }
+    @ApiOperation(value = "B端提交上传附件", notes = "B端提交上传附件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "uploadDocumentDto", value = "uploadDocumentDto", required = true, paramType = "body", dataType = "UploadCilentDTO"),
+    })
+    @RequestMapping(value = "/uploadSaasDocumentOk", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto<SaasDocumentDTO> uploadSaasDocumentOk(@RequestHeader("Authorization") String token, @RequestBody UploadCilentDTO uploadDocumentDto) {
+        logger.info("start uploadTopicPictureList!");
+        CronusDto<SaasDocumentDTO> resultDto = new CronusDto();
+        SaasDocumentDTO saasDocumentDTO = new SaasDocumentDTO();
+        List fileList = new ArrayList();
+        try {
+            String telephone = uploadDocumentDto.getTelephone();
+            String category = uploadDocumentDto.getCategoryId();
+            String source = uploadDocumentDto.getSource();
+            String fileName = uploadDocumentDto.getFileName();
+            //获取multiRequest 中所有的文件名
+            Integer size = uploadDocumentDto.getSize();
+            String base64 = uploadDocumentDto.getImageBase64();
+            InputStream inputStream = FileBase64ConvertUitl.BaseToInputStream(base64);
+            saasDocumentDTO = documentService.uploadSaasDocumentOk(inputStream, fileName, null, telephone, category, source, size, token, base64, uploadDocumentDto.getDocumentId());
+
+            resultDto.setData(saasDocumentDTO);
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            logger.warn("上传图片--------" + Calendar.getInstance().getTimeInMillis());
         } catch (Exception e) {
             logger.error("上传图片失败", e);
             if (e instanceof CronusException) {
