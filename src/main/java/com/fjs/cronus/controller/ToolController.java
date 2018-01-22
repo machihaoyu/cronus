@@ -78,4 +78,34 @@ public class ToolController {
 
 
     }
+
+    @ApiOperation(value="手机号解密接口", notes="手机号解密接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "telephone", value = "手机号", required = true, paramType = "query", dataType = "string")
+    })
+    @RequestMapping(value = "/getPhoneDecode", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto getPhoneDecode(@RequestParam String telephone) {
+
+        CronusDto cronusDto = new CronusDto();
+        if (telephone == null){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        try {
+            cronusDto = toolService.getPhoneDecode(telephone);
+        } catch (Exception e) {
+            logger.error("--------------->getPhineArea获取手机号归属地出错", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return  cronusDto;
+
+
+
+    }
+
 }

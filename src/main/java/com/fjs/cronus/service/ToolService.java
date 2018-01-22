@@ -61,4 +61,16 @@ public class ToolService {
         return cronusDto;
 
     }
+
+    public CronusDto getPhoneDecode(String telephone){
+
+        CronusDto cronusDto = new CronusDto();
+        String result = DEC3Util.des3DecodeCBC(telephone);
+        cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        cronusDto.setResult(ResultResource.CODE_SUCCESS);
+        cronusDto.setData(result);
+        return cronusDto;
+
+    }
+
 }
