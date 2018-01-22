@@ -1160,7 +1160,8 @@ public class CustomerInfoService {
                 }
                 customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
                 customerInfo.setOwnUserId(removeDTO.getEmpId());
-                customerInfo.setOwnUserName(userInfoDTO.getName());
+                AppUserDto userInfoByID = ucService.getUserInfoByID(token,removeDTO.getEmpId());
+                customerInfo.setOwnUserName(userInfoByID.getName());
                 customerInfo.setReceiveTime(date);
                 customerInfo.setRemain(remain);
                 customerInfo.setLastUpdateTime(date);
