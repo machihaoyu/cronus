@@ -41,9 +41,10 @@ public enum CommonMessage {
     UPLOAD_CUSTOMERERROR(1,"由于服务器原因上传失败，请联系管理员"),
 
     CANCEL_SUCCESS(0,"取消保留客户成功"),
-    CANCEL_FAIL(1,"取消保留客户失败");
+    CANCEL_FAIL(1,"取消保留客户失败"),
 
-
+    PULLCUSTOMER_ERROR(1,"您今天客户领取已到上限"),
+    PULLCUSTOMER_SUCESS(0,"领取成功");
 
 
 

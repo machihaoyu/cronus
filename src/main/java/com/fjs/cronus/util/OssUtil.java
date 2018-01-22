@@ -67,7 +67,7 @@ public class OssUtil {
             logger.info("start upload!");
             ossClient.putObject(new PutObjectRequest(bucketName, keyUrl, in));
             logger.info("End upload!");
-            String picUrl = aliyunOssUrl + keyUrl;
+            String picUrl = aliyunOssUrl + "/" + keyUrl;
             return picUrl;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

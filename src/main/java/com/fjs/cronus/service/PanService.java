@@ -138,7 +138,7 @@ public class PanService {
             throw new CronusException(CronusException.Type.MESSAGE_CUSTOMERCLEAN_ERROR);
         }
         //下面判断一天之内领取的客户是否超限
-        String maxCount = theaClientService.findValueByName(token, CommonConst.CANPUUMAXCOUNT);
+        /*String maxCount = theaClientService.findValueByName(token, CommonConst.CANPUUMAXCOUNT);
         //查询当前业务员领取的个数
         paramMap.put("createUserId",userId);
         paramMap.put("operation",CommonConst.OPERATION);
@@ -148,7 +148,7 @@ public class PanService {
         Integer count = allocateLogMapper.receiveCountByWhere(paramMap);
         if (count >= Integer.parseInt(maxCount)){
             throw new CronusException(CronusException.Type.MESSAGE_PULLCUSTOMERCOUNT_ERROR);
-        }
+        }*/
         //找到客户信息
         CustomerInfo customerInfo = customerInfoService.findCustomerById(customerId);
         if (customerInfo == null){
@@ -209,7 +209,17 @@ public class PanService {
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
     }
-
+    public Integer keepCount(Integer userId){
+        Date date = new Date();
+        Map<String,Object> paramMap = new HashMap<>();
+        paramMap.put("createUserId",userId);
+        paramMap.put("operation",CommonConst.OPERATION);
+        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
+        // paramMap.put("operation",CommonConst.OPERATION);
+        paramMap.put("createTime",today);
+        Integer count = allocateLogMapper.receiveCountByWhere(paramMap);
+        return count;
+    }
     public QueryResult<CustomerListDTO> specialListByOffer(PanParamDTO pan, Integer userId, Integer companyId , String token, String system,
                                                     Integer page, Integer size, List<String> mainCitys, List<Integer> subCompanyIds, Integer type,Integer mountLevle,List<String> utmList,List<String>paramsList) {
 

@@ -1587,9 +1587,6 @@ public class CustomerInfoService {
         if (customerDTO.getCustomerName() == null || "".equals(customerDTO.getCustomerName())) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMERNAME_ERROR);
         }
-        if (customerDTO.getHouseStatus() == null || "".equals(customerDTO.getHouseStatus())) {
-            throw new CronusException(CronusException.Type.CRM_CUSTOMEHOUSE_ERROR);
-        }
         Integer id = customerDTO.getId();
         paramsMap.put("id", id);
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
