@@ -1143,21 +1143,9 @@ public class CustomerInfoService {
                 throw new CronusException(CronusException.Type.MESSAGE_REMOVENOTINJOB_ERROR);
             }*/
             //调用交易系统修改
-            try {
-                Integer thearesult = theaClientService.serviceContractToUser(token, strIds, removeDTO.getEmpId());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            try {
-                Integer thearesult1 = theaClientService.cancelAll(token, strIds, removeDTO.getEmpId());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+
             for (CustomerInfo customerInfo : customerInfoList) {
                 Integer remain = customerInfo.getRemain();
-                if (remain != 2) {
-                    remain = 0;
-                }
                 customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
                 customerInfo.setOwnUserId(removeDTO.getEmpId());
                 AppUserDto userInfoByID = ucService.getUserInfoByID(token,removeDTO.getEmpId());
@@ -1167,6 +1155,16 @@ public class CustomerInfoService {
                 customerInfo.setLastUpdateTime(date);
                 customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
                 customerInfoMapper.updateCustomer(customerInfo);
+            }
+            try {
+                Integer thearesult = theaClientService.serviceContractToUser(token, strIds, removeDTO.getEmpId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                Integer thearesult1 = theaClientService.cancelAll(token, strIds, removeDTO.getEmpId());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             removeCustomerAddLog(customerInfoList, removeDTO.getEmpId(), Integer.valueOf(userInfoDTO.getUser_id()), userInfoDTO.getName());
             flag = true;
