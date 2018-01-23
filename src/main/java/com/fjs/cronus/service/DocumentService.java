@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -295,6 +296,7 @@ public class DocumentService {
         return resultDto;
     }*/
 
+    @Async("mineAsyncPool")
     public boolean addOcrInfo(Integer category, Integer customer_id, String imageBase64, Integer rc_document_id, Integer user_id, String token, UserSortInfoDTO userSortInfoDTO, UserInfoDTO userInfoDTO) {
         final long step1Time = System.currentTimeMillis();
         try {
