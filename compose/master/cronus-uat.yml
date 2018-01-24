@@ -21,10 +21,10 @@ services:
       - "1100:8010"
     environment:
       - CONFIG_PROFILE=uat
-      - CONFIG_PASSWORD=123456
+      - CONFIG_PASSWORD=UAT123456
       - CONFIG_SERVER_ADDRESS=zues
       - CONFIG_SERVER_PORT=6020
-      - EUREKA_PASSWORD=123456
+      - EUREKA_PASSWORD=UAT123456
     command:
       - java 
       - '-Duser.timezone=Asia/Shanghai'
