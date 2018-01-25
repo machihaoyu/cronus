@@ -313,7 +313,10 @@ public class DocumentController {
     @ApiOperation(value = "C端H5上传附件", notes = "C端H5上传附件")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "uploadDocumentDto", value = "uploadDocumentDto", required = true, paramType = "body", dataType = "UploadCilentDTO"),
+            @ApiImplicitParam(name = "telephone", value = "telephone", required = true, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "category", value = "category", required = true, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "source", value = "C端传C", required = true, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "documentId", value = "附件id", required = false, paramType = "query", dataType = "string"),
     })
     @RequestMapping(value = "/uploadH5DocumentOk", method = RequestMethod.POST)
     @ResponseBody

@@ -79,8 +79,8 @@ public class AppController {
     @RequestMapping(value = "/findClientDoc", method = RequestMethod.GET)
     @ResponseBody
     public CronusDto<QueryResult<OcrDocumentDto>> findClientDoc(@RequestParam(value = "customerId",required = true) Integer customerId,
-                                                         @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
-                                                         @RequestParam(value = "size",required = false,defaultValue = "10") Integer size){
+                                                                @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
+                                                                @RequestParam(value = "size",required = false,defaultValue = "10") Integer size){
         CronusDto<QueryResult<OcrDocumentDto>> cronusDto = new CronusDto();
         QueryResult<OcrDocumentDto> queryResult = new QueryResult<>();
         try {

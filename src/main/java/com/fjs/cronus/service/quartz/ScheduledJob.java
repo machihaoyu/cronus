@@ -56,14 +56,14 @@ public class ScheduledJob {
        logger.info("Examine Start!");
        //查询大于当前时间沟通和面见表获取沟通时间
         //调用任务
-        communicationLogService.sendMessToCustomer(token);
+     /*   communicationLogService.sendMessToCustomer(token);
         customerMeetService.sendMessMeetToCustomer(token);
         ocdcService.waitingPoolAllocate(token);
 
         autoAllocateService.nonCommunicateAgainAllocate(token);
 
         autoCleanService.autoCleanTask();
-
+*/
         logger.info("Examine End!");
     }
 }
