@@ -308,4 +308,58 @@ public class DocumentController {
         return resultDto;
     }
 
+
+
+    @ApiOperation(value = "C端H5上传附件", notes = "C端H5上传附件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "uploadDocumentDto", value = "uploadDocumentDto", required = true, paramType = "body", dataType = "UploadCilentDTO"),
+    })
+    @RequestMapping(value = "/uploadH5DocumentOk", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto uploadH5DocumentOk(@RequestHeader("Authorization") String token, HttpServletRequest request) {
+        logger.info("start uploadH5DocumentOk!");
+        CronusDto resultDto = new CronusDto();
+        List fileList = new ArrayList();
+        try {
+            //将当前上下文初始化给  CommonsMutipartResolver （多部分解析器）
+            CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
+                    request.getSession().getServletContext());
+            logger.info("End CommonsMultipartResolver!");
+            if (multipartResolver.isMultipart(request)) {
+                logger.info("multipartResolver.isMultipart(request)");
+                //将request变成多部分request
+                MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
+                String telephone = multiRequest.getParameter("telephone");
+                String category = multiRequest.getParameter("category");
+                String source = multiRequest.getParameter("source");
+                String documentId = multiRequest.getParameter("documentId");
+                //获取multiRequest 中所有的文件名
+                Iterator iter = multiRequest.getFileNames();
+                while (iter.hasNext()) {
+                    logger.info("iter.hasNext()");
+                    //一次遍历所有文件
+                    MultipartFile file = multiRequest.getFile(iter.next().toString());
+                    if (file != null) {
+                        logger.info("file!=null");
+                        String fileName = file.getOriginalFilename();
+                        //开始上传图片
+                        String path = documentService.uploadH5DocumentOk(file, fileName, telephone, category, source,documentId, token);
+                        fileList.add(path);
+                    }
+                }
+                resultDto.setData(fileList);
+                resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+                resultDto.setResult(ResultResource.CODE_SUCCESS);
+            }
+        } catch (Exception e) {
+            logger.error("上传图片失败uploadH5DocumentOk", e);
+            if (e instanceof CronusException) {
+                CronusException cronusException = (CronusException) e;
+                throw cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return resultDto;
+    }
 }

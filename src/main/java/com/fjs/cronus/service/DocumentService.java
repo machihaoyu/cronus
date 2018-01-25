@@ -994,4 +994,122 @@ public class DocumentService {
         }
         return null;
     }
+
+    public String uploadH5DocumentOk(MultipartFile file,String fileName, String telephone, String category, String source,String documentId, String token) {
+        //校验参数
+        if (category == null || "".equals(category)) {
+            throw new CronusException(CronusException.Type.CRM_OCRDOCUMENTCAGORY_ERROR);
+        }
+        Integer categoryParam = Integer.valueOf(category);
+        Integer contractIdParam = null;
+        Integer customerIdParam = null;
+        CronusDto<CustomerDTO> resultDTO = customerInfoService.findCustomerByFeild(null, telephone);
+        CustomerDTO customerInfoDTO = resultDTO.getData();
+        if (customerInfoDTO == null) {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        //参数类型转换
+        customerIdParam = customerInfoDTO.getId();
+
+        UserSortInfoDTO userInfoDTO = ucService.getSortUserInfo(token);
+        if (userInfoDTO == null) {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        Integer user_id = Integer.valueOf(userInfoDTO.getUser_id());
+        if (user_id == null) {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        //校验文件的类型与大小
+        if (file == null) {
+            throw new CronusException(CronusException.Type.CRM_NOTNULL_UPLOAD);
+        }
+        if (file.getSize() > ResultResource.FILEMAXSIZE) {
+            throw new CronusException(CronusException.Type.CRM_MAXSIZE_UPLOAD);
+        }
+        Long size = file.getSize();
+        //校验文件格式
+        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+        if (!Arrays.<String>asList(ResultResource.FILETYPE).contains(suffix)) {
+            throw new CronusException(CronusException.Type.CRM_FILETYPR_UPLOAD);
+        }
+        //取当前时间的长整形值包含毫秒
+        if (!StringUtils.isEmpty(documentId)) {
+            Map<String, Object> parmasMap = new HashMap<>();
+            parmasMap.put("documentId", Integer.valueOf(documentId));
+            RContractDocument rContractDocument = rContractDocumentMapper.findByFeild(parmasMap);
+            rContractDocument.setIsDeleted(1);
+            //找到附件
+            Document document = documentMapper.selectByKey(rContractDocument.getDocumentId());
+            document.setIsDeleted(1);
+            documentMapper.update(document);
+            rContractDocumentMapper.update(rContractDocument);
+        }
+        long millis = System.currentTimeMillis();
+        //long millis = System.nanoTime();
+        //加上三位随机数
+        Random random = new Random();
+        int end3 = random.nextInt(999);
+        //如果不足三位前面补0 图片新名称
+        String name = millis + String.format("%03d", end3);
+        //生成文件md5
+        try {
+            String md5 = MD5Util.getMd5CodeInputStream(file.getInputStream());
+            //开始上传图片
+            CronusDto uploadDto = uploadPcStreamDocument(file.getInputStream(), fileName,name + "." + suffix);
+            if (uploadDto != null && uploadDto.getData() != null) {
+                String result = FastJsonUtils.obj2JsonString(uploadDto.getData());
+                //把json格式的数据转为对象
+
+                Map<String, Object> map = FastJsonUtils.getSingleBean(result, Map.class);
+                String thumbName = map.get("name").toString();
+                String thunbPath = map.get("imagePath").toString();
+                String remotePath = map.get("remotePath").toString();
+                String url = map.get("url").toString();
+                //封装参数
+                UploadDocumentDTO paramsDto = new UploadDocumentDTO();
+                paramsDto.setName(fileName);
+                paramsDto.setExt(suffix);
+                paramsDto.setMd5(md5);
+                paramsDto.setSavename(thumbName);
+                paramsDto.setSavepath(thunbPath + "/");
+                paramsDto.setSize(Integer.parseInt(size.toString()));
+                paramsDto.setSource(source);
+                paramsDto.setType(suffix);
+                paramsDto.setKey(name);
+
+                NewDocumentDTO documentDto = newDocument(paramsDto, user_id, categoryParam, customerIdParam, contractIdParam, userInfoDTO.getName());
+                if (documentDto.getStatus() == -1) {
+                    throw new CronusException(CronusException.Type.CRM_CONTROCTDOCU_ERROR);
+                }
+                //调用图文识别接口
+                Integer rc_document_id = documentDto.getContract_document_id();
+                //异步无回调
+                //把附件转为base64
+                try{
+                    DocumentCategory documentCategory= documentCategoryMapper.selectByKey(Integer.valueOf(category));
+                    MsgTmplDTO msgTmplDTO = echoService.queryMsgTmpl(postAtt);
+                    String content = MessageFormat.format(msgTmplDTO.getTmpl(),documentCategory.getDocumentCName());
+                    StationMsgReqDTO stationMsgReqDTO = new StationMsgReqDTO();
+                    stationMsgReqDTO.setMsgClassify(postAtt);
+                    stationMsgReqDTO.setMsgTitle(msgTmplDTO.getTitle());
+                    stationMsgReqDTO.setSource("C");
+                    stationMsgReqDTO.setMsgContent(content);
+                    stationMsgReqDTO.setUserPhone(userInfoDTO.getTelephone());
+                    echoService.addStationMsg(stationMsgReqDTO);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+                String imageBase64 = FileBase64ConvertUitl.encodeBase64File(file.getInputStream());
+                addOcrInfo(categoryParam, customerIdParam, imageBase64, rc_document_id, user_id, token, userInfoDTO, null);
+                return url;
+            } else {
+                throw new CronusException(CronusException.Type.CRM_UPLOADERROR_ERROR);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
