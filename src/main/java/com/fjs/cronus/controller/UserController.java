@@ -359,41 +359,46 @@ public class UserController {
         Integer baseCustomerNum = editUserMonthInfoDTO.getBaseCustomerNum();
         Integer rewardCustomerNum = editUserMonthInfoDTO.getRewardCustomerNum();
         if (baseCustomerNum < 0 || rewardCustomerNum < 0) {
-            throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
-        }
-        //获取用户的已分配数
-        //获取这些业务员的自动分配数和自动确认数
-        Map<String, Object> allocateMap = new HashMap<>();
-        allocateMap.put("inOperation", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
-                "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
-        List<Integer> userIds = new ArrayList<>();
-        userIds.add(userId);
-        allocateMap.put("newOwnerIds", userIds);
-        allocateMap.put("createBeginDate", DateUtils.getBeginDateByStr(effectiveDate));
-        allocateMap.put("operationsStr", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
-                "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
-        allocateMap.put("createEndDate", DateUtils.getEndDateByStr(effectiveDate));
-        List<AllocateLog> allocateLogList = allocateLogService.selectByParamsMap(allocateMap);
-        if (allocateLogList.size() >= (baseCustomerNum + rewardCustomerNum)) {
-            throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
-        }
-        Integer updateUserId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-        try {
-            UserMonthInfo userMonthInfo = new UserMonthInfo();
-            userMonthInfo.setLastUpdateUser(updateUserId);
-            userMonthInfo.setBaseCustomerNum(baseCustomerNum);
-            userMonthInfo.setRewardCustomerNum(rewardCustomerNum);
-            userMonthInfo.setLastUpdateTime(new Date());
-            userMonthInfo.setUserId(userId);
-            userMonthInfo.setEffectiveDate(effectiveDate);
-            userMonthInfoService.saveOne(userMonthInfo);
-            resultDto.setResult(CommonMessage.UPDATE_SUCCESS.getCode());
-            resultDto.setMessage(CommonMessage.UPDATE_SUCCESS.getCodeDesc());
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("------------更新业务员月度分配信息失败-------" + e);
             resultDto.setResult(CommonMessage.UPDATE_FAIL.getCode());
-            resultDto.setMessage(CommonMessage.UPDATE_FAIL.getCodeDesc());
+            resultDto.setMessage(CronusException.Type.CEM_CUSTOMERINTERVIEW.getError());
+        }
+        else {
+            //获取用户的已分配数
+            //获取这些业务员的自动分配数和自动确认数
+            Map<String, Object> allocateMap = new HashMap<>();
+            allocateMap.put("inOperation", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
+                    "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
+            List<Integer> userIds = new ArrayList<>();
+            userIds.add(userId);
+            allocateMap.put("newOwnerIds", userIds);
+            allocateMap.put("createBeginDate", DateUtils.getBeginDateByStr(effectiveDate));
+            allocateMap.put("operationsStr", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
+                    "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
+            allocateMap.put("createEndDate", DateUtils.getEndDateByStr(effectiveDate));
+            List<AllocateLog> allocateLogList = allocateLogService.selectByParamsMap(allocateMap);
+            if (allocateLogList.size() >= (baseCustomerNum + rewardCustomerNum)) {
+                resultDto.setResult(CommonMessage.UPDATE_FAIL.getCode());
+                resultDto.setMessage(CronusException.Type.ALLOCATE_NUM_ERROR.getError());
+            } else {
+                Integer updateUserId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+                try {
+                    UserMonthInfo userMonthInfo = new UserMonthInfo();
+                    userMonthInfo.setLastUpdateUser(updateUserId);
+                    userMonthInfo.setBaseCustomerNum(baseCustomerNum);
+                    userMonthInfo.setRewardCustomerNum(rewardCustomerNum);
+                    userMonthInfo.setLastUpdateTime(new Date());
+                    userMonthInfo.setUserId(userId);
+                    userMonthInfo.setEffectiveDate(effectiveDate);
+                    userMonthInfoService.saveOne(userMonthInfo);
+                    resultDto.setResult(CommonMessage.UPDATE_SUCCESS.getCode());
+                    resultDto.setMessage(CommonMessage.UPDATE_SUCCESS.getCodeDesc());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    logger.error("------------更新业务员月度分配信息失败-------" + e);
+                    resultDto.setResult(CommonMessage.UPDATE_FAIL.getCode());
+                    resultDto.setMessage(CommonMessage.UPDATE_FAIL.getCodeDesc());
+                }
+            }
         }
         return resultDto;
     }
