@@ -1560,6 +1560,11 @@
                 </foreach>
                 )
             </when>
+            <when test="mainCitys.size() == 0 and subCompanyIds.size() == 0">
+                and city  is NULL
+                and
+                sub_company_id IS  NULL
+            </when>
         </choose>
         <if test="utmList != null and utmList.size() > 0">
             and utm_source not IN
@@ -1670,6 +1675,11 @@
                     #{item}
                 </foreach>
                 )
+            </when>
+            <when test="mainCitys.size() == 0 and subCompanyIds.size() == 0">
+                and city  is NULL
+                and
+                sub_company_id IS  NULL
             </when>
         </choose>
         <if test="utmList != null and utmList.size() > 0">
