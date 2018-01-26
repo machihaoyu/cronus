@@ -238,7 +238,7 @@ public class UserController {
     })
     @RequestMapping(value = "/getUsersByCompanyId", method = RequestMethod.GET)
     @ResponseBody
-    public TheaApiDTO<Map<String, List<UserMonthInfoDTO>>> getUsersByConpamyId(
+    public TheaApiDTO<Map<String, List<UserMonthInfoDTO>>> getUsersByCompanyId(
             @RequestParam(required = true) String city,
             @RequestParam(required = true) Integer companyId,
             @RequestParam(required = true) String effectiveDate

@@ -179,31 +179,40 @@ public class UserService {
                 }
             }
         }
-        String loanIdsStr = "";
+//        String loanIdsStr = "";
         /*if (null == allocateLogList || allocateLogList.size() == 0) {
             return userMonthInfoDTOList;
         }*/
+        List<Integer> userIds = new ArrayList<>();
+
+
         if (allocateLogList.size() > 0) {
-            loanIdsStr = allocateLogList.get(0).getCustomerId().toString();
-            if (allocateLogList.size() > 1) {
-                for (int i = 1; i < allocateLogList.size(); i++) {
-                    if (allocateLogList.get(i).getCustomerId() != null) {
-                        loanIdsStr = loanIdsStr + "," + allocateLogList.get(i).getCustomerId().toString();
-                    }
-                }
+//            loanIdsStr = allocateLogList.get(0).getCustomerId().toString();
+//            if (allocateLogList.size() > 1) {
+//                for (int i = 1; i < allocateLogList.size(); i++) {
+//                    if (allocateLogList.get(i).getCustomerId() != null) {
+//                        loanIdsStr = loanIdsStr + "," + allocateLogList.get(i).getNewOwnerId().toString();
+//                    }
+//                }
+
+//            }
+            for (int i = 1; i < allocateLogList.size(); i++) {
+                userIds.add(allocateLogList.get(i).getNewOwnerId());
             }
         }
         Map<String, Object> userFullSelectMap = new HashMap<>();
-        userFullSelectMap.put("beginDate", DateUtils.getBeginDateByStr(effectiveDate));
-        userFullSelectMap.put("endDate", DateUtils.getEndDateByStr(effectiveDate));
+        Date date = DateUtils.getBeginDateByStr(effectiveDate);
+
+        userFullSelectMap.put("year", DateUtils.getYear2(date));
+        userFullSelectMap.put("month", DateUtils.getMonth(date));
         userFullSelectMap.put("loanAmountMin", 0);
-        userFullSelectMap.put("inLoanId", loanIdsStr);
+        userFullSelectMap.put("inLoanId", userIds);
         List<CustomerUseful> customerUsefulList = customerUsefulService.countByMap(userFullSelectMap);
         //计算业务员的有效分配数
         for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
             int effectCountNum = userMonthInfoDTO.getEffectiveCustomerNum();
             for (CustomerUseful customerUseful : customerUsefulList) {
-                if (null != customerUseful.getCustomerId() && customerUseful.getCustomerId().equals(userMonthInfoDTO.getUserId())) {
+                if (null != customerUseful.getCreateUser() && customerUseful.getCreateUser().equals(userMonthInfoDTO.getUserId())) {
                     effectCountNum++;
                 }
             }

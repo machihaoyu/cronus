@@ -93,17 +93,20 @@
 			<if test="inCreateUserId != null">
 				AND  create_user IN (#{inCreateUserId})
 			</if>
-			<if test="beginDate != null">
-				<![CDATA[	and create_time >=  #{beginDate }  ]]>
+			<if test="year != null">
+				and YEAR(create_time) =  #{year}
 			</if>
-			<if test="endDate != null">
-				<![CDATA[	and create_time <=  #{endDate }  ]]>
+			<if test="month != null">
+				and Month(create_time) =  #{month}
 			</if>
 			<if test="loanAmountMin != null">
-				<![CDATA[	and loan_amount >  #{loanAmountMin }  ]]>
+				and loan_amount >  #{loanAmountMin}
 			</if>
 			<if test="inLoanId != null">
-				AND loan_id in (#{inLoanId})
+				AND create_user IN
+				<foreach item="item" index="index" collection="inLoanId" open="(" separator="," close=")">
+					#{item}
+				</foreach>
 			</if>
 		</where>
 	</select>

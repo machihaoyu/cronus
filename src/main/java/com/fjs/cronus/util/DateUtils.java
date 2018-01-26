@@ -173,6 +173,12 @@ public final class DateUtils {
         return format(date).substring(0, 4);
     }
 
+    public static Integer getYear2(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal.get(Calendar.YEAR);
+    }
+
     /**
      * 获取日期月份
      *
@@ -183,7 +189,7 @@ public final class DateUtils {
     public static Integer getMonth(Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        return cal.get(Calendar.MONTH);
+        return cal.get(Calendar.MONTH) + 1;
     }
 
     /**
