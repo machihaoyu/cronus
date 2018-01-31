@@ -311,7 +311,7 @@ public class DocumentService {
                 logger.warn("开始通信");
                 ReqParamDTO reqParamDTO = addOcrDealParam(category, customer_id, imageBase64, rc_document_id, user_id, token, userSortInfoDTO, userInfoDTO);
                 //调用图文识别接口
-                talosService.ocrService(reqParamDTO, currenToken);
+                talosService.ocrServiceV2(reqParamDTO, currenToken);
             } catch (Exception e) {
                 logger.error("charge error ", e);
             } finally {
@@ -400,7 +400,9 @@ public class DocumentService {
         reqParamDTO.setAttachmentId(Long.parseLong(document_id.toString()));
         reqParamDTO.setCustomerId(Long.parseLong(customerInfo.getId().toString()));
         reqParamDTO.setCustomerName(customerInfo.getCustomerName());
-        reqParamDTO.setCustomerTelephone(customerInfo.getTelephonenumber());
+        //解密
+        String telephoneNumber = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+        reqParamDTO.setCustomerTelephone(telephoneNumber);
         reqParamDTO.setImgBase64(imageBase64);
         reqParamDTO.setSide(jsonObject.getString("side"));
         if (jsonObject.getInteger("type") != null) {
