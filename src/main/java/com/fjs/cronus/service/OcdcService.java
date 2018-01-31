@@ -478,6 +478,9 @@ public class OcdcService {
             if (null != map.get("repeat_callback_time") && StringUtils.isNotBlank(map.get("repeat_callback_time").toString())) {
                 customerSalePushLog.setRepeatCallbackTime(sdf.parse(map.get("repeat_callback_time").asText()));
             }
+            if (null != map.get("house_status") && StringUtils.isNotBlank(map.get("house_status").toString())) {
+                customerSalePushLog.setHouseStatus(map.get("house_status").asText());
+            }
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("--------------------------OCDC转CustomerPush失败！！");
