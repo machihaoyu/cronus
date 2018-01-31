@@ -19,4 +19,6 @@ public interface TalosService {
     @RequestMapping(value = "/talos/api/v1/ocrService", method = RequestMethod.POST)
     void ocrService(@RequestBody ReqParamDTO reqParamDTO, @RequestHeader(name = "Authorization") String token);
 
+    @RequestMapping(value = "/talos/api/v2/ocrService", method = RequestMethod.POST)
+    void ocrServiceV2(@RequestBody ReqParamDTO reqParamDTO, @RequestHeader(name = "Authorization") String token);
 }
