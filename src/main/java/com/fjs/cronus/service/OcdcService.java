@@ -238,7 +238,7 @@ public class OcdcService {
             List<String> listraw = new ArrayList<>();
             listraw.add(servicedData);
             ocdcData.setData(listraw);
-            allocateEntities = addOcdcCustomer(ocdcData, AllocateSource.WAITING, token);
+            allocateEntities = addOcdcCustomer(ocdcData, AllocateSource.SERVICES, token);
         } catch (Exception e) {
             logger.warn(e.getMessage());
         }
