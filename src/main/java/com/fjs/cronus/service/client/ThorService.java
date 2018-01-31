@@ -693,5 +693,9 @@ public interface ThorService {
     @RequestMapping(value = "/api/v1/getSubCompanyToCronus", method = RequestMethod.GET)
     PhpApiDto<List<CronusSubInfoDTO>> getSubCompanyToCronus(@RequestHeader("Authorization") String token,@RequestParam(value = "userId") Integer  userId,@RequestParam(value = "systemName") String systemName);
 
+
+    @RequestMapping(value = "/api/v2/userlistforemploy", method = RequestMethod.GET)
+    ThorApiDTO<List<LightUserInfoDTO>> getUserlistByCompanyId(@RequestHeader("Authorization") String token,@RequestParam(value = "sub_company") Integer  subCompany);
+
 }
 
