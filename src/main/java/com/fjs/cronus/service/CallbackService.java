@@ -85,7 +85,7 @@ public class CallbackService {
          }*/
          paramsMap.put("customer_type", CustomerEnum.getByValue(type).getName());
          if (!StringUtils.isEmpty(search_city)){
-             paramsMap.put("search_city",search_city);
+             paramsMap.put("city",search_city);
          }
          if (!StringUtils.isEmpty(search_name)){
             paramsMap.put("search_name",search_name);
