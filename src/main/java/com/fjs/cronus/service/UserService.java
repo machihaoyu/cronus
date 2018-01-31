@@ -206,7 +206,9 @@ public class UserService {
         userFullSelectMap.put("year", DateUtils.getYear2(date));
         userFullSelectMap.put("month", DateUtils.getMonth(date));
         userFullSelectMap.put("loanAmountMin", 0);
-        userFullSelectMap.put("inLoanId", userIds);
+        if (userIds.size()>0) {
+            userFullSelectMap.put("inLoanId", userIds);
+        }
         List<CustomerUseful> customerUsefulList = customerUsefulService.countByMap(userFullSelectMap);
         //计算业务员的有效分配数
         for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
