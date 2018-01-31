@@ -118,6 +118,11 @@ public class AutoCleanService {
 //            config.setConValue("1");
 //            configService.update(config);
             //修改redis配置
+            String status = redisConfigOptions.get(CommonConst.AUTO_CLEAN_STATUS);
+            if (StringUtils.isNotEmpty(status) && status.equals("1"))
+            {
+                return;
+            }
             redisConfigOptions.set(CommonConst.AUTO_CLEAN_STATUS, CommonEnum.YES.getCode().toString());
             //计算清洗前的各类型的数据量
             Map<String, Integer> beforeCountMap = new HashMap<>();
