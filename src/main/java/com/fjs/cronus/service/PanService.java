@@ -137,18 +137,6 @@ public class PanService {
         if (Integer.parseInt(status) == 1){
             throw new CronusException(CronusException.Type.MESSAGE_CUSTOMERCLEAN_ERROR);
         }
-        //下面判断一天之内领取的客户是否超限
-        /*String maxCount = theaClientService.findValueByName(token, CommonConst.CANPUUMAXCOUNT);
-        //查询当前业务员领取的个数
-        paramMap.put("createUserId",userId);
-        paramMap.put("operation",CommonConst.OPERATION);
-        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
-       // paramMap.put("operation",CommonConst.OPERATION);
-        paramMap.put("createTime",today);
-        Integer count = allocateLogMapper.receiveCountByWhere(paramMap);
-        if (count >= Integer.parseInt(maxCount)){
-            throw new CronusException(CronusException.Type.MESSAGE_PULLCUSTOMERCOUNT_ERROR);
-        }*/
         //找到客户信息
         CustomerInfo customerInfo = customerInfoService.findCustomerById(customerId);
         if (customerInfo == null){
