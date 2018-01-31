@@ -147,6 +147,15 @@ public class OcrIdentityService {
                     ocrIdentity2.setLastUpdateUser(Integer.parseInt(idCardDTO.getUpdate_user_id().toString()));
                     ocrIdentity2.setDocumentCategoryIds(documentCategory.getId() + "," + docCategory.getId());
                     //同时更新
+                    if (idCardDTO.getCard_num() != null){
+                        try {
+                            CustomerInfo customerInfo = customerInfoService.findCustomerById(Integer.valueOf(idCardDTO.getCustomer_id().toString()));
+                            customerInfo.setIdCard(idCardDTO.getCard_num());
+                            customerInfoMapper.updateCustomer(customerInfo);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
                 }else {
                     //传入的身份证是反面信息的话 只更新反面信息
                     ocrIdentity2.setCardSignOrg(idCardDTO.getCard_sign_org());
@@ -189,6 +198,15 @@ public class OcrIdentityService {
                 identity.setIsDeleted(0);
                 //开始插入数据
                 ocrIdentityMapper.addOcrIdentity(identity);
+                if (idCardDTO.getCard_num() != null){
+                    try {
+                        CustomerInfo customerInfo = customerInfoService.findCustomerById(Integer.valueOf(idCardDTO.getCustomer_id().toString()));
+                        customerInfo.setIdCard(idCardDTO.getCard_num());
+                        customerInfoMapper.updateCustomer(customerInfo);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
                 Integer id  = identity.getId();
                 if (id == null){
                     throw new CronusException(CronusException.Type.CRM_OCRIDENTITY_ERROR);
