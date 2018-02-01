@@ -5,12 +5,14 @@ import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.config.RedisConfig;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.UserMonthInfoDTO;
+import com.fjs.cronus.dto.api.ThorApiDTO;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.CityDto;
 import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.CrmCitySubCompanyDto;
+import com.fjs.cronus.dto.uc.LightUserInfoDTO;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerUseful;
 import com.fjs.cronus.model.UserMonthInfo;
@@ -28,6 +30,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -89,33 +92,31 @@ public class UserService {
 
 
     public Map<String, List<UserMonthInfoDTO>> getUserMonthInfoList(String city, Integer companyId, String effectiveDate, Integer userIdByOption) throws Exception {
-        BaseUcDTO<List<String>> baseUcDTO = thorService.getUserIds(publicToken, null, null,null, null, companyId, null);
-        if (null == baseUcDTO.getRetData() || baseUcDTO.getRetData().size() == 0) {
+        ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(publicToken, companyId);
+        if (baseUcDTO.getResult().equals(1) || baseUcDTO.getData().size() == 0) {
             return null;
         }
+        List<Integer> companyUserIds = new ArrayList<>();
         //设置初始化列表项
         List<UserMonthInfoDTO> userMonthInfoDTOList = new ArrayList<>();
-        for (String userId : baseUcDTO.getRetData()) {
+        for (LightUserInfoDTO lightUserInfoDTO : baseUcDTO.getData()) {
             UserMonthInfoDTO userMonthInfoDTO = new UserMonthInfoDTO();
-            userMonthInfoDTO.setUserId(Integer.valueOf(userId));
-            AppUserDto appUserDto = getUserInfoByField(null, Integer.valueOf(userId), null);
-            if (appUserDto != null) {
-                if (StringUtils.isNotBlank(appUserDto.getDepartment_id()) && !"null".equals(appUserDto.getDepartment_id())) {
-                    userMonthInfoDTO.setDepartmentId(Integer.valueOf(appUserDto.getDepartment_id()));
-                }
-                if (StringUtils.isNotBlank(appUserDto.getName())) {
-                    userMonthInfoDTO.setName(appUserDto.getName());
-                }
-                if (StringUtils.isNotBlank(appUserDto.getDepartment_name())) {
-                    userMonthInfoDTO.setDepartmentName(appUserDto.getDepartment_name());
-                }
-                userMonthInfoDTOList.add(userMonthInfoDTO);
+            userMonthInfoDTO.setUserId(lightUserInfoDTO.getId());
+            companyUserIds.add(lightUserInfoDTO.getId());
+            userMonthInfoDTO.setDepartmentId(lightUserInfoDTO.getDepartmentId());
+
+            if (StringUtils.isNotBlank(lightUserInfoDTO.getName())) {
+                userMonthInfoDTO.setName(lightUserInfoDTO.getName());
             }
+            if (StringUtils.isNotBlank(lightUserInfoDTO.getDepartment())) {
+                userMonthInfoDTO.setDepartmentName(lightUserInfoDTO.getDepartment());
+            }
+            userMonthInfoDTOList.add(userMonthInfoDTO);
         }
         //查找全部区段的信息
         Map<String, Object> selectMap = new HashMap<>();
         selectMap.put("effectiveDate", effectiveDate);
-        selectMap.put("userIds", baseUcDTO.getRetData());
+        selectMap.put("userIds", companyUserIds);
         List<UserMonthInfo> userMonthInfoList = userMonthInfoService.selectByParamsMap(selectMap);
         //检查系统中已查找出的userIds
         for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
@@ -164,10 +165,7 @@ public class UserService {
         }
         //获取这些业务员的自动分配数和确认数
         Map<String, Object> allocateMap = new HashMap<>();
-//        allocateMap.put("operationsStr", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
-//                "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
-//        String userIdsStr = CommonUtil.initStrListToStr(baseUcDTO.getRetData());
-        allocateMap.put("newOwnerIds", baseUcDTO.getRetData());
+        allocateMap.put("newOwnerIds", companyUserIds);
         allocateMap.put("createBeginDate", DateUtils.getBeginDateByStr(effectiveDate));
         allocateMap.put("createEndDate", DateUtils.getEndDateByStr(effectiveDate));
         List<AllocateLog> allocateLogList = allocateLogService.selectByParamsMap(allocateMap);
@@ -179,23 +177,9 @@ public class UserService {
                 }
             }
         }
-//        String loanIdsStr = "";
-        /*if (null == allocateLogList || allocateLogList.size() == 0) {
-            return userMonthInfoDTOList;
-        }*/
         List<Integer> userIds = new ArrayList<>();
 
-
         if (allocateLogList.size() > 0) {
-//            loanIdsStr = allocateLogList.get(0).getCustomerId().toString();
-//            if (allocateLogList.size() > 1) {
-//                for (int i = 1; i < allocateLogList.size(); i++) {
-//                    if (allocateLogList.get(i).getCustomerId() != null) {
-//                        loanIdsStr = loanIdsStr + "," + allocateLogList.get(i).getNewOwnerId().toString();
-//                    }
-//                }
-
-//            }
             for (int i = 1; i < allocateLogList.size(); i++) {
                 userIds.add(allocateLogList.get(i).getNewOwnerId());
             }
@@ -221,7 +205,7 @@ public class UserService {
             userMonthInfoDTO.setEffectiveCustomerNum(effectCountNum);
         }
         //处理最终返回值
-        List<Map<String, List<UserMonthInfoDTO>>> resultDTO = new ArrayList<>();
+//        List<Map<String, List<UserMonthInfoDTO>>> resultDTO = new ArrayList<>();
         //部门名列表
         List<String> departmentNameList = new ArrayList<>();
         for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
