@@ -54,6 +54,10 @@ public class PanService {
     CustomerInfoLogMapper customerInfoLogMapper;
     @Autowired
     TheaService theaService;
+
+    @Autowired
+    private AutoCleanService autoCleanService;
+
     public QueryResult<CustomerListDTO> listByOffer(PanParamDTO pan, Integer userId, Integer companyId , String token, String system,
                                                 Integer page, Integer size, List<String> mainCitys, List<Integer> subCompanyIds, Integer type,Integer mountLevle,List<String> utmList,List<String>paramsList) {
 
@@ -133,8 +137,9 @@ public class PanService {
             throw new CronusException(CronusException.Type.MESSAGE_CUSTOMERCLEAN_ERROR);
         }
         //判断是否是自动清洗的状态
-        String status = theaClientService.findValueByName(token, CommonConst.AUTO_CLEAN_STATUS);
-        if (Integer.parseInt(status) == 1){
+//        String status = theaClientService.findValueByName(token, CommonConst.AUTO_CLEAN_STATUS);
+//        if (Integer.parseInt(status) == 1){
+        if (autoCleanService.autoCleanStatus()){
             throw new CronusException(CronusException.Type.MESSAGE_CUSTOMERCLEAN_ERROR);
         }
         //找到客户信息
