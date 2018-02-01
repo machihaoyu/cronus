@@ -9,6 +9,7 @@ import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.dto.cronus.CustomerSourceDTO;
 import com.fjs.cronus.dto.cronus.ImportInfoDTO;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.LookPoolService;
 import com.fjs.cronus.service.uc.UcService;
@@ -304,4 +305,47 @@ public class ResignCustomerController {
         }
         return resultDto;
     }
+    @ApiOperation(value = "测试全部客户盘", notes = "测试全部客户盘")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "telephonenumber", value = "手机号", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "utmSource", value = "渠道来源(除公盘外的必须传)", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "ownUserName", value = "负责人名称", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "customerSource", value = "客户来源", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "level", value = "客户状态 意向客户 协议客户 成交客户", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "companyId", value = "公司id", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "查询第几页", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "显示多少", required = false, paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/allPoolTest", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<QueryResult<CustomerInfo>> allPoolTest(@RequestHeader("Authorization") String token,
+                                                        @RequestParam(required = false) String customerName,
+                                                        @RequestParam(required = false) String telephonenumber,
+                                                        @RequestParam(required = false) String utmSource,
+                                                        @RequestParam(required = false) String ownUserName,
+                                                        @RequestParam(required = false) String customerSource,
+                                                        @RequestParam(required = false) String level,
+                                                        @RequestParam(required = false) Integer companyId,
+                                                        @RequestParam(required = false) Integer page,
+                                                        @RequestParam(required = false) Integer size) {
+        CronusDto resultDto = new CronusDto();
+        QueryResult<CustomerInfo> result = new QueryResult<CustomerInfo>();
+        try {
+            result = lookPoolService.allPoolTest(token, customerName, telephonenumber, utmSource, ownUserName, customerSource, level, companyId, page, size);
+            resultDto.setData(result);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            logger.error("-------------->unablePool三五客户盘列表公司", e);
+            if (e instanceof CronusException) {
+                CronusException cronusException = (CronusException) e;
+                throw cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return resultDto;
+    }
+
 }

@@ -208,14 +208,48 @@ public class LookPoolService {
 
 
             }
-
         }
-
-
-
-
         flag = true;
         return  flag;
 
     }
+
+
+
+    public  QueryResult<CustomerInfo> allPoolTest(String token, String customerName, String telephonenumber, String utmSource, String ownUserName, String customerSource,
+                                                 String level, Integer companyId, Integer page, Integer size){
+
+        QueryResult<CustomerInfo> queryResult = new  QueryResult();
+        Map<String,Object> paramMap = new HashMap<>();
+        if (!StringUtils.isEmpty(customerName)){
+            paramMap.put("customerName",customerName);
+        }
+        if (!StringUtils.isEmpty(telephonenumber)){
+            paramMap.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
+        }
+        if (!StringUtils.isEmpty(utmSource)){
+            paramMap.put("utmSource",utmSource);
+        }
+        if (!StringUtils.isEmpty(ownUserName)){
+            paramMap.put("ownUserName",ownUserName);
+        }
+        if (!StringUtils.isEmpty(customerSource)){
+            paramMap.put("customerSource",customerSource);
+        }
+        if (!StringUtils.isEmpty(level)){
+            paramMap.put("level",level);
+        }
+        if (!StringUtils.isEmpty(companyId)){
+            paramMap.put("companyId",companyId);
+        }
+        //获取三无客户盘的状态
+        paramMap.put("start",(page-1) * size);
+        paramMap.put("size",size);
+        List<CustomerInfo> customerInfoList = customerInfoMapper.customerList(paramMap);
+        queryResult.setRows(customerInfoList);
+        Integer count = customerInfoMapper.customerListCount(paramMap);
+        queryResult.setTotal(count.toString());
+        return  queryResult;
+    }
+
 }
