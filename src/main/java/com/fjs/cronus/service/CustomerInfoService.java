@@ -1641,7 +1641,32 @@ public class CustomerInfoService {
         scrmbDTO.setCustomerName(customerInfo.getCustomerName());
         return scrmbDTO;
     }
+    public List<ScrmbDTO> getCommunByCustomerIds(String customerIds) {
 
+        Map<String,Object> paramsMap = new HashMap<>();
+        List paramsList = new ArrayList();
+        List<ScrmbDTO> scrmbDTOs = new ArrayList<>();
+        if (!StringUtils.isEmpty(customerIds)){
+            String[] strArray = null;
+            strArray = customerIds.split(",");
+            for (int i = 0; i < strArray.length; i++) {
+                paramsList.add(Integer.parseInt(strArray[i]));
+            }
+            paramsMap.put("paramsList", paramsList);
+        }else {
+            throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
+        }
+        List<CustomerInfo> customerInfos = customerInfoMapper.findCustomerListByFeild(paramsMap);
+        for (CustomerInfo customerInfo : customerInfos) {
+            ScrmbDTO scrmbDTO = new ScrmbDTO();
+            scrmbDTO.setCustomerId(customerInfo.getId());
+            scrmbDTO.setCommunicateTime(customerInfo.getCommunicateTime());
+            scrmbDTO.setConfirm(customerInfo.getConfirm());
+            scrmbDTO.setCustomerName(customerInfo.getCustomerName());
+            scrmbDTOs.add(scrmbDTO);
+          }
+        return scrmbDTOs;
+    }
 
     public Integer getKeepCount(UserInfoDTO userInfoDTO){
 
