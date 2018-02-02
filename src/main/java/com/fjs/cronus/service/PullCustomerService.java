@@ -58,6 +58,8 @@ public class PullCustomerService {
 
     @Value("${sysn.haidaiUrl}")
     private String haidaiUrl;
+    @Value("${sysn.haidaiKey}")
+    private String haidaiKey;
     public PullCustomerDTO copyProperty(PullCustomer pullCustomer){
         PullCustomerDTO pullCustomerDTO=new PullCustomerDTO();
         pullCustomerDTO.setId(pullCustomer.getId());
@@ -389,6 +391,7 @@ public class PullCustomerService {
         jsonObject.put("orderID",orderID);
         jsonObject.put("phone",pullCustomer.getTelephone());
         jsonObject.put("status",status);
+        jsonObject.put("key",haidaiKey);
         //发送post请求
         CronusDto cronusDto = MultiThreadedHttpConnection.getInstance().sendDataByPost(haidaiUrl,jsonObject.toJSONString());
         if (cronusDto != null) {
