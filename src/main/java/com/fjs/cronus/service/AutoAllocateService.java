@@ -222,7 +222,7 @@ public class AutoAllocateService {
                     if (allocateSource.getCode().equals("2")) {
                         Map<String, Object> againAllocateMap = new HashMap<>();
                         againAllocateMap.put("dataId", customerId);
-                        againAllocateMap.put("status", CommonEnum.AGAIN_ALLOCATE_STATUS_1.getCodeDesc());
+                        againAllocateMap.put("status", CommonEnum.AGAIN_ALLOCATE_STATUS_1.getCode());
                         againAllocateCustomerService.saveStatusByDataId(againAllocateMap);
                     }
                     //添加分配日志
