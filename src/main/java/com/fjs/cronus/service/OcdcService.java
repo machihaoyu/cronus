@@ -184,7 +184,8 @@ public class OcdcService {
                                 againAllocateCustomerService.addAgainAllocateCustomer(againAllocateCustomer);
                                 break;
                             case "4":
-                                pushServiceSystem(map);
+                                stringBuilder.append(pushServiceSystem(map));
+                                stringBuilder.append("-");
                                 break;
                         }
                     }
