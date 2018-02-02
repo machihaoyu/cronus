@@ -57,6 +57,9 @@ public class OcdcService {
     @Value("${phpSystem.ocdcKey}")
     private String ocdcKey;
 
+    @Value("${phpSystem.serviceKey}")
+    private String serviceKey;
+
     @Autowired
     private SysConfigService sysConfigService;
 
@@ -555,7 +558,7 @@ public class OcdcService {
             requestFactory.setReadTimeout(90000);
             restTemplate.setRequestFactory(requestFactory);
             MultiValueMap<String, String> postParameters = new LinkedMultiValueMap<String, String>();
-            postParameters.add("key", ocdcKey);
+            postParameters.add("key", serviceKey);
             postParameters.add("data", json);
             String str = restTemplate.postForObject(customerToService, postParameters, String.class);
             return str;
