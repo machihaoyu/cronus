@@ -29,15 +29,15 @@ public class OutPutService {
         CronusDto result  = MultiThreadedHttpConnection.getInstance().sendPostByMap(ocdcUrl,jsonObject);
         System.out.println(result);
     }
-  /*  public static void main(String args[]){
+   /* public static void main(String[] args){
         OutPutService outPutService = new OutPutService();
         CustomerInfo customerInfo = new CustomerInfo();
-   *//*     customerInfo.setId(101);
+        customerInfo.setId(101);
         customerInfo.setTelephonenumber("13162706810");
         customerInfo.setCustomerName("zl");
         customerInfo.setHouseStatus("无");
         customerInfo.setCustomerSource("京东");
-        customerInfo.setUtmSource("京东");*//*
+        customerInfo.setUtmSource("京东");
         String str = "{\n" +
                 "    \"customer_id\":\"131\",\n" +
                 "    \"telephonenumber\":\"filUhyU9JwtGrZ13MHuXOw==\",\n" +
@@ -89,10 +89,9 @@ public class OutPutService {
         JSONObject jsonObject = JSONObject.parseObject(str);
         customerInfo = FastJsonUtils.getSingleBean(jsonObject.toJSONString(),CustomerInfo.class);
         customerInfo.setId(jsonObject.getInteger("customer_id"));
-        HttpClientHelper httpClientHelper = new HttpClientHelper();
         System.out.println(jsonObject.toJSONString());
         Map map = outPutService.entityToJsonObject(customerInfo);
-        CronusDto result  = MultiThreadedHttpConnection.getInstance().sendPostByMap(ocdcUrl,map);
+        CronusDto result  = MultiThreadedHttpConnection.getInstance().sendPostByMap("http://ocdc.fang-crm.com/Api/Index/save?key=356a192b7oo3b06c54574d18c28d46e63as428ab",map);
         //outPutService.synchronToOcdc(customerInfo);
         System.out.println(result.getData());
     }*/
@@ -200,7 +199,9 @@ public class OutPutService {
             json.put("customer_source",customerInfo.getCustomerSource());
         }
         if (!StringUtils.isEmpty(customerInfo.getLoanAmount())){
-            json.put("loan_amount",customerInfo.getLoanAmount().toString());
+            String value = customerInfo.getLoanAmount().toString();
+            Integer result = Integer.valueOf(value) * 10000;
+            json.put("loan_amount",result.toString());
         }
         if (!StringUtils.isEmpty(customerInfo.getReceiveTime())){
             Date time = DateUtils.parse(DateUtils.format(customerInfo.getReceiveTime(),DateUtils.FORMAT_LONG),DateUtils.FORMAT_LONG);
