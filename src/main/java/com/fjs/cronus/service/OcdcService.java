@@ -10,6 +10,7 @@ import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.crm.OcdcData;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.entity.AllocateEntity;
+import com.fjs.cronus.enums.AllocateEnum;
 import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
@@ -136,10 +137,12 @@ public class OcdcService {
                                 stringBuilder.append(loan);
                                 stringBuilder.append("-");
                                 allocateEntity.setSuccess(true);
+                                allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
                             }
                         } else {
                             if (isThreeNonCustomer(customerSalePushLog) || isRepeatPushInTime(customerSalePushLog)) {
                                 allocateEntity.setSuccess(true);
+                                allocateEntity.setAllocateStatus(AllocateEnum.THREE_NON_CUSTOMER);
                                 stringBuilder.append("三无-重复时间申请");
                                 stringBuilder.append("-");
                             } else {
@@ -154,6 +157,7 @@ public class OcdcService {
                                     stringBuilder.append("有负责人，发消息");
                                     stringBuilder.append("-");
                                     sendMail(token, customerDTO);
+                                    allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
                                     allocateEntity.setSuccess(true);
                                 }
                             }
