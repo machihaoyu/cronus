@@ -594,7 +594,7 @@ public class OcdcService {
     }
 
     public boolean phpSysConnectStatus() {
-        SysConfig sysConfig = sysConfigService.getConfigByName("sysUse");
+        SysConfig sysConfig = sysConfigService.getConfigByName("oldconnect");
         if (sysConfig.getConValue().equals("1")) {
             return true;
         }
