@@ -160,13 +160,15 @@
   <select id="findListByFeild" parameterType="java.util.Map" resultType="java.lang.Integer">
     select
     DISTINCT(document_c_id)
-    from r_contract_document
-    where is_deleted = 0
+    from r_contract_document r
+    left join document d on d.id = r.document_id
+    where r.is_deleted = 0
+    and d.is_flag IN (0,2)
     <if test="rc_document_id != null">
-      and id = #{rc_document_id}
+      and r.id = #{rc_document_id}
     </if>
     <if test="customerId != null">
-      and customer_id = #{customerId}
+      and r.customer_id = #{customerId}
     </if>
   </select>
 
