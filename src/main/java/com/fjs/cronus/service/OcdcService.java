@@ -15,6 +15,7 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.AgainAllocateCustomer;
 import com.fjs.cronus.model.CustomerSalePushLog;
+import com.fjs.cronus.model.SysConfig;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.thea.ThorClientService;
 import com.fjs.cronus.util.DEC3Util;
@@ -54,6 +55,9 @@ public class OcdcService {
 
     @Value("${phpSystem.ocdcKey}")
     private String ocdcKey;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     @Autowired
     private AgainAllocateCustomerService againAllocateCustomerService;
@@ -590,12 +594,11 @@ public class OcdcService {
     }
 
     public boolean phpSysConnectStatus() {
-        ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
-        String status = redisConfigOptions.get(CommonConst.PHPSYS_CONNECT_STATUS);
-        if (org.apache.commons.lang.StringUtils.isNotEmpty(status) && status.equals("1"))
+        SysConfig sysConfig = sysConfigService.getConfigByName("sysUse");
+        if (sysConfig.getConValue().equals("1")) {
             return true;
-        else
-            return false;
+        }
+        else return false;
     }
 
 
