@@ -125,7 +125,7 @@ public class AutoAllocateService {
                     && CommonConst.UTM_SOURCE_FANGXIN.equals(customerDTO.getUtmSource())) {//房速贷，渠道fangxin直接到公盘
                 customerDTO.setOwnerUserId(0);
                 allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
-            } else if (StringUtils.contains(allocateCities, customerDTO.getCity())) {
+            } else if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
                 Integer ownUserId = getAllocateUser(customerDTO.getCity());
                 if (ownUserId > 0) {
                     customerDTO.setOwnerUserId(ownUserId);
