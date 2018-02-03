@@ -66,8 +66,9 @@ public class CommunicationLogService {
         //修改客户
         //有效客户
         if(customerUsefulDTO.getLoanAmount() != null){
-            CustomerUseful customerUseful = customerUsefulService.selectByCustomerId(customerUsefulDTO.getCustomerId());
-            if (customerUseful == null){
+            //判断客户的确认状态
+            if (customerDto.getConfirm() == 1){
+                CustomerUseful customerUseful = new CustomerUseful();
                 customerUseful=customerUsefulService.copyProperty(customerUsefulDTO);
                 customerUseful.setUsefulTime(date);
                 customerUseful.setCreateTime(date);

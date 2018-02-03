@@ -6,6 +6,7 @@ import com.fjs.cronus.model.CustomerUseful;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,8 +27,14 @@ public class CustomerUsefulService {
      */
     public CustomerUseful selectByCustomerId(Integer customerId){
         CustomerUseful customerUseful=new CustomerUseful();
+        Map<String,Object> map = new HashMap();
+        map.put("customer_id",customerId);
         customerUseful.setCustomerId(customerId);
-        return customerUsefulMapper.selectOne(customerUseful);
+        List<CustomerUseful> customerUsefuls = customerUsefulMapper.findByList(map);
+        if (customerUsefuls != null && customerUsefuls.size() > 0){
+            customerUseful = customerUsefuls.get(0);
+        }
+        return customerUseful;
     }
 
     public Integer addCustomerUseful(CustomerUseful customerUseful){

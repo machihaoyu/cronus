@@ -11,4 +11,5 @@ import java.util.Map;
 public interface CustomerUsefulMapper extends MyMapper<CustomerUseful> {
 
     List<CustomerUseful> countByMap(Map<String, Object> map);
+    List<CustomerUseful> findByList(Map<String, Object> map);
 }
