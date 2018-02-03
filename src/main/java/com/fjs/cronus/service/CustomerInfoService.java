@@ -880,10 +880,7 @@ public class CustomerInfoService {
             }
 
             if (!StringUtils.isEmpty(telephonenumber)) {
-                List paramsList = new ArrayList();
-                paramsList.add(DEC3Util.des3EncodeCBC(telephonenumber));
-                paramsList.add(telephonenumber);
-                paramMap.put("paramsList", paramsList);
+                paramMap.put("telephonenumber", DEC3Util.des3EncodeCBC(telephonenumber));
             }
             if (!StringUtils.isEmpty(utmSource)) {
                 paramMap.put("utmSource", utmSource);
