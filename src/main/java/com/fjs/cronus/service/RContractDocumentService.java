@@ -105,7 +105,7 @@ public class RContractDocumentService {
                 ocrDocumentDto.setDocumentSavename(rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDto.setFlag(rcdocument.getDocument().getIsFlag());
                 ocrDocumentDto.setDocumentSavepath(ResultResource.DOWNLOADFOOTPATH + rcdocument.getDocument().getDocumentSavepath());
-                ocrDocumentDto.setUrl(aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
+                ocrDocumentDto.setUrl(aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath()+ "/"+ rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDtos.add(ocrDocumentDto);
             }
             resultDto.setData(ocrDocumentDtos);
@@ -171,7 +171,7 @@ public class RContractDocumentService {
         Integer confirm = 1;
         Map<String,String> map = new HashMap<>();
         map.put("documentId",rcdocument.getDocumentId().toString());
-        map.put("url", aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
+        map.put("url", aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath() +"/"+ rcdocument.getDocument().getDocumentSavename());
         if (confirm.equals(rcdocument.getDocument().getIsFlag()))
             map.put("confirm", "0");
         else
@@ -199,7 +199,7 @@ public class RContractDocumentService {
             for (RContractDocument rContractDocument : rContractDocuments){
                 Map<String,String> map = new HashMap<>();
                 map.put("documentId", rContractDocument.getDocumentId().toString());
-                map.put("url", aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rContractDocument.getDocument().getDocumentSavepath() + rContractDocument.getDocument().getDocumentSavename());
+                map.put("url", aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rContractDocument.getDocument().getDocumentSavepath()+"/" + rContractDocument.getDocument().getDocumentSavename());
                 if (confirm.equals(rContractDocument.getDocument().getIsFlag()))
                     map.put("confirm", "0");
                 else
