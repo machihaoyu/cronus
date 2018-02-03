@@ -204,14 +204,14 @@ public class OcdcService {
                     }
                 } catch (RuntimeException e) {
                     stringBuilder.append(e.getMessage());
-                    logger.warn(e.getMessage());
+                    logger.error("分配失败",e);
                     failList.add(customerSalePushLog.getOcdcId().toString());
                 }
                 ocdcMessage.add(stringBuilder.toString());
                 customerSalePushLogList.add(customerSalePushLog);
             }
         } catch (Exception e) {
-            logger.warn(e.getMessage());
+            logger.error("分配异常",e.getMessage());
         }
         //保存OCDC推送日志
         customerSalePushLogService.insertList(customerSalePushLogList);
