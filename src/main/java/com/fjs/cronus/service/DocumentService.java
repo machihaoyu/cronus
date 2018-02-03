@@ -539,7 +539,7 @@ public class DocumentService {
                 paramsDto.setExt(suffix);
                 paramsDto.setMd5(md5);
                 paramsDto.setSavename(thumbName);
-                paramsDto.setSavepath(thunbPath);
+                paramsDto.setSavepath(thunbPath + "/");
                 paramsDto.setSize(Integer.parseInt(size.toString()));
                 paramsDto.setSource(source);
                 paramsDto.setType(suffix);
@@ -840,7 +840,7 @@ public class DocumentService {
                 paramsDto.setExt(suffix);
                 paramsDto.setMd5(md5);
                 paramsDto.setSavename(thumbName);
-                paramsDto.setSavepath(thunbPath);
+                paramsDto.setSavepath(thunbPath + "/");
                 paramsDto.setSize(size);
                 paramsDto.setSource(source);
                 paramsDto.setType(suffix);
@@ -882,7 +882,7 @@ public class DocumentService {
     }
 
     public SaasDocumentDTO uploadSaasDocumentOk(InputStream file, String fileName, String contractId, String telephone,
-                                         String category, String source, Integer size, String token, String base64, Integer documentId) {
+                                                String category, String source, Integer size, String token, String base64, Integer documentId) {
         SaasDocumentDTO saasDocumentDTO = new SaasDocumentDTO();
         //校验参数
         if (category == null || "".equals(category)) {
@@ -972,7 +972,7 @@ public class DocumentService {
                 paramsDto.setExt(suffix);
                 paramsDto.setMd5(md5);
                 paramsDto.setSavename(thumbName);
-                paramsDto.setSavepath(thunbPath);
+                paramsDto.setSavepath(thunbPath + "/");
                 paramsDto.setSize(size);
                 paramsDto.setSource(source);
                 paramsDto.setType(suffix);
@@ -1073,7 +1073,7 @@ public class DocumentService {
                 paramsDto.setExt(suffix);
                 paramsDto.setMd5(md5);
                 paramsDto.setSavename(thumbName);
-                paramsDto.setSavepath(thunbPath);
+                paramsDto.setSavepath(thunbPath + "/");
                 paramsDto.setSize(Integer.parseInt(size.toString()));
                 paramsDto.setSource(source);
                 paramsDto.setType(suffix);

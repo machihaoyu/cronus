@@ -87,7 +87,7 @@ public class AppService {
         paramMap.put("createUserId",userId);
         paramMap.put("operationList", list);
         String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
-       // String today = "2017-12-27";
+        // String today = "2017-12-27";
         // paramMap.put("operation",CommonConst.OPERATION);
         paramMap.put("createTime",today);
         List<Integer> allocateIds =allocateLogMapper.getReceiveCount(paramMap);
@@ -164,7 +164,7 @@ public class AppService {
                 ocrDocumentDto.setDocumentSavename(rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDto.setFlag(rcdocument.getDocument().getIsFlag());
                 ocrDocumentDto.setDocumentSavepath(ResultResource.DOWNLOADFOOTPATH + rcdocument.getDocument().getDocumentSavepath());
-                ocrDocumentDto.setUrl(aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath() +"/"+ rcdocument.getDocument().getDocumentSavename());
+                ocrDocumentDto.setUrl(aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDtos.add(ocrDocumentDto);
             }
         }

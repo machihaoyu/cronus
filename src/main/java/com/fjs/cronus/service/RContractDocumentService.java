@@ -105,7 +105,7 @@ public class RContractDocumentService {
                 ocrDocumentDto.setDocumentSavename(rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDto.setFlag(rcdocument.getDocument().getIsFlag());
                 ocrDocumentDto.setDocumentSavepath(ResultResource.DOWNLOADFOOTPATH + rcdocument.getDocument().getDocumentSavepath());
-                ocrDocumentDto.setUrl(aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath()+ "/"+ rcdocument.getDocument().getDocumentSavename());
+                ocrDocumentDto.setUrl(aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
                 ocrDocumentDtos.add(ocrDocumentDto);
             }
             resultDto.setData(ocrDocumentDtos);
@@ -115,45 +115,45 @@ public class RContractDocumentService {
         return  resultDto;
     }
 
-     public CronusDto checkCustomerIsUpload (Integer customerId){
-         boolean flag = false;
-         CronusDto resultDto = new CronusDto();
-         Map<String,Object> paramsMap = new HashMap<>();
-         //拼接参数
-         if (!StringUtils.isEmpty(customerId)){
-             paramsMap.put("customerId",customerId);
-         }
-         //查询id
+    public CronusDto checkCustomerIsUpload (Integer customerId){
+        boolean flag = false;
+        CronusDto resultDto = new CronusDto();
+        Map<String,Object> paramsMap = new HashMap<>();
+        //拼接参数
+        if (!StringUtils.isEmpty(customerId)){
+            paramsMap.put("customerId",customerId);
+        }
+        //查询id
 
-         paramsMap.put("identity",ResultResource.INENTITY);
-         paramsMap.put("household",ResultResource.HOUSEHOLD);
+        paramsMap.put("identity",ResultResource.INENTITY);
+        paramsMap.put("household",ResultResource.HOUSEHOLD);
 
-         Integer count = rContractDocumentMapper.checkCustomerIsUpload(paramsMap);
+        Integer count = rContractDocumentMapper.checkCustomerIsUpload(paramsMap);
 
-         if (count != null && count > 0 ){
-             flag = true;
-         }
-         resultDto.setData(flag);
-         resultDto.setResult(ResultResource.CODE_SUCCESS);
-         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
-         return  resultDto;
-     }
+        if (count != null && count > 0 ){
+            flag = true;
+        }
+        resultDto.setData(flag);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        return  resultDto;
+    }
 
-     public boolean confirmDocument(Integer document_id){
-         boolean flag = false;
-         Map<String,Object> paramsMap = new HashMap<>();
-         paramsMap.put("document_id",document_id);
+    public boolean confirmDocument(Integer document_id){
+        boolean flag = false;
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("document_id",document_id);
 
-         Document document = documentMapper.findByFeild(paramsMap);
-         if (document == null){
-             throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
-         }
-         //开始更新
-         document.setIsFlag(2);//修改为已确认状态
-         documentMapper.update(document);
-         flag = true;
-         return  flag;
-     }
+        Document document = documentMapper.findByFeild(paramsMap);
+        if (document == null){
+            throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
+        }
+        //开始更新
+        document.setIsFlag(2);//修改为已确认状态
+        documentMapper.update(document);
+        flag = true;
+        return  flag;
+    }
 
     /**
      * 获取单张附件的base64、文档id
@@ -161,7 +161,7 @@ public class RContractDocumentService {
      * @param catagoryId 附件类型id
      * @return
      */
-     public Map<String,String> getListBase64(String telephone, Integer catagoryId){
+    public Map<String,String> getListBase64(String telephone, Integer catagoryId){
         CronusDto<CustomerDTO> resultDto = customerInfoService.fingByphone(telephone);
         CustomerDTO customerDTO = resultDto.getData();
         Map<String,Object> paramsMap = new HashMap<>();
@@ -171,13 +171,13 @@ public class RContractDocumentService {
         Integer confirm = 1;
         Map<String,String> map = new HashMap<>();
         map.put("documentId",rcdocument.getDocumentId().toString());
-        map.put("url", aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath() +"/"+ rcdocument.getDocument().getDocumentSavename());
+        map.put("url", aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
         if (confirm.equals(rcdocument.getDocument().getIsFlag()))
             map.put("confirm", "0");
         else
             map.put("confirm", "1");
         return map;
-     }
+    }
 
 
     /**
@@ -186,28 +186,28 @@ public class RContractDocumentService {
      * @param catagoryId
      * @return
      */
-     public List<Map<String,String>> getBaseList(String telephone, Integer catagoryId){
-         CronusDto<CustomerDTO> resultDto = customerInfoService.fingByphone(telephone);
-         CustomerDTO customerDTO = resultDto.getData();
-         Map<String,Object> paramsMap = new HashMap<>();
-         paramsMap.put("customerId",customerDTO.getId());
-         paramsMap.put("catagoryId",catagoryId);
-         List<RContractDocument> rContractDocuments = rContractDocumentMapper.ocrDocument(paramsMap);
-         List<Map<String,String>> mapList = new ArrayList<>();
-         Integer confirm = 1;
-         if (rContractDocuments != null) {
+    public List<Map<String,String>> getBaseList(String telephone, Integer catagoryId){
+        CronusDto<CustomerDTO> resultDto = customerInfoService.fingByphone(telephone);
+        CustomerDTO customerDTO = resultDto.getData();
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("customerId",customerDTO.getId());
+        paramsMap.put("catagoryId",catagoryId);
+        List<RContractDocument> rContractDocuments = rContractDocumentMapper.ocrDocument(paramsMap);
+        List<Map<String,String>> mapList = new ArrayList<>();
+        Integer confirm = 1;
+        if (rContractDocuments != null) {
             for (RContractDocument rContractDocument : rContractDocuments){
                 Map<String,String> map = new HashMap<>();
                 map.put("documentId", rContractDocument.getDocumentId().toString());
-                map.put("url", aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rContractDocument.getDocument().getDocumentSavepath()+"/" + rContractDocument.getDocument().getDocumentSavename());
+                map.put("url", aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rContractDocument.getDocument().getDocumentSavepath() + rContractDocument.getDocument().getDocumentSavename());
                 if (confirm.equals(rContractDocument.getDocument().getIsFlag()))
                     map.put("confirm", "0");
                 else
                     map.put("confirm", "1");
                 mapList.add(map);
             }
-         }
-         return mapList;
-     }
+        }
+        return mapList;
+    }
 
 }
