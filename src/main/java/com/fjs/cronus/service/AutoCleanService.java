@@ -176,7 +176,7 @@ public class AutoCleanService {
                     loanSelectMap.put("ids", customerIdList);
                     List<CustomerInfo> loanList = customerInfoService.selectByParams(loanSelectMap);
                     //修改交易
-                    loanSaveBatchMap.put("ownUserId", 0);
+                    loanSaveBatchMap.put("ownerUserId", 0);
                     loanSaveBatchMap.put("lastUpdateTime", updateDate);
                     loanSaveBatchMap.put("paramsList", customerIdList);
                     customerInfoService.batchUpdate(loanSaveBatchMap);
