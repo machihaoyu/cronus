@@ -48,7 +48,7 @@ public class AutoCleanManageService {
         autoCleanManage.setCreateTime(date);
         autoCleanManage.setLastUpdateUser(userId);
         autoCleanManage.setLastUpdateTime(date);
-        autoCleanManage.setIsDeleted(1);
+        autoCleanManage.setIsDeleted(0);
         return autoCleanManageMapper.insert(autoCleanManage);
     }
 
@@ -70,7 +70,7 @@ public class AutoCleanManageService {
         List<AutoCleanManage> autoCleanManageList = new ArrayList<>();
         Example example=new Example(AutoCleanManage.class);
         Example.Criteria criteria=example.createCriteria();
-        criteria.andEqualTo("isDeleted",1);
+        criteria.andEqualTo("isDeleted",0);
         criteria.andEqualTo("utmSource","");
         criteria.andEqualTo("customerSource","");
         autoCleanManageList = autoCleanManageMapper.selectByExample(example);
@@ -101,7 +101,7 @@ public class AutoCleanManageService {
         List<AutoCleanManage> autoCleanManageList = new ArrayList<>();
         Example example=new Example(AutoCleanManage.class);
         Example.Criteria criteria=example.createCriteria();
-        criteria.andEqualTo("isDeleted",1);
+        criteria.andEqualTo("isDeleted",0);
         criteria.andEqualTo("userId",userId);
         criteria.andNotEqualTo("utmSource","");
         criteria.andNotEqualTo("customerSource","");
@@ -122,7 +122,7 @@ public class AutoCleanManageService {
         autoCleanManage.setId(id);
         autoCleanManage = autoCleanManageMapper.selectOne(autoCleanManage);
         Date date= new Date();
-        autoCleanManage.setIsDeleted(2);
+        autoCleanManage.setIsDeleted(1);
         autoCleanManage.setLastUpdateUser(userId);
         autoCleanManage.setLastUpdateTime(date);
         return autoCleanManageMapper.update(autoCleanManage);
@@ -137,7 +137,7 @@ public class AutoCleanManageService {
         List<AutoCleanManage> autoCleanManageList = new ArrayList<>();
         Example example=new Example(AutoCleanManage.class);
         Example.Criteria criteria=example.createCriteria();
-        criteria.andEqualTo("isDeleted",1);
+        criteria.andEqualTo("isDeleted",0);
         criteria.andEqualTo("userId",userId);
         autoCleanManageList = autoCleanManageMapper.selectByExample(example);
         return autoCleanManageList;
