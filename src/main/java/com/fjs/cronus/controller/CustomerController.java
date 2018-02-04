@@ -126,7 +126,9 @@ public class CustomerController {
             @ApiImplicitParam(name = "level", value = "客户状态 意向客户 协议客户 成交客户", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "page", value = "查询第几页(从1开始)", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少件", required = false, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "orderField", value = "排序字段(receive_time,create_time,last_update_time)", required = false, paramType = "query", dataType = "string")
+            @ApiImplicitParam(name = "orderField", value = "排序字段(receive_time,create_time,last_update_time)", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string")
+
     })
     @RequestMapping(value = "/customerListNew", method = RequestMethod.GET)
     @ResponseBody
@@ -142,6 +144,7 @@ public class CustomerController {
                                                                 @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
                                                                 @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
                                                                 @RequestParam(value = "orderField", required = false) String orderField,
+                                                                @RequestParam(value = "sort", required = false) String sort,
                                                                 @RequestHeader("Authorization") String token) {
 
 
@@ -153,7 +156,7 @@ public class CustomerController {
         }
         try {
             QueryResult queryResult = customerInfoService.customerListNew(userId, customerName, telephonenumber,
-                    utmSource, ownUserName, customerSource, circle, companyId, page, size, remain, level, token, orderField);
+                    utmSource, ownUserName, customerSource, circle, companyId, page, size, remain, level, token, orderField,sort);
             cronusDto.setData(queryResult);
             cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             cronusDto.setResult(ResultResource.CODE_SUCCESS);
@@ -549,6 +552,7 @@ public class CustomerController {
     @RequestMapping(value = "/keepCustomer", method = RequestMethod.POST)
     @ResponseBody
     public CronusDto keepLoan(@RequestBody JSONObject jsonObject, HttpServletRequest request) {
+        logger.warn("开始保留客户-------》");
         CronusDto theaApiDTO = new CronusDto();
         String token = request.getHeader("Authorization");
         Integer customerId = jsonObject.getInteger("customerId");
@@ -563,6 +567,7 @@ public class CustomerController {
             }
         }*/
         UserInfoDTO userInfoDTO = thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
+        logger.warn("查询UC系统-------》");
         CustomerInfo customerInfo = new CustomerInfo();
         try {
             customerInfo.setRemain(CommonConst.REMAIN_STATUS_YES);
@@ -571,6 +576,7 @@ public class CustomerController {
                 customerInfo.setOwnUserId(Integer.parseInt(userInfoDTO.getUser_id()));
             }
             Integer customerCount  = customerInfoService.getKeepCount(userInfoDTO);
+            logger.warn("获取当期保留数目-------》");
             String maxCount = theaClientService.findValueByName(token, CommonConst.KEEPPARAMS);
             if (customerCount >= Integer.valueOf(maxCount)) {
                 theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
@@ -578,6 +584,7 @@ public class CustomerController {
                 return theaApiDTO;
             }
             customerInfo = customerInfoService.findCustomerById(customerId);
+            logger.warn("查询客户信息-------》");
             if (customerInfo == null) {
                 theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
                 theaApiDTO.setMessage(CronusException.Type.CRM_CUSTOMEINFO_ERROR.toString());
@@ -599,6 +606,7 @@ public class CustomerController {
 
             //查最后一次的分配记录
             boolean flag = allocateLogService.newestAllocateLog(customerId);
+            logger.warn("查最后一次的分配记录-------》");
             if ((flag == true && customerInfo.getConfirm() == 3) || customerInfo.getCommunicateTime() == null) {
                 theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
                 theaApiDTO.setMessage("刚分配的无效和未沟通客户不能保留");

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.*;
 import com.fjs.cronus.api.thea.LoanDTO;
+import com.fjs.cronus.controller.CustomerController;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPUserDto;
@@ -32,6 +33,8 @@ import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
 import org.apache.commons.collections.map.HashedMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,6 +52,7 @@ import java.util.*;
 @Service
 public class CustomerInfoService {
 
+    private static final Logger logger = LoggerFactory.getLogger(CustomerInfoService.class);
     @Autowired
     CustomerInfoMapper customerInfoMapper;
     @Autowired
@@ -135,7 +139,7 @@ public class CustomerInfoService {
 
 
     public QueryResult customerListNew(Integer userId, String customerName, String telephonenumber, String utmSource, String ownUserName,
-                                    String customerSource, Integer circle, Integer companyId, Integer page, Integer size, Integer remain, String level, String token, String orderField) {
+                                    String customerSource, Integer circle, Integer companyId, Integer page, Integer size, Integer remain, String level, String token, String orderField,String sort) {
         QueryResult result = new QueryResult();
         Map<String, Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
@@ -174,7 +178,10 @@ public class CustomerInfoService {
         }
         //排序---xdj-----
         if (!StringUtils.isEmpty(orderField) && CustListTimeOrderEnum.getEnumByCode(orderField) != null) {
-            paramsMap.put("order", orderField);
+            if (StringUtils.isEmpty(sort)){
+                sort = "desc";
+            }
+            paramsMap.put("order", orderField + " " + sort);
         }
         //排序---xdj-----
         //获取下属员工
@@ -854,6 +861,7 @@ public class CustomerInfoService {
 
     @Transactional
     public CronusDto keepCustomer(Integer customerId, UserInfoDTO userInfoDTO, String token) {
+        logger.warn("开始保留客户Service-------》");
         CronusDto resultDto = new CronusDto();
         boolean flag = false;
         Integer userId = null;
@@ -866,6 +874,7 @@ public class CustomerInfoService {
             paramsMap.put("id", customerId);
         }
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
+        logger.warn("查询客户结束-------》");
         if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
@@ -877,6 +886,7 @@ public class CustomerInfoService {
         customerInfo.setLastUpdateTime(date);
         //开始更新
         customerInfoMapper.updateCustomer(customerInfo);
+        logger.warn("更新客户结束-------》");
         //插入日志
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
         EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
@@ -896,7 +906,9 @@ public class CustomerInfoService {
         loanDTO.setUtmSource("下单");
         String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
         loanDTO.setTelephonenumber(telephone);
+        logger.warn("调用交易接口产生交易-------》");
         TheaApiDTO theaApiDTO = theaService.insertLoan(loanDTO, token);
+        logger.warn("调用交易接口结束-------》");
         if (theaApiDTO != null && theaApiDTO.getResult() == 0) {
             flag = true;
             resultDto.setData(flag);

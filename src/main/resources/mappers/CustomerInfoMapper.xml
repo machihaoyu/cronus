@@ -210,7 +210,7 @@
       </if>
     <choose>
       <when test="order != null and order !=''">
-        order by ${order} desc
+        order by ${order}
       </when>
       <otherwise>
         order by c.last_update_time desc
