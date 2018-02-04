@@ -189,6 +189,7 @@
 
     <select id="selectByCustomerId" resultMap="BaseResultMap" parameterType="Map">
         SELECT <include refid="Base_Column_List"/> FROM allocate_log
+        WHERE
         1= 1
         and customer_id = #{customerId}
         ORDER BY create_time DESC
