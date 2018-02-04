@@ -3,6 +3,7 @@ package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.api.thea.MailDTO;
+import com.fjs.cronus.controller.AllocateController;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.CommunicationDTO;
@@ -24,6 +25,8 @@ import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -37,6 +40,8 @@ import java.util.*;
  */
 @Service
 public class CommunicationLogService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CommunicationLogService.class);
     @Autowired
     private CommunicationLogMapper communicationLogMapper;
 /*    @Autowired
@@ -147,61 +152,30 @@ public class CommunicationLogService {
     }
 
     public CustomerUsefulDTO findByCustomerId(Integer customerId,String token){
+        long stTotal = System.currentTimeMillis();
         CustomerUsefulDTO customerUsefulDTO = new CustomerUsefulDTO();
+        long startUc = System.currentTimeMillis();
         PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
+        logger.warn("UC 结束时间-----》",System.currentTimeMillis()-startUc);
         Integer lookphone = Integer.valueOf(userInfoDTO.getUser_info().getLook_phone());
         Integer userId = Integer.valueOf(userInfoDTO.getUser_info().getUser_id());
-      /*  Map<String,Object> paramsMap = new HashMap<>();
-        Example example=new Example(CommunicationLog.class);
-        CustomerUsefulDTO customerUsefulDTO = new CustomerUsefulDTO();
-        CommunicationLog communicationLog = new CommunicationLog();
-        Example.Criteria criteria=example.createCriteria();
-        criteria.andEqualTo("customerId",customerId);
-        example.setOrderByClause("create_time desc");
-        List<CommunicationLog> communicationLogList = communicationLogMapper.selectByExample(example);
-        //取最近的一次
-        if (communicationLogList != null && communicationLogList.size() > 0){
-            communicationLog = communicationLogList.get(0);
-        }
-        CustomerInfo customerInfo = customerService.findCustomerById(customerId);
-        //查询userful
-        CustomerUseful customerUseful = customerUsefulService.selectByCustomerId(customerId);
-        customerUsefulDTO.setId(communicationLog.getId());
-        customerUsefulDTO.setContent(communicationLog.getContent());
-        customerUsefulDTO.setCooperationStatus(customerInfo.getCooperationStatus());
-        customerUsefulDTO.setCreateTime(communicationLog.getCreateTime());
-        customerUsefulDTO.setCustomerId(customerId);
-        customerUsefulDTO.setHouseStatus(customerUseful.getHouseStatus());
-        //查询面见表 最新的一条
-        paramsMap.put("customerId",customerId);
-        List<CustomerMeet> customerMeets = customerMeetMapper.findByFeild(paramsMap);
-        if (customerMeets == null || customerMeets.size() == 0){
-            customerUsefulDTO.setIsMeet(CommonConst.IS_MEET_NO);
-        }else {
-            CustomerMeet customerMeet = customerMeets.get(0);
-            customerUsefulDTO.setIsMeet(CommonConst.IS_MEET__YES);
-            customerUsefulDTO.setMeetTime(customerMeet.getMeetTime());
-        }
-        String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-        customerUsefulDTO.setTelephonenumber(telephone);
-        customerUsefulDTO.setLoanAmount(customerUseful.getLoanAmount());
-        customerUsefulDTO.setNextContactTime(communicationLog.getNextContactTime());
-        customerUsefulDTO.setPurpose(customerUseful.getPurpose());
-        customerUsefulDTO.setPurposeDescribe(customerUseful.getPurposeDescribe());*/
         Map<String,Object> paramsMap = new HashMap<>();
-        Example example=new Example(CommunicationLog.class);
         CommunicationLog communicationLog = new CommunicationLog();
-        Example.Criteria criteria=example.createCriteria();
-        criteria.andEqualTo("customerId",customerId);
-        example.setOrderByClause("create_time desc");
-        List<CommunicationLog> communicationLogList = communicationLogMapper.selectByExample(example);
+
+        Map<String,Object> map =new HashMap();
+        map.put("customerId",customerId);
+        long startCommunLog = System.currentTimeMillis();
+        List<CommunicationLog> communicationLogList = communicationLogMapper.queryByCustomerId(map);
         //取最近的一次
+        logger.warn("CommunicationLog 结束时间-----》",System.currentTimeMillis()-startCommunLog);
         if (communicationLogList != null && communicationLogList.size() > 0){
             communicationLog = communicationLogList.get(0);
             customerUsefulDTO.setNextContactTime(communicationLog.getNextContactTime());
         }
         paramsMap.put("customerId",customerId);
+        long customerMeetTme = System.currentTimeMillis();
         List<CustomerMeet> customerMeets = customerMeetMapper.findByFeild(paramsMap);
+        logger.warn("customerMeets 结束时间-----》",System.currentTimeMillis()-customerMeetTme);
         if (customerMeets == null || customerMeets.size() == 0){
             customerUsefulDTO.setIsMeet(CommonConst.IS_MEET_NO);
         }else {
@@ -209,7 +183,9 @@ public class CommunicationLogService {
             customerUsefulDTO.setIsMeet(CommonConst.IS_MEET__YES);
             customerUsefulDTO.setMeetTime(customerMeet.getMeetTime());
         }
+        long customerInfoTme = System.currentTimeMillis();
         CustomerInfo customerInfo = customerService.findCustomerById(customerId);
+        logger.warn("customerInfoTme 结束时间-----》",System.currentTimeMillis()-customerInfoTme);
         customerUsefulDTO.setId(customerInfo.getId());
         customerUsefulDTO.setCustomerId(customerInfo.getId());
         customerUsefulDTO.setCooperationStatus(customerInfo.getCooperationStatus());
@@ -231,7 +207,9 @@ public class CommunicationLogService {
         }
         if (customerInfo.getConfirm() == 2 || customerInfo.getConfirm() == 3){
             //查询有效客户
+            long customerUsefulTme = System.currentTimeMillis();
             CustomerUseful customerUseful = customerUsefulService.selectByCustomerId(customerId);
+            logger.warn("customerUsefulTme 结束时间-----》",System.currentTimeMillis()-customerUsefulTme);
             if (customerUseful != null){
                 customerUsefulDTO.setHouseStatus(customerUseful.getHouseStatus());
                 //判断手机号
@@ -244,7 +222,7 @@ public class CommunicationLogService {
             customerUsefulDTO.setHouseStatus(customerInfo.getHouseStatus());
         }
 
-
+        logger.warn("findByCustomerId Total 结束时间-----》",System.currentTimeMillis() - stTotal);
         return customerUsefulDTO;
     }
     //获取沟通日志列表

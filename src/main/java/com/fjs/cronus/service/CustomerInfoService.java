@@ -14,6 +14,7 @@ import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.uc.UserSortInfoDTO;
+import com.fjs.cronus.enums.CustListTimeOrderEnum;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.AllocateLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
@@ -131,6 +132,72 @@ public class CustomerInfoService {
         result.setTotal(count.toString());
         return result;
     }
+
+
+    public QueryResult customerListNew(Integer userId, String customerName, String telephonenumber, String utmSource, String ownUserName,
+                                    String customerSource, Integer circle, Integer companyId, Integer page, Integer size, Integer remain, String level, String token, String orderField) {
+        QueryResult result = new QueryResult();
+        Map<String, Object> paramsMap = new HashMap<>();
+        List<CustomerInfo> resultList = new ArrayList<>();
+        List<CustomerListDTO> dtoList = new ArrayList<>();
+        PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO == null) {
+            throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
+        }
+        if (!StringUtils.isEmpty(customerName)) {
+            paramsMap.put("customerName", customerName);
+        }
+        if (!StringUtils.isEmpty(utmSource)) {
+            paramsMap.put("utmSource", utmSource);
+        }
+        if (!StringUtils.isEmpty(ownUserName)) {
+            paramsMap.put("ownUserName", ownUserName);
+        }
+        if (!StringUtils.isEmpty(customerSource)) {
+            paramsMap.put("customerSource", customerSource);
+        }
+        if (circle != null) {
+            paramsMap.put("circle", circle);
+        }
+        if (companyId != null) {
+            paramsMap.put("companyId", companyId);
+        }
+        if (remain != null) {
+            paramsMap.put("remain", remain);
+        }
+        if (!StringUtils.isEmpty(level)) {
+            paramsMap.put("level", level);
+        }
+        //手机需要解密加密
+        if (!StringUtils.isEmpty(telephonenumber)) {
+            paramsMap.put("telephonenumber", DEC3Util.des3EncodeCBC(telephonenumber));
+        }
+        //排序---xdj-----
+        if (!StringUtils.isEmpty(orderField) && CustListTimeOrderEnum.getEnumByCode(orderField) != null) {
+            paramsMap.put("order", orderField);
+        }
+        //排序---xdj-----
+        //获取下属员工
+        List<Integer> ids = ucService.getSubUserByUserId(token, userId);
+        paramsMap.put("owerId", ids);
+        paramsMap.put("start", (page - 1) * size);
+        paramsMap.put("size", size);
+        Integer lookphone = Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
+        resultList = customerInfoMapper.customerList(paramsMap);
+        Integer count = customerInfoMapper.customerListCount(paramsMap);
+        if (resultList != null && resultList.size() > 0) {
+            for (CustomerInfo customerInfo : resultList) {
+                CustomerListDTO customerDto = new CustomerListDTO();
+                EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
+                //判断自己的lookphone
+                dtoList.add(customerDto);
+            }
+            result.setRows(dtoList);
+        }
+        result.setTotal(count.toString());
+        return result;
+    }
+
 
     @Transactional
     public CronusDto addCustomer(CustomerDTO customerDTO, String token) {

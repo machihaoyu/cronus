@@ -85,4 +85,15 @@
 		and create_user = #{createUserId}
 		and DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
 	</select>
+
+	<select id="queryByCustomerId" resultMap="BaseResultMap" parameterType="Map">
+		SELECT
+		<include refid="Base_Column_List" />
+		from communication_log
+		where 1=1
+		<if test="customerId != null">
+			and customer_id = #{customerId}
+		</if>
+		ORDER BY create_time DESC
+	</select>
 </mapper>

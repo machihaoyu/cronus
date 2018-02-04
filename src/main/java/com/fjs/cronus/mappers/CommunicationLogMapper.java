@@ -18,4 +18,6 @@ public interface CommunicationLogMapper extends MyMapper<CommunicationLog> {
     public List<CommunicationLog> selectByTime(Map<String, Object> map);
 
     public List<Integer> allocateCommunication(Map<String, Object> map);
+
+    public List<CommunicationLog>  queryByCustomerId(Map<String, Object> map);
 }

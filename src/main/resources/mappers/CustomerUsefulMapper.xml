@@ -152,6 +152,6 @@
 			and is_deleted = #{isDeleted,jdbcType=INTEGER}
 		</if>
 
-		ORDER BY id DESC
+		ORDER BY create_time DESC
 	</select>
 </mapper>
