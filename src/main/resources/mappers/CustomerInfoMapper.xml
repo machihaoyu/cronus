@@ -1752,8 +1752,8 @@
             <if test="subcompanyId != null and '' != subcompanyId">
                 sub_company_id = #{subcompanyId,jdbcType=INTEGER},
             </if>
-            <if test="ownerUserId != null and '' != ownerUserId">
-                owner_user_id = #{ownerUserId,jdbcType=INTEGER},
+            <if test="ownerUserId != null ">
+                own_user_id = #{ownerUserId,jdbcType=INTEGER},
             </if>
             <if test="receiveTime != null ">
                 receive_time = #{receiveTime,jdbcType=TIMESTAMP},
