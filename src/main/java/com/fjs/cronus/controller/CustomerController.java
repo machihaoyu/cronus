@@ -588,16 +588,13 @@ public class CustomerController {
                 theaApiDTO.setMessage(CommonConst.NO_AUTHORIZE);
                 return theaApiDTO;
             }
-
             //刚分配未沟通的客户不能保留
-            List<CommunicationLog> communicationLog = new ArrayList<CommunicationLog>();
             if (org.apache.commons.lang3.StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
                 if (customerInfo.getRemain() == CommonConst.REMAIN_STATUS_YES) {
                     theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
                     theaApiDTO.setMessage("该客户已保留，不能重复保留");
                     return theaApiDTO;
                 }
-                communicationLog = communicationLogService.listByCustomerIdAndUserId(customerInfo.getId(), Integer.parseInt(userInfoDTO.getUser_id()), token);
             }
 
             //查最后一次的分配记录

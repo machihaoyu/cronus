@@ -26,10 +26,9 @@ public class CustomerUsefulService {
      * @return
      */
     public CustomerUseful selectByCustomerId(Integer customerId){
-        CustomerUseful customerUseful=new CustomerUseful();
+        CustomerUseful customerUseful= null;
         Map<String,Object> map = new HashMap();
         map.put("customer_id",customerId);
-        customerUseful.setCustomerId(customerId);
         List<CustomerUseful> customerUsefuls = customerUsefulMapper.findByList(map);
         if (customerUsefuls != null && customerUsefuls.size() > 0){
             customerUseful = customerUsefuls.get(0);

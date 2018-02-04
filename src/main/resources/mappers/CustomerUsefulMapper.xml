@@ -115,43 +115,9 @@
 		<include refid="Base_Column_List" />
 		from customer_useful
 		where 1=1
-		<if test="id != null and '' != id">
-			and id = #{id,jdbcType=INTEGER}
+		<if test="customer_id != null and '' != customer_id">
+			and customer_id = #{customer_id,jdbcType=INTEGER}
 		</if>
-		<if test="loanId != null and '' != loanId">
-			and loan_id = #{loanId,jdbcType=INTEGER}
-		</if>
-		<if test="customerId != null and '' != customerId">
-			and customer_id = #{customerId,jdbcType=INTEGER}
-		</if>
-		<if test="houseStatus != null and '' != houseStatus">
-			and house_status = #{houseStatus,jdbcType=VARCHAR}
-		</if>
-		<if test="loanAmount != null and '' != loanAmount">
-			and loan_amount = #{loanAmount,jdbcType=INTEGER}
-		</if>
-		<if test="usefulTime != null and '' != usefulTime">
-			and useful_time = #{usefulTime,jdbcType=INTEGER}
-		</if>
-		<if test="createUser != null and '' != createUser">
-			and create_user = #{createUser,jdbcType=INTEGER}
-		</if>
-		<if test="purpose != null and '' != purpose">
-			and purpose = #{purpose,jdbcType=VARCHAR}
-		</if>
-		<if test="createTime != null and '' != createTime">
-			and create_time = #{createTime,jdbcType=TIMESTAMP}
-		</if>
-		<if test="lastUpdateTime != null and '' != lastUpdateTime">
-			and last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP}
-		</if>
-		<if test="lastUpdateUser != null and '' != lastUpdateUser">
-			and last_update_user = #{lastUpdateUser,jdbcType=INTEGER}
-		</if>
-		<if test="isDeleted != null and '' != isDeleted">
-			and is_deleted = #{isDeleted,jdbcType=INTEGER}
-		</if>
-
-		ORDER BY create_time DESC
+		ORDER BY id DESC
 	</select>
 </mapper>
