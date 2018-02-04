@@ -107,8 +107,9 @@ public class AutoCleanService {
      * 自动清洗（暂定清洗时间为每周日晚上8点）
      */
     @Transactional
-    public void autoClean(String token) {
+    public String autoClean(String token) {
         //将清洗状态配置设置为清洗中
+        String message = "";
         ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
         try {
 //            SysConfig config = configService.getConfigByName(CommonConst.AUTO_CLEAN_STATUS);
@@ -121,7 +122,7 @@ public class AutoCleanService {
             String status = redisConfigOptions.get(CommonConst.AUTO_CLEAN_STATUS);
             if (StringUtils.isNotEmpty(status) && status.equals("1"))
             {
-                return;
+                message = "清洗中";
             }
             redisConfigOptions.set(CommonConst.AUTO_CLEAN_STATUS, CommonEnum.YES.getCode().toString());
             //计算清洗前的各类型的数据量
@@ -222,13 +223,16 @@ public class AutoCleanService {
                     "自动清洗管理中屏蔽清洗的条数有:" + customerIdsByManage.size() + "条';");
             mailBatchDTO.setToId(stringBuilder.toString());
             theaClientService.sendMailBatch(publicToken, mailBatchDTO);
-
-            System.out.println("清洗完成，清洗前：" + beforeCountMap + ",清洗后：" + afterCountMap);
+            logger.warn("清洗消息",mailBatchDTO);
+            message = mailBatchDTO.getContent();
+            logger.warn("清洗完成，清洗前：" + beforeCountMap + ",清洗后：" + afterCountMap);
         } catch (Exception e) {
             redisConfigOptions.set(CommonConst.AUTO_CLEAN_STATUS, CommonEnum.NO.getCode().toString());
-            System.out.println("清洗失败：" + e.getMessage());
+            logger.error("清洗失败：" + e.getMessage(),e);
         }
+        return message;
     }
+
 
 
     /**
