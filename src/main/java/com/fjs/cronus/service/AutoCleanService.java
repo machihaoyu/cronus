@@ -203,16 +203,15 @@ public class AutoCleanService {
             redisConfigOptions.set(CommonConst.AUTO_CLEAN_STATUS, CommonEnum.NO.getCode().toString());
             //获取所有的业务员
             //添加消息信息！
-            BaseUcDTO<List<Integer>> baseUcDTO = thorService.getAllSalesman(publicToken, "all");
-            List<Integer> toIds = new ArrayList<>();
+            BaseUcDTO<List<String>> baseUcDTO = thorService.getAllSalesman(publicToken, "all");
+            List<String> toIds = new ArrayList<>();
             if (baseUcDTO.getErrNum() == 0) {
                 toIds = baseUcDTO.getRetData();
             }
             MailBatchDTO mailBatchDTO = new MailBatchDTO();
-            List<MailDTO> mails = new ArrayList<>();
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = 0; i < toIds.size(); i++) {
-                stringBuilder.append(toIds.get(i).toString());
+                stringBuilder.append(toIds.get(i));
                 if (i < toIds.size() - 1) {
                     stringBuilder.append(",");
                 }
