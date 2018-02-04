@@ -269,4 +269,23 @@ public class AllocateLogService {
         }
         return allocateLogs;
     }
+
+    public boolean newestAllocateLog(Integer customerId){
+        boolean flag = false;
+        AllocateLog allocateLog = new AllocateLog();
+        Map<String, Object> paramsMap = new HashMap<>();
+        paramsMap.put("customerId",customerId);
+        List<AllocateLog> allocateLogs = allocateLogMapper.selectByCustomerId(paramsMap);
+        if (allocateLogs != null && allocateLogs.size() > 0){
+            allocateLog = allocateLogs.get(0);
+            //
+            String operation = allocateLog.getOperation();
+            if ("自动分配".equals(operation) || "未沟通分配".equals(operation)){
+                flag = true;
+                return  flag;
+            }
+        }
+        return flag;
+
+    }
 }

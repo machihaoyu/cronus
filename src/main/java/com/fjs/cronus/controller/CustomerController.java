@@ -14,9 +14,7 @@ import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.model.CommunicationLog;
 import com.fjs.cronus.model.CustomerInfo;
-import com.fjs.cronus.service.CommunicationLogService;
-import com.fjs.cronus.service.CustomerInfoService;
-import com.fjs.cronus.service.DocumentService;
+import com.fjs.cronus.service.*;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import io.swagger.annotations.Api;
@@ -57,7 +55,8 @@ public class CustomerController {
     CommunicationLogService communicationLogService;
     @Autowired
     TheaClientService theaClientService;
-
+    @Autowired
+    AllocateLogService allocateLogService;
     @ApiOperation(value = "获取客户列表", notes = "获取客户列表信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
@@ -543,7 +542,10 @@ public class CustomerController {
                 }
                 communicationLog = communicationLogService.listByCustomerIdAndUserId(customerInfo.getId(), Integer.parseInt(userInfoDTO.getUser_id()), token);
             }
-            if (customerInfo.getCommunicateTime() == null || customerInfo.getConfirm() == 3) {
+
+            //查最后一次的分配记录
+            boolean flag = allocateLogService.newestAllocateLog(customerId);
+            if ((flag == true && customerInfo.getConfirm() == 3) || customerInfo.getCommunicateTime() == null) {
                 theaApiDTO.setResult(CommonMessage.KEEP_FAIL.getCode());
                 theaApiDTO.setMessage("刚分配的无效和未沟通客户不能保留");
                 return theaApiDTO;

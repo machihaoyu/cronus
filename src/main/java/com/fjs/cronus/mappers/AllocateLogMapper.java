@@ -37,4 +37,6 @@ public interface AllocateLogMapper extends MyMapper<AllocateLog> {
     public List<Integer> getReceiveCount(Map<String,Object> paramsMap);
 
     public List<Integer> receiveIds(Map<String,Object> paramsMap);
+
+    public List<AllocateLog> selectByCustomerId (Map<String,Object> paramsMap);
  }
