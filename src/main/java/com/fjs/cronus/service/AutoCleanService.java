@@ -223,9 +223,9 @@ public class AutoCleanService {
                     "自动清洗管理中屏蔽清洗的条数有:" + customerIdsByManage.size() + "条';");
             mailBatchDTO.setToId(stringBuilder.toString());
             theaClientService.sendMailBatch(publicToken, mailBatchDTO);
-            logger.warn("清洗消息",mailBatchDTO);
+            System.out.println("清洗消息:"+mailBatchDTO.getToId().toString());
             message = mailBatchDTO.getContent();
-            logger.warn("清洗完成，清洗前：" + beforeCountMap + ",清洗后：" + afterCountMap);
+            System.out.println("清洗完成，清洗前：" + beforeCountMap + ",清洗后：" + afterCountMap);
         } catch (Exception e) {
             redisConfigOptions.set(CommonConst.AUTO_CLEAN_STATUS, CommonEnum.NO.getCode().toString());
             logger.error("清洗失败：" + e.getMessage(),e);
