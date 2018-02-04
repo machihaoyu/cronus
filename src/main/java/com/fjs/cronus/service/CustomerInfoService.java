@@ -139,7 +139,7 @@ public class CustomerInfoService {
 
 
     public QueryResult customerListNew(Integer userId, String customerName, String telephonenumber, String utmSource, String ownUserName,
-                                    String customerSource, Integer circle, Integer companyId, Integer page, Integer size, Integer remain, String level, String token, String orderField) {
+                                    String customerSource, Integer circle, Integer companyId, Integer page, Integer size, Integer remain, String level, String token, String orderField,String sort) {
         QueryResult result = new QueryResult();
         Map<String, Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
@@ -178,7 +178,10 @@ public class CustomerInfoService {
         }
         //排序---xdj-----
         if (!StringUtils.isEmpty(orderField) && CustListTimeOrderEnum.getEnumByCode(orderField) != null) {
-            paramsMap.put("order", orderField);
+            if (StringUtils.isEmpty(sort)){
+                sort = "desc";
+            }
+            paramsMap.put("order", orderField + " " + sort);
         }
         //排序---xdj-----
         //获取下属员工
