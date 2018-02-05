@@ -24,6 +24,7 @@ import com.fjs.cronus.service.UserMonthInfoService;
 import com.fjs.cronus.service.UserService;
 import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
+import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.util.DateUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -66,6 +67,9 @@ public class UserController {
 
     @Autowired
     private UserMonthInfoService userMonthInfoService;
+
+    @Autowired
+    private CronusRedisService cronusRedisService;
 
     @ApiOperation(value="得到下属员工", notes="得到下属员工")
     @ApiImplicitParams({
@@ -310,6 +314,7 @@ public class UserController {
         String city = editAllocateDTO.getCity();
         try {
             String userIds = allocateRedisService.addUserToAllocateTemplete(userId, city);
+            cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, new ArrayList());
             resultDto.setResult(CommonMessage.ADD_SUCCESS.getCode());
             resultDto.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
         } catch (Exception e) {
@@ -336,6 +341,7 @@ public class UserController {
         String city = editAllocateDTO.getCity();
         try {
             String userIds = allocateRedisService.delUserToAllocateTemplete(userId, city);
+            cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, new ArrayList());
             resultDto.setResult(CommonMessage.DELETE_SUCCESS.getCode());
             resultDto.setMessage(CommonMessage.DELETE_SUCCESS.getCodeDesc());
         } catch (Exception e) {

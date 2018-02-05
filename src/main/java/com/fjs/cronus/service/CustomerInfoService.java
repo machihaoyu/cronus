@@ -1606,6 +1606,28 @@ public class CustomerInfoService {
         return resultDto;
     }
 
+    public CronusDto updateCustomerNonCommunicate(CustomerInfo customerInfo) {
+        CronusDto resultDto = new CronusDto();
+        //校验参数手机号不更新
+//        customerInfo.setLastUpdateTime(date);
+//        customerInfo.setConfirm(0);
+        customerInfo.setLastUpdateUser(0);
+//        customerInfo.setClickCommunicateButton(0);
+        customerInfoMapper.updateCustomerNonCommunicate(customerInfo);
+        //生成日志记录
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
+        customerInfoLog.setLogCreateTime(new Date());
+        customerInfoLog.setLogDescription("未沟通分配");
+        customerInfoLog.setLogUserId(0);
+        customerInfoLog.setIsDeleted(0);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(customerInfo.getId());
+        return resultDto;
+    }
+
     public CronusDto<List<CustomerInfo>> selectNonCommunicateInTime() {
         CronusDto resultDto = new CronusDto();
         //手机需要加密

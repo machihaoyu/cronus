@@ -1142,6 +1142,43 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
+    <update id="updateCustomerNonCommunicate" parameterType="com.fjs.cronus.model.CustomerInfo" >
+        update customer_info
+        <set >
+            <if test="subCompanyId != null" >
+                sub_company_id = #{subCompanyId,jdbcType=INTEGER},
+            </if>
+            <if test="remain != null">
+                remain = #{remain,jdbcType=INTEGER},
+            </if>
+            <if test="ownUserId != null" >
+                own_user_id = #{ownUserId,jdbcType=INTEGER},
+            </if>
+            <if test="ownUserName != null" >
+                own_user_name = #{ownUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="lastUpdateTime != null" >
+                last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastUpdateUser != null" >
+                last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+            </if>
+            <if test="confirm != null">
+                confirm = #{confirm,jdbcType=INTEGER},
+            </if>
+            <if test="utmSource != null" >
+                utm_source = #{utmSource,jdbcType=VARCHAR},
+            </if>
+            <if test="receiveTime != null" >
+                receive_time = #{receiveTime,jdbcType=TIMESTAMP},
+            </if>
+            communicate_time = #{communicateTime,jdbcType=TIMESTAMP},
+            <if test="clickCommunicateButton != null">
+                click_communicate_button = #{clickCommunicateButton,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
     <select id="getListByWhere" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
         select
         <include refid="Base_Column_List" />
@@ -1772,8 +1809,20 @@
         </foreach>
     </update>
     <select id="selectNonCommunicateInTime" resultMap="ResultMapWithBLOBs">
-        SELECT a.* FROM customer_info a LEFT JOIN allocate_log b ON a.id = b.customer_id WHERE a.customer_type = '意向客户'
-        AND a.own_user_id > 0 AND TIMESTAMPDIFF(MINUTE,a.receive_time,CURTIME()) &lt; 15 and b.id  and b.operation in ('未沟通分配','自动分配') LIMIT 100
+        SELECT
+        a.*
+        FROM
+        customer_info a
+        WHERE
+        a.customer_type = '意向客户'
+        AND a.own_user_id > 0
+        AND TIMESTAMPDIFF(
+        MINUTE,
+        a.receive_time,
+        CURTIME()
+        ) > 15
+        AND a.communicate_time IS NULL
+        LIMIT 1000
     </select>
 
     <!--自动清洗数据计算-->

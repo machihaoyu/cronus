@@ -475,6 +475,14 @@ public class AutoAllocateService {
                 for (CustomerInfo customerInfo :
                         list) {
                     if (existFailList.contains(customerInfo.getId())) {
+                        if (!existFailList.contains(customerInfo.getId()))
+                            failList.add(customerInfo.getId());
+                        continue;
+                    }
+                    if (!allocateLogService.newestAllocateLog(customerInfo.getId()))
+                    {
+                        if (!existFailList.contains(customerInfo.getId()))
+                            failList.add(customerInfo.getId());
                         continue;
                     }
                     Integer ownUserId = 0;
@@ -491,12 +499,15 @@ public class AutoAllocateService {
                         } else {
                             customerInfo.setSubCompanyId(0);
                         }
+                        customerInfo.setRemain(0);
+                        customerInfo.setOwnUserId(ownUserId);
+                        customerInfo.setOwnUserName(simpleUserInfoDTO.getName());
                         customerInfo.setReceiveTime(new Date());
                         customerInfo.setLastUpdateTime(new Date());
                         customerInfo.setConfirm(1);
                         customerInfo.setClickCommunicateButton(0);
                         customerInfo.setCommunicateTime(null);
-                        customerInfoService.editCustomerSys(customerInfo, token);
+                        customerInfoService.updateCustomerNonCommunicate(customerInfo);
 
                         allocateRedisService.changeAllocateTemplet(customerInfo.getOwnUserId(), customerInfo.getCity());
                         //添加分配日志
