@@ -12,6 +12,7 @@ import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
 
 import com.fjs.cronus.dto.thea.AllocateDTO;
 import com.fjs.cronus.dto.thea.AllocateLogDTO;
+import com.fjs.cronus.dto.uc.CronusUserInfoDto;
 import com.fjs.cronus.dto.uc.PhpQueryResultDTO;
 import com.fjs.cronus.dto.uc.ThorQueryDto;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
@@ -174,8 +175,16 @@ public class AllocateController {
             if (pageSize == null) {
                 pageSize = 5;
             }
-            subThorApiDTO = thorService.getUserByIds(token, idList.toString(), null, subCompanyId,
-                    flag, page, pageSize, name, 1);
+            //封装条件
+            CronusUserInfoDto cronusUserInfoDto = new CronusUserInfoDto();
+            cronusUserInfoDto.setUser_ids(idList.toString());
+            cronusUserInfoDto.setSub_company_id(subCompanyId);
+            cronusUserInfoDto.setFlag(flag);
+            cronusUserInfoDto.setPage(page);
+            cronusUserInfoDto.setSize(pageSize);
+            cronusUserInfoDto.setName(name);
+            cronusUserInfoDto.setStatus(1);
+            subThorApiDTO = thorService.getUserByIds(token,cronusUserInfoDto);
         } catch (Exception e) {
             resultDto.setErrNum(1);
             resultDto.setErrMsg("获取信息出错");

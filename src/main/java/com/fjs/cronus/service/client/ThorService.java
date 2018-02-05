@@ -697,5 +697,10 @@ public interface ThorService {
     @RequestMapping(value = "/api/v2/userlistforemploy", method = RequestMethod.GET)
     ThorApiDTO<List<LightUserInfoDTO>> getUserlistByCompanyId(@RequestHeader("Authorization") String token,@RequestParam(value = "sub_company") Integer  subCompany);
 
+
+
+    @RequestMapping(value = "/api/v2/getUserInfoByIds", method = RequestMethod.POST)
+    ThorQueryDto<List<PHPUserDto>> getUserByIds(@RequestHeader("Authorization") String token,@RequestBody CronusUserInfoDto cronusUserInfoDto);
+
 }
 
