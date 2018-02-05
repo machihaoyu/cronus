@@ -111,6 +111,11 @@
         view_time, view_uid, view_count, autostatus, first_communicate_time, first_allocate_time,
         cooperation_status, confirm, click_communicate_button,communicate_time,communicate_id,receive_id
     </sql>
+    <sql id="cronus_column_List">
+        id, telephonenumber, customer_name,house_status,loan_amount,customer_source, utm_source,customer_type,
+        city,own_user_name,receive_time,create_time,remain,level,last_update_time,confirm,communicate_time,id_card,
+        cooperation_status
+    </sql>
     <sql id="Blob_Column_List">
     per_description, employed_info, ext
   </sql>
@@ -162,9 +167,7 @@
 
   <select id="customerList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
     select
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
+    <include refid="cronus_column_List" />
     from customer_info  c
     WHERE  c.is_deleted = 0
     <if test="customerName !=null and customerName !=''">
@@ -1351,9 +1354,7 @@
     </select>
     <select id="allocationCustomerList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
         select
-        <include refid="Base_Column_List" />
-        ,
-        <include refid="Blob_Column_List" />
+        <include refid="cronus_column_List" />
         from customer_info  c
         WHERE  c.is_deleted = 0
         AND  c.communicate_time IS NULL
@@ -1432,9 +1433,8 @@
 
     <select id="communicatedList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
         select
-        <include refid="Base_Column_List" />
-        ,
-        <include refid="Blob_Column_List" />
+        <include refid="cronus_column_List" />
+
         from customer_info  c
         WHERE  c.is_deleted = 0
          AND  c.communicate_time IS NOT NULL
@@ -1507,9 +1507,7 @@
 
     <select id="publicOfferList" resultMap="BaseResultMap" parameterType="Map">
         select
-        <include refid="Base_Column_List" />
-        ,
-        <include refid="Blob_Column_List" />
+        <include refid="cronus_column_List" />
         from customer_info
         where own_user_id =0
         <if test="telephonenumber != null and '' != telephonenumber">
@@ -1899,9 +1897,7 @@
 
     <select id="specialListByOffer" resultMap="BaseResultMap" parameterType="Map">
         select
-        <include refid="Base_Column_List" />
-        ,
-        <include refid="Blob_Column_List" />
+        <include refid="cronus_column_List" />
         from customer_info
         where own_user_id =0
         <if test="telephonenumber != null and '' != telephonenumber">
