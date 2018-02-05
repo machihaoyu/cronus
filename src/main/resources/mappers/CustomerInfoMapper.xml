@@ -1818,7 +1818,7 @@
         MINUTE,
         a.receive_time,
         CURTIME()
-        ) > 3
+        ) > 15
         AND a.communicate_time IS NULL
         LIMIT 1000
     </select>

@@ -110,6 +110,8 @@ public class CommonConst {
     //自动清洗状态配置名
     public static String AUTO_CLEAN_STATUS = "autoCleanStatus";
 
+    public static String NON_COMMUNICATE_AGAIN_ALLOCATE = "nonCommunicateAgainAllocate";
+
 
     public static String CANPUUMAXCOUNT = "MaxReceiveCustomer";
     //沟通日志类型

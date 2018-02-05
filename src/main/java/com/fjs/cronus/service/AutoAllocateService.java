@@ -32,9 +32,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -87,6 +90,9 @@ public class AutoAllocateService {
 
     @Autowired
     private ThorClientService thorClientService;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 判断是不是客户主动申请渠道
@@ -454,8 +460,15 @@ public class AutoAllocateService {
      * 客户未沟通重新分配 定时任务 5min
      */
     public synchronized void nonCommunicateAgainAllocate(String token) {
+        ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
         try {
             if (currentWorkDayAndTime(token)) {
+                String status = redisConfigOptions.get(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE);
+                if (org.apache.commons.lang.StringUtils.isNotEmpty(status) && status.equals("1"))
+                {
+                    return;
+                }
+                redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.YES.getCode().toString());
                 List<CustomerInfo> list = customerInfoService.selectNonCommunicateInTime().getData();
 
                 List<Integer> existFailList = cronusRedisService.getRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO);
@@ -521,19 +534,20 @@ public class AutoAllocateService {
                         if (!failList.contains(customerInfo.getId()))
                             failList.add(customerInfo.getId());
                     }
+                    redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.NO.getCode().toString());
                 }
                 //failList 添加到缓存
                 existFailList.addAll(failList);
                 cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, failList);
-
             }
         } catch (Exception e) {
+            redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.NO.getCode().toString());
             logger.warn(e.getMessage());
         }
     }
 
     private boolean currentWorkDayAndTime(String token) {
-        boolean value = true;
+        boolean value = false;
         Date date = new Date();
         Integer hour = DateUtils.getHour(new Date());
         if (10 < hour && hour < 18) {
