@@ -533,23 +533,24 @@ public class AutoAllocateService {
     }
 
     private boolean currentWorkDayAndTime(String token) {
+        boolean value = true;
         Date date = new Date();
         Integer hour = DateUtils.getHour(new Date());
         if (10 < hour && hour < 18) {
-            return true;
-        }
-        String month = DateUtils.getYear(date).toString() + "-" + DateUtils.getMonth(date).toString();
+            String month = DateUtils.getYear(date).toString() + "-" + DateUtils.getMonth(date).toString();
 
-        String workDays = "";
-        List<WorkDayDTO> workDayDTOList = theaClientService.getWorkDay(token);
-        for (WorkDayDTO workday :
-                workDayDTOList) {
-            if (workday.getMonth().equals(month)) {
-                workDays = workday.getWorkdays();
-                break;
+            String workDays = "";
+            List<WorkDayDTO> workDayDTOList = theaClientService.getWorkDay(token);
+            for (WorkDayDTO workday :
+                    workDayDTOList) {
+                if (workday.getMonth().equals(month)) {
+                    workDays = workday.getWorkdays();
+                    break;
+                }
             }
+            if (workDays.contains(DateUtils.getDay(date).toString())) ;
+            value = true;
         }
-        if (workDays.contains(DateUtils.getDay(date).toString())) ;
-        return true;
+        return value;
     }
 }
