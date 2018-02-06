@@ -113,7 +113,7 @@
     </sql>
     <sql id="cronus_column_List">
         id, telephonenumber, customer_name,house_status,loan_amount,customer_source, utm_source,customer_type,
-        city,own_user_name,receive_time,create_time,remain,level,last_update_time,confirm,communicate_time,id_card,
+        city,own_user_name,own_user_id,receive_time,create_time,remain,level,last_update_time,confirm,communicate_time,id_card,
         cooperation_status
     </sql>
     <sql id="Blob_Column_List">
