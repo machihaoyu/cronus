@@ -123,7 +123,7 @@
     select count(*) from customer_info c
     WHERE  1 = 1
     <if test="customerName !=null and customerName !=''">
-      AND  c.customer_name  like CONCAT('%',#{customerName},'%' )
+      AND  c.customer_name  like CONCAT(#{customerName},'%' )
     </if>
       <if test="telephonenumber != null and telephonenumber!=''">
       AND c.telephonenumber = #{telephonenumber}
@@ -171,7 +171,7 @@
     from customer_info  c
     WHERE  c.is_deleted = 0
     <if test="customerName !=null and customerName !=''">
-      and c.customer_name  like CONCAT('%', #{customerName},'%' )
+      and c.customer_name  like CONCAT(#{customerName},'%' )
     </if>
       <if test="telephonenumber != null and telephonenumber!=''">
           AND c.telephonenumber = #{telephonenumber}
@@ -1260,10 +1260,10 @@
             and c.utm_source = #{utmSource}
         </if>
         <if test="city != null and city !=''">
-            and c.city  like CONCAT('%', #{city},'%' )
+            and c.city  like CONCAT(#{city},'%' )
         </if>
         <if test="customerName !=null and customerName !=''">
-            and c.customer_name  like CONCAT('%', #{customerName},'%' )
+            and c.customer_name  like CONCAT(#{customerName},'%' )
         </if>
     </select>
     <select id="getListByWhereCount" parameterType="java.util.Map" resultType="java.lang.Integer">
@@ -1337,7 +1337,7 @@
         from customer_info  c
         WHERE  c.is_deleted = 0
         <if test="telephonenumber != null and telephonenumber != ''">
-            and c.telephonenumber like CONCAT('%',${telephonenumber},'%' )
+            and c.telephonenumber like CONCAT(${telephonenumber},'%' )
         </if>
     </select>
 
@@ -1360,7 +1360,7 @@
         AND  c.communicate_time IS NULL
         and  c.remain = 0
         <if test="customerName !=null and customerName !=''">
-            and c.customer_name  like CONCAT('%', #{customerName},'%' )
+            and c.customer_name  like CONCAT(#{customerName},'%' )
         </if>
 
         <if test="utmSource != null and utmSource != '' ">
@@ -1403,7 +1403,7 @@
         AND  c.communicate_time IS NULL
         and  c.remain = 0
         <if test="customerName !=null and customerName !=''">
-            and c.customer_name  like CONCAT('%', #{customerName},'%' )
+            and c.customer_name  like CONCAT(#{customerName},'%' )
         </if>
 
         <if test="utmSource != null and utmSource != '' ">
@@ -1440,7 +1440,7 @@
          AND  c.communicate_time IS NOT NULL
         and  c.remain = 0
         <if test="customerName !=null and customerName !=''">
-            and c.customer_name  like CONCAT('%', #{customerName},'%' )
+            and c.customer_name  like CONCAT(#{customerName},'%' )
         </if>
 
         <if test="utmSource != null and utmSource != '' ">
@@ -1480,7 +1480,7 @@
         AND  c.communicate_time IS NOT NULL
         and  c.remain = 0
         <if test="customerName !=null and customerName !=''">
-            and c.customer_name  like CONCAT('%', #{customerName},'%' )
+            and c.customer_name  like CONCAT(#{customerName},'%' )
         </if>
 
         <if test="utmSource != null and utmSource != '' ">
