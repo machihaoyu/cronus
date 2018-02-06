@@ -489,6 +489,8 @@ public class PublicOfferController {
             @ApiImplicitParam(name = "type", value = "公盘类型（外地公盘填1）", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "查询第几页", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "orderField", value = "排序字段(create_time创建时间,last_update_time 跟进时间)", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string")
     })
     @RequestMapping(value = "/specialOfferlistNew", method = RequestMethod.GET)
     @ResponseBody
