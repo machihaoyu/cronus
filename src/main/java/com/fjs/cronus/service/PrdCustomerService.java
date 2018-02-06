@@ -12,6 +12,7 @@ import com.fjs.cronus.dto.cronus.AddPrdCustomerDTO;
 import com.fjs.cronus.dto.cronus.PrdComuniDTO;
 import com.fjs.cronus.dto.cronus.PrdCustomerDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
+import com.fjs.cronus.enums.CustListTimeOrderEnum;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CommunicationLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
@@ -475,5 +476,93 @@ public class PrdCustomerService {
         Date m = c.getTime();
         String mon = format.format(m);
         return mon;
+    }
+
+
+
+    public QueryResult<PrdCustomerDTO> listByConditionNew(String customerName,String telephonenumber,String customerType,String level,String houseStatus,
+                                                       String citySearch,Integer type,Integer mountLevle,Integer page,Integer size,String token,String orderField,String sort) {
+        Integer total = null;
+        QueryResult<PrdCustomerDTO> prdCustomerQueryResult = null;
+        List<PrdCustomer> prdCustomerList = null;
+        List<PrdCustomerDTO> prdCustomerDTOList = new ArrayList<>();
+        Map<String,Object> map=new HashedMap();
+        List<String> citys = new ArrayList<>();
+        //判断权限
+        PHPLoginDto phpLoginDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
+        //判断data_type
+
+        Integer date_type =Integer.valueOf(phpLoginDto.getUser_info().getData_type());
+        if (date_type != 4){
+            String city = phpLoginDto.getUser_info().getRedis_city();
+            if (!StringUtils.isEmpty(city)) {
+                map.put("city", city);
+            }else {
+                //查询出异地城市和只要城市以外的
+                String mainCity= theaClientService.findValueByName(token,CommonConst.MAIN_CITY);
+                String remoteCity = theaClientService.findValueByName(token,CommonConst.REMOTE_CITY);
+                String[] mainCityArray=mainCity.split(",");
+                int mainCitySize=mainCityArray.length;
+                for (int i=0;i<mainCitySize;i++){
+                    citys.add(mainCityArray[i]);
+                }
+                String [] remoteCityArray = remoteCity.split(",");
+                for (int i=0;i<remoteCityArray.length;i++){
+                    citys.add(remoteCityArray[i]);
+                }
+                map.put("citys", citys);
+            }
+        }else {
+            if (!StringUtils.isEmpty(citySearch)) {
+                map.put("city", citySearch);
+            }
+        }
+        if (StringUtils.isNotEmpty(customerName)){
+            map.put("customerName",customerName);
+        }
+        if (StringUtils.isNotEmpty(customerType)){
+            map.put("customerType",customerType);
+        }
+        if (StringUtils.isNotEmpty(telephonenumber)){
+            map.put("telephonenumber",telephonenumber);
+        }
+        if (StringUtils.isNotEmpty(houseStatus)){
+            map.put("houseStatus",houseStatus);
+        }
+        if (StringUtils.isNotEmpty(level)){
+            map.put("level",level);
+        }
+        map.put("type",type);
+        if (type==1){
+            map.put("createTimeBegin", getMonthAgo(new Date(),1));
+            map.put("createTimeEnd",getMonthAgo(new Date(),null));
+        }
+        if (type == 2){
+            map.put("createTimeBegin", getMonthAgo(new Date(),1));
+        }
+        if (mountLevle != null){
+            map.put("mountLevle",mountLevle);
+        }
+        //排序---zl-----
+        if (!org.springframework.util.StringUtils.isEmpty(orderField) && CustListTimeOrderEnum.getEnumByCode(orderField) != null) {
+            if (org.springframework.util.StringUtils.isEmpty(sort)){
+                sort = "desc";
+            }
+            map.put("order", orderField + " " + sort);
+        }
+        map.put("start",(page-1)*size);
+        map.put("size",size);
+        prdCustomerList = prdCustomerMapper.listByCondition(map);
+        for (PrdCustomer prdCustomer1:prdCustomerList){
+            PrdCustomerDTO prdCustomerDTO=copyProperty(prdCustomer1,token);
+            prdCustomerDTOList.add(prdCustomerDTO);
+        }
+        // 总数
+        total = prdCustomerMapper.countByCondition(map);
+
+        prdCustomerQueryResult = new QueryResult<PrdCustomerDTO>();
+        prdCustomerQueryResult.setRows(prdCustomerDTOList);
+        prdCustomerQueryResult.setTotal(total + "");
+        return prdCustomerQueryResult;
     }
 }

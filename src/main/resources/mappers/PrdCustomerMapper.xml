@@ -112,7 +112,14 @@
 			</choose>
 		</if>
 		and is_deleted=0
-		order BY  last_update_time DESC
+		<choose>
+			<when test="order != null and order !=''">
+				order by ${order}
+			</when>
+			<otherwise>
+				order by last_update_time desc
+			</otherwise>
+		</choose>
 		limit ${start},${size}
 	</select>
 

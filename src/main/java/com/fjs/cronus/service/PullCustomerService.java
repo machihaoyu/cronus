@@ -14,6 +14,7 @@ import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 
 
+import com.fjs.cronus.enums.CustListTimeOrderEnum;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
@@ -400,5 +401,63 @@ public class PullCustomerService {
             }
         }
         return  result;
+    }
+
+    public QueryResult<PullCustomerDTO> listByConditionNew(String telephonenumber,Integer status, String name, String token,String systemName,String city,Integer mountLevle,String createTime,Integer page,
+                                                           Integer size,Integer userId,String orderField,String sort) {
+        Integer companyId = null;
+        Integer total = null;
+        QueryResult<PullCustomerDTO> pullCustomerQueryResult = null;
+        List<PullCustomer> pullCustomerList = null;
+        List<PullCustomerDTO> pullCustomerDTOList=new ArrayList<PullCustomerDTO>();
+        Map<String,Object> map=new HashedMap();
+        //获取下属id
+        List<Integer> ids = thorUcService.getSubUserByUserId(token,userId);
+        map.put("saleIds",ids);
+        if (StringUtils.isNotEmpty(name)){
+            map.put("name",name);
+        }
+        if (StringUtils.isNotEmpty(createTime)){
+            //转时间格式
+            Date date = DateUtils.parse(createTime,DateUtils.FORMAT_LONG);
+            map.put("createTime",date);
+        }
+        if (StringUtils.isNotEmpty(telephonenumber)){
+            map.put("telephone",telephonenumber);
+        }
+        if (status!=null){
+            map.put("status",status);
+        }
+        if (StringUtils.isNotEmpty(city)){
+            map.put("city",city);
+        }
+        if (mountLevle != null){
+            map.put("mountLevle",mountLevle);
+        }
+        //排序---zl-----
+        if (!org.springframework.util.StringUtils.isEmpty(orderField) && CustListTimeOrderEnum.getEnumByCode(orderField) != null) {
+            if (org.springframework.util.StringUtils.isEmpty(sort)){
+                sort = "desc";
+            }
+            map.put("order", orderField + " " + sort);
+        }
+        map.put("start",(page-1)*size);
+        map.put("size",size);
+        pullCustomerList=pullCustomerMapper.listByCondition(map);
+        for (PullCustomer selectPull:pullCustomerList){
+            Integer saleId=selectPull.getSaleId();
+            SimpleUserInfoDTO simpleUserInfoDTO =thorUcService.getSystemUserInfo(token,saleId);
+            String saleManName=simpleUserInfoDTO.getName();
+            PullCustomerDTO pullCustomerDTO=copyProperty(selectPull);
+            pullCustomerDTO.setOwnUserName(saleManName);
+            pullCustomerDTOList.add(pullCustomerDTO);
+        }
+        // 总数
+        total = pullCustomerMapper.countByCondition(map);
+
+        pullCustomerQueryResult = new QueryResult<PullCustomerDTO>();
+        pullCustomerQueryResult.setRows(pullCustomerDTOList);
+        pullCustomerQueryResult.setTotal(total + "");
+        return pullCustomerQueryResult;
     }
 }

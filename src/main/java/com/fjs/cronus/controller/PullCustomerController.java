@@ -299,4 +299,51 @@ public class PullCustomerController {
         }
         return theaApiDTO;
     }
+
+    @ApiOperation(value = "获取原始盘列表(增加排序)", notes = "获取原始盘列表(增加排序)")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "name", value = "姓名", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "telephonenumber", value = "手机号码", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "status", value = "状态", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "city", value = "城市", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "mountLevle", value = "1：0-20万，2：20-50万，3:50-100万，4:100-500万，5：大于五百万 ", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "createTime", value = "创建时间", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "page", value = "查询第几页", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "显示多少", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "orderField", value = "排序字段(receive_time,create_time,last_update_time)", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string")
+    })
+    @RequestMapping(value = "/pullCustomerListNew", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<QueryResult<PullCustomerDTO>> pullCustomerListNew(
+            @RequestParam(required = false) String telephonenumber,
+            @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) Integer mountLevle,
+            @RequestParam(required = false) String createTime,
+            @RequestParam Integer page,
+            @RequestParam Integer size,
+            @RequestParam(value = "orderField", required = false) String orderField,
+            @RequestParam(value = "sort", required = false) String sort,
+            @RequestHeader("Authorization") String token) {
+        CronusDto cronusDto = new CronusDto();
+        QueryResult<PullCustomerDTO> pullCustomerDTOQueryResult = new QueryResult<PullCustomerDTO>();
+        Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (userId == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        try {
+            pullCustomerDTOQueryResult = pullCustomerService.listByConditionNew(telephonenumber, status, name, token, CommonConst.SYSTEMNAME, city, mountLevle, createTime, page, size, userId,orderField,sort);
+            cronusDto.setResult(CommonMessage.SUCCESS.getCode());
+            cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+        } catch (Exception e) {
+            logger.error("获取原始盘列表", e);
+            cronusDto.setResult(CommonMessage.FAIL.getCode());
+            cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
+        }
+        cronusDto.setData(pullCustomerDTOQueryResult);
+        return cronusDto;
+    }
 }

@@ -216,4 +216,51 @@ public class PrdCustomerController {
         return theaApiDTO;
     }
 
+
+    @ApiOperation(value = "获取市场推广盘列表", notes = "获取市场推广盘列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "customerType", value = "客户类型", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "telephonenumber", value = "电话号码", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "houseStatus", value = "有无房产", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "level", value = "等级", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "city", value = "城市", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "mountLevle", value = "1：0-20万，2：20-50万，3:50-100万，4:100-500万，5：大于五百万 ", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "type", value = "市场推广盘类型,工作盘传1，沉淀盘传2", paramType = "query", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "查询第几页", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "显示多少", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "orderField", value = "排序字段(receive_time,create_time,last_update_time)", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string")
+    })
+    @RequestMapping(value = "/listPrdCustomeNew", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<QueryResult<PrdCustomerDTO>> listPrdCustomeNew(HttpServletRequest request, @RequestParam(required = false) String customerName,
+                                                                 @RequestParam(required = false) String telephonenumber,
+                                                                 @RequestParam(required = false) String customerType,
+                                                                 @RequestParam(required = false) String level,
+                                                                 @RequestParam(required = false) String houseStatus,
+                                                                 @RequestParam(required = false) String city,
+                                                                 @RequestParam(required = true) Integer type,
+                                                                 @RequestParam(required = false) Integer mountLevle,
+                                                                 @RequestParam(required = false, defaultValue = "1") Integer page,
+                                                                 @RequestParam(required = false, defaultValue = "10") Integer size,
+                                                                 @RequestParam(value = "orderField", required = false) String orderField,
+                                                                 @RequestParam(value = "sort", required = false) String sort,
+                                                                 @RequestHeader("Authorization") String token) {
+        CronusDto<QueryResult<PrdCustomerDTO>> cronusDto = new CronusDto<QueryResult<PrdCustomerDTO>>();
+        QueryResult<PrdCustomerDTO> result = null;
+        try {
+            result = prdCustomerService.listByConditionNew(customerName, telephonenumber, customerType, level, houseStatus, city, type, mountLevle, page, size, token,orderField,sort);
+            cronusDto.setResult(CommonMessage.SUCCESS.getCode());
+            cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+        } catch (Exception e) {
+            logger.error("获取市场推广盘列表失败", e);
+            cronusDto.setResult(CommonMessage.FAIL.getCode());
+            cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
+        }
+        cronusDto.setData(result);
+
+        return cronusDto;
+    }
 }
