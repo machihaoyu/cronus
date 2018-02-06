@@ -542,6 +542,56 @@ public class CustomerController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
+    @ApiOperation(value = "获取分配客户列表(新分配客户增加排序)", notes = "获取分配客户列表(新分配客户增加排序)")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "utmSource", value = "渠道 自申请客户传入'自申请'", paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "customerSource", value = "客户来源 ", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "telephonenumber", value = "手机 ", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "autostatus", value = "1 新分配客户", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "type", value = "1已沟通客户，2 ：else", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "查询第几页(从1开始)", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "显示多少件", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "orderField", value = "排序字段(receive_time,create_time,last_update_time)", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string")
+    })
+    @RequestMapping(value = "/AllocationCustomerListNew", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<QueryResult<CustomerListDTO>> AllocationCustomerListNew(@RequestParam(value = "customerName", required = false) String customerName,
+                                                                          @RequestParam(value = "utmSource", required = false) String utmSource,
+                                                                          @RequestParam(value = "customerSource", required = false) String customerSource,
+                                                                          @RequestParam(value = "telephonenumber", required = false) String telephonenumber,
+                                                                          @RequestParam(value = "autostatus", required = false) Integer autostatus,
+                                                                          @RequestParam(value = "type", required = true) Integer type,
+                                                                          @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                                                          @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
+                                                                          @RequestParam(value = "orderField", required = false) String orderField,
+                                                                          @RequestParam(value = "sort", required = false) String sort,
+                                                                          @RequestHeader("Authorization") String token
+                                                                           ) {
+
+
+        CronusDto<QueryResult<CustomerListDTO>> cronusDto = new CronusDto();
+        if (type == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        try {
+            QueryResult<CustomerListDTO> queryResult = customerInfoService.allocationCustomerListNew(customerName, utmSource, customerSource, autostatus, page, size, type, telephonenumber,orderField,sort,token);
+            cronusDto.setData(queryResult);
+            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            cronusDto.setResult(ResultResource.CODE_SUCCESS);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->customerList获取列表信息操作失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException) e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+
 
     @ApiOperation(value = "保留客户", notes = "保留客户")
     @ApiImplicitParams({

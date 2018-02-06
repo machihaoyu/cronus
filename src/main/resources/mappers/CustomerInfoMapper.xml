@@ -216,7 +216,7 @@
         order by ${order}
       </when>
       <otherwise>
-        order by c.last_update_time desc
+        order by c.create_time desc
       </otherwise>
     </choose>
     limit #{start},#{size}
@@ -1387,10 +1387,10 @@
         </if>
         <choose>
             <when test="order != null and order !=''">
-                order by ${order} desc
+                order by ${order}
             </when>
             <otherwise>
-                order by c.last_update_time DESC
+                order by c.create_time DESC
             </otherwise>
         </choose>
         limit #{start},#{size}
@@ -1464,10 +1464,10 @@
         </if>
         <choose>
             <when test="order != null and order !=''">
-                order by ${order} desc
+                order by ${order}
             </when>
             <otherwise>
-                order by c.last_update_time DESC
+                order by c.create_time DESC
             </otherwise>
         </choose>
         limit #{start},#{size}
@@ -1617,7 +1617,14 @@
             )
         </if>
         and is_deleted=0
-        ORDER BY last_update_time DESC
+        <choose>
+            <when test="order != null and order !=''">
+                order by ${order}
+            </when>
+            <otherwise>
+                order by last_update_time desc
+            </otherwise>
+        </choose>
         limit ${start},${size}
     </select>
 
@@ -1986,7 +1993,14 @@
             )
         </if>
         and is_deleted=0
-        ORDER BY last_update_time DESC
+        <choose>
+            <when test="order != null and order !=''">
+                order by ${order}
+            </when>
+            <otherwise>
+                order by last_update_time desc
+            </otherwise>
+        </choose>
         limit ${start},${size}
     </select>
 

@@ -89,6 +89,9 @@ public class LookPoolService {
             for (CustomerInfo customerInfo : customerInfoList) {
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,user_Id);
+                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+                String phoneNumber = telephone.substring(0, 7) + "****";
+                customerDto.setTelephonenumber(phoneNumber);
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);
@@ -142,6 +145,9 @@ public class LookPoolService {
             for (CustomerInfo customerInfo : customerInfoList) {
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,user_Id);
+                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+                String phoneNumber = telephone.substring(0, 7) + "****";
+                customerDto.setTelephonenumber(phoneNumber);
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);

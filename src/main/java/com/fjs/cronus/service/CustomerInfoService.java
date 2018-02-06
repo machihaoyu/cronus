@@ -828,6 +828,85 @@ public class CustomerInfoService {
         return result;
     }
 
+    /**
+     * 增加排序
+     * @param customerName
+     * @param utmSource
+     * @param customerSource
+     * @param autostatus
+     * @param page
+     * @param size
+     * @param type
+     * @param telephonenumber
+     * @param token
+     * @return
+     */
+    public QueryResult<CustomerListDTO> allocationCustomerListNew(String customerName, String utmSource, String customerSource, Integer autostatus, Integer page, Integer size, Integer type, String telephonenumber,
+                                                                  String orderField,String sort,String token) {
+        List<CustomerInfo> resultList = new ArrayList<>();
+        Map<String, Object> paramsMap = new HashMap<>();
+        List<CustomerListDTO> doList = new ArrayList<>();
+        QueryResult<CustomerListDTO> result = new QueryResult<>();
+        PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO == null) {
+            throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
+        }
+        Integer lookphone = Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
+        Integer userId = Integer.parseInt(userInfoDTO.getUser_info().getUser_id());
+        //获取下属id
+        List<Integer> ownerIds = ucService.getSubUserByUserId(token, userId);
+        Integer count = null;
+        if (!StringUtils.isEmpty(customerName)) {
+            paramsMap.put("customerName", customerName);
+        }
+        if (!StringUtils.isEmpty(utmSource)) {
+            if ("自申请".equals(utmSource)){
+                utmSource = "c-app";
+            }
+            paramsMap.put("utmSource", utmSource);
+        }
+        if (!StringUtils.isEmpty(telephonenumber)) {
+            paramsMap.put("telephonenumber", telephonenumber);
+        }
+        if (!StringUtils.isEmpty(customerSource)) {
+            paramsMap.put("customerSource", customerSource);
+        }
+        if (autostatus != null) {
+            paramsMap.put("autostatus", autostatus);
+        }
+        if (ownerIds != null && ownerIds.size() > 0) {
+            paramsMap.put("ownerIds", ownerIds);
+        }
+        //排序---zl-----
+        if (!StringUtils.isEmpty(orderField) && CustListTimeOrderEnum.getEnumByCode(orderField) != null) {
+            if (StringUtils.isEmpty(sort)){
+                sort = "desc";
+            }
+            paramsMap.put("order", orderField + " " + sort);
+        }
+        paramsMap.put("start", (page - 1) * size);
+        paramsMap.put("size", size);
+        if (type == 1) {//已沟通客户 判断沟通时间不为null;
+            resultList = customerInfoMapper.communicatedList(paramsMap);
+            count = customerInfoMapper.communicatedListCount(paramsMap);
+        } else {
+            resultList = customerInfoMapper.allocationCustomerList(paramsMap);
+            count = customerInfoMapper.allocationCustomerListCount(paramsMap);
+        }
+        if (resultList != null && resultList.size() > 0) {
+            for (CustomerInfo customerInfo : resultList) {
+                CustomerListDTO customerDto = new CustomerListDTO();
+                EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
+                doList.add(customerDto);
+            }
+            result.setRows(doList);
+            result.setTotal(count.toString());
+        }
+        result.setRows(doList);
+        result.setTotal(count.toString());
+        return result;
+    }
+
     //不分页查询客户
     public List<CustomerInfo> listByCondition(CustomerInfo customerInfo, UserInfoDTO userInfoDTO, String token, String systemName) {
 
@@ -990,6 +1069,9 @@ public class CustomerInfoService {
                 for (CustomerInfo customerInfo : customerInfoList) {
                     CustomerListDTO customerDto = new CustomerListDTO();
                     EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
+                    String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+                    String phoneNumber = telephone.substring(0, 7) + "****";
+                    customerDto.setTelephonenumber(phoneNumber);
                     resultList.add(customerDto);
                 }
                 queryResult.setRows(resultList);
