@@ -39,6 +39,16 @@ public class CustomerUsefulDTO {
     private Date nextContactTime;
     @ApiModelProperty(value = "用户的资金用途", required = false)
     private String purposeDescribe;
+    @ApiModelProperty(value = "用户姓名", required = false)
+    private String customerName;
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
 
     public String getPurposeDescribe() {
         return purposeDescribe;

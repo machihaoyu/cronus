@@ -114,6 +114,10 @@ public class CommunicationLogService {
         customerDto.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
         //开始更新沟通人
         customerDto.setCommunicateId(Integer.parseInt(userInfoDTO.getUser_id()));
+        //开始更新沟通人姓名
+        if (!StringUtils.isEmpty(customerUsefulDTO.getCustomerName())) {
+            customerDto.setCustomerName(customerUsefulDTO.getCustomerName());
+        }
         customerInfoMapper.updateCustomer(customerDto);
         //插入客户日志表
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
@@ -185,10 +189,12 @@ public class CommunicationLogService {
         }
         long customerInfoTme = System.currentTimeMillis();
         CustomerInfo customerInfo = customerService.findCustomerById(customerId);
+
         logger.warn("customerInfoTme 结束时间-----》",System.currentTimeMillis()-customerInfoTme);
         customerUsefulDTO.setId(customerInfo.getId());
         customerUsefulDTO.setCustomerId(customerInfo.getId());
         customerUsefulDTO.setCooperationStatus(customerInfo.getCooperationStatus());
+        customerUsefulDTO.setCustomerName(customerInfo.getCustomerName());
         if (customerInfo == null){
             throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }

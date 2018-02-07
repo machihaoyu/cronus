@@ -131,6 +131,9 @@
       <if test="utmSource != null and utmSource != '' ">
           and c.utm_source = #{utmSource}
       </if>
+      <if test="cooperationStatus != null and cooperationStatus != '' ">
+          and c.cooperation_status = #{cooperationStatus}
+      </if>
       <if test="ownUserName != null and ownUserName != '' ">
           and c.own_user_name = #{ownUserName}
       </if>
@@ -178,6 +181,9 @@
       </if>
       <if test="utmSource != null and utmSource != '' ">
           and c.utm_source = #{utmSource}
+      </if>
+      <if test="cooperationStatus != null and cooperationStatus != '' ">
+          and c.cooperation_status = #{cooperationStatus}
       </if>
       <if test="ownUserName != null and ownUserName != '' ">
           and c.own_user_name = #{ownUserName}
