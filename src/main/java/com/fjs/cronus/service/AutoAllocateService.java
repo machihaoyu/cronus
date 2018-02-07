@@ -542,7 +542,7 @@ public class AutoAllocateService {
             }
         } catch (Exception e) {
             redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.NO.getCode().toString());
-            logger.warn(e.getMessage());
+            logger.warn("nonCommunicateAgainAllocate--", e);
         }
     }
 
