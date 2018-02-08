@@ -464,6 +464,7 @@ public class AutoAllocateService {
             ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
             try {
                 if (currentWorkDayAndTime(token)) {
+                    logger.warn("nonCommunicateAgainAllocate-start");
                     String status = redisConfigOptions.get(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE);
                     if (org.apache.commons.lang.StringUtils.isNotEmpty(status) && status.equals("1")) {
                         return;
