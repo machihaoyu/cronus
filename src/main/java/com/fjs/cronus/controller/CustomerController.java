@@ -128,7 +128,7 @@ public class CustomerController {
             @ApiImplicitParam(name="cooperationStatus",value = "跟进状态",required = false,paramType = "query",dataType = "string"),
             @ApiImplicitParam(name="communication_order",value = "沟通状态0未沟通未确认，1，已沟通未确认，3，已沟通已确认",required = false,paramType = "query",dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少件", required = false, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "orderField", value = "排序字段(receive_time,create_time,last_update_time)", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "orderField", value = "排序字段(receive_time,create_time,communicate_time)", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string")
 
     })
