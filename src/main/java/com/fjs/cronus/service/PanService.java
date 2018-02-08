@@ -3,6 +3,7 @@ package com.fjs.cronus.service;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.thea.LoanDTO;
+import com.fjs.cronus.controller.PublicOfferController;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
@@ -28,6 +29,8 @@ import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +44,7 @@ import java.util.*;
 @Service
 public class PanService {
 
+    private static final Logger logger = LoggerFactory.getLogger(PanService.class);
     @Autowired
     CustomerInfoMapper customerInfoMapper;
     @Autowired
@@ -108,14 +112,19 @@ public class PanService {
             if (paramsList != null && paramsList.size() > 0){
                 map.put("paramsList",paramsList);
             }
+            logger.warn("----------------------->从Uc中获取用户信息getAllUserInfo()");
             PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
+            logger.warn("----------------------->从Uc中获取用户信息getAllUserInfo()结束");
             if (userInfoDTO == null){
                 throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
             }
             Integer lookphone =Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
             Integer user_Id = Integer.parseInt(userInfoDTO.getUser_info().getUser_id());
+            logger.warn("----------------------->查询数据库获取信息开始");
             List<CustomerInfo> customerInfoList = customerInfoMapper.publicOfferList(map);
+            logger.warn("----------------------->查询数据库获取信息结束");
             Integer total = customerInfoMapper.publicOfferCount(map);
+            logger.warn("----------------------->查询数据库获取总数量信息结束");
             if (customerInfoList != null && customerInfoList.size() > 0) {
                 for (CustomerInfo customerInfo : customerInfoList){
                     CustomerListDTO customerDto = new CustomerListDTO();
@@ -185,14 +194,19 @@ public class PanService {
             if (paramsList != null && paramsList.size() > 0){
                 map.put("paramsList",paramsList);
             }
+            logger.warn("----------------------->从Uc中获取用户信息getAllUserInfo()");
             PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
+            logger.warn("----------------------->从Uc中获取用户信息getAllUserInfo()结束");
             if (userInfoDTO == null){
                 throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
             }
             Integer lookphone =Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
             Integer user_Id = Integer.parseInt(userInfoDTO.getUser_info().getUser_id());
+            logger.warn("----------------------->查询数据库获取信息开始");
             List<CustomerInfo> customerInfoList = customerInfoMapper.publicOfferList(map);
+            logger.warn("----------------------->查询数据库获取信息结束");
             Integer total = customerInfoMapper.publicOfferCount(map);
+            logger.warn("----------------------->查询数据库获取总数量信息结束");
             if (customerInfoList != null && customerInfoList.size() > 0) {
                 for (CustomerInfo customerInfo : customerInfoList){
                     CustomerListDTO customerDto = new CustomerListDTO();
@@ -419,14 +433,20 @@ public class PanService {
             if (paramsList != null && paramsList.size() > 0){
                 map.put("paramsList",paramsList);
             }
+            logger.warn("------------->Uc获取用户信息开始");
             PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token,CommonConst.SYSTEM_NAME_ENGLISH);
+            logger.warn("------------->Uc获取用户信息结束");
             if (userInfoDTO == null){
                 throw new CronusException(CronusException.Type.CRM_CALLBACKCUSTOMER_ERROR);
             }
             Integer lookphone =Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
             Integer user_Id = Integer.parseInt(userInfoDTO.getUser_info().getUser_id());
+            logger.warn("------------->数据库查询开始");
             List<CustomerInfo> customerInfoList = customerInfoMapper.specialListByOffer(map);
+            logger.warn("------------->数据库查询结束");
+            logger.warn("------------->数据库查询总数量开始");
             Integer total = customerInfoMapper.specialListByOfferCount(map);
+            logger.warn("------------->数据库查询总数量结束");
             if (customerInfoList != null && customerInfoList.size() > 0) {
                 for (CustomerInfo customerInfo : customerInfoList){
                     CustomerListDTO customerDto = new CustomerListDTO();

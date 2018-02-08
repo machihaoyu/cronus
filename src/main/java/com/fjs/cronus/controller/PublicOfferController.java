@@ -100,14 +100,18 @@ public class PublicOfferController {
                 userId = Integer.parseInt(userInfoDTO.getUser_id());
             }
             //公盘需要踢出三处客户以及过滤掉特殊渠道的
+            logger.warn("---------------->获取特殊渠道配置");
             String result = theaClientService.findValueByName(token, CommonConst.SPECIAL_UTM_SOURCE);
             JSONObject jsonObject = JSONObject.parseObject(result);
             Map<String, String> valueMap = jsonObject.toJavaObject(Map.class);
             for (String str : valueMap.values()) {
                 utmList.add(str);
             }
+            logger.warn("---------------->获取特殊渠道配置结束");
             //需要踢出三无客户盘的
+            logger.warn("---------------->获取三无客户配置");
             String unableResult = theaClientService.findValueByName(token, CommonConst.CAN_NOT_ALLOCATE_CUSTOMER_CLASSIFY);
+            logger.warn("---------------->获取三无客户配置结束");
             if (unableResult != null && !"".equals(unableResult)) {
                 String[] strArray = null;
                 strArray = unableResult.split(",");
@@ -121,17 +125,26 @@ public class PublicOfferController {
                 pan.setUtmSource(utmSource);
             }
             //从缓存取得
+            logger.warn("---------------->从redis中获取下属信息开始");
             RedisSubUserInfoDTO redisSubUserInfoDTO = cronusRedisService.getRedisSubUserInfo(CommonConst.CANMANGERMAINCITY + userId);
+            logger.warn("---------------->从redis中获取下属信息结束");
             if (redisSubUserInfoDTO != null) {
                 subCompanyIds = redisSubUserInfoDTO.getSubCompanyId();
                 canMangerMainCity = redisSubUserInfoDTO.getCanMangerMainCity();
             } else {
                 canMangerMainCity = new ArrayList<>();
                 subCompanyIds = new ArrayList<>();
+                logger.warn("---------------->从交易中获取能管理主要的城市开始");
                 String mainCity = theaClientService.findValueByName(token, CommonConst.MAIN_CITY);
+                logger.warn("---------------->从交易中获取能管理主要的城市结束");
                 //获取异地城市
+                logger.warn("---------------->从交易中获取能管理异地城市开始");
                 String remoteCity = theaClientService.findValueByName(token, CommonConst.REMOTE_CITY);
+                logger.warn("---------------->从交易中获取能管理异地城市开始");
+
+                logger.warn("---------------->从Uc中获取下属信息开始");
                 List<CronusSubInfoDTO> cronusSubInfoDTOS = ucService.getSubCompanyToCronus(token, userId, CommonConst.SYSTEM_NAME_ENGLISH);
+                logger.warn("---------------->从Uc中获取下属信息结束");
                 if (cronusSubInfoDTOS != null && cronusSubInfoDTOS.size() > 0) {
                     for (CronusSubInfoDTO cronusSubInfoDTO : cronusSubInfoDTOS) {
                         if (!StringUtils.isEmpty(cronusSubInfoDTO.getCityName())) {
@@ -150,6 +163,7 @@ public class PublicOfferController {
                     RedisSubUserInfoDTO redis = new RedisSubUserInfoDTO();
                     redis.setCanMangerMainCity(canMangerMainCity);
                     redis.setSubCompanyId(subCompanyIds);
+                    logger.warn("---------------->从Uc中获取下属信息存入redis结束");
                     cronusRedisService.setRedisSubUserInfo(CommonConst.CANMANGERMAINCITY + userId, redis);
                 }
             }
@@ -205,6 +219,7 @@ public class PublicOfferController {
                                                              @RequestParam(value = "sort", required = false) String sort,
                                                              @RequestHeader("Authorization") String token) {
 
+        logger.warn("----------------------------->开始进入公盘");
         CronusDto<QueryResult<CustomerListDTO>> cronusDto = new CronusDto<>();
         List<Integer> subCompanyIds = null;//自己能管理的分公司
         List<String> canMangerMainCity = null;//自己能管理的城市
@@ -222,14 +237,18 @@ public class PublicOfferController {
                 userId = Integer.parseInt(userInfoDTO.getUser_id());
             }
             //公盘需要踢出三处客户以及过滤掉特殊渠道的
+            logger.warn("---------------->获取特殊渠道配置");
             String result = theaClientService.findValueByName(token, CommonConst.SPECIAL_UTM_SOURCE);
             JSONObject jsonObject = JSONObject.parseObject(result);
             Map<String, String> valueMap = jsonObject.toJavaObject(Map.class);
             for (String str : valueMap.values()) {
                 utmList.add(str);
             }
+            logger.warn("---------------->获取特殊渠道配置结束");
             //需要踢出三无客户盘的
+            logger.warn("---------------->获取三无客户配置");
             String unableResult = theaClientService.findValueByName(token, CommonConst.CAN_NOT_ALLOCATE_CUSTOMER_CLASSIFY);
+            logger.warn("---------------->获取三无客户结束");
             if (unableResult != null && !"".equals(unableResult)) {
                 String[] strArray = null;
                 strArray = unableResult.split(",");
@@ -243,17 +262,26 @@ public class PublicOfferController {
                 pan.setUtmSource(utmSource);
             }
             //从缓存取得
+            logger.warn("---------------->从redis中获取下属信息开始");
             RedisSubUserInfoDTO redisSubUserInfoDTO = cronusRedisService.getRedisSubUserInfo(CommonConst.CANMANGERMAINCITY + userId);
+            logger.warn("---------------->从redis中获取下属信息结束");
             if (redisSubUserInfoDTO != null) {
                 subCompanyIds = redisSubUserInfoDTO.getSubCompanyId();
                 canMangerMainCity = redisSubUserInfoDTO.getCanMangerMainCity();
             } else {
                 canMangerMainCity = new ArrayList<>();
                 subCompanyIds = new ArrayList<>();
+                logger.warn("---------------->从交易中获取能管理主要的城市开始");
                 String mainCity = theaClientService.findValueByName(token, CommonConst.MAIN_CITY);
+                logger.warn("---------------->从交易中获取能管理主要的城市结束");
                 //获取异地城市
+                logger.warn("---------------->从交易中获取能管理异地城市开始");
                 String remoteCity = theaClientService.findValueByName(token, CommonConst.REMOTE_CITY);
+                logger.warn("---------------->从交易中获取能管理异地城市开始");
+
+                logger.warn("---------------->从Uc中获取下属信息开始");
                 List<CronusSubInfoDTO> cronusSubInfoDTOS = ucService.getSubCompanyToCronus(token, userId, CommonConst.SYSTEM_NAME_ENGLISH);
+                logger.warn("---------------->从Uc中获取下属信息结束");
                 if (cronusSubInfoDTOS != null && cronusSubInfoDTOS.size() > 0) {
                     for (CronusSubInfoDTO cronusSubInfoDTO : cronusSubInfoDTOS) {
                         if (!StringUtils.isEmpty(cronusSubInfoDTO.getCityName())) {
@@ -272,6 +300,7 @@ public class PublicOfferController {
                     RedisSubUserInfoDTO redis = new RedisSubUserInfoDTO();
                     redis.setCanMangerMainCity(canMangerMainCity);
                     redis.setSubCompanyId(subCompanyIds);
+                    logger.warn("---------------->从Uc中获取下属信息存入redis结束");
                     cronusRedisService.setRedisSubUserInfo(CommonConst.CANMANGERMAINCITY + userId, redis);
                 }
             }
@@ -281,7 +310,9 @@ public class PublicOfferController {
             pan.setCustomerClassify(customerClassify);
             pan.setCustomerSource(customerSource);
             pan.setCity(city);
+            logger.warn("---------------------》开始进入公盘service");
             queryResult = panService.listByOfferNew(pan, userId, companyId, token, CommonConst.SYSTEMNAME, page, size, canMangerMainCity, subCompanyIds, null, mountLevle, utmList, paramsList,orderField,sort);
+            logger.warn("---------------------》开始进入公盘service结束");
             cronusDto.setData(queryResult);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
@@ -293,6 +324,7 @@ public class PublicOfferController {
             }
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
+        logger.warn("----------------------------->公盘结束");
         return cronusDto;
     }
 
@@ -508,7 +540,7 @@ public class PublicOfferController {
                                                                     @RequestParam(value = "orderField", required = false) String orderField,
                                                                     @RequestParam(value = "sort", required = false) String sort,
                                                                     @RequestHeader("Authorization") String token) {
-
+        logger.warn("------------------------>开始进入特殊渠道列表");
         CronusDto<QueryResult<CustomerListDTO>> cronusDto = new CronusDto<>();
 
         QueryResult<CustomerListDTO> queryResult = null;
@@ -516,7 +548,9 @@ public class PublicOfferController {
         try {
             //从token中获取用户信息
             PanParamDTO pan = new PanParamDTO();
+            logger.warn("------------------------>Uc获取用户信息");
             UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
+            logger.warn("------------------------>Uc获取用户信息结束");
             List<String> paramsList = new ArrayList<>();
             List<String> utmList = new ArrayList<>();
             Integer userId = null;
@@ -526,11 +560,15 @@ public class PublicOfferController {
             }
             List<String> mainCitys = new ArrayList<String>();//主要城市
             if (type == null) {
+                logger.warn("------------------------>从交易获取特殊渠道的值开始");
                 String result = theaClientService.findValueByName(token, CommonConst.SPECIAL_UTM_SOURCE);
+                logger.warn("------------------------>从交易获取特殊渠道的值开始");
                 JSONObject jsonObject = JSONObject.parseObject(result);
                 String specUtmSource = jsonObject.getString(utmSource);
                 pan.setUtmSource(specUtmSource);
+                logger.warn("------------------------>从uc获取下属分公司城市开始");
                 List<CityDto> subsCitys = ucService.getSubcompanyByUserId(token, userId, CommonConst.SYSTEMNAME);
+                logger.warn("------------------------>从uc获取下属分公司城市结束");
                 List<String> subCitys = new ArrayList<String>();
                 if (!CollectionUtils.isEmpty(subsCitys)) {
                     for (CityDto cityDto : subsCitys) {
@@ -542,14 +580,18 @@ public class PublicOfferController {
 
             } else {
                 //公盘需要踢出三处客户以及过滤掉特殊渠道的
+                logger.warn("------------------------>外地公盘获取配置开始");
                 String result = theaClientService.findValueByName(token, CommonConst.SPECIAL_UTM_SOURCE);
+                logger.warn("------------------------>外地公盘获取配置结束");
                 JSONObject jsonObject = JSONObject.parseObject(result);
                 Map<String, String> valueMap = jsonObject.toJavaObject(Map.class);
                 for (String str : valueMap.values()) {
                     utmList.add(str);
                 }
                 //需要踢出三无客户盘的
+                logger.warn("------------------------>外地公盘获取三无配置开始");
                 String unableResult = theaClientService.findValueByName(token, CommonConst.CAN_NOT_ALLOCATE_CUSTOMER_CLASSIFY);
+                logger.warn("------------------------>外地公盘获取三无配置结束");
                 if (unableResult != null && !"".equals(unableResult)) {
                     String[] strArray = null;
                     strArray = unableResult.split(",");
@@ -563,9 +605,13 @@ public class PublicOfferController {
                     pan.setUtmSource(utmSource);
                 }
                 //获取下属的城市
+                logger.warn("------------------------>外地公盘获取主要城市开始");
                 String mainCity = theaClientService.findValueByName(token, CommonConst.MAIN_CITY);
+                logger.warn("------------------------>外地公盘获取主要城市结束");
                 //获取异地城市
+                logger.warn("------------------------>外地公盘获取异地城市开始");
                 String remoteCity = theaClientService.findValueByName(token, CommonConst.REMOTE_CITY);
+                logger.warn("------------------------>外地公盘获取异地城市结束");
                 //主要城市
                 String[] strArray = null;
                 strArray = mainCity.split(",");
@@ -586,7 +632,9 @@ public class PublicOfferController {
             pan.setCustomerClassify(customerClassify);
             pan.setCustomerSource(customerSource);
             pan.setCity(city);
+            logger.warn("------------------------>外地公盘进入service开始");
             queryResult = panService.specialListByOfferNew(pan, userId, companyId, token, CommonConst.SYSTEMNAME, page, size, mainCitys, null, type, mountLevle, utmList, paramsList,orderField,sort);
+            logger.warn("------------------------>外地公盘进入service结束");
             cronusDto.setData(queryResult);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
