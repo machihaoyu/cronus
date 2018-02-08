@@ -476,15 +476,6 @@ public class AutoAllocateService {
                     if (existFailList == null) {
                         existFailList = new ArrayList<>();
                     }
-                    StringBuilder stringBuilder = new StringBuilder();
-                    if (existFailList != null) {
-                        for (int i = 0; i < existFailList.size(); i++) {
-                            stringBuilder.append(existFailList.get(i).toString());
-                            if (i < existFailList.size() - 1) {
-                                stringBuilder.append(",");
-                            }
-                        }
-                    }
                     List<Integer> failList = new ArrayList<>();
                     List<Integer> successList = new ArrayList<>();
                     for (CustomerInfo customerInfo :
@@ -500,7 +491,6 @@ public class AutoAllocateService {
                             continue;
                         }
                         Integer ownUserId = 0;
-
                         try {
                             ownUserId = getAllocateUser(customerInfo.getCity());
                         } catch (Exception e) {
