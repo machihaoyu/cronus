@@ -248,7 +248,7 @@
         order by ${order}
       </when>
       <otherwise>
-        order by c.create_time desc
+        order by c.last_update_time desc
       </otherwise>
     </choose>
     limit #{start},#{size}
