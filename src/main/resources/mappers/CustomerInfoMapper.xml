@@ -1833,7 +1833,6 @@
         CURTIME()
         ) > 15
         AND a.communicate_time IS NULL
-        LIMIT 1000
     </select>
 
     <!--自动清洗数据计算-->
