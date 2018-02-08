@@ -166,6 +166,19 @@
               #{item}
           </foreach>
       </if>
+      <if test="communication_order!=null">
+          <choose>
+              <when test="communication_order == 0">
+                  and c.communicate_time is NULL
+              </when>
+              <when test="communication_order == 1">
+                  and c.communicate_time is NOT NULL and c.confirm = 1
+              </when>
+              <when test="communication_order == 2">
+                  and c.communicate_time is NOT NULL and c.confirm = 2
+              </when>
+          </choose>
+      </if>
   </select>
 
   <select id="customerList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
@@ -216,6 +229,19 @@
                    separator="," close=")">
               #{item}
           </foreach>
+      </if>
+      <if test="communication_order!=null">
+          <choose>
+              <when test="communication_order == 0">
+                 and c.communicate_time is NULL
+              </when>
+              <when test="communication_order == 1">
+                  and c.communicate_time is NOT NULL and c.confirm = 1
+              </when>
+              <when test="communication_order == 2">
+                  and c.communicate_time is NOT NULL and c.confirm = 2
+              </when>
+          </choose>
       </if>
     <choose>
       <when test="order != null and order !=''">

@@ -140,7 +140,7 @@ public class CustomerInfoService {
 
     public QueryResult customerListNew(Integer userId, String customerName, String telephonenumber, String utmSource, String ownUserName,
                                        String customerSource, Integer circle, Integer companyId, Integer page, Integer size, Integer remain,
-                                       String level, String token, String orderField,String sort,String cooperationStatus) {
+                                       String level, String token, String orderField,String sort,String cooperationStatus,Integer communication_order) {
         QueryResult result = new QueryResult();
         Map<String, Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
@@ -175,6 +175,9 @@ public class CustomerInfoService {
         }
         if (!StringUtils.isEmpty(cooperationStatus)){
             paramsMap.put("cooperationStatus", cooperationStatus);
+        }
+        if (communication_order != null){
+            paramsMap.put("communication_order", communication_order);
         }
         //手机需要解密加密
         if (!StringUtils.isEmpty(telephonenumber)) {

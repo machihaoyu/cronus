@@ -126,6 +126,7 @@ public class CustomerController {
             @ApiImplicitParam(name = "level", value = "客户状态 意向客户 协议客户 成交客户", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "page", value = "查询第几页(从1开始)", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name="cooperationStatus",value = "跟进状态",required = false,paramType = "query",dataType = "string"),
+            @ApiImplicitParam(name="communication_order",value = "沟通状态0未沟通未确认，1，已沟通未确认，3，已沟通已确认",required = false,paramType = "query",dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少件", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "orderField", value = "排序字段(receive_time,create_time,last_update_time)", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string")
@@ -147,6 +148,7 @@ public class CustomerController {
                                                                 @RequestParam(value = "orderField", required = false) String orderField,
                                                                 @RequestParam(value = "sort", required = false) String sort,
                                                                 @RequestParam(value = "cooperationStatus",required = false) String cooperationStatus,
+                                                                @RequestParam(value = "communication_order",required = false) Integer communication_order,
                                                                 @RequestHeader("Authorization") String token) {
 
 
@@ -158,7 +160,7 @@ public class CustomerController {
         }
         try {
             QueryResult queryResult = customerInfoService.customerListNew(userId, customerName, telephonenumber,
-                    utmSource, ownUserName, customerSource, circle, companyId, page, size, remain, level, token, orderField,sort,cooperationStatus);
+                    utmSource, ownUserName, customerSource, circle, companyId, page, size, remain, level, token, orderField,sort,cooperationStatus,communication_order);
             cronusDto.setData(queryResult);
             cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             cronusDto.setResult(ResultResource.CODE_SUCCESS);
