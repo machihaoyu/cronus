@@ -184,7 +184,7 @@ public class CustomerInfoService {
             paramsMap.put("telephonenumber", DEC3Util.des3EncodeCBC(telephonenumber));
         }
         //排序---xdj-----
-        if (!StringUtils.isEmpty(orderField) && CustListTimeOrderEnum.getEnumByCode(orderField) != null) {
+        if (!StringUtils.isEmpty(orderField)) {
             if (StringUtils.isEmpty(sort)){
                 sort = "desc";
             }
