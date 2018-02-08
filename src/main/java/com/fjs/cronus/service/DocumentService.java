@@ -5,6 +5,7 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.OcrInfoEnum;
 import com.fjs.cronus.Common.ProductTyoeEnum;
 import com.fjs.cronus.Common.ResultResource;
+import com.fjs.cronus.dto.App.ClientUploadDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.Echo.MsgTmplDTO;
 import com.fjs.cronus.dto.Echo.StationMsgReqDTO;
@@ -997,8 +998,9 @@ public class DocumentService {
         return null;
     }
 
-    public String uploadH5DocumentOk(MultipartFile file,String fileName, String telephone, String category, String source,String documentId, String token) {
+    public ClientUploadDTO uploadH5DocumentOk(MultipartFile file, String fileName, String telephone, String category, String source, String documentId, String token) {
         //校验参数
+        ClientUploadDTO clientUploadDTO = new ClientUploadDTO();
         if (category == null || "".equals(category)) {
             throw new CronusException(CronusException.Type.CRM_OCRDOCUMENTCAGORY_ERROR);
         }
@@ -1104,7 +1106,13 @@ public class DocumentService {
 
                 String imageBase64 = FileBase64ConvertUitl.encodeBase64File(file.getInputStream());
                 addOcrInfo(categoryParam, customerIdParam, imageBase64, rc_document_id, user_id, token, userInfoDTO, null);
-                return url;
+                clientUploadDTO.setUrl(url);
+                //查询
+                Map<String,Object> paramsMap = new HashMap<>();
+                paramsMap.put("rc_document_id",rc_document_id);
+                RContractDocument rContractDocument = rContractDocumentMapper.findByFeild(paramsMap);
+                clientUploadDTO.setDocument_Id(rContractDocument.getDocumentId());
+                return clientUploadDTO;
             } else {
                 throw new CronusException(CronusException.Type.CRM_UPLOADERROR_ERROR);
             }

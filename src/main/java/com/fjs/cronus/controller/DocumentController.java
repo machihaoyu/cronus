@@ -1,6 +1,7 @@
 package com.fjs.cronus.controller;
 
 import com.fjs.cronus.Common.ResultResource;
+import com.fjs.cronus.dto.App.ClientUploadDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.cronus.SaasDocumentDTO;
 import com.fjs.cronus.dto.cronus.UploadCilentDTO;
@@ -320,9 +321,10 @@ public class DocumentController {
     })
     @RequestMapping(value = "/uploadH5DocumentOk", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto uploadH5DocumentOk(@RequestHeader("Authorization") String token, HttpServletRequest request) {
+    public CronusDto<ClientUploadDTO> uploadH5DocumentOk(@RequestHeader("Authorization") String token, HttpServletRequest request) {
         logger.info("start uploadH5DocumentOk!");
         CronusDto resultDto = new CronusDto();
+        ClientUploadDTO clientUploadDTO = new ClientUploadDTO();
         List fileList = new ArrayList();
         try {
             //将当前上下文初始化给  CommonsMutipartResolver （多部分解析器）
@@ -339,7 +341,6 @@ public class DocumentController {
                 String documentId = multiRequest.getParameter("documentId");
                 //获取multiRequest 中所有的文件名
                 Iterator iter = multiRequest.getFileNames();
-                while (iter.hasNext()) {
                     logger.info("iter.hasNext()");
                     //一次遍历所有文件
                     MultipartFile file = multiRequest.getFile(iter.next().toString());
@@ -347,11 +348,9 @@ public class DocumentController {
                         logger.info("file!=null");
                         String fileName = file.getOriginalFilename();
                         //开始上传图片
-                        String path = documentService.uploadH5DocumentOk(file, fileName, telephone, category, source,documentId, token);
-                        fileList.add(path);
+                        clientUploadDTO = documentService.uploadH5DocumentOk(file, fileName, telephone, category, source,documentId, token);
                     }
-                }
-                resultDto.setData(fileList);
+                resultDto.setData(clientUploadDTO);
                 resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
                 resultDto.setResult(ResultResource.CODE_SUCCESS);
             }
