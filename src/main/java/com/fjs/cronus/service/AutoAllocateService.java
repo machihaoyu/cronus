@@ -460,90 +460,95 @@ public class AutoAllocateService {
      * 客户未沟通重新分配 定时任务 5min
      */
     public synchronized void nonCommunicateAgainAllocate(String token) {
-        ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
-        try {
-            if (currentWorkDayAndTime(token)) {
-                String status = redisConfigOptions.get(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE);
-                if (org.apache.commons.lang.StringUtils.isNotEmpty(status) && status.equals("1"))
-                {
-                    return;
-                }
-                redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.YES.getCode().toString());
-                List<CustomerInfo> list = customerInfoService.selectNonCommunicateInTime().getData();
+        new Thread(() -> {
+            ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
+            try {
+                if (currentWorkDayAndTime(token)) {
+                    String status = redisConfigOptions.get(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE);
+                    if (org.apache.commons.lang.StringUtils.isNotEmpty(status) && status.equals("1")) {
+                        return;
+                    }
+                    redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.YES.getCode().toString());
+                    List<CustomerInfo> list = customerInfoService.selectNonCommunicateInTime().getData();
 
-                List<Integer> existFailList = cronusRedisService.getRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO);
-                if (existFailList == null) {
-                    existFailList = new ArrayList<>();
-                }
-                StringBuilder stringBuilder = new StringBuilder();
-                if (existFailList != null) {
-                    for (int i = 0; i < existFailList.size(); i++) {
-                        stringBuilder.append(existFailList.get(i).toString());
-                        if (i < existFailList.size() - 1) {
-                            stringBuilder.append(",");
+                    List<Integer> existFailList = cronusRedisService.getRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO);
+                    if (existFailList == null) {
+                        existFailList = new ArrayList<>();
+                    }
+                    StringBuilder stringBuilder = new StringBuilder();
+                    if (existFailList != null) {
+                        for (int i = 0; i < existFailList.size(); i++) {
+                            stringBuilder.append(existFailList.get(i).toString());
+                            if (i < existFailList.size() - 1) {
+                                stringBuilder.append(",");
+                            }
                         }
                     }
-                }
-                List<Integer> failList = new ArrayList<>();
-                for (CustomerInfo customerInfo :
-                        list) {
-                    if (existFailList.contains(customerInfo.getId())) {
-                        if (!existFailList.contains(customerInfo.getId()))
-                            failList.add(customerInfo.getId());
-                        continue;
-                    }
-                    if (!allocateLogService.newestAllocateLog(customerInfo.getId()))
-                    {
-                        if (!existFailList.contains(customerInfo.getId()))
-                            failList.add(customerInfo.getId());
-                        continue;
-                    }
-                    Integer ownUserId = 0;
+                    List<Integer> failList = new ArrayList<>();
+                    List<Integer> successList = new ArrayList<>();
+                    for (CustomerInfo customerInfo :
+                            list) {
+                        if (existFailList.contains(customerInfo.getId())) {
+                            if (!existFailList.contains(customerInfo.getId()))
+                                failList.add(customerInfo.getId());
+                            continue;
+                        }
+                        if (!allocateLogService.newestAllocateLog(customerInfo.getId())) {
+                            if (!existFailList.contains(customerInfo.getId()))
+                                failList.add(customerInfo.getId());
+                            continue;
+                        }
+                        Integer ownUserId = 0;
 
-                    try {
-                        ownUserId = getAllocateUser(customerInfo.getCity());
-                    } catch (Exception e) {
+                        try {
+                            ownUserId = getAllocateUser(customerInfo.getCity());
+                        } catch (Exception e) {
 
-                    }
-                    if (ownUserId > 0) {
-                        SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token, ownUserId).getData();
-                        if (simpleUserInfoDTO != null && null != simpleUserInfoDTO.getSub_company_id()) {
-                            customerInfo.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
+                        }
+                        if (ownUserId > 0) {
+                            SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token, ownUserId).getData();
+                            if (simpleUserInfoDTO != null && null != simpleUserInfoDTO.getSub_company_id()) {
+                                customerInfo.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
+                            } else {
+                                customerInfo.setSubCompanyId(0);
+                            }
+                            customerInfo.setRemain(0);
+                            customerInfo.setOwnUserId(ownUserId);
+                            customerInfo.setOwnUserName(simpleUserInfoDTO.getName());
+                            customerInfo.setReceiveTime(new Date());
+                            customerInfo.setLastUpdateTime(new Date());
+                            customerInfo.setConfirm(1);
+                            customerInfo.setClickCommunicateButton(0);
+                            customerInfo.setCommunicateTime(null);
+                            customerInfoService.updateCustomerNonCommunicate(customerInfo);
+
+                            allocateRedisService.changeAllocateTemplet(customerInfo.getOwnUserId(), customerInfo.getCity());
+                            //添加分配日志
+                            allocateLogService.addAllocatelog(customerInfo, customerInfo.getOwnUserId(),
+                                    CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
+                            sendMessage(customerInfo.getCustomerName(), ownUserId, simpleUserInfoDTO, token);
+                            successList.add(customerInfo.getId());
+
                         } else {
-                            customerInfo.setSubCompanyId(0);
+                            //分配名额已经满了,向这个城市的crm助理发送短信
+                            sendCRMAssistantMessage(customerInfo.getCity(), customerInfo.getCustomerName(), token);
+                            if (!failList.contains(customerInfo.getId()))
+                                failList.add(customerInfo.getId());
                         }
-                        customerInfo.setRemain(0);
-                        customerInfo.setOwnUserId(ownUserId);
-                        customerInfo.setOwnUserName(simpleUserInfoDTO.getName());
-                        customerInfo.setReceiveTime(new Date());
-                        customerInfo.setLastUpdateTime(new Date());
-                        customerInfo.setConfirm(1);
-                        customerInfo.setClickCommunicateButton(0);
-                        customerInfo.setCommunicateTime(null);
-                        customerInfoService.updateCustomerNonCommunicate(customerInfo);
-
-                        allocateRedisService.changeAllocateTemplet(customerInfo.getOwnUserId(), customerInfo.getCity());
-                        //添加分配日志
-                        allocateLogService.addAllocatelog(customerInfo, customerInfo.getOwnUserId(),
-                                CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
-                        sendMessage(customerInfo.getCustomerName(), ownUserId, simpleUserInfoDTO, token);
-
-                    } else {
-                        //分配名额已经满了,向这个城市的crm助理发送短信
-                        sendCRMAssistantMessage(customerInfo.getCity(), customerInfo.getCustomerName(), token);
-                        if (!failList.contains(customerInfo.getId()))
-                            failList.add(customerInfo.getId());
                     }
                     redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.NO.getCode().toString());
+                    //failList 添加到缓存
+                    existFailList.addAll(failList);
+                    cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, failList);
+                    logger.warn("nonCommunicateAgainAllocate-failList:" + failList.toString());
+                    logger.warn("nonCommunicateAgainAllocate-successList:" + successList.toString());
                 }
-                //failList 添加到缓存
-                existFailList.addAll(failList);
-                cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, failList);
+            } catch (Exception e) {
+                redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.NO.getCode().toString());
+                logger.error("nonCommunicateAgainAllocate--", e);
             }
-        } catch (Exception e) {
-            redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.NO.getCode().toString());
-            logger.warn("nonCommunicateAgainAllocate--", e);
-        }
+
+        }).run();
     }
 
     private boolean currentWorkDayAndTime(String token) {

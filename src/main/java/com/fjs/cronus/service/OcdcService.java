@@ -263,23 +263,22 @@ public class OcdcService {
     /**
      * 待分配池定时分配 5min
      */
-    public List<String> waitingPoolAllocate(String token) {
-
-        List<String> allocateEntities = new ArrayList<>();
-        try {
-            OcdcData ocdcData = new OcdcData();
-            List<String> listraw = new ArrayList<>();
-            List<AgainAllocateCustomer> list = againAllocateCustomerService.getNonAllocateCustomer();
-            for (AgainAllocateCustomer againCustomer :
-                    list) {
-                listraw.add(againCustomer.getJsonData());
+    public void waitingPoolAllocate(String token) {
+        new Thread(() -> {
+            try {
+                OcdcData ocdcData = new OcdcData();
+                List<String> listraw = new ArrayList<>();
+                List<AgainAllocateCustomer> list = againAllocateCustomerService.getNonAllocateCustomer();
+                for (AgainAllocateCustomer againCustomer :
+                        list) {
+                    listraw.add(againCustomer.getJsonData());
+                }
+                ocdcData.setData(listraw);
+                addOcdcCustomer(ocdcData, AllocateSource.WAITING, token);
+            } catch (Exception e) {
+                logger.error("waitingPoolAllocate--",e.getMessage());
             }
-            ocdcData.setData(listraw);
-            allocateEntities = addOcdcCustomer(ocdcData, AllocateSource.WAITING, token);
-        } catch (Exception e) {
-            logger.warn(e.getMessage());
-        }
-        return allocateEntities;
+        }).run();
     }
 
 
