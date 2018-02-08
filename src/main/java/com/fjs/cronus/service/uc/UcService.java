@@ -48,21 +48,6 @@ public class UcService {
         }else {
             //查接口先查看用户的数据权限
             List idList = new ArrayList();
-            AppUserDto ucUserDTO = getUserInfoByID(token,user_id);
-            if (ucUserDTO ==null){
-                throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
-            }
-            if (ucUserDTO.getData_type() == null){
-                throw new CronusException(CronusException.Type.CRM_DATAAUTH_ERROR);
-            }
-            Integer data_type = Integer.valueOf(ucUserDTO.getData_type());
-            if (data_type == 1){
-                //TODO 只能查看自己并把结果存入缓存并设置好失效时间
-                idList.add(user_id);
-                //插入缓存
-                ucRedisService.setRedisUcInfo(ResultResource.SUBUSERBYIDS + user_id,idList);
-                return  idList;
-            }
             com.fjs.cronus.dto.uc.BaseUcDTO baseDto = thorService.getSubUserByUserId(token,user_id,ResultResource.SYSTEMNAME);
             if (baseDto.getRetData() != null){
                 //转json
