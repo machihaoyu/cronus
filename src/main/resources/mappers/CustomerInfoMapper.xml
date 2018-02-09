@@ -1237,8 +1237,8 @@
         <if test="search_name !=null and search_name !=''">
             and c.customer_name = #{search_name}
         </if>
-        <if test="search_telephone != null and search_telephone != ''">
-            and c.telephonenumber = #{search_telephone}
+        <if test="telephonenumber != null and telephonenumber != ''">
+            and c.telephonenumber = #{telephonenumber}
         </if>
         <if test="search_callback_status != null and search_callback_status != ''">
             and c.callback_status = #{search_callback_status}
@@ -1319,8 +1319,8 @@
         <if test="search_name !=null and search_name !=''">
             and c.customer_name = #{search_name}
         </if>
-        <if test="search_telephone != null and search_telephone != ''">
-            and c.telephonenumber = #{search_telephone}
+        <if test="telephonenumber != null and telephonenumber != ''">
+            and c.telephonenumber = #{telephonenumber}
         </if>
         <if test="search_callback_status != null and search_callback_status != ''">
             and c.callback_status = #{search_callback_status}
