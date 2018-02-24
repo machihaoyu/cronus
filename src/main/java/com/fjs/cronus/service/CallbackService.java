@@ -157,7 +157,7 @@ public class CallbackService {
             if (customerInfo.getCreateTime() != null){
                 callbackCustomerDTO.setCreateTime(customerInfo.getCreateTime());
             }
-            Integer communicationOrder = createOrderWhere(customerInfo);
+            Integer communicationOrder = createOrderWhere(customerInfo,cycle);
             callbackCustomerDTO.setCommunicationOrder(communicationOrder);
             //解密
             String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
@@ -267,7 +267,7 @@ public class CallbackService {
 
     }
 
-    public CronusDto getQuestion(Integer customerId,String token){
+    /*public CronusDto getQuestion(Integer customerId,String token){
         CronusDto resultDto = new CronusDto();
         Map<String,Object> paramsMap = new HashMap<>();
         paramsMap.put("id",customerId);
@@ -298,7 +298,7 @@ public class CallbackService {
         resultDto.setData(qusetions);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         return resultDto;
-    }
+    }*/
 
     @Transactional
    public CronusDto  editCallbackOk(Integer customerId,String callback_status,Integer userId){
@@ -388,22 +388,12 @@ public class CallbackService {
 
    }
 
-    public Integer createOrderWhere(CustomerInfo customerInfo){
+    public Integer createOrderWhere(CustomerInfo customerInfo,Integer cycle){
 
         Integer communicationOrder = null;
         if (customerInfo.getCallbackTime() == null){
             communicationOrder = 1;
         }else {
-            List<CallbackConfigDTO> resultList = getAllCallbackConfig();
-            //遍历
-            Integer cycle  = null;
-            for (CallbackConfigDTO callbackConfigDTO  : resultList) {
-                Integer type = (CustomerEnum.getByIndex(customerInfo.getCustomerType())).getValue();
-                if (type == callbackConfigDTO.getConfId()){
-                    cycle = Integer.parseInt(callbackConfigDTO.getCycle());
-                }
-
-            }
             Date date = new Date();
             Date callbakTime = customerInfo.getCallbackTime();
             Long time1=Long.parseLong(DateUtils.format(date,DateUtils.FORMAT_FULL_Long));
@@ -416,7 +406,6 @@ public class CallbackService {
         }
         return  communicationOrder;
     }
-
 
   /*  public Integer  getConfigTime(Integer type){
         //从缓存中获取到配置信息
@@ -434,7 +423,7 @@ public class CallbackService {
     return cycle;
     }*/
 
-    public List<CallbackConfigDTO>  getAllCallbackConfig(){
+ /*   public List<CallbackConfigDTO>  getAllCallbackConfig(){
           //从缓存中获取配置
         List<CallbackConfigDTO> resultList = new ArrayList<>();
         List<CallbackConfigDTO> redisList = cronusRedisService.getRedisCronusInfo(ResultResource.CALLBACKCONFIG_KEY);
@@ -467,7 +456,7 @@ public class CallbackService {
         //存入缓存
         cronusRedisService.setRedisCronusInfo(ResultResource.CALLBACKCONFIG_KEY,resultList);
         return resultList;
-    }
+    }*/
 
     public CallbackCusLoanDTO findCustomerByWhere(Map<String,Object> paramsMap,String token){
         CallbackCusLoanDTO dto = new CallbackCusLoanDTO();
