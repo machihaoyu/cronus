@@ -239,5 +239,14 @@ public class UcService {
         }
         return  cronusSubInfoDTOS;
     }
+    public String getCityByUserid(String token,Integer userId){
+        com.fjs.cronus.dto.uc.BaseUcDTO baseDto = thorService.getCityByUserid(token,userId);
+        String result = null;
+        if (baseDto.getRetData() != null) {
+            result = (String) baseDto.getRetData();
+            return result;
+        }
+        return result;
+    }
 
 }

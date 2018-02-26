@@ -372,6 +372,9 @@ public class CustomerInfoService {
         customerInfo.setCommunicateId(0);
         customerInfo.setOwnUserId(Integer.valueOf(userInfoDTO.getUser_id()));
         customerInfo.setOwnUserName(userInfoDTO.getName());
+        //设置城市 应设置为当前人所在分公司的城市
+        String city = ucService.getCityByUserid(token,Integer.valueOf(userInfoDTO.getUser_id()));
+        customerInfo.setCity(city);
         customerInfo.setAutostatus(0);
         customerInfoMapper.insertCustomer(customerInfo);
         if (customerInfo.getId() == null) {

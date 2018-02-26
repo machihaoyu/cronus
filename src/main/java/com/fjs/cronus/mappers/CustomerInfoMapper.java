@@ -84,4 +84,10 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
     List<CustomerInfo> specialListByOffer(Map<String,Object> paramsMap);
 
     Integer  specialListByOfferCount(Map<String,Object> paramsMap);
+    /**
+     * Vip渠道客户列表
+     */
+    List<CustomerInfo> utmCustomerList(Map<String,Object> paramsMap);
+
+    Integer utmCustomerListCount(Map<String,Object> paramsMap);
 }

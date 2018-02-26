@@ -1,5 +1,7 @@
 package com.fjs.cronus.Common;
 
+import org.springframework.util.StringUtils;
+
 /**
  * Created by msi on 2017/9/14.
  */
@@ -7,7 +9,7 @@ public class ResultResource {
     public static int CODE_SUCCESS = 0;
     public static String MESSAGE_SUCCESS = "成功";
     // 其他错误
-    public static int CODE_ERROR = 0;
+    public static int CODE_ERROR = 1;
     public static String CODE_REMOVE_MESSAGE="您没有权限！";
 
     public static int CODE_OTHER_ERROR = 999999;
@@ -91,4 +93,13 @@ public class ResultResource {
 
     public static String CRM_MOVE_SUCESSS = "转移成功";
 
+    public static String VIP_MANGER_ERROR = "请联系管理员";
+
+    public static String PARAMS_ERROR = "参数错误";
+
+    public static String DELETEVIP_ERROR = "删除失败！未找到相关信息";
+
+    public static String EXIXTVIPUSER_ERROR = "已经存在这个用户";
+
+    public static String EXIXTVIPUTMSOURCE_ERROR = "已经存在这个渠道";
 }

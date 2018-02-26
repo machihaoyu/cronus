@@ -2127,4 +2127,56 @@
         </if>
         and is_deleted=0
     </select>
+
+    <select id="utmCustomerList" resultMap="BaseResultMap" parameterType="Map">
+        select sex,
+        <include refid="cronus_column_List" />
+        from customer_info
+        where is_deleted=0
+        <if test="telephonenumber != null and '' != telephonenumber">
+            and telephonenumber = #{telephonenumber,jdbcType=VARCHAR}
+        </if>
+        <if test="customerName != null and '' != customerName">
+            AND  customer_name  like CONCAT(#{customerName},'%' )
+        </if>
+        <if test="utmSource != null and '' != utmSource">
+            and utm_source = #{utmSource,jdbcType=VARCHAR}
+        </if>
+        <if test="cooperationStatus != null and '' != cooperationStatus">
+            and cooperation_status = #{cooperationStatus,jdbcType=VARCHAR}
+        </if>
+        <if test="createTimeStart != null and createTimeEnd != null">
+            and create_time  &gt;= #{createTimeStart} and  create_time &lt;= #{createTimeEnd}
+        </if>
+        <choose>
+            <when test="order != null and order !=''">
+                order by ${order}
+            </when>
+            <otherwise>
+                order by last_update_time desc
+            </otherwise>
+        </choose>
+        limit ${start},${size}
+    </select>
+    <select id="utmCustomerListCount" resultType="Integer" parameterType="Map">
+        select
+        COUNT(*)
+        from customer_info
+        where is_deleted=0
+        <if test="telephonenumber != null and '' != telephonenumber">
+            and telephonenumber = #{telephonenumber,jdbcType=VARCHAR}
+        </if>
+        <if test="customerName != null and '' != customerName">
+            AND  customer_name  like CONCAT(#{customerName},'%' )
+        </if>
+        <if test="utmSource != null and '' != utmSource">
+            and utm_source = #{utmSource,jdbcType=VARCHAR}
+        </if>
+        <if test="cooperationStatus != null and '' != cooperationStatus">
+            and cooperation_status = #{cooperationStatus,jdbcType=VARCHAR}
+        </if>
+        <if test="createTimeStart != null and createTimeEnd != null">
+            and create_time  &gt;= #{createTimeStart} and  create_time &lt;= #{createTimeEnd}
+        </if>
+    </select>
 </mapper>
