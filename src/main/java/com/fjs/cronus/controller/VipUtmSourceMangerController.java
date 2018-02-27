@@ -45,15 +45,19 @@ public class VipUtmSourceMangerController {
     @ApiOperation(value = "渠道配置管理列表", notes = "渠道配置管理列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "page", value = "page", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "size", required = true, paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/vipUserManList", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<List<VipUtmManListDTO>> VipUserManList(@RequestHeader("Authorization")String token, HttpServletRequest request, HttpServletResponse response){
+    public CronusDto<List<VipUtmManListDTO>> VipUserManList(@RequestHeader("Authorization")String token,
+                                                            @RequestParam Integer page,
+                                                            @RequestParam Integer size){
         CronusDto<List<VipUtmManListDTO>> resultDTO = new CronusDto<>();
         List<VipUtmManListDTO> resultList = new ArrayList<>();
 
         try {
-            resultList    = vipUtmSourceMangerService.vipUserManList(token);
+            resultList    = vipUtmSourceMangerService.vipUserManList(token,page,size);
             resultDTO.setData(resultList);
             resultDTO.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDTO.setResult(ResultResource.CODE_SUCCESS);

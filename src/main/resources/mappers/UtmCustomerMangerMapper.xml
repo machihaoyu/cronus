@@ -114,7 +114,6 @@
     from utm_customer_manger
     WHERE is_deleted = 0
     and status  != 2
-    AND utm_source  is NULL
   </select>
 
   <select id="findListByField" parameterType="Map" resultMap="BaseResultMap">
@@ -123,7 +122,6 @@
     from utm_customer_manger
     WHERE is_deleted = 0
     and status  != 2
-    AND utm_source  is NOT NULL
     AND user_id = #{userId}
   </select>
 

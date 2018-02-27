@@ -4,6 +4,7 @@ import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.dto.CronusDto;
 
+import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
@@ -249,4 +250,14 @@ public class UcService {
         return result;
     }
 
+    public QueryResult<PHPUserDto> getVipUtmUserInfo(Integer roleId,Integer page,Integer size,String token){
+
+        QueryResult<PHPUserDto> resultDto = new QueryResult<>();
+        PhpApiDto<QueryResult<PHPUserDto>> resultPhpApiDto =thorService.getVipUtmUserInfo(roleId,page,size,token);
+        if (resultPhpApiDto.getRetData() != null){
+            resultDto = resultPhpApiDto.getRetData();
+            return resultDto;
+        }
+        return resultDto;
+    }
 }
