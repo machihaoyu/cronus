@@ -10,6 +10,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -215,6 +216,50 @@ public class MultiThreadedHttpConnection {
 			sb.append(e.getKey()).append("=").append(e.getValue()).append("&");
 		}
 		return sb.toString();
+	}
+
+	public CronusDto<String> sendDataByGetReturnString(String url) {
+		CronusDto<String> result = new CronusDto<String>();
+		if (url == null) {
+			result.setMessage("请求参数缺失");
+			return result;
+		}
+		CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(httpPool).setRetryHandler(handler).build();
+		Integer statusCode = -1;
+		logger.warn("request: " + url);
+		HttpGet get = null;
+		try {
+			get = new HttpGet(url.trim());
+		} catch (Exception e) {
+			logger.error("url error " + url, e.getMessage());
+			result.setResult(1);
+			result.setMessage("url error " + url);
+			return result;
+		}
+		get.setConfig(requestConfig);
+
+		CloseableHttpResponse response = null;
+		try {
+			get.setHeader("Accept", contextType);
+			response = httpClient.execute(get);
+			statusCode = response.getStatusLine().getStatusCode();
+
+			if (statusCode != 200) {
+				logger.error("connect " + url + " error httpCode : " + statusCode);
+				result.setResult(1);
+				result.setMessage(statusCode + " error");
+				return result;
+			}
+			String resultStr = EntityUtils.toString(response.getEntity());
+			logger.warn("response : " + resultStr);
+			result.setData(resultStr);
+			result.setResult(0);
+		} catch (Exception e) {
+			checkException(result, e);
+		} finally {
+			closeResponse(response);
+		}
+		return result;
 	}
 
 	public static void main(String[] args) {
