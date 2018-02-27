@@ -1673,13 +1673,13 @@ public class CustomerInfoService {
     public CronusDto editCustomerSys(CustomerInfo customerInfo, String token) {
         CronusDto resultDto = new CronusDto();
         //校验参数手机号不更新
-        Integer user_id = ucService.getUserIdByToken(token);
-        if (user_id == null) {
-            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "信息出错!");
-        }
-//        customerInfo.setLastUpdateTime(date);
+//        Integer user_id = ucService.getUserIdByToken(token);
+//        if (user_id == null) {
+//            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "信息出错!");
+//        }
+        customerInfo.setLastUpdateTime(new Date());
 //        customerInfo.setConfirm(0);
-        customerInfo.setLastUpdateUser(user_id);
+        customerInfo.setLastUpdateUser(0);
 //        customerInfo.setClickCommunicateButton(0);
         customerInfoMapper.updateCustomerSys(customerInfo);
         //生成日志记录
@@ -1687,7 +1687,7 @@ public class CustomerInfoService {
         EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
         customerInfoLog.setLogCreateTime(new Date());
         customerInfoLog.setLogDescription("自动分配更新客户");
-        customerInfoLog.setLogUserId(user_id);
+        customerInfoLog.setLogUserId(0);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
