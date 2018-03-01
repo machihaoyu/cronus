@@ -227,7 +227,7 @@ public class VipUtmSourceMangerService {
         return resultDTO;
     }
 
-    public CronusDto getOcdcCustomerList(String token,String userId,String utmSource,Integer p){
+    public CronusDto<OcdcReturnDTO> getOcdcCustomerList(String token,String userId,String utmSource,Integer p){
         CronusDto resultDTO = new CronusDto<>();
         //判断当前用户是否有此权限
         CronusDto cronusDto = canMangerUtm(token,userId);
@@ -261,7 +261,7 @@ public class VipUtmSourceMangerService {
         return resultDTO;
     }
 
-    public CronusDto<QueryResult<UtmCustomerDTO>> utmCustomerList(String token, String userId, String utmSource, String customerName, String startTime, String endTime,
+    public CronusDto<QueryResult<UtmCustomerDTO>> utmCustomerList(String token, String userId, String utmSource, String customerName,String customerType, String startTime, String endTime,
                                                        String cooperationStatus, String telephonenumber, Integer page, Integer size){
         CronusDto<QueryResult<UtmCustomerDTO>> resultDTO = new CronusDto<>();
         QueryResult<UtmCustomerDTO> queryResult = new QueryResult<>();
@@ -295,6 +295,9 @@ public class VipUtmSourceMangerService {
         }
         if (!StringUtils.isEmpty(telephonenumber)){
             paramsMap.put("telephonenumber", DEC3Util.des3EncodeCBC(telephonenumber));
+        }
+        if (!StringUtils.isEmpty(customerType)){
+            paramsMap.put("customerType", customerType);
         }
         paramsMap.put("start", (page - 1) * size);
         paramsMap.put("size", size);

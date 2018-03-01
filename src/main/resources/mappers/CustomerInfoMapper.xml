@@ -2142,6 +2142,9 @@
         <if test="utmSource != null and '' != utmSource">
             and utm_source = #{utmSource,jdbcType=VARCHAR}
         </if>
+        <if test="customerType != null and '' != customerType">
+            and customer_type = #{customerType,jdbcType=VARCHAR}
+        </if>
         <if test="cooperationStatus != null and '' != cooperationStatus">
             and cooperation_status = #{cooperationStatus,jdbcType=VARCHAR}
         </if>
@@ -2177,6 +2180,9 @@
         </if>
         <if test="createTimeStart != null and createTimeEnd != null">
             and create_time  &gt;= #{createTimeStart} and  create_time &lt;= #{createTimeEnd}
+        </if>
+        <if test="customerType != null and '' != customerType">
+            and customer_type = #{customerType,jdbcType=VARCHAR}
         </if>
     </select>
 </mapper>

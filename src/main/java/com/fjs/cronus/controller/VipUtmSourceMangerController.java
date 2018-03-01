@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
-import com.fjs.cronus.dto.vipUtm.ChildInfoDTO;
-import com.fjs.cronus.dto.vipUtm.UtmCustomerDTO;
-import com.fjs.cronus.dto.vipUtm.UtmSourceDTO;
-import com.fjs.cronus.dto.vipUtm.VipUtmManListDTO;
+import com.fjs.cronus.dto.vipUtm.*;
 import com.fjs.cronus.service.VipUtmSourceMangerService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -247,10 +244,10 @@ public class VipUtmSourceMangerController {
     })
     @RequestMapping(value = "/getOcdcCustomerList", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto GetOcdcCustomerList(@RequestHeader("Authorization")String token,
+    public CronusDto<OcdcReturnDTO> GetOcdcCustomerList(@RequestHeader("Authorization")String token,
                                          @RequestParam String utmSource,
                                          @RequestParam Integer p){
-        CronusDto resultDTO = new CronusDto<>();
+        CronusDto<OcdcReturnDTO> resultDTO = new CronusDto<>();
         if (StringUtils.isEmpty(utmSource)){
             resultDTO.setMessage(ResultResource.PARAMS_ERROR);
             resultDTO.setResult(ResultResource.CODE_ERROR);
@@ -288,6 +285,7 @@ public class VipUtmSourceMangerController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "utmSource", value = "渠道名称", required = true, paramType = "query",  dataType = "string"),
             @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query",  dataType = "string"),
+            @ApiImplicitParam(name = "customerType", value = "客户类型(意向客户。。。)", required = false, paramType = "query",  dataType = "string"),
             @ApiImplicitParam(name = "startTime", value = "起始日期", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "endTime", value = "结束日期", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name="cooperationStatus",value = "跟进状态",required = false,paramType = "query",dataType = "string"),
@@ -300,6 +298,7 @@ public class VipUtmSourceMangerController {
     public CronusDto<QueryResult<UtmCustomerDTO>> utmCustomerList(@RequestHeader("Authorization")String token,
                                      @RequestParam(required = true) String utmSource,
                                      @RequestParam(required = false) String customerName,
+                                     @RequestParam(required = false) String customerType,
                                      @RequestParam(required = false) String startTime,
                                      @RequestParam(required = false) String endTime,
                                      @RequestParam(required = false) String cooperationStatus,
@@ -319,7 +318,7 @@ public class VipUtmSourceMangerController {
                 resultDTO.setResult(ResultResource.CODE_ERROR);
                 return resultDTO;
             }
-            resultDTO = vipUtmSourceMangerService.utmCustomerList(token,userId.toString(),utmSource,customerName,startTime,endTime,
+            resultDTO = vipUtmSourceMangerService.utmCustomerList(token,userId.toString(),utmSource,customerName,customerType,startTime,endTime,
                                                                   cooperationStatus,telephonenumber,page,size);
         }catch (Exception e) {
             logger.warn("------------>utmCustomerList获取渠道客户信息出错", e);
