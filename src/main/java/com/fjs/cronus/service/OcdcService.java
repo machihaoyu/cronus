@@ -353,7 +353,10 @@ public class OcdcService {
             if (null != map.get("name") && StringUtils.isNotBlank(map.get("name").toString())) {
                 customerSalePushLog.setCustomerName(map.get("name").asText());
             } else {
-                customerSalePushLog.setCustomerName(CommonConst.DEFAULT_CUSTOMER_NAME + map.get("data_id").toString());
+                if (null != map.get("data_id") && StringUtils.isNotBlank(map.get("data_id").toString()))
+                    customerSalePushLog.setCustomerName(CommonConst.DEFAULT_CUSTOMER_NAME + map.get("data_id").toString());
+                else
+                    customerSalePushLog.setCustomerName(CommonConst.DEFAULT_CUSTOMER_NAME);
             }
             if (null != map.get("owner_user_id") && StringUtils.isNotBlank(map.get("owner_user_id").toString())) {
                 customerSalePushLog.setOwnerUserId(map.get("owner_user_id").asInt());
