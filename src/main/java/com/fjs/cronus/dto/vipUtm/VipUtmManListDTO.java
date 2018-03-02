@@ -24,9 +24,8 @@ public class VipUtmManListDTO implements Serializable {
     @ApiModelProperty(value = "业务员手机号", notes = "业务员手机号")
     private String telephone;
 
-    @ApiModelProperty(value = "创建时间",notes = "创建时间")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
-    private Date createTime;
+
+    private String createTime;
 
     public Integer getId() {
         return id;
@@ -60,11 +59,11 @@ public class VipUtmManListDTO implements Serializable {
         this.telephone = telephone;
     }
 
-    public Date getCreateTime() {
+    public String getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(String createTime) {
         this.createTime = createTime;
     }
 }

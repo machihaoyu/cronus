@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.config.FeignClientConfig;
 
+import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.PhpQueryResultDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
@@ -25,7 +26,7 @@ import java.util.Map;
  * UC用户中心接口
  * Created by Administrator on 2017/7/19 0019. url = "http://192.168.1.124:1120",
  */
-//@FeignClient(value = "${client.feign.thor-backend}", url = "http://192.168.1.128:1120",configuration = FeignClientConfig.class)
+//@FeignClient(value = "THOR20-BACKEND-ZL", url = "http://192.168.2.33:8099",configuration = FeignClientConfig.class)
 @FeignClient(value = "${client.feign.thor-backend}", configuration = FeignClientConfig.class)
 public interface ThorService {
 
@@ -701,6 +702,13 @@ public interface ThorService {
 
     @RequestMapping(value = "/api/v2/getUserInfoByIds", method = RequestMethod.POST)
     ThorQueryDto<List<PHPUserDto>> getUserByIds(@RequestHeader("Authorization") String token,@RequestBody CronusUserInfoDto cronusUserInfoDto);
+
+    @RequestMapping(value = "/api/v1/getVipUtmUserInfo",method = RequestMethod.GET)
+    @ResponseBody
+    public PhpApiDto<QueryResult<PHPUserDto>> getVipUtmUserInfo(@RequestParam(value = "roleId",required = true)Integer roleId,
+                                                                @RequestParam(value = "page",required = true)Integer page,
+                                                                @RequestParam(value = "size",required = true)Integer size,
+                                                                @RequestHeader("Authorization")String token);
 
 }
 

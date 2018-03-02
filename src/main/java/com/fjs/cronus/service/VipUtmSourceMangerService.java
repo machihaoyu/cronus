@@ -1,15 +1,21 @@
 package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.api.PHPUserDto;
+import com.fjs.cronus.dto.uc.RoleDTO;
+import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.vipUtm.*;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.UtmCustomerMangerMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UtmCustomerManger;
+import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.DateUtils;
@@ -40,22 +46,30 @@ public class VipUtmSourceMangerService {
     String ocdcUrl;
     @Value("${OcdcUrl.key}")
     String key;
-    public List<VipUtmManListDTO> vipUserManList(String token){
-        List<VipUtmManListDTO> resultList = new ArrayList<>();
-        List<UtmCustomerManger> customerMangers = utmCustomerMangerMapper.vipUserManList();
-        if (customerMangers != null && customerMangers.size() > 0){
-            for (UtmCustomerManger utmCustomerManger : customerMangers) {
+  /*  @Value("${Role.name}")
+    String roleName;*/
+    public List<VipUtmManListDTO> vipUserManList(String token,Integer page,Integer size){
+        //从uc中获取
+        List<VipUtmManListDTO> vipUtmManListDTOS = new ArrayList<>();
+        PHPLoginDto phpLoginDto = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
+        UserInfoDTO userInfoDTO = phpLoginDto.getUser_info();
+        RoleDTO roleDTO = ucService.getRoleInfo(token, "name", CommonConst.ROLE_NAME, Integer.valueOf(userInfoDTO.getCompany_id()));
+        //获取用户
+        QueryResult<PHPUserDto> queryResult = ucService.getVipUtmUserInfo(Integer.valueOf(roleDTO.getRole_id()),page,size,token);
+        List<PHPUserDto> resultList = queryResult.getRows();
+        if (resultList != null && resultList.size() > 0){
+            for (PHPUserDto phpUserDto : resultList) {
                 VipUtmManListDTO vipUtmManListDTO = new VipUtmManListDTO();
-                vipUtmManListDTO.setId(utmCustomerManger.getId());
-                vipUtmManListDTO.setUserId(utmCustomerManger.getUserId());
-                vipUtmManListDTO.setCreateTime(utmCustomerManger.getCreateTime());
-                AppUserDto userDto = ucService.getUserInfoByID(token,Integer.valueOf(utmCustomerManger.getUserId()));
-                vipUtmManListDTO.setTelephone(userDto.getTelephone());
-                vipUtmManListDTO.setName(userDto.getName());
-                resultList.add(vipUtmManListDTO);
+                vipUtmManListDTO.setUserId(phpUserDto.getUser_id());
+                //时间戳转为时间
+                String time = DateUtils.getDateString(Integer.valueOf(phpUserDto.getCreate_time()));
+                vipUtmManListDTO.setCreateTime(time);
+                vipUtmManListDTO.setTelephone(phpUserDto.getTelephone());
+                vipUtmManListDTO.setName(phpUserDto.getName());
+                vipUtmManListDTOS.add(vipUtmManListDTO);
             }
         }
-        return  resultList;
+        return  vipUtmManListDTOS;
     }
 
     public List<ChildInfoDTO> getChildInfo(String token,String userId){
@@ -213,7 +227,7 @@ public class VipUtmSourceMangerService {
         return resultDTO;
     }
 
-    public CronusDto getOcdcCustomerList(String token,String userId,String utmSource,Integer p){
+    public CronusDto<OcdcReturnDTO> getOcdcCustomerList(String token,String userId,String utmSource,Integer p){
         CronusDto resultDTO = new CronusDto<>();
         //判断当前用户是否有此权限
         CronusDto cronusDto = canMangerUtm(token,userId);
@@ -247,7 +261,7 @@ public class VipUtmSourceMangerService {
         return resultDTO;
     }
 
-    public CronusDto<QueryResult<UtmCustomerDTO>> utmCustomerList(String token, String userId, String utmSource, String customerName, String startTime, String endTime,
+    public CronusDto<QueryResult<UtmCustomerDTO>> utmCustomerList(String token, String userId, String utmSource, String customerName,String customerType, String startTime, String endTime,
                                                        String cooperationStatus, String telephonenumber, Integer page, Integer size){
         CronusDto<QueryResult<UtmCustomerDTO>> resultDTO = new CronusDto<>();
         QueryResult<UtmCustomerDTO> queryResult = new QueryResult<>();
@@ -281,6 +295,9 @@ public class VipUtmSourceMangerService {
         }
         if (!StringUtils.isEmpty(telephonenumber)){
             paramsMap.put("telephonenumber", DEC3Util.des3EncodeCBC(telephonenumber));
+        }
+        if (!StringUtils.isEmpty(customerType)){
+            paramsMap.put("customerType", customerType);
         }
         paramsMap.put("start", (page - 1) * size);
         paramsMap.put("size", size);
