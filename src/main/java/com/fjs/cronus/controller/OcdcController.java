@@ -53,6 +53,41 @@ public class OcdcController {
         return resultDto;
     }
 
+    @ApiOperation(value = "未沟通分配开关", notes = "未沟通分配开关")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "status", value = "状态（1，关闭；0，开启）", required = true, paramType = "body", dataType = "status")
+    })
+    @RequestMapping(value = "/nonCommunicateAgainStatus", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto nonCommunicateAgainStatus(@RequestHeader("Authorization") String token, @RequestBody String status) {
+        CronusDto resultDto = new CronusDto();
+        try {
+            resultDto.setData(autoAllocateService.nonCommunicateAllocateStatus(status));
+            resultDto.setResult(0);
+        } catch (Exception e) {
+            resultDto.setResult(1);
+        }
+        return resultDto;
+    }
+
+    @ApiOperation(value = "未沟通分配开关", notes = "未沟通分配开关")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")
+    })
+    @RequestMapping(value = "/getNonCommunicateAgainStatus", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto getNonCommunicateAgainStatus(@RequestHeader("Authorization") String token) {
+        CronusDto resultDto = new CronusDto();
+        try {
+            resultDto.setData(autoAllocateService.getNonCommunicateAllocateStatus());
+            resultDto.setResult(0);
+        } catch (Exception e) {
+            resultDto.setResult(1);
+        }
+        return resultDto;
+    }
+
     @ApiOperation(value = "客服推送", notes = "客服推送客户信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),

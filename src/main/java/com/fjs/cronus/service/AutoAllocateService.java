@@ -462,13 +462,17 @@ public class AutoAllocateService {
     public synchronized void nonCommunicateAgainAllocate(String token) {
         new Thread(() -> {
             ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
+            StringBuilder sb = new StringBuilder();
+            sb.append("nonCommunicateAgainAllocate");
             try {
                 if (currentWorkDayAndTime(token)) {
-                    logger.warn("nonCommunicateAgainAllocate-start");
+                    sb.append("-start");
                     String status = redisConfigOptions.get(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE);
                     if (org.apache.commons.lang.StringUtils.isNotEmpty(status) && status.equals("1")) {
+                        sb.append("-status 1");
                         return;
                     }
+                    sb.append("-status 0");
                     redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.YES.getCode().toString());
                     List<CustomerInfo> list = customerInfoService.selectNonCommunicateInTime().getData();
 
@@ -531,15 +535,47 @@ public class AutoAllocateService {
                     //failList 添加到缓存
                     existFailList.addAll(failList);
                     cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, failList);
-                    logger.warn("nonCommunicateAgainAllocate-failList:" + failList.toString());
-                    logger.warn("nonCommunicateAgainAllocate-successList:" + successList.toString());
+                    sb.append("--");
+                    sb.append("failList:" + failList.toString());
+                    sb.append("--");
+                    sb.append("successList:" + successList.toString());
                 }
             } catch (Exception e) {
                 redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.NO.getCode().toString());
                 logger.error("nonCommunicateAgainAllocate--", e);
             }
-
+            logger.warn(sb.toString());
         }).run();
+    }
+
+
+    /**
+     * 设置未沟通重新分配状态
+     * @param status
+     */
+    public boolean nonCommunicateAllocateStatus(String status)
+    {
+        boolean setStatus = false;
+        ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
+        if (status.equals("1")) {
+            redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.YES.getCode().toString());
+            setStatus = true;
+        }
+        else if (status.equals("0")){
+            redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.NO.getCode().toString());
+            setStatus = true;
+        }
+        return setStatus;
+    }
+
+    /**
+     * 获取未沟通状态
+     * @return
+     */
+    public String getNonCommunicateAllocateStatus()
+    {
+        ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
+        return redisConfigOptions.get(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE);
     }
 
     private boolean currentWorkDayAndTime(String token) {
