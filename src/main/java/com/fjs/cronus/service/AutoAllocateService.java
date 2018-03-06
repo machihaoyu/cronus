@@ -540,6 +540,9 @@ public class AutoAllocateService {
                     sb.append("--");
                     sb.append("successList:" + successList.toString());
                 }
+                else {
+                    sb.append("--non work time");
+                }
             } catch (Exception e) {
                 redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.NO.getCode().toString());
                 logger.error("nonCommunicateAgainAllocate--", e);
