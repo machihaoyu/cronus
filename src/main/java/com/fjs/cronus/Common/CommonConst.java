@@ -217,5 +217,17 @@ public class CommonConst {
     public static final String THEA_PERFEX ="Uploads/";
 
     public static final String ROLE_NAME = "VIP渠道管理员";
+
+    public static final String SPECIALUTM_NAME = "specialLookAllUtm";
+
+    public static final String NO_INTENTION = "尊敬的客户，感谢您选择房金所，如后续有资金需求，可拨打客服热线：400-810-2999；房金所为你提供正规、低息、快速放款服务，更多贷款资讯请关注官方微信：房金所";
+
+    public static final String POOR_QUALIFICATIONS = "尊敬的客户，因个人资质不符无法为您办理贷款而深感抱歉，感谢您对房金所的信赖，更多贷款机会，可关注官方微信：房金所";
+
+    public static final String NOT_YET_CONNECTED = "尊敬的客户，您的申请已受理，因未能与您取得联系，如需资金，可联系专属顾问{名字+手机号}，更多资讯请关注官方微信：房金所";
+
+    public static final String INTENTION_TO_TRACKED ="尊敬的客户，我们为您初步对接资金渠道，查看对接结果请关注官方微信：房金所";
+
+    public static final String  IMPORTNOUSERPOOLUTMSOURCE = "importNoUserPoolutmSource";
 }
 

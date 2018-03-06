@@ -1,6 +1,7 @@
 package com.fjs.cronus.service;
 
 
+import com.fjs.cronus.Common.CommnuicationEnum;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.controller.AllocateController;
@@ -63,6 +64,8 @@ public class CommunicationLogService {
     @Autowired
     CommentService commentService;
     //添加
+    @Autowired
+    SmsService smsService;
     @Transactional
     public Integer addLog(CustomerUsefulDTO customerUsefulDTO, CustomerInfo customerDto, UserInfoDTO userInfoDTO, String token){
         Date date=new Date();
@@ -99,6 +102,41 @@ public class CommunicationLogService {
         //判断是否是首次沟通
         List<CommunicationLog> communicationLogList = listByCustomerId(customerUsefulDTO.getCustomerId(),token);
         if (communicationLogList.size() == 0){
+            //TODO 首次沟通需要发短信需要判断状态发短信
+            String customerphone = DEC3Util.des3DecodeCBC(customerDto.getTelephonenumber());
+            switch (CommnuicationEnum.getByValue(customerUsefulDTO.getCooperationStatus())){
+                case no_intention:
+                    //TODO 发送短信
+                    try{
+                        smsService.sendCommunication(customerphone,CommonConst.NO_INTENTION);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    break;
+                case poor_qualifications:
+                    try{
+                        smsService.sendCommunication(customerphone,CommonConst.POOR_QUALIFICATIONS);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    break;
+                case not_yet_connected:
+                    try{
+                        String content = "尊敬的客户，您的申请已受理，因未能与您取得联系，如需资金，可联系专属顾问" +
+                                userInfoDTO.getName() + ": " + userInfoDTO.getTelephone() + ",更多资讯请关注官方微信：房金所";
+                        smsService.sendCommunication(customerphone,content);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    break;
+                case intention_to_tracked:
+                    try{
+                        smsService.sendCommunication(customerphone,CommonConst.INTENTION_TO_TRACKED);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    break;
+            }
             customerDto.setFirstCommunicateTime(date);
         }
         customerDto.setCommunicateTime(date);

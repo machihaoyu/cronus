@@ -16,11 +16,13 @@ import com.fjs.cronus.mappers.UtmCustomerMangerMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UtmCustomerManger;
 import com.fjs.cronus.service.client.ThorService;
+import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.FastJsonUtils;
 import com.fjs.cronus.util.MultiThreadedHttpConnection;
+import org.apache.http.auth.AUTH;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,8 @@ public class VipUtmSourceMangerService {
     CustomerInfoMapper customerInfoMapper;
     @Autowired
     UcService ucService;
+    @Autowired
+    TheaClientService theaClientService;
     @Value("${OcdcUrl.url}")
     String ocdcUrl;
     @Value("${OcdcUrl.key}")
@@ -230,6 +234,7 @@ public class VipUtmSourceMangerService {
     public CronusDto<OcdcReturnDTO> getOcdcCustomerList(String token,String userId,String utmSource,Integer p){
         CronusDto resultDTO = new CronusDto<>();
         //判断当前用户是否有此权限
+        List<String> channleList = new ArrayList<>();
         CronusDto cronusDto = canMangerUtm(token,userId);
         if (cronusDto.getData() != null){
             List<String> list = (List<String>) cronusDto.getData();
@@ -255,6 +260,23 @@ public class VipUtmSourceMangerService {
         //获取返回并转为json
         String str = jsonObject.getString("retData");
         OcdcReturnDTO ocdcReturnDTO = FastJsonUtils.getSingleBean(str, OcdcReturnDTO.class);
+        if (ocdcReturnDTO.getList() != null && ocdcReturnDTO.getList().size() > 0){
+            List<OcdcCustomerDTO> list = ocdcReturnDTO.getList();
+            for (OcdcCustomerDTO ocdcCustomerDTO : list) {
+
+                if (!channleList.contains(ocdcCustomerDTO.getUtm_source())){
+                    channleList.add(ocdcCustomerDTO.getUtm_source());
+                }
+            }
+            JSONObject json = new JSONObject();
+            json.put("channelNames",channleList);
+            Map<String,String> mediaMap = theaClientService.getMediaName(token,json);
+            for (OcdcCustomerDTO customerListDTO : list ){
+                System.out.println(mediaMap.get(customerListDTO.getUtm_source()));
+                customerListDTO.setUtm_source(mediaMap.get(customerListDTO.getUtm_source()));
+            }
+            ocdcReturnDTO.setList(list);
+        }
         resultDTO.setResult(jsonObject.getInteger("errNum"));
         resultDTO.setMessage(jsonObject.getString("errMsg"));
         resultDTO.setData(ocdcReturnDTO);
@@ -264,6 +286,7 @@ public class VipUtmSourceMangerService {
     public CronusDto<QueryResult<UtmCustomerDTO>> utmCustomerList(String token, String userId, String utmSource, String customerName,String customerType, String startTime, String endTime,
                                                        String cooperationStatus, String telephonenumber, Integer page, Integer size){
         CronusDto<QueryResult<UtmCustomerDTO>> resultDTO = new CronusDto<>();
+        List<String> channleList = new ArrayList<>();
         QueryResult<UtmCustomerDTO> queryResult = new QueryResult<>();
         List<UtmCustomerDTO> resultList = new ArrayList<>();
         Map<String,Object> paramsMap = new HashMap<>();
@@ -305,6 +328,9 @@ public class VipUtmSourceMangerService {
         Integer count = customerInfoMapper.utmCustomerListCount(paramsMap);
         if (customerInfoList != null && customerInfoList.size() > 0){
             for (CustomerInfo customerInfo : customerInfoList) {
+                if (!channleList.contains(customerInfo.getUtmSource())){
+                    channleList.add(customerInfo.getUtmSource());
+                }
                 UtmCustomerDTO utmCustomerDTO = new UtmCustomerDTO();
                 utmCustomerDTO.setId(customerInfo.getId());
                 utmCustomerDTO.setCity(customerInfo.getCity());
@@ -326,6 +352,14 @@ public class VipUtmSourceMangerService {
                 String phoneNumber = telephone.substring(0, 7) + "****";
                 utmCustomerDTO.setTelephonenumber(phoneNumber);
                 resultList.add(utmCustomerDTO);
+            }
+            //屏蔽媒体
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("channelNames",channleList);
+            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+            for (UtmCustomerDTO utmCustomerDTO : resultList ){
+                System.out.println(mediaMap.get(utmCustomerDTO.getUtmSource()));
+                utmCustomerDTO.setUtmSource(mediaMap.get(utmCustomerDTO.getUtmSource()));
             }
         }
         queryResult.setTotal(count.toString());

@@ -1,5 +1,6 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.thea.LoanDTO;
@@ -142,7 +143,9 @@ public class PanService {
                                                        List<String> utmList,List<String>paramsList,String orderField,String sort) {
 
         QueryResult<CustomerListDTO> result = new QueryResult<>();
-        Map<String,Object> map=new HashedMap();
+        //屏蔽到渠道增加媒体
+        List<String> channleList = new ArrayList<>();
+        Map<String,Object> map=new HashMap();
         List<CustomerListDTO> resultDto = new ArrayList<>();
         if (pan != null){
             //客户姓名
@@ -166,7 +169,10 @@ public class PanService {
                 map.put("companyId", companyId);
             }
             if (StringUtils.isNotEmpty(pan.getUtmSource())) {
-                map.put("utmSource",pan.getUtmSource());
+                //TODO 由媒体换成渠道
+                List<String> list = theaClientService.getChannelNameListByMediaName(token,pan.getUtmSource());
+                map.put("utmSources",list);
+
             }
             if (StringUtils.isNotEmpty(pan.getCity())) {
                 map.put("city",pan.getCity());
@@ -210,9 +216,20 @@ public class PanService {
             if (customerInfoList != null && customerInfoList.size() > 0) {
                 for (CustomerInfo customerInfo : customerInfoList){
                     CustomerListDTO customerDto = new CustomerListDTO();
+                    if (!channleList.contains(customerInfo.getUtmSource())){
+                        channleList.add(customerInfo.getUtmSource());
+                    }
                     EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,userId);
                     resultDto.add(customerDto);
                 }
+            }
+            //屏蔽媒体
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("channelNames",channleList);
+            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+            for (CustomerListDTO customerListDTO : resultDto ){
+                System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
+                customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
             }
             result.setRows(resultDto);
             result.setTotal(total.toString());
@@ -377,11 +394,12 @@ public class PanService {
     }
     public QueryResult<CustomerListDTO> specialListByOfferNew(PanParamDTO pan, Integer userId, Integer companyId , String token, String system,
                                                               Integer page, Integer size, List<String> mainCitys, List<Integer> subCompanyIds, Integer type,Integer mountLevle,
-                                                              List<String> utmList,List<String>paramsList,String orderField,String sort) {
+                                                              List<String> utmList,List<String>paramsList,Integer utmFlag,String orderField,String sort) {
 
         QueryResult<CustomerListDTO> result = new QueryResult<>();
         Map<String,Object> map=new HashedMap();
         List<CustomerListDTO> resultDto = new ArrayList<>();
+        List<String> channleList = new ArrayList<>();
         if (pan != null){
             //客户姓名
             if (StringUtils.isNotEmpty(pan.getCustomerName())) {
@@ -425,6 +443,7 @@ public class PanService {
             map.put("mainCitys",mainCitys);
             map.put("subCompanyIds",subCompanyIds);
             map.put("type",type);
+            map.put("utmFlag",utmFlag);
             map.put("start",(page-1)*size);
             map.put("size",size);
             if (utmList != null && utmList.size() > 0){
@@ -449,9 +468,20 @@ public class PanService {
             logger.warn("------------->数据库查询总数量结束");
             if (customerInfoList != null && customerInfoList.size() > 0) {
                 for (CustomerInfo customerInfo : customerInfoList){
+                    if (!channleList.contains(customerInfo.getUtmSource())){
+                        channleList.add(customerInfo.getUtmSource());
+                    }
                     CustomerListDTO customerDto = new CustomerListDTO();
                     EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,userId);
                     resultDto.add(customerDto);
+                }
+                //屏蔽媒体
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("channelNames",channleList);
+                Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+                for (CustomerListDTO customerListDTO : resultDto ){
+                    System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
+                    customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
                 }
             }
             result.setRows(resultDto);

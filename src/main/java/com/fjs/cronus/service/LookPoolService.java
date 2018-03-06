@@ -1,5 +1,6 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
@@ -42,6 +43,7 @@ public class LookPoolService {
         List<CustomerListDTO> resultList = new ArrayList<>();
         List<String> paramsList = new ArrayList<>();
         Map<String,Object> paramMap = new HashMap<>();
+        List<String> channleList = new ArrayList<>();
         if (!StringUtils.isEmpty(customerName)){
             paramMap.put("customerName",customerName);
         }
@@ -49,7 +51,9 @@ public class LookPoolService {
             paramMap.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
         }
         if (!StringUtils.isEmpty(utmSource)){
-            paramMap.put("utmSource",utmSource);
+            //TODO 通过媒体获取渠道
+            List<String> utmList = theaClientService.getChannelNameListByMediaName(token,utmSource);
+            paramMap.put("utmSources",utmList);
         }
         if (!StringUtils.isEmpty(ownUserName)){
             paramMap.put("ownUserName",ownUserName);
@@ -87,6 +91,9 @@ public class LookPoolService {
         if (customerInfoList != null && customerInfoList.size() > 0){
 
             for (CustomerInfo customerInfo : customerInfoList) {
+                if (!channleList.contains(customerInfo.getUtmSource())){
+                    channleList.add(customerInfo.getUtmSource());
+                }
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,user_Id);
                 String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
@@ -94,6 +101,15 @@ public class LookPoolService {
                 customerDto.setTelephonenumber(phoneNumber);
                 resultList.add(customerDto);
             }
+            //屏蔽媒体
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("channelNames",channleList);
+            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+            for (CustomerListDTO customerListDTO : resultList ){
+                System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
+                customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
+            }
+
             queryResult.setRows(resultList);
 
         }
@@ -107,6 +123,7 @@ public class LookPoolService {
                                                  String level, Integer companyId, Integer page, Integer size){
 
         QueryResult<CustomerListDTO> queryResult = new  QueryResult();
+        List<String> channleList = new ArrayList<>();
         List<CustomerListDTO> resultList = new ArrayList<>();
         List<String> paramsList = new ArrayList<>();
         Map<String,Object> paramMap = new HashMap<>();
@@ -117,7 +134,8 @@ public class LookPoolService {
             paramMap.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
         }
         if (!StringUtils.isEmpty(utmSource)){
-            paramMap.put("utmSource",utmSource);
+            List<String> utmList = theaClientService.getChannelNameListByMediaName(token,utmSource);
+            paramMap.put("utmSources",utmList);
         }
         if (!StringUtils.isEmpty(ownUserName)){
             paramMap.put("ownUserName",ownUserName);
@@ -143,6 +161,9 @@ public class LookPoolService {
         List<CustomerInfo> customerInfoList = customerInfoMapper.customerList(paramMap);
         if (customerInfoList != null && customerInfoList.size() > 0){
             for (CustomerInfo customerInfo : customerInfoList) {
+                if (!channleList.contains(customerInfo.getUtmSource())){
+                    channleList.add(customerInfo.getUtmSource());
+                }
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,user_Id);
                 String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
@@ -150,6 +171,15 @@ public class LookPoolService {
                 customerDto.setTelephonenumber(phoneNumber);
                 resultList.add(customerDto);
             }
+            //屏蔽媒体
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("channelNames",channleList);
+            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+            for (CustomerListDTO customerListDTO : resultList ){
+                System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
+                customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
+            }
+
             queryResult.setRows(resultList);
         }
         Integer count = customerInfoMapper.customerListCount(paramMap);

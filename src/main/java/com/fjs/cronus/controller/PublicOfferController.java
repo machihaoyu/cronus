@@ -192,7 +192,7 @@ public class PublicOfferController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "telephonenumber", value = "手机号", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "utmSource", value = "渠道来源", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "utmSource", value = "媒体", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "houseStatus", value = "有 无房产", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "customerClassify", value = "跟进状态(暂未接通 无意向 有意向待跟踪 资质差无法操作 空号 外地 同行 内部员工 其他)", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "customerSource", value = "客户来源", required = false, paramType = "query", dataType = "string"),
@@ -544,6 +544,7 @@ public class PublicOfferController {
         CronusDto<QueryResult<CustomerListDTO>> cronusDto = new CronusDto<>();
 
         QueryResult<CustomerListDTO> queryResult = null;
+        Integer utmFlag = null;
         //获取配置项
         try {
             //从token中获取用户信息
@@ -566,6 +567,11 @@ public class PublicOfferController {
                 JSONObject jsonObject = JSONObject.parseObject(result);
                 String specUtmSource = jsonObject.getString(utmSource);
                 pan.setUtmSource(specUtmSource);
+                //TODO 需要判断哪些渠道不需要根据城市筛选
+                String specialUtm = theaClientService.findValueByName(token,CommonConst.SPECIALUTM_NAME);
+                if (specialUtm.contains(specUtmSource)){
+                    utmFlag = 1;
+                }
                 logger.warn("------------------------>从uc获取下属分公司城市开始");
                 List<CityDto> subsCitys = ucService.getSubcompanyByUserId(token, userId, CommonConst.SYSTEMNAME);
                 logger.warn("------------------------>从uc获取下属分公司城市结束");
@@ -633,7 +639,7 @@ public class PublicOfferController {
             pan.setCustomerSource(customerSource);
             pan.setCity(city);
             logger.warn("------------------------>外地公盘进入service开始");
-            queryResult = panService.specialListByOfferNew(pan, userId, companyId, token, CommonConst.SYSTEMNAME, page, size, mainCitys, null, type, mountLevle, utmList, paramsList,orderField,sort);
+            queryResult = panService.specialListByOfferNew(pan, userId, companyId, token, CommonConst.SYSTEMNAME, page, size, mainCitys, null, type, mountLevle, utmList, paramsList,utmFlag,orderField,sort);
             logger.warn("------------------------>外地公盘进入service结束");
             cronusDto.setData(queryResult);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());

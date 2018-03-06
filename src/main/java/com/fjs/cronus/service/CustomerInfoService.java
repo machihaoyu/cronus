@@ -145,6 +145,7 @@ public class CustomerInfoService {
         Map<String, Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
         List<CustomerListDTO> dtoList = new ArrayList<>();
+        List<String> channleList = new ArrayList<>();
         PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
         if (userInfoDTO == null) {
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
@@ -153,7 +154,8 @@ public class CustomerInfoService {
             paramsMap.put("customerName", customerName);
         }
         if (!StringUtils.isEmpty(utmSource)) {
-            paramsMap.put("utmSource", utmSource);
+            List<String> utmList = theaClientService.getChannelNameListByMediaName(token,utmSource);
+            paramsMap.put("utmSources",utmList);
         }
         if (!StringUtils.isEmpty(ownUserName)) {
             paramsMap.put("ownUserName", ownUserName);
@@ -201,10 +203,21 @@ public class CustomerInfoService {
         Integer count = customerInfoMapper.customerListCount(paramsMap);
         if (resultList != null && resultList.size() > 0) {
             for (CustomerInfo customerInfo : resultList) {
+                if (!channleList.contains(customerInfo.getUtmSource())){
+                    channleList.add(customerInfo.getUtmSource());
+                }
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
                 //判断自己的lookphone
                 dtoList.add(customerDto);
+            }
+            //屏蔽媒体
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("channelNames",channleList);
+            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+            for (CustomerListDTO customerListDTO : dtoList ){
+                System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
+                customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
             }
             result.setRows(dtoList);
         }
@@ -857,6 +870,7 @@ public class CustomerInfoService {
         List<CustomerInfo> resultList = new ArrayList<>();
         Map<String, Object> paramsMap = new HashMap<>();
         List<CustomerListDTO> doList = new ArrayList<>();
+        List<String> channleList = new ArrayList<>();
         QueryResult<CustomerListDTO> result = new QueryResult<>();
         PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
         if (userInfoDTO == null) {
@@ -873,9 +887,13 @@ public class CustomerInfoService {
         if (!StringUtils.isEmpty(utmSource)) {
             if ("自申请".equals(utmSource)){
                 utmSource = "c-app";
+                paramsMap.put("utmSource", utmSource);
+            }else {
+                List<String> utmList = theaClientService.getChannelNameListByMediaName(token,utmSource);
+                paramsMap.put("utmSources",utmList);
             }
-            paramsMap.put("utmSource", utmSource);
         }
+
         if (!StringUtils.isEmpty(telephonenumber)) {
             paramsMap.put("telephonenumber", telephonenumber);
         }
@@ -906,9 +924,19 @@ public class CustomerInfoService {
         }
         if (resultList != null && resultList.size() > 0) {
             for (CustomerInfo customerInfo : resultList) {
+                if (!channleList.contains(customerInfo.getUtmSource())){
+                    channleList.add(customerInfo.getUtmSource());
+                }
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
                 doList.add(customerDto);
+            }
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("channelNames",channleList);
+            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+            for (CustomerListDTO customerListDTO : doList ){
+                System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
+                customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
             }
             result.setRows(doList);
             result.setTotal(count.toString());
@@ -1035,6 +1063,7 @@ public class CustomerInfoService {
                                                            String level, Integer companyId, Integer page, Integer size) {
         QueryResult<CustomerListDTO> queryResult = new QueryResult();
         List<CustomerListDTO> resultList = new ArrayList<>();
+        List<String> channleList = new ArrayList<>();
         Map<String, Object> paramMap = new HashMap<>();
         List<Integer> ids = new ArrayList<>();
         //获取离职员工的ids
@@ -1051,8 +1080,10 @@ public class CustomerInfoService {
             if (!StringUtils.isEmpty(telephonenumber)) {
                 paramMap.put("telephonenumber", DEC3Util.des3EncodeCBC(telephonenumber));
             }
-            if (!StringUtils.isEmpty(utmSource)) {
-                paramMap.put("utmSource", utmSource);
+            if (!StringUtils.isEmpty(utmSource)){
+                //TODO 通过媒体获取渠道
+                List<String> utmList = theaClientService.getChannelNameListByMediaName(token,utmSource);
+                paramMap.put("utmSources",utmList);
             }
             if (!StringUtils.isEmpty(ownUserName)) {
                 paramMap.put("ownUserName", ownUserName);
@@ -1079,11 +1110,23 @@ public class CustomerInfoService {
 
                 for (CustomerInfo customerInfo : customerInfoList) {
                     CustomerListDTO customerDto = new CustomerListDTO();
+                    if (!channleList.contains(customerInfo.getUtmSource())){
+                        channleList.add(customerInfo.getUtmSource());
+                    }
                     EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
                     String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
                     String phoneNumber = telephone.substring(0, 7) + "****";
                     customerDto.setTelephonenumber(phoneNumber);
                     resultList.add(customerDto);
+                }
+
+                //屏蔽媒体
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("channelNames",channleList);
+                Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+                for (CustomerListDTO customerListDTO : resultList ){
+                    System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
+                    customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
                 }
                 queryResult.setRows(resultList);
                 Integer count = customerInfoMapper.customerListCount(paramMap);
@@ -1612,64 +1655,73 @@ public class CustomerInfoService {
 
 
     @Transactional
-    public CronusDto addUploadCustomer(CustomerDTO customerDTO, String token) {
+    public CronusDto addUploadCustomer(List<CustomerDTO> customerDTOs, String token) {
         CronusDto cronusDto = new CronusDto();
+        List<CustomerInfo> customerInfos = new ArrayList<>();
+        List<CustomerInfoLog> customerInfoLogs = new ArrayList<>();
+        Date date = new Date();
         //判断必传字段*/
         //json转map 参数，教研参数
         UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEM_NAME_ENGLISH);
         if (userInfoDTO.getUser_id() == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, "新增客户信息出错!");
         }
-        validAddData(customerDTO);
-        //实体与DTO相互转换
-        CustomerInfo customerInfo = new CustomerInfo();
-        EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
-        //新加字段
-        List<EmplouInfo> emplouInfos = customerDTO.getEmployedInfo();
-        //转Json在转String
-        if (emplouInfos != null && emplouInfos.size() > 0) {
-            String jsonString = JSONArray.toJSONString(emplouInfos);
-            customerInfo.setEmployedInfo(jsonString);
+        for (CustomerDTO customerDTO : customerDTOs) {
+            validAddData(customerDTO);
+            //实体与DTO相互转换
+            CustomerInfo customerInfo = new CustomerInfo();
+            EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
+            //新加字段
+            List<EmplouInfo> emplouInfos = customerDTO.getEmployedInfo();
+            //转Json在转String
+            if (emplouInfos != null && emplouInfos.size() > 0) {
+                String jsonString = JSONArray.toJSONString(emplouInfos);
+                customerInfo.setEmployedInfo(jsonString);
+            }
+            customerInfo.setRetirementWages(customerDTO.getRetirementWages());
+            //刚申请的客户
+            customerInfo.setCompanyId(0);//导入客户不属于任何分公司
+            customerInfo.setSubCompanyId(0);//导入客户不属于任何分公司
+            customerInfo.setCustomerType(CommonConst.CUSTOMER_TYPE_MIND);
+            customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
+            customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
+            customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
+            customerInfo.setCreateTime(date);
+            customerInfo.setCreateUser(Integer.valueOf(userInfoDTO.getUser_id()));
+            customerInfo.setLastUpdateTime(date);
+            customerInfo.setIsDeleted(0);
+            customerInfo.setReceiveId(0);
+            customerInfo.setCommunicateId(0);
+            customerInfo.setOwnUserId(0);
+            customerInfo.setAutostatus(0);
+            //customerInfoMapper.insertCustomer(customerInfo);
+            customerInfos.add(customerInfo);
+            //开始插入log表
+            //生成日志记录
         }
-        customerInfo.setRetirementWages(customerDTO.getRetirementWages());
-        Date date = new Date();
-        //刚申请的客户
-        customerInfo.setCompanyId(0);//导入客户不属于任何分公司
-        customerInfo.setSubCompanyId(0);//导入客户不属于任何分公司
-        customerInfo.setCustomerType(CommonConst.CUSTOMER_TYPE_MIND);
-        customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
-        customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
-        customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
-        customerInfo.setCreateTime(date);
-        customerInfo.setCreateUser(Integer.valueOf(userInfoDTO.getUser_id()));
-        customerInfo.setLastUpdateTime(date);
-        customerInfo.setIsDeleted(0);
-        customerInfo.setReceiveId(0);
-        customerInfo.setCommunicateId(0);
-        customerInfo.setOwnUserId(0);
-        customerInfo.setAutostatus(0);
-        customerInfoMapper.insertCustomer(customerInfo);
-        if (customerInfo.getId() == null) {
-            throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
+        //开始插入数据库
+        customerInfoMapper.insertBatch(customerInfos);
+        for (CustomerInfo customerInfo : customerInfos) {
+            CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+            EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
+            customerInfoLog.setLogCreateTime(date);
+            customerInfoLog.setLogDescription("增加一条客户记录");
+            customerInfoLog.setLogUserId(Integer.valueOf(userInfoDTO.getUser_id()));
+            customerInfoLog.setIsDeleted(0);
+            //customerInfoLogMapper.addCustomerLog(customerInfoLog);
+            customerInfoLogs.add(customerInfoLog);
         }
-        //开始插入log表
-        //生成日志记录
-        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
-        customerInfoLog.setLogCreateTime(date);
-        customerInfoLog.setLogDescription("增加一条客户记录");
-        customerInfoLog.setLogUserId(Integer.valueOf(userInfoDTO.getUser_id()));
-        customerInfoLog.setIsDeleted(0);
-        customerInfoLogMapper.addCustomerLog(customerInfoLog);
-        cronusDto.setResult(ResultResource.CODE_SUCCESS);
-        cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
-        cronusDto.setData(customerInfo.getId());
+        customerInfoLogMapper.insertBatch(customerInfoLogs);
         //推送到ocdc
         try {
-            outPutService.synchronToOcdc(customerInfo);
+            for(CustomerInfo customerInfo : customerInfos ) {
+                outPutService.synchronToOcdc(customerInfo);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        cronusDto.setResult(ResultResource.CODE_SUCCESS);
+        cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         return cronusDto;
     }
 

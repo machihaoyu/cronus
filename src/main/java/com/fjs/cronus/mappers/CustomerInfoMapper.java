@@ -90,4 +90,6 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
     List<CustomerInfo> utmCustomerList(Map<String,Object> paramsMap);
 
     Integer utmCustomerListCount(Map<String,Object> paramsMap);
+
+    void insertBatch(List<CustomerInfo> customerInfos);
 }

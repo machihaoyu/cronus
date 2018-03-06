@@ -15,6 +15,8 @@ import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by msi on 2017/10/11. url = "http://192.168.1.124:1240"
@@ -22,7 +24,7 @@ import javax.validation.Valid;
 
 @FeignClient(value = "${client.feign.thea-backend}")
 //@FeignClient(value = "${client.feign.thea-backend}",url = "192.168.1.128:1240")
-//@FeignClient(value = "THEA-BACKEND-ZSC",url = "http://192.168.2.79:8093")
+//@FeignClient(value = "THEA-BACKEND-CKM",url = "http://192.168.2.90:8180")
 public interface TheaService {
 
 
@@ -70,4 +72,13 @@ public interface TheaService {
 
     @RequestMapping(value = "/config/v1/addConfig", method = RequestMethod.POST)
     public CriusApiDTO addConfig(@RequestHeader("Authorization") String token,@RequestBody Config config);
+
+    @RequestMapping(value = "/channel/v1/getMediaName", method = RequestMethod.POST)
+    @ResponseBody
+    public CriusApiDTO<Map<String, String>> getMediaName(@RequestHeader("Authorization") String token,@RequestBody JSONObject jsonObject);
+
+
+    @RequestMapping(value = "/channel/v1/getMediaName", method = RequestMethod.GET)
+    @ResponseBody
+    public TheaApiDTO<List<String>> getChannelNameListByMediaName(@RequestHeader("Authorization") String token,@RequestParam(value = "mediaName") String mediaName);
 }

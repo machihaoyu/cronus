@@ -16,6 +16,7 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.PrdCustomer;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.PrdCustomerService;
+import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -63,7 +64,8 @@ public class UploadController {
     private UcService thorUcService;
     @Autowired
     private PrdCustomerService prdCustomerService;
-
+    @Autowired
+    TheaClientService theaClientService;
     @ApiOperation(value="导入公盘", notes="导入公盘")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
@@ -138,7 +140,9 @@ public class UploadController {
      * @throws Exception
      */
     @Transactional
-    public void readerCsv(InputStream csvFilePath,String token) throws Exception {
+    public CronusDto readerCsv(InputStream csvFilePath,String token) throws Exception {
+        CronusDto reultDto = new CronusDto();
+        List<CustomerDTO> customerDTOS = new ArrayList<>();
 
         CsvReader reader = new CsvReader(csvFilePath, ',',
                 Charset.forName("GBK"));
@@ -187,17 +191,29 @@ public class UploadController {
                     customerDTO.setCity(city);
                 }
             }
+            customerDTOS.add(customerDTO);
 //            System.out.println(loan.toString());
-            if (customerDTO != null){
-                logger.info("导入的csv:"+customerDTO.toString());
-                try {
-                    CronusDto cronusDto = customerInfoService.addUploadCustomer(customerDTO, token);
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
         }
         reader.close();
+
+        if (customerDTOS != null){
+            logger.info("导入的csv:"+customerDTOS.toString());
+            //需要判断权限
+            String resultStr = theaClientService.findValueByName(token,CommonConst.IMPORTNOUSERPOOLUTMSOURCE);
+            for (CustomerDTO customerDTO : customerDTOS) {
+                if (!resultStr.contains(customerDTO.getUtmSource())){
+                    reultDto.setResult(CommonMessage.FAILUPLOAD.getCode());
+                    reultDto.setMessage(CommonMessage.FAILUPLOAD.getCodeDesc());
+                    return  reultDto;
+                }
+            }
+            try {
+                CronusDto cronusDto = customerInfoService.addUploadCustomer(customerDTOS, token);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        return reultDto;
     }
 
     /**

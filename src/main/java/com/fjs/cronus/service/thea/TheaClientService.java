@@ -1,8 +1,11 @@
 package com.fjs.cronus.service.thea;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.api.thea.MailDTO;
+import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.api.crius.CriusApiDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.LoanDTO4;
 import com.fjs.cronus.dto.thea.MailBatchDTO;
@@ -15,7 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by msi on 2017/11/30.
@@ -117,6 +123,22 @@ public class TheaClientService {
         TheaApiDTO<QueryResult<WorkDayDTO>> resultDto = theaService.getWorkDay(token);
         QueryResult<WorkDayDTO> result = resultDto.getData();
         return result.getRows();
+    }
+
+
+    public Map<String,String> getMediaName(String token,JSONObject jsonObject){
+        Map<String, String> map = new HashMap<>();
+        CriusApiDTO<Map<String, String>> resultDto = theaService.getMediaName(token,jsonObject);
+        map = resultDto.getData();
+        return map;
+    }
+
+    public List<String> getChannelNameListByMediaName(String token,String mediaName){
+
+        List<String> list = new ArrayList<>();
+        TheaApiDTO<List<String>>  resultDto= theaService.getChannelNameListByMediaName(token,mediaName);
+        list = resultDto.getData();
+        return  list;
     }
 
 }

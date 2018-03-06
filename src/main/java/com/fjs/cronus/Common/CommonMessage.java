@@ -6,6 +6,7 @@ package com.fjs.cronus.Common;
 public enum CommonMessage {
     SUCCESS(0,"成功"),
     FAIL(1,"失败"),
+    FAILUPLOAD(2,"文件中包含不允许传入到公盘的渠道请重新上传！"),
 
     ADD_SUCCESS(0,"添加成功"),
     ADD_FAIL(1,"添加失败"),

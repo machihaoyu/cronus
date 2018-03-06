@@ -24,6 +24,7 @@ import com.fjs.cronus.model.CustomerInfoLog;
 import com.fjs.cronus.model.CustomerUseful;
 import com.fjs.cronus.model.PullCustomer;
 import com.fjs.cronus.service.api.OutPutService;
+import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.*;
 import org.apache.commons.collections.map.HashedMap;
@@ -56,6 +57,8 @@ public class PullCustomerService {
     CustomerInfoLogMapper customerInfoLogMapper;
     @Autowired
     OutPutService outPutService;
+    @Autowired
+    TheaClientService theaClientService;
 
     @Value("${sysn.haidaiUrl}")
     private String haidaiUrl;
@@ -96,6 +99,7 @@ public class PullCustomerService {
     public QueryResult<PullCustomerDTO> listByCondition(String telephonenumber,Integer status, String name, String token,String systemName,String city,Integer mountLevle,String createTime,Integer page, Integer size,Integer userId) {
         Integer companyId = null;
         Integer total = null;
+        List<String> channleList = new ArrayList<>();
         QueryResult<PullCustomerDTO> pullCustomerQueryResult = null;
         List<PullCustomer> pullCustomerList = null;
         List<PullCustomerDTO> pullCustomerDTOList=new ArrayList<PullCustomerDTO>();
@@ -127,6 +131,9 @@ public class PullCustomerService {
             map.put("size",size);
             pullCustomerList=pullCustomerMapper.listByCondition(map);
             for (PullCustomer selectPull:pullCustomerList){
+                if (!channleList.contains(selectPull.getUtmSource())){
+                    channleList.add(selectPull.getUtmSource());
+                }
                 Integer saleId=selectPull.getSaleId();
                 SimpleUserInfoDTO simpleUserInfoDTO =thorUcService.getSystemUserInfo(token,saleId);
                 String saleManName=simpleUserInfoDTO.getName();
@@ -135,7 +142,14 @@ public class PullCustomerService {
                 pullCustomerDTOList.add(pullCustomerDTO);
             }
             // 总数
-            total = pullCustomerMapper.countByCondition(map);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("channelNames",channleList);
+        Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+        for (PullCustomerDTO pullCustomerDTO : pullCustomerDTOList ){
+            pullCustomerDTO.setUtmSource(mediaMap.get(pullCustomerDTO.getUtmSource()));
+        }
+
+        total = pullCustomerMapper.countByCondition(map);
 
             pullCustomerQueryResult = new QueryResult<PullCustomerDTO>();
             pullCustomerQueryResult.setRows(pullCustomerDTOList);

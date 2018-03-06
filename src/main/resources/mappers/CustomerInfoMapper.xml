@@ -131,6 +131,13 @@
       <if test="utmSource != null and utmSource != '' ">
           and c.utm_source = #{utmSource}
       </if>
+      <if test="utmSources != null and utmSources.size > 0 ">
+          and c.utm_source IN
+          <foreach collection="utmSources" item="item"
+                   index="index" open="(" close=")" separator=",">
+              #{item}
+          </foreach>
+      </if>
       <if test="cooperationStatus != null and cooperationStatus != '' ">
           and c.cooperation_status = #{cooperationStatus}
       </if>
@@ -194,6 +201,13 @@
       </if>
       <if test="utmSource != null and utmSource != '' ">
           and c.utm_source = #{utmSource}
+      </if>
+      <if test="utmSources != null and utmSources.size > 0">
+          and c.utm_source IN
+          <foreach collection="utmSources" item="item"
+                   index="index" open="(" close=")" separator=",">
+              #{item}
+          </foreach>
       </if>
       <if test="cooperationStatus != null and cooperationStatus != '' ">
           and c.cooperation_status = #{cooperationStatus}
@@ -1398,6 +1412,13 @@
         <if test="utmSource != null and utmSource != '' ">
             and c.utm_source = #{utmSource}
         </if>
+        <if test="utmSources != null and utmSources.size > 0 ">
+            and c.utm_source IN
+            <foreach  collection="utmSources" item="item"
+                     index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
         <if test="customerSource != null and utmSource != '' ">
             and c.customer_source = #{customerSource}
         </if>
@@ -1441,6 +1462,13 @@
         <if test="utmSource != null and utmSource != '' ">
             and c.utm_source = #{utmSource}
         </if>
+        <if test="utmSources != null and utmSources.size > 0 ">
+            and c.utm_source IN
+            <foreach collection="utmSources" item="item"
+                     index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
         <if test="autostatus != null and autostatus != '' ">
             and c.autostatus = #{autostatus}
         </if>
@@ -1477,6 +1505,13 @@
 
         <if test="utmSource != null and utmSource != '' ">
             and c.utm_source = #{utmSource}
+        </if>
+        <if test="utmSources != null and utmSources.size > 0 ">
+            and c.utm_source IN
+            <foreach collection="utmSources" item="item"
+                     index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
         </if>
         <if test="autostatus != null and autostatus != '' ">
             and c.autostatus = #{autostatus}
@@ -1518,6 +1553,13 @@
         <if test="utmSource != null and utmSource != '' ">
             and c.utm_source = #{utmSource}
         </if>
+        <if test="utmSources != null and utmSources.size > 0 ">
+            and c.utm_source IN
+            <foreach collection="utmSources" item="item"
+                     index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
         <if test="autostatus != null and autostatus != '' ">
             and c.autostatus = #{autostatus}
         </if>
@@ -1556,6 +1598,13 @@
         </if>
         <if test="utmSource != null and '' != utmSource">
             and utm_source = #{utmSource,jdbcType=VARCHAR}
+        </if>
+        <if test="utmSources != null and utmSources.size > 0">
+            and utm_source IN
+            <foreach collection="utmSources" item="item"
+                     index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
         </if>
         <if test="houseStatus != null and '' != houseStatus">
             and house_status = #{houseStatus,jdbcType=VARCHAR}
@@ -1679,6 +1728,13 @@
         </if>
         <if test="utmSource != null and '' != utmSource">
             and utm_source = #{utmSource,jdbcType=VARCHAR}
+        </if>
+        <if test="utmSources != null and utmSources.size > 0 ">
+            and utm_source IN
+            <foreach collection="utmSources" item="item"
+                     index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
         </if>
         <if test="houseStatus != null and '' != houseStatus">
             and house_status = #{houseStatus,jdbcType=VARCHAR}
@@ -1994,7 +2050,7 @@
                 </when>
             </choose>
         </if>
-        <if test="type ==null">
+        <if test="type ==null and utmFlag == null">
                 and city in
                 <foreach item="item" index="index" collection="mainCitys" open="("
                          separator="," close=")">
@@ -2185,4 +2241,131 @@
             and customer_type = #{customerType,jdbcType=VARCHAR}
         </if>
     </select>
+   <insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        insert into customer_info (telephonenumber, customer_name,
+        customer_type, customer_level, spare_phone,
+        age, marriage, id_card,
+        province_huji, sex, customer_address,
+        customer_street, house_status, house_amount,
+        house_type, house_value, house_area,
+        house_age, house_loan, house_alone,
+        house_location, city, customer_classify,
+        callback_status, callback_time, sub_company_id,
+        house_loan_value, create_time, last_update_time,
+        create_user, last_update_user, is_deleted,
+        expect_money_time, expect_loan_time, expect_repayment_way,
+        house_clear, house_owner, mortgage_amount,
+        mortgae_month, is_hava_car, car_worth,
+        car_age, is_hava_insurance, year_pay_amount,
+        insurance_time, is_hava_debt, debt_money,
+        debt_month, debt_overdue, debt_overdue_money,
+        debt_time, work_status, wager_card,
+        entry_time, company_type, social_security,
+        social_money, social_time, provident_fund,
+        provident_money, provident_time, compny_name,
+        fixed_phone, loan_amount, customer_source,
+        utm_source, own_user_id, own_user_name,
+        receive_time, circle, company_id,
+        retirement_wages, level, remain,
+        view_time, view_uid, view_count,
+        autostatus, first_communicate_time, first_allocate_time,
+        cooperation_status, confirm, click_communicate_button,
+        communicate_time, communicate_id, receive_id,
+        per_description, employed_info, ext
+        )
+        values
+       <foreach collection="list" item="customerInfo" index="index" separator=",">
+       <trim prefix="(" suffix=")" suffixOverrides=",">
+        #{customerInfo.telephonenumber},
+        #{customerInfo.customerName},
+        #{customerInfo.customerType},
+        #{customerInfo.customerLevel},
+        #{customerInfo.sparePhone},
+        #{customerInfo.age},
+        #{customerInfo.marriage},
+        #{customerInfo.idCard},
+        #{customerInfo.provinceHuji},
+        #{customerInfo.sex},
+        #{customerInfo.customerAddress},
+        #{customerInfo.customerStreet},
+        #{customerInfo.houseStatus},
+        #{customerInfo.houseAmount},
+        #{customerInfo.houseType},
+        #{customerInfo.houseValue},
+        #{customerInfo.houseArea},
+        #{customerInfo.houseAge},
+        #{customerInfo.houseLoan},
+        #{customerInfo.houseAlone},
+        #{customerInfo.houseLocation},
+        #{customerInfo.city},
+        #{customerInfo.customerClassify},
+        #{customerInfo.callbackStatus},
+        #{customerInfo.callbackTime},
+        #{customerInfo.subCompanyId},
+        #{customerInfo.houseLoanValue},
+        #{customerInfo.createTime},
+        #{customerInfo.lastUpdateTime},
+        #{customerInfo.createUser},
+        #{customerInfo.lastUpdateUser},
+        #{customerInfo.isDeleted},
+        #{customerInfo.expectMoneyTime},
+        #{customerInfo.expectLoanTime},
+        #{customerInfo.expectRepaymentWay},
+        #{customerInfo.houseClear},
+        #{customerInfo.houseOwner},
+        #{customerInfo.mortgageAmount},
+        #{customerInfo.mortgaeMonth},
+        #{customerInfo.isHavaCar},
+        #{customerInfo.carWorth},
+        #{customerInfo.carAge},
+        #{customerInfo.isHavaInsurance},
+        #{customerInfo.yearPayAmount},
+        #{customerInfo.insuranceTime},
+        #{customerInfo.isHavaDebt},
+        #{customerInfo.debtMoney},
+        #{customerInfo.debtMonth},
+        #{customerInfo.debtOverdue},
+        #{customerInfo.debtOverdueMoney},
+        #{customerInfo.debtTime},
+        #{customerInfo.workStatus},
+        #{customerInfo.wagerCard},
+        #{customerInfo.entryTime},
+        #{customerInfo.companyType},
+        #{customerInfo.socialSecurity},
+        #{customerInfo.socialMoney},
+        #{customerInfo.socialTime},
+        #{customerInfo.providentFund},
+        #{customerInfo.providentMoney},
+        #{customerInfo.providentTime},
+        #{customerInfo.compnyName},
+        #{customerInfo.fixedPhone},
+        #{customerInfo.loanAmount},
+        #{customerInfo.customerSource},
+        #{customerInfo.utmSource},
+        #{customerInfo.ownUserId},
+        #{customerInfo.ownUserName},
+        #{customerInfo.receiveTime},
+        #{customerInfo.circle},
+        #{customerInfo.companyId},
+        #{customerInfo.retirementWages},
+        #{customerInfo.level},
+        #{customerInfo.remain},
+        #{customerInfo.viewTime},
+        #{customerInfo.viewUid},
+        #{customerInfo.viewCount},
+        #{customerInfo.autostatus},
+        #{customerInfo.firstCommunicateTime},
+        #{customerInfo.firstAllocateTime},
+        #{customerInfo.cooperationStatus},
+        #{customerInfo.confirm},
+        #{customerInfo.clickCommunicateButton},
+        #{customerInfo.communicateTime},
+        #{customerInfo.communicateId},
+        #{customerInfo.receiveId},
+        #{customerInfo.perDescription},
+        #{customerInfo.employedInfo},
+        #{customerInfo.ext}
+       </trim>
+       </foreach>
+    </insert>
 </mapper>

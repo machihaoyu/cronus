@@ -52,10 +52,12 @@ public class EntityToDto {
             dto.setCity(customerInfo.getCity());
         }
         if (!StringUtil.isEmpty(customerInfo.getOwnUserName())){
-            dto.setOwnUserName(customerInfo.getOwnUserName());
+            if(customerInfo.getOwnUserId() != 0) {
+                dto.setOwnUserName(customerInfo.getOwnUserName());
+            }
         }
         if (!StringUtils.isEmpty(customerInfo.getCreateTime())){
-            dto.setCreateTime(customerInfo.getCreateTime());
+                dto.setCreateTime(customerInfo.getCreateTime());
         }
         if (!StringUtils.isEmpty(customerInfo.getReceiveTime())){
             dto.setReceiveTime(customerInfo.getReceiveTime());

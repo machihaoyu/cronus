@@ -56,5 +56,14 @@ public class SmsService {
         }
         return smsResult;
     }
+    //发送短信
 
+    public  String sendCommunication(String telephoneNumber,String content)
+    {
+        String smsResult = "";
+        content = "【房金云】" + content;
+        SmsUtils smsUtils = new SmsUtils();
+        smsResult = smsUtils.sendBatchMessage(telephoneNumber,content);
+        return smsResult;
+    }
 }
