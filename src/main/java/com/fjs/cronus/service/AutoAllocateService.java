@@ -225,12 +225,12 @@ public class AutoAllocateService {
                         allocateRedisService.changeAllocateTemplet(customerDTO.getOwnerUserId(), customerDTO.getCity());
                     }
                     //如果是再分配盘的数据则标记再分配成功
-                    if (allocateSource.getCode().equals("2")) {
-                        Map<String, Object> againAllocateMap = new HashMap<>();
-                        againAllocateMap.put("dataId", customerId);
-                        againAllocateMap.put("status", CommonEnum.AGAIN_ALLOCATE_STATUS_1.getCode());
-                        againAllocateCustomerService.saveStatusByDataId(againAllocateMap);
-                    }
+//                    if (allocateSource.getCode().equals("2")) {
+//                        Map<String, Object> againAllocateMap = new HashMap<>();
+//                        againAllocateMap.put("dataId", customerId);
+//                        againAllocateMap.put("status", CommonEnum.AGAIN_ALLOCATE_STATUS_1.getCode());
+//                        againAllocateCustomerService.saveStatusByDataId(againAllocateMap);
+//                    }
                     //添加分配日志
                     CustomerInfo customerInfo = new CustomerInfo();
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);

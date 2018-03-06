@@ -115,53 +115,64 @@ public class OcdcService {
                     AllocateEntity allocateEntity = new AllocateEntity();
                     CustomerDTO customerDTO = getCustomer(customerSalePushLog.getTelephonenumber());
                     if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) { //重复客户
-                        stringBuilder.append("重复客户");
-                        stringBuilder.append("-");
-                        customerDTO.setTelephonenumber(customerSalePushLog.getTelephonenumber());
-                        customerDTO.setLoanAmount(customerSalePushLog.getLoanAmount());
-                        if (isActiveApplicationChannel(customerSalePushLog)) {//主动申请渠道
-                            stringBuilder.append("主动申请渠道");
+                        if (allocateSource.getCode().equals("2"))
+                        {
+                            Map<String, Object> againAllocateMap = new HashMap<>();
+                            againAllocateMap.put("dataId", customerSalePushLog.getOcdcId());
+                            againAllocateMap.put("status", CommonEnum.AGAIN_ALLOCATE_STATUS_1.getCode());
+                            againAllocateCustomerService.saveStatusByDataId(againAllocateMap);
+                            allocateEntity.setAllocateStatus(AllocateEnum.DUPLICATE_CUSTOMER);
+                            allocateEntity.setSuccess(true);
+                        }
+                        else {
+                            stringBuilder.append("重复客户");
                             stringBuilder.append("-");
-                            //无负责人
-                            if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
-                                //自动分配
-                                stringBuilder.append("自动分配");
+                            customerDTO.setTelephonenumber(customerSalePushLog.getTelephonenumber());
+                            customerDTO.setLoanAmount(customerSalePushLog.getLoanAmount());
+                            if (isActiveApplicationChannel(customerSalePushLog)) {//主动申请渠道
+                                stringBuilder.append("主动申请渠道");
                                 stringBuilder.append("-");
-                                allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
-                            } else {//有负责人分给对应的业务员
-                                sendMail(token, customerDTO);
-                                SimpleUserInfoDTO simpleUserInfoDTO = thorClientService.getUserInfoById(token, customerDTO.getOwnerUserId());
-                                if (simpleUserInfoDTO != null && simpleUserInfoDTO.getSub_company_id() != null) {
-                                    customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
-                                }
-                                stringBuilder.append("分给对应的业务员添加交易");
-                                stringBuilder.append("-");
-                                String loan = autoAllocateService.addLoan(customerDTO, token);
-                                stringBuilder.append(loan);
-                                stringBuilder.append("-");
-                                allocateEntity.setSuccess(true);
-                                allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
-                            }
-                        } else {
-                            if (isThreeNonCustomer(customerSalePushLog) || isRepeatPushInTime(customerSalePushLog)) {
-                                allocateEntity.setSuccess(true);
-                                allocateEntity.setAllocateStatus(AllocateEnum.THREE_NON_CUSTOMER);
-                                stringBuilder.append("三无-重复时间申请");
-                                stringBuilder.append("-");
-                            } else {
-                                //有无负责人,有负责人跟进，没有自动分配
+                                //无负责人
                                 if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
                                     //自动分配
                                     stringBuilder.append("自动分配");
                                     stringBuilder.append("-");
                                     allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
-                                } else {
-                                    //发消息业务员，提醒跟进
-                                    stringBuilder.append("有负责人，发消息");
-                                    stringBuilder.append("-");
+                                } else {//有负责人分给对应的业务员
                                     sendMail(token, customerDTO);
-                                    allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
+                                    SimpleUserInfoDTO simpleUserInfoDTO = thorClientService.getUserInfoById(token, customerDTO.getOwnerUserId());
+                                    if (simpleUserInfoDTO != null && simpleUserInfoDTO.getSub_company_id() != null) {
+                                        customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
+                                    }
+                                    stringBuilder.append("分给对应的业务员添加交易");
+                                    stringBuilder.append("-");
+                                    String loan = autoAllocateService.addLoan(customerDTO, token);
+                                    stringBuilder.append(loan);
+                                    stringBuilder.append("-");
                                     allocateEntity.setSuccess(true);
+                                    allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
+                                }
+                            } else {
+                                if (isThreeNonCustomer(customerSalePushLog) || isRepeatPushInTime(customerSalePushLog)) {
+                                    allocateEntity.setSuccess(true);
+                                    allocateEntity.setAllocateStatus(AllocateEnum.THREE_NON_CUSTOMER);
+                                    stringBuilder.append("三无-重复时间申请");
+                                    stringBuilder.append("-");
+                                } else {
+                                    //有无负责人,有负责人跟进，没有自动分配
+                                    if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
+                                        //自动分配
+                                        stringBuilder.append("自动分配");
+                                        stringBuilder.append("-");
+                                        allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
+                                    } else {
+                                        //发消息业务员，提醒跟进
+                                        stringBuilder.append("有负责人，发消息");
+                                        stringBuilder.append("-");
+                                        sendMail(token, customerDTO);
+                                        allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
+                                        allocateEntity.setSuccess(true);
+                                    }
                                 }
                             }
                         }
@@ -175,20 +186,28 @@ public class OcdcService {
                     stringBuilder.append("-");
                     stringBuilder.append(allocateEntity.getAllocateStatus().getDesc());
                     stringBuilder.append("-");
-                    if (allocateEntity.getAllocateStatus() != null) {
+                    if (allocateEntity.getAllocateStatus() != null && allocateEntity.isSuccess()) {
                         switch (allocateEntity.getAllocateStatus().getCode()) {
                             case "0":
                                 break;
                             case "1":
+                                if (allocateSource.getCode().equals("2")) {
+                                    Map<String, Object> againAllocateMap = new HashMap<>();
+                                    againAllocateMap.put("dataId", customerSalePushLog.getOcdcId());
+                                    againAllocateMap.put("status", CommonEnum.AGAIN_ALLOCATE_STATUS_1.getCode());
+                                    againAllocateCustomerService.saveStatusByDataId(againAllocateMap);
+                                }
                                 break;
                             case "2":
                                 //未分配，添加到待分配池
-                                AgainAllocateCustomer againAllocateCustomer = new AgainAllocateCustomer();
-                                againAllocateCustomer.setDataId(customerSalePushLog.getOcdcId());
-                                againAllocateCustomer.setJsonData(map);
-                                againAllocateCustomer.setCreateTime(new Date());
-                                againAllocateCustomer.setUpdateTime(new Date());
-                                againAllocateCustomerService.addAgainAllocateCustomer(againAllocateCustomer);
+                                if (!allocateSource.getCode().equals("2")) {
+                                    AgainAllocateCustomer againAllocateCustomer = new AgainAllocateCustomer();
+                                    againAllocateCustomer.setDataId(customerSalePushLog.getOcdcId());
+                                    againAllocateCustomer.setJsonData(map);
+                                    againAllocateCustomer.setCreateTime(new Date());
+                                    againAllocateCustomer.setUpdateTime(new Date());
+                                    againAllocateCustomerService.addAgainAllocateCustomer(againAllocateCustomer);
+                                }
                                 break;
                             case "4":
                                 stringBuilder.append(pushServiceSystem(map));
@@ -266,6 +285,8 @@ public class OcdcService {
     public void waitingPoolAllocate(String token) {
         new Thread(() -> {
             try {
+                StringBuffer sb = new StringBuffer();
+                sb.append("waitingPoolAllocate--");
                 OcdcData ocdcData = new OcdcData();
                 List<String> listraw = new ArrayList<>();
                 List<AgainAllocateCustomer> list = againAllocateCustomerService.getNonAllocateCustomer();
@@ -274,7 +295,9 @@ public class OcdcService {
                     listraw.add(againCustomer.getJsonData());
                 }
                 ocdcData.setData(listraw);
-                addOcdcCustomer(ocdcData, AllocateSource.WAITING, token);
+                List<String> list1 = addOcdcCustomer(ocdcData, AllocateSource.WAITING, token);
+                sb.append(list1);
+                logger.warn(sb.toString());
             } catch (Exception e) {
                 logger.error("waitingPoolAllocate--",e.getMessage());
             }
