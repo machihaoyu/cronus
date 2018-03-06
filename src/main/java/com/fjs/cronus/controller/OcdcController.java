@@ -127,4 +127,22 @@ public class OcdcController {
         return responseData;
     }
 
+    @ApiOperation(value = "待分配池分配", notes = "待分配池分配")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/waitingPoolAllocate", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseData waitingPoolAllocate(@RequestHeader("Authorization") String token) {
+        ResponseData responseData = new ResponseData();
+        try {
+            ocdcService.waitingPoolAllocate(token);
+            responseData.setErrNum("0");
+        } catch (Exception e) {
+            responseData.setErrMsg("");
+            responseData.setErrNum("1");
+        }
+        return responseData;
+    }
+
 }

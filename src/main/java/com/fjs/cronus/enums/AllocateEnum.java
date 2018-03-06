@@ -7,7 +7,8 @@ public enum AllocateEnum {
     WAITING_POOL("2", "进入待分配池"),
     EXIST_OWNER("3", "已存在负责人"),
     TO_SERVICE_SYSTEM("4","推入客服系统"),
-    THREE_NON_CUSTOMER("5","三无重复时间");
+    THREE_NON_CUSTOMER("5","三无重复时间"),
+    DUPLICATE_CUSTOMER("6","重复客户");
 
 
     private String code;
