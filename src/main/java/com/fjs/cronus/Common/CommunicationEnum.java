@@ -42,4 +42,28 @@ public enum CommunicationEnum {
         }
         return null;
     }
+
+    public static void main(String[] args){
+
+        if (CommunicationEnum.getByValue("无意向sdaf") != null) {
+            switch (CommunicationEnum.getByValue("无意向safa")) {
+                case no_intention:
+                    //TODO 发送短信
+                    System.out.println("1");
+                    break;
+                case poor_qualifications:
+                    System.out.println("2");
+                    break;
+                case not_yet_connected:
+                    System.out.println("3");
+                    break;
+                case intention_to_tracked:
+                    System.out.println("4");
+                    break;
+            }
+        }else {
+            System.out.println("bufuhepipei");
+        }
+
+    }
 }

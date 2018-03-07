@@ -99,38 +99,40 @@ public class CommunicationLogService {
         if (communicationLogList.size() == 0){
             //TODO 首次沟通需要发短信需要判断状态发短信
             String customerphone = DEC3Util.des3DecodeCBC(customerDto.getTelephonenumber());
-            switch (CommunicationEnum.getByValue(customerUsefulDTO.getCooperationStatus())){
-                case no_intention:
-                    //TODO 发送短信
-                    try{
-                        smsService.sendCommunication(customerphone,CommonConst.NO_INTENTION);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                    break;
-                case poor_qualifications:
-                    try{
-                        smsService.sendCommunication(customerphone,CommonConst.POOR_QUALIFICATIONS);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                    break;
-                case not_yet_connected:
-                    try{
-                        String content = "尊敬的客户，您的申请已受理，因未能与您取得联系，如需资金，可联系专属顾问" +
-                                userInfoDTO.getName() + ": " + userInfoDTO.getTelephone() + ",更多资讯请关注官方微信：房金所";
-                        smsService.sendCommunication(customerphone,content);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                    break;
-                case intention_to_tracked:
-                    try{
-                        smsService.sendCommunication(customerphone,CommonConst.INTENTION_TO_TRACKED);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                    break;
+            if (CommunicationEnum.getByValue(customerUsefulDTO.getCooperationStatus()) != null) {
+                switch (CommunicationEnum.getByValue(customerUsefulDTO.getCooperationStatus())) {
+                    case no_intention:
+                        //TODO 发送短信
+                        try {
+                            smsService.sendCommunication(customerphone, CommonConst.NO_INTENTION);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case poor_qualifications:
+                        try {
+                            smsService.sendCommunication(customerphone, CommonConst.POOR_QUALIFICATIONS);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case not_yet_connected:
+                        try {
+                            String content = "尊敬的客户，您的申请已受理，因未能与您取得联系，如需资金，可联系专属顾问" +
+                                    userInfoDTO.getName() + ": " + userInfoDTO.getTelephone() + ",更多资讯请关注官方微信：房金所";
+                            smsService.sendCommunication(customerphone, content);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case intention_to_tracked:
+                        try {
+                            smsService.sendCommunication(customerphone, CommonConst.INTENTION_TO_TRACKED);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                }
             }
             customerDto.setFirstCommunicateTime(date);
         }

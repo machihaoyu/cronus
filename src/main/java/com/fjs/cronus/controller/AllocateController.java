@@ -229,7 +229,7 @@ public class AllocateController {
             }
             //添加分配日志
             for (CustomerInfo customerInfo : customerInfoList) {
-                allocateLogService.addAllocatelog(customerInfo, customerInfo.getOwnUserId(),
+                allocateLogService.addAllocatelog(customerInfo, allocateDTO.getEmpId(),
                         CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_2.getCode(), userInfoDTO);
             }
             //开始进行批量分配

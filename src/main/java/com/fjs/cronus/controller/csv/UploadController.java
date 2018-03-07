@@ -99,7 +99,8 @@ public class UploadController {
                         return theaApiDTO;
                     }
                 }
-                readerCsv(is,token);
+                theaApiDTO   = readerCsv(is,token);
+                return theaApiDTO;
             }
             if (param == 2){
                 if(authority.length>0){
@@ -209,6 +210,8 @@ public class UploadController {
             }
             try {
                 CronusDto cronusDto = customerInfoService.addUploadCustomer(customerDTOS, token);
+                reultDto.setResult(CommonMessage.SUCCESS.getCode());
+                reultDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
             }catch (Exception e){
                 e.printStackTrace();
             }
