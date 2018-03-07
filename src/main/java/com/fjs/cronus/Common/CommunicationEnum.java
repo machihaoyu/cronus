@@ -3,7 +3,7 @@ package com.fjs.cronus.Common;
 /**
  * Created by msi on 2018/3/6.
  */
-public enum CommnuicationEnum {
+public enum CommunicationEnum {
 
     no_intention("无意向", "无意向"),
     poor_qualifications("资质差无法操作", "资质差无法操作"),
@@ -13,7 +13,7 @@ public enum CommnuicationEnum {
     private String value;
     private String name;
 
-    private CommnuicationEnum(String value, String name) {
+    private CommunicationEnum(String value, String name) {
         this.setValue(value);
         this.setName(name);
     }
@@ -34,10 +34,10 @@ public enum CommnuicationEnum {
         this.name = name;
     }
 
-    public static CommnuicationEnum getByValue(String value) {
-        for (CommnuicationEnum commnuicationEnum : values()) {
-            if (commnuicationEnum.getValue() == value) {
-                return commnuicationEnum;
+    public static CommunicationEnum getByValue(String value) {
+        for (CommunicationEnum communicationEnum : values()) {
+            if (communicationEnum.getValue().equals(value)) {
+                return communicationEnum;
             }
         }
         return null;

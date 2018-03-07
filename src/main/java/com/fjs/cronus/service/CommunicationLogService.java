@@ -1,15 +1,11 @@
 package com.fjs.cronus.service;
 
 
-import com.fjs.cronus.Common.CommnuicationEnum;
+import com.fjs.cronus.Common.CommunicationEnum;
 import com.fjs.cronus.Common.CommonConst;
-import com.fjs.cronus.api.thea.MailDTO;
-import com.fjs.cronus.controller.AllocateController;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.CommunicationDTO;
-import com.fjs.cronus.dto.cronus.CustomerDTO;
-import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.thea.CommunicationLogDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 
@@ -29,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
@@ -104,7 +99,7 @@ public class CommunicationLogService {
         if (communicationLogList.size() == 0){
             //TODO 首次沟通需要发短信需要判断状态发短信
             String customerphone = DEC3Util.des3DecodeCBC(customerDto.getTelephonenumber());
-            switch (CommnuicationEnum.getByValue(customerUsefulDTO.getCooperationStatus())){
+            switch (CommunicationEnum.getByValue(customerUsefulDTO.getCooperationStatus())){
                 case no_intention:
                     //TODO 发送短信
                     try{
