@@ -53,6 +53,11 @@ public class LookPoolService {
         if (!StringUtils.isEmpty(utmSource)){
             //TODO 通过媒体获取渠道
             List<String> utmList = theaClientService.getChannelNameListByMediaName(token,utmSource);
+            if (utmList == null || utmList.size() == 0){
+                queryResult.setRows(resultList);
+                queryResult.setTotal("0");
+                return queryResult;
+            }
             paramMap.put("utmSources",utmList);
         }
         if (!StringUtils.isEmpty(ownUserName)){
@@ -135,6 +140,11 @@ public class LookPoolService {
         }
         if (!StringUtils.isEmpty(utmSource)){
             List<String> utmList = theaClientService.getChannelNameListByMediaName(token,utmSource);
+            if (utmList == null || utmList.size() == 0){
+                queryResult.setRows(resultList);
+                queryResult.setTotal("0");
+                return queryResult;
+            }
             paramMap.put("utmSources",utmList);
         }
         if (!StringUtils.isEmpty(ownUserName)){

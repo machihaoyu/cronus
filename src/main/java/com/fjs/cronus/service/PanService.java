@@ -171,6 +171,11 @@ public class PanService {
             if (StringUtils.isNotEmpty(pan.getUtmSource())) {
                 //TODO 由媒体换成渠道
                 List<String> list = theaClientService.getChannelNameListByMediaName(token,pan.getUtmSource());
+                if (utmList == null || utmList.size() == 0){
+                    result.setRows(resultDto);
+                    result.setTotal("0");
+                    return result;
+                }
                 map.put("utmSources",list);
 
             }
