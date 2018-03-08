@@ -62,7 +62,6 @@ public class SmsService {
     {
         String smsResult = "";
         content = "【房金云】" + content;
-        SmsUtils smsUtils = new SmsUtils();
         smsResult = smsUtils.sendBatchMessage(telephoneNumber,content);
         return smsResult;
     }

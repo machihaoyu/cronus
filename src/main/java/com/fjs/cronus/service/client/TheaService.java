@@ -88,7 +88,7 @@ public interface TheaService {
     @ResponseBody
     public TheaApiDTO selectStatusByCustomerIds(@RequestHeader("Authorization") String token,@RequestParam(value = "customerIds") String customerIds);
 
-    @RequestMapping(value = "  /loan/v1/deleteLoanByCustomerId",method = RequestMethod.POST)
+    @RequestMapping(value = "/loan/v1/deleteLoanByCustomerId",method = RequestMethod.POST)
     @ResponseBody
     public TheaApiDTO deleteLoanByCustomerId(@RequestHeader("Authorization") String token, @RequestBody AllLoanDTO allLoanDTO);
 
