@@ -21,19 +21,19 @@ public class ProducerService {
     @Resource
     HttpMQProducer httpMQProducer;
 
-    @Value("${mq.ak}")
+//    @Value("${mq.ak}")
     private String ak;
 
-    @Value("${mq.sk}")
+//    @Value("${mq.sk}")
     private String sk;
 
-    @Value("${mq.url}")
+//    @Value("${mq.url}")
     private String url;
 
-    @Value("${mq.topic}")
+//    @Value("${mq.topic}")
     private String topic;
 
-    @Value("${mq.producerId}")
+//    @Value("${mq.producerId}")
     private String producerId;
     /**
      * 发送消息

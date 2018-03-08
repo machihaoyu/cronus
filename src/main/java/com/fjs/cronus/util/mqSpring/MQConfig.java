@@ -22,25 +22,25 @@ import java.util.Properties;
 @Configuration
 public class MQConfig {
 
-    @Value("${mq.ak}")
+//    @Value("${mq.ak}")
     private String ak;
 
-    @Value("${mq.sk}")
+//    @Value("${mq.sk}")
     private String sk;
 
-    @Value("${mq.url}")
+//    @Value("${mq.url}")
     private String url;
 
-    @Value("${mq.topic}")
+//    @Value("${mq.topic}")
     private String topic;
 
-    @Value("${mq.consumerId}")
+//    @Value("${mq.consumerId}")
     private String consumerId;
 
-    @Value("${mq.tag}")
+//    @Value("${mq.tag}")
     private String tag;
 
-    @Value("${mq.consumeMessageBatchMaxSize}")
+//    @Value("${mq.consumeMessageBatchMaxSize}")
     private String consumeMessageBatchMaxSize;
 
     @Bean

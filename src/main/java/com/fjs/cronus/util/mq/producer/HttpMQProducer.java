@@ -15,19 +15,19 @@ import java.nio.charset.StandardCharsets;
 
 public class HttpMQProducer {
 
-	@Value("${mq.ak}")
+//	@Value("${mq.ak}")
 	private String accessKey;
 
-	@Value("${mq.sk}")
+//	@Value("${mq.sk}")
 	private String secretKey;
 
-	@Value("${mq.producerId}")
+//	@Value("${mq.producerId}")
 	private String producerId;
 
-	@Value("${mq.url}")
+//	@Value("${mq.url}")
 	private String url;
 
-	@Value("${mq.topic}")
+//	@Value("${mq.topic}")
 	private String topic;
 
 	private static final String NEWLINE = "\n";
