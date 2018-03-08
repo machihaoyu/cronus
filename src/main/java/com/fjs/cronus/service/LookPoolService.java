@@ -36,7 +36,7 @@ public class LookPoolService {
     CustomerInfoService customerInfoService;
     @Autowired
     UcService ucService;
-    public QueryResult<CustomerListDTO> unablePool(String token, String customerName, String telephonenumber, String utmSource, String ownUserName, String customerSource,
+    public QueryResult<CustomerListDTO> unablePool(String token, String customerName, String telephonenumber, String utmSource,String media, String ownUserName, String customerSource,
                                                            String level, Integer companyId, Integer page, Integer size){
 
         QueryResult<CustomerListDTO> queryResult = new  QueryResult();
@@ -50,7 +50,7 @@ public class LookPoolService {
         if (!StringUtils.isEmpty(telephonenumber)){
             paramMap.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
         }
-        if (!StringUtils.isEmpty(utmSource)){
+        if (!StringUtils.isEmpty(media)){
             //TODO 通过媒体获取渠道
             List<String> utmList = theaClientService.getChannelNameListByMediaName(token,utmSource);
             if (utmList == null || utmList.size() == 0){
@@ -59,6 +59,9 @@ public class LookPoolService {
                 return queryResult;
             }
             paramMap.put("utmSources",utmList);
+        }
+        if (!StringUtils.isEmpty(utmSource)){
+            paramMap.put("utmSource",utmSource);
         }
         if (!StringUtils.isEmpty(ownUserName)){
             paramMap.put("ownUserName",ownUserName);
@@ -96,25 +99,16 @@ public class LookPoolService {
         if (customerInfoList != null && customerInfoList.size() > 0){
 
             for (CustomerInfo customerInfo : customerInfoList) {
-                if (!channleList.contains(customerInfo.getUtmSource())){
+                if (!channleList.contains(customerInfo.getUtmSource())) {
                     channleList.add(customerInfo.getUtmSource());
                 }
                 CustomerListDTO customerDto = new CustomerListDTO();
-                EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,user_Id);
+                EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, user_Id);
                 String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
                 String phoneNumber = telephone.substring(0, 7) + "****";
                 customerDto.setTelephonenumber(phoneNumber);
                 resultList.add(customerDto);
             }
-            //屏蔽媒体
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("channelNames",channleList);
-            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
-            for (CustomerListDTO customerListDTO : resultList ){
-                System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
-                customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
-            }
-
             queryResult.setRows(resultList);
 
         }
@@ -124,7 +118,7 @@ public class LookPoolService {
         return  queryResult;
     }
 
-    public  QueryResult<CustomerListDTO> allPool(String token, String customerName, String telephonenumber, String utmSource, String ownUserName, String customerSource,
+    public  QueryResult<CustomerListDTO> allPool(String token, String customerName, String telephonenumber, String utmSource,String media, String ownUserName, String customerSource,
                                                  String level, Integer companyId, Integer page, Integer size){
 
         QueryResult<CustomerListDTO> queryResult = new  QueryResult();
@@ -138,14 +132,17 @@ public class LookPoolService {
         if (!StringUtils.isEmpty(telephonenumber)){
             paramMap.put("telephonenumber",DEC3Util.des3EncodeCBC(telephonenumber));
         }
-        if (!StringUtils.isEmpty(utmSource)){
-            List<String> utmList = theaClientService.getChannelNameListByMediaName(token,utmSource);
+        if (!StringUtils.isEmpty(media)){
+            List<String> utmList = theaClientService.getChannelNameListByMediaName(token,media);
             if (utmList == null || utmList.size() == 0){
                 queryResult.setRows(resultList);
                 queryResult.setTotal("0");
                 return queryResult;
             }
             paramMap.put("utmSources",utmList);
+        }
+        if (!StringUtils.isEmpty(utmSource)){
+            paramMap.put("utmSource",utmSource);
         }
         if (!StringUtils.isEmpty(ownUserName)){
             paramMap.put("ownUserName",ownUserName);
@@ -181,15 +178,6 @@ public class LookPoolService {
                 customerDto.setTelephonenumber(phoneNumber);
                 resultList.add(customerDto);
             }
-            //屏蔽媒体
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("channelNames",channleList);
-            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
-            for (CustomerListDTO customerListDTO : resultList ){
-                System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
-                customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
-            }
-
             queryResult.setRows(resultList);
         }
         Integer count = customerInfoMapper.customerListCount(paramMap);

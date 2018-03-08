@@ -8,9 +8,11 @@ import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.crius.CriusApiDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
+import com.fjs.cronus.dto.thea.AllLoanDTO;
 import com.fjs.cronus.dto.thea.LoanDTO4;
 import com.fjs.cronus.dto.thea.MailBatchDTO;
 import com.fjs.cronus.dto.thea.WorkDayDTO;
+import org.apache.tools.ant.taskdefs.Get;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -81,4 +83,13 @@ public interface TheaService {
     @RequestMapping(value = "/channel/v1/getMediaName", method = RequestMethod.GET)
     @ResponseBody
     public TheaApiDTO<List<String>> getChannelNameListByMediaName(@RequestHeader("Authorization") String token,@RequestParam(value = "mediaName") String mediaName);
+
+    @RequestMapping(value = "/loan/v1/selectStatusByCustomerIds",method = RequestMethod.GET)
+    @ResponseBody
+    public TheaApiDTO selectStatusByCustomerIds(@RequestHeader("Authorization") String token,@RequestParam(value = "customerIds") String customerIds);
+
+    @RequestMapping(value = "  /loan/v1/deleteLoanByCustomerId",method = RequestMethod.POST)
+    @ResponseBody
+    public TheaApiDTO deleteLoanByCustomerId(@RequestHeader("Authorization") String token, @RequestBody AllLoanDTO allLoanDTO);
+
 }

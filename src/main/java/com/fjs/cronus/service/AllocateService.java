@@ -7,6 +7,7 @@ import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.SellUserDTO;
+import com.fjs.cronus.dto.thea.AllLoanDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
@@ -14,6 +15,7 @@ import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerInfoLog;
+import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DateUtils;
@@ -42,7 +44,8 @@ public class AllocateService {
     CustomerInfoLogMapper customerInfoLogMapper;
     @Autowired
     TheaClientService theaClientService;
-
+    @Autowired
+    TheaService theaService;
     public CronusDto sellUser(String token,String customer_ids,String action,Integer userId){
         CronusDto resultDto = new CronusDto();
         SellUserDTO sellUserDTO = new SellUserDTO();
@@ -159,6 +162,11 @@ public class AllocateService {
                 customerInfoMapper.batchAllocate(map);
                 flag = true;
                 try {
+                    //TODO 开始修改交易
+                    AllLoanDTO allLoanDTO = new AllLoanDTO();
+                    allLoanDTO.setIds(ids);
+                    allLoanDTO.setNewOwnnerId(empId);
+                    theaService.deleteLoanByCustomerId(token,allLoanDTO);
                     String names = listToString(nameList);
                     String content = userInfoDTO.getName() +"分配给了你"+ customerInfoList.size()+"个客户,"+"客户名分别是"+names+ "请注意跟进。";
                     theaClientService.sendMail(token,content,userId,userId,null,empId);

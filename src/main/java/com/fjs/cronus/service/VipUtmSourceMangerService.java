@@ -260,23 +260,6 @@ public class VipUtmSourceMangerService {
         //获取返回并转为json
         String str = jsonObject.getString("retData");
         OcdcReturnDTO ocdcReturnDTO = FastJsonUtils.getSingleBean(str, OcdcReturnDTO.class);
-        if (ocdcReturnDTO.getList() != null && ocdcReturnDTO.getList().size() > 0){
-            List<OcdcCustomerDTO> list = ocdcReturnDTO.getList();
-            for (OcdcCustomerDTO ocdcCustomerDTO : list) {
-
-                if (!channleList.contains(ocdcCustomerDTO.getUtm_source())){
-                    channleList.add(ocdcCustomerDTO.getUtm_source());
-                }
-            }
-            JSONObject json = new JSONObject();
-            json.put("channelNames",channleList);
-            Map<String,String> mediaMap = theaClientService.getMediaName(token,json);
-            for (OcdcCustomerDTO customerListDTO : list ){
-                System.out.println(mediaMap.get(customerListDTO.getUtm_source()));
-                customerListDTO.setUtm_source(mediaMap.get(customerListDTO.getUtm_source()));
-            }
-            ocdcReturnDTO.setList(list);
-        }
         resultDTO.setResult(jsonObject.getInteger("errNum"));
         resultDTO.setMessage(jsonObject.getString("errMsg"));
         resultDTO.setData(ocdcReturnDTO);
@@ -352,14 +335,6 @@ public class VipUtmSourceMangerService {
                 String phoneNumber = telephone.substring(0, 7) + "****";
                 utmCustomerDTO.setTelephonenumber(phoneNumber);
                 resultList.add(utmCustomerDTO);
-            }
-            //屏蔽媒体
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("channelNames",channleList);
-            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
-            for (UtmCustomerDTO utmCustomerDTO : resultList ){
-                System.out.println(mediaMap.get(utmCustomerDTO.getUtmSource()));
-                utmCustomerDTO.setUtmSource(mediaMap.get(utmCustomerDTO.getUtmSource()));
             }
         }
         queryResult.setTotal(count.toString());

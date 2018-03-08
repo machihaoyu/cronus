@@ -1069,7 +1069,7 @@ public class CustomerInfoService {
         return customerSourceByGroup;
     }
 
-    public QueryResult<CustomerListDTO> resignCustomerList(String token, String customerName, String telephonenumber, String utmSource, String ownUserName, String customerSource,
+    public QueryResult<CustomerListDTO> resignCustomerList(String token, String customerName, String telephonenumber, String utmSource,String media, String ownUserName, String customerSource,
                                                            String level, Integer companyId, Integer page, Integer size) {
         QueryResult<CustomerListDTO> queryResult = new QueryResult();
         List<CustomerListDTO> resultList = new ArrayList<>();
@@ -1090,15 +1090,18 @@ public class CustomerInfoService {
             if (!StringUtils.isEmpty(telephonenumber)) {
                 paramMap.put("telephonenumber", DEC3Util.des3EncodeCBC(telephonenumber));
             }
-            if (!StringUtils.isEmpty(utmSource)){
+            if (!StringUtils.isEmpty(media)){
                 //TODO 通过媒体获取渠道
-                List<String> utmList = theaClientService.getChannelNameListByMediaName(token,utmSource);
+                List<String> utmList = theaClientService.getChannelNameListByMediaName(token,media);
                 if (utmList == null || utmList.size() == 0){
                     queryResult.setRows(resultList);
                     queryResult.setTotal("0");
                     return queryResult;
                 }
                 paramMap.put("utmSources",utmList);
+            }
+            if (!StringUtils.isEmpty(utmSource)){
+                paramMap.put("utmSource",utmSource);
             }
             if (!StringUtils.isEmpty(ownUserName)) {
                 paramMap.put("ownUserName", ownUserName);
@@ -1133,15 +1136,6 @@ public class CustomerInfoService {
                     String phoneNumber = telephone.substring(0, 7) + "****";
                     customerDto.setTelephonenumber(phoneNumber);
                     resultList.add(customerDto);
-                }
-
-                //屏蔽媒体
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("channelNames",channleList);
-                Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
-                for (CustomerListDTO customerListDTO : resultList ){
-                    System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
-                    customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
                 }
                 queryResult.setRows(resultList);
                 Integer count = customerInfoMapper.customerListCount(paramMap);

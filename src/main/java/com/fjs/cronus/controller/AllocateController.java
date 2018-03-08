@@ -23,6 +23,7 @@ import com.fjs.cronus.service.AllocateLogService;
 import com.fjs.cronus.service.AllocateService;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.client.ThorService;
+import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -67,6 +68,8 @@ public class AllocateController {
     @Autowired
     CustomerInfoService customerInfoService;
 
+    @Autowired
+    TheaClientService theaClientService;
     @ApiOperation(value = "sellUser获取可操作城市列表", notes = "sellUser获取可操作城市列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
@@ -226,6 +229,14 @@ public class AllocateController {
                 theaApiDTO.setResult(CommonMessage.ALLOCATE_FAIL.getCode());
                 theaApiDTO.setMessage(CronusException.Type.CEM_CUSTOMERINTERVIEW.toString());
                 throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
+            }
+            //开始判断
+            boolean flag = theaClientService.selectStatusByCustomerIds(token,allocateDTO.getIds());
+            if (flag == false){
+
+                theaApiDTO.setResult(CommonMessage.ALLOCATE_FAILNO.getCode());
+                theaApiDTO.setMessage(CommonMessage.ALLOCATE_FAILNO.getCodeDesc());
+                return theaApiDTO;
             }
             //添加分配日志
             for (CustomerInfo customerInfo : customerInfoList) {

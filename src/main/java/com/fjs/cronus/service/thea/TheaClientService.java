@@ -141,4 +141,14 @@ public class TheaClientService {
         return  list;
     }
 
+    public boolean selectStatusByCustomerIds(String token,String customerIds ){
+
+        boolean flag = false;
+
+        TheaApiDTO<Boolean>  resultDto = theaService.selectStatusByCustomerIds(token,customerIds);
+        if (resultDto.getData() != null){
+            flag = resultDto.getData();
+        }
+        return flag;
+    }
 }

@@ -26,6 +26,7 @@ public enum CommonMessage {
 
     ALLOCATE_SUCCESS(0,"分配成功"),
     ALLOCATE_FAIL(1,"分配失败"),
+    ALLOCATE_FAILNO(2,"分配失败！分配客户中包含面见申请外的交易"),
 
     KEEP_SUCCESS(0,"保留客户成功"),
     KEEP_FAIL(1,"保留客户失败"),

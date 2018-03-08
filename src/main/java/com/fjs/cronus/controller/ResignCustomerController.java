@@ -75,7 +75,8 @@ public class ResignCustomerController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "telephonenumber", value = "手机号", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "utmSource", value = "媒体", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "media", value = "媒体", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "utmSource", value = "渠道", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "ownUserName", value = "负责人名称", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "customerSource", value = "客户来源", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "level", value = "客户状态 意向客户 协议客户 成交客户", required = false, paramType = "query", dataType = "string"),
@@ -88,6 +89,7 @@ public class ResignCustomerController {
     public CronusDto<QueryResult<CustomerListDTO>> resignCustomerList(@RequestHeader("Authorization") String token,
                                                                       @RequestParam(required = false) String customerName,
                                                                       @RequestParam(required = false) String telephonenumber,
+                                                                      @RequestParam(required = false) String media,
                                                                       @RequestParam(required = false) String utmSource,
                                                                       @RequestParam(required = false) String ownUserName,
                                                                       @RequestParam(required = false) String customerSource,
@@ -98,7 +100,7 @@ public class ResignCustomerController {
         CronusDto resultDto = new CronusDto();
         QueryResult<CustomerListDTO> result = new QueryResult<CustomerListDTO>();
         try {
-            result = customerInfoService.resignCustomerList(token, customerName, telephonenumber, utmSource, ownUserName, customerSource, level, companyId, page, size);
+            result = customerInfoService.resignCustomerList(token, customerName, telephonenumber, utmSource,media, ownUserName, customerSource, level, companyId, page, size);
             resultDto.setData(result);
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
@@ -114,7 +116,8 @@ public class ResignCustomerController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "telephonenumber", value = "手机号", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "utmSource", value = "媒体", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "media", value = "媒体", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "utmSource", value = "渠道", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "ownUserName", value = "负责人名称", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "customerSource", value = "客户来源", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "level", value = "客户状态 意向客户 协议客户 成交客户", required = false, paramType = "query", dataType = "string"),
@@ -127,6 +130,7 @@ public class ResignCustomerController {
     public CronusDto<QueryResult<CustomerListDTO>> unablePool(@RequestHeader("Authorization") String token,
                                                               @RequestParam(required = false) String customerName,
                                                               @RequestParam(required = false) String telephonenumber,
+                                                              @RequestParam(required = false) String media,
                                                               @RequestParam(required = false) String utmSource,
                                                               @RequestParam(required = false) String ownUserName,
                                                               @RequestParam(required = false) String customerSource,
@@ -137,7 +141,7 @@ public class ResignCustomerController {
         CronusDto resultDto = new CronusDto();
         QueryResult<CustomerListDTO> result = new QueryResult<CustomerListDTO>();
         try {
-            result = lookPoolService.unablePool(token, customerName, telephonenumber, utmSource, ownUserName, customerSource, level, companyId, page, size);
+            result = lookPoolService.unablePool(token, customerName, telephonenumber, utmSource,media,ownUserName, customerSource, level, companyId, page, size);
             resultDto.setData(result);
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
@@ -157,7 +161,8 @@ public class ResignCustomerController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "telephonenumber", value = "手机号", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "utmSource", value = "媒体", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "media", value = "媒体", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "utmSource", value = "渠道", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "ownUserName", value = "负责人名称", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "customerSource", value = "客户来源", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "level", value = "客户状态 意向客户 协议客户 成交客户", required = false, paramType = "query", dataType = "string"),
@@ -170,6 +175,7 @@ public class ResignCustomerController {
     public CronusDto<QueryResult<CustomerListDTO>> allPool(@RequestHeader("Authorization") String token,
                                                            @RequestParam(required = false) String customerName,
                                                            @RequestParam(required = false) String telephonenumber,
+                                                           @RequestParam(required = false) String media,
                                                            @RequestParam(required = false) String utmSource,
                                                            @RequestParam(required = false) String ownUserName,
                                                            @RequestParam(required = false) String customerSource,
@@ -180,7 +186,7 @@ public class ResignCustomerController {
         CronusDto resultDto = new CronusDto();
         QueryResult<CustomerListDTO> result = new QueryResult<CustomerListDTO>();
         try {
-            result = lookPoolService.allPool(token, customerName, telephonenumber, utmSource, ownUserName, customerSource, level, companyId, page, size);
+            result = lookPoolService.allPool(token, customerName, telephonenumber, utmSource,media,ownUserName, customerSource, level, companyId, page, size);
             resultDto.setData(result);
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);

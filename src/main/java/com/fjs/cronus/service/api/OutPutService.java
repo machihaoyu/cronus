@@ -201,8 +201,7 @@ public class OutPutService {
         if (!StringUtils.isEmpty(customerInfo.getLoanAmount())){
             String value = customerInfo.getLoanAmount().toString();
             Double result = Double.parseDouble(value) * 10000;
-            Integer total  =Integer.valueOf(result.toString());
-            json.put("loan_amount",total.toString());
+            json.put("loan_amount",result.toString());
         }
         if (!StringUtils.isEmpty(customerInfo.getReceiveTime())){
             Date time = DateUtils.parse(DateUtils.format(customerInfo.getReceiveTime(),DateUtils.FORMAT_LONG),DateUtils.FORMAT_LONG);
