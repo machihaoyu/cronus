@@ -118,7 +118,7 @@ public class CommunicationLogService {
                         break;
                     case not_yet_connected:
                         try {
-                            String content = "尊敬的客户，您的申请已受理，因未能与您取得联系，如需资金，可联系专属顾问" +
+                            String content = "【房金云】尊敬的客户，您的申请已受理，因未能与您取得联系，如需资金，可联系专属顾问" +
                                     userInfoDTO.getName() + ": " + userInfoDTO.getTelephone() + ",更多资讯请关注官方微信：房金所";
                             smsService.sendCommunication(customerphone, content);
                         } catch (Exception e) {
