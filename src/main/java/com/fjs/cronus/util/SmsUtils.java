@@ -16,13 +16,10 @@ import java.util.Map;
 public class SmsUtils {
     private static final String apikey = "9919fd3ed2e63c1fcfe2ac056f97e870";
     public static String url = "http://yunpian.com/v1/sms/send.json";//云片短信
-
     @Value("${sms.url}")
     public String url2;//建州短信
-
     @Value("${sms.key}")
     public String key;//建州短信
-
     public static final Logger logger = LoggerFactory.getLogger(SmsUtils.class);
 
     /**
