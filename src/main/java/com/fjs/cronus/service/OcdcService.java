@@ -31,6 +31,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -90,7 +91,8 @@ public class OcdcService {
     @Autowired
     private ThorClientService thorClientService;
 
-    public List<String> addOcdcCustomer(OcdcData ocdcData, AllocateSource allocateSource, String token) {
+    @Transactional
+    public synchronized List<String> addOcdcCustomer(OcdcData ocdcData, AllocateSource allocateSource, String token) {
 
         CronusDto resultDto = new CronusDto();
         List<String> successList = new ArrayList<>();
@@ -186,21 +188,16 @@ public class OcdcService {
                     stringBuilder.append("-");
                     stringBuilder.append(allocateEntity.getAllocateStatus().getDesc());
                     stringBuilder.append("-");
+                    boolean waitingPoolUpdateStatus = true;
                     if (allocateEntity.getAllocateStatus() != null && allocateEntity.isSuccess()) {
                         switch (allocateEntity.getAllocateStatus().getCode()) {
                             case "0":
-                                break;
                             case "1":
-                                if (allocateSource.getCode().equals("2")) {
-                                    Map<String, Object> againAllocateMap = new HashMap<>();
-                                    againAllocateMap.put("dataId", customerSalePushLog.getOcdcId());
-                                    againAllocateMap.put("status", CommonEnum.AGAIN_ALLOCATE_STATUS_1.getCode());
-                                    againAllocateCustomerService.saveStatusByDataId(againAllocateMap);
-                                }
                                 break;
                             case "2":
                                 //未分配，添加到待分配池
                                 if (!allocateSource.getCode().equals("2")) {
+                                    waitingPoolUpdateStatus = false;
                                     AgainAllocateCustomer againAllocateCustomer = new AgainAllocateCustomer();
                                     againAllocateCustomer.setDataId(customerSalePushLog.getOcdcId());
                                     againAllocateCustomer.setJsonData(map);
@@ -209,10 +206,18 @@ public class OcdcService {
                                     againAllocateCustomerService.addAgainAllocateCustomer(againAllocateCustomer);
                                 }
                                 break;
+                            case "3":
+                                break;
                             case "4":
                                 stringBuilder.append(pushServiceSystem(map));
                                 stringBuilder.append("-");
                                 break;
+                            case "5":
+                            case "6":
+                                break;
+                        }
+                        if (allocateSource.getCode().equals("2") && waitingPoolUpdateStatus) {
+                            updateWaitingPoolStatus(customerSalePushLog.getOcdcId());
                         }
                     }
 
@@ -236,6 +241,14 @@ public class OcdcService {
         customerSalePushLogService.insertList(customerSalePushLogList);
         autoAllocateFeedback(successList, failList);
         return ocdcMessage;
+    }
+
+    private void updateWaitingPoolStatus(Integer dataId)
+    {
+        Map<String, Object> againAllocateMap = new HashMap<>();
+        againAllocateMap.put("dataId", dataId);
+        againAllocateMap.put("status", CommonEnum.AGAIN_ALLOCATE_STATUS_1.getCode());
+        againAllocateCustomerService.saveStatusByDataId(againAllocateMap);
     }
 
     private CustomerDTO getCustomer(String telephone) {
