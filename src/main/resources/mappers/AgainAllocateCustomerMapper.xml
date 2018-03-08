@@ -43,6 +43,6 @@
     </update>
 
     <select id="getNonAllocateCustomer" resultMap="BaseResultMap">
-        select * from again_allocate_customer where status = 0 limit 0,50
+        select * from again_allocate_customer a where status = 0 ORDER by a.id DESC limit 0,50
     </select>
 </mapper>
