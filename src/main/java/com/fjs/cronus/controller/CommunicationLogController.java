@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -185,6 +186,36 @@ public class CommunicationLogController {
         }
         theaApiDTO.setData(communicationLogLis);
         return theaApiDTO;
+    }
+
+    @ApiOperation(value = "根据客户id获取最近1条沟通日志", notes = "根据客户id获取最近1条沟通日志 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/getByCustomerId", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto getByCustomerId(
+            @RequestParam(required = true) Integer customerId,
+            @RequestHeader("Authorization") String token
+    ) {
+        try {
+            Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+            return communicationLogService.getByCustomerId(userId, customerId);
+        } catch (Exception e) {
+            CronusDto result = new CronusDto();
+            if (e instanceof CronusException) {
+                CronusException cronusException = (CronusException) e;
+                result.setResult(Integer.valueOf(cronusException.getResponseError().getStatus()));
+                result.setMessage(cronusException.getResponseError().getMessage());
+                return result;
+            } else {
+                logger.error(CronusException.Type.THEA_SYSTEM_ERROR.getError(), e);
+                result.setResult(Integer.valueOf(CronusException.Type.THEA_SYSTEM_ERROR.getStatus()));
+                result.setMessage(e.getMessage());
+                return result;
+            }
+        }
     }
 
 }
