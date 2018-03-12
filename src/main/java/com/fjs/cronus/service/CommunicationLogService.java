@@ -3,6 +3,7 @@ package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CommunicationEnum;
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.CommunicationDTO;
@@ -410,5 +411,28 @@ public class CommunicationLogService {
             e.printStackTrace();
         }
 
+    }
+
+    /**
+     * 根据客户id获取最近1条沟通日志.
+     */
+    public CronusDto getByCustomerId(Long userId, Integer customerId) {
+        // 参数校验
+        if (customerId == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "customerId 不能为空");
+        }
+
+        // 获取c端用户，业务经理id
+        CustomerInfo temp = new CustomerInfo();
+        temp.setId(customerId);
+        CustomerInfo customerInfo = customerInfoMapper.selectOne(temp);
+
+        CronusDto result = new CronusDto();
+        if (customerInfo != null && customerInfo.getOwnUserId() != null) {
+            CommunicationLog communicationLog = communicationLogMapper.getByCustomerId(customerId, customerInfo.getOwnUserId());
+            result.setData(communicationLog);
+        }
+
+        return result;
     }
 }

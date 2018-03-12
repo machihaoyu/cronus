@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.controller.CustomerInterviewController;
+import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.Echo.MsgTmplDTO;
 import com.fjs.cronus.dto.Echo.StationMsgReqDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
@@ -13,6 +14,8 @@ import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.CustomerMeetDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
+import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.CustomerMeetMapper;
 
 import com.fjs.cronus.model.CommunicationLog;
@@ -55,6 +58,9 @@ public class CustomerMeetService {
     TheaClientService theaClientService;
     @Autowired
     EchoService echoService;
+
+    @Autowired
+    private CustomerInfoMapper customerInfoMapper;
     @Value("${Echo.meetsuccess}")
     private String meetsuccess;
 
@@ -144,5 +150,25 @@ public class CustomerMeetService {
         }
 
 
+    }
+
+    public CronusDto getCustomerMeetByCustomerId(Integer customerId, Long userId) {
+        // 参数校验
+        if (customerId == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "customerId 不能为空");
+        }
+
+        // 获取c端用户，业务经理id
+        CustomerInfo temp = new CustomerInfo();
+        temp.setId(customerId);
+        CustomerInfo customerInfo = customerInfoMapper.selectOne(temp);
+
+        CronusDto result = new CronusDto();
+        if (customerInfo != null && customerInfo.getOwnUserId() != null) {
+            CustomerMeet customerMeet = customerMeetMapper.getByCustomerId(customerId, customerInfo.getOwnUserId());
+            result.setData(customerMeet);
+        }
+
+        return result;
     }
 }
