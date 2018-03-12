@@ -15,6 +15,7 @@ import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.CustomerMeetDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.CustomerMeetMapper;
 
 import com.fjs.cronus.model.CommunicationLog;
@@ -57,6 +58,9 @@ public class CustomerMeetService {
     TheaClientService theaClientService;
     @Autowired
     EchoService echoService;
+
+    @Autowired
+    private CustomerInfoMapper customerInfoMapper;
     @Value("${Echo.meetsuccess}")
     private String meetsuccess;
 
@@ -154,10 +158,17 @@ public class CustomerMeetService {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "customerId 不能为空");
         }
 
-        CustomerMeet customerMeet = customerMeetMapper.getByCustomerId(customerId);
+        // 获取c端用户，业务经理id
+        CustomerInfo temp = new CustomerInfo();
+        temp.setId(customerId);
+        CustomerInfo customerInfo = customerInfoMapper.selectOne(temp);
 
         CronusDto result = new CronusDto();
-        result.setData(customerMeet);
+        if (customerInfo != null && customerInfo.getOwnUserId() != null) {
+            CustomerMeet customerMeet = customerMeetMapper.getByCustomerId(customerId, customerInfo.getOwnUserId());
+            result.setData(customerMeet);
+        }
+
         return result;
     }
 }

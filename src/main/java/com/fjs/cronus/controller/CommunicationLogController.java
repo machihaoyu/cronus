@@ -188,7 +188,7 @@ public class CommunicationLogController {
         return theaApiDTO;
     }
 
-    @ApiOperation(value = "根据客户id获取最近1条沟通日志", notes = "根据客户id获取最近1条沟通日志 api")
+    @ApiOperation(value = "c端：根据客户id获取最近1条沟通日志", notes = "c端：根据客户id获取最近1条沟通日志 api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int"),

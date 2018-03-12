@@ -33,6 +33,6 @@ public interface CommunicationLogMapper extends MyMapper<CommunicationLog> {
             @Result(column = "next_contact_time", property = "nextContactTime"),
             @Result(column = "next_contact_content", property = "nextContactContent"),
     })
-    @Select("SELECT * FROM `communication_log` WHERE `customer_id`=#{customerId} ORDER BY `create_time` DESC LIMIT 1")
-    CommunicationLog getByCustomerId(@Param("customerId") Integer customerId);
+    @Select("SELECT * FROM `communication_log` WHERE `customer_id`=#{customerId} AND `create_user`=#{ownUserId} ORDER BY `create_time` DESC LIMIT 1")
+    CommunicationLog getByCustomerId(@Param("customerId") Integer customerId, @Param("ownUserId") Integer ownUserId);
 }

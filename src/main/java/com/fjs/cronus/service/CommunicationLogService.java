@@ -422,9 +422,17 @@ public class CommunicationLogService {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "customerId 不能为空");
         }
 
-        CommunicationLog communicationLog = communicationLogMapper.getByCustomerId(customerId);
+        // 获取c端用户，业务经理id
+        CustomerInfo temp = new CustomerInfo();
+        temp.setId(customerId);
+        CustomerInfo customerInfo = customerInfoMapper.selectOne(temp);
+
         CronusDto result = new CronusDto();
-        result.setData(communicationLog);
+        if (customerInfo != null && customerInfo.getOwnUserId() != null) {
+            CommunicationLog communicationLog = communicationLogMapper.getByCustomerId(customerId, customerInfo.getOwnUserId());
+            result.setData(communicationLog);
+        }
+
         return result;
     }
 }

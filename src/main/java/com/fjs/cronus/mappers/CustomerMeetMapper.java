@@ -34,6 +34,6 @@ public interface CustomerMeetMapper extends MyMapper<CustomerMeet> {
         @Result(column = "last_update_user", property = "lastUpdateUser"),
         @Result(column = "is_deleted", property = "isDeleted"),
     })
-    @Select("SELECT * FROM customer_meet WHERE customer_id=#{customerId} ORDER BY create_time DESC LIMIT 1")
-    CustomerMeet getByCustomerId(@Param("customerId") Integer customerId);
+    @Select("SELECT * FROM customer_meet WHERE customer_id=#{customerId} AND create_user=#{owerUserId} ORDER BY create_time DESC LIMIT 1")
+    CustomerMeet getByCustomerId(@Param("customerId") Integer customerId, @Param("owerUserId") Integer owerUserId);
 }
