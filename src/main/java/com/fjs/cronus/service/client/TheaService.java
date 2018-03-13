@@ -25,8 +25,7 @@ import java.util.Map;
  */
 
 @FeignClient(value = "${client.feign.thea-backend}")
-//@FeignClient(value = "${client.feign.thea-backend}",url = "192.168.1.128:1240")
-//@FeignClient(value = "THEA-BACKEND-CKM",url = "http://192.168.2.90:8180")
+//@FeignClient(value = "${client.feign.thea-backend}",url = "192.168.1.124:1240")
 public interface TheaService {
 
 
@@ -91,5 +90,8 @@ public interface TheaService {
     @RequestMapping(value = "/loan/v1/deleteLoanByCustomerId",method = RequestMethod.POST)
     @ResponseBody
     public TheaApiDTO deleteLoanByCustomerId(@RequestHeader("Authorization") String token, @RequestBody AllLoanDTO allLoanDTO);
+
+    @RequestMapping(value = "/loan/v1/invalidLoans", method = RequestMethod.POST)
+    TheaApiDTO invalidLoans(@RequestHeader("Authorization")String token,@RequestBody String customerIds);
 
 }

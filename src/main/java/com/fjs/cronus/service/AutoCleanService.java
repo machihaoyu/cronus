@@ -188,18 +188,14 @@ public class AutoCleanService {
                     //添加客户日志
                     List<CustomerInfoLog> loanLogList = this.initLoanLog(loanList);
                     customerInfoLogMapper.insertBatch(loanLogList);
+                    //取消客户交易
+                    theaService.invalidLoans(token, convertListToString2(customerIdList));
                 }
             }
             Map<String, Integer> afterCountMap = new HashMap<>();
             afterCountMap = customerInfoService.countForAutoClean();
             //重新设置清洗状态
             //修改redis配置
-//            config.setConValue(CommonEnum.NO.getCode().toString());
-//            config.setConValue("0");
-//            int save = configService.update(config);
-//            if (1 != save) {
-//                throw new CronusException(CronusException.Type.AUTO_CLEAN_ERROR);
-//            }
             redisConfigOptions.set(CommonConst.AUTO_CLEAN_STATUS, CommonEnum.NO.getCode().toString());
             //获取所有的业务员
             //添加消息信息！
@@ -209,18 +205,14 @@ public class AutoCleanService {
                 toIds = baseUcDTO.getRetData();
             }
             MailBatchDTO mailBatchDTO = new MailBatchDTO();
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < toIds.size(); i++) {
-                stringBuilder.append(toIds.get(i));
-                if (i < toIds.size() - 1) {
-                    stringBuilder.append(",");
-                }
-            }
+
+            String sendMailIds = convertListToString(toIds);
+
             mailBatchDTO.setContent(DateUtils.format(new Date(), DateUtils.FORMAT_LONG) + " 系统自动清洗完毕！清洗总数:" + beforeCountMap.get("total") + "。" +
                     "清洗前的数据：未保留的客户有" + beforeCountMap.get("isRemain") + "条、保留的客户有" + beforeCountMap.get("unRemain") + "条。" +
                     "清洗后的数据：未保留的客户有" + afterCountMap.get("isRemain") + "条、保留的客户有" + afterCountMap.get("unRemain") + "条。" +
                     "自动清洗管理中屏蔽清洗的条数有:" + customerIdsByManage.size() + "条';");
-            mailBatchDTO.setToId(stringBuilder.toString());
+            mailBatchDTO.setToId(sendMailIds);
             theaClientService.sendMailBatch(publicToken, mailBatchDTO);
             System.out.println("清洗消息:"+mailBatchDTO.getToId().toString());
             message = mailBatchDTO.getContent();
@@ -230,6 +222,30 @@ public class AutoCleanService {
             logger.error("清洗失败：" + e.getMessage(),e);
         }
         return message;
+    }
+
+    private String convertListToString(List<String> list)
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            stringBuilder.append(list.get(i));
+            if (i < list.size() - 1) {
+                stringBuilder.append(",");
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    private String convertListToString2(List<Integer> list)
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            stringBuilder.append(list.get(i));
+            if (i < list.size() - 1) {
+                stringBuilder.append(",");
+            }
+        }
+        return stringBuilder.toString();
     }
 
 

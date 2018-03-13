@@ -1024,7 +1024,7 @@ public class CustomerInfoService {
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
 
-        //领取开始生成一笔交易
+        //领取开始生成一笔交易 //todo 取消生成交易
         LoanDTO loanDTO = new LoanDTO();
         loanDTO.setCustomerId(customerId);
         loanDTO.setCustomerName(customerInfo.getCustomerName());
