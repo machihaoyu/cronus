@@ -1024,9 +1024,29 @@ public class CustomerInfoService {
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
 
-        resultDto.setData(true);
-        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
-        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        //领取开始生成一笔交易
+        LoanDTO loanDTO = new LoanDTO();
+        loanDTO.setCustomerId(customerId);
+        loanDTO.setCustomerName(customerInfo.getCustomerName());
+        loanDTO.setLoanAmount(customerInfo.getLoanAmount());
+        loanDTO.setOwnUserName(customerInfo.getOwnUserName());
+        loanDTO.setOwnUserId(customerInfo.getOwnUserId());
+        loanDTO.setUtmSource("下单");
+        String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+        loanDTO.setTelephonenumber(telephone);
+        logger.warn("调用交易接口产生交易-------》");
+        TheaApiDTO theaApiDTO = theaService.insertLoan(loanDTO, token);
+        logger.warn("调用交易接口结束-------》");
+        if (theaApiDTO != null && theaApiDTO.getResult() == 0) {
+            flag = true;
+            resultDto.setData(flag);
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+        } else {
+            resultDto.setData(theaApiDTO.getData());
+            resultDto.setMessage(theaApiDTO.getMessage());
+            resultDto.setResult(theaApiDTO.getResult());
+        }
         return resultDto;
     }
 
