@@ -55,7 +55,7 @@ public enum CommonEnum {
     CUSTOMER_TYPE_1(0, "协议客户"),
     CUSTOMER_TYPE_2(0, "成交客户"),
 
-    //交易日志操作类型
+    //客户操作类型
     LOAN_OPERATION_TYPE_0(0, "自动分配"),
     LOAN_OPERATION_TYPE_1(1, "手动分配"),
     LOAN_OPERATION_TYPE_2(2, "领取客户"),
