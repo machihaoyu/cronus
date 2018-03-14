@@ -235,7 +235,7 @@ public class OcdcService {
                 customerSalePushLogList.add(customerSalePushLog);
             }
         } catch (Exception e) {
-            logger.error("分配异常",e.getMessage());
+            logger.error("分配异常",e);
         }
         //保存OCDC推送日志
         customerSalePushLogService.insertList(customerSalePushLogList);
