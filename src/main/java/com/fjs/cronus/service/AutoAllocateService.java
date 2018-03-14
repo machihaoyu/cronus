@@ -19,6 +19,7 @@ import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UserMonthInfo;
+import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.CronusRedisService;
@@ -93,6 +94,9 @@ public class AutoAllocateService {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private TheaService theaService;
 
     /**
      * 判断是不是客户主动申请渠道
@@ -535,6 +539,7 @@ public class AutoAllocateService {
                     //failList 添加到缓存
                     existFailList.addAll(failList);
                     cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, failList);
+                    theaService.invalidLoans(token, convertListToString(successList));
                     sb.append("--");
                     sb.append("failList:" + failList.toString());
                     sb.append("--");
@@ -549,6 +554,18 @@ public class AutoAllocateService {
             }
             logger.warn(sb.toString());
         }).run();
+    }
+
+    private String convertListToString(List<Integer> list)
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            stringBuilder.append(list.get(i));
+            if (i < list.size() - 1) {
+                stringBuilder.append(",");
+            }
+        }
+        return stringBuilder.toString();
     }
 
 
