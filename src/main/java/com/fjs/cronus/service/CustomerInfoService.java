@@ -1745,6 +1745,7 @@ public class CustomerInfoService {
 //        customerInfo.setConfirm(0);
         customerInfo.setLastUpdateUser(0);
 //        customerInfo.setClickCommunicateButton(0);
+        customerInfo.setTelephonenumber(DEC3Util.des3EncodeCBC(customerInfo.getTelephonenumber()));
         customerInfoMapper.updateCustomerSys(customerInfo);
         //生成日志记录
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
