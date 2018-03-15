@@ -598,11 +598,11 @@ public class AutoAllocateService {
         return redisConfigOptions.get(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE);
     }
 
-    private boolean currentWorkDayAndTime(String token) {
+    public boolean currentWorkDayAndTime(String token) {
         boolean value = false;
         Date date = new Date();
         Integer hour = DateUtils.getHour(new Date());
-        if (10 < hour && hour < 18) {
+        if (10 <= hour && hour < 18) {
             String month = DateUtils.getYear(date).toString() + "-" + DateUtils.getMonth(date).toString();
 
             String workDays = "";
