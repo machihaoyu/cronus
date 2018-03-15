@@ -1913,7 +1913,7 @@
         MINUTE,
         a.receive_time,
         CURTIME()
-        ) > 16
+        ) > 15
         AND a.communicate_time IS NULL
     </select>
 
