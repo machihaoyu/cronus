@@ -614,8 +614,9 @@ public class AutoAllocateService {
                     break;
                 }
             }
-            if (workDays.contains(DateUtils.getDay(date).toString())) ;
-            value = true;
+            if (workDays.contains(DateUtils.getDay(date).toString())) {
+                value = true;
+            }
         }
         return value;
     }
