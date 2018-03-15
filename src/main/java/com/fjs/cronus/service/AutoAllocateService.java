@@ -463,6 +463,7 @@ public class AutoAllocateService {
     /**
      * 客户未沟通重新分配 定时任务 5min
      */
+    @Transactional
     public synchronized void nonCommunicateAgainAllocate(String token) {
         new Thread(() -> {
             ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
@@ -505,6 +506,9 @@ public class AutoAllocateService {
 
                         }
                         if (ownUserId > 0) {
+                            allocateLogService.addAllocatelog(customerInfo, ownUserId,
+                                    CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
+
                             SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token, ownUserId).getData();
                             if (simpleUserInfoDTO != null && null != simpleUserInfoDTO.getSub_company_id()) {
                                 customerInfo.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
@@ -523,8 +527,7 @@ public class AutoAllocateService {
 
                             allocateRedisService.changeAllocateTemplet(customerInfo.getOwnUserId(), customerInfo.getCity());
                             //添加分配日志
-                            allocateLogService.addAllocatelog(customerInfo, customerInfo.getOwnUserId(),
-                                    CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
+
                             sendMessage(customerInfo.getCustomerName(), ownUserId, simpleUserInfoDTO, token);
                             successList.add(customerInfo.getId());
 
