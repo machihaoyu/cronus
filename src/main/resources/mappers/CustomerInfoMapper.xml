@@ -1912,7 +1912,7 @@
         AND TIMESTAMPDIFF(
         MINUTE,
         a.receive_time,
-        CURTIME()
+        NOW()
         ) > 15
         AND a.communicate_time IS NULL
     </select>
