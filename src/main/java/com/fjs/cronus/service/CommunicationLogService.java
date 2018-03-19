@@ -100,9 +100,7 @@ public class CommunicationLogService {
         if (communicationLogList.size() == 0){
             //TODO 首次沟通需要发短信需要判断状态发短信
             String customerphone = DEC3Util.des3DecodeCBC(customerDto.getTelephonenumber());
-            StringBuilder stringBuilder = new StringBuilder();
             if (CommunicationEnum.getByValue(customerUsefulDTO.getCooperationStatus()) != null) {
-                stringBuilder.append(customerUsefulDTO.getCooperationStatus());
                 switch (CommunicationEnum.getByValue(customerUsefulDTO.getCooperationStatus())) {
                     case no_intention:
                         //TODO 发送短信
@@ -111,8 +109,6 @@ public class CommunicationLogService {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        stringBuilder.append("--");
-                        stringBuilder.append("no_intention");
                         break;
                     case poor_qualifications:
                         try {
@@ -120,20 +116,15 @@ public class CommunicationLogService {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        stringBuilder.append("--");
-                        stringBuilder.append("poor_qualifications");
                         break;
                     case not_yet_connected:
                         try {
                             String content = "尊敬的客户，您的申请已受理，因联系不上，如需融资可联系" +
-                                    userInfoDTO.getName() + ": " + userInfoDTO.getTelephone() + "，更多融资机会请关注官方微信：房金所";
-                            stringBuilder.append(content);
+                                    userInfoDTO.getName() + ":" + userInfoDTO.getTelephone() + "，更多融资机会请关注官方微信：房金所";
                             smsService.sendCommunication(customerphone, content);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        stringBuilder.append("--");
-                        stringBuilder.append("not_yet_connected");
                         break;
                     case intention_to_tracked:
                         try {
@@ -141,12 +132,9 @@ public class CommunicationLogService {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        stringBuilder.append("--");
-                        stringBuilder.append("intention_to_tracked");
                         break;
                 }
             }
-            logger.warn(stringBuilder.toString());
             customerDto.setFirstCommunicateTime(date);
         }
         customerDto.setCommunicateTime(date);
