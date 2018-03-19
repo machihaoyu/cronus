@@ -8,10 +8,7 @@ import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.crius.CriusApiDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
-import com.fjs.cronus.dto.thea.AllLoanDTO;
-import com.fjs.cronus.dto.thea.LoanDTO4;
-import com.fjs.cronus.dto.thea.MailBatchDTO;
-import com.fjs.cronus.dto.thea.WorkDayDTO;
+import com.fjs.cronus.dto.thea.*;
 import org.apache.tools.ant.taskdefs.Get;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -94,4 +91,6 @@ public interface TheaService {
     @RequestMapping(value = "/loan/v1/invalidLoans", method = RequestMethod.POST)
     TheaApiDTO invalidLoans(@RequestHeader("Authorization")String token,@RequestBody String customerIds);
 
+    @RequestMapping(value = "/loan/v1/addLoan", method = RequestMethod.POST)
+    public TheaApiDTO addLoan(@RequestBody LoanDTO6 loanDTO, @RequestHeader("Authorization")String token);
 }
