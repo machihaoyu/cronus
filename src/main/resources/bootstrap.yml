@@ -1,6 +1,6 @@
   spring:
     cloud:
         config:
-            uri: http://user:123456@192.168.1.124:1020
+            uri: http://user:${CONFIG_PASSWORD}@${CONFIG_SERVER_ADDRESS}:${CONFIG_SERVER_PORT}
             name: cronus-application
-            profile: yzf
+            profile: ${CONFIG_PROFILE}
