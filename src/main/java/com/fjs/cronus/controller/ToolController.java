@@ -112,12 +112,13 @@ public class ToolController {
 
     }
 
-    @ApiOperation(value="手机号解密接口", notes="手机号解密接口")
+    @ApiOperation(value="短信", notes="短信")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "telephone", value = "手机号", required = true, paramType = "query", dataType = "string")
+            @ApiImplicitParam(name = "telephoneNumber", value = "手机号", required = true, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "content", value = "内容", required = true, paramType = "query", dataType = "string")
     })
-    @RequestMapping(value = "/getPhoneDecode", method = RequestMethod.GET)
+    @RequestMapping(value = "/sendMessage", method = RequestMethod.GET)
     @ResponseBody
     public CronusDto sendMessage(@RequestParam String telephoneNumber,@RequestParam String content) {
         CronusDto cronusDto = new CronusDto();
