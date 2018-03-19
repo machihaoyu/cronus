@@ -100,7 +100,9 @@ public class CommunicationLogService {
         if (communicationLogList.size() == 0){
             //TODO 首次沟通需要发短信需要判断状态发短信
             String customerphone = DEC3Util.des3DecodeCBC(customerDto.getTelephonenumber());
+            StringBuilder stringBuilder = new StringBuilder();
             if (CommunicationEnum.getByValue(customerUsefulDTO.getCooperationStatus()) != null) {
+                stringBuilder.append(customerUsefulDTO.getCooperationStatus());
                 switch (CommunicationEnum.getByValue(customerUsefulDTO.getCooperationStatus())) {
                     case no_intention:
                         //TODO 发送短信
@@ -109,6 +111,8 @@ public class CommunicationLogService {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                        stringBuilder.append("--");
+                        stringBuilder.append("no_intention");
                         break;
                     case poor_qualifications:
                         try {
@@ -116,6 +120,8 @@ public class CommunicationLogService {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                        stringBuilder.append("--");
+                        stringBuilder.append("poor_qualifications");
                         break;
                     case not_yet_connected:
                         try {
@@ -125,6 +131,8 @@ public class CommunicationLogService {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                        stringBuilder.append("--");
+                        stringBuilder.append("not_yet_connected");
                         break;
                     case intention_to_tracked:
                         try {
@@ -132,9 +140,12 @@ public class CommunicationLogService {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                        stringBuilder.append("--");
+                        stringBuilder.append("intention_to_tracked");
                         break;
                 }
             }
+            logger.warn(stringBuilder.toString());
             customerDto.setFirstCommunicateTime(date);
         }
         customerDto.setCommunicateTime(date);
