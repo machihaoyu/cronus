@@ -131,9 +131,9 @@ public class CustomerMeetController {
                 theaApiDTO.setMessage(CommonConst.NOAUTHCUSTOMERMEET);
                 return theaApiDTO;
             }
-            if (customerInfo.getRemain() != 1) {
-                throw new CronusException(CronusException.Type.CRM_KEEPCUSTOMER_ERROR);
-            }
+//            if (customerInfo.getRemain() != 1) {
+//                throw new CronusException(CronusException.Type.CRM_KEEPCUSTOMER_ERROR);
+//            }
             customerMeetDTO.setCustomerId(customerInfo.getId());
             int createResult = customerMeetService.addCustomerMeet(customerMeetDTO, resultDto, customerInfo, token);
             if (createResult > 0) {
