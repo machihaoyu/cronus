@@ -69,6 +69,7 @@ public enum CommonEnum {
     LOAN_OPERATION_TYPE_10(10, "删除交易"),
     LOAN_OPERATION_TYPE_11(11, "保留客户"),
     LOAN_OPERATION_TYPE_12(12, "取消保留客户"),
+    LOAN_OPERATION_TYPE_13(13, "添加交易"),
 
     //分配日志操作类型
     ALLOCATE_LOG_OPERATION_TYPE_1(1, "自动分配"),

@@ -28,6 +28,8 @@ public class CustomerListDTO {
     private String utmSource;
     @ApiModelProperty(value = "所在城市")
     private String city;
+    @ApiModelProperty(value = "拥有人id")
+    private Integer ownUserId;
     @ApiModelProperty(value = "拥有人姓名")
     private String ownUserName;
     @ApiModelProperty(value = "创建时间")
@@ -204,5 +206,11 @@ public class CustomerListDTO {
         this.level = level;
     }
 
+    public Integer getOwnUserId() {
+        return ownUserId;
+    }
 
+    public void setOwnUserId(Integer ownUserId) {
+        this.ownUserId = ownUserId;
+    }
 }

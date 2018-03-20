@@ -10,6 +10,7 @@ import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.thea.AllocateDTO;
+import com.fjs.cronus.dto.thea.LoanDTO6;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.model.CommunicationLog;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -1045,5 +1047,76 @@ public class CustomerController {
             }
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
+    }
+
+    @ApiOperation(value = "手动添加交易", notes = "手动添加交易")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", dataType = "string"),
+
+    })
+    @RequestMapping(value = "/addLoan", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto addLoan(@RequestBody LoanDTO6 loanDTO, HttpServletRequest request) {
+        logger.warn("手动添加交易数据-------》" + loanDTO.toString());
+        CronusDto theaApiDTO = new CronusDto();
+        String token = request.getHeader("Authorization");
+        BigDecimal loanAmount = loanDTO.getLoanAmount();
+        if (loanAmount == null){
+            theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+            theaApiDTO.setMessage("拟贷款金额不能为空");
+            return theaApiDTO;
+        }
+        if (loanAmount.compareTo(BigDecimal.ZERO) == -1){
+            theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+            theaApiDTO.setMessage("拟贷款金额不能为负数");
+            return theaApiDTO;
+        }
+        Integer customerId = loanDTO.getCustomerId();
+        if (customerId == null){
+            theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+            theaApiDTO.setMessage("客户id不能为空");
+            return theaApiDTO;
+        }
+        String customerName = loanDTO.getCustomerName();
+        if (StringUtils.isEmpty(customerName)){
+            theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+            theaApiDTO.setMessage("客户姓名不能为空");
+            return theaApiDTO;
+        }
+        String phone = loanDTO.getTelephonenumber();
+        if (StringUtils.isEmpty(phone)){
+            theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+            theaApiDTO.setMessage("电话不能为空");
+            return theaApiDTO;
+        }
+        Integer ownUserId = loanDTO.getOwnUserId();
+        if (ownUserId == null){
+            theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+            theaApiDTO.setMessage("负责人id不能为空");
+            return theaApiDTO;
+        }
+
+        UserInfoDTO userInfoDTO = thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
+        if (userInfoDTO != null ){
+            if (userInfoDTO.getUser_id() != null && !userInfoDTO.getUser_id().toString().equals(loanDTO.getOwnUserId().toString())){
+                theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+                theaApiDTO.setMessage("没有权限");
+                return theaApiDTO;
+            }
+        }
+        logger.warn("查询UC系统-------》");
+        try {
+            theaApiDTO = customerInfoService.addLoan(loanDTO, userInfoDTO, token);
+        } catch (Exception e) {
+            logger.error("-------------->addLoan手动添加交易失败", e);
+            if (e instanceof CronusException) {
+                CronusException cronusException = (CronusException) e;
+                throw cronusException;
+            }
+            theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+            theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc());
+        }
+
+        return theaApiDTO;
     }
 }

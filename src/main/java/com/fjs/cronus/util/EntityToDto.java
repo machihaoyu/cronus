@@ -53,6 +53,7 @@ public class EntityToDto {
         }
         if (!StringUtil.isEmpty(customerInfo.getOwnUserName())){
             if(customerInfo.getOwnUserId() != 0) {
+                dto.setOwnUserId(customerInfo.getOwnUserId());
                 dto.setOwnUserName(customerInfo.getOwnUserName());
             }
         }

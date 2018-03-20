@@ -12,6 +12,7 @@ import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
+import com.fjs.cronus.dto.thea.LoanDTO6;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.uc.UserSortInfoDTO;
@@ -1809,5 +1810,41 @@ public class CustomerInfoService {
         paramsMap.put("customerType","意向客户");
         resultList = customerInfoMapper.findCustomerListByFeild(paramsMap);
         return resultList.size();
+    }
+
+    @Transactional
+    public CronusDto addLoan(LoanDTO6 loanDTO, UserInfoDTO userInfoDTO, String token) {
+        CronusDto resultDto = new CronusDto();
+        Integer userId = null;
+        if (!StringUtils.isEmpty(userInfoDTO.getUser_id())) {
+            userId = Integer.parseInt(userInfoDTO.getUser_id());
+        }
+        //插入日志
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        customerInfoLog.setLogCreateTime(new Date());
+        customerInfoLog.setLogDescription(CommonEnum.LOAN_OPERATION_TYPE_13.getCodeDesc());
+        customerInfoLog.setLogUserId(userId);
+        customerInfoLog.setIsDeleted(0);
+
+        customerInfoLog.setCustomerId(loanDTO.getCustomerId());
+        customerInfoLog.setTelephonenumber(loanDTO.getTelephonenumber());
+        customerInfoLog.setCreateTime(new Date());
+        customerInfoLog.setLastUpdateTime(new Date());
+        customerInfoLog.setCreateUser(userId);
+        customerInfoLog.setLastUpdateUser(userId);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+
+        logger.warn("调用交易接口产生交易-------》");
+        TheaApiDTO theaApiDTO = theaService.addLoan(loanDTO, token);
+        logger.warn("调用交易接口结束-------》");
+        if (theaApiDTO != null && theaApiDTO.getResult() == 0) {
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+        } else {
+            resultDto.setData(theaApiDTO.getData());
+            resultDto.setMessage(theaApiDTO.getMessage());
+            resultDto.setResult(theaApiDTO.getResult());
+        }
+        return resultDto;
     }
 }
