@@ -2,6 +2,7 @@ package com.fjs.cronus.controller;
 
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.service.SmsService;
 import com.fjs.cronus.service.ToolService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -23,6 +24,9 @@ public class ToolController {
 
     @Autowired
     ToolService toolService;
+
+    @Autowired
+    private SmsService smsService;
 
     @ApiOperation(value="获取手机归属地", notes="获取手机归属地")
     @ApiImplicitParams({
@@ -101,6 +105,29 @@ public class ToolController {
                 throw thorException;
             }
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return  cronusDto;
+
+
+
+    }
+
+    @ApiOperation(value="短信", notes="短信")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "telephoneNumber", value = "手机号", required = true, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "content", value = "内容", required = true, paramType = "query", dataType = "string")
+    })
+    @RequestMapping(value = "/sendMessage", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto sendMessage(@RequestParam String telephoneNumber,@RequestParam String content) {
+        CronusDto cronusDto = new CronusDto();
+        try {
+            cronusDto.setData(smsService.sendCommunication(telephoneNumber,content));
+            cronusDto.setResult(0);
+        } catch (Exception e) {
+            cronusDto.setMessage("");
+            cronusDto.setResult(1);
         }
         return  cronusDto;
 

@@ -164,22 +164,23 @@ public class AutoAllocateService {
                 customerId = customerDTO.getId();
                 if (null != customerDTO.getOwnerUserId() && customerDTO.getOwnerUserId() > 0) {
                     simpleUserInfoDTO = thorClientService.getUserInfoById(token, customerDTO.getOwnerUserId());
-                    if (null != ownerUser.getSub_company_id()) {
+                    if (null != simpleUserInfoDTO.getSub_company_id()) {
                         customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
                     } else {
                         customerDTO.setSubCompanyId(0);
                     }
+                    customerDTO.setOwnUserName(simpleUserInfoDTO.getName());
+                    customerDTO.setReceiveTime(new Date());
+                    customerDTO.setLastUpdateTime(new Date());
+                    CustomerInfo customerInfo = new CustomerInfo();
+                    EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
+                    if (allocateEntity.getAllocateStatus().getCode().equals("1")) {
+                        customerInfo.setConfirm(1);
+                        customerInfo.setClickCommunicateButton(0);
+                        customerInfo.setCommunicateTime(null);
+                    }
+                    customerInfoService.editCustomerSys(customerInfo, token);
                 }
-                customerDTO.setReceiveTime(new Date());
-                customerDTO.setLastUpdateTime(new Date());
-                CustomerInfo customerInfo = new CustomerInfo();
-                BeanUtils.copyProperties(customerDTO, customerInfo);
-                if (allocateEntity.getAllocateStatus().getCode().equals("1")) {
-                    customerInfo.setConfirm(1);
-                    customerInfo.setClickCommunicateButton(0);
-                    customerInfo.setCommunicateTime(null);
-                }
-                customerInfoService.editCustomerSys(customerInfo, token);
             } else {
                 CronusDto<CustomerDTO> cronusDto = customerInfoService.fingByphone(customerDTO.getTelephonenumber());
                 CustomerDTO hasCustomer = cronusDto.getData();
@@ -228,13 +229,6 @@ public class AutoAllocateService {
                     if (allocateCities.contains(customerDTO.getCity())) {
                         allocateRedisService.changeAllocateTemplet(customerDTO.getOwnerUserId(), customerDTO.getCity());
                     }
-                    //如果是再分配盘的数据则标记再分配成功
-//                    if (allocateSource.getCode().equals("2")) {
-//                        Map<String, Object> againAllocateMap = new HashMap<>();
-//                        againAllocateMap.put("dataId", customerId);
-//                        againAllocateMap.put("status", CommonEnum.AGAIN_ALLOCATE_STATUS_1.getCode());
-//                        againAllocateCustomerService.saveStatusByDataId(againAllocateMap);
-//                    }
                     //添加分配日志
                     CustomerInfo customerInfo = new CustomerInfo();
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
@@ -272,21 +266,6 @@ public class AutoAllocateService {
         }
         return allocateEntity;
     }
-
-//    private void addCustomer(CustomerDTO customerDTO, String token) {
-//        SimpleUserInfoDTO simpleUserInfoDTO;
-//        if (customerDTO.getOwnerUserId() != null && customerDTO.getOwnerUserId() > 0) {
-//            simpleUserInfoDTO = thorUcService.getUserInfoById(token, customerDTO.getOwnerUserId()).getData();
-//            if (null != simpleUserInfoDTO.getSub_company_id()) {
-//                customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
-//            } else {
-//                customerDTO.setSubCompanyId(0);
-//            }
-//        }
-//        //保存数据
-//        customerDTO.setLastUpdateTime(new Date());
-//        customerInfoService.addCustomer(customerDTO, token);
-//    }
 
     /**
      * 主动申请渠道添加交易
@@ -463,6 +442,7 @@ public class AutoAllocateService {
     /**
      * 客户未沟通重新分配 定时任务 5min
      */
+    @Transactional
     public synchronized void nonCommunicateAgainAllocate(String token) {
         new Thread(() -> {
             ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
@@ -505,6 +485,9 @@ public class AutoAllocateService {
 
                         }
                         if (ownUserId > 0) {
+                            allocateLogService.addAllocatelog(customerInfo, ownUserId,
+                                    CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
+
                             SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token, ownUserId).getData();
                             if (simpleUserInfoDTO != null && null != simpleUserInfoDTO.getSub_company_id()) {
                                 customerInfo.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
@@ -523,8 +506,7 @@ public class AutoAllocateService {
 
                             allocateRedisService.changeAllocateTemplet(customerInfo.getOwnUserId(), customerInfo.getCity());
                             //添加分配日志
-                            allocateLogService.addAllocatelog(customerInfo, customerInfo.getOwnUserId(),
-                                    CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
+
                             sendMessage(customerInfo.getCustomerName(), ownUserId, simpleUserInfoDTO, token);
                             successList.add(customerInfo.getId());
 
@@ -598,11 +580,11 @@ public class AutoAllocateService {
         return redisConfigOptions.get(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE);
     }
 
-    private boolean currentWorkDayAndTime(String token) {
+    public boolean currentWorkDayAndTime(String token) {
         boolean value = false;
         Date date = new Date();
         Integer hour = DateUtils.getHour(new Date());
-        if (10 < hour && hour < 18) {
+        if (10 <= hour && hour < 18) {
             String month = DateUtils.getYear(date).toString() + "-" + DateUtils.getMonth(date).toString();
 
             String workDays = "";
@@ -614,8 +596,9 @@ public class AutoAllocateService {
                     break;
                 }
             }
-            if (workDays.contains(DateUtils.getDay(date).toString())) ;
-            value = true;
+            if (workDays.contains(DateUtils.getDay(date).toString())) {
+                value = true;
+            }
         }
         return value;
     }
