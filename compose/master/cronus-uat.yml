@@ -1,0 +1,41 @@
+version: '3.1'
+services:
+  cronus:
+    image: 192.168.1.126/library/fjs/cronus-uat:master
+    deploy:
+      replicas: 2
+      update_config: 
+        parallelism: 1   
+        delay: 2s        
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 2000M
+      restart_policy:
+        condition: on-failure
+    networks:
+      fjs_overlay_master:
+        aliases:
+          - cronus
+    ports:
+      - "1100:8010"
+    environment:
+      - CONFIG_PROFILE=uat
+      - CONFIG_PASSWORD=UAT123456
+      - CONFIG_SERVER_ADDRESS=zues
+      - CONFIG_SERVER_PORT=6020
+      - EUREKA_PASSWORD=UAT123456
+    command:
+      - java 
+      - '-Duser.timezone=Asia/Shanghai'
+      - '-Dfile.encoding=UTF8'
+      - '-Djava.security.egd=file:/dev/./urandom'
+      - '-server'
+      - '-Xmx2000M'
+      - '-XX:+UseParallelGC'
+      - '-jar'
+      - /opt/master-cronus-uat-1.0.0.war
+networks:
+  fjs_overlay_master:
+    external:
+      name: fjs_overlay_master

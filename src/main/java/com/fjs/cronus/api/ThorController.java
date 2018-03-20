@@ -1,12 +1,16 @@
 package com.fjs.cronus.api;
 
+import com.fjs.cronus.dto.ocr.ReqParamDTO;
 import com.fjs.cronus.dto.uc.*;
-import com.fjs.cronus.service.client.ThorService;
+import com.fjs.cronus.service.client.TalosService;
+import com.fjs.cronus.service.client.ThorInterfaceService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +26,7 @@ public class ThorController {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ThorService thorService;
+    ThorInterfaceService thorInterfaceService;
 
 
     @ApiOperation(value="登录系统带用户情报接口", notes="登录系统带用户情报接口API")
@@ -37,7 +41,7 @@ public class ThorController {
         long l = System.currentTimeMillis();
         try {
             LOGGER.warn("33333(UC登录):");
-            PhpLoginDTO phpLoginDTO = thorService.loginWithUserInfo(username, password, system);
+            PhpLoginDTO phpLoginDTO = thorInterfaceService.loginWithUserInfo(username, password, system);
             LOGGER.warn("44444(UC登录):" + (System.currentTimeMillis() - l));
             return phpLoginDTO;
         } catch (Exception e) {
@@ -57,7 +61,7 @@ public class ThorController {
     @ResponseBody
     public BaseUcDTO checkMobile(@RequestHeader String Authorization, @RequestParam String phone) {
         try {
-            BaseUcDTO baseUcDTO = thorService.postUCByCheckMobile(Authorization, phone);
+            BaseUcDTO baseUcDTO = thorInterfaceService.postUCByCheckMobile(Authorization, phone);
             return baseUcDTO;
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -76,7 +80,7 @@ public class ThorController {
     @ResponseBody
     public BaseUcDTO getUserNames(@RequestHeader String Authorization, @RequestParam String user_ids) {
         try {
-            BaseUcDTO baseUcDTO = thorService.getUserNames(Authorization, user_ids);
+            BaseUcDTO baseUcDTO = thorInterfaceService.getUserNames(Authorization, user_ids);
             return baseUcDTO;
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -93,7 +97,7 @@ public class ThorController {
     @ResponseBody
     public Object checkIfSaler(@RequestHeader String Authorization,@RequestParam Integer id){
         try{
-            return thorService.postUcForCheckedSaler(Authorization, id);
+            return thorInterfaceService.postUcForCheckedSaler(Authorization, id);
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
             return new BaseUcDTO(9000,e.getMessage(),null);
@@ -109,7 +113,7 @@ public class ThorController {
     @ResponseBody
     public BaseUcDTO checkUserAuthority(@RequestParam String url, @RequestParam Integer user_id){
         try{
-            BaseUcDTO baseUcDTO = thorService.checkUserAuthority(url, user_id);
+            BaseUcDTO baseUcDTO = thorInterfaceService.checkUserAuthority(url, user_id);
             return baseUcDTO;
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
@@ -129,7 +133,7 @@ public class ThorController {
     @ResponseBody
     public BaseUcDTO editPassword(@RequestHeader String Authorization, @RequestParam Integer user_id, @RequestParam String old_pw, @RequestParam String new_pw, @RequestParam String ok_pw){
         try{
-            BaseUcDTO baseUcDTO = thorService.editPassword( Authorization, user_id, old_pw, new_pw, ok_pw);
+            BaseUcDTO baseUcDTO = thorInterfaceService.editPassword( Authorization, user_id, old_pw, new_pw, ok_pw);
             return baseUcDTO;
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
@@ -155,7 +159,7 @@ public class ThorController {
                                   @RequestParam(required = false) String telephone,
                                   @RequestParam(required = false) String address){
         try{
-            BaseUcDTO baseUcDTO = thorService.editUserInfo( Authorization, user_id, sex, email, telephone, address);
+            BaseUcDTO baseUcDTO = thorInterfaceService.editUserInfo( Authorization, user_id, sex, email, telephone, address);
             return baseUcDTO;
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
@@ -172,7 +176,7 @@ public class ThorController {
     @ResponseBody
     public BaseUcDTO getAllSalesman(@RequestHeader String Authorization, @RequestParam(required = false) String city){
         try{
-            BaseUcDTO baseUcDTO = thorService.getAllSalesman( Authorization, city);
+            BaseUcDTO baseUcDTO = thorInterfaceService.getAllSalesman( Authorization, city);
             return baseUcDTO;
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
@@ -189,7 +193,7 @@ public class ThorController {
     @ResponseBody
     public Object getAllUser(@RequestHeader String Authorization, @RequestParam Integer user_id){
         try{
-            AllUserDTO allUserDTO = thorService.getAllUser( Authorization, user_id);
+            AllUserDTO allUserDTO = thorInterfaceService.getAllUser( Authorization, user_id);
             return allUserDTO;
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
@@ -206,7 +210,7 @@ public class ThorController {
     @ResponseBody
     public BaseUcDTO getCityByUserid(@RequestHeader String Authorization, @RequestParam Integer user_id){
         try{
-            BaseUcDTO baseUcDTO = thorService.getCityByUserid( Authorization, user_id);
+            BaseUcDTO baseUcDTO = thorInterfaceService.getCityByUserid( Authorization, user_id);
             return baseUcDTO;
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
@@ -224,7 +228,7 @@ public class ThorController {
     public BaseUcDTO getRoleInfoByUser_id(@RequestHeader String Authorization,
                                           @RequestParam(required = false) String user_id){
         try{
-            BaseUcDTO baseUcDTO = thorService.getRoleInfoByUser_id( Authorization, user_id);
+            BaseUcDTO baseUcDTO = thorInterfaceService.getRoleInfoByUser_id( Authorization, user_id);
             return baseUcDTO;
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
@@ -246,7 +250,7 @@ public class ThorController {
                                   @RequestParam(required = false) String name,
                                   @RequestParam(required = false) Integer company_id){
         try{
-            BaseUcDTO baseUcDTO = thorService.getSaleInfos( Authorization, user_id, name, company_id);
+            BaseUcDTO baseUcDTO = thorInterfaceService.getSaleInfos( Authorization, user_id, name, company_id);
             return baseUcDTO;
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
@@ -263,7 +267,7 @@ public class ThorController {
     @ResponseBody
     public BaseUcDTO getSalesmanByPhone(@RequestHeader String Authorization, @RequestParam String phone){
         try{
-            BaseUcDTO baseUcDTO = thorService.getSalesmanByPhone( Authorization, phone);
+            BaseUcDTO baseUcDTO = thorInterfaceService.getSalesmanByPhone( Authorization, phone);
             return baseUcDTO;
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
@@ -285,7 +289,7 @@ public class ThorController {
                                  @RequestParam String value,
                                  @RequestParam(required = false) Integer company_id){
         try{
-            BaseUcDTO baseUcDTO = thorService.getRoleInfo(Authorization, name, value, company_id);
+            BaseUcDTO baseUcDTO = thorInterfaceService.getRoleInfo(Authorization, name, value, company_id);
             return baseUcDTO;
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
@@ -312,7 +316,7 @@ public class ThorController {
                                  @RequestParam(required = false) Integer status,
                                  @RequestParam(required = false) Integer sub_company_id){
         try{
-            return thorService.getUserIds(Authorization, company_id, department_id, role_id, status, sub_company_id);
+            return thorInterfaceService.getUserIds(Authorization, company_id, department_id, role_id, status, sub_company_id);
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
             return new BaseUcDTO(9000,e.getMessage(),null);
@@ -332,7 +336,7 @@ public class ThorController {
                                     @RequestParam(required = false) String where,
                                     @RequestParam Integer type){
         try{
-            BaseUcDTO baseUcDTO = thorService.getRoleByWhere( Authorization, where, type);
+            BaseUcDTO baseUcDTO = thorInterfaceService.getRoleByWhere( Authorization, where, type);
             return baseUcDTO;
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
@@ -352,7 +356,7 @@ public class ThorController {
                                           @RequestParam(required = false) String where,
                                           @RequestParam Integer type){
         try{
-            BaseUcDTO baseUcDTO = thorService.getDepartmentByWhere( Authorization, where, type);
+            BaseUcDTO baseUcDTO = thorInterfaceService.getDepartmentByWhere( Authorization, where, type);
             return baseUcDTO;
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
@@ -371,7 +375,7 @@ public class ThorController {
     public Object getSubDepartmentId(@RequestHeader String Authorization,
                                      @RequestParam Integer department_id){
         try{
-            return thorService.getSubDepartmentId( Authorization, department_id);
+            return thorInterfaceService.getSubDepartmentId( Authorization, department_id);
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
             return new BaseUcDTO(9000,e.getMessage(),null);
@@ -391,7 +395,7 @@ public class ThorController {
                                    @RequestParam(required = false) String where,
                                    @RequestParam Integer type){
         try{
-            BaseUcDTO baseUcDTO = thorService.getDepartment( Authorization, where, type);
+            BaseUcDTO baseUcDTO = thorInterfaceService.getDepartment( Authorization, where, type);
             return baseUcDTO;
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
@@ -416,7 +420,7 @@ public class ThorController {
                                     @RequestParam Integer type,
                                     @RequestParam(required = false) Integer company_id){
         try{
-            BaseUcDTO baseUcDTO = thorService.getSubCompanys(Authorization, city, where, type, company_id);
+            BaseUcDTO baseUcDTO = thorInterfaceService.getSubCompanys(Authorization, city, where, type, company_id);
             return baseUcDTO;
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
@@ -437,7 +441,7 @@ public class ThorController {
                                        @RequestParam(required = false) Integer department_id,
                                        @RequestParam Integer data_type){
         try{
-            return thorService.getSubDepartmentList( Authorization, department_id, data_type);
+            return thorInterfaceService.getSubDepartmentList( Authorization, department_id, data_type);
         }catch (Exception e){
             LOGGER.error(e.getMessage(),e);
             return new BaseUcDTO(9000,e.getMessage(),null);
@@ -459,7 +463,7 @@ public class ThorController {
                                                  @RequestParam(required = false) Integer department_id,
                                                  @RequestParam(required = false) Integer sub_company_id) {
         try{
-            return thorService.getUserListByRoles(Authorization, role_id, department_id, sub_company_id);
+            return thorInterfaceService.getUserListByRoles(Authorization, role_id, department_id, sub_company_id);
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
             return PhpQueryResultDTO.getExcetion(9000, e.getMessage());
@@ -492,7 +496,7 @@ public class ThorController {
                                                @RequestParam(required = false)String name,
                                                @RequestParam(required = false) Integer status){
         try{
-            return thorService.getUserInfoByIds(Authorization, user_ids,department_ids,sub_company_id,flag,page,size,name, status);
+            return thorInterfaceService.getUserInfoByIds(Authorization, user_ids,department_ids,sub_company_id,flag,page,size,name, status);
 
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
@@ -515,7 +519,7 @@ public class ThorController {
                                         @RequestParam(value = "user_id",required = false) Integer user_id,
                                         @RequestParam(value = "name",required = false) String name){
         try{
-            return thorService.getUserInfoByField(Authorization, telephone, user_id, name);
+            return thorInterfaceService.getUserInfoByField(Authorization, telephone, user_id, name);
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
             return new BaseUcDTO(9000,  e.getMessage(), null);
@@ -539,7 +543,7 @@ public class ThorController {
                                  @RequestParam(required = false) String where,
                                  @RequestParam(required = false) Integer type){
         try{
-            return thorService.getUserInfo(Authorization, page, size, where, type);
+            return thorInterfaceService.getUserInfo(Authorization, page, size, where, type);
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
             return new BaseUcDTO(9000,  e.getMessage(), null);
@@ -555,7 +559,7 @@ public class ThorController {
     @ResponseBody
     public BaseUcDTO getUpTdzByRole_id(@RequestHeader String Authorization){
         try{
-            return thorService.getUpTdzByRole_id(Authorization);
+            return thorInterfaceService.getUpTdzByRole_id(Authorization);
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
             return new BaseUcDTO(9000,  e.getMessage(), null);
@@ -573,7 +577,7 @@ public class ThorController {
     @ResponseBody
     public Object getUpTdz(@RequestHeader String Authorization, @RequestParam(required = false) Integer user_id){
         try {
-            UserModelDTO upTdz = thorService.getUpTdz(Authorization, user_id);
+            UserModelDTO upTdz = thorInterfaceService.getUpTdz(Authorization, user_id);
             return new BaseUcDTO(0,  null, upTdz);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -590,7 +594,7 @@ public class ThorController {
     @ResponseBody
     public Object getCRMUser(@RequestHeader String Authorization, @RequestParam(required = false) Integer user_id, @RequestParam(required = false) String city){
         try {
-            BaseUcDTO<List<CrmUserDTO>> crmUser = thorService.getCRMUser(Authorization, city);
+            BaseUcDTO<List<CrmUserDTO>> crmUser = thorInterfaceService.getCRMUser(Authorization, city);
             return new BaseUcDTO(0,  null, crmUser.getRetData());
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -613,7 +617,7 @@ public class ThorController {
     @ResponseBody
     public Object getSwitchSystem(@RequestHeader String Authorization, @RequestParam Integer uid, @RequestParam String system) {
         try {
-            return thorService.getSwitchSystem(Authorization, uid, system);
+            return thorInterfaceService.getSwitchSystem(Authorization, uid, system);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return new BaseUcDTO(9000,  e.getMessage(), null);
@@ -632,9 +636,9 @@ public class ThorController {
     @RequestMapping(value = "/api/v1/getSubUserByUserId",method = RequestMethod.POST)
     @ResponseBody
     public BaseUcDTO getSubUserByUserId(@RequestHeader String Authorization, @RequestParam(required = false) Integer user_id,
-                                        @RequestParam(required = false) String system){
+                                        @RequestParam(required = false) Integer data_type){
         try{
-            return thorService.getSubUserByUserId(Authorization, user_id, system);
+            return thorInterfaceService.getSubUserByUserId(Authorization, user_id, data_type);
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
             return new BaseUcDTO(9000,  e.getMessage(), null);
@@ -653,7 +657,7 @@ public class ThorController {
     public BaseUcDTO getSubUserByTDZ(@RequestHeader String Authorization, @RequestParam(required = false) Integer user_id,
                                      @RequestParam(required = false) Integer department_id) {
         try {
-            return thorService.getSubUserByTDZ(Authorization, user_id, department_id);
+            return thorInterfaceService.getSubUserByTDZ(Authorization, user_id, department_id);
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
             return new BaseUcDTO(9000,  e.getMessage(), null);
@@ -667,7 +671,7 @@ public class ThorController {
     @ResponseBody
     public BaseUcDTO getUpYwyByRole_id(@RequestHeader String Authorization) {
         try {
-            return thorService.getUpYwyByRole_id(Authorization);
+            return thorInterfaceService.getUpYwyByRole_id(Authorization);
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
             return new BaseUcDTO(9000,  e.getMessage(), null);
