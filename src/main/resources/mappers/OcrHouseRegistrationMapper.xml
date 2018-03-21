@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.OcrHouseRegistrationMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.OcrHouseRegistration" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customer_id" property="customerId" jdbcType="INTEGER" />
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="customer_telephone" property="customerTelephone" jdbcType="VARCHAR" />
+    <result column="house_ownner" property="houseOwnner" jdbcType="VARCHAR" />
+    <result column="house_address" property="houseAddress" jdbcType="VARCHAR" />
+    <result column="house_purpose" property="housePurpose" jdbcType="VARCHAR" />
+    <result column="house_usage_term" property="houseUsageTerm" jdbcType="VARCHAR" />
+    <result column="house_area" property="houseArea" jdbcType="VARCHAR" />
+    <result column="house_type" property="houseType" jdbcType="VARCHAR" />
+    <result column="house_completion_date" property="houseCompletionDate" jdbcType="VARCHAR" />
+    <result column="document_id" property="documentId" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, customer_id, customer_name, customer_telephone, house_ownner, house_address, 
+    house_purpose, house_usage_term, house_area, house_type, house_completion_date, document_id, 
+    status, create_time, last_update_time, create_user, last_update_user, is_deleted
+  </sql>
+  <select id="findByfeild" parameterType="java.util.Map" resultMap="BaseResultMap">
+  select
+  <include refid="Base_Column_List" />
+  from ocr_house_registration
+  WHERE is_deleted = 0
+  <if test="id != null">
+    and id = #{id}
+  </if>
+  </select>
+
+  <select id="getOcrInfoCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+    select
+    COUNT(*)
+    from ocr_house_registration
+    WHERE is_deleted = 0
+    <if test="id != null">
+      and id = #{id}
+    </if>
+    <if test="create_user_id != null and create_user_id !=''" >
+      and create_user =#{create_user_id}
+    </if>
+    <if test="customer_telephone != null and customer_telephone !=''" >
+      and customer_telephone =#{customer_telephone}
+    </if>
+    <if test="customer_name != null and customer_name !=''" >
+      and customer_name  like CONCAT('%', #{customer_name},'%' )
+    </if>
+    <if test="status != null and status !=''" >
+      and status =#{status}
+    </if>
+    <choose>
+      <when test="order != null and order !=''">
+        order by ${order} desc
+      </when>
+      <otherwise>
+        order by create_time desc
+      </otherwise>
+    </choose>
+  </select>
+  <select id="getOcrInfoList" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from ocr_house_registration
+    WHERE is_deleted = 0
+    <if test="id != null">
+      and id = #{id}
+    </if>
+    <if test="create_user_id != null and create_user_id !=''" >
+      and create_user =#{create_user_id}
+    </if>
+    <if test="customer_telephone != null and customer_telephone !=''" >
+      and customer_telephone =#{customer_telephone}
+    </if>
+    <if test="customer_name != null and customer_name !=''" >
+      and customer_name  like CONCAT('%', #{customer_name},'%' )
+    </if>
+    <if test="status != null and status !=''" >
+      and status =#{status}
+    </if>
+    <choose>
+      <when test="order != null and order !=''">
+        order by ${order} desc
+      </when>
+      <otherwise>
+        order by create_time desc
+      </otherwise>
+    </choose>
+    limit #{start},#{size}
+  </select>
+  <update id="updateHouseRegis" parameterType="com.fjs.cronus.model.OcrHouseRegistration" >
+    update ocr_house_registration
+    <set >
+      <if test="customerId != null" >
+        customer_id = #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="customerName != null" >
+        customer_name = #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerTelephone != null" >
+        customer_telephone = #{customerTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="houseOwnner != null" >
+        house_ownner = #{houseOwnner,jdbcType=VARCHAR},
+      </if>
+      <if test="houseAddress != null" >
+        house_address = #{houseAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="housePurpose != null" >
+        house_purpose = #{housePurpose,jdbcType=VARCHAR},
+      </if>
+      <if test="houseUsageTerm != null" >
+        house_usage_term = #{houseUsageTerm,jdbcType=VARCHAR},
+      </if>
+      <if test="houseArea != null" >
+        house_area = #{houseArea,jdbcType=VARCHAR},
+      </if>
+      <if test="houseType != null" >
+        house_type = #{houseType,jdbcType=VARCHAR},
+      </if>
+      <if test="houseCompletionDate != null" >
+        house_completion_date = #{houseCompletionDate,jdbcType=VARCHAR},
+      </if>
+      <if test="documentId != null" >
+        document_id = #{documentId,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <insert id="addHouseRegis" parameterType="com.fjs.cronus.model.OcrHouseRegistration" useGeneratedKeys="true" keyProperty="id">
+    insert into ocr_house_registration
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="customerId != null" >
+        customer_id,
+      </if>
+      <if test="customerName != null" >
+        customer_name,
+      </if>
+      <if test="customerTelephone != null" >
+        customer_telephone,
+      </if>
+      <if test="houseOwnner != null" >
+        house_ownner,
+      </if>
+      <if test="houseAddress != null" >
+        house_address,
+      </if>
+      <if test="housePurpose != null" >
+        house_purpose,
+      </if>
+      <if test="houseUsageTerm != null" >
+        house_usage_term,
+      </if>
+      <if test="houseArea != null" >
+        house_area,
+      </if>
+      <if test="houseType != null" >
+        house_type,
+      </if>
+      <if test="houseCompletionDate != null" >
+        house_completion_date,
+      </if>
+      <if test="documentId != null" >
+        document_id,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="customerId != null" >
+        #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="customerName != null" >
+        #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerTelephone != null" >
+        #{customerTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="houseOwnner != null" >
+        #{houseOwnner,jdbcType=VARCHAR},
+      </if>
+      <if test="houseAddress != null" >
+        #{houseAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="housePurpose != null" >
+        #{housePurpose,jdbcType=VARCHAR},
+      </if>
+      <if test="houseUsageTerm != null" >
+        #{houseUsageTerm,jdbcType=VARCHAR},
+      </if>
+      <if test="houseArea != null" >
+        #{houseArea,jdbcType=VARCHAR},
+      </if>
+      <if test="houseType != null" >
+        #{houseType,jdbcType=VARCHAR},
+      </if>
+      <if test="houseCompletionDate != null" >
+        #{houseCompletionDate,jdbcType=VARCHAR},
+      </if>
+      <if test="documentId != null" >
+        #{documentId,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+</mapper>

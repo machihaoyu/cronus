@@ -27,7 +27,7 @@ public class Swagger2 {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.fjs.cronus.api"))
+                .apis(RequestHandlerSelectors.basePackage("com.fjs.cronus"))
                 .paths(doFilteringRules())
                 .build()
                 .useDefaultResponseMessages(false)
@@ -61,6 +61,6 @@ public class Swagger2 {
 
 
     private Predicate<String> doFilteringRules() {
-        return or(ant("/saas/**"), ant("/uc/**"), ant("/ocr/**"),ant("/php/**"));
+        return or(ant("/saas/**"), ant("/uc/**"), ant("/ocr/**"),ant("/php/**"),ant("/api/**"));
     }
 }

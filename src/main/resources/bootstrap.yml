@@ -1,4 +1,4 @@
-spring:
+  spring:
     cloud:
         config:
             uri: http://user:${CONFIG_PASSWORD}@${CONFIG_SERVER_ADDRESS}:${CONFIG_SERVER_PORT}

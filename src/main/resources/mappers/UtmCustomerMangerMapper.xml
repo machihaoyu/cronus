@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.UtmCustomerMangerMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.UtmCustomerManger" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="utm_source" property="utmSource" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, utm_source, status, create_time, last_update_time, create_user, last_update_user, 
+    is_deleted
+  </sql>
+  <select id="findByField" resultMap="BaseResultMap" parameterType="Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from utm_customer_manger
+    where is_deleted = 0
+    <if test="id != null">
+      AND id = #{id}
+    </if>
+
+  </select>
+  <insert id="insert" parameterType="com.fjs.cronus.model.UtmCustomerManger" >
+    insert into utm_customer_manger
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="utmSource != null" >
+        utm_source,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="utmSource != null" >
+        #{utmSource,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.fjs.cronus.model.UtmCustomerManger" >
+    update utm_customer_manger
+    <set >
+      <if test="utmSource != null" >
+        utm_source = #{utmSource,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="vipUserManList" parameterType="Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from utm_customer_manger
+    WHERE is_deleted = 0
+    and status  != 2
+  </select>
+
+  <select id="findListByField" parameterType="Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from utm_customer_manger
+    WHERE is_deleted = 0
+    and status  != 2
+    AND user_id = #{userId}
+  </select>
+
+  <select id="selectList" resultMap="BaseResultMap" parameterType="Map" >
+    select
+    <include refid="Base_Column_List" />
+    from utm_customer_manger
+    where is_deleted = 0
+    and status  != 2
+    <if test="id != null">
+      AND id = #{id}
+    </if>
+    <if test="userId != null">
+      AND user_id = #{userId}
+    </if>
+    <if test="utmSource != null">
+     AND utm_source = #{utmSource}
+    </if>
+  </select>
+</mapper>

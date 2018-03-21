@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.DocumentMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.Document" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="document_name" property="documentName" jdbcType="VARCHAR" />
+    <result column="document_type" property="documentType" jdbcType="VARCHAR" />
+    <result column="document_size" property="documentSize" jdbcType="INTEGER" />
+    <result column="document_ext" property="documentExt" jdbcType="VARCHAR" />
+    <result column="document_md5" property="documentMd5" jdbcType="VARCHAR" />
+    <result column="document_savename" property="documentSavename" jdbcType="VARCHAR" />
+    <result column="document_savepath" property="documentSavepath" jdbcType="VARCHAR" />
+    <result column="is_flag" property="isFlag" jdbcType="INTEGER"/>
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <!--<association property="documentCategory" javaType="com.fjs.cronus.model.DocumentCategory" select="com.fjs.cronus.mappers.DocumentCategoryMapper"></association>-->
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, document_name, document_type, document_size, document_ext, document_md5, document_savename, 
+    document_savepath, is_flag,create_time, last_update_time, create_user, last_update_user,
+    is_deleted
+  </sql>
+  <select id="selectByKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from document
+    where is_deleted = 0
+    <if test="_parameter != null">
+      and id = #{_parameter}
+    </if>
+  </select>
+  <select id="findByFeild" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from document
+    where is_deleted = 0
+    <if test="documentMd5 != null">
+      and document_md5 = #{documentMd5}
+    </if>
+    <if test="document_id != null">
+      and id = #{document_id}
+    </if>
+  </select>
+  <insert id="addDocument" parameterType="com.fjs.cronus.model.Document" useGeneratedKeys="true" keyProperty="id">
+    insert into document
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="documentName != null" >
+        document_name,
+      </if>
+      <if test="documentType != null" >
+        document_type,
+      </if>
+      <if test="documentSize != null" >
+        document_size,
+      </if>
+      <if test="documentExt != null" >
+        document_ext,
+      </if>
+      <if test="documentMd5 != null" >
+        document_md5,
+      </if>
+      <if test="documentSavename != null" >
+        document_savename,
+      </if>
+      <if test="documentSavepath != null" >
+        document_savepath,
+      </if>
+      <if test="isFlag != null" >
+        is_flag,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="documentName != null" >
+        #{documentName,jdbcType=VARCHAR},
+      </if>
+      <if test="documentType != null" >
+        #{documentType,jdbcType=VARCHAR},
+      </if>
+      <if test="documentSize != null" >
+        #{documentSize,jdbcType=INTEGER},
+      </if>
+      <if test="documentExt != null" >
+        #{documentExt,jdbcType=VARCHAR},
+      </if>
+      <if test="documentMd5 != null" >
+        #{documentMd5,jdbcType=VARCHAR},
+      </if>
+      <if test="documentSavename != null" >
+        #{documentSavename,jdbcType=VARCHAR},
+      </if>
+      <if test="documentSavepath != null" >
+        #{documentSavepath,jdbcType=VARCHAR},
+      </if>
+      <if test="isFlag != null" >
+        #{isFlag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="update" parameterType="com.fjs.cronus.model.Document" >
+    update document
+    <set >
+      <if test="documentName != null" >
+        document_name = #{documentName,jdbcType=VARCHAR},
+      </if>
+      <if test="documentType != null" >
+        document_type = #{documentType,jdbcType=VARCHAR},
+      </if>
+      <if test="documentSize != null" >
+        document_size = #{documentSize,jdbcType=INTEGER},
+      </if>
+      <if test="documentExt != null" >
+        document_ext = #{documentExt,jdbcType=VARCHAR},
+      </if>
+      <if test="documentMd5 != null" >
+        document_md5 = #{documentMd5,jdbcType=VARCHAR},
+      </if>
+      <if test="documentSavename != null" >
+        document_savename = #{documentSavename,jdbcType=VARCHAR},
+      </if>
+      <if test="documentSavepath != null" >
+        document_savepath = #{documentSavepath,jdbcType=VARCHAR},
+      </if>
+      <if test="isFlag != null" >
+        is_flag = #{isFlag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

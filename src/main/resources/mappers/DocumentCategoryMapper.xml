@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.DocumentCategoryMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.DocumentCategory" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="document_c_parent_id" property="documentCParentId" jdbcType="INTEGER" />
+    <result column="document_c_level" property="documentCLevel" jdbcType="BIT" />
+    <result column="document_c_level_id" property="documentCLevelId" jdbcType="BIT" />
+    <result column="document_c_name_header" property="documentCNameHeader" jdbcType="VARCHAR" />
+    <result column="document_c_name" property="documentCName" jdbcType="VARCHAR" />
+    <result column="sort" property="sort" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, document_c_parent_id, document_c_level, document_c_level_id, document_c_name_header, 
+    document_c_name, sort, create_time, last_update_time, create_user, last_update_user, 
+    is_deleted
+  </sql>
+  <select id="selectByKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from document_category
+    where is_deleted = 0
+    <if test="_parameter != null">
+      and id = #{_parameter}
+    </if>
+  </select>
+
+  <select id="getNextCategory" parameterType="java.util.Map" resultMap="BaseResultMap">
+  select
+  <include refid="Base_Column_List"/>
+  from document_category
+  where is_deleted = 0
+  <if test="documentCParentId != null">
+    and document_c_parent_id = #{documentCParentId}
+  </if>
+  </select>
+  <select id="findByFeild" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from document_category
+    where is_deleted = 0
+    <if test="document_c_name != null">
+      and document_c_name = #{document_c_name}
+    </if>
+  </select>
+  <select id="findListByFeild" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from document_category
+    where is_deleted = 0
+    <if test="document_c_names!=null and document_c_names.size>0">
+      AND document_c_name in
+      <foreach collection="document_c_names" item="document_c_names"
+               index="index" open="(" close=")" separator=",">
+        ${document_c_names}
+      </foreach>
+    </if>
+  </select>
+</mapper>

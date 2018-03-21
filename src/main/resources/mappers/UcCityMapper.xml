@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.UcCityMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.UcCity" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="province_id" property="provinceId" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, province_id, name, status, create_time, last_update_time, create_user, last_update_user, 
+    is_deleted
+  </sql>
+
+  <select id="findByProviceId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  select
+  <include refid="Base_Column_List" />
+  from uc_city
+  WHERE is_deleted = 0
+  <if test="_parameter != null and _parameter !=''" >
+    and province_id = ${_parameter}
+  </if>
+  </select>
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.AutoCleanManageMapper">
+    <resultMap id="BaseResultMap" type="com.fjs.cronus.model.AutoCleanManage">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="user_id" property="userId" jdbcType="INTEGER" />
+        <result column="customer_source" property="customerSource" jdbcType="VARCHAR" />
+        <result column="utm_source" property="utmSource" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+        <result column="create_user" property="createUser" jdbcType="VARCHAR" />
+        <result column="last_update_user" property="lastUpdateUser" jdbcType="VARCHAR" />
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id,user_id,customer_source,utm_source,create_time,last_update_time,create_user,last_update_user,
+        is_deleted
+    </sql>
+    <select id="selectByParamsMap" resultMap="BaseResultMap" parameterType="Map">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM auto_clean_manage
+        <where>
+            <if test="null != isDeleted and ''!= isDeleted">
+                is_deleted = #{isDeleted}
+            </if>
+        </where>
+    </select>
+
+    <update id="update" parameterType="com.fjs.cronus.model.AutoCleanManage">
+        update auto_clean_manage
+        <set>
+            <if test="isDeleted != null ">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="lastUpdateTime != null ">
+                last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastUpdateUser != null ">
+                last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+</mapper>

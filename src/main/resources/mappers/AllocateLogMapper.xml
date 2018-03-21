@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.AllocateLogMapper">
+    <resultMap id="BaseResultMap" type="com.fjs.cronus.model.AllocateLog">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="operation" property="operation" jdbcType="VARCHAR" />
+        <result column="customer_id" property="customerId" jdbcType="INTEGER" />
+        <result column="loan_id" property="loanId" jdbcType="INTEGER" />
+        <result column="old_owner_id" property="oldOwnerId" jdbcType="INTEGER" />
+        <result column="new_owner_id" property="newOwnerId" jdbcType="INTEGER" />
+        <result column="create_user_id" property="createUserId" jdbcType="INTEGER" />
+        <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="result" property="result" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id,operation,customer_id,loan_id,old_owner_id,new_owner_id,create_user_id,create_user_name,
+        create_time,result
+    </sql>
+    <sql id = "Base_param_check">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="if != null">
+                id,
+            </if>
+            <if test="operation != null">
+                operation,
+            </if>
+            <if test="customerId != null">
+                customer_id,
+            </if>
+            <if test="loanId != null">
+                loan_id,
+            </if>
+            <if test="oldOwnerId != null">
+                old_owner_id,
+            </if>
+            <if test="newOwnerId != null">
+                new_owner_id,
+            </if>
+            <if test="createUserId != null">
+                create_user_id,
+            </if>
+            <if test="createUserName != null">
+                create_user_name,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="result != null">
+                result,
+            </if>
+        </trim>
+    </sql>
+    <select id="selectByParamsMap" resultMap="BaseResultMap" parameterType="Map">
+        SELECT <include refid="Base_Column_List"/> FROM allocate_log
+        <where>
+            <if test="null != id">
+                id = #{id}
+            </if>
+            <if test="null != newOwnerIds">
+                AND new_owner_id IN
+                <foreach item="item" index="index" collection="newOwnerIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <!--<if test=" null != operationsStr and '' != operationsStr">-->
+                AND operation IN ("自动分配","未沟通分配")
+            <!--</if>-->
+            <if test="null != createBeginDate">
+                <![CDATA[	and create_time >=  #{createBeginDate }  ]]>
+            </if>
+            <if test="null != createEndDate">
+                <![CDATA[	and create_time <=  #{createEndDate }  ]]>
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+        INSERT INTO allocate_log
+        (operation,customer_id,loan_id,old_owner_id,new_owner_id,create_user_id,create_user_name,create_time,result)
+        VALUES
+        <foreach collection="list" item="allocateLog" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{allocateLog.operation},
+                #{allocateLog.customerId},
+                #{allocateLog.loanId},
+                #{allocateLog.oldOwnerId},
+                #{allocateLog.newOwnerId},
+                #{allocateLog.createUserId},
+                #{allocateLog.createUserName},
+                #{allocateLog.createTime},
+                #{allocateLog.result}
+            </trim>
+        </foreach>
+    </insert>
+
+    <!--统计今天的分配数-->
+    <select id="selectToday" resultType="Integer" parameterType="Map">
+        SELECT count(1) from allocate_log
+        where 1=1
+        <if test="null != list and list.size() > 0">
+            and new_owner_id IN
+            <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+         and DATE(create_time)=date(now())
+    </select>
+
+    <!--统计今天的分配沟通数-->
+    <select id="selectCommunicateToday" resultType="Integer" parameterType="Map">
+        SELECT count(*)
+        from allocate_log a
+        LEFT JOIN communication_log c
+        on a.loan_id=c.loan_id
+        where 1=1
+        <if test="null != list and list.size() > 0">
+            and new_owner_id IN
+            <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        and DATE(c.create_time)=date(now())
+    </select>
+
+    <!--统计历史的分配沟通数-->
+    <select id="selectCommunicateHistory" resultType="Integer" parameterType="Map">
+        SELECT count(1)
+        from allocate_log a
+        LEFT JOIN communication_log c
+        on a.loan_id=c.loan_id
+        where 1=1
+        <if test="null != list and list.size() > 0">
+            and new_owner_id IN
+            <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="createTimeBegin != null and createTimeEnd !=null ">
+            and date(c.create_time) between #{createTimeBegin} and #{createTimeEnd}
+        </if>
+    </select>
+
+    <select id="getNewestAllocateLogByCustomerIds" resultMap="BaseResultMap" parameterType="Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM allocate_log cl
+        INNER JOIN (
+        select MAX(id) mid FROM allocate_log where customer_id IN
+        <foreach item="paramsList" index="index" collection="paramsList" open="(" separator="," close=")">
+            #{paramsList}
+        </foreach>
+        group by customer_id
+        ) clt on cl.id=clt.mid
+    </select>
+
+    <select id="receiveCountByWhere"  resultType="Integer"  parameterType="Map">
+        SELECT
+        COUNT(*)
+        FROM allocate_log cl
+        WHERE
+        new_owner_id = #{createUserId}
+        AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
+        AND  operation = #{operation}
+    </select>
+    <select id="getReceiveCount"  resultType="Integer"  parameterType="Map">
+        SELECT
+        DISTINCT(customer_id)
+        FROM allocate_log cl
+        WHERE
+        new_owner_id = #{createUserId}
+        AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
+        <if test="null != operationList and operationList.size() > 0">
+            AND  operation IN
+            <foreach item="item" index="index" collection="operationList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="receiveIds"  resultType="Integer"  parameterType="Map">
+        SELECT
+        DISTINCT(customer_id)
+        FROM allocate_log cl
+        WHERE
+        new_owner_id = #{createUserId}
+        AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
+        AND  operation = #{operation}
+    </select>
+
+    <select id="selectByCustomerId" resultMap="BaseResultMap" parameterType="Map">
+        SELECT <include refid="Base_Column_List"/> FROM allocate_log
+        WHERE
+        1= 1
+        and customer_id = #{customerId}
+        ORDER BY create_time DESC
+    </select>
+</mapper>

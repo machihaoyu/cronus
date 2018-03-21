@@ -1,17 +1,14 @@
 package com.fjs.cronus.api;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.crm.ResponseData;
 import com.fjs.cronus.dto.php.*;
-import com.fjs.cronus.dto.uc.UcData;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.service.client.ThorInterfaceService;
+import com.fjs.cronus.service.client.ThorService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +18,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Map;
 
 import static com.fjs.cronus.exception.ExceptionValidate.validateResponse;
 
@@ -42,7 +37,7 @@ public class PhpController {
     private String saleKey;
 
     @Autowired
-    ThorInterfaceService thorInterfaceService;
+    ThorService thorService;
 
     @Autowired
     RestTemplate restTemplate;
@@ -64,7 +59,7 @@ public class PhpController {
         UserInfoDTO userInfoDTO = null;
 //        try{
             Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-//            String ucDataStr =thorInterfaceService.getCurrentUserInfo(Authorization,"");
+//            String ucDataStr =thorService.getCurrentUserInfo(Authorization,"");
 //            UcData ucData = JSONObject.parseObject(ucDataStr, UcData.class);
 //            if(null != ucData && ucData.getResult() == 0) {
 //                userInfoDTO = JSONObject.parseObject(ucData.getData(), UserInfoDTO.class);

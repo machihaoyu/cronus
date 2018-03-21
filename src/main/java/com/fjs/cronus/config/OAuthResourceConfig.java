@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
+import org.springframework.web.cors.CorsUtils;
 
 /**
  * Created by bianxj on 2017/4/27.
@@ -33,7 +34,14 @@ public class OAuthResourceConfig extends ResourceServerConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/uc/api/**", "/saas/api/**", "/ocr/api/**","/php/api/**").authenticated();
+      //  http.authorizeRequests().antMatchers("/uc/api/**", "/saas/api/**", "/ocr/api/**","/php/api/**","/api/v1/**").authenticated();
+        http.authorizeRequests().requestMatchers(CorsUtils::isPreFlightRequest).permitAll().
+//                antMatchers(
+//                        "/api/v1/findCustomerByType/**",
+//                        "/api/v1/customerListToCheck/**",
+//                        "/api/v1/judgeDatum/**",
+//                        "/api/v1/getCommunByCustomerId/**").access("#oauth2.hasScope('cronus')").
+                antMatchers("/uc/api/**", "/saas/api/**", "/ocr/api/**","/php/api/**","/api/v1/**","/user/v1/**").access("#oauth2.hasScope('app')");
         //http.addFilterBefore( new PreAuthFilter(), BasicAuthenticationFilter )
        /* http
                 .authorizeRequests()

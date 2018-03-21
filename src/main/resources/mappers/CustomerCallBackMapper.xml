@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.CustomerCallBackMapper" >
+    <resultMap id="BaseResultMap" type="com.fjs.cronus.model.CustomerInfo" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="telephonenumber" property="telephonenumber" jdbcType="VARCHAR" />
+        <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+        <result column="customer_type" property="customerType" jdbcType="VARCHAR" />
+        <result column="customer_level" property="customerLevel" jdbcType="VARCHAR" />
+        <result column="spare_phone" property="sparePhone" jdbcType="VARCHAR" />
+        <result column="age" property="age" jdbcType="VARCHAR" />
+        <result column="marriage" property="marriage" jdbcType="VARCHAR" />
+        <result column="id_card" property="idCard" jdbcType="VARCHAR" />
+        <result column="province_huji" property="provinceHuji" jdbcType="VARCHAR" />
+        <result column="sex" property="sex" jdbcType="VARCHAR" />
+        <result column="customer_street" property="customerStreet" jdbcType="VARCHAR" />
+        <result column="customer_address" property="customerAddress" jdbcType="VARCHAR" />
+        <result column="house_status" property="houseStatus" jdbcType="VARCHAR" />
+        <result column="house_amount" property="houseAmount" jdbcType="VARCHAR" />
+        <result column="house_type" property="houseType" jdbcType="VARCHAR" />
+        <result column="house_value" property="houseValue" jdbcType="VARCHAR" />
+        <result column="house_area" property="houseArea" jdbcType="VARCHAR" />
+        <result column="house_age" property="houseAge" jdbcType="VARCHAR" />
+        <result column="house_loan" property="houseLoan" jdbcType="VARCHAR" />
+        <result column="house_alone" property="houseAlone" jdbcType="VARCHAR" />
+        <result column="house_location" property="houseLocation" jdbcType="VARCHAR" />
+        <result column="city" property="city" jdbcType="VARCHAR" />
+        <result column="customer_classify" property="customerClassify" jdbcType="VARCHAR" />
+        <result column="callback_status" property="callbackStatus" jdbcType="VARCHAR" />
+        <result column="callback_time" property="callbackTime" jdbcType="TIMESTAMP" />
+        <result column="sub_company_id" property="subCompanyId" jdbcType="INTEGER" />
+        <result column="house_loan_value" property="houseLoanValue" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+        <result column="create_user" property="createUser" jdbcType="INTEGER" />
+        <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+        <result column="expect_money_time" property="expectMoneyTime" jdbcType="TIMESTAMP" />
+        <result column="expect_loan_time" property="expectLoanTime" jdbcType="VARCHAR" />
+        <result column="expect_repayment_way" property="expectRepaymentWay" jdbcType="INTEGER" />
+        <result column="house_clear" property="houseClear" jdbcType="INTEGER" />
+        <result column="house_owner" property="houseOwner" jdbcType="VARCHAR" />
+        <result column="mortgage_amount" property="mortgageAmount" jdbcType="VARCHAR" />
+        <result column="mortgae_month" property="mortgaeMonth" jdbcType="VARCHAR" />
+        <result column="is_hava_car" property="isHavaCar" jdbcType="INTEGER" />
+        <result column="car_worth" property="carWorth" jdbcType="VARCHAR" />
+        <result column="car_age" property="carAge" jdbcType="INTEGER" />
+        <result column="is_hava_insurance" property="isHavaInsurance" jdbcType="INTEGER" />
+        <result column="year_pay_amount" property="yearPayAmount" jdbcType="VARCHAR" />
+        <result column="insurance_time" property="insuranceTime" jdbcType="INTEGER" />
+        <result column="is_hava_debt" property="isHavaDebt" jdbcType="INTEGER" />
+        <result column="debt_money" property="debtMoney" jdbcType="VARCHAR" />
+        <result column="debt_month" property="debtMonth" jdbcType="INTEGER" />
+        <result column="debt_overdue" property="debtOverdue" jdbcType="INTEGER" />
+        <result column="debt_overdue_money" property="debtOverdueMoney" jdbcType="VARCHAR" />
+        <result column="debt_time" property="debtTime" jdbcType="INTEGER" />
+        <result column="work_status" property="workStatus" jdbcType="INTEGER" />
+        <result column="wager_card" property="wagerCard" jdbcType="VARCHAR" />
+        <result column="entry_time" property="entryTime" jdbcType="INTEGER" />
+        <result column="company_type" property="companyType" jdbcType="INTEGER" />
+        <result column="social_security" property="socialSecurity" jdbcType="INTEGER" />
+        <result column="social_money" property="socialMoney" jdbcType="VARCHAR" />
+        <result column="social_time" property="socialTime" jdbcType="INTEGER" />
+        <result column="provident_fund" property="providentFund" jdbcType="INTEGER" />
+        <result column="provident_money" property="providentMoney" jdbcType="VARCHAR" />
+        <result column="provident_time" property="providentTime" jdbcType="INTEGER" />
+        <result column="compny_name" property="compnyName" jdbcType="VARCHAR" />
+        <result column="fixed_phone" property="fixedPhone" jdbcType="INTEGER" />
+        <result column="loan_amount" property="loanAmount" jdbcType="DECIMAL" />
+        <result column="customer_source" property="customerSource" jdbcType="VARCHAR" />
+        <result column="utm_source" property="utmSource" jdbcType="VARCHAR" />
+        <result column="own_user_id" property="ownUserId" jdbcType="INTEGER" />
+        <result column="own_user_name" property="ownUserName" jdbcType="VARCHAR" />
+        <result column="receive_time" property="receiveTime" jdbcType="TIMESTAMP" />
+        <result column="circle" property="circle" jdbcType="INTEGER" />
+        <result column="company_id" property="companyId" jdbcType="INTEGER" />
+        <result column="retirement_wages" property="retirementWages" jdbcType="VARCHAR" />
+        <result column="level" jdbcType="VARCHAR" property="level" />
+        <result column="remain" jdbcType="INTEGER" property="remain" />
+        <result column="view_time" jdbcType="TIMESTAMP" property="viewTime" />
+        <result column="view_uid" jdbcType="INTEGER" property="viewUid" />
+        <result column="view_count" jdbcType="INTEGER" property="viewCount" />
+        <result column="autostatus" jdbcType="INTEGER" property="autostatus" />
+        <result column="first_communicate_time" jdbcType="TIMESTAMP" property="firstCommunicateTime" />
+        <result column="first_allocate_time" jdbcType="TIMESTAMP" property="firstAllocateTime" />
+        <result column="cooperation_status" jdbcType="VARCHAR" property="cooperationStatus" />
+        <result column="confirm" jdbcType="INTEGER" property="confirm" />
+        <result column="click_communicate_button" jdbcType="INTEGER" property="clickCommunicateButton" />
+        <result column="communicate_time" jdbcType="TIMESTAMP" property="communicateTime" />
+        <result column="communicate_id" jdbcType="INTEGER" property="communicateId" />
+        <result column="receive_id" jdbcType="INTEGER" property="receiveId" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, telephonenumber, customer_name, customer_type, customer_level, spare_phone, age,
+        marriage, id_card, province_huji, sex, customer_address, customer_street, house_status,
+        house_amount, house_type, house_value, house_area, house_age, house_loan, house_alone,
+        house_location, city, customer_classify, callback_status, callback_time, sub_company_id,
+        house_loan_value, create_time, last_update_time, create_user, last_update_user, is_deleted,
+        expect_money_time, expect_loan_time, expect_repayment_way, house_clear, house_owner,
+        mortgage_amount, mortgae_month, is_hava_car, car_worth, car_age, is_hava_insurance,
+        year_pay_amount, insurance_time, is_hava_debt, debt_money, debt_month, debt_overdue,
+        debt_overdue_money, debt_time, work_status, wager_card, entry_time, company_type,
+        social_security, social_money, social_time, provident_fund, provident_money, provident_time,
+        compny_name, fixed_phone, loan_amount, customer_source, utm_source, own_user_id,
+        own_user_name, receive_time, circle, company_id, retirement_wages, level, remain,
+        view_time, view_uid, view_count, autostatus, first_communicate_time, first_allocate_time,
+        cooperation_status, confirm, click_communicate_button,communicate_time,communicate_id,receive_id
+    </sql>
+
+    <update id="updateCallbackStatus">
+        UPDATE
+          customer_info
+        SET
+          callback_status = #{callback_status},
+          per_description = #{per_description},
+          callback_time = now()
+        WHERE
+          id = #{customerId}
+    </update>
+
+    <select id="selectCustomerById" resultMap="BaseResultMap">
+        SELECT
+          <include refid="Base_Column_List"/>
+        FROM
+          customer_info
+        WHERE
+          id = #{customerId}
+    </select>
+
+    <select id="customerList" parameterType="java.util.Map" resultMap="BaseResultMap">
+        SELECT
+          <include refid="Base_Column_List"/>
+        FROM
+          customer_info
+        WHERE
+            1 = 1
+            AND (callback_time is null OR callback_time &lt;= #{cycleTime})
+            AND customer_type = #{type}
+            <if test="callbackStartTime != null">
+                AND callback_time &gt;= #{callbackStartTime}
+            </if>
+            <if test="callbackEndTime != null">
+                AND callback_time &lt;= #{callbackEndTime}
+            </if>
+            <if test="createStartTime != null">
+                AND create_time &gt;= #{createStartTime}
+            </if>
+            <if test="createEndTime != null">
+                AND create_time &lt;= #{createEndTime}
+            </if>
+            <if test="name != null">
+                AND customer_name LIKE #{name}
+            </if>
+            <if test="ownUserName != null">
+                AND own_user_name LIKE #{ownUserName}
+            </if>
+            <if test="isHaveOwner != null">
+                <if test="isHaveOwner == '1'">
+                    AND own_user_id is not NULL
+                </if>
+                <if test="isHaveOwner == '0'">
+                    AND own_user_id is NULL
+                </if>
+            </if>
+            <if test="city != null">
+                AND city = #{city}
+            </if>
+            <if test="callbackStatus != null">
+                AND callback_status = #{callback_status}
+            </if>
+            <if test="companyId != null">
+                AND company_id = #{companyId}
+            </if>
+            <if test="sub_company_id != null">
+                AND sub_company_id = #{sub_company_id}
+            </if>
+        limit #{start},#{size}
+    </select>
+
+    <select id="customerListCount" parameterType="java.util.Map"  resultType="long">
+      SELECT
+        count(*)
+      FROM
+        customer_info c
+      WHERE
+        1 = 1
+        AND (callback_time is null OR callback_time &lt;= #{cycleTime})
+        <if test="callbackStartTime != null">
+          AND callback_time &gt;= #{callbackStartTime}
+        </if>
+        <if test="callbackEndTime != null">
+            AND callback_time &lt;= #{callbackEndTime}
+        </if>
+        <if test="createStartTime != null">
+            AND create_time &gt;= #{createStartTime}
+        </if>
+        <if test="createEndTime != null">
+            AND create_time &lt;= #{createEndTime}
+        </if>
+        <if test="name != null">
+            AND customer_name LIKE #{name}
+        </if>
+        <if test="ownUserName != null">
+            AND own_user_name LIKE #{ownUserName}
+        </if>
+        <if test="isHaveOwner != null">
+            <if test="isHaveOwner == '1'">
+                AND own_user_id is not NULL
+            </if>
+            <if test="isHaveOwner == '0'">
+                AND own_user_id is NULL
+            </if>
+        </if>
+        <if test="city != null">
+            AND city = #{city}
+        </if>
+        <if test="callbackStatus != null">
+            AND callback_status = #{callback_status}
+        </if>
+        <if test="companyId != null">
+            AND company_id = #{companyId}
+        </if>
+        <if test="sub_company_id != null">
+            AND sub_company_id = #{sub_company_id}
+        </if>
+    </select>
+</mapper>

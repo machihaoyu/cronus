@@ -1,0 +1,781 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.CustomerInterviewBaseInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.CustomerInterviewBaseInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customer_id" property="customerId" jdbcType="INTEGER" />
+    <result column="owner_user_id" property="ownerUserId" jdbcType="INTEGER" />
+    <result column="owner_user_name" property="ownerUserName" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="VARCHAR" />
+    <result column="age" property="age" jdbcType="INTEGER" />
+    <result column="birth_date" property="birthDate" jdbcType="TIMESTAMP" />
+    <result column="telephonenumber" property="telephonenumber" jdbcType="VARCHAR" />
+    <result column="marital_status" property="maritalStatus" jdbcType="VARCHAR" />
+    <result column="household_register" property="householdRegister" jdbcType="VARCHAR" />
+    <result column="education" property="education" jdbcType="VARCHAR" />
+    <result column="fee_channel_name" property="feeChannelName" jdbcType="VARCHAR" />
+    <result column="product_name" property="productName" jdbcType="VARCHAR" />
+    <result column="month_interest_rate" property="monthInterestRate" jdbcType="VARCHAR" />
+    <result column="service_charge" property="serviceCharge" jdbcType="VARCHAR" />
+    <result column="loan_amount" property="loanAmount" jdbcType="VARCHAR" />
+    <result column="loan_time" property="loanTime" jdbcType="INTEGER" />
+    <result column="loan_use_time" property="loanUseTime" jdbcType="VARCHAR" />
+    <result column="loan_purpose" property="loanPurpose" jdbcType="VARCHAR" />
+    <result column="payment_type" property="paymentType" jdbcType="VARCHAR" />
+    <result column="credit_record" property="creditRecord" jdbcType="VARCHAR" />
+    <result column="zhima_credit" property="zhimaCredit" jdbcType="INTEGER" />
+    <result column="credit_query_num_two_month" property="creditQueryNumTwoMonth" jdbcType="INTEGER" />
+    <result column="credit_query_num_six_month" property="creditQueryNumSixMonth" jdbcType="INTEGER" />
+    <result column="continuity_overdue_num_two_year" property="continuityOverdueNumTwoYear" jdbcType="INTEGER" />
+    <result column="total_overdue_num_two_year" property="totalOverdueNumTwoYear" jdbcType="INTEGER" />
+    <result column="debt_amount" property="debtAmount" jdbcType="INTEGER" />
+    <result column="is_overdue" property="isOverdue" jdbcType="VARCHAR" />
+    <result column="overdue_amount" property="overdueAmount" jdbcType="INTEGER" />
+    <result column="industry" property="industry" jdbcType="VARCHAR" />
+    <result column="income_amount" property="incomeAmount" jdbcType="INTEGER" />
+    <result column="social_security_date" property="socialSecurityDate" jdbcType="INTEGER" />
+    <result column="social_security_payment" property="socialSecurityPayment" jdbcType="INTEGER" />
+    <result column="housing_fund_date" property="housingFundDate" jdbcType="INTEGER" />
+    <result column="housing_fund_payment" property="housingFundPayment" jdbcType="INTEGER" />
+    <result column="work_date" property="workDate" jdbcType="INTEGER" />
+    <result column="company_register_date" property="companyRegisterDate" jdbcType="INTEGER" />
+    <result column="share_rate" property="shareRate" jdbcType="DECIMAL" />
+    <result column="public_flow_year_amount" property="publicFlowYearAmount" jdbcType="INTEGER" />
+    <result column="private_flow_year_amount" property="privateFlowYearAmount" jdbcType="INTEGER" />
+    <result column="is_litigation" property="isLitigation" jdbcType="VARCHAR" />
+    <result column="retire_date" property="retireDate" jdbcType="INTEGER" />
+    <result column="retirement_pay_min_amount" property="retirementPayMinAmount" jdbcType="INTEGER" />
+    <result column="is_relative_known" property="isRelativeKnown" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, customer_id, owner_user_id, owner_user_name, name, sex, age, birth_date, telephonenumber, 
+    marital_status, household_register, education, fee_channel_name, product_name, month_interest_rate, 
+    service_charge, loan_amount, loan_time, loan_use_time, loan_purpose, payment_type, 
+    credit_record, zhima_credit, credit_query_num_two_month, credit_query_num_six_month, 
+    continuity_overdue_num_two_year, total_overdue_num_two_year, debt_amount, is_overdue, 
+    overdue_amount, industry, income_amount, social_security_date, social_security_payment, 
+    housing_fund_date, housing_fund_payment, work_date, company_register_date, share_rate, 
+    public_flow_year_amount, private_flow_year_amount, is_litigation, retire_date, retirement_pay_min_amount,
+    is_relative_known, remark, create_time, last_update_time, create_user, last_update_user, 
+    is_deleted
+  </sql>
+  <select id="customerInterviewListCount"  parameterType="java.util.Map" resultType="java.lang.Integer">
+    select
+    count(*)
+    from customer_interview_base_info  cib
+    WHERE  cib.is_deleted = 0
+    <if test="idList!=null and idList.size>0">
+      AND cib.owner_user_id in
+      <foreach collection="idList" item="idList"
+               index="index" open="(" close=")" separator=",">
+        ${idList}
+      </foreach>
+    </if>
+    <if test="name != null and name !=''" >
+      and cib.name  like CONCAT('%', #{name},'%' )
+    </if>
+    <if test="loanAmount != null and loanAmount !=''" >
+      and cib.loan_amount = #{loanAmount}
+    </if>
+    <if test="industry != null and industry !=''" >
+      and cib.industry  like CONCAT('%', #{industry},'%' )
+    </if>
+    <if test="feeChannelName != null and feeChannelName !=''" >
+      and cib.fee_channel_name  like CONCAT('%', #{feeChannelName},'%' )
+    </if>
+    <if test="productName != null and productName !=''" >
+      and cib.product_name  like CONCAT('%', #{fee_channel_name},'%' )
+    </if>
+    <if test="ownerUserName != null and ownerUserName !=''" >
+      and cib.owner_user_name  like CONCAT('%', #{ownerUserName},'%' )
+    </if>
+    <if test="paramsList!=null and paramsList.size>0">
+      AND cib.telephonenumber in
+      <foreach collection="paramsList" item="paramsList"
+               index="index" open="(" close=")" separator=",">
+        ${paramsList}
+      </foreach>
+    </if>
+    <if test="householdRegister != null and householdRegister !=''" >
+      and cib.household_register  like CONCAT('%', #{householdRegister},'%' )
+    </if>
+  </select>
+  <select id="customerInterviewList"  parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from customer_interview_base_info  cib
+    WHERE  cib.is_deleted = 0
+   <if test="idList!=null and idList.size>0">
+        AND cib.owner_user_id in
+        <foreach collection="idList" item="idList"
+                 index="index" open="(" close=")" separator=",">
+          ${idList}
+        </foreach>
+   </if>
+      <if test="name != null and name !=''" >
+        and cib.name  like CONCAT('%', #{name},'%' )
+      </if>
+      <if test="loanAmount != null and loanAmount !=''" >
+        and cib.loan_amount = #{loanAmount}
+      </if>
+      <if test="industry != null and industry !=''" >
+        and cib.industry  like CONCAT('%', #{industry},'%' )
+      </if>
+      <if test="feeChannelName != null and feeChannelName !=''" >
+        and cib.fee_channel_name  like CONCAT('%', #{feeChannelName},'%' )
+      </if>
+      <if test="productName != null and productName !=''" >
+        and cib.product_name  like CONCAT('%', #{fee_channel_name},'%' )
+    </if>
+      <if test="ownerUserName != null and ownerUserName !=''" >
+        and cib.owner_user_name  like CONCAT('%', #{ownerUserName},'%' )
+      </if>
+      <if test="paramsList!=null and paramsList.size>0">
+      AND cib.telephonenumber in
+      <foreach collection="paramsList" item="paramsList"
+               index="index" open="(" close=")" separator=",">
+        ${paramsList}
+      </foreach>
+      </if>
+      <if test="householdRegister != null and householdRegister !=''" >
+        and cib.household_register  like CONCAT('%', #{householdRegister},'%' )
+      </if>
+    <choose>
+      <when test="order != null and order !=''">
+        order by ${order} desc
+      </when>
+      <otherwise>
+        order by cib.create_time desc
+      </otherwise>
+    </choose>
+    limit #{start},#{size}
+  </select>
+  <select id="customerInterviewByFeild" parameterType="java.util.Map" resultMap="BaseResultMap" >
+    select
+    <include refid="Base_Column_List" />
+    from customer_interview_base_info
+    WHERE  is_deleted = 0
+    <if test="customerInterviewBaseInfoId != null" >
+     and  id = #{customerInterviewBaseInfoId}
+    </if>
+    <if test="customerId != null" >
+      and customer_id=#{customerId}
+    </if>
+    <if test="ownerUserId != null" >
+      and owner_user_id= #{ownerUserId}
+    </if>
+    <if test="ownerUserName != null" >
+      and owner_user_name= #{ownerUserName}
+    </if>
+    <if test="name != null" >
+      and name = #{name}
+    </if>
+   <!-- <if test="sex != null" >
+      sex = #{sex},
+    </if>
+    <if test="age != null" >
+      #{age},
+    </if>
+    <if test="birthDate != null" >
+      #{birthDate},
+    </if>-->
+    <if test="telephonenumber != null" >
+      and telephonenumber = #{telephonenumber}
+    </if>
+   <!-- <if test="maritalStatus != null" >
+      #{maritalStatus},
+    </if>
+    <if test="householdRegister != null" >
+      #{householdRegister},
+    </if>
+    <if test="education != null" >
+      #{education},
+    </if>
+    <if test="feeChannelName != null" >
+      #{feeChannelName},
+    </if>
+    <if test="productName != null" >
+      #{productName},
+    </if>
+    <if test="monthInterestRate != null" >
+      #{monthInterestRate},
+    </if>
+    <if test="serviceCharge != null" >
+      #{serviceCharge},
+    </if>
+    <if test="loanAmount != null" >
+      #{loanAmount,jdbcType=VARCHAR},
+    </if>
+    <if test="loanTime != null" >
+      #{loanTime},
+    </if>
+    <if test="loanUseTime != null" >
+      #{loanUseTime},
+    </if>
+    <if test="loanPurpose != null" >
+      #{loanPurpose},
+    </if>
+    <if test="paymentType != null" >
+      #{paymentType},
+    </if>
+    <if test="creditRecord != null" >
+      #{creditRecord},
+    </if>
+    <if test="zhimaCredit != null" >
+      #{zhimaCredit},
+    </if>
+    <if test="creditQueryNumTwoMonth != null" >
+      #{creditQueryNumTwoMonth},
+    </if>
+    <if test="creditQueryNumSixMonth != null" >
+      #{creditQueryNumSixMonth},
+    </if>
+    <if test="continuityOverdueNumTwoYear != null" >
+      #{continuityOverdueNumTwoYear},
+    </if>
+    <if test="totalOverdueNumTwoYear != null" >
+      #{totalOverdueNumTwoYear},
+    </if>
+    <if test="debtAmount != null" >
+      #{debtAmount},
+    </if>
+    <if test="isOverdue != null" >
+      #{isOverdue},
+    </if>
+    <if test="overdueAmount != null" >
+      #{overdueAmount},
+    </if>
+    <if test="industry != null" >
+      #{industry},
+    </if>
+    <if test="incomeAmount != null" >
+      #{incomeAmount},
+    </if>
+    <if test="socialSecurityDate != null" >
+      #{socialSecurityDate},
+    </if>
+    <if test="socialSecurityPayment != null" >
+      #{socialSecurityPayment},
+    </if>
+    <if test="housingFundDate != null" >
+      #{housingFundDate},
+    </if>
+    <if test="housingFundPayment != null" >
+      #{housingFundPayment},
+    </if>
+    <if test="workDate != null" >
+      #{workDate},
+    </if>
+    <if test="companyRegisterDate != null" >
+      #{companyRegisterDate},
+    </if>
+    <if test="shareRate != null" >
+      #{shareRate},
+    </if>
+    <if test="publicFlowYearAmount != null" >
+      #{publicFlowYearAmount},
+    </if>
+    <if test="privateFlowYearAmount != null" >
+      #{privateFlowYearAmount},
+    </if>
+    <if test="isLitigation != null" >
+      #{isLitigation},
+    </if>
+    <if test="retireDate != null" >
+      #{retireDate},
+    </if>
+    <if test="retirementPayMinAmount != null" >
+      #{retirementPayMinAmount},
+    </if>
+    <if test="isRelativeKnown != null" >
+      #{isRelativeKnown},
+    </if>
+    <if test="remark != null" >
+      #{remark},
+    </if>
+    <if test="createTime != null" >
+      #{createTime},
+    </if>
+    <if test="lastUpdateTime != null" >
+      #{lastUpdateTime},
+    </if>
+    <if test="createUser != null" >
+      #{createUser},
+    </if>
+    <if test="lastUpdateUser != null" >
+      #{lastUpdateUser},
+    </if>
+-->
+  </select>
+  <insert id="addCustomerInteview" parameterType="com.fjs.cronus.model.CustomerInterviewBaseInfo" useGeneratedKeys="true" keyProperty="id">
+    insert into customer_interview_base_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="customerId != null" >
+        customer_id,
+      </if>
+      <if test="ownerUserId != null" >
+        owner_user_id,
+      </if>
+      <if test="ownerUserName != null" >
+        owner_user_name,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="age != null" >
+        age,
+      </if>
+      <if test="birthDate != null" >
+        birth_date,
+      </if>
+      <if test="telephonenumber != null" >
+        telephonenumber,
+      </if>
+      <if test="maritalStatus != null" >
+        marital_status,
+      </if>
+      <if test="householdRegister != null" >
+        household_register,
+      </if>
+      <if test="education != null" >
+        education,
+      </if>
+      <if test="feeChannelName != null" >
+        fee_channel_name,
+      </if>
+      <if test="productName != null" >
+        product_name,
+      </if>
+      <if test="monthInterestRate != null" >
+        month_interest_rate,
+      </if>
+      <if test="serviceCharge != null" >
+        service_charge,
+      </if>
+      <if test="loanAmount != null" >
+        loan_amount,
+      </if>
+      <if test="loanTime != null" >
+        loan_time,
+      </if>
+      <if test="loanUseTime != null" >
+        loan_use_time,
+      </if>
+      <if test="loanPurpose != null" >
+        loan_purpose,
+      </if>
+      <if test="paymentType != null" >
+        payment_type,
+      </if>
+      <if test="creditRecord != null" >
+        credit_record,
+      </if>
+      <if test="zhimaCredit != null" >
+        zhima_credit,
+      </if>
+      <if test="creditQueryNumTwoMonth != null" >
+        credit_query_num_two_month,
+      </if>
+      <if test="creditQueryNumSixMonth != null" >
+        credit_query_num_six_month,
+      </if>
+      <if test="continuityOverdueNumTwoYear != null" >
+        continuity_overdue_num_two_year,
+      </if>
+      <if test="totalOverdueNumTwoYear != null" >
+        total_overdue_num_two_year,
+      </if>
+      <if test="debtAmount != null" >
+        debt_amount,
+      </if>
+      <if test="isOverdue != null" >
+        is_overdue,
+      </if>
+      <if test="overdueAmount != null" >
+        overdue_amount,
+      </if>
+      <if test="industry != null" >
+        industry,
+      </if>
+      <if test="incomeAmount != null" >
+        income_amount,
+      </if>
+      <if test="socialSecurityDate != null" >
+        social_security_date,
+      </if>
+      <if test="socialSecurityPayment != null" >
+        social_security_payment,
+      </if>
+      <if test="housingFundDate != null" >
+        housing_fund_date,
+      </if>
+      <if test="housingFundPayment != null" >
+        housing_fund_payment,
+      </if>
+      <if test="workDate != null" >
+        work_date,
+      </if>
+      <if test="companyRegisterDate != null" >
+        company_register_date,
+      </if>
+      <if test="shareRate != null" >
+        share_rate,
+      </if>
+      <if test="publicFlowYearAmount != null" >
+        public_flow_year_amount,
+      </if>
+      <if test="privateFlowYearAmount != null" >
+        private_flow_year_amount,
+      </if>
+      <if test="isLitigation != null" >
+        is_litigation,
+      </if>
+      <if test="retireDate != null" >
+        retire_date,
+      </if>
+      <if test="retirementPayMinAmount != null" >
+        retirement_pay_min_amount,
+      </if>
+      <if test="isRelativeKnown != null" >
+        is_relative_known,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="customerId != null" >
+        #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="ownerUserId != null" >
+        #{ownerUserId,jdbcType=INTEGER},
+      </if>
+      <if test="ownerUserName != null" >
+        #{ownerUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null" >
+        #{age,jdbcType=INTEGER},
+      </if>
+      <if test="birthDate != null" >
+        #{birthDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="telephonenumber != null" >
+        #{telephonenumber,jdbcType=VARCHAR},
+      </if>
+      <if test="maritalStatus != null" >
+        #{maritalStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="householdRegister != null" >
+        #{householdRegister,jdbcType=VARCHAR},
+      </if>
+      <if test="education != null" >
+        #{education,jdbcType=VARCHAR},
+      </if>
+      <if test="feeChannelName != null" >
+        #{feeChannelName,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null" >
+        #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="monthInterestRate != null" >
+        #{monthInterestRate,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceCharge != null" >
+        #{serviceCharge,jdbcType=VARCHAR},
+      </if>
+      <if test="loanAmount != null" >
+        #{loanAmount,jdbcType=VARCHAR},
+      </if>
+      <if test="loanTime != null" >
+        #{loanTime,jdbcType=INTEGER},
+      </if>
+      <if test="loanUseTime != null" >
+        #{loanUseTime,jdbcType=VARCHAR},
+      </if>
+      <if test="loanPurpose != null" >
+        #{loanPurpose,jdbcType=VARCHAR},
+      </if>
+      <if test="paymentType != null" >
+        #{paymentType,jdbcType=VARCHAR},
+      </if>
+      <if test="creditRecord != null" >
+        #{creditRecord,jdbcType=VARCHAR},
+      </if>
+      <if test="zhimaCredit != null" >
+        #{zhimaCredit,jdbcType=INTEGER},
+      </if>
+      <if test="creditQueryNumTwoMonth != null" >
+        #{creditQueryNumTwoMonth,jdbcType=INTEGER},
+      </if>
+      <if test="creditQueryNumSixMonth != null" >
+        #{creditQueryNumSixMonth,jdbcType=INTEGER},
+      </if>
+      <if test="continuityOverdueNumTwoYear != null" >
+        #{continuityOverdueNumTwoYear,jdbcType=INTEGER},
+      </if>
+      <if test="totalOverdueNumTwoYear != null" >
+        #{totalOverdueNumTwoYear,jdbcType=INTEGER},
+      </if>
+      <if test="debtAmount != null" >
+        #{debtAmount,jdbcType=INTEGER},
+      </if>
+      <if test="isOverdue != null" >
+        #{isOverdue,jdbcType=VARCHAR},
+      </if>
+      <if test="overdueAmount != null" >
+        #{overdueAmount,jdbcType=INTEGER},
+      </if>
+      <if test="industry != null" >
+        #{industry,jdbcType=VARCHAR},
+      </if>
+      <if test="incomeAmount != null" >
+        #{incomeAmount,jdbcType=INTEGER},
+      </if>
+      <if test="socialSecurityDate != null" >
+        #{socialSecurityDate,jdbcType=INTEGER},
+      </if>
+      <if test="socialSecurityPayment != null" >
+        #{socialSecurityPayment,jdbcType=INTEGER},
+      </if>
+      <if test="housingFundDate != null" >
+        #{housingFundDate,jdbcType=INTEGER},
+      </if>
+      <if test="housingFundPayment != null" >
+        #{housingFundPayment,jdbcType=INTEGER},
+      </if>
+      <if test="workDate != null" >
+        #{workDate,jdbcType=INTEGER},
+      </if>
+      <if test="companyRegisterDate != null" >
+        #{companyRegisterDate,jdbcType=INTEGER},
+      </if>
+      <if test="shareRate != null" >
+        #{shareRate,jdbcType=DECIMAL},
+      </if>
+      <if test="publicFlowYearAmount != null" >
+        #{publicFlowYearAmount,jdbcType=INTEGER},
+      </if>
+      <if test="privateFlowYearAmount != null" >
+        #{privateFlowYearAmount,jdbcType=INTEGER},
+      </if>
+      <if test="isLitigation != null" >
+        #{isLitigation,jdbcType=VARCHAR},
+      </if>
+      <if test="retireDate != null" >
+        #{retireDate,jdbcType=INTEGER},
+      </if>
+      <if test="retirementPayMinAmount != null" >
+        #{retirementPayMinAmount,jdbcType=INTEGER},
+      </if>
+      <if test="isRelativeKnown != null" >
+        #{isRelativeKnown,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateCustomerInteview" parameterType="com.fjs.cronus.model.CustomerInterviewBaseInfo" >
+    update customer_interview_base_info
+    <set >
+      <if test="customerId != null" >
+        customer_id = #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="ownerUserId != null" >
+        owner_user_id = #{ownerUserId,jdbcType=INTEGER},
+      </if>
+      <if test="ownerUserName != null" >
+        owner_user_name = #{ownerUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null" >
+        age = #{age,jdbcType=INTEGER},
+      </if>
+      <if test="birthDate != null" >
+        birth_date = #{birthDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="telephonenumber != null" >
+        telephonenumber = #{telephonenumber,jdbcType=VARCHAR},
+      </if>
+      <if test="maritalStatus != null" >
+        marital_status = #{maritalStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="householdRegister != null" >
+        household_register = #{householdRegister,jdbcType=VARCHAR},
+      </if>
+      <if test="education != null" >
+        education = #{education,jdbcType=VARCHAR},
+      </if>
+      <if test="feeChannelName != null" >
+        fee_channel_name = #{feeChannelName,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null" >
+        product_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="monthInterestRate != null" >
+        month_interest_rate = #{monthInterestRate,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceCharge != null" >
+        service_charge = #{serviceCharge,jdbcType=VARCHAR},
+      </if>
+      <if test="loanAmount != null" >
+        loan_amount = #{loanAmount,jdbcType=VARCHAR},
+      </if>
+      <if test="loanTime != null" >
+        loan_time = #{loanTime,jdbcType=INTEGER},
+      </if>
+      <if test="loanUseTime != null" >
+        loan_use_time = #{loanUseTime,jdbcType=VARCHAR},
+      </if>
+      <if test="loanPurpose != null" >
+        loan_purpose = #{loanPurpose,jdbcType=VARCHAR},
+      </if>
+      <if test="paymentType != null" >
+        payment_type = #{paymentType,jdbcType=VARCHAR},
+      </if>
+      <if test="creditRecord != null" >
+        credit_record = #{creditRecord,jdbcType=VARCHAR},
+      </if>
+      <if test="zhimaCredit != null" >
+        zhima_credit = #{zhimaCredit,jdbcType=INTEGER},
+      </if>
+      <if test="creditQueryNumTwoMonth != null" >
+        credit_query_num_two_month = #{creditQueryNumTwoMonth,jdbcType=INTEGER},
+      </if>
+      <if test="creditQueryNumSixMonth != null" >
+        credit_query_num_six_month = #{creditQueryNumSixMonth,jdbcType=INTEGER},
+      </if>
+      <if test="continuityOverdueNumTwoYear != null" >
+        continuity_overdue_num_two_year = #{continuityOverdueNumTwoYear,jdbcType=INTEGER},
+      </if>
+      <if test="totalOverdueNumTwoYear != null" >
+        total_overdue_num_two_year = #{totalOverdueNumTwoYear,jdbcType=INTEGER},
+      </if>
+      <if test="debtAmount != null" >
+        debt_amount = #{debtAmount,jdbcType=INTEGER},
+      </if>
+      <if test="isOverdue != null" >
+        is_overdue = #{isOverdue,jdbcType=VARCHAR},
+      </if>
+      <if test="overdueAmount != null" >
+        overdue_amount = #{overdueAmount,jdbcType=INTEGER},
+      </if>
+      <if test="industry != null" >
+        industry = #{industry,jdbcType=VARCHAR},
+      </if>
+      <if test="incomeAmount != null" >
+        income_amount = #{incomeAmount,jdbcType=INTEGER},
+      </if>
+      <if test="socialSecurityDate != null" >
+        social_security_date = #{socialSecurityDate,jdbcType=INTEGER},
+      </if>
+      <if test="socialSecurityPayment != null" >
+        social_security_payment = #{socialSecurityPayment,jdbcType=INTEGER},
+      </if>
+      <if test="housingFundDate != null" >
+        housing_fund_date = #{housingFundDate,jdbcType=INTEGER},
+      </if>
+      <if test="housingFundPayment != null" >
+        housing_fund_payment = #{housingFundPayment,jdbcType=INTEGER},
+      </if>
+      <if test="workDate != null" >
+        work_date = #{workDate,jdbcType=INTEGER},
+      </if>
+      <if test="companyRegisterDate != null" >
+        company_register_date = #{companyRegisterDate,jdbcType=INTEGER},
+      </if>
+      <if test="shareRate != null" >
+        share_rate = #{shareRate,jdbcType=DECIMAL},
+      </if>
+      <if test="publicFlowYearAmount != null" >
+        public_flow_year_amount = #{publicFlowYearAmount,jdbcType=INTEGER},
+      </if>
+      <if test="privateFlowYearAmount != null" >
+        private_flow_year_amount = #{privateFlowYearAmount,jdbcType=INTEGER},
+      </if>
+      <if test="isLitigation != null" >
+        is_litigation = #{isLitigation,jdbcType=VARCHAR},
+      </if>
+      <if test="retireDate != null" >
+        retire_date = #{retireDate,jdbcType=INTEGER},
+      </if>
+      <if test="retirementPayMinAmount != null" >
+        retirement_pay_min_amount = #{retirementPayMinAmount,jdbcType=INTEGER},
+      </if>
+      <if test="isRelativeKnown != null" >
+        is_relative_known = #{isRelativeKnown,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+</mapper>

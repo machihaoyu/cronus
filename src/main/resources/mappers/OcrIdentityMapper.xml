@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.OcrIdentityMapper" >
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.OcrIdentity" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customer_id" property="customerId" jdbcType="INTEGER" />
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="customer_telephone" property="customerTelephone" jdbcType="VARCHAR" />
+    <result column="card_name" property="cardName" jdbcType="VARCHAR" />
+    <result column="card_sex" property="cardSex" jdbcType="VARCHAR" />
+    <result column="card_nation" property="cardNation" jdbcType="VARCHAR" />
+    <result column="card_birth" property="cardBirth" jdbcType="VARCHAR" />
+    <result column="card_address" property="cardAddress" jdbcType="VARCHAR" />
+    <result column="card_num" property="cardNum" jdbcType="VARCHAR" />
+    <result column="card_sign_org" property="cardSignOrg" jdbcType="VARCHAR" />
+    <result column="card_valid_start" property="cardValidStart" jdbcType="VARCHAR" />
+    <result column="card_valid_end" property="cardValidEnd" jdbcType="VARCHAR" />
+    <result column="crm_attach_back_id" property="crmAttachBackId" jdbcType="VARCHAR" />
+    <result column="crm_attach_face_id" property="crmAttachFaceId" jdbcType="VARCHAR" />
+    <result column="document_category_ids" property="documentCategoryIds" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user" property="createUser" jdbcType="INTEGER" />
+    <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, customer_id, customer_name, customer_telephone, card_name, card_sex, card_nation, 
+    card_birth, card_address, card_num, card_sign_org, card_valid_start, card_valid_end, 
+    crm_attach_back_id, crm_attach_face_id, document_category_ids, status, create_time, 
+    last_update_time, create_user, last_update_user, is_deleted
+  </sql>
+  <select id="getOcrInfoListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+    select
+    count(*)
+    from ocr_identity  ocid
+    WHERE  ocid.is_deleted = 0
+    <if test="create_user_id != null and create_user_id !=''" >
+      and ocid.create_user =#{create_user_id}
+    </if>
+    <if test="customer_telephone != null and customer_telephone !=''" >
+      and ocid.customer_telephone =#{customer_telephone}
+    </if>
+    <if test="customer_name != null and customer_name !=''" >
+      and ocid.customer_name  like CONCAT('%', #{customer_name},'%' )
+    </if>
+    <if test="status != null and status !=''" >
+      and ocid.status =#{status}
+    </if>
+    <choose>
+      <when test="order != null and order !=''">
+        order by ${order} desc
+      </when>
+      <otherwise>
+        order by create_time desc
+      </otherwise>
+    </choose>
+  </select>
+
+  <select id="getOcrInfoList" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from ocr_identity  ocid
+    WHERE  ocid.is_deleted = 0
+    <if test="create_user_id != null and create_user_id !=''" >
+      and ocid.create_user =#{create_user_id}
+    </if>
+    <if test="customer_telephone != null and customer_telephone !=''" >
+      and ocid.customer_telephone =#{customer_telephone}
+    </if>
+    <if test="customer_name != null and customer_name !=''" >
+      and ocid.customer_name  like CONCAT('%', #{customer_name},'%' )
+    </if>
+    <if test="status != null and status !=''" >
+      and ocid.status =#{status}
+    </if>
+    <choose>
+      <when test="order != null and order !=''">
+        order by ${order} desc
+      </when>
+      <otherwise>
+        order by ocid.create_time desc
+      </otherwise>
+    </choose>
+    limit #{start},#{size}
+  </select>
+
+  <select id="findByFeild" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from ocr_identity
+    where is_deleted = 0
+    <if test="id != null">
+      and id = #{id}
+    </if>
+    <if test="customer_id != null">
+      and customer_id = #{customer_id}
+    </if>
+    <if test="create_user_id != null">
+      and create_user = #{create_user_id}
+    </if>
+    <if test="document_category_ids != null and document_category_ids !=''" >
+      and document_category_ids  like CONCAT('%', #{document_category_ids},'%' )
+    </if>
+    <choose>
+      <when test="order != null and order !=''">
+        order by ${order} desc
+      </when>
+      <otherwise>
+        order by create_time desc
+      </otherwise>
+    </choose>
+  </select>
+  <update id="updateOcrIdentity" parameterType="com.fjs.cronus.model.OcrIdentity" >
+    update ocr_identity
+    <set >
+      <if test="customerId != null" >
+        customer_id = #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="customerName != null" >
+        customer_name = #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerTelephone != null" >
+        customer_telephone = #{customerTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="cardName != null" >
+        card_name = #{cardName,jdbcType=VARCHAR},
+      </if>
+      <if test="cardSex != null" >
+        card_sex = #{cardSex,jdbcType=VARCHAR},
+      </if>
+      <if test="cardNation != null" >
+        card_nation = #{cardNation,jdbcType=VARCHAR},
+      </if>
+      <if test="cardBirth != null" >
+        card_birth = #{cardBirth,jdbcType=VARCHAR},
+      </if>
+      <if test="cardAddress != null" >
+        card_address = #{cardAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="cardNum != null" >
+        card_num = #{cardNum,jdbcType=VARCHAR},
+      </if>
+      <if test="cardSignOrg != null" >
+        card_sign_org = #{cardSignOrg,jdbcType=VARCHAR},
+      </if>
+      <if test="cardValidStart != null" >
+        card_valid_start = #{cardValidStart,jdbcType=VARCHAR},
+      </if>
+      <if test="cardValidEnd != null" >
+        card_valid_end = #{cardValidEnd,jdbcType=VARCHAR},
+      </if>
+      <if test="crmAttachBackId != null" >
+        crm_attach_back_id = #{crmAttachBackId,jdbcType=VARCHAR},
+      </if>
+      <if test="crmAttachFaceId != null" >
+        crm_attach_face_id = #{crmAttachFaceId,jdbcType=VARCHAR},
+      </if>
+      <if test="documentCategoryIds != null" >
+        document_category_ids = #{documentCategoryIds,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user = #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <insert id="addOcrIdentity" parameterType="com.fjs.cronus.model.OcrIdentity" useGeneratedKeys="true" keyProperty="id">
+    insert into ocr_identity
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="customerId != null" >
+        customer_id,
+      </if>
+      <if test="customerName != null" >
+        customer_name,
+      </if>
+      <if test="customerTelephone != null" >
+        customer_telephone,
+      </if>
+      <if test="cardName != null" >
+        card_name,
+      </if>
+      <if test="cardSex != null" >
+        card_sex,
+      </if>
+      <if test="cardNation != null" >
+        card_nation,
+      </if>
+      <if test="cardBirth != null" >
+        card_birth,
+      </if>
+      <if test="cardAddress != null" >
+        card_address,
+      </if>
+      <if test="cardNum != null" >
+        card_num,
+      </if>
+      <if test="cardSignOrg != null" >
+        card_sign_org,
+      </if>
+      <if test="cardValidStart != null" >
+        card_valid_start,
+      </if>
+      <if test="cardValidEnd != null" >
+        card_valid_end,
+      </if>
+      <if test="crmAttachBackId != null" >
+        crm_attach_back_id,
+      </if>
+      <if test="crmAttachFaceId != null" >
+        crm_attach_face_id,
+      </if>
+      <if test="documentCategoryIds != null" >
+        document_category_ids,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="lastUpdateTime != null" >
+        last_update_time,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="lastUpdateUser != null" >
+        last_update_user,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="customerId != null" >
+        #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="customerName != null" >
+        #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerTelephone != null" >
+        #{customerTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="cardName != null" >
+        #{cardName,jdbcType=VARCHAR},
+      </if>
+      <if test="cardSex != null" >
+        #{cardSex,jdbcType=VARCHAR},
+      </if>
+      <if test="cardNation != null" >
+        #{cardNation,jdbcType=VARCHAR},
+      </if>
+      <if test="cardBirth != null" >
+        #{cardBirth,jdbcType=VARCHAR},
+      </if>
+      <if test="cardAddress != null" >
+        #{cardAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="cardNum != null" >
+        #{cardNum,jdbcType=VARCHAR},
+      </if>
+      <if test="cardSignOrg != null" >
+        #{cardSignOrg,jdbcType=VARCHAR},
+      </if>
+      <if test="cardValidStart != null" >
+        #{cardValidStart,jdbcType=VARCHAR},
+      </if>
+      <if test="cardValidEnd != null" >
+        #{cardValidEnd,jdbcType=VARCHAR},
+      </if>
+      <if test="crmAttachBackId != null" >
+        #{crmAttachBackId,jdbcType=VARCHAR},
+      </if>
+      <if test="crmAttachFaceId != null" >
+        #{crmAttachFaceId,jdbcType=VARCHAR},
+      </if>
+      <if test="documentCategoryIds != null" >
+        #{documentCategoryIds,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateTime != null" >
+        #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null" >
+        #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+</mapper>

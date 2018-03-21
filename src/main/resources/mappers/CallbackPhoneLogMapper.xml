@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fjs.cronus.mappers.CallbackPhoneLogMapper">
+  <resultMap id="BaseResultMap" type="com.fjs.cronus.model.CallbackPhoneLog">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="operat_user_id" jdbcType="INTEGER" property="operatUserId" />
+    <result column="operat_user_name" jdbcType="VARCHAR" property="operatUserName" />
+    <result column="customer_id" jdbcType="INTEGER" property="customerId" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_user" jdbcType="INTEGER" property="createUser" />
+    <result column="last_update_user" jdbcType="INTEGER" property="lastUpdateUser" />
+    <result column="last_update_time" jdbcType="TIMESTAMP" property="lastUpdateTime" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, operat_user_id, operat_user_name, customer_id, status, description, create_time, 
+    remark, create_user, last_update_user, last_update_time, is_deleted
+  </sql>
+  <select id="getCustomerId" parameterType="java.util.Map"  resultType="java.lang.Integer">
+  select customer_id from callback_phone_log
+  WHERE  is_deleted = 0
+  <if test="callback_user != null and callback_user != ''">
+    AND  operat_user_name = #{callback_user}
+  </if>
+    <if test="createTimeStart!=null and createTimeStart!='' and createTimeEnd!=null and createTimeEnd!=''">
+      and create_time BETWEEN ${createTimeStart} and ${createTimeEnd}
+    </if>
+    <if test="callback_user != null and callback_user != ''">
+      AND  operat_user_name = #{callback_user}
+    </if>
+    group by  customer_id;
+  </select>
+  <select id="findByFeild" parameterType="java.util.Map"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from callback_phone_log
+    WHERE is_deleted = 0
+    <if test="id != null and id !='' ">
+      AND id = #{id}
+    </if>
+    <if test="customerId != null and customerId !='' ">
+      AND customer_id = #{customerId}
+    </if>
+    <if test="statusList != null and statusList.size > 0">
+      and status IN
+      <foreach collection="statusList" item="statusList"
+               index="index" open="(" close=")" separator=",">
+        ${statusList}
+      </foreach>
+    </if>
+    ORDER BY create_time DESC
+  </select>
+
+  <insert id="addCallbackPhoneLog" parameterType="com.fjs.cronus.model.CallbackPhoneLog" useGeneratedKeys="true" keyProperty="id">
+    insert into callback_phone_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+
+      <if test="operatUserId != null">
+        operat_user_id,
+      </if>
+      <if test="operatUserName != null">
+        operat_user_name,
+      </if>
+      <if test="customerId != null">
+        customer_id,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="lastUpdateUser != null">
+        last_update_user,
+      </if>
+      <if test="lastUpdateTime != null">
+        last_update_time,
+      </if>
+      <if test="isDeleted != null">
+        is_deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="operatUserId != null">
+        #{operatUserId,jdbcType=INTEGER},
+      </if>
+      <if test="operatUserName != null">
+        #{operatUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerId != null">
+        #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateUser != null">
+        #{lastUpdateUser,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateTime != null">
+        #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null">
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+</mapper>
