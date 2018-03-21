@@ -85,7 +85,7 @@ public class CommunicationLogController {
             @ApiImplicitParam(name = "customerUsefulDTO", value = "customerUsefulDTO", required = true, paramType = "body", dataType = "CustomerUsefulDTO")})
     @RequestMapping(value = "/insertLog", method = RequestMethod.POST)
     @ResponseBody
-    public CronusDto inserLog(@Valid @RequestBody CustomerUsefulDTO customerUsefulDTO, BindingResult result, HttpServletRequest request) {
+    public CronusDto insertLog(@Valid @RequestBody CustomerUsefulDTO customerUsefulDTO, BindingResult result, HttpServletRequest request) {
         logger.info("新增沟通日志的数据：" + customerUsefulDTO.toString());
         CronusDto theaApiDTO = new CronusDto();
         if (result.hasErrors()) {

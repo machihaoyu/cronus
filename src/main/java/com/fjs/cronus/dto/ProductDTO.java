@@ -45,8 +45,155 @@ public class ProductDTO implements Serializable{
     private Long create_time;// int(10) NOT NULL DEFAULT '0' COMMENT '创建时间',
     private Long update_time;// int(10) NOT NULL DEFAULT '0' COMMENT '更新时间',
     private Long cooperate_time;// int(11) DEFAULT '0' COMMENT '合作时间',
-    private Integer status;// int(11) DEFAULT '1' COMMENT '状态:1-正常   0-终止',
+    private String status;// int(11) DEFAULT '1' COMMENT '状态:1-正常   0-终止',
     private String sub_company;
+
+
+    //找产品字段;
+    private Long id;// 产品id;
+    private Long productBasicId;//产品id（产品详情中）
+    private String productName; //产品名称;
+    private String branchCompanyName; // 分公司名称
+    private String branch; //分支机构;
+    private String productCity; // 产品城市
+    private String productType; //产品类型;
+    private String monthRateStart; //月利率起;
+    private String monthRateEnd; // 月利率止;
+    private String repaymentMode; // 还款方式;
+    private Integer loanTermStart; // 借款期限起;
+    private Integer loanTermEnd; // 借款期限止;
+    private Integer lendTimeStart; // 放款时间起;
+    private Integer lendTimeEnd; // 放款时间止;
+    private String channelMaintain; // 渠道维护人;
+    private String channelMaintainPhone; //渠道维护人手机号码;
+
+    public Long getProductBasicId() {
+        return productBasicId;
+    }
+
+    public void setProductBasicId(Long productBasicId) {
+        this.productBasicId = productBasicId;
+    }
+
+    public String getProductType() {
+        return productType;
+    }
+
+    public void setProductType(String productType) {
+        this.productType = productType;
+    }
+
+    public String getMonthRateStart() {
+        return monthRateStart;
+    }
+
+    public void setMonthRateStart(String monthRateStart) {
+        this.monthRateStart = monthRateStart;
+    }
+
+    public String getMonthRateEnd() {
+        return monthRateEnd;
+    }
+
+    public void setMonthRateEnd(String monthRateEnd) {
+        this.monthRateEnd = monthRateEnd;
+    }
+
+    public String getRepaymentMode() {
+        return repaymentMode;
+    }
+
+    public void setRepaymentMode(String repaymentMode) {
+        this.repaymentMode = repaymentMode;
+    }
+
+    public Integer getLoanTermStart() {
+        return loanTermStart;
+    }
+
+    public void setLoanTermStart(Integer loanTermStart) {
+        this.loanTermStart = loanTermStart;
+    }
+
+    public Integer getLoanTermEnd() {
+        return loanTermEnd;
+    }
+
+    public void setLoanTermEnd(Integer loanTermEnd) {
+        this.loanTermEnd = loanTermEnd;
+    }
+
+    public Integer getLendTimeStart() {
+        return lendTimeStart;
+    }
+
+    public void setLendTimeStart(Integer lendTimeStart) {
+        this.lendTimeStart = lendTimeStart;
+    }
+
+    public Integer getLendTimeEnd() {
+        return lendTimeEnd;
+    }
+
+    public void setLendTimeEnd(Integer lendTimeEnd) {
+        this.lendTimeEnd = lendTimeEnd;
+    }
+
+    public String getChannelMaintain() {
+        return channelMaintain;
+    }
+
+    public void setChannelMaintain(String channelMaintain) {
+        this.channelMaintain = channelMaintain;
+    }
+
+    public String getChannelMaintainPhone() {
+        return channelMaintainPhone;
+    }
+
+    public void setChannelMaintainPhone(String channelMaintainPhone) {
+        this.channelMaintainPhone = channelMaintainPhone;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getBranchCompanyName() {
+        return branchCompanyName;
+    }
+
+    public void setBranchCompanyName(String branchCompanyName) {
+        this.branchCompanyName = branchCompanyName;
+    }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
+    }
+
+    public String getProductCity() {
+        return productCity;
+    }
+
+    public void setProductCity(String productCity) {
+        this.productCity = productCity;
+    }
 
     public String getSub_company() {
         return sub_company;
@@ -336,11 +483,11 @@ public class ProductDTO implements Serializable{
         this.cooperate_time = cooperate_time;
     }
 
-    public Integer getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 }

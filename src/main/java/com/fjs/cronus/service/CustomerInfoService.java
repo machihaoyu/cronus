@@ -12,6 +12,7 @@ import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
+import com.fjs.cronus.dto.thea.LoanDTO6;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.uc.UserSortInfoDTO;
@@ -1024,29 +1025,9 @@ public class CustomerInfoService {
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
 
-        //领取开始生成一笔交易 //todo 取消生成交易
-        LoanDTO loanDTO = new LoanDTO();
-        loanDTO.setCustomerId(customerId);
-        loanDTO.setCustomerName(customerInfo.getCustomerName());
-        loanDTO.setLoanAmount(customerInfo.getLoanAmount());
-        loanDTO.setOwnUserName(customerInfo.getOwnUserName());
-        loanDTO.setOwnUserId(customerInfo.getOwnUserId());
-        loanDTO.setUtmSource("下单");
-        String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-        loanDTO.setTelephonenumber(telephone);
-        logger.warn("调用交易接口产生交易-------》");
-        TheaApiDTO theaApiDTO = theaService.insertLoan(loanDTO, token);
-        logger.warn("调用交易接口结束-------》");
-        if (theaApiDTO != null && theaApiDTO.getResult() == 0) {
-            flag = true;
-            resultDto.setData(flag);
-            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
-            resultDto.setResult(ResultResource.CODE_SUCCESS);
-        } else {
-            resultDto.setData(theaApiDTO.getData());
-            resultDto.setMessage(theaApiDTO.getMessage());
-            resultDto.setResult(theaApiDTO.getResult());
-        }
+        resultDto.setData(true);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
         return resultDto;
     }
 
@@ -1621,7 +1602,7 @@ public class CustomerInfoService {
 //        customerInfo.setConfirm(0);
         customerInfo.setLastUpdateUser(0);
 //        customerInfo.setClickCommunicateButton(0);
-        customerInfo.setTelephonenumber(DEC3Util.des3EncodeCBC(customerInfo.getTelephonenumber()));
+//        customerInfo.setTelephonenumber(DEC3Util.des3EncodeCBC(customerInfo.getTelephonenumber()));
         customerInfoMapper.updateCustomerSys(customerInfo);
         //生成日志记录
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
@@ -1809,5 +1790,41 @@ public class CustomerInfoService {
         paramsMap.put("customerType","意向客户");
         resultList = customerInfoMapper.findCustomerListByFeild(paramsMap);
         return resultList.size();
+    }
+
+    @Transactional
+    public CronusDto addLoan(LoanDTO6 loanDTO, UserInfoDTO userInfoDTO, String token) {
+        CronusDto resultDto = new CronusDto();
+        Integer userId = null;
+        if (!StringUtils.isEmpty(userInfoDTO.getUser_id())) {
+            userId = Integer.parseInt(userInfoDTO.getUser_id());
+        }
+        //插入日志
+        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
+        customerInfoLog.setLogCreateTime(new Date());
+        customerInfoLog.setLogDescription(CommonEnum.LOAN_OPERATION_TYPE_13.getCodeDesc());
+        customerInfoLog.setLogUserId(userId);
+        customerInfoLog.setIsDeleted(0);
+
+        customerInfoLog.setCustomerId(loanDTO.getCustomerId());
+        customerInfoLog.setTelephonenumber(loanDTO.getTelephonenumber());
+        customerInfoLog.setCreateTime(new Date());
+        customerInfoLog.setLastUpdateTime(new Date());
+        customerInfoLog.setCreateUser(userId);
+        customerInfoLog.setLastUpdateUser(userId);
+        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+
+        logger.warn("调用交易接口产生交易-------》");
+        TheaApiDTO theaApiDTO = theaService.addLoan(loanDTO, token);
+        logger.warn("调用交易接口结束-------》");
+        if (theaApiDTO != null && theaApiDTO.getResult() == 0) {
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+        } else {
+            resultDto.setData(theaApiDTO.getData());
+            resultDto.setMessage(theaApiDTO.getMessage());
+            resultDto.setResult(theaApiDTO.getResult());
+        }
+        return resultDto;
     }
 }

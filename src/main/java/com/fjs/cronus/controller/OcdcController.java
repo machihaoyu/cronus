@@ -6,6 +6,7 @@ import com.fjs.cronus.dto.crm.OcdcData;
 import com.fjs.cronus.dto.crm.ResponseData;
 import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.service.AutoAllocateService;
+import com.fjs.cronus.service.AutoCleanService;
 import com.fjs.cronus.service.OcdcService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -33,6 +34,9 @@ public class OcdcController {
 
     @Autowired
     private AutoAllocateService autoAllocateService;
+
+    @Autowired
+    private AutoCleanService autoCleanService;
 
     @ApiOperation(value = "OCDC推送", notes = "OCDC推送客户信息")
     @ApiImplicitParams({
@@ -162,6 +166,16 @@ public class OcdcController {
             responseData.setErrNum("1");
         }
         return responseData;
+    }
+
+    @ApiOperation(value = "客户清洗", notes = "客户清洗")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", dataType = "string")
+    })
+    @RequestMapping(value = "/autoClean", method = RequestMethod.GET)
+    public String autoClean(@RequestHeader("Authorization") String token) {
+
+        return autoCleanService.autoClean(token);
     }
 
 }

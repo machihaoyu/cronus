@@ -164,22 +164,23 @@ public class AutoAllocateService {
                 customerId = customerDTO.getId();
                 if (null != customerDTO.getOwnerUserId() && customerDTO.getOwnerUserId() > 0) {
                     simpleUserInfoDTO = thorClientService.getUserInfoById(token, customerDTO.getOwnerUserId());
-                    if (null != ownerUser.getSub_company_id()) {
+                    if (null != simpleUserInfoDTO.getSub_company_id()) {
                         customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
                     } else {
                         customerDTO.setSubCompanyId(0);
                     }
+                    customerDTO.setOwnUserName(simpleUserInfoDTO.getName());
+                    customerDTO.setReceiveTime(new Date());
+                    customerDTO.setLastUpdateTime(new Date());
+                    CustomerInfo customerInfo = new CustomerInfo();
+                    EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
+                    if (allocateEntity.getAllocateStatus().getCode().equals("1")) {
+                        customerInfo.setConfirm(1);
+                        customerInfo.setClickCommunicateButton(0);
+                        customerInfo.setCommunicateTime(null);
+                    }
+                    customerInfoService.editCustomerSys(customerInfo, token);
                 }
-                customerDTO.setReceiveTime(new Date());
-                customerDTO.setLastUpdateTime(new Date());
-                CustomerInfo customerInfo = new CustomerInfo();
-                BeanUtils.copyProperties(customerDTO, customerInfo);
-                if (allocateEntity.getAllocateStatus().getCode().equals("1")) {
-                    customerInfo.setConfirm(1);
-                    customerInfo.setClickCommunicateButton(0);
-                    customerInfo.setCommunicateTime(null);
-                }
-                customerInfoService.editCustomerSys(customerInfo, token);
             } else {
                 CronusDto<CustomerDTO> cronusDto = customerInfoService.fingByphone(customerDTO.getTelephonenumber());
                 CustomerDTO hasCustomer = cronusDto.getData();
@@ -228,13 +229,6 @@ public class AutoAllocateService {
                     if (allocateCities.contains(customerDTO.getCity())) {
                         allocateRedisService.changeAllocateTemplet(customerDTO.getOwnerUserId(), customerDTO.getCity());
                     }
-                    //如果是再分配盘的数据则标记再分配成功
-//                    if (allocateSource.getCode().equals("2")) {
-//                        Map<String, Object> againAllocateMap = new HashMap<>();
-//                        againAllocateMap.put("dataId", customerId);
-//                        againAllocateMap.put("status", CommonEnum.AGAIN_ALLOCATE_STATUS_1.getCode());
-//                        againAllocateCustomerService.saveStatusByDataId(againAllocateMap);
-//                    }
                     //添加分配日志
                     CustomerInfo customerInfo = new CustomerInfo();
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
@@ -272,21 +266,6 @@ public class AutoAllocateService {
         }
         return allocateEntity;
     }
-
-//    private void addCustomer(CustomerDTO customerDTO, String token) {
-//        SimpleUserInfoDTO simpleUserInfoDTO;
-//        if (customerDTO.getOwnerUserId() != null && customerDTO.getOwnerUserId() > 0) {
-//            simpleUserInfoDTO = thorUcService.getUserInfoById(token, customerDTO.getOwnerUserId()).getData();
-//            if (null != simpleUserInfoDTO.getSub_company_id()) {
-//                customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
-//            } else {
-//                customerDTO.setSubCompanyId(0);
-//            }
-//        }
-//        //保存数据
-//        customerDTO.setLastUpdateTime(new Date());
-//        customerInfoService.addCustomer(customerDTO, token);
-//    }
 
     /**
      * 主动申请渠道添加交易
@@ -542,7 +521,9 @@ public class AutoAllocateService {
                     //failList 添加到缓存
                     existFailList.addAll(failList);
                     cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, failList);
-                    theaService.invalidLoans(token, convertListToString(successList));
+                    if (successList.size()>0) {
+                        theaService.invalidLoans(token, convertListToString(successList));
+                    }
                     sb.append("--");
                     sb.append("failList:" + failList.toString());
                     sb.append("--");

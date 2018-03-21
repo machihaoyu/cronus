@@ -19,7 +19,6 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.exception.ExceptionValidate;
 import com.fjs.cronus.util.DownloadFileUtil;
 import com.fjs.cronus.util.StringAsciiUtil;
-import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -772,9 +771,9 @@ public class CrmController {
 
     //获取用户信息
     @RequestMapping(value = "/getUserInfo", method = RequestMethod.GET)
-    public PageBeanDTO<UserInfoDTO> getUserInfo(@RequestParam Integer departmentId , @RequestParam String search,
-                                                @RequestParam Integer type, @RequestParam Integer page,
-                                                @RequestParam Integer size) throws InvocationTargetException, IllegalAccessException {
+    public PageBeanDTO<UserInfoDTO> getUserInfo(@RequestParam Integer departmentId ,@RequestParam String search,
+                                  @RequestParam Integer type,@RequestParam Integer page,
+                                  @RequestParam Integer size) throws InvocationTargetException, IllegalAccessException {
         HashMap<String,Object> map = new HashMap<>();
         if(StringUtils.isNotEmpty(search)){
             map.put("name",search);
@@ -1263,13 +1262,14 @@ public class CrmController {
 
     //获取产品列表
     @RequestMapping(value = "/getProductList",method = RequestMethod.GET)
-    public PageBeanDTO<ProductDTO> getProductList(@RequestParam String search, @RequestParam Integer subCompanyId ,@RequestParam Integer p,@RequestParam Integer size){
-        String url = saleUrl + "getProductList?key=" + saleKey + "&search=" + search + "&sub_company_id=" + subCompanyId +"&p=" + p + "&perpage=" + size;
+    public PageBeanDTO<ProductDTO> getProductList(@RequestParam String search, @RequestParam Integer subCompanyId ,@RequestParam Integer p,@RequestParam Integer size, @RequestParam Integer userId, @RequestParam String token){
+        String url = saleUrl + "getProductList?key=" + saleKey + "&search=" + search + "&sub_company_id=" + subCompanyId +"&p=" + p + "&perpage=" + size + "&user_id=" + userId + "&token=" + token;
         String res = restTemplate.getForObject(url, String.class);
         ResponseData data = JSON.parseObject(res, ResponseData.class);
         validateResponse(data);
         PageBeanDTO<ProductDTO> pageBeanDTO = new PageBeanDTO();
-        return JSON.parseObject(data.getRetData(),pageBeanDTO.getClass());
+        pageBeanDTO = JSON.parseObject(data.getRetData(), pageBeanDTO.getClass());
+        return pageBeanDTO;
     }
 
     //添加普通合同;
@@ -1670,8 +1670,8 @@ public class CrmController {
     /********************************-----产品相关---start----*********************************/
     //通过产品ID获取单个产品信息
     @RequestMapping(value = "/getProductInfoById",method = RequestMethod.GET)
-    public ProductDTO getProductInfoById(@RequestParam Integer productId) {
-        String url = saleUrl + "getProductInfo?key=" + saleKey + "&product_id=" + productId;
+    public ProductDTO getProductInfoById(@RequestParam Integer productId, @RequestParam String productType, @RequestParam String token) {
+        String url = saleUrl + "getProductInfo?key=" + saleKey + "&product_id=" + productId + "&product_type=" + productType + "&token=" + token;
         String res = restTemplate.getForObject(url, String.class);
         ResponseData data = JSONObject.parseObject(res, ResponseData.class);
         validateResponse(data);
