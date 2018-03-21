@@ -26,8 +26,8 @@ import java.util.Map;
  * UC用户中心接口
  * Created by Administrator on 2017/7/19 0019. url = "http://192.168.1.124:1120",
  */
-//@FeignClient(value = "THOR20-BACKEND-ZL", url = "http://192.168.2.33:8099",configuration = FeignClientConfig.class)
-@FeignClient(value = "${client.feign.thor-backend}", configuration = FeignClientConfig.class)
+@FeignClient(value = "${client.feign.thor-backend}", url = "http://192.168.1.124:1120")
+//@FeignClient(value = "${client.feign.thor-backend}", configuration = FeignClientConfig.class)
 public interface ThorService {
 
 
@@ -710,5 +710,8 @@ public interface ThorService {
                                                                 @RequestParam(value = "size",required = true)Integer size,
                                                                 @RequestHeader("Authorization")String token);
 
+    @RequestMapping(value = "/api/v1/findDepartmentById",method = RequestMethod.GET)
+    @ResponseBody
+    public ThorApiDTO<DepartmentDto> findDepartmentById(@RequestHeader("Authorization")String token, @RequestParam(value = "departmentId",required = true) Integer departmentId);
 }
 
