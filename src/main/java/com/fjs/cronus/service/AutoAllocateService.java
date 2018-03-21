@@ -521,7 +521,9 @@ public class AutoAllocateService {
                     //failList 添加到缓存
                     existFailList.addAll(failList);
                     cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, failList);
-                    theaService.invalidLoans(token, convertListToString(successList));
+                    if (successList.size()>0) {
+                        theaService.invalidLoans(token, convertListToString(successList));
+                    }
                     sb.append("--");
                     sb.append("failList:" + failList.toString());
                     sb.append("--");
