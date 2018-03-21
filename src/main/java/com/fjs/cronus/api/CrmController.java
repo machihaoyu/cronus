@@ -19,7 +19,6 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.exception.ExceptionValidate;
 import com.fjs.cronus.util.DownloadFileUtil;
 import com.fjs.cronus.util.StringAsciiUtil;
-import com.github.pagehelper.PageHelper;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -772,9 +771,9 @@ public class CrmController {
 
     //获取用户信息
     @RequestMapping(value = "/getUserInfo", method = RequestMethod.GET)
-    public PageBeanDTO<UserInfoDTO> getUserInfo(@RequestParam Integer departmentId , @RequestParam String search,
-                                                @RequestParam Integer type, @RequestParam Integer page,
-                                                @RequestParam Integer size) throws InvocationTargetException, IllegalAccessException {
+    public PageBeanDTO<UserInfoDTO> getUserInfo(@RequestParam Integer departmentId ,@RequestParam String search,
+                                  @RequestParam Integer type,@RequestParam Integer page,
+                                  @RequestParam Integer size) throws InvocationTargetException, IllegalAccessException {
         HashMap<String,Object> map = new HashMap<>();
         if(StringUtils.isNotEmpty(search)){
             map.put("name",search);
