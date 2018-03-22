@@ -1920,7 +1920,7 @@
         a.receive_time,
         NOW()
         ) > 15
-        AND a.communicate_time IS NULL
+        AND a.communicate_time IS NULL LIMIT 0,100
     </select>
 
     <!--自动清洗数据计算-->
