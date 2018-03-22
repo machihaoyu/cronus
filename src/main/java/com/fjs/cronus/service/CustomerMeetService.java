@@ -152,22 +152,23 @@ public class CustomerMeetService {
 
     }
 
-    public CronusDto getCustomerMeetByCustomerId(Integer customerId, Long userId) {
+    public CronusDto getCustomerMeetByCustomerId(Integer customerId, Long userId, Long loanCreatTime) {
         // 参数校验
         if (customerId == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "customerId 不能为空");
         }
+        if (loanCreatTime == null || loanCreatTime.equals(0L)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "loadCreatTime 不能为空");
+        }
 
         // 获取c端用户，业务经理id
-        CustomerInfo temp = new CustomerInfo();
+        /*CustomerInfo temp = new CustomerInfo();
         temp.setId(customerId);
-        CustomerInfo customerInfo = customerInfoMapper.selectOne(temp);
+        CustomerInfo customerInfo = customerInfoMapper.selectOne(temp);*/
 
         CronusDto result = new CronusDto();
-        if (customerInfo != null && customerInfo.getOwnUserId() != null) {
-            CustomerMeet customerMeet = customerMeetMapper.getByCustomerId(customerId, customerInfo.getOwnUserId());
-            result.setData(customerMeet);
-        }
+        CustomerMeet customerMeet = customerMeetMapper.getByCustomerId(customerId, new Date(loanCreatTime));
+        result.setData(customerMeet);
 
         return result;
     }
