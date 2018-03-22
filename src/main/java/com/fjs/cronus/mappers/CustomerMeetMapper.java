@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,9 @@ public interface CustomerMeetMapper extends MyMapper<CustomerMeet> {
 
     List<CustomerMeet> selectByTime(Map<String,Object> paramsMap);
 
+    /**
+     * 查询根据指定时间、顾客id最近的面见记录.
+     */
     @Results({
         @Result(column = "loan_id", property = "loanId"),
         @Result(column = "customer_id", property = "customerId"),
@@ -34,6 +38,6 @@ public interface CustomerMeetMapper extends MyMapper<CustomerMeet> {
         @Result(column = "last_update_user", property = "lastUpdateUser"),
         @Result(column = "is_deleted", property = "isDeleted"),
     })
-    @Select("SELECT * FROM customer_meet WHERE customer_id=#{customerId} AND create_user=#{owerUserId} ORDER BY create_time DESC LIMIT 1")
-    CustomerMeet getByCustomerId(@Param("customerId") Integer customerId, @Param("owerUserId") Integer owerUserId);
+    @Select("SELECT * FROM customer_meet WHERE customer_id=#{customerId} AND is_deleted=0 AND `create_time` >= #{createTime,jdbcType=TIMESTAMP} ORDER BY create_time ASC LIMIT 1")
+    CustomerMeet getByCustomerId(@Param("customerId") Integer customerId, @Param("createTime") Date createTime);
 }
