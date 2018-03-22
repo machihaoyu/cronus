@@ -1130,7 +1130,7 @@ public class CustomerInfoService {
 
     @Transactional
     public boolean cancelkeepCustomer(Integer customerId, UserInfoDTO userInfoDTO, String token) {
-        boolean flag = false;
+//        boolean flag = false;
         Integer userId = null;
         if (org.apache.commons.lang3.StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
             userId = Integer.parseInt(userInfoDTO.getUser_id());
@@ -1158,11 +1158,11 @@ public class CustomerInfoService {
         customerInfoLog.setLogUserId(userId);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
-        TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token, customerId.toString());
-        if (resultDto != null && resultDto.getResult() == 0) {
-            flag = true;
-        }
-        return flag;
+//        TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token, customerId.toString());
+//        if (resultDto != null && resultDto.getResult() == 0) {
+//            flag = true;
+//        }
+        return true;
     }
 
     public List<CustomerInfo> getByIds(String ids) {
