@@ -512,7 +512,7 @@ public class AutoAllocateService {
 
                         } else {
                             //分配名额已经满了,向这个城市的crm助理发送短信
-                            sendCRMAssistantMessage(customerInfo.getCity(), customerInfo.getCustomerName(), token);
+//                            sendCRMAssistantMessage(customerInfo.getCity(), customerInfo.getCustomerName(), token);
                             if (!failList.contains(customerInfo.getId()))
                                 failList.add(customerInfo.getId());
                         }
