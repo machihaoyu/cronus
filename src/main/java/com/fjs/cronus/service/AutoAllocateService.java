@@ -304,7 +304,7 @@ public class AutoAllocateService {
         List<CrmUserDTO> crmUserDTOList = crmUser.getRetData();
         for (CrmUserDTO crmUserDTO :
                 crmUserDTOList) {
-            smsService.sendCRMAssistant(crmUserDTO.getPhone());
+//            smsService.sendCRMAssistant(crmUserDTO.getPhone());
         }
     }
 
