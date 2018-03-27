@@ -84,7 +84,7 @@ public class AppService {
         Map<String,Object> paramMap = new HashMap<>();
         ReceiveAndKeepCountDTO receiveAndKeepCountDTO = new ReceiveAndKeepCountDTO();
         Date date = new Date();
-        if(!(userId.equals(4)||userId.equals(1046))) {
+        if(!(userId.equals(4)||userId.equals(1046)||userId.equals(425393))) {
             paramMap.put("createUserId", userId);
         }
         paramMap.put("operationList", list);
@@ -120,7 +120,7 @@ public class AppService {
     public List<Integer> getKeepCusomerId(Integer userId){
         Map<String,Object> paramMap = new HashMap<>();
         Date date = new Date();
-        if(!(userId.equals(4)||userId.equals(1046))) {
+        if(!(userId.equals(4)||userId.equals(1046)||userId.equals(425393))) {
             paramMap.put("createUserId", userId);
         }
         paramMap.put("operation", CommonConst.OPERATION);
@@ -137,7 +137,7 @@ public class AppService {
         //today = "2017-12-27";
         paramMap.put("list",keepCount);
         paramMap.put("createTime",today);
-        if(!(userId.equals(4)||userId.equals(1046))) {
+        if(!(userId.equals(4)||userId.equals(1046)||userId.equals(425393))) {
             paramMap.put("createUserId", userId);
         }
         List<Integer> allocateCommunication = communicationLogMapper.allocateCommunication(paramMap);
