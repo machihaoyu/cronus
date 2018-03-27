@@ -9,12 +9,9 @@ import com.fjs.cronus.dto.cronus.OcrDocumentDto;
 import com.fjs.cronus.mappers.AllocateLogMapper;
 import com.fjs.cronus.mappers.CommunicationLogMapper;
 import com.fjs.cronus.mappers.RContractDocumentMapper;
-import com.fjs.cronus.model.CommunicationLog;
 import com.fjs.cronus.model.RContractDocument;
-import com.fjs.cronus.service.DocumentService;
 import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.util.DateUtils;
-import com.fjs.cronus.util.FtpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -103,7 +100,7 @@ public class AppService {
             receiveAndKeepCountDTO.setAllocateCommunicationCount(allocateCommunication.size());
         }
         //获取客户领取数
-        List<Integer> keepCustomer = getKeepCusomerId(userId);
+        List<Integer> keepCustomer = getKeepCustomerId(userId);
         receiveAndKeepCountDTO.setKeepCount(keepCustomer.size());
         if (keepCustomer == null || keepCustomer.size() == 0){
             receiveAndKeepCountDTO.setKeepCommunicationCount(0);
@@ -117,7 +114,7 @@ public class AppService {
         return resultDto;
     }
 
-    public List<Integer> getKeepCusomerId(Integer userId){
+    public List<Integer> getKeepCustomerId(Integer userId){
         Map<String,Object> paramMap = new HashMap<>();
         Date date = new Date();
         if(!(userId.equals(4)||userId.equals(1046)||userId.equals(425393))) {
