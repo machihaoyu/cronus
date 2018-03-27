@@ -300,11 +300,16 @@ public class AutoAllocateService {
 
     private void sendCRMAssistantMessage(String customerCity, String customerName, String token) {
 
-        BaseUcDTO<List<CrmUserDTO>> crmUser = thorService.getCRMUser(token, customerCity);
-        List<CrmUserDTO> crmUserDTOList = crmUser.getRetData();
-        for (CrmUserDTO crmUserDTO :
-                crmUserDTOList) {
-//            smsService.sendCRMAssistant(crmUserDTO.getPhone());
+        try {
+            BaseUcDTO<List<CrmUserDTO>> crmUser = thorService.getCRMUser(token, customerCity);
+            List<CrmUserDTO> crmUserDTOList = crmUser.getRetData();
+            for (CrmUserDTO crmUserDTO :
+                    crmUserDTOList) {
+                smsService.sendCRMAssistant(crmUserDTO.getPhone());
+            }
+        }catch (Exception e)
+        {
+            logger.error("--sendCRMAssistantMessage:",e);
         }
     }
 
@@ -485,9 +490,10 @@ public class AutoAllocateService {
 
                         }
                         if (ownUserId > 0) {
+                            allocateRedisService.changeAllocateTemplet(customerInfo.getOwnUserId(), customerInfo.getCity());
+
                             allocateLogService.addAllocatelog(customerInfo, ownUserId,
                                     CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
-
                             SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token, ownUserId).getData();
                             if (simpleUserInfoDTO != null && null != simpleUserInfoDTO.getSub_company_id()) {
                                 customerInfo.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
@@ -504,7 +510,7 @@ public class AutoAllocateService {
                             customerInfo.setCommunicateTime(null);
                             customerInfoService.updateCustomerNonCommunicate(customerInfo);
 
-                            allocateRedisService.changeAllocateTemplet(customerInfo.getOwnUserId(), customerInfo.getCity());
+
                             //添加分配日志
 
                             sendMessage(customerInfo.getCustomerName(), ownUserId, simpleUserInfoDTO, token);
@@ -512,7 +518,7 @@ public class AutoAllocateService {
 
                         } else {
                             //分配名额已经满了,向这个城市的crm助理发送短信
-//                            sendCRMAssistantMessage(customerInfo.getCity(), customerInfo.getCustomerName(), token);
+                            sendCRMAssistantMessage(customerInfo.getCity(), customerInfo.getCustomerName(), token);
                             if (!failList.contains(customerInfo.getId()))
                                 failList.add(customerInfo.getId());
                         }

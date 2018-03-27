@@ -180,6 +180,7 @@ public class AutoCleanService {
                     loanSaveBatchMap.put("ownerUserId", 0);
                     loanSaveBatchMap.put("lastUpdateTime", updateDate);
                     loanSaveBatchMap.put("paramsList", customerIdList);
+                    loanSaveBatchMap.put("ownUserName", " ");
                     customerInfoService.batchUpdate(loanSaveBatchMap);
                     //添加分配日志
                     List<AllocateLog> allocateLogList = this.initAllocateLog(loanList);

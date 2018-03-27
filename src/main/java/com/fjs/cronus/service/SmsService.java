@@ -1,5 +1,7 @@
 package com.fjs.cronus.service;
 
+import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.mappers.PhoneMapper;
 import com.fjs.cronus.model.SysConfig;
 import com.fjs.cronus.util.SmsUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,9 @@ public class SmsService {
 
     @Autowired
     private SysConfigService sysConfigService;
+
+    @Autowired
+    private PhoneMapper phoneMapper;
 
     /**
      * 自动分配发送短信
@@ -51,8 +56,14 @@ public class SmsService {
         String smsResult = "";
         SysConfig sysConfig = sysConfigService.getConfigByName("sysUse");
         if (sysConfig.getConValue().equals("1")) {
-            String smsContent = "【房金云】自动分配名额已满，请及时增加分配名额。";
-            smsResult = smsUtils.sendBatchMessage(telephoneNumber, smsContent);
+            Integer count = getPhoneCountToday(telephoneNumber);
+            if (count == 0) {
+                String smsContent = "【房金云】自动分配名额已满，请及时增加分配名额。";
+                smsResult = smsUtils.sendBatchMessage(telephoneNumber, smsContent);
+                if (CommonConst.SUCCESS.equals(smsResult)) {
+                    insertMessage(telephoneNumber, smsContent);
+                }
+            }
         }
         return smsResult;
     }
@@ -64,5 +75,15 @@ public class SmsService {
         content = "【房金云】" + content;
         smsResult = smsUtils.sendBatchMessage(telephoneNumber,content);
         return smsResult;
+    }
+
+    public Integer insertMessage(String phone, String content)
+    {
+        return phoneMapper.insertPhoneLog(phone,content,0);
+    }
+
+    public Integer getPhoneCountToday(String phone)
+    {
+        return phoneMapper.getPhoneCountToday(phone);
     }
 }
