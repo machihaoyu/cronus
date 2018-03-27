@@ -167,8 +167,10 @@
         SELECT
         DISTINCT(customer_id)
         FROM allocate_log cl
-        WHERE
-        new_owner_id = #{createUserId}
+        WHERE 1=1
+        <if test="null != createUserId">
+            AND new_owner_id = #{createUserId}
+        </if>
         AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
         <if test="null != operationList and operationList.size() > 0">
             AND  operation IN
@@ -181,8 +183,10 @@
         SELECT
         DISTINCT(customer_id)
         FROM allocate_log cl
-        WHERE
-        new_owner_id = #{createUserId}
+        WHERE 1=1
+        <if test="null != createUserId">
+            and new_owner_id = #{createUserId}
+        </if>
         AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
         AND  operation = #{operation}
     </select>

@@ -82,7 +82,9 @@
 				#{item}
 			</foreach>
 		</if>
-		and create_user = #{createUserId}
+		<if test="null != createUserId">
+			and create_user = #{createUserId}
+		</if>
 		and DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
 	</select>
 
