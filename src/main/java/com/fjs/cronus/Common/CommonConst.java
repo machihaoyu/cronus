@@ -49,24 +49,23 @@ public class CommonConst {
     public static String MAIN_CITY = "MainCity";
 
     //异地城市配置名
-    public static String REMOTE_CITY ="RemoteCity";
+    public static String REMOTE_CITY = "RemoteCity";
 
-    public static String OBJECT_NULL ="无对应的记录";
-
+    public static String OBJECT_NULL = "无对应的记录";
 
 
     public static String NO_AUTHORIZE = "没有权限";
     public static String NO_AUTHORIZE_COMMUNICATE = "没有权限,只有本人才能添加沟通";
     //权限列表
-    public static String SYSTEMNAME="thea";//"thea"
-    public static String ADD_CUSTOMER_URL=SYSTEMNAME+"/customer/addCRMCustomer";
-    public static String EDIT_CUSTOMER_URL = SYSTEMNAME+"/customer/editCustomerOk";
+    public static String SYSTEMNAME = "thea";//"thea"
+    public static String ADD_CUSTOMER_URL = SYSTEMNAME + "/customer/addCRMCustomer";
+    public static String EDIT_CUSTOMER_URL = SYSTEMNAME + "/customer/editCustomerOk";
 
-    public static String PRDCUSTOMERADD = SYSTEMNAME +"/prdCustomer/prdImport";
-    public static String PUBLICCUSTOMER = SYSTEMNAME +"/customer/publicImport";
+    public static String PRDCUSTOMERADD = SYSTEMNAME + "/prdCustomer/prdImport";
+    public static String PUBLICCUSTOMER = SYSTEMNAME + "/customer/publicImport";
 
 
-    public static String UPDATE_PRDCUSTOMER_URL=SYSTEMNAME+"/PrdCustomer/updatePrdCustomer";
+    public static String UPDATE_PRDCUSTOMER_URL = SYSTEMNAME + "/PrdCustomer/updatePrdCustomer";
 
     //系统配置 Start
 
@@ -79,7 +78,7 @@ public class CommonConst {
     public static String ACTIVE_APPLICATION_CHANNEL = "activeApplicationChannel";
     public static String CAN_ALLOCATE_CITY = "canAllocateCity";
 
-    public static String DELETE_PRDCUSTOMER_URL=SYSTEMNAME+"/PrdCustomer/deletePrdCustomer";
+    public static String DELETE_PRDCUSTOMER_URL = SYSTEMNAME + "/PrdCustomer/deletePrdCustomer";
 
     //原始盘转入交易
 
@@ -92,7 +91,7 @@ public class CommonConst {
     public static String UTM_SOURCE_FANGXIN = "fangxin";
 
     //领取客户
-    public static String PULL_LOAN_URL=SYSTEMNAME+"/PublicOffer/pullPan";
+    public static String PULL_LOAN_URL = SYSTEMNAME + "/PublicOffer/pullPan";
 
 
     //系统名
@@ -103,10 +102,10 @@ public class CommonConst {
     //系统ID
     public static Integer SYSTEM_ID = 75;
     //分配客户
-    public static String ALLOCATE_LOAN_URL=SYSTEMNAME+"/AllocateController/allocateLoan";
+    public static String ALLOCATE_LOAN_URL = SYSTEMNAME + "/AllocateController/allocateLoan";
 
     //离职员工批量转移
-    public static String REMOVE_CUSTOMER = SYSTEMNAME+"/customer/removeCustomer";
+    public static String REMOVE_CUSTOMER = SYSTEMNAME + "/customer/removeCustomer";
     //自动清洗状态配置名
     public static String AUTO_CLEAN_STATUS = "autoCleanStatus";
 
@@ -129,31 +128,31 @@ public class CommonConst {
     public static String SPECIAL_UTM_SOURCE = "SpecialUtmSource";
 
     //原始盘状态
-    public static Integer PULL_CUSTOMER_STASTUS_NORMAL=0;//正常
-    public static Integer PULL_CUSTOMER_STASTUS_UNVALID=-2;//无效
-    public static Integer PULL_CUSTOMER_STASTUS_TRANSFER=1;//转入crm成功
+    public static Integer PULL_CUSTOMER_STASTUS_NORMAL = 0;//正常
+    public static Integer PULL_CUSTOMER_STASTUS_UNVALID = -2;//无效
+    public static Integer PULL_CUSTOMER_STASTUS_TRANSFER = 1;//转入crm成功
 
-    public static String UPDATE_TRANSFER="已转入的原始盘不能修改";
+    public static String UPDATE_TRANSFER = "已转入的原始盘不能修改";
 
     //原始盘操作
-    public static String UPDATE_PULL_CUSTOMER="更改数据";
-    public static String STATUS_PULL_CUSTOMER="修改状态";
-    public static String TRANSFER_PULL_CUSTOMER1="转入成功修改状态";
-    public static String TRANSFER__PULL_CUSTOMER="转入手机重复修改状态";
+    public static String UPDATE_PULL_CUSTOMER = "更改数据";
+    public static String STATUS_PULL_CUSTOMER = "修改状态";
+    public static String TRANSFER_PULL_CUSTOMER1 = "转入成功修改状态";
+    public static String TRANSFER__PULL_CUSTOMER = "转入手机重复修改状态";
 
     //市场推广盘操作
-    public static String IMPORT_PRD_CUSTOMER="导入客户数据";
-    public static String EDIT_PRD_CUSTOMER="编辑客户";
-    public static String DELETE_PRD_CUSTOMER="=删除客户";
-    public static String TRANSFER_PRD_CUSTOMER="保存并转入";
+    public static String IMPORT_PRD_CUSTOMER = "导入客户数据";
+    public static String EDIT_PRD_CUSTOMER = "编辑客户";
+    public static String DELETE_PRD_CUSTOMER = "=删除客户";
+    public static String TRANSFER_PRD_CUSTOMER = "保存并转入";
     //市场推广盘操作结果
-    public static String IMPORT_PRD_RESULT="导入成功";
-    public static String EDIT_PRD_RESULT="保存客户，转入失败";
-    public static String DELETE_PRD_RESULT="=删除成功";
-    public static String TRANSFER_PRD_RESULT="转入成功";
+    public static String IMPORT_PRD_RESULT = "导入成功";
+    public static String EDIT_PRD_RESULT = "保存客户，转入失败";
+    public static String DELETE_PRD_RESULT = "=删除成功";
+    public static String TRANSFER_PRD_RESULT = "转入成功";
 
-    public static String SERVICE_IS_NULL="服务合同id为空";
-    public static String BIGER_MONEY="金额数据错误";
+    public static String SERVICE_IS_NULL = "服务合同id为空";
+    public static String BIGER_MONEY = "金额数据错误";
 
     //市场推广盘状态
     public static int PRD_NORMAIL = 0;//正常
@@ -169,23 +168,20 @@ public class CommonConst {
     public static String AUTH_MESSAGE = "只有该业务员的团队长才能评论";
 
 
-
-
-
-    public static String  OPERARIONAll = "自动分配";
+    public static String OPERARIONAll = "自动分配";
 
     public static String OPERARIONNO = "未沟通分配";
 
     public static String OPERATIONBYHAND = "手动分配";
-    public static String REMOVECUSTOMERALL ="removeCustomerAll";
+    public static String REMOVECUSTOMERALL = "removeCustomerAll";
 
-    public static String ALLOCATEALL ="allocateAll";
+    public static String ALLOCATEALL = "allocateAll";
 
     public static String OPERATION = "领取客户";
 
     public static String OPERATIONSUCESS = "领取成功";
 
-    public static String HaiDai_ChangPhone ="http://192.168.1.90/interface/changeCustPhone.do";
+    public static String HaiDai_ChangPhone = "http://192.168.1.90/interface/changeCustPhone.do";
 
     //未沟通重新分配
     public static String FAIL_NON_COMMUNICATE_ALLOCATE_INFO = "fail_non_communicate_allocate";
@@ -194,7 +190,7 @@ public class CommonConst {
 
     public static String KEEPPARAMS = "MaxCustomerNum";
 
-    public static String NOAUTHCUSTOMERMEET ="没有权限,只有本人才能添加面见信息";
+    public static String NOAUTHCUSTOMERMEET = "没有权限,只有本人才能添加面见信息";
 
     //反馈老系统
     public static String PHPSYS_CONNECT_STATUS = "phpSysConnectStatus";
@@ -214,7 +210,7 @@ public class CommonConst {
 
     public static final String THEA_IMG_OSS_FILE_SEPARATOR = "/";
 
-    public static final String THEA_PERFEX ="Uploads/";
+    public static final String THEA_PERFEX = "Uploads/";
 
     public static final String ROLE_NAME = "VIP渠道管理员";
 
@@ -226,10 +222,12 @@ public class CommonConst {
 
     public static final String NOT_YET_CONNECTED = "尊敬的客户，您的申请已受理，因未能与您取得联系，如需资金，可联系专属顾问{名字+手机号}，更多资讯请关注官方微信：房金所";
 
-    public static final String INTENTION_TO_TRACKED ="尊敬的客户，我们正在为您初步对接融资渠道，查看最新结果请关注官方微信：房金所";
+    public static final String INTENTION_TO_TRACKED = "尊敬的客户，我们正在为您初步对接融资渠道，查看最新结果请关注官方微信：房金所";
 
-    public static final String  IMPORTNOUSERPOOLUTMSOURCE = "importNoUserPoolutmSource";
+    public static final String IMPORTNOUSERPOOLUTMSOURCE = "importNoUserPoolutmSource";
 
-    public static final String  SUCCESS = "success";
+    public static final String SUCCESS = "success";
+
+    public static final String SMS_SIGN = "【房金云】";
 }
 
