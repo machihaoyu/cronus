@@ -50,7 +50,6 @@ public class SmsService {
      */
     public String sendSmsForAutoAllocate(String sendPhone, String customerName) {
         String smsResult = "";
-//        SysConfig sysConfig = sysConfigService.getConfigByName("sysUse");
         if (smsChannelOpen()) {
             String smsContent = "【房金云】房金所为您分配了客户名：" + customerName + "，请注意跟进。";
             smsResult = smsUtils.sendBatchMessage(sendPhone, smsContent);
@@ -58,9 +57,8 @@ public class SmsService {
         return smsResult;
     }
 
-    public String sendSmsForAutoAllocate2(String sendPhone, String customerName) {
+    public String sendSmsForAutoAllocateByHebe(String sendPhone, String customerName) {
         String smsResult = "";
-//        SysConfig sysConfig = sysConfigService.getConfigByName("sysUse");
         if (smsChannelOpen()) {
             String smsContent = CommonConst.SMS_SIGN + "房金所为您分配了客户名：" + customerName + "，请注意跟进。";
             smsResult = sendHebeMessage(sendPhone,smsContent);
@@ -71,7 +69,6 @@ public class SmsService {
     public String sendNonCommunicate(String customerName,String telephoneNumber)
     {
         String smsResult = "";
-//        SysConfig sysConfig = sysConfigService.getConfigByName("sysUse");
         if (smsChannelOpen()) {
             String smsContent = "【房金云】系统将新客户分配给了你,姓名:" + customerName + ",请注意跟进(15分钟内未添加沟通日志，客户自动划走)。";
             smsResult = smsUtils.sendBatchMessage(telephoneNumber, smsContent);
@@ -79,10 +76,9 @@ public class SmsService {
         return smsResult;
     }
 
-    public String sendNonCommunicate2(String customerName,String telephoneNumber)
+    public String sendNonCommunicateByHebe(String customerName,String telephoneNumber)
     {
         String smsResult = "";
-//        SysConfig sysConfig = sysConfigService.getConfigByName("sysUse");
         if (smsChannelOpen()) {
             String smsContent = CommonConst.SMS_SIGN + "系统将新客户分配给了你,姓名:" + customerName + ",请注意跟进(15分钟内未添加沟通日志，客户自动划走)。";
             smsResult = sendHebeMessage(telephoneNumber,smsContent);
@@ -93,7 +89,6 @@ public class SmsService {
     public String sendCRMAssistant(String telephoneNumber)
     {
         String smsResult = "";
-//        SysConfig sysConfig = sysConfigService.getConfigByName("sysUse");
         if (smsChannelOpen()) {
             Integer count = getPhoneCountToday(telephoneNumber);
             if (count == 0) {
@@ -107,10 +102,9 @@ public class SmsService {
         return smsResult;
     }
 
-    public String sendCRMAssistant2(String telephoneNumber)
+    public String sendCRMAssistantByHebe(String telephoneNumber)
     {
         String smsResult = "";
-//        SysConfig sysConfig = sysConfigService.getConfigByName("sysUse");
         if (smsChannelOpen()) {
             Integer count = getPhoneCountToday(telephoneNumber);
             if (count == 0) {
@@ -135,7 +129,7 @@ public class SmsService {
         return smsResult;
     }
 
-    public String sendCommunication2(String telephoneNumber,String content) {
+    public String sendCommunicationByHebe(String telephoneNumber,String content) {
         String smsResult = "";
         if (smsChannelOpen()) {
             content = CommonConst.SMS_SIGN + content;
