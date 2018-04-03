@@ -56,7 +56,7 @@ public class AppService {
      * redis缓存的key及有效时间10分钟(秒)
      */
     public static final String REDIS_CRONUS_GETRECEIVEANDKEEPCOUNT = "cronus-app-getReceiveAndKeepCount";
-    public static final long REDIS_CRONUS_GETRECEIVEANDKEEPCOUNT_TIME = 36000;
+    public static final long REDIS_CRONUS_GETRECEIVEANDKEEPCOUNT_TIME = 600;
 
 
     private static String endpoint;
