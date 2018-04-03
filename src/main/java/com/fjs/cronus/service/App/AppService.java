@@ -1,5 +1,6 @@
 package com.fjs.cronus.service.App;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.App.ReceiveAndKeepCountDTO;
@@ -12,11 +13,19 @@ import com.fjs.cronus.mappers.RContractDocumentMapper;
 import com.fjs.cronus.model.RContractDocument;
 import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.util.DateUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by msi on 2017/12/28.
@@ -24,6 +33,7 @@ import java.util.*;
 @Service
 public class AppService {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private List<String> list = new ArrayList<String>(){
         {
@@ -39,6 +49,14 @@ public class AppService {
     RContractDocumentMapper rContractDocumentMapper;
     @Autowired
     CronusRedisService cronusRedisService;
+    @Resource
+    RedisTemplate<String, String> redisTemplate;
+
+    /**
+     * redis缓存的key及有效时间10分钟(秒)
+     */
+    public static final String REDIS_CRONUS_GETRECEIVEANDKEEPCOUNT = "cronus-app-getReceiveAndKeepCount";
+    public static final long REDIS_CRONUS_GETRECEIVEANDKEEPCOUNT_TIME = 36000;
 
 
     private static String endpoint;
@@ -76,13 +94,25 @@ public class AppService {
         AppService.aliyunOssUrl = aliyunOssUrl;
     }
     public CronusDto<ReceiveAndKeepCountDTO> getReceiveAndKeepCount(Integer userId){
+        boolean boss = false; //是否是总裁权限
+        ValueOperations<String, String> redisOptions = null;
 
         CronusDto resultDto = new CronusDto();
         Map<String,Object> paramMap = new HashMap<>();
         ReceiveAndKeepCountDTO receiveAndKeepCountDTO = new ReceiveAndKeepCountDTO();
         Date date = new Date();
-        if(!(userId.equals(4)||userId.equals(1046)||userId.equals(1308))) {
+        if(!(userId.equals(4)||userId.equals(1046)||userId.equals(1308)||userId.equals(1374))) { //1374
             paramMap.put("createUserId", userId);
+        } else {
+            redisTemplate.setKeySerializer(new StringRedisSerializer());
+            redisTemplate.setValueSerializer(new StringRedisSerializer());
+            redisOptions = redisTemplate.opsForValue();
+            String redisDataStr = redisOptions.get(AppService.REDIS_CRONUS_GETRECEIVEANDKEEPCOUNT);
+            if (StringUtils.isNotEmpty(redisDataStr)) {
+                return JSONObject.parseObject(redisDataStr, CronusDto.class);
+            }
+
+            boss = true;
         }
         paramMap.put("operationList", list);
         String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
@@ -111,6 +141,20 @@ public class AppService {
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(receiveAndKeepCountDTO);
+
+        //如果是boss权限，数据放入redis中
+        try {
+            if (boss) {
+                redisOptions = redisTemplate.opsForValue();
+                if (receiveAndKeepCountDTO.getAllocateCommunicationCount().intValue() != 0 || receiveAndKeepCountDTO.getAllocateCount().intValue() != 0
+                        || receiveAndKeepCountDTO.getKeepCommunicationCount().intValue() != 0 || receiveAndKeepCountDTO.getKeepCount().intValue() != 0) {
+                    redisOptions.set(AppService.REDIS_CRONUS_GETRECEIVEANDKEEPCOUNT, JSONObject.toJSONString(resultDto), AppService.REDIS_CRONUS_GETRECEIVEANDKEEPCOUNT_TIME, TimeUnit.SECONDS);
+                }
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+
         return resultDto;
     }
 
