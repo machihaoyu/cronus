@@ -158,12 +158,84 @@ public class AppService {
         return resultDto;
     }
 
+    /**
+     * app移动CRM首页高管数据(分配数，沟通数)，放入缓存中
+     */
+    public void getReceiveAndKeepCountRedis(){
+        ValueOperations<String, String> redisOptions = null;
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+
+        CronusDto resultDto = new CronusDto();
+        Map<String,Object> paramMap = new HashMap<>();
+        ReceiveAndKeepCountDTO receiveAndKeepCountDTO = new ReceiveAndKeepCountDTO();
+        Date date = new Date();
+
+        paramMap.put("operationList", list);
+        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
+        // String today = "2017-12-27";
+        // paramMap.put("operation",CommonConst.OPERATION);
+        paramMap.put("createTime",today);
+        List<Integer> allocateIds =allocateLogMapper.getReceiveCount(paramMap);
+        //获取分配的沟通数
+        receiveAndKeepCountDTO.setAllocateCount(allocateIds.size());
+        paramMap.put("list",allocateIds);
+        if (allocateIds == null || allocateIds.size() == 0){
+            receiveAndKeepCountDTO.setAllocateCommunicationCount(0);
+        }else {
+            List<Integer> allocateCommunication = communicationLogMapper.allocateCommunication(paramMap);
+            receiveAndKeepCountDTO.setAllocateCommunicationCount(allocateCommunication.size());
+        }
+        //获取客户领取数
+        List<Integer> keepCustomer = getKeepCustomerIdRedis();
+        receiveAndKeepCountDTO.setKeepCount(keepCustomer.size());
+        if (keepCustomer == null || keepCustomer.size() == 0){
+            receiveAndKeepCountDTO.setKeepCommunicationCount(0);
+        }else {
+            List<Integer> keepCommunication = getKeepCommunicationRedis(keepCustomer);
+            receiveAndKeepCountDTO.setKeepCommunicationCount(keepCommunication.size());
+        }
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(receiveAndKeepCountDTO);
+
+        //如果是boss权限，数据放入redis中
+        try {
+            redisOptions = redisTemplate.opsForValue();
+            if (receiveAndKeepCountDTO.getAllocateCommunicationCount().intValue() != 0 || receiveAndKeepCountDTO.getAllocateCount().intValue() != 0
+                    || receiveAndKeepCountDTO.getKeepCommunicationCount().intValue() != 0 || receiveAndKeepCountDTO.getKeepCount().intValue() != 0) {
+
+                String redisDataStr = redisOptions.get(AppService.REDIS_CRONUS_GETRECEIVEANDKEEPCOUNT);
+                if (StringUtils.isNotEmpty(redisDataStr)) {
+                    //删除redis数据
+                    redisTemplate.delete(AppService.REDIS_CRONUS_GETRECEIVEANDKEEPCOUNT);
+                }
+                redisOptions.set(AppService.REDIS_CRONUS_GETRECEIVEANDKEEPCOUNT, JSONObject.toJSONString(resultDto), AppService.REDIS_CRONUS_GETRECEIVEANDKEEPCOUNT_TIME, TimeUnit.SECONDS);
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+
+    }
+
+
+
     public List<Integer> getKeepCustomerId(Integer userId){
         Map<String,Object> paramMap = new HashMap<>();
         Date date = new Date();
         if(!(userId.equals(4)||userId.equals(1046)||userId.equals(1308))) {
             paramMap.put("createUserId", userId);
         }
+        paramMap.put("operation", CommonConst.OPERATION);
+        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
+        paramMap.put("createTime",today);
+
+        List<Integer> keepCount = allocateLogMapper.receiveIds(paramMap);
+        return  keepCount;
+    }
+    public List<Integer> getKeepCustomerIdRedis(){
+        Map<String,Object> paramMap = new HashMap<>();
+        Date date = new Date();
         paramMap.put("operation", CommonConst.OPERATION);
         String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
         paramMap.put("createTime",today);
@@ -181,6 +253,16 @@ public class AppService {
         if(!(userId.equals(4)||userId.equals(1046)||userId.equals(1308))) {
             paramMap.put("createUserId", userId);
         }
+        List<Integer> allocateCommunication = communicationLogMapper.allocateCommunication(paramMap);
+        return  allocateCommunication;
+    }
+    public List<Integer> getKeepCommunicationRedis(List<Integer> keepCount){
+        Map<String,Object> paramMap = new HashMap<>();
+        Date date = new Date();
+        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
+        //today = "2017-12-27";
+        paramMap.put("list",keepCount);
+        paramMap.put("createTime",today);
         List<Integer> allocateCommunication = communicationLogMapper.allocateCommunication(paramMap);
         return  allocateCommunication;
     }
