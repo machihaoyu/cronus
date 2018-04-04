@@ -229,5 +229,7 @@ public class CommonConst {
     public static final String SUCCESS = "success";
 
     public static final String SMS_SIGN = "【房金云】";
+
+    public static String COMPANY_EXECUTIVES = "公司高管";
 }
 

@@ -713,5 +713,15 @@ public interface ThorService {
     @RequestMapping(value = "/api/v1/findDepartmentById",method = RequestMethod.GET)
     @ResponseBody
     public ThorApiDTO<DepartmentDto> findDepartmentById(@RequestHeader("Authorization")String token, @RequestParam(value = "departmentId",required = true) Integer departmentId);
+
+
+    /**
+     * 获取角色列表(是否是高管)
+     * @param token
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/userRoles", method = RequestMethod.GET)
+    MemberApiDTO getUserRoles(@RequestHeader("Authorization") String token);
+
 }
 

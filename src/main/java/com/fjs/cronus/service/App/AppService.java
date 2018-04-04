@@ -2,16 +2,19 @@ package com.fjs.cronus.service.App;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.App.ReceiveAndKeepCountDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.cronus.OcrDocumentDto;
+import com.fjs.cronus.dto.uc.MemberApiDTO;
 import com.fjs.cronus.mappers.AllocateLogMapper;
 import com.fjs.cronus.mappers.CommunicationLogMapper;
 import com.fjs.cronus.mappers.RContractDocumentMapper;
 import com.fjs.cronus.model.RContractDocument;
 import com.fjs.cronus.service.redis.CronusRedisService;
+import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -51,6 +54,8 @@ public class AppService {
     CronusRedisService cronusRedisService;
     @Resource
     RedisTemplate<String, String> redisTemplate;
+    @Autowired
+    UcService ucService;
 
     /**
      * redis缓存的key及有效时间10分钟(秒)
@@ -93,8 +98,20 @@ public class AppService {
     public void setAliyunOssUrl(String aliyunOssUrl) {
         AppService.aliyunOssUrl = aliyunOssUrl;
     }
-    public CronusDto<ReceiveAndKeepCountDTO> getReceiveAndKeepCount(Integer userId){
-        boolean boss = false; //TODO 调用UC当前登录人是否是总裁权限
+    public CronusDto<ReceiveAndKeepCountDTO> getReceiveAndKeepCount(Integer userId,String token){
+        boolean boss = false; //调用UC当前登录人是否是总裁权限
+        try {
+            MemberApiDTO userRoles = ucService.getUserRoles(token);
+            if (userRoles.getResult() == CommonEnum.ROLE_YES.getCode())
+            if (null != userRoles ){
+                String userRole = userRoles.getData().toString();
+                if (userRole != null && userRole.contains(CommonConst.COMPANY_EXECUTIVES)){
+                    boss = true;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("getReceiveAndKeepCount >>>>> 获取高管角色失败" + e.getMessage(),e);
+        }
         ValueOperations<String, String> redisOptions = null;
 
         CronusDto resultDto = new CronusDto();
