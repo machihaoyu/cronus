@@ -18,9 +18,9 @@ public class AppCountScheduledConfig {
     @Resource
     private AppService appService;
 
-    @Scheduled(cron = "0 0/5* * * ?") // 每5分钟执行一次
+    @Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
     public void getToken() {
-        logger.info("getToken定时任务启动");
+        logger.warn("APP-移动CRM-高管统计数据定时任务");
         appService.getReceiveAndKeepCountRedis();
     }
 

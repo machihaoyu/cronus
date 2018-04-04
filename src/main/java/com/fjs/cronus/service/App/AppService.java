@@ -94,14 +94,14 @@ public class AppService {
         AppService.aliyunOssUrl = aliyunOssUrl;
     }
     public CronusDto<ReceiveAndKeepCountDTO> getReceiveAndKeepCount(Integer userId){
-        boolean boss = false; //是否是总裁权限
+        boolean boss = false; //TODO 调用UC当前登录人是否是总裁权限
         ValueOperations<String, String> redisOptions = null;
 
         CronusDto resultDto = new CronusDto();
         Map<String,Object> paramMap = new HashMap<>();
         ReceiveAndKeepCountDTO receiveAndKeepCountDTO = new ReceiveAndKeepCountDTO();
         Date date = new Date();
-        if(!(userId.equals(4)||userId.equals(1046)||userId.equals(1308)||userId.equals(1374))) { //1374
+        if(!boss) {
             paramMap.put("createUserId", userId);
         } else {
             redisTemplate.setKeySerializer(new StringRedisSerializer());
@@ -130,12 +130,22 @@ public class AppService {
             receiveAndKeepCountDTO.setAllocateCommunicationCount(allocateCommunication.size());
         }
         //获取客户领取数
-        List<Integer> keepCustomer = getKeepCustomerId(userId);
+        List<Integer> keepCustomer; //getKeepCustomerIdRedis
+        if(!boss) {
+            keepCustomer = getKeepCustomerId(userId);
+        } else {
+            keepCustomer = getKeepCustomerIdRedis();
+        }
         receiveAndKeepCountDTO.setKeepCount(keepCustomer.size());
         if (keepCustomer == null || keepCustomer.size() == 0){
             receiveAndKeepCountDTO.setKeepCommunicationCount(0);
         }else {
-            List<Integer> keepCommunication = getKeepCommunication(keepCustomer,userId);
+            List<Integer> keepCommunication; //
+            if (!boss) {
+                keepCommunication = getKeepCommunication(keepCustomer,userId);
+            } else {
+                keepCommunication = getKeepCommunicationRedis(keepCustomer);
+            }
             receiveAndKeepCountDTO.setKeepCommunicationCount(keepCommunication.size());
         }
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
