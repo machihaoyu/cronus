@@ -35,7 +35,9 @@
 				#{item}
 			</foreach>
 		</if>
-		and DATE(create_time)=date(now())
+		<if test="createTimeBegin != null and createTimeEnd !=null ">
+			and create_time between #{createTimeBegin} and #{createTimeEnd}
+		</if>
 	</select>
 
 	<!--统计今天的沟通客户数-->
@@ -48,7 +50,9 @@
 				#{item}
 			</foreach>
 		</if>
-		and DATE(create_time)=date(now())
+		<if test="createTimeBegin != null and createTimeEnd !=null ">
+			and create_time between #{createTimeBegin} and #{createTimeEnd}
+		</if>
 	</select>
 
 	<!--统计历史的沟通客户数-->
@@ -62,7 +66,7 @@
 			</foreach>
 		</if>
 		<if test="createTimeBegin != null and createTimeEnd !=null ">
-			and date(create_time) between #{createTimeBegin} and #{createTimeEnd}
+			and create_time between #{createTimeBegin} and #{createTimeEnd}
 		</if>
 	</select>
 	<select id="selectByTime" resultMap="ResultMap2"  parameterType="Map">
@@ -85,7 +89,9 @@
 		<if test="null != createUserId">
 			and create_user = #{createUserId}
 		</if>
-		and DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
+		<if test="createTimeBegin != null and createTimeEnd !=null ">
+			and create_time between #{createTimeBegin} and #{createTimeEnd}
+		</if>
 	</select>
 
 	<select id="queryByCustomerId" resultMap="BaseResultMap" parameterType="Map">

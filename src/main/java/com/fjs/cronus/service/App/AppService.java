@@ -115,10 +115,13 @@ public class AppService {
             boss = true;
         }
         paramMap.put("operationList", list);
-        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
+        String  todayStart = DateUtils.format(DateUtils.getTodayStartTime(),DateUtils.FORMAT_LONG);
+        String  todayEnd = DateUtils.format(DateUtils.getTodayEndTime(),DateUtils.FORMAT_LONG);
         // String today = "2017-12-27";
         // paramMap.put("operation",CommonConst.OPERATION);
-        paramMap.put("createTime",today);
+//        paramMap.put("createTime",today);
+        paramMap.put("createTimeBegin", todayStart);
+        paramMap.put("createTimeEnd", todayEnd);
         List<Integer> allocateIds =allocateLogMapper.getReceiveCount(paramMap);
         //获取分配的沟通数
         receiveAndKeepCountDTO.setAllocateCount(allocateIds.size());
@@ -165,8 +168,11 @@ public class AppService {
             paramMap.put("createUserId", userId);
         }
         paramMap.put("operation", CommonConst.OPERATION);
-        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
-        paramMap.put("createTime",today);
+        String  todayStart = DateUtils.format(DateUtils.getTodayStartTime(),DateUtils.FORMAT_LONG);
+        String  todayEnd = DateUtils.format(DateUtils.getTodayEndTime(),DateUtils.FORMAT_LONG);
+//        paramMap.put("createTime",today);
+        paramMap.put("createTimeBegin", todayStart);
+        paramMap.put("createTimeEnd", todayEnd);
 
         List<Integer> keepCount = allocateLogMapper.receiveIds(paramMap);
         return  keepCount;
@@ -174,10 +180,13 @@ public class AppService {
     public List<Integer> getKeepCommunication(List<Integer> keepCount,Integer userId){
         Map<String,Object> paramMap = new HashMap<>();
         Date date = new Date();
-        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
+        String  todayStart = DateUtils.format(DateUtils.getTodayStartTime(),DateUtils.FORMAT_LONG);
+        String  todayEnd = DateUtils.format(DateUtils.getTodayEndTime(),DateUtils.FORMAT_LONG);
         //today = "2017-12-27";
         paramMap.put("list",keepCount);
-        paramMap.put("createTime",today);
+//        paramMap.put("createTime",today);
+        paramMap.put("createTimeBegin", todayStart);
+        paramMap.put("createTimeEnd", todayEnd);
         if(!(userId.equals(4)||userId.equals(1046)||userId.equals(1308))) {
             paramMap.put("createUserId", userId);
         }

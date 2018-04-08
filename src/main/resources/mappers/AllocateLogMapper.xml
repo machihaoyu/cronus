@@ -137,7 +137,7 @@
             </foreach>
         </if>
         <if test="createTimeBegin != null and createTimeEnd !=null ">
-            and date(c.create_time) between #{createTimeBegin} and #{createTimeEnd}
+            and create_time between #{createTimeBegin} and #{createTimeEnd}
         </if>
     </select>
 
@@ -160,7 +160,9 @@
         FROM allocate_log cl
         WHERE
         new_owner_id = #{createUserId}
-        AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
+        <if test="createTimeBegin != null and createTimeEnd !=null ">
+            and create_time between #{createTimeBegin} and #{createTimeEnd}
+        </if>
         AND  operation = #{operation}
     </select>
     <select id="getReceiveCount"  resultType="Integer"  parameterType="Map">
@@ -171,7 +173,9 @@
         <if test="null != createUserId">
             AND new_owner_id = #{createUserId}
         </if>
-        AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
+        <if test="createTimeBegin != null and createTimeEnd !=null ">
+            and create_time between #{createTimeBegin} and #{createTimeEnd}
+        </if>
         <if test="null != operationList and operationList.size() > 0">
             AND  operation IN
             <foreach item="item" index="index" collection="operationList" open="(" separator="," close=")">
@@ -187,7 +191,9 @@
         <if test="null != createUserId">
             and new_owner_id = #{createUserId}
         </if>
-        AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
+        <if test="createTimeBegin != null and createTimeEnd !=null ">
+            and create_time between #{createTimeBegin} and #{createTimeEnd}
+        </if>
         AND  operation = #{operation}
     </select>
 

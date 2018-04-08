@@ -335,6 +335,10 @@ public class CommunicationLogService {
     public Integer getTodayData(List<String> userId){
         Map<String,Object> map=new HashMap<>();
         map.put("list",userId);
+        String  todayStart = DateUtils.format(DateUtils.getTodayStartTime(),DateUtils.FORMAT_LONG);
+        String  todayEnd = DateUtils.format(DateUtils.getTodayEndTime(),DateUtils.FORMAT_LONG);
+        map.put("createTimeBegin", todayStart);
+        map.put("createTimeEnd", todayEnd);
         Integer todayCount=0;
         todayCount=communicationLogMapper.selectToday(map);
         return  todayCount;
@@ -359,6 +363,10 @@ public class CommunicationLogService {
     public Integer getTodayCustomerData(List<String> userId){
         Map<String,Object> map=new HashMap<>();
         map.put("list",userId);
+        String  todayStart = DateUtils.format(DateUtils.getTodayStartTime(),DateUtils.FORMAT_LONG);
+        String  todayEnd = DateUtils.format(DateUtils.getTodayEndTime(),DateUtils.FORMAT_LONG);
+        map.put("createTimeBegin", todayStart);
+        map.put("createTimeEnd", todayEnd);
         Integer todayCount=0;
         List<CommunicationLog> communicationLogList=communicationLogMapper.selectTodayCustomer(map);
         todayCount=communicationLogList.size();

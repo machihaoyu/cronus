@@ -317,13 +317,13 @@ public class PanService {
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
     }
     public Integer keepCount(Integer userId){
-        Date date = new Date();
         Map<String,Object> paramMap = new HashMap<>();
         paramMap.put("createUserId",userId);
         paramMap.put("operation",CommonConst.OPERATION);
-        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
-        // paramMap.put("operation",CommonConst.OPERATION);
-        paramMap.put("createTime",today);
+        String  todayStart = DateUtils.format(DateUtils.getTodayStartTime(),DateUtils.FORMAT_LONG);
+        String  todayEnd = DateUtils.format(DateUtils.getTodayEndTime(),DateUtils.FORMAT_LONG);
+        paramMap.put("createTimeBegin", todayStart);
+        paramMap.put("createTimeEnd", todayEnd);
         Integer count = allocateLogMapper.receiveCountByWhere(paramMap);
         return count;
     }
