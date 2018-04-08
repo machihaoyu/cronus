@@ -56,7 +56,7 @@ public class AppController {
             throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
         }
         try {
-            cronusDto  = appService.getReceiveAndKeepCount(userId);
+            cronusDto  = appService.getReceiveAndKeepCount(userId,token);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->getReceiveAndKeepCount失败",e);

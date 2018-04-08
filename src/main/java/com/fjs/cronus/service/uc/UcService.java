@@ -260,4 +260,8 @@ public class UcService {
         }
         return resultDto;
     }
+
+    public MemberApiDTO getUserRoles(String token){
+        return thorService.getUserRoles(token);
+    }
 }
