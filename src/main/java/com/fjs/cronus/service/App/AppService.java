@@ -202,10 +202,10 @@ public class AppService {
         Date date = new Date();
 
         paramMap.put("operationList", list);
-        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
-        // String today = "2017-12-27";
-        // paramMap.put("operation",CommonConst.OPERATION);
-        paramMap.put("createTime",today);
+        String  todayStart = DateUtils.format(DateUtils.getTodayStartTime(),DateUtils.FORMAT_LONG);
+        String  todayEnd = DateUtils.format(DateUtils.getTodayEndTime(),DateUtils.FORMAT_LONG);
+        paramMap.put("createTimeBegin", todayStart);
+        paramMap.put("createTimeEnd", todayEnd);
         List<Integer> allocateIds =allocateLogMapper.getReceiveCount(paramMap);
         //获取分配的沟通数
         receiveAndKeepCountDTO.setAllocateCount(allocateIds.size());
@@ -259,7 +259,6 @@ public class AppService {
         paramMap.put("operation", CommonConst.OPERATION);
         String  todayStart = DateUtils.format(DateUtils.getTodayStartTime(),DateUtils.FORMAT_LONG);
         String  todayEnd = DateUtils.format(DateUtils.getTodayEndTime(),DateUtils.FORMAT_LONG);
-//        paramMap.put("createTime",today);
         paramMap.put("createTimeBegin", todayStart);
         paramMap.put("createTimeEnd", todayEnd);
 
@@ -268,11 +267,12 @@ public class AppService {
     }
     public List<Integer> getKeepCustomerIdRedis(){
         Map<String,Object> paramMap = new HashMap<>();
-        Date date = new Date();
+//        Date date = new Date();
         paramMap.put("operation", CommonConst.OPERATION);
-        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
-        paramMap.put("createTime",today);
-
+        String  todayStart = DateUtils.format(DateUtils.getTodayStartTime(),DateUtils.FORMAT_LONG);
+        String  todayEnd = DateUtils.format(DateUtils.getTodayEndTime(),DateUtils.FORMAT_LONG);
+        paramMap.put("createTimeBegin", todayStart);
+        paramMap.put("createTimeEnd", todayEnd);
         List<Integer> keepCount = allocateLogMapper.receiveIds(paramMap);
         return  keepCount;
     }
@@ -295,10 +295,13 @@ public class AppService {
     public List<Integer> getKeepCommunicationRedis(List<Integer> keepCount){
         Map<String,Object> paramMap = new HashMap<>();
         Date date = new Date();
-        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
+//        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
         //today = "2017-12-27";
         paramMap.put("list",keepCount);
-        paramMap.put("createTime",today);
+        String  todayStart = DateUtils.format(DateUtils.getTodayStartTime(),DateUtils.FORMAT_LONG);
+        String  todayEnd = DateUtils.format(DateUtils.getTodayEndTime(),DateUtils.FORMAT_LONG);
+        paramMap.put("createTimeBegin", todayStart);
+        paramMap.put("createTimeEnd", todayEnd);
         List<Integer> allocateCommunication = communicationLogMapper.allocateCommunication(paramMap);
         return  allocateCommunication;
     }
