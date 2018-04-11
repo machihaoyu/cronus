@@ -52,7 +52,7 @@ public class EntityToDto {
             dto.setCity(customerInfo.getCity());
         }
         if (!StringUtil.isEmpty(customerInfo.getOwnUserName())){
-            if(customerInfo.getOwnUserId() != 0) {
+             if(!StringUtils.isEmpty(customerInfo.getOwnUserId()) && customerInfo.getOwnUserId() != 0) {
                 dto.setOwnUserId(customerInfo.getOwnUserId());
                 dto.setOwnUserName(customerInfo.getOwnUserName());
             }

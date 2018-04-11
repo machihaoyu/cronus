@@ -246,6 +246,8 @@ public class AutoAllocateService {
                 case "3":
                     //添加分配日志
                     CustomerInfo customerInfot = new CustomerInfo();
+                    customerInfot.setCreateUser(0);
+                    customerInfot.setLastUpdateUser(0);
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfot);
                     allocateLogService.addAllocatelog(customerInfot, customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_5.getCode(), null);
@@ -347,8 +349,7 @@ public class AutoAllocateService {
             String phone = extJson.get("owner_user_phone").toString();
             //获取业务员信息
             try {
-                BaseUcDTO<UserInfoDTO> thorApiDTO = thorUcService.getUserInfoByField(
-                        phone, token, null, null);
+                BaseUcDTO<UserInfoDTO> thorApiDTO = thorUcService.getUserInfoByField(token,phone, null, null);
                 if (0 == thorApiDTO.getErrNum() && thorApiDTO.getRetData() != null) {
                     userInfoDTO = thorApiDTO.getRetData();
 //                    salerId = Integer.valueOf(userInfoDTO.getUser_id());
