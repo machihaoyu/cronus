@@ -2,6 +2,7 @@ package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fjs.cronus.Common.*;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.controller.CustomerController;
@@ -44,6 +45,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -141,7 +144,8 @@ public class CustomerInfoService {
 
     public QueryResult customerListNew(Integer userId, String customerName, String telephonenumber, String utmSource, String ownUserName,
                                        String customerSource, Integer circle, Integer companyId, Integer page, Integer size, Integer remain,
-                                       String level, String token, String orderField,String sort,String cooperationStatus,Integer communication_order) {
+                                       String level, String token, String orderField,String sort,String cooperationStatus,Integer communication_order,
+                                       String createTimeStart,String createTimeEnd) {
         QueryResult result = new QueryResult();
         Map<String, Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
@@ -186,6 +190,12 @@ public class CustomerInfoService {
         }
         if (communication_order != null){
             paramsMap.put("communication_order", communication_order);
+        }
+        if (createTimeStart != null){
+            paramsMap.put("createTimeStart",createTimeStart + " 00:00:00");
+        }
+        if (createTimeEnd != null){
+            paramsMap.put("createTimeEnd",createTimeEnd + " 23:59:59");
         }
         //手机需要解密加密
         if (!StringUtils.isEmpty(telephonenumber)) {
@@ -872,7 +882,7 @@ public class CustomerInfoService {
      * @return
      */
     public QueryResult<CustomerListDTO> allocationCustomerListNew(String customerName, String utmSource, String customerSource, Integer autostatus, Integer page, Integer size, Integer type, String telephonenumber,
-                                                                  String orderField,String sort,String token) {
+                                                                  String orderField,String sort,String token,String createTimeStart,String createTimeEnd) {
         List<CustomerInfo> resultList = new ArrayList<>();
         Map<String, Object> paramsMap = new HashMap<>();
         List<CustomerListDTO> doList = new ArrayList<>();
@@ -916,6 +926,12 @@ public class CustomerInfoService {
         }
         if (ownerIds != null && ownerIds.size() > 0) {
             paramsMap.put("ownerIds", ownerIds);
+        }
+        if (createTimeStart != null){
+            paramsMap.put("createTimeStart",createTimeStart + " 00:00:00");
+        }
+        if (createTimeEnd != null){
+            paramsMap.put("createTimeEnd",createTimeEnd + " 23:59:59");
         }
         //排序---zl-----
         if (!StringUtils.isEmpty(orderField) && CustListTimeOrderEnum.getEnumByCode(orderField) != null) {
