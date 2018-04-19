@@ -10,6 +10,7 @@ import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
+import com.fjs.cronus.dto.customer.CustomerCountDTO;
 import com.fjs.cronus.dto.thea.AllocateDTO;
 import com.fjs.cronus.dto.thea.LoanDTO6;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
@@ -1131,4 +1132,33 @@ public class CustomerController {
 
         return theaApiDTO;
     }
+
+
+    @ApiOperation(value="今日统计", notes="今日统计")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")
+    })
+    @RequestMapping(value = "/getTodayCount", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<CustomerCountDTO> getTodayCount(@RequestHeader("Authorization")String token){
+        CronusDto<CustomerCountDTO> cronusDto = new CronusDto();
+        //校验权限
+        Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (userId == null){
+            throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
+        }
+
+        try {
+            cronusDto = customerInfoService.getTodayCount(token,userId);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->todayCount失败",e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+
 }

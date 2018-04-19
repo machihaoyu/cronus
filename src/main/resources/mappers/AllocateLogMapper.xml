@@ -204,4 +204,30 @@
         and customer_id = #{customerId}
         ORDER BY create_time DESC
     </select>
+
+    <select id="getHistoryCount" resultMap="todayCount" parameterType="Map">
+        SELECT operation,COUNT(*) count FROM allocate_log WHERE operation in ('自动分配','未沟通分配','领取客户')
+        <if test="null != userId">
+            and new_owner_id = #{userId}
+        </if>
+       GROUP BY operation;
+    </select>
+
+    <resultMap id="todayCount" type="com.fjs.cronus.dto.customer.CustomerComDTO">
+        <result column="operation" property="operation" jdbcType="VARCHAR"/>
+        <result column="count" property="count" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="getTodayCount" resultMap="todayCount" parameterType="Map">
+        SELECT operation,COUNT(*) count FROM allocate_log WHERE operation in ('自动分配','未沟通分配','领取客户')
+        <if test="null != userId">
+            and new_owner_id = #{userId}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and create_time BETWEEN #{startTime} and #{endTime}
+        </if>
+        GROUP BY operation
+    </select>
+
+
 </mapper>

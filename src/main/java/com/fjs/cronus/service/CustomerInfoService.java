@@ -12,6 +12,8 @@ import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
+import com.fjs.cronus.dto.customer.CustomerComDTO;
+import com.fjs.cronus.dto.customer.CustomerCountDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.LoanDTO6;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
@@ -20,6 +22,7 @@ import com.fjs.cronus.dto.uc.UserSortInfoDTO;
 import com.fjs.cronus.enums.CustListTimeOrderEnum;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.AllocateLogMapper;
+import com.fjs.cronus.mappers.CommunicationLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.AllocateLog;
@@ -75,6 +78,9 @@ public class CustomerInfoService {
     TheaClientService theaClientService;
     @Autowired
     OutPutService outPutService;
+    @Autowired
+    CommunicationLogMapper communicationLogMapper;
+
 
     public List<CustomerInfo> findList() {
         List<CustomerInfo> resultList = new ArrayList();
@@ -1841,6 +1847,83 @@ public class CustomerInfoService {
             resultDto.setMessage(theaApiDTO.getMessage());
             resultDto.setResult(theaApiDTO.getResult());
         }
+        return resultDto;
+    }
+
+    public CronusDto<CustomerCountDTO> getTodayCount(String token, Integer userId) {
+
+        CronusDto<CustomerCountDTO> resultDto = new CronusDto<>();
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String today = sdf.format(date);
+        String startTime = today + " 00:00:00";
+        String endTime = today + " 23:59:59";
+        Map<String,Object> paramMap = new HashMap<>();
+        paramMap.put("userId",userId);
+        paramMap.put("startTime",startTime);
+        paramMap.put("endTime",endTime);
+        //历史分配
+        List<CustomerComDTO> historyCountList = allocateLogMapper.getHistoryCount(paramMap);
+        CustomerCountDTO customerCountDTO = new CustomerCountDTO();
+        Integer noCommunicationHistory = 0;//未沟通分配历史数
+        Integer automaticAllocationHistory = 0;//自动分配历史数
+        Integer collectCustomersHistory = 0;//领取客户历史数
+        if (null != historyCountList && historyCountList.size() > 0){
+
+            for (CustomerComDTO customerComDTO : historyCountList){
+                if (customerComDTO != null && customerComDTO.getOperation().equals("未沟通分配")){
+                    noCommunicationHistory = customerComDTO.getCount();
+                }
+                if (customerComDTO != null && customerComDTO.getOperation().equals("自动分配")){
+                    automaticAllocationHistory = customerComDTO.getCount();
+                }
+                if (customerComDTO != null && customerComDTO.getOperation().equals("领取客户")){
+                    collectCustomersHistory = customerComDTO.getCount();
+                }
+            }
+        }
+        customerCountDTO.setHistoryAllocation(noCommunicationHistory + automaticAllocationHistory);
+        customerCountDTO.setHistoryReceive(collectCustomersHistory);
+        //历史沟通次数
+        Integer historyCommunication = communicationLogMapper.gethistoryCount(paramMap);
+        customerCountDTO.setHistoryCommunicate(historyCommunication);
+        //历史沟通客户数
+        Integer historyCommunicationCustomer = communicationLogMapper.getHistoryCustomer(paramMap);
+        customerCountDTO.setHistoryCommunicateCustomer(historyCommunicationCustomer);
+
+        //今日分配
+        List<CustomerComDTO> todayCountList = allocateLogMapper.getTodayCount(paramMap);
+        Integer noCommunicationToday = 0;//未沟通分配今日数
+        Integer automaticAllocationToday = 0;//自动分配历今日数
+        Integer collectCustomersToday = 0;//领取客户今日数
+        if (null != todayCountList && todayCountList.size() > 0){
+            for (CustomerComDTO customerComDTO : todayCountList){
+                if (customerComDTO != null && customerComDTO.getOperation().equals("未沟通分配")){
+                    noCommunicationToday = customerComDTO.getCount();
+                }
+                if (customerComDTO != null && customerComDTO.getOperation().equals("自动分配")){
+                    automaticAllocationToday = customerComDTO.getCount();
+                }
+                if (customerComDTO != null && customerComDTO.getOperation().equals("领取客户")){
+                    collectCustomersToday = customerComDTO.getCount();
+                }
+
+            }
+//            customerCountDTO.setTodayAllocation(noCommunicationToday + automaticAllocationToday);
+//            customerCountDTO.setTodayReceive(collectCustomersToday);
+        }
+        customerCountDTO.setTodayAllocation(noCommunicationToday + automaticAllocationToday);
+        customerCountDTO.setTodayReceive(collectCustomersToday);
+        //今日沟通次数
+        Integer todayCommunication = communicationLogMapper.getTodayCount(paramMap);
+        customerCountDTO.setTodayCommunicate(todayCommunication);
+        //今日沟通客户数
+        Integer todayCommunicationCustomer = communicationLogMapper.getTodayCommunicateCustomer(paramMap);
+        customerCountDTO.setTodayCommunicateCustomer(todayCommunicationCustomer);
+
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(customerCountDTO);
         return resultDto;
     }
 }
