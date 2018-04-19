@@ -38,6 +38,7 @@ import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
 import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -933,10 +934,10 @@ public class CustomerInfoService {
         if (ownerIds != null && ownerIds.size() > 0) {
             paramsMap.put("ownerIds", ownerIds);
         }
-        if (createTimeStart != null){
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(createTimeStart)){
             paramsMap.put("createTimeStart",createTimeStart + " 00:00:00");
         }
-        if (createTimeEnd != null){
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(createTimeEnd)){
             paramsMap.put("createTimeEnd",createTimeEnd + " 23:59:59");
         }
         //排序---zl-----
@@ -1073,7 +1074,7 @@ public class CustomerInfoService {
     }
 
     public QueryResult<CustomerListDTO> resignCustomerList(String token, String customerName, String telephonenumber, String utmSource,String media, String ownUserName, String customerSource,
-                                                           String level, Integer companyId, Integer page, Integer size) {
+                                                           String level, Integer companyId, Integer page, Integer size,String createTimeStart,String createTimeEnd) {
         QueryResult<CustomerListDTO> queryResult = new QueryResult();
         List<CustomerListDTO> resultList = new ArrayList<>();
         List<String> channleList = new ArrayList<>();
@@ -1117,6 +1118,12 @@ public class CustomerInfoService {
             }
             if (!StringUtils.isEmpty(companyId)) {
                 paramMap.put("companyId", companyId);
+            }
+            if (!StringUtils.isEmpty(createTimeStart)){
+                paramMap.put("createTimeStart",createTimeStart);
+            }
+            if (!StringUtils.isEmpty(createTimeEnd)){
+                paramMap.put("createTimeEnd",createTimeEnd);
             }
             paramMap.put("start", (page - 1) * size);
             paramMap.put("size", size);

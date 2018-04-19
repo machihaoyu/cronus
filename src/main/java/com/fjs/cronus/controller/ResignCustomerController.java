@@ -83,6 +83,8 @@ public class ResignCustomerController {
             @ApiImplicitParam(name = "companyId", value = "公司id", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "查询第几页", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "createTimeStart",value = "创建时间开始日期",required = false,paramType = "query",dataType = "string"),
+            @ApiImplicitParam(name = "createTimeEnd",value = "创建时间结束日期",required = false,paramType = "query",dataType = "string"),
     })
     @RequestMapping(value = "/resignCustomerList", method = RequestMethod.GET)
     @ResponseBody
@@ -96,11 +98,14 @@ public class ResignCustomerController {
                                                                       @RequestParam(required = false) String level,
                                                                       @RequestParam(required = false) Integer companyId,
                                                                       @RequestParam(required = false) Integer page,
+                                                                      @RequestParam(value = "createTimeStart",required = false) String createTimeStart,
+                                                                      @RequestParam(value = "createTimeEnd",required = false) String createTimeEnd,
                                                                       @RequestParam(required = false) Integer size) {
         CronusDto resultDto = new CronusDto();
         QueryResult<CustomerListDTO> result = new QueryResult<CustomerListDTO>();
         try {
-            result = customerInfoService.resignCustomerList(token, customerName, telephonenumber, utmSource,media, ownUserName, customerSource, level, companyId, page, size);
+            result = customerInfoService.resignCustomerList(token, customerName, telephonenumber, utmSource,media,
+                    ownUserName, customerSource, level, companyId, page, size,createTimeStart,createTimeEnd);
             resultDto.setData(result);
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
@@ -124,6 +129,8 @@ public class ResignCustomerController {
             @ApiImplicitParam(name = "companyId", value = "公司id", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "page", value = "查询第几页", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "createTimeStart",value = "创建时间开始日期",required = false,paramType = "query",dataType = "string"),
+            @ApiImplicitParam(name = "createTimeEnd",value = "创建时间结束日期",required = false,paramType = "query",dataType = "string")
     })
     @RequestMapping(value = "/unablePool", method = RequestMethod.GET)
     @ResponseBody
@@ -137,11 +144,14 @@ public class ResignCustomerController {
                                                               @RequestParam(required = false) String level,
                                                               @RequestParam(required = false) Integer companyId,
                                                               @RequestParam(required = false) Integer page,
+                                                              @RequestParam(value = "createTimeStart",required = false) String createTimeStart,
+                                                              @RequestParam(value = "createTimeEnd",required = false) String createTimeEnd,
                                                               @RequestParam(required = false) Integer size) {
         CronusDto resultDto = new CronusDto();
         QueryResult<CustomerListDTO> result = new QueryResult<CustomerListDTO>();
         try {
-            result = lookPoolService.unablePool(token, customerName, telephonenumber, utmSource,media,ownUserName, customerSource, level, companyId, page, size);
+            result = lookPoolService.unablePool(token, customerName, telephonenumber, utmSource,media,ownUserName, customerSource,
+                    level, companyId, page, size,createTimeStart,createTimeEnd);
             resultDto.setData(result);
             resultDto.setResult(ResultResource.CODE_SUCCESS);
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
