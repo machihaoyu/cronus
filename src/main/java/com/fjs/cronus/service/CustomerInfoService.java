@@ -191,10 +191,10 @@ public class CustomerInfoService {
         if (communication_order != null){
             paramsMap.put("communication_order", communication_order);
         }
-        if (createTimeStart != null){
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(createTimeStart)){
             paramsMap.put("createTimeStart",createTimeStart + " 00:00:00");
         }
-        if (createTimeEnd != null){
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(createTimeEnd)){
             paramsMap.put("createTimeEnd",createTimeEnd + " 23:59:59");
         }
         //手机需要解密加密
