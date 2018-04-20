@@ -1120,10 +1120,10 @@ public class CustomerInfoService {
                 paramMap.put("companyId", companyId);
             }
             if (!StringUtils.isEmpty(createTimeStart)){
-                paramMap.put("createTimeStart",createTimeStart);
+                paramMap.put("createTimeStart",createTimeStart + " 00:00:00");
             }
             if (!StringUtils.isEmpty(createTimeEnd)){
-                paramMap.put("createTimeEnd",createTimeEnd);
+                paramMap.put("createTimeEnd",createTimeEnd + " 23:59:59");
             }
             paramMap.put("start", (page - 1) * size);
             paramMap.put("size", size);

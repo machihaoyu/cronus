@@ -1621,6 +1621,9 @@
         <if test="customerSource != null and '' != customerSource">
             and customer_source = #{customerSource,jdbcType=VARCHAR}
         </if>
+        <if test="createTimeStart!=null and createTimeEnd!=null">
+            and create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
+        </if>
         <if test="utmSource != null and '' != utmSource">
             and utm_source = #{utmSource,jdbcType=VARCHAR}
         </if>
@@ -1747,6 +1750,9 @@
         </if>
         <if test="customerName != null and '' != customerName">
             and customer_name = #{customerName,jdbcType=VARCHAR}
+        </if>
+        <if test="createTimeStart!=null and createTimeEnd!=null">
+            and create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
         </if>
         <if test="customerSource != null and '' != customerSource">
             and customer_source = #{customerSource,jdbcType=VARCHAR}
@@ -2037,6 +2043,9 @@
         <if test="utmSource != null and '' != utmSource">
             and utm_source = #{utmSource,jdbcType=VARCHAR}
         </if>
+        <if test="createTimeStart!=null and createTimeEnd!=null">
+            and create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
+        </if>
         <if test="houseStatus != null and '' != houseStatus">
             and house_status = #{houseStatus,jdbcType=VARCHAR}
         </if>
@@ -2138,6 +2147,9 @@
         </if>
         <if test="utmSource != null and '' != utmSource">
             and utm_source = #{utmSource,jdbcType=VARCHAR}
+        </if>
+        <if test="createTimeStart!=null and createTimeEnd!=null">
+            and create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
         </if>
         <if test="houseStatus != null and '' != houseStatus">
             and house_status = #{houseStatus,jdbcType=VARCHAR}

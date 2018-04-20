@@ -76,10 +76,10 @@ public class LookPoolService {
             paramMap.put("companyId",companyId);
         }
         if (!StringUtils.isEmpty(createTimeStart)){
-            paramMap.put("createTimeStart",createTimeStart);
+            paramMap.put("createTimeStart",createTimeStart + " 00:00:00");
         }
         if (!StringUtils.isEmpty(createTimeEnd)){
-            paramMap.put("createTimeEnd",createTimeEnd);
+            paramMap.put("createTimeEnd",createTimeEnd + " 23:59:59");
         }
         //获取三无客户盘的状态
         String result = theaClientService.findValueByName(token, CommonConst.CAN_NOT_ALLOCATE_CUSTOMER_CLASSIFY);

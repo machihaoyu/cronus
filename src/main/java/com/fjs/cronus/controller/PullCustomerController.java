@@ -312,7 +312,9 @@ public class PullCustomerController {
             @ApiImplicitParam(name = "page", value = "查询第几页", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "orderField", value = "排序字段(receive_time,create_time,last_update_time)", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string")
+            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "createTimeStart",value = "创建时间开始日期",required = false,paramType = "query",dataType = "string"),
+            @ApiImplicitParam(name = "createTimeEnd",value = "创建时间结束日期",required = false,paramType = "query",dataType = "string")
     })
     @RequestMapping(value = "/pullCustomerListNew", method = RequestMethod.GET)
     @ResponseBody
@@ -327,6 +329,8 @@ public class PullCustomerController {
             @RequestParam Integer size,
             @RequestParam(value = "orderField", required = false) String orderField,
             @RequestParam(value = "sort", required = false) String sort,
+            @RequestParam(value = "createTimeStart",required = false) String createTimeStart,
+            @RequestParam(value = "createTimeEnd",required = false) String createTimeEnd,
             @RequestHeader("Authorization") String token) {
         CronusDto cronusDto = new CronusDto();
         QueryResult<PullCustomerDTO> pullCustomerDTOQueryResult = new QueryResult<PullCustomerDTO>();
@@ -335,7 +339,8 @@ public class PullCustomerController {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
         try {
-            pullCustomerDTOQueryResult = pullCustomerService.listByConditionNew(telephonenumber, status, name, token, CommonConst.SYSTEMNAME, city, mountLevle, createTime, page, size, userId,orderField,sort);
+            pullCustomerDTOQueryResult = pullCustomerService.listByConditionNew(telephonenumber, status, name, token, CommonConst.SYSTEMNAME, city,
+                    mountLevle, createTime, page, size, userId,orderField,sort,createTimeStart,createTimeEnd);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
         } catch (Exception e) {
