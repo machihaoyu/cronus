@@ -234,4 +234,14 @@
 
     </select>
 
+    <select id="listAllocateLog" resultMap="BaseResultMap" parameterType="Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM allocate_log WHERE 1 = 1
+        <if test="customerId != null">
+            AND customer_id = #{customerId}
+        </if>
+        order by create_time DESC limit #{page},#{pageSize}
+    </select>
+
 </mapper>

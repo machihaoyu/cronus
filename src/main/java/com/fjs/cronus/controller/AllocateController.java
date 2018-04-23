@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -267,18 +268,26 @@ public class AllocateController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "第几页", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页多少条", required = true, paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/allocateLogList", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<QueryResult<AllocateLogDTO>> listAllocateLog(HttpServletRequest request, @RequestParam Integer customerId) {
+    public CronusDto<QueryResult<AllocateLogDTO>> listAllocateLog(HttpServletRequest request, @RequestParam("customerId") Integer customerId,
+                                                                  @RequestParam("page") Integer page,@RequestParam("pageSize") Integer pageSize) {
         CronusDto theaApiDTO = new CronusDto();
         List<AllocateLog> allocateLogList = new ArrayList<AllocateLog>();
         List<AllocateLogDTO> allocateLogDTOS = new ArrayList<AllocateLogDTO>();
         QueryResult<AllocateLogDTO> queryResult = new QueryResult<>();
         Integer count = 0;
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("customerId",customerId);
+        map.put("page", (page - 1) * pageSize);
+        map.put("pageSize", pageSize * page);
         String token = request.getHeader("Authorization");
         try {
-            allocateLogList = allocateLogService.listByCondition(customerId);
+//            allocateLogList = allocateLogService.listByCondition(customerId);
+            allocateLogList = allocateLogService.listAllocateLog(map);
             count = allocateLogService.listByConditionCount(customerId);
             if (allocateLogList.size() > 0) {
                 for (AllocateLog allocateLog : allocateLogList) {
