@@ -229,5 +229,9 @@
         GROUP BY operation
     </select>
 
+    <select id="getCountByCondition" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+      SELECT COUNT(*) FROM allocate_log WHERE customer_id = #{customerId}
+
+    </select>
 
 </mapper>

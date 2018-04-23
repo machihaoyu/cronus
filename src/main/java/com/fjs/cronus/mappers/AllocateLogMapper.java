@@ -46,4 +46,6 @@ public interface AllocateLogMapper extends MyMapper<AllocateLog> {
 
 
     List<CustomerComDTO> getTodayCount(Map<String, Object> paramMap);
+
+    Integer getCountByCondition(Integer customerId);
 }

@@ -4,6 +4,7 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.PHPUserDto;
@@ -269,14 +270,16 @@ public class AllocateController {
     })
     @RequestMapping(value = "/allocateLogList", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<List<AllocateLogDTO>> listAllocateLog(HttpServletRequest request, @RequestParam Integer customerId) {
+    public CronusDto<QueryResult<AllocateLogDTO>> listAllocateLog(HttpServletRequest request, @RequestParam Integer customerId) {
         CronusDto theaApiDTO = new CronusDto();
         List<AllocateLog> allocateLogList = new ArrayList<AllocateLog>();
         List<AllocateLogDTO> allocateLogDTOS = new ArrayList<AllocateLogDTO>();
-
+        QueryResult<AllocateLogDTO> queryResult = new QueryResult<>();
+        Integer count = 0;
         String token = request.getHeader("Authorization");
         try {
             allocateLogList = allocateLogService.listByCondition(customerId);
+            count = allocateLogService.listByConditionCount(customerId);
             if (allocateLogList.size() > 0) {
                 for (AllocateLog allocateLog : allocateLogList) {
                     AllocateLogDTO allocateLogDTO = new AllocateLogDTO();
@@ -305,6 +308,9 @@ public class AllocateController {
                     allocateLogDTOS.add(allocateLogDTO);
                 }
             }
+            queryResult.setTotal(count.toString());
+            queryResult.setRows(allocateLogDTOS);
+            theaApiDTO.setData(queryResult);
             theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
             theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
         } catch (Exception e) {
@@ -312,7 +318,7 @@ public class AllocateController {
             theaApiDTO.setResult(CommonMessage.FAIL.getCode());
             theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc());
         }
-        theaApiDTO.setData(allocateLogDTOS);
+//        theaApiDTO.setData(allocateLogDTOS);
         return theaApiDTO;
     }
 
