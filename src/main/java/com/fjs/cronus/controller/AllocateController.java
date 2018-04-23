@@ -268,13 +268,14 @@ public class AllocateController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "page", value = "第几页", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "pageSize", value = "每页多少条", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "page", value = "第几页", required = false,defaultValue = "1",paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", value = "每页多少条", required = false,defaultValue = "10",paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/allocateLogList", method = RequestMethod.GET)
     @ResponseBody
     public CronusDto<QueryResult<AllocateLogDTO>> listAllocateLog(HttpServletRequest request, @RequestParam("customerId") Integer customerId,
-                                                                  @RequestParam("page") Integer page,@RequestParam("pageSize") Integer pageSize) {
+                                                                  @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
+                                                                  @RequestParam(value = "pageSize",required = false,defaultValue = "10") Integer pageSize) {
         CronusDto theaApiDTO = new CronusDto();
         List<AllocateLog> allocateLogList = new ArrayList<AllocateLog>();
         List<AllocateLogDTO> allocateLogDTOS = new ArrayList<AllocateLogDTO>();
