@@ -43,15 +43,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.util.StringUtils;
 
 
+import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -81,7 +86,11 @@ public class CustomerInfoService {
     OutPutService outPutService;
     @Autowired
     CommunicationLogMapper communicationLogMapper;
+    @Resource
+    RedisTemplate<String,String> redisTemplate;
 
+    public static final String REDIS_CRONUS_GETHISTORYCOUNT = "cronus_cronus_getHistoryCount_";
+    public static final long REDIS_CRONUS_GETHISTORYCOUNT_TIME = 600;
 
     public List<CustomerInfo> findList() {
         List<CustomerInfo> resultList = new ArrayList();
@@ -1857,6 +1866,84 @@ public class CustomerInfoService {
         return resultDto;
     }
 
+//    public CronusDto<CustomerCountDTO> getTodayCount(String token, Integer userId) {
+//
+//        CronusDto<CustomerCountDTO> resultDto = new CronusDto<>();
+//        Date date = new Date();
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//        String today = sdf.format(date);
+//        String startTime = today + " 00:00:00";
+//        String endTime = today + " 23:59:59";
+//        Map<String,Object> paramMap = new HashMap<>();
+//        paramMap.put("userId",userId);
+//        paramMap.put("startTime",startTime);
+//        paramMap.put("endTime",endTime);
+//        //历史分配
+//        List<CustomerComDTO> historyCountList = allocateLogMapper.getHistoryCount(paramMap);
+//        CustomerCountDTO customerCountDTO = new CustomerCountDTO();
+//        Integer noCommunicationHistory = 0;//未沟通分配历史数
+//        Integer automaticAllocationHistory = 0;//自动分配历史数
+//        Integer collectCustomersHistory = 0;//领取客户历史数
+//        if (null != historyCountList && historyCountList.size() > 0){
+//
+//            for (CustomerComDTO customerComDTO : historyCountList){
+//                if (customerComDTO != null && customerComDTO.getOperation().equals("未沟通分配")){
+//                    noCommunicationHistory = customerComDTO.getCount();
+//                }
+//                if (customerComDTO != null && customerComDTO.getOperation().equals("自动分配")){
+//                    automaticAllocationHistory = customerComDTO.getCount();
+//                }
+//                if (customerComDTO != null && customerComDTO.getOperation().equals("领取客户")){
+//                    collectCustomersHistory = customerComDTO.getCount();
+//                }
+//            }
+//        }
+//        customerCountDTO.setHistoryAllocation(noCommunicationHistory + automaticAllocationHistory);
+//        customerCountDTO.setHistoryReceive(collectCustomersHistory);
+//        //历史沟通次数
+//        Integer historyCommunication = communicationLogMapper.gethistoryCount(paramMap);
+//        customerCountDTO.setHistoryCommunicate(historyCommunication);
+//        //历史沟通客户数
+//        Integer historyCommunicationCustomer = communicationLogMapper.getHistoryCustomer(paramMap);
+//        customerCountDTO.setHistoryCommunicateCustomer(historyCommunicationCustomer);
+//
+//        //今日分配
+//        List<CustomerComDTO> todayCountList = allocateLogMapper.getTodayCount(paramMap);
+//        Integer noCommunicationToday = 0;//未沟通分配今日数
+//        Integer automaticAllocationToday = 0;//自动分配历今日数
+//        Integer collectCustomersToday = 0;//领取客户今日数
+//        if (null != todayCountList && todayCountList.size() > 0){
+//            for (CustomerComDTO customerComDTO : todayCountList){
+//                if (customerComDTO != null && customerComDTO.getOperation().equals("未沟通分配")){
+//                    noCommunicationToday = customerComDTO.getCount();
+//                }
+//                if (customerComDTO != null && customerComDTO.getOperation().equals("自动分配")){
+//                    automaticAllocationToday = customerComDTO.getCount();
+//                }
+//                if (customerComDTO != null && customerComDTO.getOperation().equals("领取客户")){
+//                    collectCustomersToday = customerComDTO.getCount();
+//                }
+//
+//            }
+////            customerCountDTO.setTodayAllocation(noCommunicationToday + automaticAllocationToday);
+////            customerCountDTO.setTodayReceive(collectCustomersToday);
+//        }
+//        customerCountDTO.setTodayAllocation(noCommunicationToday + automaticAllocationToday);
+//        customerCountDTO.setTodayReceive(collectCustomersToday);
+//        //今日沟通次数
+//        Integer todayCommunication = communicationLogMapper.getTodayCount(paramMap);
+//        customerCountDTO.setTodayCommunicate(todayCommunication);
+//        //今日沟通客户数
+//        Integer todayCommunicationCustomer = communicationLogMapper.getTodayCommunicateCustomer(paramMap);
+//        customerCountDTO.setTodayCommunicateCustomer(todayCommunicationCustomer);
+//
+//        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+//        resultDto.setResult(ResultResource.CODE_SUCCESS);
+//        resultDto.setData(customerCountDTO);
+//        return resultDto;
+//    }
+
+
     public CronusDto<CustomerCountDTO> getTodayCount(String token, Integer userId) {
 
         CronusDto<CustomerCountDTO> resultDto = new CronusDto<>();
@@ -1869,9 +1956,76 @@ public class CustomerInfoService {
         paramMap.put("userId",userId);
         paramMap.put("startTime",startTime);
         paramMap.put("endTime",endTime);
-        //历史分配
-        List<CustomerComDTO> historyCountList = allocateLogMapper.getHistoryCount(paramMap);
         CustomerCountDTO customerCountDTO = new CustomerCountDTO();
+
+
+        //今日分配
+        List<CustomerComDTO> todayCountList = allocateLogMapper.getTodayCount(paramMap);
+        Integer noCommunicationToday = 0;//未沟通分配今日数
+        Integer automaticAllocationToday = 0;//自动分配历今日数
+        Integer collectCustomersToday = 0;//领取客户今日数
+        if (null != todayCountList && todayCountList.size() > 0){
+            for (CustomerComDTO customerComDTO : todayCountList){
+                if (customerComDTO != null && customerComDTO.getOperation().equals("未沟通分配")){
+                    noCommunicationToday = customerComDTO.getCount();
+                }
+                if (customerComDTO != null && customerComDTO.getOperation().equals("自动分配")){
+                    automaticAllocationToday = customerComDTO.getCount();
+                }
+                if (customerComDTO != null && customerComDTO.getOperation().equals("领取客户")){
+                    collectCustomersToday = customerComDTO.getCount();
+                }
+            }
+        }
+        customerCountDTO.setTodayAllocation(noCommunicationToday + automaticAllocationToday);
+        customerCountDTO.setTodayReceive(collectCustomersToday);
+        //今日沟通次数
+        Integer todayCommunication = communicationLogMapper.getTodayCount(paramMap);
+        customerCountDTO.setTodayCommunicate(todayCommunication);
+        //今日沟通客户数
+        Integer todayCommunicationCustomer = communicationLogMapper.getTodayCommunicateCustomer(paramMap);
+        customerCountDTO.setTodayCommunicateCustomer(todayCommunicationCustomer);
+
+        List<CustomerComDTO> historyCountList = new ArrayList<>();
+        //从redis中获取历史分配
+        ValueOperations<String, String> redisOptions = null;
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        redisOptions = redisTemplate.opsForValue();
+        String redisData = redisOptions.get(CustomerInfoService.REDIS_CRONUS_GETHISTORYCOUNT + userId);
+        if (null != redisData && !StringUtils.isEmpty(redisData)){
+            CustomerCountDTO customerCountDTOTem = JSONObject.parseObject(redisData, CustomerCountDTO.class);
+//            CronusDto<CustomerCountDTO> cronusDto = JSONObject.parseObject(redisData, CronusDto.class);
+//            customerCountDTO = cronusDto.getData();
+            //customerCountDTO = JSONObject.parseObject(cronusDto.getData(),customerCountDTO.getClass());
+            if (null != customerCountDTO){
+                customerCountDTOTem.setTodayAllocation(noCommunicationToday + automaticAllocationToday);
+                customerCountDTOTem.setTodayReceive(collectCustomersToday);
+                customerCountDTOTem.setTodayCommunicate(todayCommunication);
+                customerCountDTOTem.setTodayCommunicateCustomer(todayCommunicationCustomer);
+                customerCountDTOTem.setHistoryAllocation(customerCountDTOTem.getHistoryAllocation() + customerCountDTO.getTodayAllocation());
+                customerCountDTOTem.setHistoryReceive(customerCountDTOTem.getHistoryReceive() + customerCountDTO.getTodayReceive());
+                customerCountDTOTem.setHistoryCommunicate(customerCountDTOTem.getHistoryCommunicate() + customerCountDTO.getTodayCommunicate());
+                customerCountDTOTem.setHistoryCommunicateCustomer(customerCountDTOTem.getHistoryCommunicateCustomer() + customerCountDTO.getTodayCommunicateCustomer());
+                resultDto.setData(customerCountDTOTem);
+                return  resultDto;
+            }
+        }
+        //如果redis中没有, 就查数据库
+        //历史分配
+        Calendar calendar = Calendar.getInstance();
+        try {
+//            Date parse = sdf.parse(date.toString());
+            calendar.setTime(sdf.parse(today));
+            calendar.add(Calendar.DAY_OF_MONTH,-1);
+            date = calendar.getTime();
+            endTime = sdf.format(date);
+            paramMap.put("endTime",endTime + " 23:59:59");
+        } catch (ParseException e) {
+            logger.error("getTodayCount >>>>>>日期转换失败" + e.getMessage(),e);
+        }
+
+        historyCountList = allocateLogMapper.getHistoryCount(paramMap);
         Integer noCommunicationHistory = 0;//未沟通分配历史数
         Integer automaticAllocationHistory = 0;//自动分配历史数
         Integer collectCustomersHistory = 0;//领取客户历史数
@@ -1891,46 +2045,33 @@ public class CustomerInfoService {
         }
         customerCountDTO.setHistoryAllocation(noCommunicationHistory + automaticAllocationHistory);
         customerCountDTO.setHistoryReceive(collectCustomersHistory);
-        //历史沟通次数
+//        //历史沟通次数
         Integer historyCommunication = communicationLogMapper.gethistoryCount(paramMap);
         customerCountDTO.setHistoryCommunicate(historyCommunication);
         //历史沟通客户数
         Integer historyCommunicationCustomer = communicationLogMapper.getHistoryCustomer(paramMap);
         customerCountDTO.setHistoryCommunicateCustomer(historyCommunicationCustomer);
 
-        //今日分配
-        List<CustomerComDTO> todayCountList = allocateLogMapper.getTodayCount(paramMap);
-        Integer noCommunicationToday = 0;//未沟通分配今日数
-        Integer automaticAllocationToday = 0;//自动分配历今日数
-        Integer collectCustomersToday = 0;//领取客户今日数
-        if (null != todayCountList && todayCountList.size() > 0){
-            for (CustomerComDTO customerComDTO : todayCountList){
-                if (customerComDTO != null && customerComDTO.getOperation().equals("未沟通分配")){
-                    noCommunicationToday = customerComDTO.getCount();
-                }
-                if (customerComDTO != null && customerComDTO.getOperation().equals("自动分配")){
-                    automaticAllocationToday = customerComDTO.getCount();
-                }
-                if (customerComDTO != null && customerComDTO.getOperation().equals("领取客户")){
-                    collectCustomersToday = customerComDTO.getCount();
-                }
-
-            }
-//            customerCountDTO.setTodayAllocation(noCommunicationToday + automaticAllocationToday);
-//            customerCountDTO.setTodayReceive(collectCustomersToday);
-        }
-        customerCountDTO.setTodayAllocation(noCommunicationToday + automaticAllocationToday);
-        customerCountDTO.setTodayReceive(collectCustomersToday);
-        //今日沟通次数
-        Integer todayCommunication = communicationLogMapper.getTodayCount(paramMap);
-        customerCountDTO.setTodayCommunicate(todayCommunication);
-        //今日沟通客户数
-        Integer todayCommunicationCustomer = communicationLogMapper.getTodayCommunicateCustomer(paramMap);
-        customerCountDTO.setTodayCommunicateCustomer(todayCommunicationCustomer);
-
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerCountDTO);
+
+        try {
+            //把昨天之前的数据存入redis
+            redisOptions = redisTemplate.opsForValue();
+            redisOptions.set(CustomerInfoService.REDIS_CRONUS_GETHISTORYCOUNT + userId,JSONObject.toJSONString(customerCountDTO),CustomerInfoService.REDIS_CRONUS_GETHISTORYCOUNT_TIME, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            logger.error("getTodayCount >>>>>> 存入redis失败" + e.getMessage(),e);
+        }
+        //昨天之前的数据加上今天的数据
+        customerCountDTO.setHistoryAllocation(noCommunicationHistory + automaticAllocationHistory + customerCountDTO.getTodayAllocation());
+        customerCountDTO.setHistoryReceive(collectCustomersHistory + customerCountDTO.getTodayReceive());
+        customerCountDTO.setHistoryCommunicate(historyCommunication + customerCountDTO.getTodayCommunicate());
+        customerCountDTO.setHistoryCommunicateCustomer(historyCommunicationCustomer + customerCountDTO.getTodayCommunicateCustomer());
+
+        resultDto.setData(customerCountDTO);
         return resultDto;
     }
+
+
 }

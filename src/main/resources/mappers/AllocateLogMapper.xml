@@ -210,6 +210,9 @@
         <if test="null != userId">
             and new_owner_id = #{userId}
         </if>
+        <if test="null != endTime">
+            AND create_time &lt; #{endTime}
+        </if>
        GROUP BY operation;
     </select>
 
