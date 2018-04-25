@@ -196,7 +196,6 @@ public class OcdcService {
                                 case "2":
                                     //未分配，添加到待分配池
                                     if (!allocateSource.getCode().equals("2")) {
-                                        waitingPoolUpdateStatus = false;
                                         AgainAllocateCustomer againAllocateCustomer = new AgainAllocateCustomer();
                                         againAllocateCustomer.setDataId(customerSalePushLog.getOcdcId());
                                         againAllocateCustomer.setJsonData(map);
@@ -204,6 +203,7 @@ public class OcdcService {
                                         againAllocateCustomer.setUpdateTime(new Date());
                                         againAllocateCustomerService.addAgainAllocateCustomer(againAllocateCustomer);
                                     }
+                                    waitingPoolUpdateStatus=false;
                                     break;
                                 case "3":
                                     break;
