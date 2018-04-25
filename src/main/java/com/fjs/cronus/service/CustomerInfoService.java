@@ -2043,27 +2043,33 @@ public class CustomerInfoService {
                 }
             }
         }
-        customerCountDTO.setHistoryAllocation(noCommunicationHistory + automaticAllocationHistory + customerCountDTO.getTodayAllocation());
+        customerCountDTO.setHistoryAllocation(noCommunicationHistory + automaticAllocationHistory);
         customerCountDTO.setHistoryReceive(collectCustomersHistory);
-        //历史沟通次数
+//        //历史沟通次数
         Integer historyCommunication = communicationLogMapper.gethistoryCount(paramMap);
-        customerCountDTO.setHistoryCommunicate(historyCommunication + customerCountDTO.getTodayCommunicate());
+        customerCountDTO.setHistoryCommunicate(historyCommunication);
         //历史沟通客户数
         Integer historyCommunicationCustomer = communicationLogMapper.getHistoryCustomer(paramMap);
-        customerCountDTO.setHistoryCommunicateCustomer(historyCommunicationCustomer + customerCountDTO.getTodayCommunicateCustomer());
+        customerCountDTO.setHistoryCommunicateCustomer(historyCommunicationCustomer);
 
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setData(customerCountDTO);
 
         try {
-            //存入redis
+            //把昨天之前的数据存入redis
             redisOptions = redisTemplate.opsForValue();
             redisOptions.set(CustomerInfoService.REDIS_CRONUS_GETHISTORYCOUNT + userId,JSONObject.toJSONString(customerCountDTO),CustomerInfoService.REDIS_CRONUS_GETHISTORYCOUNT_TIME, TimeUnit.SECONDS);
         } catch (Exception e) {
             logger.error("getTodayCount >>>>>> 存入redis失败" + e.getMessage(),e);
         }
+        //昨天之前的数据加上今天的数据
+        customerCountDTO.setHistoryAllocation(noCommunicationHistory + automaticAllocationHistory + customerCountDTO.getTodayAllocation());
+        customerCountDTO.setHistoryReceive(collectCustomersHistory + customerCountDTO.getTodayReceive());
+        customerCountDTO.setHistoryCommunicate(historyCommunication + customerCountDTO.getTodayCommunicate());
+        customerCountDTO.setHistoryCommunicateCustomer(historyCommunicationCustomer + customerCountDTO.getTodayCommunicateCustomer());
 
+        resultDto.setData(customerCountDTO);
         return resultDto;
     }
 
