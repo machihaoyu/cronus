@@ -48,16 +48,16 @@ public class SmsService {
      * @param customerName
      * @return
      */
-    public String sendSmsForAutoAllocate(String sendPhone, String customerName) {
-        String smsResult = "";
-        if (smsChannelOpen()) {
-            String smsContent = "【房金云】房金所为您分配了客户名：" + customerName + "，请注意跟进。";
-            smsResult = smsUtils.sendBatchMessage(sendPhone, smsContent);
-        }
-        return smsResult;
-    }
+//    public String sendSmsForAutoAllocate(String sendPhone, String customerName) {
+//        String smsResult = "";
+//        if (smsChannelOpen()) {
+//            String smsContent = "【房金云】房金所为您分配了客户名：" + customerName + "，请注意跟进。";
+//            smsResult = smsUtils.sendBatchMessage(sendPhone, smsContent);
+//        }
+//        return smsResult;
+//    }
 
-    public String sendSmsForAutoAllocateByHebe(String sendPhone, String customerName) {
+    public String sendSmsForAutoAllocate(String sendPhone, String customerName) {
         String smsResult = "";
         if (smsChannelOpen()) {
             String smsContent = CommonConst.SMS_SIGN + "房金所为您分配了客户名：" + customerName + "，请注意跟进。";
@@ -66,17 +66,17 @@ public class SmsService {
         return smsResult;
     }
 
-    public String sendNonCommunicate(String customerName,String telephoneNumber)
-    {
-        String smsResult = "";
-        if (smsChannelOpen()) {
-            String smsContent = "【房金云】系统将新客户分配给了你,姓名:" + customerName + ",请注意跟进(15分钟内未添加沟通日志，客户自动划走)。";
-            smsResult = smsUtils.sendBatchMessage(telephoneNumber, smsContent);
-        }
-        return smsResult;
-    }
+//    public String sendNonCommunicate(String customerName,String telephoneNumber)
+//    {
+//        String smsResult = "";
+//        if (smsChannelOpen()) {
+//            String smsContent = "【房金云】系统将新客户分配给了你,姓名:" + customerName + ",请注意跟进(15分钟内未添加沟通日志，客户自动划走)。";
+//            smsResult = smsUtils.sendBatchMessage(telephoneNumber, smsContent);
+//        }
+//        return smsResult;
+//    }
 
-    public String sendNonCommunicateByHebe(String customerName,String telephoneNumber)
+    public String sendNonCommunicate(String customerName,String telephoneNumber)
     {
         String smsResult = "";
         if (smsChannelOpen()) {
@@ -86,23 +86,23 @@ public class SmsService {
         return smsResult;
     }
 
-    public String sendCRMAssistant(String telephoneNumber)
-    {
-        String smsResult = "";
-        if (smsChannelOpen()) {
-            Integer count = getPhoneCountToday(telephoneNumber);
-            if (count == 0) {
-                String smsContent = "【房金云】自动分配名额已满，请及时增加分配名额。";
-                smsResult = smsUtils.sendBatchMessage(telephoneNumber, smsContent);
-                if (CommonConst.SUCCESS.equals(smsResult)) {
-                    insertMessage(telephoneNumber, smsContent);
-                }
-            }
-        }
-        return smsResult;
-    }
+//    public String sendCRMAssistant(String telephoneNumber)
+//    {
+//        String smsResult = "";
+//        if (smsChannelOpen()) {
+//            Integer count = getPhoneCountToday(telephoneNumber);
+//            if (count == 0) {
+//                String smsContent = "【房金云】自动分配名额已满，请及时增加分配名额。";
+//                smsResult = smsUtils.sendBatchMessage(telephoneNumber, smsContent);
+//                if (CommonConst.SUCCESS.equals(smsResult)) {
+//                    insertMessage(telephoneNumber, smsContent);
+//                }
+//            }
+//        }
+//        return smsResult;
+//    }
 
-    public String sendCRMAssistantByHebe(String telephoneNumber)
+    public String sendCRMAssistant(String telephoneNumber)
     {
         String smsResult = "";
         if (smsChannelOpen()) {
@@ -120,16 +120,16 @@ public class SmsService {
 
     //发送短信
 
-    public  String sendCommunication(String telephoneNumber,String content) {
-        String smsResult = "";
-        if (smsChannelOpen()) {
-            content = CommonConst.SMS_SIGN + content;
-            smsResult = smsUtils.sendBatchMessage(telephoneNumber, content);
-        }
-        return smsResult;
-    }
+//    public  String sendCommunication(String telephoneNumber,String content) {
+//        String smsResult = "";
+//        if (smsChannelOpen()) {
+//            content = CommonConst.SMS_SIGN + content;
+//            smsResult = smsUtils.sendBatchMessage(telephoneNumber, content);
+//        }
+//        return smsResult;
+//    }
 
-    public String sendCommunicationByHebe(String telephoneNumber,String content) {
+    public String sendCommunication(String telephoneNumber,String content) {
         String smsResult = "";
         if (smsChannelOpen()) {
             content = CommonConst.SMS_SIGN + content;
