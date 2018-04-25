@@ -284,7 +284,7 @@ public class AllocateController {
         HashMap<String, Object> map = new HashMap<>();
         map.put("customerId",customerId);
         map.put("page", (page - 1) * pageSize);
-        map.put("pageSize", pageSize * page);
+        map.put("pageSize", pageSize);
         String token = request.getHeader("Authorization");
         try {
 //            allocateLogList = allocateLogService.listByCondition(customerId);
