@@ -119,8 +119,10 @@ public class CommunicationLogService {
                         break;
                     case not_yet_connected:
                         try {
-                            String content = "尊敬的客户，您的申请已受理，因联系不上，如需融资可联系" +
-                                    userInfoDTO.getName() + ":" + userInfoDTO.getTelephone() + "，更多融资机会请关注官方微信：房金所";
+//                            String content = "尊敬的客户，您的申请已受理，因联系不上，如需融资可联系" +
+//                                    userInfoDTO.getName() + ":" + userInfoDTO.getTelephone() + "，更多融资机会请关注官方微信：房金所";
+                            String content = "尊敬的客户，因未能与您取得联系，为免耽误融资，您可致电房金所融资经理" +
+                                    userInfoDTO.getName() + ":" + userInfoDTO.getTelephone() + "获取专业服务，更多融资机会请关注官方微信：房金所";
                             smsService.sendCommunication(customerphone, content);
                         } catch (Exception e) {
                             e.printStackTrace();
