@@ -2023,6 +2023,15 @@
     </select>
 
 
+    <select id="getNewCustomer" resultMap="BaseResultMap" parameterType="Map">
+        select
+        <include refid="Base_Column_List" />
+        FROM customer_info WHERE is_deleted = 0 AND utm_source IN (#{utmSource})
+        AND create_time BETWEEN #{timeStart}
+        AND #{timeEnd}
+    </select>
+
+
     <select id="specialListByOffer" resultMap="BaseResultMap" parameterType="Map">
         select
         <include refid="cronus_column_List" />

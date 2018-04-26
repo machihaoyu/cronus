@@ -227,6 +227,8 @@ public class CommonConst {
 //    public static final String INTENTION_TO_TRACKED = "尊敬的客户，我们正在为您初步对接融资渠道，查看最新结果请关注官方微信：房金所";
     public static final String INTENTION_TO_TRACKED = "尊敬的客户，我们正在为您初步对接融资渠道，第一时间获取最新结果请关注官方微信：房金所";
 
+    public static final String NEW_CUSTOMER_MESSAGE = "尊敬的客户您好，如您发现房金所员工出现服务不周或侵犯您利益的行为，请拨打投诉热线：400-810-2999，我们承诺，有投必应！";
+
     public static final String IMPORTNOUSERPOOLUTMSOURCE = "importNoUserPoolutmSource";
 
     public static final String SUCCESS = "success";
