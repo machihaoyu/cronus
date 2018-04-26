@@ -60,7 +60,7 @@ public class ScheduledJob {
         customerMeetService.sendMessMeetToCustomer(token);
         ocdcService.waitingPoolAllocate(token);
 
-        autoAllocateService.nonCommunicateAgainAllocate(token);
+        //autoAllocateService.nonCommunicateAgainAllocate(token);
 
         autoCleanService.autoCleanTask();
 
