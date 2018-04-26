@@ -5,6 +5,7 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.util.MyMapper;
 import org.springframework.data.repository.query.Param;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -92,4 +93,7 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
     Integer utmCustomerListCount(Map<String,Object> paramsMap);
 
     void insertBatch(List<CustomerInfo> customerInfos);
+
+
+    List<CustomerInfo> getNewCustomer(HashMap<String, Object> map);
 }

@@ -88,6 +88,8 @@ public class CustomerInfoService {
     CommunicationLogMapper communicationLogMapper;
     @Resource
     RedisTemplate<String,String> redisTemplate;
+    @Autowired
+    SmsService smsService;
 
     public static final String REDIS_CRONUS_GETHISTORYCOUNT = "cronus_cronus_getHistoryCount_";
     public static final long REDIS_CRONUS_GETHISTORYCOUNT_TIME = 600;
@@ -2073,5 +2075,60 @@ public class CustomerInfoService {
         return resultDto;
     }
 
+
+    /**
+     * 新用户注册15天之后发送短信
+     */
+    public void sandMessage() {
+
+        String utmSource = "wangluoyingxiao,androidyysc";
+        //16天之前的日期
+        String time = getDate(-16);
+        String timeStart = time + " 00:00:00";
+        String timeEnd = time + " 23:59:59";
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("utmSource",utmSource);
+        map.put("timeStart",timeStart);
+        map.put("timeEnd",timeEnd);
+
+        List<CustomerInfo> customerInfoList = customerInfoMapper.getNewCustomer(map);
+//        String customerphone = "18701780932";
+//        smsService.sendCommunication(customerphone, CommonConst.NEW_CUSTOMER_MESSAGE);
+        if (null != customerInfoList && customerInfoList.size() > 0){
+            for (CustomerInfo customerInfo : customerInfoList){
+                //解密手机号
+                String customerphone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+                try {
+                    //发送短信
+                    smsService.sendCommunication(customerphone, CommonConst.NEW_CUSTOMER_MESSAGE);
+                } catch (Exception e) {
+                    logger.error("sandMessage >>>>>>定时任务 : 新客户15天发送短信失败" + e.getMessage(),e);
+                }
+            }
+        }
+
+    }
+
+    /**
+     * 获取日期
+     * @param before
+     * @return
+     */
+    public static String getDate(Integer before){
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String today = sdf.format(date);
+        Calendar calendar = Calendar.getInstance();
+        try {
+            calendar.setTime(sdf.parse(today));
+            calendar.add(Calendar.DAY_OF_MONTH,before);
+            date = calendar.getTime();
+            String time = sdf.format(date);
+            return time;
+        } catch (ParseException e) {
+            logger.error("日期转化失败>>>" + e.getMessage(),e);
+            return null;
+        }
+    }
 
 }
