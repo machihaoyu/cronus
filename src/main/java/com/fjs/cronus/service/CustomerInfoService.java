@@ -93,6 +93,7 @@ public class CustomerInfoService {
 
     public static final String REDIS_CRONUS_GETHISTORYCOUNT = "cronus_cronus_getHistoryCount_";
     public static final long REDIS_CRONUS_GETHISTORYCOUNT_TIME = 600;
+    public static final long NEW_CUSTOMER_MESSAGE_TIME = 86400;
 
     public List<CustomerInfo> findList() {
         List<CustomerInfo> resultList = new ArrayList();
@@ -2105,14 +2106,29 @@ public class CustomerInfoService {
 //        String customerphone = "18701780932";
 //        smsService.sendCommunication(customerphone, CommonConst.NEW_CUSTOMER_MESSAGE);
         if (null != customerInfoList && customerInfoList.size() > 0){
-            for (CustomerInfo customerInfo : customerInfoList){
-                //解密手机号
-                String customerphone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-                try {
-                    //发送短信
-                    smsService.sendCommunication(customerphone, CommonConst.NEW_CUSTOMER_MESSAGE);
-                } catch (Exception e) {
-                    logger.error("sandMessage >>>>>>定时任务 : 新客户15天发送短信失败" + e.getMessage(),e);
+            String key = "new_customer_message";
+            redisTemplate.setKeySerializer(new StringRedisSerializer());
+            redisTemplate.setValueSerializer(new StringRedisSerializer());
+            ValueOperations<String, String> redis = redisTemplate.opsForValue();
+            String flag = redis.get(key);
+            if (flag == null || StringUtils.isEmpty(flag)){
+                redis.set(key,"0",CustomerInfoService.NEW_CUSTOMER_MESSAGE_TIME,TimeUnit.SECONDS);
+                flag = "0";
+            }
+            // 从缓存中取数据, 0-今天未执行, 1-今天执行了
+            if ("0".equals(flag)){
+                for (CustomerInfo customerInfo : customerInfoList){
+                    //解密手机号
+                    String customerphone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+                    try {
+                        //发送短信
+                        smsService.sendCommunication(customerphone, CommonConst.NEW_CUSTOMER_MESSAGE);
+
+                        //定时任务,将时间存入redis
+                        redis.set(key,"1",CustomerInfoService.NEW_CUSTOMER_MESSAGE_TIME,TimeUnit.SECONDS);
+                    } catch (Exception e) {
+                        logger.error("sandMessage >>>>>>定时任务 : 新客户15天发送短信失败" + e.getMessage(),e);
+                    }
                 }
             }
         }
@@ -2140,5 +2156,7 @@ public class CustomerInfoService {
             return null;
         }
     }
+
+
 
 }
