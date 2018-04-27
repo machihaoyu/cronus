@@ -1397,6 +1397,15 @@ public class CustomerInfoService {
                 customerInfo.setLastUpdateTime(date);
                 customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
                 customerInfoMapper.updateCustomer(customerInfo);
+                try {
+                    //发送短信
+                    String message = "尊敬的客户您好，因公司人员调整，房金所新的融资经理" + userInfoDTO.getName()
+                            + userInfoDTO.getTelephone() + "将继续为您服务，感谢您对房金所的支持与信赖。";
+                    smsService.sendCommunication(customerInfo.getTelephonenumber(), message);
+                } catch (Exception e) {
+                    logger.error("removeCustomerAll >>>>>> 员工离职时给客户发送短信失败" + e.getMessage(),e);
+                }
+
             }
             try {
                 Integer thearesult = theaClientService.serviceContractToUser(token, strIds, removeDTO.getEmpId());
@@ -1411,6 +1420,7 @@ public class CustomerInfoService {
             removeCustomerAddLog(customerInfoList, removeDTO.getEmpId(), Integer.valueOf(userInfoDTO.getUser_id()), userInfoDTO.getName());
             flag = true;
         }
+
         resultDto.setData(flag);
         resultDto.setMessage(ResultResource.CRM_MOVE_SUCESSS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
