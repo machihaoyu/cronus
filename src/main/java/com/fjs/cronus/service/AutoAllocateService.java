@@ -28,6 +28,7 @@ import com.fjs.cronus.service.thea.ThorClientService;
 import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -374,17 +375,14 @@ public class AutoAllocateService {
 //            String allocateToNoUserPool = "";
         String allocateToNoUserPool = theaClientService.getConfigByName(CommonConst.ALLOCATE_TO_NO_USER_POOL);
 
-        if (allocateToNoUserPool.contains(utmSource)) {
-            allocateToPublic = true;
-        }
         //判断该推送客户是否在限制渠道中/进公盘
-//        String[] utmSourceStrArray;
-//        if (StringUtils.isNotBlank(allocateToNoUserPool)) {
-//            utmSourceStrArray = allocateToNoUserPool.split(",");
-//            if (ArrayUtils.contains(utmSourceStrArray, utmSource)) {
-//                allocateToPublic = true;
-//            }
-//        }
+        String[] utmSourceStrArray;
+        if (StringUtils.isNotBlank(allocateToNoUserPool)) {
+            utmSourceStrArray = allocateToNoUserPool.replace("[","").replace("]","").replace("\"","").split(",");
+            if (ArrayUtils.contains(utmSourceStrArray, utmSource)) {
+                allocateToPublic = true;
+            }
+        }
         return allocateToPublic;
     }
 
