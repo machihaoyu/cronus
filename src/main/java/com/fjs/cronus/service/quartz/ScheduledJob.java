@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,6 +42,9 @@ public class ScheduledJob {
     @Autowired
     private AutoCleanService autoCleanService;
 
+    @Resource
+    private CustomerInfoService customerInfoService;
+
     private SimpleDateFormat dateFormat() {
         return new SimpleDateFormat("HH:mm:ss");
     }
@@ -63,6 +67,9 @@ public class ScheduledJob {
         //autoAllocateService.nonCommunicateAgainAllocate(token);
 
         autoCleanService.autoCleanTask();
+
+//        logger.error("定时任务 ------> 新注册客户15天发送短信");
+        customerInfoService.sandMessage();
 
         logger.info("Examine End!");
     }
