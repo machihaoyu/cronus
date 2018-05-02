@@ -1,6 +1,7 @@
 package com.fjs.cronus.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.Common.ResultResource;
@@ -9,6 +10,7 @@ import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
+import com.fjs.cronus.dto.customer.CustomerCountDTO;
 import com.fjs.cronus.dto.thea.AllocateDTO;
 import com.fjs.cronus.dto.thea.LoanDTO6;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
@@ -37,6 +39,7 @@ import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -131,7 +134,9 @@ public class CustomerController {
             @ApiImplicitParam(name="communication_order",value = "沟通状态0未沟通未确认，1，已沟通未确认，3，已沟通已确认",required = false,paramType = "query",dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少件", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "orderField", value = "排序字段(receive_time,create_time,communicate_time)", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string")
+            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "createTimeStart",value = "创建时间开始日期",required = false,paramType = "query",dataType = "string"),
+            @ApiImplicitParam(name = "createTimeEnd",value = "创建时间结束日期",required = false,paramType = "query",dataType = "string")
 
     })
     @RequestMapping(value = "/customerListNew", method = RequestMethod.GET)
@@ -151,6 +156,8 @@ public class CustomerController {
                                                                 @RequestParam(value = "sort", required = false) String sort,
                                                                 @RequestParam(value = "cooperationStatus",required = false) String cooperationStatus,
                                                                 @RequestParam(value = "communication_order",required = false) Integer communication_order,
+                                                                @RequestParam(value = "createTimeStart",required = false) String createTimeStart,
+                                                                @RequestParam(value = "createTimeEnd",required = false) String createTimeEnd,
                                                                 @RequestHeader("Authorization") String token) {
 
 
@@ -162,7 +169,8 @@ public class CustomerController {
         }
         try {
             QueryResult queryResult = customerInfoService.customerListNew(userId, customerName, telephonenumber,
-                    utmSource, ownUserName, customerSource, circle, companyId, page, size, remain, level, token, orderField,sort,cooperationStatus,communication_order);
+                    utmSource, ownUserName, customerSource, circle, companyId, page, size, remain, level, token,
+                    orderField,sort,cooperationStatus,communication_order,createTimeStart,createTimeEnd);
             cronusDto.setData(queryResult);
             cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             cronusDto.setResult(ResultResource.CODE_SUCCESS);
@@ -560,7 +568,9 @@ public class CustomerController {
             @ApiImplicitParam(name = "page", value = "查询第几页(从1开始)", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少件", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "orderField", value = "排序字段(receive_time,create_time,last_update_time)", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string")
+            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "createTimeStart",value = "创建时间开始日期",required = false,paramType = "query",dataType = "string"),
+            @ApiImplicitParam(name = "createTimeEnd",value = "创建时间结束日期",required = false,paramType = "query",dataType = "string")
     })
     @RequestMapping(value = "/AllocationCustomerListNew", method = RequestMethod.GET)
     @ResponseBody
@@ -574,6 +584,8 @@ public class CustomerController {
                                                                           @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
                                                                           @RequestParam(value = "orderField", required = false) String orderField,
                                                                           @RequestParam(value = "sort", required = false) String sort,
+                                                                          @RequestParam(value = "createTimeStart",required = false) String createTimeStart,
+                                                                          @RequestParam(value = "createTimeEnd",required = false) String createTimeEnd,
                                                                           @RequestHeader("Authorization") String token
                                                                            ) {
 
@@ -583,7 +595,8 @@ public class CustomerController {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
         try {
-            QueryResult<CustomerListDTO> queryResult = customerInfoService.allocationCustomerListNew(customerName, utmSource, customerSource, autostatus, page, size, type, telephonenumber,orderField,sort,token);
+            QueryResult<CustomerListDTO> queryResult = customerInfoService.allocationCustomerListNew(customerName, utmSource, customerSource, autostatus, page, size,
+                    type, telephonenumber,orderField,sort,token,createTimeStart,createTimeEnd);
             cronusDto.setData(queryResult);
             cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             cronusDto.setResult(ResultResource.CODE_SUCCESS);
@@ -1119,4 +1132,33 @@ public class CustomerController {
 
         return theaApiDTO;
     }
+
+
+    @ApiOperation(value="今日统计", notes="今日统计")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")
+    })
+    @RequestMapping(value = "/getTodayCount", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<CustomerCountDTO> getTodayCount(@RequestHeader("Authorization")String token){
+        CronusDto<CustomerCountDTO> cronusDto = new CronusDto();
+        //校验权限
+        Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (userId == null){
+            throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
+        }
+
+        try {
+            cronusDto = customerInfoService.getTodayCount(token,userId);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->todayCount失败",e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException)e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+
 }

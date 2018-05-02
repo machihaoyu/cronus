@@ -2,6 +2,7 @@ package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fjs.cronus.Common.*;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.controller.CustomerController;
@@ -11,6 +12,8 @@ import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
+import com.fjs.cronus.dto.customer.CustomerComDTO;
+import com.fjs.cronus.dto.customer.CustomerCountDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.LoanDTO6;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
@@ -19,6 +22,7 @@ import com.fjs.cronus.dto.uc.UserSortInfoDTO;
 import com.fjs.cronus.enums.CustListTimeOrderEnum;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.AllocateLogMapper;
+import com.fjs.cronus.mappers.CommunicationLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.AllocateLog;
@@ -34,17 +38,25 @@ import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
 import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.util.StringUtils;
 
 
+import javax.annotation.Resource;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -72,6 +84,16 @@ public class CustomerInfoService {
     TheaClientService theaClientService;
     @Autowired
     OutPutService outPutService;
+    @Autowired
+    CommunicationLogMapper communicationLogMapper;
+    @Resource
+    RedisTemplate<String,String> redisTemplate;
+    @Autowired
+    SmsService smsService;
+
+    public static final String REDIS_CRONUS_GETHISTORYCOUNT = "cronus_cronus_getHistoryCount_";
+    public static final long REDIS_CRONUS_GETHISTORYCOUNT_TIME = 600;
+    public static final long NEW_CUSTOMER_MESSAGE_TIME = 86400;
 
     public List<CustomerInfo> findList() {
         List<CustomerInfo> resultList = new ArrayList();
@@ -141,7 +163,8 @@ public class CustomerInfoService {
 
     public QueryResult customerListNew(Integer userId, String customerName, String telephonenumber, String utmSource, String ownUserName,
                                        String customerSource, Integer circle, Integer companyId, Integer page, Integer size, Integer remain,
-                                       String level, String token, String orderField,String sort,String cooperationStatus,Integer communication_order) {
+                                       String level, String token, String orderField,String sort,String cooperationStatus,Integer communication_order,
+                                       String createTimeStart,String createTimeEnd) {
         QueryResult result = new QueryResult();
         Map<String, Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
@@ -186,6 +209,12 @@ public class CustomerInfoService {
         }
         if (communication_order != null){
             paramsMap.put("communication_order", communication_order);
+        }
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(createTimeStart)){
+            paramsMap.put("createTimeStart",createTimeStart + " 00:00:00");
+        }
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(createTimeEnd)){
+            paramsMap.put("createTimeEnd",createTimeEnd + " 23:59:59");
         }
         //手机需要解密加密
         if (!StringUtils.isEmpty(telephonenumber)) {
@@ -872,7 +901,7 @@ public class CustomerInfoService {
      * @return
      */
     public QueryResult<CustomerListDTO> allocationCustomerListNew(String customerName, String utmSource, String customerSource, Integer autostatus, Integer page, Integer size, Integer type, String telephonenumber,
-                                                                  String orderField,String sort,String token) {
+                                                                  String orderField,String sort,String token,String createTimeStart,String createTimeEnd) {
         List<CustomerInfo> resultList = new ArrayList<>();
         Map<String, Object> paramsMap = new HashMap<>();
         List<CustomerListDTO> doList = new ArrayList<>();
@@ -916,6 +945,12 @@ public class CustomerInfoService {
         }
         if (ownerIds != null && ownerIds.size() > 0) {
             paramsMap.put("ownerIds", ownerIds);
+        }
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(createTimeStart)){
+            paramsMap.put("createTimeStart",createTimeStart + " 00:00:00");
+        }
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(createTimeEnd)){
+            paramsMap.put("createTimeEnd",createTimeEnd + " 23:59:59");
         }
         //排序---zl-----
         if (!StringUtils.isEmpty(orderField) && CustListTimeOrderEnum.getEnumByCode(orderField) != null) {
@@ -1051,7 +1086,7 @@ public class CustomerInfoService {
     }
 
     public QueryResult<CustomerListDTO> resignCustomerList(String token, String customerName, String telephonenumber, String utmSource,String media, String ownUserName, String customerSource,
-                                                           String level, Integer companyId, Integer page, Integer size) {
+                                                           String level, Integer companyId, Integer page, Integer size,String createTimeStart,String createTimeEnd) {
         QueryResult<CustomerListDTO> queryResult = new QueryResult();
         List<CustomerListDTO> resultList = new ArrayList<>();
         List<String> channleList = new ArrayList<>();
@@ -1096,6 +1131,12 @@ public class CustomerInfoService {
             if (!StringUtils.isEmpty(companyId)) {
                 paramMap.put("companyId", companyId);
             }
+            if (!StringUtils.isEmpty(createTimeStart)){
+                paramMap.put("createTimeStart",createTimeStart + " 00:00:00");
+            }
+            if (!StringUtils.isEmpty(createTimeEnd)){
+                paramMap.put("createTimeEnd",createTimeEnd + " 23:59:59");
+            }
             paramMap.put("start", (page - 1) * size);
             paramMap.put("size", size);
             PHPLoginDto phpLoginDto = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
@@ -1130,7 +1171,7 @@ public class CustomerInfoService {
 
     @Transactional
     public boolean cancelkeepCustomer(Integer customerId, UserInfoDTO userInfoDTO, String token) {
-        boolean flag = false;
+//        boolean flag = false;
         Integer userId = null;
         if (org.apache.commons.lang3.StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
             userId = Integer.parseInt(userInfoDTO.getUser_id());
@@ -1158,11 +1199,11 @@ public class CustomerInfoService {
         customerInfoLog.setLogUserId(userId);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
-        TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token, customerId.toString());
-        if (resultDto != null && resultDto.getResult() == 0) {
-            flag = true;
-        }
-        return flag;
+//        TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token, customerId.toString());
+//        if (resultDto != null && resultDto.getResult() == 0) {
+//            flag = true;
+//        }
+        return true;
     }
 
     public List<CustomerInfo> getByIds(String ids) {
@@ -1357,6 +1398,15 @@ public class CustomerInfoService {
                 customerInfo.setLastUpdateTime(date);
                 customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
                 customerInfoMapper.updateCustomer(customerInfo);
+                try {
+                    //发送短信
+                    String message = "尊敬的客户您好，因公司人员调整，房金所新的融资经理" + userInfoDTO.getName()
+                            + userInfoDTO.getTelephone() + "将继续为您服务，感谢您对房金所的支持与信赖。";
+                    smsService.sendCommunication(customerInfo.getTelephonenumber(), message);
+                } catch (Exception e) {
+                    logger.error("removeCustomerAll >>>>>> 员工离职时给客户发送短信失败" + e.getMessage(),e);
+                }
+
             }
             try {
                 Integer thearesult = theaClientService.serviceContractToUser(token, strIds, removeDTO.getEmpId());
@@ -1371,6 +1421,7 @@ public class CustomerInfoService {
             removeCustomerAddLog(customerInfoList, removeDTO.getEmpId(), Integer.valueOf(userInfoDTO.getUser_id()), userInfoDTO.getName());
             flag = true;
         }
+
         resultDto.setData(flag);
         resultDto.setMessage(ResultResource.CRM_MOVE_SUCESSS);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
@@ -1827,4 +1878,285 @@ public class CustomerInfoService {
         }
         return resultDto;
     }
+
+//    public CronusDto<CustomerCountDTO> getTodayCount(String token, Integer userId) {
+//
+//        CronusDto<CustomerCountDTO> resultDto = new CronusDto<>();
+//        Date date = new Date();
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//        String today = sdf.format(date);
+//        String startTime = today + " 00:00:00";
+//        String endTime = today + " 23:59:59";
+//        Map<String,Object> paramMap = new HashMap<>();
+//        paramMap.put("userId",userId);
+//        paramMap.put("startTime",startTime);
+//        paramMap.put("endTime",endTime);
+//        //历史分配
+//        List<CustomerComDTO> historyCountList = allocateLogMapper.getHistoryCount(paramMap);
+//        CustomerCountDTO customerCountDTO = new CustomerCountDTO();
+//        Integer noCommunicationHistory = 0;//未沟通分配历史数
+//        Integer automaticAllocationHistory = 0;//自动分配历史数
+//        Integer collectCustomersHistory = 0;//领取客户历史数
+//        if (null != historyCountList && historyCountList.size() > 0){
+//
+//            for (CustomerComDTO customerComDTO : historyCountList){
+//                if (customerComDTO != null && customerComDTO.getOperation().equals("未沟通分配")){
+//                    noCommunicationHistory = customerComDTO.getCount();
+//                }
+//                if (customerComDTO != null && customerComDTO.getOperation().equals("自动分配")){
+//                    automaticAllocationHistory = customerComDTO.getCount();
+//                }
+//                if (customerComDTO != null && customerComDTO.getOperation().equals("领取客户")){
+//                    collectCustomersHistory = customerComDTO.getCount();
+//                }
+//            }
+//        }
+//        customerCountDTO.setHistoryAllocation(noCommunicationHistory + automaticAllocationHistory);
+//        customerCountDTO.setHistoryReceive(collectCustomersHistory);
+//        //历史沟通次数
+//        Integer historyCommunication = communicationLogMapper.gethistoryCount(paramMap);
+//        customerCountDTO.setHistoryCommunicate(historyCommunication);
+//        //历史沟通客户数
+//        Integer historyCommunicationCustomer = communicationLogMapper.getHistoryCustomer(paramMap);
+//        customerCountDTO.setHistoryCommunicateCustomer(historyCommunicationCustomer);
+//
+//        //今日分配
+//        List<CustomerComDTO> todayCountList = allocateLogMapper.getTodayCount(paramMap);
+//        Integer noCommunicationToday = 0;//未沟通分配今日数
+//        Integer automaticAllocationToday = 0;//自动分配历今日数
+//        Integer collectCustomersToday = 0;//领取客户今日数
+//        if (null != todayCountList && todayCountList.size() > 0){
+//            for (CustomerComDTO customerComDTO : todayCountList){
+//                if (customerComDTO != null && customerComDTO.getOperation().equals("未沟通分配")){
+//                    noCommunicationToday = customerComDTO.getCount();
+//                }
+//                if (customerComDTO != null && customerComDTO.getOperation().equals("自动分配")){
+//                    automaticAllocationToday = customerComDTO.getCount();
+//                }
+//                if (customerComDTO != null && customerComDTO.getOperation().equals("领取客户")){
+//                    collectCustomersToday = customerComDTO.getCount();
+//                }
+//
+//            }
+////            customerCountDTO.setTodayAllocation(noCommunicationToday + automaticAllocationToday);
+////            customerCountDTO.setTodayReceive(collectCustomersToday);
+//        }
+//        customerCountDTO.setTodayAllocation(noCommunicationToday + automaticAllocationToday);
+//        customerCountDTO.setTodayReceive(collectCustomersToday);
+//        //今日沟通次数
+//        Integer todayCommunication = communicationLogMapper.getTodayCount(paramMap);
+//        customerCountDTO.setTodayCommunicate(todayCommunication);
+//        //今日沟通客户数
+//        Integer todayCommunicationCustomer = communicationLogMapper.getTodayCommunicateCustomer(paramMap);
+//        customerCountDTO.setTodayCommunicateCustomer(todayCommunicationCustomer);
+//
+//        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+//        resultDto.setResult(ResultResource.CODE_SUCCESS);
+//        resultDto.setData(customerCountDTO);
+//        return resultDto;
+//    }
+
+
+    public CronusDto<CustomerCountDTO> getTodayCount(String token, Integer userId) {
+
+        CronusDto<CustomerCountDTO> resultDto = new CronusDto<>();
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String today = sdf.format(date);
+        String startTime = today + " 00:00:00";
+        String endTime = today + " 23:59:59";
+        Map<String,Object> paramMap = new HashMap<>();
+        paramMap.put("userId",userId);
+        paramMap.put("startTime",startTime);
+        paramMap.put("endTime",endTime);
+        CustomerCountDTO customerCountDTO = new CustomerCountDTO();
+
+
+        //今日分配
+        List<CustomerComDTO> todayCountList = allocateLogMapper.getTodayCount(paramMap);
+        Integer noCommunicationToday = 0;//未沟通分配今日数
+        Integer automaticAllocationToday = 0;//自动分配历今日数
+        Integer collectCustomersToday = 0;//领取客户今日数
+        if (null != todayCountList && todayCountList.size() > 0){
+            for (CustomerComDTO customerComDTO : todayCountList){
+                if (customerComDTO != null && customerComDTO.getOperation().equals("未沟通分配")){
+                    noCommunicationToday = customerComDTO.getCount();
+                }
+                if (customerComDTO != null && customerComDTO.getOperation().equals("自动分配")){
+                    automaticAllocationToday = customerComDTO.getCount();
+                }
+                if (customerComDTO != null && customerComDTO.getOperation().equals("领取客户")){
+                    collectCustomersToday = customerComDTO.getCount();
+                }
+            }
+        }
+        customerCountDTO.setTodayAllocation(noCommunicationToday + automaticAllocationToday);
+        customerCountDTO.setTodayReceive(collectCustomersToday);
+        //今日沟通次数
+        Integer todayCommunication = communicationLogMapper.getTodayCount(paramMap);
+        customerCountDTO.setTodayCommunicate(todayCommunication);
+        //今日沟通客户数
+        Integer todayCommunicationCustomer = communicationLogMapper.getTodayCommunicateCustomer(paramMap);
+        customerCountDTO.setTodayCommunicateCustomer(todayCommunicationCustomer);
+
+        List<CustomerComDTO> historyCountList = new ArrayList<>();
+        //从redis中获取历史分配
+        ValueOperations<String, String> redisOptions = null;
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        redisOptions = redisTemplate.opsForValue();
+        String redisData = redisOptions.get(CustomerInfoService.REDIS_CRONUS_GETHISTORYCOUNT + userId);
+        if (null != redisData && !StringUtils.isEmpty(redisData)){
+            CustomerCountDTO customerCountDTOTem = JSONObject.parseObject(redisData, CustomerCountDTO.class);
+//            CronusDto<CustomerCountDTO> cronusDto = JSONObject.parseObject(redisData, CronusDto.class);
+//            customerCountDTO = cronusDto.getData();
+            //customerCountDTO = JSONObject.parseObject(cronusDto.getData(),customerCountDTO.getClass());
+            if (null != customerCountDTO){
+                customerCountDTOTem.setTodayAllocation(noCommunicationToday + automaticAllocationToday);
+                customerCountDTOTem.setTodayReceive(collectCustomersToday);
+                customerCountDTOTem.setTodayCommunicate(todayCommunication);
+                customerCountDTOTem.setTodayCommunicateCustomer(todayCommunicationCustomer);
+                customerCountDTOTem.setHistoryAllocation(customerCountDTOTem.getHistoryAllocation() + customerCountDTO.getTodayAllocation());
+                customerCountDTOTem.setHistoryReceive(customerCountDTOTem.getHistoryReceive() + customerCountDTO.getTodayReceive());
+                customerCountDTOTem.setHistoryCommunicate(customerCountDTOTem.getHistoryCommunicate() + customerCountDTO.getTodayCommunicate());
+                customerCountDTOTem.setHistoryCommunicateCustomer(customerCountDTOTem.getHistoryCommunicateCustomer() + customerCountDTO.getTodayCommunicateCustomer());
+                resultDto.setData(customerCountDTOTem);
+                return  resultDto;
+            }
+        }
+        //如果redis中没有, 就查数据库
+        //历史分配
+        Calendar calendar = Calendar.getInstance();
+        try {
+//            Date parse = sdf.parse(date.toString());
+            calendar.setTime(sdf.parse(today));
+            calendar.add(Calendar.DAY_OF_MONTH,-1);
+            date = calendar.getTime();
+            endTime = sdf.format(date);
+            paramMap.put("endTime",endTime + " 23:59:59");
+        } catch (ParseException e) {
+            logger.error("getTodayCount >>>>>>日期转换失败" + e.getMessage(),e);
+        }
+
+        historyCountList = allocateLogMapper.getHistoryCount(paramMap);
+        Integer noCommunicationHistory = 0;//未沟通分配历史数
+        Integer automaticAllocationHistory = 0;//自动分配历史数
+        Integer collectCustomersHistory = 0;//领取客户历史数
+        if (null != historyCountList && historyCountList.size() > 0){
+
+            for (CustomerComDTO customerComDTO : historyCountList){
+                if (customerComDTO != null && customerComDTO.getOperation().equals("未沟通分配")){
+                    noCommunicationHistory = customerComDTO.getCount();
+                }
+                if (customerComDTO != null && customerComDTO.getOperation().equals("自动分配")){
+                    automaticAllocationHistory = customerComDTO.getCount();
+                }
+                if (customerComDTO != null && customerComDTO.getOperation().equals("领取客户")){
+                    collectCustomersHistory = customerComDTO.getCount();
+                }
+            }
+        }
+        customerCountDTO.setHistoryAllocation(noCommunicationHistory + automaticAllocationHistory);
+        customerCountDTO.setHistoryReceive(collectCustomersHistory);
+//        //历史沟通次数
+        Integer historyCommunication = communicationLogMapper.gethistoryCount(paramMap);
+        customerCountDTO.setHistoryCommunicate(historyCommunication);
+        //历史沟通客户数
+        Integer historyCommunicationCustomer = communicationLogMapper.getHistoryCustomer(paramMap);
+        customerCountDTO.setHistoryCommunicateCustomer(historyCommunicationCustomer);
+
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(customerCountDTO);
+
+        try {
+            //把昨天之前的数据存入redis
+            redisOptions = redisTemplate.opsForValue();
+            redisOptions.set(CustomerInfoService.REDIS_CRONUS_GETHISTORYCOUNT + userId,JSONObject.toJSONString(customerCountDTO),CustomerInfoService.REDIS_CRONUS_GETHISTORYCOUNT_TIME, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            logger.error("getTodayCount >>>>>> 存入redis失败" + e.getMessage(),e);
+        }
+        //昨天之前的数据加上今天的数据
+        customerCountDTO.setHistoryAllocation(noCommunicationHistory + automaticAllocationHistory + customerCountDTO.getTodayAllocation());
+        customerCountDTO.setHistoryReceive(collectCustomersHistory + customerCountDTO.getTodayReceive());
+        customerCountDTO.setHistoryCommunicate(historyCommunication + customerCountDTO.getTodayCommunicate());
+        customerCountDTO.setHistoryCommunicateCustomer(historyCommunicationCustomer + customerCountDTO.getTodayCommunicateCustomer());
+
+        resultDto.setData(customerCountDTO);
+        return resultDto;
+    }
+
+
+    /**
+     * 新用户注册15天之后发送短信
+     */
+    public void sandMessage() {
+
+        String utmSource = "wangluoyingxiao,androidyysc";
+        //16天之前的日期
+        String time = getDate(-16);
+        String timeStart = time + " 00:00:00";
+        String timeEnd = time + " 23:59:59";
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("utmSource",utmSource);
+        map.put("timeStart",timeStart);
+        map.put("timeEnd",timeEnd);
+
+        List<CustomerInfo> customerInfoList = customerInfoMapper.getNewCustomer(map);
+//        String customerphone = "18701780932";
+//        smsService.sendCommunication(customerphone, CommonConst.NEW_CUSTOMER_MESSAGE);
+        if (null != customerInfoList && customerInfoList.size() > 0){
+            String key = "new_customer_message";
+            redisTemplate.setKeySerializer(new StringRedisSerializer());
+            redisTemplate.setValueSerializer(new StringRedisSerializer());
+            ValueOperations<String, String> redis = redisTemplate.opsForValue();
+            String flag = redis.get(key);
+            if (flag == null || StringUtils.isEmpty(flag)){
+                redis.set(key,"0",CustomerInfoService.NEW_CUSTOMER_MESSAGE_TIME,TimeUnit.SECONDS);
+                flag = "0";
+            }
+            // 从缓存中取数据, 0-今天未执行, 1-今天执行了
+            if ("0".equals(flag)){
+                for (CustomerInfo customerInfo : customerInfoList){
+                    //解密手机号
+                    String customerphone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+                    try {
+                        //发送短信
+                        smsService.sendCommunication(customerphone, CommonConst.NEW_CUSTOMER_MESSAGE);
+
+                        //定时任务,将时间存入redis
+                        redis.set(key,"1",CustomerInfoService.NEW_CUSTOMER_MESSAGE_TIME,TimeUnit.SECONDS);
+                    } catch (Exception e) {
+                        logger.error("sandMessage >>>>>>定时任务 : 新客户15天发送短信失败" + e.getMessage(),e);
+                    }
+                }
+            }
+        }
+
+    }
+
+    /**
+     * 获取日期
+     * @param before
+     * @return
+     */
+    public static String getDate(Integer before){
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String today = sdf.format(date);
+        Calendar calendar = Calendar.getInstance();
+        try {
+            calendar.setTime(sdf.parse(today));
+            calendar.add(Calendar.DAY_OF_MONTH,before);
+            date = calendar.getTime();
+            String time = sdf.format(date);
+            return time;
+        } catch (ParseException e) {
+            logger.error("日期转化失败>>>" + e.getMessage(),e);
+            return null;
+        }
+    }
+
+
+
 }

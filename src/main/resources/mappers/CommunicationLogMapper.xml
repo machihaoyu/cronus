@@ -35,7 +35,9 @@
 				#{item}
 			</foreach>
 		</if>
-		and DATE(create_time)=date(now())
+		<if test="createTimeBegin != null and createTimeEnd !=null ">
+			and create_time between #{createTimeBegin} and #{createTimeEnd}
+		</if>
 	</select>
 
 	<!--统计今天的沟通客户数-->
@@ -48,7 +50,9 @@
 				#{item}
 			</foreach>
 		</if>
-		and DATE(create_time)=date(now())
+		<if test="createTimeBegin != null and createTimeEnd !=null ">
+			and create_time between #{createTimeBegin} and #{createTimeEnd}
+		</if>
 	</select>
 
 	<!--统计历史的沟通客户数-->
@@ -62,7 +66,7 @@
 			</foreach>
 		</if>
 		<if test="createTimeBegin != null and createTimeEnd !=null ">
-			and date(create_time) between #{createTimeBegin} and #{createTimeEnd}
+			and create_time between #{createTimeBegin} and #{createTimeEnd}
 		</if>
 	</select>
 	<select id="selectByTime" resultMap="ResultMap2"  parameterType="Map">
@@ -82,8 +86,12 @@
 				#{item}
 			</foreach>
 		</if>
-		and create_user = #{createUserId}
-		and DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
+		<if test="null != createUserId">
+			and create_user = #{createUserId}
+		</if>
+		<if test="createTimeBegin != null and createTimeEnd !=null ">
+			and create_time between #{createTimeBegin} and #{createTimeEnd}
+		</if>
 	</select>
 
 	<select id="queryByCustomerId" resultMap="BaseResultMap" parameterType="Map">
@@ -96,4 +104,46 @@
 		</if>
 		ORDER BY create_time DESC
 	</select>
+
+	<select id="gethistoryCount" resultType="java.lang.Integer" parameterType="Map">
+		SELECT COUNT(*) FROM communication_log WHERE 1 = 1
+		<if test="userId != null">
+			and create_user = #{userId}
+		</if>
+		<if test="null != endTime">
+			AND create_time &lt; #{endTime}
+		</if>
+	</select>
+
+	<select id="getHistoryCustomer" resultType="java.lang.Integer" parameterType="Map">
+		SELECT COUNT(DISTINCT customer_id) FROM communication_log WHERE 1 = 1
+		<if test="userId != null">
+			and create_user = #{userId}
+		</if>
+		<if test="null != endTime">
+			AND create_time &lt; #{endTime}
+		</if>
+	</select>
+
+	<select id="getTodayCount" resultType="java.lang.Integer" parameterType="Map">
+		SELECT COUNT(*) FROM communication_log WHERE 1 = 1
+		<if test="userId != null">
+			and create_user = #{userId}
+		</if>
+		<if test="startTime != null and endTime != null">
+			and create_time BETWEEN #{startTime} and #{endTime}
+		</if>
+	</select>
+
+	<select id="getTodayCommunicateCustomer" resultType="java.lang.Integer" parameterType="Map">
+		SELECT COUNT(DISTINCT customer_id) FROM communication_log WHERE 1 = 1
+		<if test="userId != null">
+			and create_user = #{userId}
+		</if>
+		<if test="startTime != null and endTime != null">
+			and create_time BETWEEN #{startTime} and #{endTime}
+		</if>
+	</select>
+
+
 </mapper>

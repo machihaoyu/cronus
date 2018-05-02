@@ -26,8 +26,8 @@ import java.util.Map;
  * UC用户中心接口
  * Created by Administrator on 2017/7/19 0019. url = "http://192.168.1.124:1120",
  */
-@FeignClient(value = "${client.feign.thor-backend}", url = "http://192.168.1.124:1120")
-//@FeignClient(value = "${client.feign.thor-backend}", configuration = FeignClientConfig.class)
+//@FeignClient(value = "${client.feign.thor-backend}", url = "http://192.168.1.124:1120")
+@FeignClient(value = "${client.feign.thor-backend}", configuration = FeignClientConfig.class)
 public interface ThorService {
 
 
@@ -713,5 +713,15 @@ public interface ThorService {
     @RequestMapping(value = "/api/v1/findDepartmentById",method = RequestMethod.GET)
     @ResponseBody
     public ThorApiDTO<DepartmentDto> findDepartmentById(@RequestHeader("Authorization")String token, @RequestParam(value = "departmentId",required = true) Integer departmentId);
+
+
+    /**
+     * 获取角色列表(是否是高管)
+     * @param token
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/userRoles", method = RequestMethod.GET)
+    MemberApiDTO getUserRoles(@RequestHeader("Authorization") String token);
+
 }
 

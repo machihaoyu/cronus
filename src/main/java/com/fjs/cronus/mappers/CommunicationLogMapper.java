@@ -35,4 +35,12 @@ public interface CommunicationLogMapper extends MyMapper<CommunicationLog> {
     })
     @Select("SELECT * FROM `communication_log` WHERE `customer_id`=#{customerId} AND `create_user`=#{ownUserId} ORDER BY `create_time` DESC LIMIT 1")
     CommunicationLog getByCustomerId(@Param("customerId") Integer customerId, @Param("ownUserId") Integer ownUserId);
+
+    Integer gethistoryCount(Map<String, Object> paramMap);
+
+    Integer getHistoryCustomer(Map<String, Object> paramMap);
+
+    Integer getTodayCount(Map<String, Object> paramMap);
+
+    Integer getTodayCommunicateCustomer(Map<String, Object> paramMap);
 }

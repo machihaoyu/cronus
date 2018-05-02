@@ -398,7 +398,7 @@ public final class DateUtils {
 
     /**
      * 时间戳转化为时间
-     * @param args
+     * @param
      */
     public static String getDateString(Integer time){
         String d = null;
@@ -412,6 +412,25 @@ public final class DateUtils {
         }
         return d;
     }
+
+    public static Date getTodayStartTime() {
+        Calendar todayStart = Calendar.getInstance();
+        todayStart.set(Calendar.HOUR_OF_DAY, 0);
+        todayStart.set(Calendar.MINUTE, 0);
+        todayStart.set(Calendar.SECOND, 0);
+        todayStart.set(Calendar.MILLISECOND, 0);
+        return todayStart.getTime();
+    }
+
+    public static Date getTodayEndTime() {
+        Calendar todayEnd = Calendar.getInstance();
+        todayEnd.set(Calendar.HOUR_OF_DAY, 23);
+        todayEnd.set(Calendar.MINUTE, 59);
+        todayEnd.set(Calendar.SECOND, 59);
+        todayEnd.set(Calendar.MILLISECOND, 999);
+        return todayEnd.getTime();
+    }
+
     public static void main(String [] args){
         try {
         /* *//*   DateUtils  dateUtil = new DateUtils();*//*
@@ -421,6 +440,10 @@ public final class DateUtils {
             System.out.println(gethour);
             System.out.println(minute);
             System.out.println(week);*/
+            Date n = getTodayStartTime();
+            String today = DateUtils.format(n,DateUtils.FORMAT_LONG);
+            Date m = getTodayEndTime();
+            String tom = DateUtils.format(m,DateUtils.FORMAT_LONG);
             String d = getDateString(1515035116);
             System.out.println(d);
         } catch (Exception e) {

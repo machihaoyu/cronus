@@ -288,4 +288,24 @@ public class AllocateLogService {
         return flag;
 
     }
+
+    /**
+     *列表查询条数
+     * @param customerId
+     * @return
+     */
+    public Integer listByConditionCount(Integer customerId) {
+        return allocateLogMapper.getCountByCondition(customerId);
+
+    }
+
+    /**
+     * 分页查询列表
+     * @param map
+     * @return
+     */
+    public List<AllocateLog> listAllocateLog(HashMap<String, Object> map) {
+        return allocateLogMapper.listAllocateLog(map);
+
+    }
 }

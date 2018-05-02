@@ -137,7 +137,7 @@
             </foreach>
         </if>
         <if test="createTimeBegin != null and createTimeEnd !=null ">
-            and date(c.create_time) between #{createTimeBegin} and #{createTimeEnd}
+            and create_time between #{createTimeBegin} and #{createTimeEnd}
         </if>
     </select>
 
@@ -160,16 +160,22 @@
         FROM allocate_log cl
         WHERE
         new_owner_id = #{createUserId}
-        AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
+        <if test="createTimeBegin != null and createTimeEnd !=null ">
+            and create_time between #{createTimeBegin} and #{createTimeEnd}
+        </if>
         AND  operation = #{operation}
     </select>
     <select id="getReceiveCount"  resultType="Integer"  parameterType="Map">
         SELECT
         DISTINCT(customer_id)
         FROM allocate_log cl
-        WHERE
-        new_owner_id = #{createUserId}
-        AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
+        WHERE 1=1
+        <if test="null != createUserId">
+            AND new_owner_id = #{createUserId}
+        </if>
+        <if test="createTimeBegin != null and createTimeEnd !=null ">
+            and create_time between #{createTimeBegin} and #{createTimeEnd}
+        </if>
         <if test="null != operationList and operationList.size() > 0">
             AND  operation IN
             <foreach item="item" index="index" collection="operationList" open="(" separator="," close=")">
@@ -181,9 +187,13 @@
         SELECT
         DISTINCT(customer_id)
         FROM allocate_log cl
-        WHERE
-        new_owner_id = #{createUserId}
-        AND  DATE_FORMAT(create_time,'%Y-%m-%d') =#{createTime}
+        WHERE 1=1
+        <if test="null != createUserId">
+            and new_owner_id = #{createUserId}
+        </if>
+        <if test="createTimeBegin != null and createTimeEnd !=null ">
+            and create_time between #{createTimeBegin} and #{createTimeEnd}
+        </if>
         AND  operation = #{operation}
     </select>
 
@@ -194,4 +204,47 @@
         and customer_id = #{customerId}
         ORDER BY create_time DESC
     </select>
+
+    <select id="getHistoryCount" resultMap="todayCount" parameterType="Map">
+        SELECT operation,COUNT(*) count FROM allocate_log WHERE operation in ('自动分配','未沟通分配','领取客户')
+        <if test="null != userId">
+            and new_owner_id = #{userId}
+        </if>
+        <if test="null != endTime">
+            AND create_time &lt; #{endTime}
+        </if>
+       GROUP BY operation;
+    </select>
+
+    <resultMap id="todayCount" type="com.fjs.cronus.dto.customer.CustomerComDTO">
+        <result column="operation" property="operation" jdbcType="VARCHAR"/>
+        <result column="count" property="count" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="getTodayCount" resultMap="todayCount" parameterType="Map">
+        SELECT operation,COUNT(*) count FROM allocate_log WHERE operation in ('自动分配','未沟通分配','领取客户')
+        <if test="null != userId">
+            and new_owner_id = #{userId}
+        </if>
+        <if test="startTime != null and endTime != null">
+            and create_time BETWEEN #{startTime} and #{endTime}
+        </if>
+        GROUP BY operation
+    </select>
+
+    <select id="getCountByCondition" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+      SELECT COUNT(*) FROM allocate_log WHERE customer_id = #{customerId}
+
+    </select>
+
+    <select id="listAllocateLog" resultMap="BaseResultMap" parameterType="Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM allocate_log WHERE 1 = 1
+        <if test="customerId != null">
+            AND customer_id = #{customerId}
+        </if>
+        order by create_time DESC limit #{page},#{pageSize}
+    </select>
+
 </mapper>

@@ -10,6 +10,10 @@ public enum CommonEnum {
     NO(0, "否"),
     YES(1, "是"),
 
+    //调用uc
+    ROLE_YES(0,"成功"),
+    ROLE_NO(1,"失败"),
+
     //客户登记枚举
     CUSTOMER_LEVEL_0(0, "意向客户"),
 

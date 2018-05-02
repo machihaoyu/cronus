@@ -418,7 +418,7 @@ public class PullCustomerService {
     }
 
     public QueryResult<PullCustomerDTO> listByConditionNew(String telephonenumber,Integer status, String name, String token,String systemName,String city,Integer mountLevle,String createTime,Integer page,
-                                                           Integer size,Integer userId,String orderField,String sort) {
+                                                           Integer size,Integer userId,String orderField,String sort,String createTimeStart,String createTimeEnd) {
         Integer companyId = null;
         Integer total = null;
         QueryResult<PullCustomerDTO> pullCustomerQueryResult = null;
@@ -447,6 +447,12 @@ public class PullCustomerService {
         }
         if (mountLevle != null){
             map.put("mountLevle",mountLevle);
+        }
+        if (StringUtils.isNotEmpty(createTimeStart)){
+            map.put("createTimeStart",createTimeStart + " 00:00:00");
+        }
+        if (StringUtils.isNotEmpty(createTimeEnd)){
+            map.put("createTimeEnd",createTimeEnd  + " 23:59:59");
         }
         //排序---zl-----
         if (!org.springframework.util.StringUtils.isEmpty(orderField) && CustListTimeOrderEnum.getEnumByCode(orderField) != null) {

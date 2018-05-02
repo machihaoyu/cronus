@@ -481,7 +481,8 @@ public class PrdCustomerService {
 
 
     public QueryResult<PrdCustomerDTO> listByConditionNew(String customerName,String telephonenumber,String customerType,String level,String houseStatus,
-                                                       String citySearch,Integer type,Integer mountLevle,Integer page,Integer size,String token,String orderField,String sort) {
+                                                       String citySearch,Integer type,Integer mountLevle,Integer page,Integer size,String token,String orderField,
+                                                       String sort,String createTimeStart,String createTimeEnd) {
         Integer total = null;
         QueryResult<PrdCustomerDTO> prdCustomerQueryResult = null;
         List<PrdCustomer> prdCustomerList = null;
@@ -531,6 +532,12 @@ public class PrdCustomerService {
         }
         if (StringUtils.isNotEmpty(level)){
             map.put("level",level);
+        }
+        if (StringUtils.isNotEmpty(createTimeStart)){
+            map.put("createTimeStart",createTimeStart + " 00:00:00");
+        }
+        if (StringUtils.isNotEmpty(createTimeEnd)){
+            map.put("createTimeEnd2",createTimeEnd + " 23:59:59");
         }
         map.put("type",type);
         if (type==1){

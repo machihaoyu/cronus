@@ -163,12 +163,13 @@ public class CustomerMeetController {
     @ResponseBody
     public CronusDto getCustomerMeetByCustomerId(
             @RequestParam(required = true) Integer customerId,
+            @RequestParam(required = true) Long loanCreatTime,
             @RequestHeader("Authorization") String token
     ) {
         try {
             Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
 
-            return customerMeetService.getCustomerMeetByCustomerId(customerId, userId);
+            return customerMeetService.getCustomerMeetByCustomerId(customerId, userId, loanCreatTime);
         }catch (Exception e) {
             CronusDto result = new CronusDto();
             if (e instanceof CronusException) {

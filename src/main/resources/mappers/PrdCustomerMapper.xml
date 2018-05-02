@@ -47,6 +47,9 @@
 		<if test="telephonenumber != null and '' != telephonenumber">  
 			and telephonenumber = #{telephonenumber,jdbcType=VARCHAR}
 		</if>
+		<if test="createTimeStart!=null and createTimeEnd2!=null">
+			and create_time BETWEEN #{createTimeStart} and #{createTimeEnd2}
+		</if>
 		<choose>
 			<when test="city != null and '' != city">
 				and city = #{city,jdbcType=VARCHAR}
@@ -135,6 +138,9 @@
 		</if>
 		<if test="telephonenumber != null and '' != telephonenumber">
 			and telephonenumber = #{telephonenumber,jdbcType=VARCHAR}
+		</if>
+		<if test="createTimeStart!=null and createTimeEnd!=null">
+			and create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
 		</if>
 		<choose>
 			<when test="city != null and '' != city">

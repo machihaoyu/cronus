@@ -159,6 +159,9 @@
       <if test="level != null ">
           and c.customer_type = #{level}
       </if>
+      <if test="createTimeStart != null and createTimeEnd != null">
+          and c.create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
+      </if>
       <if test="owerId!=null and owerId.size>0">
           AND c.own_user_id in
           <foreach collection="owerId" item="owerId"
@@ -218,12 +221,16 @@
       <if test="customerSource != null and customerSource != '' ">
           and c.customer_source = #{customerSource}
       </if>
+      <if test="createTimeStart != null and createTimeEnd != null">
+          and c.create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
+      </if>
       <if test="circle != null  ">
           and c.circle = #{circle,}
       </if>
       <if test="companyId != null ">
           and c.company_id = #{companyId}
       </if>
+
       <if test="remain != null ">
           and c.remain = #{remain}
       </if>
@@ -1437,6 +1444,9 @@
         <if test="telephonenumber != null and telephonenumber != '' ">
             and c.telephonenumber = #{telephonenumber}
         </if>
+        <if test="createTimeStart!=null and createTimeEnd!=null">
+            and c.create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
+        </if>
         <if test="ownerIds!=null and ownerIds.size>0">
             AND c.own_user_id in
             <foreach collection="ownerIds" item="ownerIds"
@@ -1487,6 +1497,9 @@
         <if test="telephonenumber != null and telephonenumber != '' ">
             and c.telephonenumber = #{telephonenumber}
         </if>
+        <if test="createTimeStart!=null and createTimeEnd!=null">
+            and c.create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
+        </if>
         <if test="ownerIds!=null and ownerIds.size>0">
             AND c.own_user_id in
             <foreach collection="ownerIds" item="ownerIds"
@@ -1527,6 +1540,9 @@
         </if>
         <if test="level != null and level != '' ">
             and c.customer_type = #{level}
+        </if>
+        <if test="createTimeStart!=null and createTimeEnd!=null">
+            and c.create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
         </if>
         <if test="ownerIds!=null and ownerIds.size>0">
             AND c.own_user_id in
@@ -1572,6 +1588,9 @@
         <if test="level != null and level != '' ">
             and c.customer_type = #{level}
         </if>
+        <if test="createTimeStart!=null and createTimeEnd!=null">
+            and c.create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
+        </if>
         <if test="telephonenumber != null and telephonenumber != '' ">
             and c.telephonenumber = #{telephonenumber}
         </if>
@@ -1601,6 +1620,9 @@
         </if>
         <if test="customerSource != null and '' != customerSource">
             and customer_source = #{customerSource,jdbcType=VARCHAR}
+        </if>
+        <if test="createTimeStart!=null and createTimeEnd!=null">
+            and create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
         </if>
         <if test="utmSource != null and '' != utmSource">
             and utm_source = #{utmSource,jdbcType=VARCHAR}
@@ -1728,6 +1750,9 @@
         </if>
         <if test="customerName != null and '' != customerName">
             and customer_name = #{customerName,jdbcType=VARCHAR}
+        </if>
+        <if test="createTimeStart!=null and createTimeEnd!=null">
+            and create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
         </if>
         <if test="customerSource != null and '' != customerSource">
             and customer_source = #{customerSource,jdbcType=VARCHAR}
@@ -1891,6 +1916,9 @@
             <if test="ownerUserId != null ">
                 own_user_id = #{ownerUserId,jdbcType=INTEGER},
             </if>
+            <if test="ownUserName != null ">
+                own_user_name = #{ownUserName,jdbcType=VARCHAR},
+            </if>
             <if test="receiveTime != null ">
                 receive_time = #{receiveTime,jdbcType=TIMESTAMP},
             </if>
@@ -1971,7 +1999,7 @@
         SELECT id FROM customer_info
         <where>
             <if test="null != level">
-                AND level = #{level}
+                AND customer_type = #{level}
             </if>
             <if test="null != remain">
                 AND remain = #{remain}
@@ -1995,6 +2023,15 @@
     </select>
 
 
+    <select id="getNewCustomer" resultMap="BaseResultMap" parameterType="Map">
+        select
+        <include refid="Base_Column_List" />
+        FROM customer_info WHERE is_deleted = 0 AND utm_source IN (#{utmSource})
+        AND create_time BETWEEN #{timeStart}
+        AND #{timeEnd}
+    </select>
+
+
     <select id="specialListByOffer" resultMap="BaseResultMap" parameterType="Map">
         select
         <include refid="cronus_column_List" />
@@ -2014,6 +2051,9 @@
         </if>
         <if test="utmSource != null and '' != utmSource">
             and utm_source = #{utmSource,jdbcType=VARCHAR}
+        </if>
+        <if test="createTimeStart!=null and createTimeEnd!=null">
+            and create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
         </if>
         <if test="houseStatus != null and '' != houseStatus">
             and house_status = #{houseStatus,jdbcType=VARCHAR}
@@ -2116,6 +2156,9 @@
         </if>
         <if test="utmSource != null and '' != utmSource">
             and utm_source = #{utmSource,jdbcType=VARCHAR}
+        </if>
+        <if test="createTimeStart!=null and createTimeEnd!=null">
+            and create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
         </if>
         <if test="houseStatus != null and '' != houseStatus">
             and house_status = #{houseStatus,jdbcType=VARCHAR}
@@ -2240,8 +2283,8 @@
         <if test="cooperationStatus != null and '' != cooperationStatus">
             and cooperation_status = #{cooperationStatus,jdbcType=VARCHAR}
         </if>
-        <if test="createTimeStart != null and createTimeEnd != null">
-            and create_time  &gt;= #{createTimeStart} and  create_time &lt;= #{createTimeEnd}
+        <if test="createTimeStart!=null and createTimeEnd!=null">
+            and c.create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
         </if>
         <if test="customerType != null and '' != customerType">
             and customer_type = #{customerType,jdbcType=VARCHAR}

@@ -119,8 +119,10 @@ public class CommunicationLogService {
                         break;
                     case not_yet_connected:
                         try {
-                            String content = "尊敬的客户，您的申请已受理，因联系不上，如需融资可联系" +
-                                    userInfoDTO.getName() + ":" + userInfoDTO.getTelephone() + "，更多融资机会请关注官方微信：房金所";
+//                            String content = "尊敬的客户，您的申请已受理，因联系不上，如需融资可联系" +
+//                                    userInfoDTO.getName() + ":" + userInfoDTO.getTelephone() + "，更多融资机会请关注官方微信：房金所";
+                            String content = "尊敬的客户，因未能与您取得联系，为免耽误融资，您可致电房金所融资经理" +
+                                    userInfoDTO.getName() + ":" + userInfoDTO.getTelephone() + "获取专业服务，更多融资机会请关注官方微信：房金所";
                             smsService.sendCommunication(customerphone, content);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -335,6 +337,10 @@ public class CommunicationLogService {
     public Integer getTodayData(List<String> userId){
         Map<String,Object> map=new HashMap<>();
         map.put("list",userId);
+        String  todayStart = DateUtils.format(DateUtils.getTodayStartTime(),DateUtils.FORMAT_LONG);
+        String  todayEnd = DateUtils.format(DateUtils.getTodayEndTime(),DateUtils.FORMAT_LONG);
+        map.put("createTimeBegin", todayStart);
+        map.put("createTimeEnd", todayEnd);
         Integer todayCount=0;
         todayCount=communicationLogMapper.selectToday(map);
         return  todayCount;
@@ -359,6 +365,10 @@ public class CommunicationLogService {
     public Integer getTodayCustomerData(List<String> userId){
         Map<String,Object> map=new HashMap<>();
         map.put("list",userId);
+        String  todayStart = DateUtils.format(DateUtils.getTodayStartTime(),DateUtils.FORMAT_LONG);
+        String  todayEnd = DateUtils.format(DateUtils.getTodayEndTime(),DateUtils.FORMAT_LONG);
+        map.put("createTimeBegin", todayStart);
+        map.put("createTimeEnd", todayEnd);
         Integer todayCount=0;
         List<CommunicationLog> communicationLogList=communicationLogMapper.selectTodayCustomer(map);
         todayCount=communicationLogList.size();

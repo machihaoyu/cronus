@@ -140,7 +140,7 @@ public class PanService {
     }
     public QueryResult<CustomerListDTO> listByOfferNew(PanParamDTO pan, Integer userId, Integer companyId , String token, String system,
                                                     Integer page, Integer size, List<String> mainCitys, List<Integer> subCompanyIds, Integer type,Integer mountLevle,
-                                                       List<String> utmList,List<String>paramsList,String orderField,String sort) {
+                                                       List<String> utmList,List<String>paramsList,String orderField,String sort,String createTimeStart,String createTimeEnd) {
 
         QueryResult<CustomerListDTO> result = new QueryResult<>();
         //屏蔽到渠道增加媒体
@@ -163,6 +163,12 @@ public class PanService {
             }
             if (StringUtils.isNotEmpty(pan.getHouseStatus())) {
                 map.put("houseStatus", pan.getHouseStatus());
+            }
+            if (StringUtils.isNotEmpty(createTimeStart)){
+                map.put("createTimeStart",createTimeStart + " 00:00:00");
+            }
+            if (StringUtils.isNotEmpty(createTimeEnd)){
+                map.put("createTimeEnd",createTimeEnd +  " 23:59:59");
             }
             //公司
             if (companyId != null) {
@@ -317,13 +323,13 @@ public class PanService {
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
     }
     public Integer keepCount(Integer userId){
-        Date date = new Date();
         Map<String,Object> paramMap = new HashMap<>();
         paramMap.put("createUserId",userId);
         paramMap.put("operation",CommonConst.OPERATION);
-        String  today = DateUtils.format(date,DateUtils.FORMAT_SHORT);
-        // paramMap.put("operation",CommonConst.OPERATION);
-        paramMap.put("createTime",today);
+        String  todayStart = DateUtils.format(DateUtils.getTodayStartTime(),DateUtils.FORMAT_LONG);
+        String  todayEnd = DateUtils.format(DateUtils.getTodayEndTime(),DateUtils.FORMAT_LONG);
+        paramMap.put("createTimeBegin", todayStart);
+        paramMap.put("createTimeEnd", todayEnd);
         Integer count = allocateLogMapper.receiveCountByWhere(paramMap);
         return count;
     }
@@ -399,7 +405,8 @@ public class PanService {
     }
     public QueryResult<CustomerListDTO> specialListByOfferNew(PanParamDTO pan, Integer userId, Integer companyId , String token, String system,
                                                               Integer page, Integer size, List<String> mainCitys, List<Integer> subCompanyIds, Integer type,Integer mountLevle,
-                                                              List<String> utmList,List<String>paramsList,Integer utmFlag,String orderField,String sort) {
+                                                              List<String> utmList,List<String>paramsList,Integer utmFlag,String orderField,String sort,
+                                                              String createTimeStart,String createTimeEnd) {
 
         QueryResult<CustomerListDTO> result = new QueryResult<>();
         Map<String,Object> map=new HashedMap();
@@ -437,6 +444,12 @@ public class PanService {
             }
             if (mountLevle != null){
                 map.put("mountLevle",mountLevle);
+            }
+            if (org.apache.commons.lang.StringUtils.isNotEmpty(createTimeStart)){
+                map.put("createTimeStart",createTimeStart + " 00:00:00");
+            }
+            if (org.apache.commons.lang.StringUtils.isNotEmpty(createTimeEnd)){
+                map.put("createTimeEnd",createTimeEnd + " 23:59:59");
             }
             //排序---zl-----
             if (!org.springframework.util.StringUtils.isEmpty(orderField) && CustListTimeOrderEnum.getEnumByCode(orderField) != null) {

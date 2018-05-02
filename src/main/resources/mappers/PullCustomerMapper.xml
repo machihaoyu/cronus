@@ -46,6 +46,9 @@
 		<if test="createTime != null and createTime !=null ">
 			and create_time > #{createTime}
 		</if>
+		<if test="createTimeStart!=null and createTimeEnd!=null">
+			and create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
+		</if>
 		<if test="owerId!=null and owerId.size>0">
 			AND sale_id in
 			<foreach collection="saleIds" item="saleIds"
@@ -104,6 +107,9 @@
 		</if>
 		<if test="createTime != null and createTime !=null ">
 			and create_time > #{createTime}
+		</if>
+		<if test="createTimeStart!=null and createTimeEnd!=null">
+			and create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
 		</if>
 		<if test="owerId!=null and owerId.size>0">
 			AND sale_id in

@@ -231,7 +231,9 @@ public class PrdCustomerController {
             @ApiImplicitParam(name = "page", value = "查询第几页", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "orderField", value = "排序字段(receive_time,create_time,last_update_time)", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string")
+            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "createTimeStart",value = "创建时间开始日期",required = false,paramType = "query",dataType = "string"),
+            @ApiImplicitParam(name = "createTimeEnd",value = "创建时间结束日期",required = false,paramType = "query",dataType = "string")
     })
     @RequestMapping(value = "/listPrdCustomeNew", method = RequestMethod.GET)
     @ResponseBody
@@ -247,11 +249,14 @@ public class PrdCustomerController {
                                                                  @RequestParam(required = false, defaultValue = "10") Integer size,
                                                                  @RequestParam(value = "orderField", required = false) String orderField,
                                                                  @RequestParam(value = "sort", required = false) String sort,
+                                                                    @RequestParam(value = "createTimeStart",required = false) String createTimeStart,
+                                                                    @RequestParam(value = "createTimeEnd",required = false) String createTimeEnd,
                                                                  @RequestHeader("Authorization") String token) {
         CronusDto<QueryResult<PrdCustomerDTO>> cronusDto = new CronusDto<QueryResult<PrdCustomerDTO>>();
         QueryResult<PrdCustomerDTO> result = null;
         try {
-            result = prdCustomerService.listByConditionNew(customerName, telephonenumber, customerType, level, houseStatus, city, type, mountLevle, page, size, token,orderField,sort);
+            result = prdCustomerService.listByConditionNew(customerName, telephonenumber, customerType, level, houseStatus, city,
+                    type, mountLevle, page, size, token,orderField,sort,createTimeStart,createTimeEnd);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
         } catch (Exception e) {

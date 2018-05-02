@@ -28,6 +28,7 @@ import com.fjs.cronus.service.thea.ThorClientService;
 import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -246,6 +247,8 @@ public class AutoAllocateService {
                 case "3":
                     //添加分配日志
                     CustomerInfo customerInfot = new CustomerInfo();
+                    customerInfot.setCreateUser(0);
+                    customerInfot.setLastUpdateUser(0);
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfot);
                     allocateLogService.addAllocatelog(customerInfot, customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_5.getCode(), null);
@@ -300,11 +303,16 @@ public class AutoAllocateService {
 
     private void sendCRMAssistantMessage(String customerCity, String customerName, String token) {
 
-        BaseUcDTO<List<CrmUserDTO>> crmUser = thorService.getCRMUser(token, customerCity);
-        List<CrmUserDTO> crmUserDTOList = crmUser.getRetData();
-        for (CrmUserDTO crmUserDTO :
-                crmUserDTOList) {
-            smsService.sendCRMAssistant(crmUserDTO.getPhone());
+        try {
+            BaseUcDTO<List<CrmUserDTO>> crmUser = thorService.getCRMUser(token, customerCity);
+            List<CrmUserDTO> crmUserDTOList = crmUser.getRetData();
+            for (CrmUserDTO crmUserDTO :
+                    crmUserDTOList) {
+                smsService.sendCRMAssistant(crmUserDTO.getPhone());
+            }
+        }catch (Exception e)
+        {
+            logger.error("--sendCRMAssistantMessage:",e);
         }
     }
 
@@ -342,8 +350,7 @@ public class AutoAllocateService {
             String phone = extJson.get("owner_user_phone").toString();
             //获取业务员信息
             try {
-                BaseUcDTO<UserInfoDTO> thorApiDTO = thorUcService.getUserInfoByField(
-                        phone, token, null, null);
+                BaseUcDTO<UserInfoDTO> thorApiDTO = thorUcService.getUserInfoByField(token,phone, null, null);
                 if (0 == thorApiDTO.getErrNum() && thorApiDTO.getRetData() != null) {
                     userInfoDTO = thorApiDTO.getRetData();
 //                    salerId = Integer.valueOf(userInfoDTO.getUser_id());
@@ -368,17 +375,14 @@ public class AutoAllocateService {
 //            String allocateToNoUserPool = "";
         String allocateToNoUserPool = theaClientService.getConfigByName(CommonConst.ALLOCATE_TO_NO_USER_POOL);
 
-        if (allocateToNoUserPool.contains(utmSource)) {
-            allocateToPublic = true;
-        }
         //判断该推送客户是否在限制渠道中/进公盘
-//        String[] utmSourceStrArray;
-//        if (StringUtils.isNotBlank(allocateToNoUserPool)) {
-//            utmSourceStrArray = allocateToNoUserPool.split(",");
-//            if (ArrayUtils.contains(utmSourceStrArray, utmSource)) {
-//                allocateToPublic = true;
-//            }
-//        }
+        String[] utmSourceStrArray;
+        if (StringUtils.isNotBlank(allocateToNoUserPool)) {
+            utmSourceStrArray = allocateToNoUserPool.replace("[","").replace("]","").replace("\"","").split(",");
+            if (ArrayUtils.contains(utmSourceStrArray, utmSource)) {
+                allocateToPublic = true;
+            }
+        }
         return allocateToPublic;
     }
 
@@ -485,9 +489,10 @@ public class AutoAllocateService {
 
                         }
                         if (ownUserId > 0) {
+                            allocateRedisService.changeAllocateTemplet(customerInfo.getOwnUserId(), customerInfo.getCity());
+
                             allocateLogService.addAllocatelog(customerInfo, ownUserId,
                                     CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
-
                             SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token, ownUserId).getData();
                             if (simpleUserInfoDTO != null && null != simpleUserInfoDTO.getSub_company_id()) {
                                 customerInfo.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
@@ -504,7 +509,7 @@ public class AutoAllocateService {
                             customerInfo.setCommunicateTime(null);
                             customerInfoService.updateCustomerNonCommunicate(customerInfo);
 
-                            allocateRedisService.changeAllocateTemplet(customerInfo.getOwnUserId(), customerInfo.getCity());
+
                             //添加分配日志
 
                             sendMessage(customerInfo.getCustomerName(), ownUserId, simpleUserInfoDTO, token);

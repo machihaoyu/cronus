@@ -1,8 +1,10 @@
 package com.fjs.cronus.mappers;
 
+import com.fjs.cronus.dto.customer.CustomerComDTO;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.util.MyMapper;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,4 +41,13 @@ public interface AllocateLogMapper extends MyMapper<AllocateLog> {
     public List<Integer> receiveIds(Map<String,Object> paramsMap);
 
     public List<AllocateLog> selectByCustomerId (Map<String,Object> paramsMap);
- }
+
+    List<CustomerComDTO> getHistoryCount(Map<String, Object> paramMap);
+
+
+    List<CustomerComDTO> getTodayCount(Map<String, Object> paramMap);
+
+    Integer getCountByCondition(Integer customerId);
+
+    List<AllocateLog> listAllocateLog(HashMap<String, Object> map);
+}

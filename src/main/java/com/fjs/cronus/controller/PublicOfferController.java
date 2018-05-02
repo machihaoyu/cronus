@@ -201,7 +201,10 @@ public class PublicOfferController {
             @ApiImplicitParam(name = "page", value = "查询第几页", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "orderField", value = "排序字段(create_time创建时间,last_update_time 跟进时间)", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string")
+            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "createTimeStart",value = "创建时间开始日期",required = false,paramType = "query",dataType = "string"),
+            @ApiImplicitParam(name = "createTimeEnd",value = "创建时间结束日期",required = false,paramType = "query",dataType = "string"),
+
     })
     @RequestMapping(value = "/OfferlistNew", method = RequestMethod.GET)
     @ResponseBody
@@ -217,6 +220,8 @@ public class PublicOfferController {
                                                              @RequestParam(required = false) Integer size,
                                                              @RequestParam(value = "orderField", required = false) String orderField,
                                                              @RequestParam(value = "sort", required = false) String sort,
+                                                             @RequestParam(value = "createTimeStart",required = false) String createTimeStart,
+                                                             @RequestParam(value = "createTimeEnd",required = false) String createTimeEnd,
                                                              @RequestHeader("Authorization") String token) {
 
         logger.warn("----------------------------->开始进入公盘");
@@ -311,7 +316,8 @@ public class PublicOfferController {
             pan.setCustomerSource(customerSource);
             pan.setCity(city);
             logger.warn("---------------------》开始进入公盘service");
-            queryResult = panService.listByOfferNew(pan, userId, companyId, token, CommonConst.SYSTEMNAME, page, size, canMangerMainCity, subCompanyIds, null, mountLevle, utmList, paramsList,orderField,sort);
+            queryResult = panService.listByOfferNew(pan, userId, companyId, token, CommonConst.SYSTEMNAME, page, size, canMangerMainCity,
+                    subCompanyIds, null, mountLevle, utmList, paramsList,orderField,sort,createTimeStart,createTimeEnd);
             logger.warn("---------------------》开始进入公盘service结束");
             cronusDto.setData(queryResult);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
@@ -522,7 +528,9 @@ public class PublicOfferController {
             @ApiImplicitParam(name = "page", value = "查询第几页", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "orderField", value = "排序字段(create_time创建时间,last_update_time 跟进时间)", required = false, paramType = "query", dataType = "string"),
-            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string")
+            @ApiImplicitParam(name = "sort", value = "asc ,desc", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "createTimeStart",value = "创建时间开始日期",required = false,paramType = "query",dataType = "string"),
+            @ApiImplicitParam(name = "createTimeEnd",value = "创建时间结束日期",required = false,paramType = "query",dataType = "string")
     })
     @RequestMapping(value = "/specialOfferlistNew", method = RequestMethod.GET)
     @ResponseBody
@@ -539,6 +547,8 @@ public class PublicOfferController {
                                                                     @RequestParam(required = false) Integer size,
                                                                     @RequestParam(value = "orderField", required = false) String orderField,
                                                                     @RequestParam(value = "sort", required = false) String sort,
+                                                                       @RequestParam(value = "createTimeStart",required = false) String createTimeStart,
+                                                                       @RequestParam(value = "createTimeEnd",required = false) String createTimeEnd,
                                                                     @RequestHeader("Authorization") String token) {
         logger.warn("------------------------>开始进入特殊渠道列表");
         CronusDto<QueryResult<CustomerListDTO>> cronusDto = new CronusDto<>();
@@ -639,7 +649,8 @@ public class PublicOfferController {
             pan.setCustomerSource(customerSource);
             pan.setCity(city);
             logger.warn("------------------------>外地公盘进入service开始");
-            queryResult = panService.specialListByOfferNew(pan, userId, companyId, token, CommonConst.SYSTEMNAME, page, size, mainCitys, null, type, mountLevle, utmList, paramsList,utmFlag,orderField,sort);
+            queryResult = panService.specialListByOfferNew(pan, userId, companyId, token, CommonConst.SYSTEMNAME, page, size, mainCitys, null,
+                    type, mountLevle, utmList, paramsList,utmFlag,orderField,sort,createTimeStart,createTimeEnd);
             logger.warn("------------------------>外地公盘进入service结束");
             cronusDto.setData(queryResult);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());

@@ -37,7 +37,7 @@ public class LookPoolService {
     @Autowired
     UcService ucService;
     public QueryResult<CustomerListDTO> unablePool(String token, String customerName, String telephonenumber, String utmSource,String media, String ownUserName, String customerSource,
-                                                           String level, Integer companyId, Integer page, Integer size){
+                                                           String level, Integer companyId, Integer page, Integer size,String createTimeStart,String createTimeEnd){
 
         QueryResult<CustomerListDTO> queryResult = new  QueryResult();
         List<CustomerListDTO> resultList = new ArrayList<>();
@@ -74,6 +74,12 @@ public class LookPoolService {
         }
         if (!StringUtils.isEmpty(companyId)){
             paramMap.put("companyId",companyId);
+        }
+        if (!StringUtils.isEmpty(createTimeStart)){
+            paramMap.put("createTimeStart",createTimeStart + " 00:00:00");
+        }
+        if (!StringUtils.isEmpty(createTimeEnd)){
+            paramMap.put("createTimeEnd",createTimeEnd + " 23:59:59");
         }
         //获取三无客户盘的状态
         String result = theaClientService.findValueByName(token, CommonConst.CAN_NOT_ALLOCATE_CUSTOMER_CLASSIFY);
@@ -119,7 +125,7 @@ public class LookPoolService {
     }
 
     public  QueryResult<CustomerListDTO> allPool(String token, String customerName, String telephonenumber, String utmSource,String media, String ownUserName, String customerSource,
-                                                 String level, Integer companyId, Integer page, Integer size){
+                                                 String level, Integer companyId, Integer page, Integer size,String createTimeStart,String createTimeEnd){
 
         QueryResult<CustomerListDTO> queryResult = new  QueryResult();
         List<String> channleList = new ArrayList<>();
@@ -155,6 +161,12 @@ public class LookPoolService {
         }
         if (!StringUtils.isEmpty(companyId)){
             paramMap.put("companyId",companyId);
+        }
+        if (createTimeStart != null && org.apache.commons.lang3.StringUtils.isNotEmpty(createTimeStart)){
+            paramMap.put("createTimeStart",createTimeStart + " 00:00:00");
+        }
+        if (createTimeEnd != null && org.apache.commons.lang3.StringUtils.isNotEmpty(createTimeEnd)){
+            paramMap.put("createTimeEnd",createTimeEnd + " 23:59:59");
         }
         //获取三无客户盘的状态
         paramMap.put("start",(page-1) * size);
