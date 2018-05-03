@@ -1,9 +1,9 @@
 package com.fjs.cronus.mappers;
 
-import com.fjs.cronus.api.thea.Loan;
+import com.fjs.cronus.dto.CustomerPartDTO;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.util.MyMapper;
-import org.springframework.data.repository.query.Param;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.HashMap;
 import java.util.List;
@@ -96,4 +96,7 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
 
 
     List<CustomerInfo> getNewCustomer(HashMap<String, Object> map);
+
+    //根据客户的手机号码查询一些信息
+    CustomerPartDTO selectCustomerDTOByPhone(@Param("phone") String phone);
 }

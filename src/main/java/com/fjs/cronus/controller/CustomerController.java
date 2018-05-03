@@ -1,21 +1,19 @@
 package com.fjs.cronus.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.CustomerPartDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.customer.CustomerCountDTO;
-import com.fjs.cronus.dto.thea.AllocateDTO;
 import com.fjs.cronus.dto.thea.LoanDTO6;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.model.CommunicationLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.*;
 import com.fjs.cronus.service.thea.TheaClientService;
@@ -24,22 +22,18 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.catalina.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -1159,6 +1153,28 @@ public class CustomerController {
             }
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
+    }
+
+    //根据手机号码查询客户id，来源及创建时间
+    @ApiOperation(value = "查询用户一些信息", notes = "根据手机号码查询客户id，来源及创建时间")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "phone", value = "电话号码", required = true, paramType = "query", dataType = "String")
+    })
+    @RequestMapping(value = "/queryCustomerInfo", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<CustomerPartDTO> queryCustomerInfo(@RequestParam(value = "phone",required = true) String phone){
+        CronusDto<CustomerPartDTO> theaApiDTO = new CronusDto<>();
+        if (StringUtils.isEmpty(phone)){
+            theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+            theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc()+",手机号码不能为空");
+            return theaApiDTO;
+        }
+
+        theaApiDTO.setData(customerInfoService.selectCustomerDTOByPhone(phone));
+        theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
+        theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+        return theaApiDTO;
     }
 
 }
