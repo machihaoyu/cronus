@@ -232,6 +232,7 @@ public class OcdcService {
                     }
                     ocdcMessage.add(stringBuilder.toString());
                     customerSalePushLogList.add(customerSalePushLog);
+                    logger.info(stringBuilder.toString());
                 }
             } catch (Exception e) {
                 logger.error("分配异常", e);
