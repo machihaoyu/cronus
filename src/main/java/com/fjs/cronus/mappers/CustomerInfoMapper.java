@@ -1,5 +1,6 @@
 package com.fjs.cronus.mappers;
 
+import com.fjs.cronus.dto.CustomerBasicDTO;
 import com.fjs.cronus.dto.CustomerPartDTO;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.util.MyMapper;
@@ -99,4 +100,6 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
 
     //根据客户的手机号码查询一些信息
     CustomerPartDTO selectCustomerDTOByPhone(@Param("phone") String phone);
+
+    CustomerBasicDTO selectCustomerById(@Param("id") Integer id);
 }
