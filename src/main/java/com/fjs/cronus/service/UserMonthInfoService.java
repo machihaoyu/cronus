@@ -69,13 +69,13 @@ public class UserMonthInfoService {
         for (UserMonthInfo userMonthInfo : nextMonthAllDataList) {
             Object o;
             if (CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(userMonthInfo.getMediaid())) {
-                o = baseCustomerNumOfNextMonthCountMap.get(userMonthInfo.getMediaid()) == null ? null : baseCustomerNumOfNextMonthCountMap.put(userMonthInfo.getMediaid(), baseCustomerNumOfNextMonthCountMap.get(userMonthInfo.getMediaid()) + userMonthInfo.getBaseCustomerNum());
-                o = rewardCustomerNumOfNextMonthCountMap.get(userMonthInfo.getMediaid()) == null ? null : rewardCustomerNumOfNextMonthCountMap.put(userMonthInfo.getMediaid(), rewardCustomerNumOfNextMonthCountMap.get(userMonthInfo.getMediaid()) + userMonthInfo.getRewardCustomerNum());
+                o = baseCustomerNumOfNextMonthCountMap.get(userMonthInfo.getUserId()) == null ? baseCustomerNumOfNextMonthCountMap.put(userMonthInfo.getUserId(), userMonthInfo.getBaseCustomerNum()) : baseCustomerNumOfNextMonthCountMap.put(userMonthInfo.getUserId(), baseCustomerNumOfNextMonthCountMap.get(userMonthInfo.getUserId()) + userMonthInfo.getBaseCustomerNum());
+                o = rewardCustomerNumOfNextMonthCountMap.get(userMonthInfo.getUserId()) == null ? rewardCustomerNumOfNextMonthCountMap.put(userMonthInfo.getUserId(), userMonthInfo.getRewardCustomerNum()) : rewardCustomerNumOfNextMonthCountMap.put(userMonthInfo.getUserId(), rewardCustomerNumOfNextMonthCountMap.get(userMonthInfo.getUserId()) + userMonthInfo.getRewardCustomerNum());
             } else if ( mediaId.equals(userMonthInfo.getMediaid())) {
                 nextMonthHasData = true;
             } else {
-                o = baseCustomerNumOfNextMonthMap.get(userMonthInfo.getMediaid()) == null ? null : baseCustomerNumOfNextMonthMap.put(userMonthInfo.getMediaid(), baseCustomerNumOfNextMonthMap.get(userMonthInfo.getMediaid()) + userMonthInfo.getBaseCustomerNum());
-                o = rewardCustomerNumOfNextMonthMap.get(userMonthInfo.getMediaid()) == null ? null : rewardCustomerNumOfNextMonthMap.put(userMonthInfo.getMediaid(), rewardCustomerNumOfNextMonthMap.get(userMonthInfo.getMediaid()) + userMonthInfo.getRewardCustomerNum());
+                o = baseCustomerNumOfNextMonthMap.get(userMonthInfo.getMediaid()) == null ? baseCustomerNumOfNextMonthMap.put(userMonthInfo.getUserId(), userMonthInfo.getBaseCustomerNum()) : baseCustomerNumOfNextMonthMap.put(userMonthInfo.getUserId(), baseCustomerNumOfNextMonthMap.get(userMonthInfo.getUserId()) + userMonthInfo.getBaseCustomerNum());
+                o = rewardCustomerNumOfNextMonthMap.get(userMonthInfo.getMediaid()) == null ? rewardCustomerNumOfNextMonthMap.put(userMonthInfo.getUserId(), userMonthInfo.getRewardCustomerNum()) : rewardCustomerNumOfNextMonthMap.put(userMonthInfo.getUserId(), rewardCustomerNumOfNextMonthMap.get(userMonthInfo.getUserId()) + userMonthInfo.getRewardCustomerNum());
             }
         }
         if (nextMonthHasData) {
