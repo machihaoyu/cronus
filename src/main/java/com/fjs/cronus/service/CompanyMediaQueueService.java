@@ -3,20 +3,19 @@ package com.fjs.cronus.service;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonMessage;
-import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.BaseCommonDTO;
 import com.fjs.cronus.entity.CompanyMediaQueue;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CompanyMediaQueueMapper;
+import com.fjs.cronus.model.UserMonthInfo;
 import com.fjs.cronus.service.client.TheaService;
-import com.fjs.cronus.service.client.ThorService;
+import com.fjs.cronus.service.redis.AllocateRedisService;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,7 +32,10 @@ public class CompanyMediaQueueService {
     private TheaService theaService;
 
     @Autowired
-    private ThorService thorService;
+    private UserMonthInfoService userMonthInfoService;
+
+    @Autowired
+    private AllocateRedisService allocateRedisService;
 
     public List<Map<String, Object>> findByCompanyId(String token, Integer currentUserId, Integer subCompanyId) {
 
@@ -102,7 +104,6 @@ public class CompanyMediaQueueService {
     public void delCompanyMediaQueue(Integer currentUserId, Integer companyid, Integer mediaId) {
 
         Date now = new Date();
-
         // 逻辑删除company_media_queue表数据
         CompanyMediaQueue valuesParams = new CompanyMediaQueue();
         valuesParams.setUpdated(now);
@@ -112,12 +113,32 @@ public class CompanyMediaQueueService {
         CompanyMediaQueue whereParams = new CompanyMediaQueue();
         whereParams.setCompanyid(companyid);
         whereParams.setMediaid(mediaId);
+        whereParams.setStatus(CommonEnum.entity_status1.getCode());
 
         companyMediaQueueMapper.updateCompanyMediaQueue(valuesParams, whereParams);
 
-        // TODO lihong 删除user_month_info表数据
+        // 逻辑删除user_month_info表数据
+        UserMonthInfo whereParamsUserMonthInfo = new UserMonthInfo();
+        whereParamsUserMonthInfo.setCompanyid(companyid);
+        whereParamsUserMonthInfo.setMediaid(mediaId);
+        whereParamsUserMonthInfo.setStatus(CommonEnum.entity_status1.getCode());
 
-        // TODO lihong 删除Redis队列
+        UserMonthInfo valueParamsUserMonthInfo = new UserMonthInfo();
+        valueParamsUserMonthInfo.setLastUpdateUser(currentUserId);
+        valueParamsUserMonthInfo.setLastUpdateTime(now);
+        valueParamsUserMonthInfo.setStatus(CommonEnum.entity_status0.getCode());
 
+        userMonthInfoService.updateUserMonthInfo(whereParamsUserMonthInfo, valueParamsUserMonthInfo);
+
+        // 删除Redis队列
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+
+        Calendar instance = Calendar.getInstance();
+        Date currentMoth = instance.getTime();
+        allocateRedisService.delCompanyMediaQueueRedisQueue(companyid, mediaId, sdf.format(currentMoth)); // 删除当月队列
+
+        instance.add(Calendar.MONTH, 1);
+        Date nextMoth = instance.getTime();
+        allocateRedisService.delCompanyMediaQueueRedisQueue(companyid, mediaId, sdf.format(nextMoth)); // 删除下月队列
     }
 }

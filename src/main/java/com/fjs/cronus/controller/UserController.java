@@ -1,5 +1,6 @@
 package com.fjs.cronus.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.*;
 import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.dto.CronusDto;
@@ -490,6 +491,48 @@ public class UserController {
             }
         }
 
+        return resultDto;
+    }
+
+    @ApiOperation(value = "拷贝当月数据到下月", notes = "拷贝当月数据到下月 API")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")
+    })
+    @RequestMapping(value = "/copyCurrentMonthDataToNexMonth", method = RequestMethod.POST)
+    @ResponseBody
+    public TheaApiDTO copyCurrentMonthDataToNexMonth(@RequestBody JSONObject params) throws Exception {
+        TheaApiDTO resultDto = new TheaApiDTO();
+        try {
+            // 参加校验
+            Integer mediaId = params.getInteger("mediaId");
+            Integer companyid = params.getInteger("companyid");
+
+            if (mediaId == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mediaId 不能为null");
+            }
+            if (companyid == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "companyid 不能为null");
+            }
+
+            Integer updateUserId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+
+            userMonthInfoService.copyCurrentMonthDataToNexMonth(updateUserId, companyid, mediaId);
+
+            resultDto.setResult(CommonMessage.SUCCESS.getCode());
+            resultDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                resultDto.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                resultDto.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("修改业务员月度分配数据", e);
+                resultDto.setResult(CommonMessage.FAIL.getCode());
+                resultDto.setMessage(e.getMessage());
+            }
+        }
         return resultDto;
     }
 

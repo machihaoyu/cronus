@@ -136,6 +136,7 @@ public class UserService {
         // 2、未设置值的数据需要入库db
         List<UserMonthInfo> toAddUserMonthInfoList = new ArrayList<>();
         Map<Integer, List<UserMonthInfo>> userIdMappingData = CollectionUtils.isEmpty(userMonthInfoList) ? new HashMap<>() : userMonthInfoList.stream().collect(Collectors.groupingBy(UserMonthInfo::getUserId));
+        Date now = new Date();
 
         for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
             List<UserMonthInfo> userMonthInfos = userIdMappingData.get(userMonthInfoDTO.getUserId());
@@ -159,9 +160,9 @@ public class UserService {
                 // db中无，则需要db新增，vo设置初始化值
                 userMonthInfoDTO.setBaseCustomerNum(CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(mediaid) ? CommonConst.BASE_CUSTOMER_NUM : 0);
                 userMonthInfoDTO.setRewardCustomerNum(CommonConst.REWARD_CUSTOMER_NUM);
-                userMonthInfoDTO.setLastUpdateTime(new Date());
+                userMonthInfoDTO.setLastUpdateTime(now);
                 userMonthInfoDTO.setEffectiveCustomerNum(0);
-                userMonthInfoDTO.setCreateTime(new Date());
+                userMonthInfoDTO.setCreateTime(now);
                 userMonthInfoDTO.setEffectiveDate(effectiveDate);
 
                 UserMonthInfo userMonthInfoTemp = new UserMonthInfo();
@@ -170,8 +171,8 @@ public class UserService {
                 userMonthInfoTemp.setEffectiveCustomerNum(0);
                 userMonthInfoTemp.setEffectiveDate(effectiveDate);
                 userMonthInfoTemp.setRewardCustomerNum(CommonConst.REWARD_CUSTOMER_NUM);
-                userMonthInfoTemp.setLastUpdateTime(new Date());
-                userMonthInfoTemp.setCreateTime(new Date());
+                userMonthInfoTemp.setLastUpdateTime(now);
+                userMonthInfoTemp.setCreateTime(now);
                 userMonthInfoTemp.setUserId(userMonthInfoDTO.getUserId());
                 userMonthInfoTemp.setCreateUserId(userIdByOption);
                 userMonthInfoTemp.setLastUpdateUser(userIdByOption);

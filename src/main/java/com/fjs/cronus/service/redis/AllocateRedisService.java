@@ -160,7 +160,7 @@ public class AllocateRedisService {
     }
 
     /**
-     * 添加用户到指定公司、指定媒体、指定月的队列中；从队列尾部添加.
+     * 从队列尾部添加.
      */
     public String addUserToAllocateTemplete2(Integer userId, Integer companyId, Integer medial, String effectiveDate) {
         if (userId == null) {
@@ -197,14 +197,22 @@ public class AllocateRedisService {
     }
 
     /**
-     * 从队列中获取.
+     * 从队列中获取all.
      */
     public List<Integer> finaAllFromQueue(Integer companyId, Integer medial, String effectiveDate){
         String userIds = this.getAllocateTemplet2(companyId, medial, effectiveDate);
         return StringUtils.isBlank(userIds) ? new ArrayList<>() : this.splitter.splitToList(userIds).stream().map(Integer::valueOf).collect(Collectors.toList());
     }
 
-    private String getCompanyMediaQueueRedisKey(Integer companyId, Integer medial, String effectiveDate) {
+    /**
+     * 删除队列.
+     */
+    public void delCompanyMediaQueueRedisQueue(Integer companyId, Integer medial, String effectiveDate){
+        String key = this.getKey(companyId, medial, effectiveDate);
+        redisAllocateTemplete.delete(key);
+    }
+
+    private String getKey(Integer companyId, Integer medial, String effectiveDate) {
         if (companyId == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取队列key错误，companyId 不能为null");
         }
@@ -214,22 +222,24 @@ public class AllocateRedisService {
         if (StringUtils.isBlank(effectiveDate)) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取队列key错误，effectiveDate 不能为null");
         }
+        if (!effectiveDate.matches("[0-9]{6}")) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "effectiveDate 格式不正确，需要是 yyyyMM");
+        }
         // key结构：指定公司、指定媒体、指定月
         return CommonRedisConst.ALLOCATE_LIST.concat("$").concat(companyId.toString()).concat("$").concat(medial.toString()).concat("$").concat(effectiveDate);
     }
 
     private String getAllocateTemplet2(Integer companyId, Integer medial, String effectiveDate) {
-        String key = this.getCompanyMediaQueueRedisKey(companyId, medial, effectiveDate);
+        String key = this.getKey(companyId, medial, effectiveDate);
         redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
         ValueOperations<String, String> redisAllocateOptions = redisAllocateTemplete.opsForValue();
         return redisAllocateOptions.get(key);
     }
 
     private String setAllocateTemplete2(String value, Integer companyId, Integer medial, String effectiveDate) {
-        String key = this.getCompanyMediaQueueRedisKey(companyId, medial, effectiveDate);
+        String key = this.getKey(companyId, medial, effectiveDate);
         redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
         ValueOperations<String, String> redisAllocateOptions = redisAllocateTemplete.opsForValue();
-        redisAllocateOptions.set(key, value);
         redisAllocateOptions.set(key, value, 90, TimeUnit.DAYS);
         return value;
     }

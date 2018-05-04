@@ -73,7 +73,7 @@ public class CompanyMediaQueueController {
             @ApiImplicitParam(name = "params", value = "提交数据", required = false, paramType = "body", dataType = "object", example = "{'mediaIds':'1,2,3','companyid':'123'}"),
     })
     @PostMapping(value = "/addCompanyMediaQueue")
-    public CronusDto addCompanyMediaQueue(@RequestHeader(name = "Authorization") String token, JSONObject params) {
+    public CronusDto addCompanyMediaQueue(@RequestHeader(name = "Authorization") String token, @RequestBody JSONObject params) {
         CronusDto result = new CronusDto();
         try {
             // 参数处理
@@ -119,7 +119,7 @@ public class CompanyMediaQueueController {
             @ApiImplicitParam(name = "params", value = "提交数据", required = false, paramType = "body", dataType = "object", example = "{'mediaId':'1','companyid':'123'}"),
     })
     @PostMapping(value = "/delCompanyMediaQueue")
-    public CronusDto delCompanyMediaQueue(@RequestHeader(name = "Authorization") String token, JSONObject params) {
+    public CronusDto delCompanyMediaQueue(@RequestHeader(name = "Authorization") String token,@RequestBody JSONObject params) {
         CronusDto result = new CronusDto();
         try {
             // 参加校验
