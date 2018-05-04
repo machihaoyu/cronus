@@ -1,9 +1,6 @@
 package com.fjs.cronus.controller;
 
-import com.fjs.cronus.Common.CommonConst;
-import com.fjs.cronus.Common.CommonEnum;
-import com.fjs.cronus.Common.CommonMessage;
-import com.fjs.cronus.Common.ResultDescription;
+import com.fjs.cronus.Common.*;
 import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.EditAllocateDTO;
@@ -213,14 +210,17 @@ public class UserController {
     @ApiOperation(value = "获取分配队列", notes = "根据城市获取分配队列")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
-            @ApiImplicitParam(name = "city", value = "城市", required = true, paramType = "query", dataType = "String", defaultValue = "上海")
+            @ApiImplicitParam(name = "companyid", value = "一级吧id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "media", value = "媒体id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "effectiveDate", value = "月", required = true, paramType = "query", dataType = "String")
     })
     @RequestMapping(value = "/getAllocateQueue", method = RequestMethod.GET)
     @ResponseBody
-    public TheaApiDTO<List<Map<String, String>>> getAllocateQueue(@RequestParam("city") String city) {
+    public TheaApiDTO<List<Map<String, String>>> getAllocateQueue(@RequestParam("companyid") Integer companyid, @RequestParam("media") Integer media, @RequestParam("effectiveDate") String effectiveDate) {
         TheaApiDTO<List<Map<String, String>>> resultDTO = new TheaApiDTO<>();
         try {
-            List<Map<String, String>> map = userService.getAllocateQueue(city);
+            List<Map<String, String>> map = userService.getAllocateQueue(companyid, media, effectiveDate);
+
             resultDTO.setData(map);
             resultDTO.setResult(ResultDescription.CODE_SUCCESS);
             resultDTO.setMessage(ResultDescription.MESSAGE_SUCCESS);
@@ -305,7 +305,7 @@ public class UserController {
             resultDTO.setResult(ResultDescription.CODE_FAIL);
             resultDTO.setMessage(e.getMessage());
         }
-        return resultDTO;
+        return null;
     }
 
     @ApiOperation(value = "添加用户至自动分配队列", notes = "根据城市添加用户至自动分配队列")
@@ -317,15 +317,8 @@ public class UserController {
     public TheaApiDTO addUserToAllocate(@RequestBody EditAllocateDTO editAllocateDTO) {
         TheaApiDTO resultDto = new TheaApiDTO();
         try {
-            Integer userId = editAllocateDTO.getUserId();
-            String city = editAllocateDTO.getCity();
-            if (StringUtils.isBlank(city) || null == userId) {
-                throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
-            }
 
-            String userIds = allocateRedisService.addUserToAllocateTemplete(userId, city);
-
-            cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, new ArrayList());
+            allocateRedisService.addUserToAllocateTemplete2(editAllocateDTO.getUserId(), editAllocateDTO.getCompanyid(), editAllocateDTO.getMedialid(), editAllocateDTO.getEffectiveDate());
 
             resultDto.setResult(CommonMessage.ADD_SUCCESS.getCode());
             resultDto.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
@@ -337,6 +330,9 @@ public class UserController {
         return resultDto;
     }
 
+    public static void main(String[] args) {
+    }
+
     @ApiOperation(value = "删除用户至自动分配队列", notes = "根据城市删除用户至自动分配队列")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")
@@ -345,15 +341,10 @@ public class UserController {
     @ResponseBody
     public TheaApiDTO delUserToAllocate(@RequestBody EditAllocateDTO editAllocateDTO) {
         TheaApiDTO resultDto = new TheaApiDTO();
-        if (StringUtils.isBlank(editAllocateDTO.getCity()) ||
-                null == editAllocateDTO.getUserId()) {
-            throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
-        }
-        Integer userId = editAllocateDTO.getUserId();
-        String city = editAllocateDTO.getCity();
         try {
-            String userIds = allocateRedisService.delUserToAllocateTemplete(userId, city);
-            cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, new ArrayList());
+
+            allocateRedisService.delUserToAllocateTemplete2(editAllocateDTO.getUserId(), editAllocateDTO.getCompanyid(), editAllocateDTO.getMedialid(), editAllocateDTO.getEffectiveDate());
+
             resultDto.setResult(CommonMessage.DELETE_SUCCESS.getCode());
             resultDto.setMessage(CommonMessage.DELETE_SUCCESS.getCodeDesc());
         } catch (Exception e) {

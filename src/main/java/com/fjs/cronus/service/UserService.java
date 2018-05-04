@@ -235,21 +235,14 @@ public class UserService {
     }
 
     /**
-     * 获取城市分配队列
-     *
-     * @param city 城市
-     * @return
+     * 获取分配队列
      */
-    public List<Map<String, String>> getAllocateQueue(String city) {
+    public List<Map<String, String>> getAllocateQueue(Integer companyid, Integer media, String effectiveDate) {
         List<Map<String, String>> allocateQueue = new ArrayList<>();
-        String userIdsStr = allocateRedisService.getAllocateTemplet(city);
-        if (StringUtils.isBlank(userIdsStr)) {
-            return allocateQueue;
-        }
-        List<Integer> ids = CommonUtil.initStrtoIntegerList(userIdsStr);
+        List<Integer> ids = allocateRedisService.finaAllFromQueue(companyid, media, effectiveDate);
         for (Integer userId : ids) {
             Map<String, String> allocateQueueMap = new HashMap<>();
-            AppUserDto appUserDto = getUserInfoByField(null, Integer.valueOf(userId), null);
+            AppUserDto appUserDto = this.getUserInfoByField(null, Integer.valueOf(userId), null);
             allocateQueueMap.put(userId.toString(), appUserDto.getName());
             allocateQueue.add(allocateQueueMap);
         }
@@ -282,7 +275,7 @@ public class UserService {
         return crmCitySubCompanyDtoList;
     }
 
-    public AppUserDto getUserInfoByField(String telephone, Integer userId, String ownUserName) {
+    private AppUserDto getUserInfoByField(String telephone, Integer userId, String ownUserName) {
         AppUserDto appUserDto = null;
         if (userId != null) {
             String key = "USERINFO" + userId;
