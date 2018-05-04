@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.*;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.CustomerBasicDTO;
 import com.fjs.cronus.dto.CustomerPartDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPUserDto;
@@ -2157,6 +2158,13 @@ public class CustomerInfoService {
         //对手机号码进行加密
         String telephone = DEC3Util.des3EncodeCBC(phone);
         return customerInfoMapper.selectCustomerDTOByPhone(telephone);
+    }
+
+    public CustomerBasicDTO selectCustomerById(Integer id){
+
+        CustomerBasicDTO customerBasicDTO = customerInfoMapper.selectCustomerById(id);
+        customerBasicDTO.setTelephonenumber(DEC3Util.des3DecodeCBC(customerBasicDTO.getTelephonenumber()));
+        return customerBasicDTO;
     }
 
 }

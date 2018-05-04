@@ -5,6 +5,7 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.CustomerBasicDTO;
 import com.fjs.cronus.dto.CustomerPartDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
@@ -1172,6 +1173,27 @@ public class CustomerController {
         }
 
         theaApiDTO.setData(customerInfoService.selectCustomerDTOByPhone(phone));
+        theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
+        theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+        return theaApiDTO;
+    }
+
+    //根据客户id，查询电话号码及来源
+    @ApiOperation(value = "查询用户信息", notes = "根据客户id，查询电话号码及来源")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "id", value = "客户id", required = true, paramType = "query", dataType = "String")
+    })
+    @RequestMapping(value = "/queryCustomerBasic", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<CustomerBasicDTO> queryCustomerBasic(@RequestParam(value = "id",required = true) String id){
+        CronusDto<CustomerBasicDTO> theaApiDTO = new CronusDto<>();
+        if (StringUtils.isEmpty(id)){
+            theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+            theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc()+",客户id不能为空");
+            return theaApiDTO;
+        }
+        theaApiDTO.setData(customerInfoService.selectCustomerById(Integer.valueOf(id)));
         theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
         theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
         return theaApiDTO;
