@@ -121,7 +121,7 @@ public class AutoAllocateService {
             //获取自动分配的城市
             String allocateCities = theaClientService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY);
 
-            UserInfoDTO ownerUser = getOwnerUser(customerDTO, token); //获取负责人
+            UserInfoDTO ownerUser = this.getOwnerUser(customerDTO, token); //获取负责人
 
             boolean allocateToPublic = isAllocateToPublic(customerDTO.getUtmSource());
 

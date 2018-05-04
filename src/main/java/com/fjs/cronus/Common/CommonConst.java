@@ -123,6 +123,7 @@ public class CommonConst {
     //用户初始化分配数
     public static int BASE_CUSTOMER_NUM = 80;
     public static int REWARD_CUSTOMER_NUM = 0;
+    public static Integer COMPANY_MEDIA_QUEUE_COUNT = -1; // 总分配队列，媒体id值是-1
 
     //特殊渠道
     public static String SPECIAL_UTM_SOURCE = "SpecialUtmSource";

@@ -21,19 +21,15 @@ public class UserMonthInfoService {
         return userMonthInfoMapper.selectByParamsMap(map);
     }
 
-    public Integer saveOne(UserMonthInfo userMonthInfo) {
-        return userMonthInfoMapper.saveOne(userMonthInfo);
-    }
-
-    public Integer saveList(List<UserMonthInfo> userMonthInfos) {
-        return userMonthInfoMapper.saveList(userMonthInfos);
-    }
-
-    public Integer insertOne(UserMonthInfo userMonthInfo) {
-        return userMonthInfoMapper.insertOne(userMonthInfo);
+    public Integer updateUserMonthInfo(UserMonthInfo whereParams, UserMonthInfo valueParams) {
+        return userMonthInfoMapper.updateUserMonthInfo(whereParams, valueParams);
     }
 
     public Integer insertList(List<UserMonthInfo> userMonthInfoList) {
         return userMonthInfoMapper.insertList(userMonthInfoList);
+    }
+
+    public List<UserMonthInfo> findByParams(UserMonthInfo params) {
+        return userMonthInfoMapper.findByParams(params);
     }
 }

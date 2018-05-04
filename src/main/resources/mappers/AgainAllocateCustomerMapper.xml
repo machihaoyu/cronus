@@ -1,48 +1,91 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.fjs.cronus.mappers.AgainAllocateCustomerMapper">
-    <resultMap id="BaseResultMap" type="com.fjs.cronus.model.AgainAllocateCustomer">
-        <id column="id" property="id" jdbcType="INTEGER" />
-        <result column="data_id" property="dataId" jdbcType="INTEGER" />
-        <result column="json_data" property="jsonData" jdbcType="VARCHAR" />
-        <result column="status" property="status" jdbcType="INTEGER" />
-        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
-        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
-    </resultMap>
+<mapper namespace="com.fjs.cronus.mappers.CompanyMediaQueueMapper">
+
     <sql id="Base_Column_List">
-        id,data_id,json_data,status,update_time,create_time
+      `id`,
+      `created`,
+      `createid`,
+      `updated`,
+      `updateid`,
+      `deleted`,
+      `deleteid`,
+      `status`,
+      `companyid`,
+      `mediaid`
     </sql>
-    <insert id="addAgainAllocateCustomer" parameterType="com.fjs.cronus.model.AgainAllocateCustomer" >
-        insert into again_allocate_customer (data_id, json_data,
-        update_time, create_time)
-        values (#{dataId}, #{jsonData},#{updateTime}, #{createTime})
+
+    <select id="findByCompanyId" resultType="com.fjs.cronus.entity.CompanyMediaQueue">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `company_media_queue` WHERE `companyid`=#{companyid} AND `status`=#{status}
+
+    </select>
+
+    <insert id="addBatchCompanyMediaQueue">
+        INSERT INTO `company_media_queue`(
+        `created`,
+        `createid`,
+        `updated`,
+        `companyid`,
+        `mediaid`
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            <trim prefix="(" suffix="," suffixOverrides=",">
+                #{item.created},
+                #{item.createid},
+                #{item.updated},
+                #{item.companyid},
+                #{item.mediaid}
+            </trim>
+        </foreach>
     </insert>
-    <update id="saveStatusByDataId" parameterType="com.fjs.cronus.model.AgainAllocateCustomer">
-        UPDATE again_allocate_customer
+
+    <update id="updateCompanyMediaQueue">
+        UPDATE `company_media_queue`
         <set>
-            <!--<if test="id != null">
-                id = #{id,jdbcType=INTEGER},
+            <if test="valueParams.updated != null">
+                `updated`=#{valueParams.updated},
             </if>
-            <if test="data_id != null and '' != data_id">
-                data_id = #{DataId,jdbcType=INTEGER},
+            <if test="valueParams.updateid != null">
+                `updateid`=#{valueParams.updateid},
             </if>
-            <if test="json_data != null">
-                json_data = #{JsonData,jdbcType=VARCHAR},
+            <if test="valueParams.deleted != null">
+                `deleted`=#{valueParams.deleted},
             </if>
-            <if test="update_time != null and '' != update_time">
-                update_time = #{UpdateTime,jdbcType=TIMESTAMP},
+            <if test="valueParams.deleteid != null">
+                `deleteid`=#{valueParams.deleteid},
             </if>
-            <if test="create_time != null and '' != create_time">
-                create_time = #{CreateTime,jdbcType=TIMESTAMP},
-            </if>-->
-            <if test="status != null and '' != status">
-                status = #{status,jdbcType=VARCHAR},
+            <if test="valueParams.status != null">
+                `status`=#{valueParams.status},
+            </if>
+            <if test="valueParams.companyid != null">
+                `companyid`=#{valueParams.companyid},
+            </if>
+            <if test="valueParams.mediaid != null">
+                `mediaid`=#{valueParams.mediaid},
             </if>
         </set>
-        WHERE data_id = #{dataId,jdbcType=INTEGER}
+        <where>
+            <if test="whereParams.id != null">
+                AND `id`=#{whereParams.id}
+            </if>
+            <if test="whereParams.updateid != null">
+                AND `updateid`=#{whereParams.updateid}
+            </if>
+            <if test="whereParams.deleteid != null">
+                AND `deleteid`=#{whereParams.deleteid}
+            </if>
+            <if test="whereParams.deleteid != null">
+                AND `status`=#{whereParams.status}
+            </if>
+            <if test="whereParams.deleteid != null">
+                AND `companyid`=#{whereParams.companyid}
+            </if>
+            <if test="whereParams.deleteid != null">
+                AND `mediaid`=#{whereParams.mediaid}
+            </if>
+        </where>
     </update>
 
-    <select id="getNonAllocateCustomer" resultMap="BaseResultMap">
-        select * from again_allocate_customer a where status = 0 ORDER by a.id DESC limit 0,50
-    </select>
 </mapper>

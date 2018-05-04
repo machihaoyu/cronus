@@ -93,4 +93,7 @@ public interface TheaService {
 
     @RequestMapping(value = "/loan/v1/addLoan", method = RequestMethod.POST)
     public TheaApiDTO addLoan(@RequestBody LoanDTO6 loanDTO, @RequestHeader("Authorization")String token);
+
+    @RequestMapping(value = "/media/v1/getAllMedia",method = RequestMethod.GET)
+    TheaApiDTO getAllMedia(String token);
 }

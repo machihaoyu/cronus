@@ -60,6 +60,36 @@ public class UserMonthInfo implements Serializable{
     @ApiModelProperty(value = "创建用户ID", required = false)
     private Integer createUserId;
 
+    private Integer companyid;
+
+    private Integer mediaid;
+
+    private Integer status;
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public Integer getCompanyid() {
+        return companyid;
+    }
+
+    public void setCompanyid(Integer companyid) {
+        this.companyid = companyid;
+    }
+
+    public Integer getMediaid() {
+        return mediaid;
+    }
+
+    public void setMediaid(Integer mediaid) {
+        this.mediaid = mediaid;
+    }
+
     public Integer getId() {
         return id;
     }

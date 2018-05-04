@@ -183,6 +183,7 @@ public class OcdcService {
                             BeanUtils.copyProperties(customerSalePushLog, customerDTO);
                             allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                         }
+
                         stringBuilder.append(allocateEntity.getDescription());
                         stringBuilder.append("-");
                         stringBuilder.append(allocateEntity.getAllocateStatus().getDesc());
@@ -225,6 +226,7 @@ public class OcdcService {
                         } else {
                             failList.add(customerSalePushLog.getOcdcId().toString());
                         }
+
                     } catch (RuntimeException e) {
                         stringBuilder.append(e.getMessage());
                         logger.error("分配失败", e);

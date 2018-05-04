@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 员工的相关信息
@@ -71,7 +72,7 @@ public class UserController {
     @Autowired
     private CronusRedisService cronusRedisService;
 
-    @ApiOperation(value="得到下属员工", notes="得到下属员工")
+    @ApiOperation(value = "得到下属员工", notes = "得到下属员工")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
             @ApiImplicitParam(name = "subCompanyId", value = "分公司id", required = false, paramType = "query", dataType = "int"),
@@ -236,36 +237,45 @@ public class UserController {
     @ApiOperation(value = "根据分公司ID获取所有业务员分配列表", notes = "根据分公司ID获取所有业务员分配列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
-            @ApiImplicitParam(name = "companyId", value = "公司Id", required = true, paramType = "query", dataType = "Integer", defaultValue = "1"),
+            @ApiImplicitParam(name = "companyId", value = "公司Id", required = true, paramType = "query", dataType = "Integer", defaultValue = "-1"),
             @ApiImplicitParam(name = "effectiveDate", value = "查询时间", required = true, paramType = "query", dataType = "String", defaultValue = "201710"),
-            @ApiImplicitParam(name = "city", value = "城市", required = true, paramType = "query", dataType = "String", defaultValue = "上海")
+            @ApiImplicitParam(name = "city", value = "城市", required = true, paramType = "query", dataType = "String", defaultValue = "上海"),
+            @ApiImplicitParam(name = "mediaid", value = "媒体", required = true, paramType = "query", dataType = "Integer", defaultValue = "-1")
     })
     @RequestMapping(value = "/getUsersByCompanyId", method = RequestMethod.GET)
     @ResponseBody
     public TheaApiDTO<Map<String, List<UserMonthInfoDTO>>> getUsersByCompanyId(
             @RequestParam(required = true) String city,
             @RequestParam(required = true) Integer companyId,
-            @RequestParam(required = true) String effectiveDate
+            @RequestParam(required = true) String effectiveDate,
+            @RequestParam(required = true) Integer mediaid
     ) {
         TheaApiDTO<Map<String, List<UserMonthInfoDTO>>> resultDTO = new TheaApiDTO<>();
-        //判断输入的查询时间是否为
-        //"201701"
-        if (StringUtils.isBlank(effectiveDate) || !effectiveDate.matches("[0-9]{6}")) {
-            throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
-        }
         try {
-            Map<String, List<UserMonthInfoDTO>> map = new HashMap<>();
+            //判断输入的查询时间是否为
+            //"201701"
+            if (StringUtils.isBlank(effectiveDate) || !effectiveDate.matches("[0-9]{6}")) {
+                throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
+            }
+
             Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-            map = userService.getUserMonthInfoList(city, companyId, effectiveDate, userId);
-            resultDTO.setData(map);
+
+            resultDTO.setData(userService.getUserMonthInfoList(city, companyId, effectiveDate, userId, mediaid));
             resultDTO.setResult(ResultDescription.CODE_SUCCESS);
             resultDTO.setMessage(ResultDescription.MESSAGE_SUCCESS);
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("-----------查询业务员分配列表失败！！--------" + e);
-            resultDTO.setData(null);
-            resultDTO.setResult(ResultDescription.CODE_FAIL);
-            resultDTO.setMessage(e.getMessage());
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                resultDTO.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                resultDTO.setMessage(temp.getResponseError().getMessage());
+            } else {
+                logger.error("-----------查询业务员分配列表失败！！--------" + e);
+                // 未知异常
+                logger.error("修改业务员月度分配数据", e);
+                resultDTO.setResult(CommonMessage.FAIL.getCode());
+                resultDTO.setMessage(e.getMessage());
+            }
         }
         return resultDTO;
     }
@@ -306,15 +316,17 @@ public class UserController {
     @ResponseBody
     public TheaApiDTO addUserToAllocate(@RequestBody EditAllocateDTO editAllocateDTO) {
         TheaApiDTO resultDto = new TheaApiDTO();
-        if (StringUtils.isBlank(editAllocateDTO.getCity()) ||
-                null == editAllocateDTO.getUserId()) {
-            throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
-        }
-        Integer userId = editAllocateDTO.getUserId();
-        String city = editAllocateDTO.getCity();
         try {
+            Integer userId = editAllocateDTO.getUserId();
+            String city = editAllocateDTO.getCity();
+            if (StringUtils.isBlank(city) || null == userId) {
+                throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
+            }
+
             String userIds = allocateRedisService.addUserToAllocateTemplete(userId, city);
+
             cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, new ArrayList());
+
             resultDto.setResult(CommonMessage.ADD_SUCCESS.getCode());
             resultDto.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
         } catch (Exception e) {
@@ -360,17 +372,86 @@ public class UserController {
     @ResponseBody
     public TheaApiDTO editUserMonthInfo(@RequestBody EditUserMonthInfoDTO editUserMonthInfoDTO) throws Exception {
         TheaApiDTO resultDto = new TheaApiDTO();
-        Integer userId = editUserMonthInfoDTO.getUserId();
-        String effectiveDate = editUserMonthInfoDTO.getEffectiveDate();
-        Integer baseCustomerNum = editUserMonthInfoDTO.getBaseCustomerNum();
-        Integer rewardCustomerNum = editUserMonthInfoDTO.getRewardCustomerNum();
-        if (baseCustomerNum < 0 || rewardCustomerNum < 0) {
-            resultDto.setResult(CommonMessage.UPDATE_FAIL.getCode());
-            resultDto.setMessage(CronusException.Type.CEM_CUSTOMERINTERVIEW.getError());
-        }
-        else {
-            //获取用户的已分配数
-            //获取这些业务员的自动分配数和自动确认数
+        try {
+            // 参数校验
+            Integer userId = editUserMonthInfoDTO.getUserId();
+            String effectiveDate = editUserMonthInfoDTO.getEffectiveDate();
+            Integer baseCustomerNum = editUserMonthInfoDTO.getBaseCustomerNum();
+            Integer rewardCustomerNum = editUserMonthInfoDTO.getRewardCustomerNum();
+            Integer companyid = editUserMonthInfoDTO.getCompanyid();
+            Integer mediaid = editUserMonthInfoDTO.getMediaid();
+            if (companyid == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "companyid 不能为null");
+            }
+            if (mediaid == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mediaid 不能为null");
+            }
+            if (baseCustomerNum < 0 || rewardCustomerNum < 0) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "baseCustomerNum or rewardCustomerNum 数据错误");
+            }
+
+            // ===== 业务校验 =====
+            // 总分配队列新增不用校验
+            // 减少情况
+            // 1、总分配队列的[月申请数]、[月奖励数] 不能分别 < 其他特殊渠道[月申请数]之和、[月奖励数]之和
+            // 2、特殊渠道 [月申请数]、[月奖励数] 不能分别 >  (总分配队列[月申请数]、[月奖励数] 分别 - 剩余特殊渠道[月申请数]之和、[月奖励数]之和)
+            UserMonthInfo params = new UserMonthInfo();
+            params.setCompanyid(companyid);
+            params.setUserId(userId);
+            params.setEffectiveDate(effectiveDate);
+            params.setStatus(CommonEnum.entity_status1.getCode());
+            List<UserMonthInfo> userAllMedialDataList = userMonthInfoService.findByParams(params); // 获取用户所以媒体、具体月份、具体吧的分配数据
+
+            if (CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(mediaid)) {
+                // 总分配队列情况
+
+                Integer rewardCustomerNumSum = 0;
+                Integer baseCustomerNumSum = 0;
+                for (UserMonthInfo userMonthInfoTemp : userAllMedialDataList) {
+                    if (!CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(userMonthInfoTemp.getMediaid())) {
+                        // 获取所有特殊渠道 rewardCustomerNum 的和
+                        rewardCustomerNumSum += userMonthInfoTemp.getRewardCustomerNum();
+                        // 获取所有特殊渠道 baseCustomerNumSum 的和
+                        baseCustomerNumSum += userMonthInfoTemp.getBaseCustomerNum();
+                    }
+                }
+
+                if (rewardCustomerNum < rewardCustomerNumSum) {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "月奖励数 不能小于 其他特殊渠道月奖励数之和");
+                }
+                if (baseCustomerNum < baseCustomerNumSum) {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "月分配数 不能小于 其他特殊渠道月分配数之和");
+                }
+
+            } else {
+                // 特殊分配队列情况
+
+                Integer rewardCustomerNumSum = 0;
+                Integer baseCustomerNumSum = 0;
+                UserMonthInfo countMedia = null;
+                UserMonthInfo currentMedia = null;
+                for (UserMonthInfo userMonthInfoTemp : userAllMedialDataList) {
+                    if (CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(userMonthInfoTemp.getMediaid())) {
+                        countMedia = userMonthInfoTemp;
+                    } else if (mediaid.equals(userMonthInfoTemp.getMediaid())) {
+                        currentMedia = userMonthInfoTemp;
+                    } else {
+                        // 获取除去总分配队列、当前分配队列外的特殊渠道 rewardCustomerNum 的和
+                        rewardCustomerNumSum += userMonthInfoTemp.getRewardCustomerNum();
+                        // 获取除去总分配队列、当前分配队列外的特殊渠道 baseCustomerNumSum 的和
+                        baseCustomerNumSum += userMonthInfoTemp.getBaseCustomerNum();
+                    }
+                }
+
+                if (rewardCustomerNum > (countMedia.getRewardCustomerNum() - rewardCustomerNumSum)) {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "月奖励数 不能大于 总分配队列-其他特殊渠道月奖励数后剩余的数");
+                }
+                if (baseCustomerNum > (countMedia.getBaseCustomerNum() - baseCustomerNumSum)) {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "月分配数 不能大于 总分配队列-其他特殊渠道月分配数后剩余的数");
+                }
+            }
+
+            // 已分配数需要>月
             Map<String, Object> allocateMap = new HashMap<>();
             allocateMap.put("inOperation", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
                     "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
@@ -378,34 +459,46 @@ public class UserController {
             userIds.add(userId);
             allocateMap.put("newOwnerIds", userIds);
             allocateMap.put("createBeginDate", DateUtils.getBeginDateByStr(effectiveDate));
-            allocateMap.put("operationsStr", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
-                    "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
+            allocateMap.put("operationsStr", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() + "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
             allocateMap.put("createEndDate", DateUtils.getEndDateByStr(effectiveDate));
             List<AllocateLog> allocateLogList = allocateLogService.selectByParamsMap(allocateMap);
+
             if (allocateLogList.size() >= (baseCustomerNum + rewardCustomerNum)) {
-                resultDto.setResult(CommonMessage.UPDATE_FAIL.getCode());
-                resultDto.setMessage(CronusException.Type.ALLOCATE_NUM_ERROR.getError());
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "月申请数和月奖励数之和需大于已分配数");
+            }
+
+            Integer updateUserId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+
+            UserMonthInfo whereParams = new UserMonthInfo();
+            whereParams.setUserId(userId);
+            whereParams.setEffectiveDate(effectiveDate);
+            whereParams.setCompanyid(companyid);
+            whereParams.setMediaid(mediaid);
+
+            UserMonthInfo valueParams = new UserMonthInfo();
+            valueParams.setLastUpdateUser(updateUserId);
+            valueParams.setBaseCustomerNum(baseCustomerNum);
+            valueParams.setRewardCustomerNum(rewardCustomerNum);
+            valueParams.setLastUpdateTime(new Date());
+
+            userMonthInfoService.updateUserMonthInfo(whereParams, valueParams);
+
+            resultDto.setResult(CommonMessage.UPDATE_SUCCESS.getCode());
+            resultDto.setMessage(CommonMessage.UPDATE_SUCCESS.getCodeDesc());
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                resultDto.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                resultDto.setMessage(temp.getResponseError().getMessage());
             } else {
-                Integer updateUserId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-                try {
-                    UserMonthInfo userMonthInfo = new UserMonthInfo();
-                    userMonthInfo.setLastUpdateUser(updateUserId);
-                    userMonthInfo.setBaseCustomerNum(baseCustomerNum);
-                    userMonthInfo.setRewardCustomerNum(rewardCustomerNum);
-                    userMonthInfo.setLastUpdateTime(new Date());
-                    userMonthInfo.setUserId(userId);
-                    userMonthInfo.setEffectiveDate(effectiveDate);
-                    userMonthInfoService.saveOne(userMonthInfo);
-                    resultDto.setResult(CommonMessage.UPDATE_SUCCESS.getCode());
-                    resultDto.setMessage(CommonMessage.UPDATE_SUCCESS.getCodeDesc());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    logger.error("------------更新业务员月度分配信息失败-------" + e);
-                    resultDto.setResult(CommonMessage.UPDATE_FAIL.getCode());
-                    resultDto.setMessage(CommonMessage.UPDATE_FAIL.getCodeDesc());
-                }
+                // 未知异常
+                logger.error("修改业务员月度分配数据", e);
+                resultDto.setResult(CommonMessage.FAIL.getCode());
+                resultDto.setMessage(e.getMessage());
             }
         }
+
         return resultDto;
     }
 

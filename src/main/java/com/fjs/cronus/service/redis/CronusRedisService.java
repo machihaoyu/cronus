@@ -19,8 +19,10 @@ public class CronusRedisService {
 
     @Resource
     RedisTemplate<String,List> listOperations;
+
     @Resource
     RedisTemplate<String,Object> valueOperations;
+
     public void setRedisCronusInfo(String key,List list){
         ValueOperations<String,List> redis = listOperations.opsForValue();
         redis.set(key,list,30, TimeUnit.DAYS);

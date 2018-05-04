@@ -19,6 +19,28 @@ public class EditUserMonthInfoDTO {
     @ApiModelProperty(value="奖励客户数")
     private Integer rewardCustomerNum;
 
+    @ApiModelProperty(value="公司id;一级吧id")
+    private Integer companyid;
+
+    @ApiModelProperty(value="媒体id")
+    private Integer mediaid;
+
+    public Integer getCompanyid() {
+        return companyid;
+    }
+
+    public void setCompanyid(Integer companyid) {
+        this.companyid = companyid;
+    }
+
+    public Integer getMediaid() {
+        return mediaid;
+    }
+
+    public void setMediaid(Integer mediaid) {
+        this.mediaid = mediaid;
+    }
+
     public Integer getUserId() {
         return userId;
     }

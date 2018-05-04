@@ -89,6 +89,10 @@ public enum CommonEnum {
     AGAIN_ALLOCATE_STATUS_0(0, "未再分配"),
     AGAIN_ALLOCATE_STATUS_1(1, "已再分配"),
 
+    // entity 对应 status 字段的值
+    entity_status0(0, "删除"),
+    entity_status1(1, "正常"),
+
 
     //星期
     WEEK_OF_MONDAY(1,"星期一"),
