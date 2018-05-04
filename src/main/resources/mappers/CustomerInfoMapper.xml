@@ -101,6 +101,11 @@
         <result column="utm_source" property="utmSource" jdbcType="VARCHAR" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
     </resultMap>
+    <resultMap id="CustomerBasicDTO" type="com.fjs.cronus.dto.CustomerBasicDTO">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="telephonenumber" property="telephonenumber" jdbcType="VARCHAR" />
+        <result column="customer_source" property="customerSource" jdbcType="VARCHAR" />
+    </resultMap>
     <sql id="Base_Column_List">
         id, telephonenumber, customer_name, customer_type, customer_level, spare_phone, age,
         marriage, id_card, province_huji, sex, customer_address, customer_street, house_status,
@@ -2430,5 +2435,12 @@
         id,customer_source,utm_source,create_time
       FROM customer_info
       WHERE is_deleted = 0 AND telephonenumber = #{phone,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectCustomerById" resultMap="CustomerBasicDTO" parameterType="com.fjs.cronus.dto.CustomerBasicDTO">
+      SELECT
+        id,telephonenumber,customer_source
+      FROM customer_info
+      WHERE is_deleted = 0 AND id = #{id,jdbcType=INTEGER}
     </select>
 </mapper>
