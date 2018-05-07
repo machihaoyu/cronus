@@ -1,6 +1,7 @@
 package com.fjs.cronus.service.redis;
 
 import com.fjs.cronus.exception.CronusException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -40,6 +41,10 @@ public class CRMRedisHelp {
      * 加锁.
      */
     public Long getLockBySetNX(String key) {
+        if (StringUtils.isBlank(key)){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "key不能为null");
+        }
+
         // 重试次数
         Integer i = 0;
 
