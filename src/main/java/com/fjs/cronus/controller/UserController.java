@@ -15,15 +15,13 @@ import com.fjs.cronus.dto.uc.CrmCitySubCompanyDto;
 import com.fjs.cronus.dto.uc.ThorQueryDto;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.model.AllocateLog;
-import com.fjs.cronus.model.UserMonthInfo;
 import com.fjs.cronus.service.AllocateLogService;
 import com.fjs.cronus.service.UserMonthInfoService;
 import com.fjs.cronus.service.UserService;
 import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
+import com.fjs.cronus.service.redis.CRMRedisHelp;
 import com.fjs.cronus.service.redis.CronusRedisService;
-import com.fjs.cronus.util.DateUtils;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -37,7 +35,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 员工的相关信息
@@ -69,6 +66,9 @@ public class UserController {
 
     @Autowired
     private CronusRedisService cronusRedisService;
+
+    @Autowired
+    private CRMRedisHelp cRMRedisLock;
 
     @ApiOperation(value = "得到下属员工", notes = "得到下属员工")
     @ApiImplicitParams({
@@ -281,7 +281,6 @@ public class UserController {
         return resultDTO;
     }
 
-
     @ApiOperation(value = "用户可操作的分公司", notes = "获取用户可操作的分公司")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")
@@ -381,99 +380,13 @@ public class UserController {
             if (baseCustomerNum < 0 || rewardCustomerNum < 0) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "baseCustomerNum or rewardCustomerNum 数据错误");
             }
-
-            // ===== 业务校验 =====
-            // 总分配队列新增不用校验
-            // 减少情况
-            // 1、总分配队列的[月申请数]、[月奖励数] 不能分别 < 其他特殊渠道[月申请数]之和、[月奖励数]之和
-            // 2、特殊渠道 [月申请数]、[月奖励数] 不能分别 >  (总分配队列[月申请数]、[月奖励数] 分别 - 剩余特殊渠道[月申请数]之和、[月奖励数]之和)
-            UserMonthInfo params = new UserMonthInfo();
-            params.setCompanyid(companyid);
-            params.setUserId(userId);
-            params.setEffectiveDate(effectiveDate);
-            params.setStatus(CommonEnum.entity_status1.getCode());
-            List<UserMonthInfo> userAllMedialDataList = userMonthInfoService.findByParams(params); // 获取用户所以媒体、具体月份、具体吧的分配数据
-
-            if (CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(mediaid)) {
-                // 总分配队列情况
-
-                Integer rewardCustomerNumSum = 0;
-                Integer baseCustomerNumSum = 0;
-                for (UserMonthInfo userMonthInfoTemp : userAllMedialDataList) {
-                    if (!CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(userMonthInfoTemp.getMediaid())) {
-                        // 获取所有特殊渠道 rewardCustomerNum 的和
-                        rewardCustomerNumSum += userMonthInfoTemp.getRewardCustomerNum();
-                        // 获取所有特殊渠道 baseCustomerNumSum 的和
-                        baseCustomerNumSum += userMonthInfoTemp.getBaseCustomerNum();
-                    }
-                }
-
-                if (rewardCustomerNum < rewardCustomerNumSum) {
-                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "月奖励数 不能小于 其他特殊渠道月奖励数之和");
-                }
-                if (baseCustomerNum < baseCustomerNumSum) {
-                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "月分配数 不能小于 其他特殊渠道月分配数之和");
-                }
-
-            } else {
-                // 特殊分配队列情况
-
-                Integer rewardCustomerNumSum = 0;
-                Integer baseCustomerNumSum = 0;
-                UserMonthInfo countMedia = null;
-                UserMonthInfo currentMedia = null;
-                for (UserMonthInfo userMonthInfoTemp : userAllMedialDataList) {
-                    if (CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(userMonthInfoTemp.getMediaid())) {
-                        countMedia = userMonthInfoTemp;
-                    } else if (mediaid.equals(userMonthInfoTemp.getMediaid())) {
-                        currentMedia = userMonthInfoTemp;
-                    } else {
-                        // 获取除去总分配队列、当前分配队列外的特殊渠道 rewardCustomerNum 的和
-                        rewardCustomerNumSum += userMonthInfoTemp.getRewardCustomerNum();
-                        // 获取除去总分配队列、当前分配队列外的特殊渠道 baseCustomerNumSum 的和
-                        baseCustomerNumSum += userMonthInfoTemp.getBaseCustomerNum();
-                    }
-                }
-
-                if (rewardCustomerNum > (countMedia.getRewardCustomerNum() - rewardCustomerNumSum)) {
-                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "月奖励数 不能大于 总分配队列-其他特殊渠道月奖励数后剩余的数");
-                }
-                if (baseCustomerNum > (countMedia.getBaseCustomerNum() - baseCustomerNumSum)) {
-                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "月分配数 不能大于 总分配队列-其他特殊渠道月分配数后剩余的数");
-                }
+            if (StringUtils.isBlank(effectiveDate) || !effectiveDate.matches("[0-9]{6}")) {
+                throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
             }
 
-            // 已分配数需要>月
-            Map<String, Object> allocateMap = new HashMap<>();
-            allocateMap.put("inOperation", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
-                    "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
-            List<Integer> userIds = new ArrayList<>();
-            userIds.add(userId);
-            allocateMap.put("newOwnerIds", userIds);
-            allocateMap.put("createBeginDate", DateUtils.getBeginDateByStr(effectiveDate));
-            allocateMap.put("operationsStr", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() + "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
-            allocateMap.put("createEndDate", DateUtils.getEndDateByStr(effectiveDate));
-            List<AllocateLog> allocateLogList = allocateLogService.selectByParamsMap(allocateMap);
+            Integer loginUserId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
 
-            if (allocateLogList.size() >= (baseCustomerNum + rewardCustomerNum)) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "月申请数和月奖励数之和需大于已分配数");
-            }
-
-            Integer updateUserId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-
-            UserMonthInfo whereParams = new UserMonthInfo();
-            whereParams.setUserId(userId);
-            whereParams.setEffectiveDate(effectiveDate);
-            whereParams.setCompanyid(companyid);
-            whereParams.setMediaid(mediaid);
-
-            UserMonthInfo valueParams = new UserMonthInfo();
-            valueParams.setLastUpdateUser(updateUserId);
-            valueParams.setBaseCustomerNum(baseCustomerNum);
-            valueParams.setRewardCustomerNum(rewardCustomerNum);
-            valueParams.setLastUpdateTime(new Date());
-
-            userMonthInfoService.updateUserMonthInfo(whereParams, valueParams);
+            userMonthInfoService.editUserMonthInfo(loginUserId, userId, companyid, mediaid, effectiveDate.trim(), baseCustomerNum, rewardCustomerNum);
 
             resultDto.setResult(CommonMessage.UPDATE_SUCCESS.getCode());
             resultDto.setMessage(CommonMessage.UPDATE_SUCCESS.getCodeDesc());
