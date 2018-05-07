@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,9 +23,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Api(description = "分配队列基本信息-控制器")
+@RequestMapping("/api/v1/companyMediaQueue")
 @RestController
-@Api(description = "分配队列控制器")
-@RequestMapping("/companyMediaQueue/v1")
 public class CompanyMediaQueueController {
 
     private static final Logger logger = LoggerFactory.getLogger(ResignCustomerController.class);

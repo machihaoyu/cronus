@@ -22,6 +22,7 @@ import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.CRMRedisHelp;
 import com.fjs.cronus.service.redis.CronusRedisService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -41,6 +42,7 @@ import java.util.*;
  * Created by yinzf on 2017/10/9.
  */
 @Controller
+@Api(description = "用户控制器")
 @RequestMapping("/uc/v1")
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
