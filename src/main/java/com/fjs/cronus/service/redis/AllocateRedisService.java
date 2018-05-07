@@ -5,6 +5,7 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.util.CommonUtil;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,7 +17,8 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * 自动分配队列Redis服务
@@ -162,52 +164,45 @@ public class AllocateRedisService {
     /**
      * 从队列尾部添加.
      */
-    public String addUserToAllocateTemplete2(Integer userId, Integer companyId, Integer medial, String effectiveDate) {
+    public void addUserToAllocateTemplete2(Integer userId, Integer companyId, Integer medial, String effectiveDate) {
         if (userId == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "userId 不能为null");
         }
 
-        String userIds = this.getAllocateTemplet2(companyId, medial, effectiveDate);
+        List<Integer> uiserIdList = this.getUserIdFromQueue(companyId, medial, effectiveDate);
 
-        List<String> uiserIdList = StringUtils.isBlank(userIds) ? new ArrayList<>() : this.splitter.splitToList(userIds);
-        if (!uiserIdList.contains(userId.toString())) uiserIdList.add(userId.toString());
-
-        String newValue = this.joiner.join(uiserIdList);
-
-        this.setAllocateTemplete2(newValue,  companyId,  medial,  effectiveDate);
-        return newValue;
+        if (!uiserIdList.contains(userId)) {
+            uiserIdList.add(userId);
+            this.flushUserIdToQueue(uiserIdList, companyId, medial, effectiveDate);
+        }
     }
 
     /**
      * 从队列移除用户
      */
-    public String delUserToAllocateTemplete2(Integer userId, Integer companyId, Integer medial, String effectiveDate) {
+    public void delUserToAllocateTemplete2(Integer userId, Integer companyId, Integer medial, String effectiveDate) {
         if (userId == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "userId 不能为null");
         }
 
-        String userIds = this.getAllocateTemplet2(companyId, medial, effectiveDate);
-        List<String> uiserIdList = StringUtils.isBlank(userIds) ? new ArrayList<>() : this.splitter.splitToList(userIds);
-        if (uiserIdList.contains(userId.toString())) uiserIdList.remove(userId.toString());
-
-        String newValue = this.joiner.join(uiserIdList);
-
-        this.setAllocateTemplete2(newValue,  companyId,  medial,  effectiveDate);
-        return newValue;
+        List<Integer> uiserIdList = this.getUserIdFromQueue(companyId, medial, effectiveDate);
+        if (uiserIdList.contains(userId)) {
+            uiserIdList.remove(userId);
+            this.flushUserIdToQueue(uiserIdList, companyId, medial, effectiveDate);
+        }
     }
 
     /**
      * 从队列中获取all.
      */
-    public List<Integer> finaAllFromQueue(Integer companyId, Integer medial, String effectiveDate){
-        String userIds = this.getAllocateTemplet2(companyId, medial, effectiveDate);
-        return StringUtils.isBlank(userIds) ? new ArrayList<>() : this.splitter.splitToList(userIds).stream().map(Integer::valueOf).collect(Collectors.toList());
+    public List<Integer> finaAllFromQueue(Integer companyId, Integer medial, String effectiveDate) {
+        return this.getUserIdFromQueue(companyId, medial, effectiveDate);
     }
 
     /**
      * 删除队列.
      */
-    public void delCompanyMediaQueueRedisQueue(Integer companyId, Integer medial, String effectiveDate){
+    public void delCompanyMediaQueueRedisQueue(Integer companyId, Integer medial, String effectiveDate) {
         String key = this.getKey(companyId, medial, effectiveDate);
         redisAllocateTemplete.delete(key);
     }
@@ -229,18 +224,42 @@ public class AllocateRedisService {
         return CommonRedisConst.ALLOCATE_LIST.concat("$").concat(companyId.toString()).concat("$").concat(medial.toString()).concat("$").concat(effectiveDate);
     }
 
-    private String getAllocateTemplet2(Integer companyId, Integer medial, String effectiveDate) {
+    /**
+     * 获取队列中，员工id.
+     */
+    private List<Integer> getUserIdFromQueue(Integer companyId, Integer medial, String effectiveDate) {
         String key = this.getKey(companyId, medial, effectiveDate);
+
         redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
         ValueOperations<String, String> redisAllocateOptions = redisAllocateTemplete.opsForValue();
-        return redisAllocateOptions.get(key);
+
+        List<Integer> userIds = new ArrayList<>();
+        String s = redisAllocateOptions.get(key);
+        if (StringUtils.isNotEmpty(s)) {
+            List<String> temp = this.splitter.splitToList(s);
+            userIds = CollectionUtils.isEmpty(temp) ? new ArrayList<>() : temp.stream().map(Integer::parseInt).collect(toList());
+        }
+
+        return userIds;
     }
 
-    private String setAllocateTemplete2(String value, Integer companyId, Integer medial, String effectiveDate) {
+    /**
+     * 设置队列员工id.
+     */
+    private void flushUserIdToQueue(List<Integer> userIds, Integer companyId, Integer medial, String effectiveDate) {
         String key = this.getKey(companyId, medial, effectiveDate);
+
         redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
         ValueOperations<String, String> redisAllocateOptions = redisAllocateTemplete.opsForValue();
-        redisAllocateOptions.set(key, value, 90, TimeUnit.DAYS);
-        return value;
+
+        if (CollectionUtils.isNotEmpty(userIds)) {
+            String value = this.joiner.join(userIds);
+            if (StringUtils.isNotEmpty(value)) {
+                redisAllocateOptions.set(key, value, 100, TimeUnit.DAYS);
+            }
+        }
     }
+
+
+
 }
