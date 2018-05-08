@@ -10,7 +10,6 @@ import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.CityDto;
 import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
-import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.CrmCitySubCompanyDto;
 import com.fjs.cronus.dto.uc.LightUserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
@@ -21,7 +20,6 @@ import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.UserInfoRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;
-import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DateUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,9 +30,8 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.*;
 
 /**
  * Created by yinzf on 2017/10/20.
@@ -135,7 +132,7 @@ public class UserService {
         // 1、db中的数据 ----赋值---> userMonthInfoDTOList
         // 2、未设置值的数据需要入库db
         List<UserMonthInfo> toAddUserMonthInfoList = new ArrayList<>();
-        Map<Integer, List<UserMonthInfo>> userIdMappingData = CollectionUtils.isEmpty(userMonthInfoList) ? new HashMap<>() : userMonthInfoList.stream().collect(Collectors.groupingBy(UserMonthInfo::getUserId));
+        Map<Integer, List<UserMonthInfo>> userIdMappingData = CollectionUtils.isEmpty(userMonthInfoList) ? new HashMap<>() : userMonthInfoList.stream().collect(groupingBy(UserMonthInfo::getUserId));
         Date now = new Date();
 
         for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
@@ -194,7 +191,7 @@ public class UserService {
         allocateMap.put("createBeginDate", DateUtils.getBeginDateByStr(effectiveDate));
         allocateMap.put("createEndDate", DateUtils.getEndDateByStr(effectiveDate));
         List<AllocateLog> allocateLogList = allocateLogService.selectByParamsMap(allocateMap);
-        Map<Integer, Long> newOwnerIdMappingCount = CollectionUtils.isEmpty(allocateLogList) ? new HashMap<>() : allocateLogList.stream().collect(Collectors.groupingBy(AllocateLog::getNewOwnerId, Collectors.counting()));
+        Map<Integer, Long> newOwnerIdMappingCount = CollectionUtils.isEmpty(allocateLogList) ? new HashMap<>() : allocateLogList.stream().collect(groupingBy(AllocateLog::getNewOwnerId, counting()));
 
         // 获取计算<有效数>的数据源
         Map<String, Object> userFullSelectMap = new HashMap<>();
@@ -206,7 +203,7 @@ public class UserService {
             userFullSelectMap.put("inLoanId", newOwnerIdMappingCount.keySet());
         }
         List<CustomerUseful> customerUsefulList = customerUsefulService.countByMap(userFullSelectMap);
-        Map<Integer, Long> createUserMappingCount = CollectionUtils.isEmpty(customerUsefulList) ? new HashMap<>() : customerUsefulList.stream().collect(Collectors.groupingBy(CustomerUseful::getCreateUser, Collectors.counting()));
+        Map<Integer, Long> createUserMappingCount = CollectionUtils.isEmpty(customerUsefulList) ? new HashMap<>() : customerUsefulList.stream().collect(groupingBy(CustomerUseful::getCreateUser, counting()));
 
         for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
             // <已分配数>
@@ -224,7 +221,7 @@ public class UserService {
         // 组装界面需要的数据结构
         return userMonthInfoDTOList.parallelStream()
                 .filter(item -> item != null && StringUtils.isNotEmpty(item.getDepartmentName()))
-                .collect(Collectors.groupingBy(UserMonthInfoDTO::getDepartmentName, Collectors.toList()));
+                .collect(groupingBy(UserMonthInfoDTO::getDepartmentName, toList()));
     }
 
     public List<PhpDepartmentModel> getSubCompanys(String token, Integer companyId) {

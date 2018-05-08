@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.*;
 
 /**
  * 单位、媒体的队列表；一级吧、媒体的队列表 service.
@@ -45,7 +45,7 @@ public class CompanyMediaQueueService {
         List<Map<String, Object>> result = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(companyMediaQueueList)) {
 
-            Set<Integer> mediaIds = companyMediaQueueList.stream().map(CompanyMediaQueue::getMediaid).collect(Collectors.toSet());
+            Set<Integer> mediaIds = companyMediaQueueList.stream().map(CompanyMediaQueue::getMediaid).collect(toSet());
 
             // 获取媒体的name
             if (CollectionUtils.isNotEmpty(mediaIds)) {
@@ -82,7 +82,7 @@ public class CompanyMediaQueueService {
 
         // 获取指定一级吧其下的特殊队列; 去重（已存在不予创建）
         List<CompanyMediaQueue> companyMediaQueueList = companyMediaQueueMapper.findByCompanyId(Integer.valueOf(companyid), CommonEnum.entity_status1.getCode());
-        Set<Integer> mediaIdsDB = CollectionUtils.isEmpty(companyMediaQueueList) ? new HashSet<>() : companyMediaQueueList.stream().map(CompanyMediaQueue::getMediaid).collect(Collectors.toSet());
+        Set<Integer> mediaIdsDB = CollectionUtils.isEmpty(companyMediaQueueList) ? new HashSet<>() : companyMediaQueueList.stream().map(CompanyMediaQueue::getMediaid).collect(toSet());
         Collection subtract = CollectionUtils.subtract(mediaIds, mediaIdsDB);
 
         // 准备入库数据
