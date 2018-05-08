@@ -5,6 +5,7 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.util.CommonUtil;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import io.swagger.models.auth.In;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +15,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -200,6 +204,19 @@ public class AllocateRedisService {
     }
 
     /**
+     * 将用户移到队列尾部.
+     */
+    public  void pushUserId2QueueEnd(Integer companyId, Integer medial, String effectiveDate, Integer userId) {
+        if (userId == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "userId 不能为null");
+        }
+        List<Integer> userIdList = this.getUserIdFromQueue(companyId, medial, effectiveDate);
+        userIdList.remove(userId);
+        userIdList.add(userId);
+        this.flushUserIdToQueue(userIdList, companyId, medial, effectiveDate);
+    }
+
+    /**
      * 删除队列.
      */
     public void delCompanyMediaQueueRedisQueue(Integer companyId, Integer medial, String effectiveDate) {
@@ -237,7 +254,7 @@ public class AllocateRedisService {
         String s = redisAllocateOptions.get(key);
         if (StringUtils.isNotEmpty(s)) {
             List<String> temp = this.splitter.splitToList(s);
-            userIds = CollectionUtils.isEmpty(temp) ? new ArrayList<>() : temp.stream().map(Integer::parseInt).collect(toList());
+            userIds = CollectionUtils.isEmpty(temp) ? new ArrayList<>() : temp.stream().map(Integer::new).collect(toList());
         }
 
         return userIds;
@@ -260,6 +277,26 @@ public class AllocateRedisService {
         }
     }
 
+    /**
+     * 获取队列当月的，时间串.
+     */
+    public String getCurrentMonthStr(){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+        return sdf.format(new Date());
+    }
 
+    /**
+     * 获取队列下月的，时间串.
+     */
+    public String getNextMonthStr(){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+
+        Calendar instance = Calendar.getInstance();
+        Date currentMoth = instance.getTime();
+        instance.add(Calendar.MONTH, 1);
+        Date nextMoth = instance.getTime();
+
+        return sdf.format(nextMoth);
+    }
 
 }

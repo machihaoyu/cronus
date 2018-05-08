@@ -6,6 +6,7 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.UserMonthInfo;
+import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.CRMRedisHelp;
 import com.fjs.cronus.util.DateUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -33,6 +34,9 @@ public class UserMonthInfoService {
     @Autowired
     private CRMRedisHelp cRMRedisHelp;
 
+    @Autowired
+    private AllocateRedisService allocateRedisService;
+
     public List<UserMonthInfo> selectByParamsMap(Map<String, Object> map) {
         return userMonthInfoMapper.selectByParamsMap(map);
     }
@@ -53,15 +57,9 @@ public class UserMonthInfoService {
 
         Date now = new Date();
         // 获取当月、下月的effective_date
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
 
-        Calendar instance = Calendar.getInstance();
-        Date currentMoth = instance.getTime();
-        instance.add(Calendar.MONTH, 1);
-        Date nextMoth = instance.getTime();
-
-        String currentMothStr = sdf.format(currentMoth);
-        String nextMothfStr = sdf.format(nextMoth);
+        String currentMothStr = allocateRedisService.getCurrentMonthStr();
+        String nextMothfStr = allocateRedisService.getNextMonthStr();
 
         // 获取指定公司、所有有媒体、下月的分配数
         UserMonthInfo whereParams3 = new UserMonthInfo();
@@ -210,14 +208,14 @@ public class UserMonthInfoService {
                 }
             }
 
-            // 业务校验： 当月已分配数需要 > 月
+            // 业务校验： 当月申请数需要 > 已分配数
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
             Date targetDate = null;
             Date nowDate = null;
 
             try {
                 targetDate = sdf.parse(effectiveDate);
-                sdf.parse(sdf.format(new Date()));
+                nowDate = sdf.parse(sdf.format(new Date()));
             } catch (ParseException e) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "effectiveDate 时间转换错误");
             }
