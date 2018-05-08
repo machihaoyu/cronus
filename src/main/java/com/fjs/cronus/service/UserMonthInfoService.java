@@ -262,7 +262,7 @@ public class UserMonthInfoService {
             this.updateUserMonthInfo(whereParams, valueParams);
 
             // 在20秒内未完成运算，视为失败；事务回滚；redis解锁
-            long l = System.currentTimeMillis() - startTime;
+            long l = cRMRedisHelp.getCurrentTimeFromRedisServicer() - startTime;
             if (l > 20 * 1000) {
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "服务超时");
             }
@@ -273,6 +273,8 @@ public class UserMonthInfoService {
             // redis解锁
             cRMRedisHelp.unlockForSetNx(key, startTime);
         }
+
+
     }
 
 }
