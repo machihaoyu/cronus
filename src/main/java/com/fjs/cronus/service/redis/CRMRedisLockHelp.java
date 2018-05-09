@@ -121,8 +121,8 @@ public class CRMRedisLockHelp {
     /**
      * 解锁.
      */
-    public void unlockForSetNx(String lockKey, String flag) {
-        this.unlockForSetNx(lockKey, flag, this.getRedisScript(UNLOCK_LU_SCRIPT));
+    public boolean unlockForSetNx(String lockKey, String flag) {
+        return this.unlockForSetNx(lockKey, flag, this.getRedisScript(UNLOCK_LU_SCRIPT));
     }
 
     /**
