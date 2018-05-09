@@ -311,6 +311,57 @@ public class UserController {
         return null;
     }
 
+
+    @ApiOperation(value = "listSet", notes = "获取用户可操作的分公司")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")
+    })
+    @RequestMapping(value = "/listSet", method = RequestMethod.GET)
+    @ResponseBody
+    public TheaApiDTO<List<CrmCitySubCompanyDto>> listSet(
+            HttpServletRequest request
+    ) {
+        TheaApiDTO<List<CrmCitySubCompanyDto>> resultDTO = new TheaApiDTO<>();
+        allocateRedisService.listFlush();
+        try {
+            resultDTO.setResult(ResultDescription.CODE_SUCCESS);
+            resultDTO.setMessage(ResultDescription.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("-----------查询用户可操作的分公司失败！！--------" + e);
+            resultDTO.setData(null);
+            resultDTO.setResult(ResultDescription.CODE_FAIL);
+            resultDTO.setMessage(e.getMessage());
+        }
+        return null;
+    }
+
+    @ApiOperation(value = "listSet", notes = "获取用户可操作的分公司")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")
+    })
+    @RequestMapping(value = "/listGet", method = RequestMethod.GET)
+    @ResponseBody
+    public TheaApiDTO listGet(
+            HttpServletRequest request
+    ) {
+        TheaApiDTO resultDTO = new TheaApiDTO<>();
+
+        try {
+            resultDTO.setData(allocateRedisService.listget());
+            resultDTO.setResult(ResultDescription.CODE_SUCCESS);
+            resultDTO.setMessage(ResultDescription.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("-----------查询用户可操作的分公司失败！！--------" + e);
+            resultDTO.setData(null);
+            resultDTO.setResult(ResultDescription.CODE_FAIL);
+            resultDTO.setMessage(e.getMessage());
+        }
+        return resultDTO;
+    }
+
+
     @ApiOperation(value = "添加用户至自动分配队列", notes = "根据城市添加用户至自动分配队列")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")

@@ -1,14 +1,19 @@
 package com.fjs.cronus.service.redis;
 
 import com.fjs.cronus.Common.CommonRedisConst;
+import com.fjs.cronus.dto.avatar.AvatarApiDTO;
+import com.fjs.cronus.dto.avatar.FirstBarDTO;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.service.client.AvatarClientService;
 import com.fjs.cronus.util.CommonUtil;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.sun.javafx.binding.IntegerConstant;
 import io.swagger.models.auth.In;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -16,10 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.*;
@@ -33,7 +35,13 @@ public class AllocateRedisService {
 
 
     @Resource
-    RedisTemplate<String, String> redisAllocateTemplete;
+    private RedisTemplate<String, String> redisAllocateTemplete;
+
+    @Resource
+    private AvatarClientService avatarClientService;
+
+    @Resource
+    private CRMRedisLockHelp cRMRedisLockHelp;
 
     /**
      * 切割器.
@@ -299,4 +307,104 @@ public class AllocateRedisService {
         return sdf.format(nextMoth);
     }
 
+    /**
+     * 根据城市id，获取一级吧.
+     */
+    public Integer getSubCompanyIdFromQueue(String token, String cityName){
+        String subCompanyId = null;
+        if (StringUtils.isNotBlank(cityName) && StringUtils.isNotBlank(token)) {
+
+            redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
+            redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
+            ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+
+            // 目标数据缓存key
+            String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityName);
+
+            // 保证原子性加锁
+            String lockKey = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("lock");
+            Long lockToken = cRMRedisLockHelp.lockBySetNX(lockKey);
+            if (listOperations.size(key) > 0) {
+                // 当缓存中有，取出然后移到queue尾部
+                subCompanyId = listOperations.leftPop(key);
+                listOperations.rightPush(key, subCompanyId);
+            } else {
+                // 当缓存无，去库中去并放入到缓存中
+                Map<String, List<Integer>> subCompanyByCityName = this.findSubCompanyByCityName(token, cityName);
+                for (Map.Entry<String, List<Integer>> entry : subCompanyByCityName.entrySet()) {
+                    String cityNameTemp = entry.getKey();
+                    List<Integer> subCompanyIdList = entry.getValue();
+                    Set<String> subCompanyIdList2 = subCompanyIdList == null ? new HashSet<>() : subCompanyIdList.stream().filter(item -> item != null).map(String::valueOf).collect(toSet());
+
+                    if (cityName.equals(cityNameTemp) && CollectionUtils.isNotEmpty(subCompanyIdList2)) {
+                        subCompanyId = subCompanyIdList2.iterator().next(); // 取出1个
+                        listOperations.leftPushAll(CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityNameTemp), subCompanyIdList2);
+                        break;
+                    }
+                }
+            }
+            this.cRMRedisLockHelp.unlockForSetNx2(lockKey, lockToken);
+        }
+        return StringUtils.isBlank(subCompanyId) ? null : Integer.valueOf(subCompanyId);
+    }
+
+    public static void main(String[] args) {
+        List<Integer> subCompanyIdList = new ArrayList<>();
+        subCompanyIdList.add(Integer.valueOf(1));
+        subCompanyIdList.add(Integer.valueOf(2));
+        subCompanyIdList.add(Integer.valueOf(3));
+        subCompanyIdList.add(Integer.valueOf(1));
+        System.out.println(subCompanyIdList);
+        HashSet<Integer> integers = new HashSet<>(subCompanyIdList);
+        System.out.println(integers);
+        integers.remove(Integer.valueOf(1));
+        System.out.println(integers);
+    }
+
+    /**
+     * 获取所有一级吧.
+     */
+    public Map<String, List<Integer>> findSubCompanyByCityName(String token, String city) {
+        if (StringUtils.isNotBlank(city) && StringUtils.isNotBlank(token)) {
+            // 获取所有一级吧
+            AvatarApiDTO<List<FirstBarDTO>> allSubCompany = avatarClientService.findAllSubCompany(token);
+            List<FirstBarDTO> data = null;
+            if (allSubCompany.getResult() == 0 && allSubCompany.getData() != null) {
+                data = allSubCompany.getData();
+            }
+            Map<String, List<Integer>> cityNameMappingSubCompanyId = CollectionUtils.isEmpty(data) ? new HashMap<>() : data.stream().collect(groupingBy(FirstBarDTO::getCity, mapping(FirstBarDTO::getId, toList())));
+            if (cityNameMappingSubCompanyId == null ) cityNameMappingSubCompanyId = new HashMap<>();
+            return cityNameMappingSubCompanyId;
+        }
+        return new HashMap<>();
+    }
+
+
+    public void listFlush(){
+        redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
+        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
+        ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+        String key = "listSuCompany上海";
+
+
+        List<String> list = new ArrayList<>();
+        list.add("a");
+        list.add("b");
+        list.add("c");
+        list.add("d");
+        //listOperations.leftPushAll(key, list);
+
+
+        Long size = listOperations.size(key);
+        System.out.println(size);
+    }
+
+    public String listget(){
+        redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
+        ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+        String key = "listSuCompany上海";
+        String s = listOperations.leftPop(key);
+        System.out.println(s);
+        return s;
+    }
 }

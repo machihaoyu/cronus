@@ -270,9 +270,7 @@ public class UserMonthInfoService {
             throw e;
         } finally {
             // redis解锁
-            if (lockToken != null) {
-                cRMRedisLockHelp.unlockForSetNx(key, lockToken.toString());
-            }
+            this.cRMRedisLockHelp.unlockForSetNx2(key, lockToken);
         }
 
 

@@ -20,6 +20,13 @@ public class CommonRedisConst {
     public static String ALLOCATE_LIST ="listAllocate";
 
     /**
+     * 具体某个城市下，所以一级吧queue缓存key前缀.
+     * 完整 "listAllocate上海"
+     * 永久储存
+     */
+    public static String ALLOCATE_SUBCOMPANYID ="listAllocateSubCompany";
+
+    /**
      * 用户下属人员的ID集
      * 完整key：MySubUserId_1
      * 备注:需设置缓存更新时间
@@ -41,5 +48,9 @@ public class CommonRedisConst {
      * 备注:需设置缓存更新时间
      */
     public static String ROLE_INFO = "roleInfo_";
+
+    public static void main(String[] args) {
+        String str = "abc";
+    }
 
 }

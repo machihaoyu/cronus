@@ -126,6 +126,15 @@ public class CRMRedisLockHelp {
     }
 
     /**
+     * 解锁.
+     */
+    public void unlockForSetNx2(String lockKey, Long lockToken) {
+        if (StringUtils.isNotBlank(lockKey) && lockToken != null) {
+            this.unlockForSetNx(lockKey, lockToken.toString());
+        }
+    }
+
+    /**
      * 解锁:通过redis lua 脚本方式实现解锁.
      */
     private boolean unlockForSetNx(String key, String lockToken, RedisScript<String> redisScript) {

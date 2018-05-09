@@ -8,7 +8,11 @@ import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
+import com.fjs.cronus.dto.avatar.AvatarApiDTO;
+import com.fjs.cronus.dto.avatar.FirstBarDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
+import com.fjs.cronus.dto.loan.TheaApiDTO;
+import com.fjs.cronus.dto.thea.BaseChannelDTO;
 import com.fjs.cronus.dto.thea.WorkDayDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.CrmUserDTO;
@@ -16,9 +20,11 @@ import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.enums.AllocateEnum;
 import com.fjs.cronus.enums.AllocateSource;
+import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UserMonthInfo;
+import com.fjs.cronus.service.client.AvatarClientService;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
@@ -102,6 +108,9 @@ public class AutoAllocateService {
     @Autowired
     private TheaService theaService;
 
+    @Autowired
+    private AvatarClientService avatarClientService;
+
     /**
      * 判断是不是客户主动申请渠道
      *
@@ -134,6 +143,9 @@ public class AutoAllocateService {
             if ( ( customerDTO.getId() == null || customerDTO.getId().equals(0) ) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
                 // TODO lihong 商机系统分支
                 // 规则：1、新用户；2、在有效城市范围内
+
+                BaseChannelDTO baseChannelDTO = this.getChannelInfoByChannelName(customerDTO.getUtmSource());
+                allocateEntity.setAllocateStatus(this.allocateForAvatar(token, allocateSource, customerDTO, baseChannelDTO));
 
             }if (StringUtils.isNotEmpty(ownerUser.getUser_id())) { // 存在这个在职负责人
                 customerDTO.setOwnerUserId(Integer.valueOf(ownerUser.getUser_id()));
@@ -284,6 +296,18 @@ public class AutoAllocateService {
     }
 
     /**
+     * 商机系统分配规则.
+     */
+    private AllocateEnum allocateForAvatar(String token, AllocateSource allocateSource, CustomerDTO customerDTO, BaseChannelDTO baseChannelDTO) {
+
+        // 根据城市获取一级吧（队列获取）
+        // 业务：循环所对应的一级吧queue，找到就使用，未找商机系统规则就算走完
+        Integer subCompanyId = null;
+
+        return null;
+    }
+
+    /**
      * 主动申请渠道添加交易
      * @param customerDTO
      * @param token
@@ -301,6 +325,27 @@ public class AutoAllocateService {
         loanDTO.setUtmSource("自申请");
         return theaClientService.insertLoan(loanDTO, token);
 //        }
+    }
+
+    /**
+     * 根据渠道获取渠道基本信息（目的获取来源id、媒体id）.
+     */
+    private BaseChannelDTO getChannelInfoByChannelName(String UtmSource) {
+        JSONObject params = new JSONObject();
+        params.put("channelName", UtmSource);
+        TheaApiDTO<BaseChannelDTO> infoByChannelName = theaService.getInfoByChannelName(params);
+
+        BaseChannelDTO result = new BaseChannelDTO();
+        if (infoByChannelName.getResult() == 0 && infoByChannelName.getData() != null){
+            result = infoByChannelName.getData();
+        }
+        if (result == null || result.getSource_id() == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "Source_id 不能为null");
+        }
+        if (result.getMedia_id() == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "Media_id 不能为null");
+        }
+        return result;
     }
 
     private void sendMessage(String customerName, Integer toId, SimpleUserInfoDTO ownerUser, String token) {
