@@ -1,7 +1,9 @@
 package com.fjs.cronus.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.fjs.cronus.Common.*;
+import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.Common.CommonMessage;
+import com.fjs.cronus.Common.ResultDescription;
 import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.EditAllocateDTO;
@@ -20,7 +22,6 @@ import com.fjs.cronus.service.UserMonthInfoService;
 import com.fjs.cronus.service.UserService;
 import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
-import com.fjs.cronus.service.redis.CRMRedisHelp;
 import com.fjs.cronus.service.redis.CronusRedisService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -35,7 +36,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 员工的相关信息
@@ -69,8 +72,6 @@ public class UserController {
     @Autowired
     private CronusRedisService cronusRedisService;
 
-    @Autowired
-    private CRMRedisHelp cRMRedisLock;
 
     @ApiOperation(value = "得到下属员工", notes = "得到下属员工")
     @ApiImplicitParams({

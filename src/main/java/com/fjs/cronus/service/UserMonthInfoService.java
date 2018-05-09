@@ -7,7 +7,7 @@ import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.UserMonthInfo;
 import com.fjs.cronus.service.redis.AllocateRedisService;
-import com.fjs.cronus.service.redis.CRMRedisHelp;
+import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import com.fjs.cronus.util.DateUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class UserMonthInfoService {
     private UserMonthInfoMapper userMonthInfoMapper;
 
     @Autowired
-    private CRMRedisHelp cRMRedisHelp;
+    private CRMRedisLockHelp cRMRedisLockHelp;
 
     @Autowired
     private AllocateRedisService allocateRedisService;
@@ -144,9 +144,10 @@ public class UserMonthInfoService {
         // redis锁
         // key结构：UserMonthInfo、companyid、mediaid
         String key = "UserMonthInfo".concat("$").concat(companyid.toString()).concat("$").concat(mediaid.toString());
-        Long startTime = cRMRedisHelp.getLockBySetNX(key);
 
+        Long lockToken = null;
         try {
+            lockToken = cRMRedisLockHelp.lockBySetNX(key);
             // ===== 业务校验 =====
             // 总分配队列新增不用校验
             // 减少情况
@@ -260,7 +261,7 @@ public class UserMonthInfoService {
             this.updateUserMonthInfo(whereParams, valueParams);
 
             // 在20秒内未完成运算，视为失败；事务回滚；redis解锁
-            long l = cRMRedisHelp.getCurrentTimeFromRedisServicer() - startTime;
+            long l = cRMRedisLockHelp.getCurrentTimeFromRedisServicer() - lockToken;
             if (l > 20 * 1000) {
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "服务超时");
             }
@@ -269,7 +270,9 @@ public class UserMonthInfoService {
             throw e;
         } finally {
             // redis解锁
-            cRMRedisHelp.unlockForSetNx(key, startTime);
+            if (lockToken != null) {
+                cRMRedisLockHelp.unlockForSetNx(key, lockToken.toString());
+            }
         }
 
 
