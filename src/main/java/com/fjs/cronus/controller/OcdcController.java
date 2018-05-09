@@ -1,6 +1,7 @@
 package com.fjs.cronus.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.crm.OcdcData;
 import com.fjs.cronus.dto.crm.ResponseData;
@@ -16,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 客户
@@ -176,6 +179,31 @@ public class OcdcController {
     public String autoClean(@RequestHeader("Authorization") String token) {
 
         return autoCleanService.autoClean(token);
+    }
+
+    @ApiOperation(value = "获取时间范围内客户", notes = "获取时间范围内客户")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", dataType = "string"),
+            @ApiImplicitParam(name = "start", value = "start", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "end", value = "end", required = true, paramType = "query", dataType = "String")
+    })
+    @RequestMapping(value = "/getCustomerPhone", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<List<String>> getCustomerPhone(@RequestHeader("Authorization") String token, @RequestParam(value = "start", required = false) String start,
+                                 @RequestParam(value = "end", required = false) String end) {
+
+        CronusDto<List<String>> cronusDto = new CronusDto();
+        try {
+            cronusDto.setData(ocdcService.getCustomerPhone(start, end));
+            cronusDto.setResult(CommonMessage.SUCCESS.getCode());
+            cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+        }
+        catch (Exception e)
+        {
+            cronusDto.setResult(CommonMessage.FAIL.getCode());
+            cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
+        }
+        return cronusDto;
     }
 
 }

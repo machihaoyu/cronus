@@ -2,9 +2,11 @@ package com.fjs.cronus.mappers;
 
 import com.fjs.cronus.dto.CustomerBasicDTO;
 import com.fjs.cronus.dto.CustomerPartDTO;
+import com.fjs.cronus.model.CommunicationLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.util.MyMapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.HashMap;
 import java.util.List;
@@ -102,4 +104,8 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
     CustomerPartDTO selectCustomerDTOByPhone(@Param("phone") String phone);
 
     CustomerBasicDTO selectCustomerById(@Param("id") Integer id);
+
+
+    @Select("SELECT c.telephonenumber from customer_info c where c.create_time BETWEEN #{start} and #{end}")
+    List<String> getCustomerPhone(@Param("start") String start, @Param("end") String end);
 }

@@ -648,5 +648,19 @@ public class OcdcService {
         else return false;
     }
 
+    /*
+    * 获取时间范围内客户手机号
+    * */
+    public List<String> getCustomerPhone(String start, String end)
+    {
+        List<String> newPhones = new ArrayList<>();
+        List<String> ts = customerInfoMapper.getCustomerPhone(start,end);
+        for (String ph:
+             ts) {
+            newPhones.add(DEC3Util.des3DecodeCBC(ph));
+        }
+        return newPhones;
+    }
+
 
 }
