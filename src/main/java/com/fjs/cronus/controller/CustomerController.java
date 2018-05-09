@@ -9,6 +9,7 @@ import com.fjs.cronus.dto.CustomerBasicDTO;
 import com.fjs.cronus.dto.CustomerPartDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.api.WalletApiDTO;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.customer.CustomerCountDTO;
@@ -1164,17 +1165,16 @@ public class CustomerController {
     })
     @RequestMapping(value = "/queryCustomerInfo", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<CustomerPartDTO> queryCustomerInfo(@RequestParam(value = "phone",required = true) String phone){
-        CronusDto<CustomerPartDTO> theaApiDTO = new CronusDto<>();
+    public WalletApiDTO<CustomerPartDTO> queryCustomerInfo(@RequestParam(value = "phone",required = true) String phone){
+        WalletApiDTO<CustomerPartDTO> theaApiDTO = new WalletApiDTO<>();
         if (StringUtils.isEmpty(phone)){
-            theaApiDTO.setResult(CommonMessage.FAIL.getCode());
-            theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc()+",手机号码不能为空");
+            theaApiDTO.setCode(Integer.valueOf(CronusException.Type.CRM_PARAMS_ERROR.getStatus()));
+            theaApiDTO.setMsg(CronusException.Type.CRM_PARAMS_ERROR.getError());
             return theaApiDTO;
         }
 
         theaApiDTO.setData(customerInfoService.selectCustomerDTOByPhone(phone));
-        theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
-        theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+        theaApiDTO.setMsg(CommonMessage.SUCCESS.getCodeDesc());
         return theaApiDTO;
     }
 
