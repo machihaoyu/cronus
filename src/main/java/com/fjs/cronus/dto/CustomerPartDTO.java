@@ -17,7 +17,6 @@ public class CustomerPartDTO implements Serializable {
 
     private String utmSource;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date createTime;
 
     public Integer getId() {
