@@ -364,7 +364,6 @@ public class AutoAllocateService {
             if (temp != null && !startSubCompanyId.equals(temp)){
                 return this.getSubCompanyIdFromQueue(token, cityName, false, startSubCompanyId, temp);
             }
-            // 正常情况下，是不会是null,除非缓存被意外动过
             return null;
         }
     }
@@ -392,9 +391,8 @@ public class AutoAllocateService {
             if (temp != null && !startSalesmanId.equals(temp)){
                 return this.getSalesmanId(subCompanyId, mediaId, currentMonthStr, false, startSalesmanId, temp);
             }
+            return null;
         }
-        // 正常情况下，是不会是null,除非缓存被意外动过
-        return null;
     }
 
     /**
