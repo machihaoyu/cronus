@@ -111,6 +111,9 @@ public class AutoAllocateService {
     @Autowired
     private AvatarClientService avatarClientService;
 
+    @Autowired
+    private CompanyMediaQueueService companyMediaQueueService;
+
     /**
      * 判断是不是客户主动申请渠道
      *

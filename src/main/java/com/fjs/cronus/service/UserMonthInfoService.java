@@ -135,7 +135,11 @@ public class UserMonthInfoService {
         }
 
         // 数据入库
-        o = CollectionUtils.isEmpty(list) ? null : this.insertList(list);
+        if ( CollectionUtils.isNotEmpty(list) ){
+            this.insertList(list);
+            // 拷贝redis队列
+            allocateRedisService.copyCurrentMonthQueue(companyid, mediaId);
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRED,rollbackFor = Exception.class)

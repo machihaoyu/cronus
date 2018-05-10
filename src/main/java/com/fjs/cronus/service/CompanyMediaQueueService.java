@@ -131,14 +131,7 @@ public class CompanyMediaQueueService {
         userMonthInfoService.updateUserMonthInfo(whereParamsUserMonthInfo, valueParamsUserMonthInfo);
 
         // 删除Redis队列
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
-
-        Calendar instance = Calendar.getInstance();
-        Date currentMoth = instance.getTime();
-        allocateRedisService.delCompanyMediaQueueRedisQueue(companyid, mediaId, sdf.format(currentMoth)); // 删除当月队列
-
-        instance.add(Calendar.MONTH, 1);
-        Date nextMoth = instance.getTime();
-        allocateRedisService.delCompanyMediaQueueRedisQueue(companyid, mediaId, sdf.format(nextMoth)); // 删除下月队列
+        allocateRedisService.delCompanyMediaQueueRedisQueue(companyid, mediaId, allocateRedisService.getCurrentMonthStr()); // 删除当月队列
+        allocateRedisService.delCompanyMediaQueueRedisQueue(companyid, mediaId, allocateRedisService.getNextMonthStr()); // 删除下月队列
     }
 }

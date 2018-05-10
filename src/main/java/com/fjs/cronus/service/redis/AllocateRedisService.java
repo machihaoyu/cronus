@@ -290,6 +290,30 @@ public class AllocateRedisService {
     }
 
     /**
+     * 媒体业务员queue：复制当前队列到下月.
+     */
+    public void copyCurrentMonthQueue(Integer companyId, Integer medial){
+
+        String currentMonthStr = this.getCurrentMonthStr();
+        String nextMonthStr = this.getNextMonthStr();
+
+        if (companyId != null && medial != null && StringUtils.isNotBlank(currentMonthStr) && StringUtils.isNotBlank(nextMonthStr)) {
+
+            redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
+            redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
+            ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+
+            String currentMonthQueueKey = this.getKey(companyId, medial, currentMonthStr);
+            String nextMonthQueueKey = this.getKey(companyId, medial, nextMonthStr);
+
+            List<String> currentMonthQueue = listOperations.range(currentMonthQueueKey, 0, -1);
+            List<String> nextMonthQueue = currentMonthQueue.stream().filter(item -> StringUtils.isNotBlank(item)).collect(toList());
+
+            Long aLong = CollectionUtils.isEmpty(nextMonthQueue) ? null : listOperations.leftPushAll(nextMonthQueueKey, nextMonthQueue);
+        }
+    }
+
+    /**
      * 城市一级吧queue：根据城市id，获取一级吧.
      */
     public Integer getSubCompanyIdFromQueue(String token, String cityName){
