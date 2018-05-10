@@ -139,14 +139,21 @@ public class AutoAllocateService {
 
             boolean allocateToPublic = this.isAllocateToPublic(customerDTO.getUtmSource()); // 根据渠道，判断是否需要自动分配
 
+            Integer subCompanyIdBox = null; // 一级吧id
+            Integer salesmanIdBox = null;   // 业务员id
+            BaseChannelDTO baseChannelDTO = null; // 来源、媒体、渠道
+
             // 分配规则
             if ( ( customerDTO.getId() == null || customerDTO.getId().equals(0) ) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
-                // TODO lihong 商机系统分支
+                // 商机系统分支
                 // 规则：1、新用户；2、在有效城市范围内
 
-                BaseChannelDTO baseChannelDTO = this.getChannelInfoByChannelName(customerDTO.getUtmSource());
-                allocateEntity.setAllocateStatus(this.allocateForAvatar(token, allocateSource, customerDTO, baseChannelDTO));
-
+                baseChannelDTO = this.getChannelInfoByChannelName(customerDTO.getUtmSource()); // 根据渠道获取来源、媒体
+                if (this.allocateForAvatar(token, allocateSource, customerDTO, baseChannelDTO, subCompanyIdBox, salesmanIdBox)) {
+                    allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
+                } else {
+                    allocateEntity.setAllocateStatus(AllocateEnum.WAITING_POOL);
+                }
             }if (StringUtils.isNotEmpty(ownerUser.getUser_id())) { // 存在这个在职负责人
                 customerDTO.setOwnerUserId(Integer.valueOf(ownerUser.getUser_id()));
                 allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
@@ -298,12 +305,87 @@ public class AutoAllocateService {
     /**
      * 商机系统分配规则.
      */
-    private AllocateEnum allocateForAvatar(String token, AllocateSource allocateSource, CustomerDTO customerDTO, BaseChannelDTO baseChannelDTO) {
+    private Boolean allocateForAvatar(String token, AllocateSource allocateSource, CustomerDTO customerDTO, BaseChannelDTO baseChannelDTO, Integer subCompanyIdBox, Integer salesmanIdBox) {
 
-        // 根据城市获取一级吧（队列获取）
-        // 业务：循环所对应的一级吧queue，找到就使用，未找商机系统规则就算走完
-        Integer subCompanyId = null;
+        // 找一级吧（队列获取）
+        Integer subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(token, customerDTO.getCity());
+        if (subCompanyId == null) return false; // 进入待分配池
+        subCompanyId = this.getSubCompanyIdFromQueue(token, customerDTO.getCity(), true, subCompanyId, null);
+        if (subCompanyId == null) return false; // 进入待分配池（缓存被意外动过导致为null情况）
 
+        // 找业务员（队列获取）
+        Integer source_id = baseChannelDTO.getSource_id();
+        Integer media_id = baseChannelDTO.getMedia_id();
+        String currentMonthStr = this.allocateRedisService.getCurrentMonthStr();
+        Integer salesmanId = this.allocateRedisService.getAndPush2End(subCompanyId, media_id, currentMonthStr);
+        if (salesmanId == null) return false; // 进入待分配池
+        salesmanId = this.getSalesmanId(subCompanyId, media_id, currentMonthStr, true, salesmanId, null);
+        if (salesmanId == null) return false; // 进入待分配池（缓存被意外动过导致为null情况）
+
+        subCompanyIdBox = subCompanyId; // 记录分给的一级吧
+        salesmanIdBox = salesmanId;     // 记录分给的业务员
+        return true; // 符合商机系统
+    }
+
+    /**
+     * 商机分配规则:获取一级吧id.
+     *
+     * @param token
+     * @param cityName
+     * @param isFirst               是否是第一次进入方法
+     * @param startSubCompanyId     最开始的一级吧id
+     * @param recursionSubCompanyId 由于此方法会轮询一级吧queue去找一级吧id.所以该变量是递归调用时当前的一级吧id
+     * @return
+     */
+    private Integer getSubCompanyIdFromQueue(String token, String cityName, boolean isFirst, Integer startSubCompanyId, Integer recursionSubCompanyId){
+
+        Boolean isOk = false;
+
+        // 查看该一级吧是否满足商机系统分配规则,满足就分配到业务员
+        // 月分配数 < 订购数
+        Integer id = isFirst ? startSubCompanyId : recursionSubCompanyId;
+
+        // TODO lihong 处理一级吧业务
+
+        if (isOk) {
+            // 符合商机系统分配规则
+            return id;
+        } else {
+            // 循环queue获取一级吧，但不能包含最初进入的(包含说明已经全部循环一遍了)
+            Integer temp = this.allocateRedisService.getSubCompanyIdFromQueue(token, cityName);
+            if (temp != null && !startSubCompanyId.equals(temp)){
+                return this.getSubCompanyIdFromQueue(token, cityName, false, startSubCompanyId, temp);
+            }
+            // 正常情况下，是不会是null,除非缓存被意外动过
+            return null;
+        }
+    }
+
+    /**
+     * 商机分配规则:获取一级吧下，符合商机系统规则的业务员.
+     */
+    private Integer getSalesmanId (Integer subCompanyId, Integer mediaId, String currentMonthStr, boolean isFirst, Integer startSalesmanId, Integer recursionSaleSmanId) {
+
+        Boolean isOK = false;
+        // 查看该一级吧是否满足商机系统分配规则,满足就分配到业务员
+        // 规则：
+        // 1、优先从特殊队列（媒体对应的队列）找
+        // 2、再从总分配队列找
+        Integer id = isFirst ? startSalesmanId : recursionSaleSmanId;
+
+        // TODO lihong 处理一级吧业务员业务
+
+        if (isOK) {
+            // 符合商机系统分配规则
+            return id;
+        } else {
+            // 循环queue找，但不能包含最初进入的(包含说明已经全部循环一遍了)
+            Integer temp = this.allocateRedisService.getAndPush2End(subCompanyId, mediaId, currentMonthStr);
+            if (temp != null && !startSalesmanId.equals(temp)){
+                return this.getSalesmanId(subCompanyId, mediaId, currentMonthStr, false, startSalesmanId, temp);
+            }
+        }
+        // 正常情况下，是不会是null,除非缓存被意外动过
         return null;
     }
 

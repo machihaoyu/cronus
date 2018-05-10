@@ -174,64 +174,82 @@ public class AllocateRedisService {
     }
 
     /**
-     * 从队列尾部添加.
+     * 媒体业务员queue：添加到队列尾部.
      */
     public void addUserToAllocateTemplete2(Integer userId, Integer companyId, Integer medial, String effectiveDate) {
         if (userId == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "userId 不能为null");
         }
 
-        List<Integer> uiserIdList = this.getUserIdFromQueue(companyId, medial, effectiveDate);
+        redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
+        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
 
-        if (!uiserIdList.contains(userId)) {
-            uiserIdList.add(userId);
-            this.flushUserIdToQueue(uiserIdList, companyId, medial, effectiveDate);
-        }
+        String key = this.getKey(companyId, medial, effectiveDate);
+        ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+        listOperations.remove(key, 1000, userId.toString());
+        listOperations.rightPush(key, userId.toString());
     }
 
     /**
-     * 从队列移除用户
+     * 媒体业务员queue：移除.
      */
     public void delUserToAllocateTemplete2(Integer userId, Integer companyId, Integer medial, String effectiveDate) {
         if (userId == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "userId 不能为null");
         }
 
-        List<Integer> uiserIdList = this.getUserIdFromQueue(companyId, medial, effectiveDate);
-        if (uiserIdList.contains(userId)) {
-            uiserIdList.remove(userId);
-            this.flushUserIdToQueue(uiserIdList, companyId, medial, effectiveDate);
-        }
+        redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
+        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
+
+        String key = this.getKey(companyId, medial, effectiveDate);
+        ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+        listOperations.remove(key, 1000, userId.toString());
     }
 
     /**
-     * 从队列中获取all.
+     * 媒体业务员queue：获取all.
      */
     public List<Integer> finaAllFromQueue(Integer companyId, Integer medial, String effectiveDate) {
-        return this.getUserIdFromQueue(companyId, medial, effectiveDate);
+        redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
+        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
+
+        String key = this.getKey(companyId, medial, effectiveDate);
+        ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+        List<String> range = listOperations.range(key, 0, -1);
+
+        return range.stream().filter(item -> item != null).map(Integer::valueOf).collect(toList());
     }
 
     /**
-     * 将用户移到队列尾部.
+     * 媒体业务员queue：获取用户,且移到队列尾部.
      */
-    public  void pushUserId2QueueEnd(Integer companyId, Integer medial, String effectiveDate, Integer userId) {
-        if (userId == null) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "userId 不能为null");
+    public  Integer getAndPush2End(Integer companyId, Integer medial, String effectiveDate) {
+
+        redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
+        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
+
+        String key = this.getKey(companyId, medial, effectiveDate);
+        ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+        String s = listOperations.leftPop(key);
+        if (StringUtils.isNumeric(s)) {
+            listOperations.remove(key, 1000, s);
+            listOperations.rightPush(key, s);
+            return Integer.valueOf(s);
         }
-        List<Integer> userIdList = this.getUserIdFromQueue(companyId, medial, effectiveDate);
-        userIdList.remove(userId);
-        userIdList.add(userId);
-        this.flushUserIdToQueue(userIdList, companyId, medial, effectiveDate);
+        return null;
     }
 
     /**
-     * 删除队列.
+     * 媒体业务员queue：删除队列.
      */
     public void delCompanyMediaQueueRedisQueue(Integer companyId, Integer medial, String effectiveDate) {
         String key = this.getKey(companyId, medial, effectiveDate);
         redisAllocateTemplete.delete(key);
     }
 
+    /**
+     * 媒体业务员queue：获取缓存key.
+     */
     private String getKey(Integer companyId, Integer medial, String effectiveDate) {
         if (companyId == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取队列key错误，companyId 不能为null");
@@ -250,43 +268,7 @@ public class AllocateRedisService {
     }
 
     /**
-     * 获取队列中，员工id.
-     */
-    private List<Integer> getUserIdFromQueue(Integer companyId, Integer medial, String effectiveDate) {
-        String key = this.getKey(companyId, medial, effectiveDate);
-
-        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
-        ValueOperations<String, String> redisAllocateOptions = redisAllocateTemplete.opsForValue();
-
-        List<Integer> userIds = new ArrayList<>();
-        String s = redisAllocateOptions.get(key);
-        if (StringUtils.isNotEmpty(s)) {
-            List<String> temp = this.splitter.splitToList(s);
-            userIds = CollectionUtils.isEmpty(temp) ? new ArrayList<>() : temp.stream().map(Integer::new).collect(toList());
-        }
-
-        return userIds;
-    }
-
-    /**
-     * 设置队列员工id.
-     */
-    private void flushUserIdToQueue(List<Integer> userIds, Integer companyId, Integer medial, String effectiveDate) {
-        String key = this.getKey(companyId, medial, effectiveDate);
-
-        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
-        ValueOperations<String, String> redisAllocateOptions = redisAllocateTemplete.opsForValue();
-
-        if (CollectionUtils.isNotEmpty(userIds)) {
-            String value = this.joiner.join(userIds);
-            if (StringUtils.isNotEmpty(value)) {
-                redisAllocateOptions.set(key, value, 100, TimeUnit.DAYS);
-            }
-        }
-    }
-
-    /**
-     * 获取队列当月的，时间串.
+     * 媒体业务员queue：获取队列当月的，时间串.
      */
     public String getCurrentMonthStr(){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
@@ -294,7 +276,7 @@ public class AllocateRedisService {
     }
 
     /**
-     * 获取队列下月的，时间串.
+     * 媒体业务员queue：获取队列下月的，时间串.
      */
     public String getNextMonthStr(){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
@@ -308,7 +290,7 @@ public class AllocateRedisService {
     }
 
     /**
-     * 根据城市id，获取一级吧.
+     * 城市一级吧queue：根据城市id，获取一级吧.
      */
     public Integer getSubCompanyIdFromQueue(String token, String cityName){
         String subCompanyId = null;
@@ -321,7 +303,7 @@ public class AllocateRedisService {
             // 目标数据缓存key
             String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityName);
 
-            // 保证原子性加锁
+            // 加锁处理
             String lockKey = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("lock");
             Long lockToken = cRMRedisLockHelp.lockBySetNX(lockKey);
             if (listOperations.size(key) > 0) {
@@ -329,14 +311,15 @@ public class AllocateRedisService {
                 subCompanyId = listOperations.leftPop(key);
                 listOperations.rightPush(key, subCompanyId);
             } else {
-                // 当缓存无，去库中去并放入到缓存中
+                // 当缓存无，去库中取并放入到缓存中
                 Map<String, List<Integer>> subCompanyByCityName = this.findSubCompanyByCityName(token, cityName);
                 for (Map.Entry<String, List<Integer>> entry : subCompanyByCityName.entrySet()) {
                     String cityNameTemp = entry.getKey();
                     List<Integer> subCompanyIdList = entry.getValue();
-                    Set<String> subCompanyIdList2 = subCompanyIdList == null ? new HashSet<>() : subCompanyIdList.stream().filter(item -> item != null).map(String::valueOf).collect(toSet());
+                    Set<String> subCompanyIdList2 = CollectionUtils.isEmpty(subCompanyIdList) ? new HashSet<>() : subCompanyIdList.stream().filter(item -> item != null).map(String::valueOf).collect(toSet());
 
                     if (cityName.equals(cityNameTemp) && CollectionUtils.isNotEmpty(subCompanyIdList2)) {
+                        redisAllocateTemplete.delete(CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityNameTemp));
                         subCompanyId = subCompanyIdList2.iterator().next(); // 取出1个
                         listOperations.leftPushAll(CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityNameTemp), subCompanyIdList2);
                         break;
@@ -348,23 +331,10 @@ public class AllocateRedisService {
         return StringUtils.isBlank(subCompanyId) ? null : Integer.valueOf(subCompanyId);
     }
 
-    public static void main(String[] args) {
-        List<Integer> subCompanyIdList = new ArrayList<>();
-        subCompanyIdList.add(Integer.valueOf(1));
-        subCompanyIdList.add(Integer.valueOf(2));
-        subCompanyIdList.add(Integer.valueOf(3));
-        subCompanyIdList.add(Integer.valueOf(1));
-        System.out.println(subCompanyIdList);
-        HashSet<Integer> integers = new HashSet<>(subCompanyIdList);
-        System.out.println(integers);
-        integers.remove(Integer.valueOf(1));
-        System.out.println(integers);
-    }
-
     /**
-     * 获取所有一级吧.
+     * 城市一级吧queue：获取所有一级吧.
      */
-    public Map<String, List<Integer>> findSubCompanyByCityName(String token, String city) {
+    private Map<String, List<Integer>> findSubCompanyByCityName(String token, String city) {
         if (StringUtils.isNotBlank(city) && StringUtils.isNotBlank(token)) {
             // 获取所有一级吧
             AvatarApiDTO<List<FirstBarDTO>> allSubCompany = avatarClientService.findAllSubCompany(token);
@@ -392,7 +362,7 @@ public class AllocateRedisService {
         list.add("b");
         list.add("c");
         list.add("d");
-        //listOperations.leftPushAll(key, list);
+        listOperations.leftPushAll(key, list);
 
 
         Long size = listOperations.size(key);
@@ -401,10 +371,12 @@ public class AllocateRedisService {
 
     public String listget(){
         redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
+        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
         ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
         String key = "listSuCompany上海";
-        String s = listOperations.leftPop(key);
-        System.out.println(s);
-        return s;
+        //Long e = listOperations.remove(key, 1000, "a");
+        List<String> range = listOperations.range(key, 0, -1);
+        System.out.println(range);
+        return "";
     }
 }
