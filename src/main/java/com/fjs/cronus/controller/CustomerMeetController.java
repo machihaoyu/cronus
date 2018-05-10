@@ -53,8 +53,8 @@ public class CustomerMeetController {
     private UcService thorUcService;
     @Autowired
     private CustomerInfoService customerInfoService;
-    @Autowired
-    private WalletService walletService;
+//    @Autowired
+//    private WalletService walletService;
 
     @ApiOperation(value = "根据客户id获取面见记录", notes = "根据客户id获取面见记录")
     @ApiImplicitParams({
