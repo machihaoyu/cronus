@@ -151,6 +151,7 @@ public class AutoAllocateService {
                 baseChannelDTO = this.getChannelInfoByChannelName(customerDTO.getUtmSource()); // 根据渠道获取来源、媒体
                 if (this.allocateForAvatar(token, allocateSource, customerDTO, baseChannelDTO, subCompanyIdBox, salesmanIdBox)) {
                     allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
+                    customerDTO.setOwnerUserId(salesmanIdBox);
                 } else {
                     allocateEntity.setAllocateStatus(AllocateEnum.WAITING_POOL);
                 }
@@ -265,9 +266,10 @@ public class AutoAllocateService {
                     CustomerInfo customerInfo = new CustomerInfo();
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
                     allocateLogService.autoAllocateAddAllocatelog(customerInfo.getId(), customerDTO.getOwnerUserId(),
-                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode());
+                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode(), subCompanyIdBox, baseChannelDTO.getMedia_id());
+
                     if (this.isActiveApplicationChannel(customerDTO)) {
-                        String loan = addLoan(customerDTO, token);
+                        String loan = this.addLoan(customerDTO, token);
                         allocateEntity.setDescription(loan);
                     }
                     this.sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
@@ -313,12 +315,18 @@ public class AutoAllocateService {
         subCompanyId = this.getSubCompanyIdFromQueue(token, customerDTO.getCity(), true, subCompanyId, null);
         if (subCompanyId == null) return false; // 进入待分配池（缓存被意外动过导致为null情况）
 
-        // 找业务员（队列获取）
+        // 根据媒体找业务员（队列获取）
         Integer source_id = baseChannelDTO.getSource_id();
         Integer media_id = baseChannelDTO.getMedia_id();
         String currentMonthStr = this.allocateRedisService.getCurrentMonthStr();
         Integer salesmanId = this.allocateRedisService.getAndPush2End(subCompanyId, media_id, currentMonthStr);
-        if (salesmanId == null) return false; // 进入待分配池
+        if (salesmanId == null){
+            // 具体媒体queue无时，去总分配queue找
+            salesmanId = this.allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
+            media_id = CommonConst.COMPANY_MEDIA_QUEUE_COUNT;
+            baseChannelDTO.setMedia_id(CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
+            if (salesmanId == null) return false; // 进入待分配池
+        }
         salesmanId = this.getSalesmanId(subCompanyId, media_id, currentMonthStr, true, salesmanId, null);
         if (salesmanId == null) return false; // 进入待分配池（缓存被意外动过导致为null情况）
 

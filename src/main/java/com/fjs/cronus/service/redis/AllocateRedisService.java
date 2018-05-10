@@ -339,44 +339,42 @@ public class AllocateRedisService {
             // 获取所有一级吧
             AvatarApiDTO<List<FirstBarDTO>> allSubCompany = avatarClientService.findAllSubCompany(token);
             List<FirstBarDTO> data = null;
-            if (allSubCompany.getResult() == 0 && allSubCompany.getData() != null) {
+            if (allSubCompany != null && allSubCompany.getResult() == 0 && allSubCompany.getData() != null) {
                 data = allSubCompany.getData();
             }
             Map<String, List<Integer>> cityNameMappingSubCompanyId = CollectionUtils.isEmpty(data) ? new HashMap<>() : data.stream().collect(groupingBy(FirstBarDTO::getCity, mapping(FirstBarDTO::getId, toList())));
-            if (cityNameMappingSubCompanyId == null ) cityNameMappingSubCompanyId = new HashMap<>();
             return cityNameMappingSubCompanyId;
         }
         return new HashMap<>();
     }
 
+    /**
+     * 城市下一级吧queue：刷新数据.
+     *
+     * 由于一级吧数据来源于商机系统，需要暴露一个刷新缓存给商机系统接口.
+     */
+    public void flushSubCompanyQueue(String token) {
 
-    public void listFlush(){
-        redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
-        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
-        ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
-        String key = "listSuCompany上海";
+        AvatarApiDTO<List<FirstBarDTO>> allSubCompany = avatarClientService.findAllSubCompany(token);
+        List<FirstBarDTO> data = null;
+        if (allSubCompany !=null && allSubCompany.getResult() == 0 && allSubCompany.getData() != null) {
+            data = allSubCompany.getData();
+        }
 
+        Map<String, List<Integer>> cityNameMappingSubCompanyId = CollectionUtils.isEmpty(data) ? new HashMap<>() : data.stream().collect(groupingBy(FirstBarDTO::getCity, mapping(FirstBarDTO::getId, toList())));
+        for (Map.Entry<String, List<Integer>>  entry : cityNameMappingSubCompanyId.entrySet()) {
+            List<Integer> value = entry.getValue();
+            String cityName = entry.getKey();
 
-        List<String> list = new ArrayList<>();
-        list.add("a");
-        list.add("b");
-        list.add("c");
-        list.add("d");
-        listOperations.leftPushAll(key, list);
+            Set<String> subCompanyIdSet = CollectionUtils.isEmpty(value) ? new HashSet<>() : value.stream().filter(item -> item != null).map(String::valueOf).collect(toSet());
 
+            if (StringUtils.isNotBlank(cityName) && CollectionUtils.isNotEmpty(subCompanyIdSet)) {
+                redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
+                redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
+                ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+                listOperations.leftPushAll(CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityName), subCompanyIdSet);
+            }
 
-        Long size = listOperations.size(key);
-        System.out.println(size);
-    }
-
-    public String listget(){
-        redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
-        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
-        ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
-        String key = "listSuCompany上海";
-        //Long e = listOperations.remove(key, 1000, "a");
-        List<String> range = listOperations.range(key, 0, -1);
-        System.out.println(range);
-        return "";
+        }
     }
 }
