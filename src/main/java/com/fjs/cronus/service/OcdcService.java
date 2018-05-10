@@ -459,7 +459,10 @@ public class OcdcService {
                 customerSalePushLog.setHouseAge(map.get("house_age").toString());
             }
             if (null != map.get("house_loan") && StringUtils.isNotBlank(map.get("house_loan").toString())) {
-                customerSalePushLog.setHouseLoan(map.get("house_loan").asText());
+                if (map.get("house_loan").asText().length() < 10)
+                    customerSalePushLog.setHouseLoan(map.get("house_loan").asText());
+                else
+                    customerSalePushLog.setHouseLoan(CommonEnum.HOUSE_LOAN_1.getCodeDesc());
             } else {
                 customerSalePushLog.setHouseLoan(CommonEnum.HOUSE_LOAN_0.getCodeDesc());
             }
