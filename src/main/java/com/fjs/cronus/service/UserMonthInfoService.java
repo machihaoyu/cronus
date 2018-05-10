@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import static java.util.stream.Collectors.*;
 
 /**
  * Created by feng on 2017/9/22.
@@ -163,25 +164,22 @@ public class UserMonthInfoService {
             params.setEffectiveDate(effectiveDate);
             params.setStatus(CommonEnum.entity_status1.getCode());
             List<UserMonthInfo> userAllMedialDataList = this.findByParams(params); // 获取用户所以媒体、具体月份、具体吧的分配数据
+            userAllMedialDataList = CollectionUtils.isEmpty(userAllMedialDataList) ? new ArrayList<>() : userAllMedialDataList;
 
             if (CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(mediaid)) {
                 // 总分配队列情况
 
-                Integer rewardCustomerNumSum = 0;
-                Integer baseCustomerNumSum = 0;
-                for (UserMonthInfo userMonthInfoTemp : userAllMedialDataList) {
-                    if (!CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(userMonthInfoTemp.getMediaid())) {
-                        // 获取所有特殊渠道 rewardCustomerNum 的和
-                        rewardCustomerNumSum += userMonthInfoTemp.getRewardCustomerNum();
-                        // 获取所有特殊渠道 baseCustomerNumSum 的和
-                        baseCustomerNumSum += userMonthInfoTemp.getBaseCustomerNum();
-                    }
-                }
+                userAllMedialDataList = userAllMedialDataList.stream()
+                        .filter(item -> item != null && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(item.getMediaid()) && item.getBaseCustomerNum() != null && item.getRewardCustomerNum() != null)
+                        .collect(toList());
 
-                if (rewardCustomerNum < rewardCustomerNumSum) {
+                Integer baseCustomerNumDB = userAllMedialDataList.stream().collect(summingInt(UserMonthInfo::getBaseCustomerNum));
+                Integer rewardCustomerNumDB = userAllMedialDataList.stream().collect(summingInt(UserMonthInfo::getRewardCustomerNum));
+
+                if (rewardCustomerNum < rewardCustomerNumDB) {
                     throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "月奖励数 不能小于 其他特殊渠道月奖励数之和");
                 }
-                if (baseCustomerNum < baseCustomerNumSum) {
+                if (baseCustomerNum < rewardCustomerNumDB) {
                     throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "月分配数 不能小于 其他特殊渠道月分配数之和");
                 }
 
@@ -229,8 +227,6 @@ public class UserMonthInfoService {
                 // 当月需要校验，下月无需校验
 
                 Map<String, Object> allocateMap = new HashMap<>();
-                allocateMap.put("inOperation", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() +
-                        "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
                 List<Integer> userIds = new ArrayList<>();
                 userIds.add(userId);
                 allocateMap.put("newOwnerIds", userIds);
@@ -240,7 +236,6 @@ public class UserMonthInfoService {
                 } catch (Exception e) {
                     throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "effectiveDate 时间转换错误");
                 }
-                allocateMap.put("operationsStr", CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc() + "," + CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCodeDesc());
                 List<AllocateLog> allocateLogList = allocateLogService.selectByParamsMap(allocateMap);
 
                 if (allocateLogList.size() >= (baseCustomerNum + rewardCustomerNum)) {

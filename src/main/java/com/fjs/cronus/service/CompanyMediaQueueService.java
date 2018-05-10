@@ -103,6 +103,10 @@ public class CompanyMediaQueueService {
 
     public void delCompanyMediaQueue(Integer currentUserId, Integer companyid, Integer mediaId) {
 
+        if(CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(mediaId)){
+            return;// 总队列不能删除
+        }
+
         Date now = new Date();
         // 逻辑删除company_media_queue表数据
         CompanyMediaQueue valuesParams = new CompanyMediaQueue();
@@ -134,4 +138,5 @@ public class CompanyMediaQueueService {
         allocateRedisService.delCompanyMediaQueueRedisQueue(companyid, mediaId, allocateRedisService.getCurrentMonthStr()); // 删除当月队列
         allocateRedisService.delCompanyMediaQueueRedisQueue(companyid, mediaId, allocateRedisService.getNextMonthStr()); // 删除下月队列
     }
+
 }

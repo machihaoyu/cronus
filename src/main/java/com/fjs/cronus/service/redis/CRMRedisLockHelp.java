@@ -88,6 +88,29 @@ public class CRMRedisLockHelp {
         throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "redis 获取分布式锁失败");
     }
 
+    /**
+     * 加锁.
+     */
+    public Long lockBySetNX2(String key, int secondOfTimeOut, int retry, int secondOfSleepTime) {
+
+        Integer i = 0; // 重试次数
+        Long lockToken = 0L; // 标记，用于解锁
+        long  timeout = secondOfTimeOut * 1000; // 秒
+
+        while (i < retry) {
+            lockToken = this.getCurrentTimeFromRedisServicer() + timeout + 1;
+            i++;
+            if (this.lockBySetNX(key, lockToken.toString(), timeout, this.getRedisScript(SETNX_LUA_SCRIPT)))
+                return lockToken;
+            try {
+                TimeUnit.SECONDS.sleep(secondOfSleepTime);// 睡眠3秒
+            } catch (InterruptedException e) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "设置睡眠异常" + e.getMessage());
+            }
+        }
+        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "redis 获取分布式锁失败");
+    }
+
 
     /**
      * 加锁:通过redis lua 脚本方式实现加锁.

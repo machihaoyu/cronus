@@ -20,8 +20,15 @@ public class CommonRedisConst {
     public static String ALLOCATE_LIST ="listAllocate";
 
     /**
-     * 具体某个城市下，所以一级吧queue缓存key前缀.
+     * 自动分配redis锁，key
      * 完整 "listAllocate上海"
+     * 永久储存
+     */
+    public static String ALLOCATE_LOCK ="AllocateLock";
+
+    /**
+     * 具体某个城市下，所有一级吧queue缓存key前缀.
+     * 完整 "listAllocateSubCompany上海"
      * 永久储存
      */
     public static String ALLOCATE_SUBCOMPANYID ="listAllocateSubCompany";

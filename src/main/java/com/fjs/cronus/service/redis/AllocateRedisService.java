@@ -223,7 +223,7 @@ public class AllocateRedisService {
     /**
      * 媒体业务员queue：获取用户,且移到队列尾部.
      */
-    public  Integer getAndPush2End(Integer companyId, Integer medial, String effectiveDate) {
+    public Integer getAndPush2End(Integer companyId, Integer medial, String effectiveDate) {
 
         redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
         redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
@@ -270,7 +270,7 @@ public class AllocateRedisService {
     /**
      * 媒体业务员queue：获取队列当月的，时间串.
      */
-    public String getCurrentMonthStr(){
+    public String getCurrentMonthStr() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
         return sdf.format(new Date());
     }
@@ -278,7 +278,7 @@ public class AllocateRedisService {
     /**
      * 媒体业务员queue：获取队列下月的，时间串.
      */
-    public String getNextMonthStr(){
+    public String getNextMonthStr() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
 
         Calendar instance = Calendar.getInstance();
@@ -292,7 +292,7 @@ public class AllocateRedisService {
     /**
      * 媒体业务员queue：复制当前队列到下月.
      */
-    public void copyCurrentMonthQueue(Integer companyId, Integer medial){
+    public void copyCurrentMonthQueue(Integer companyId, Integer medial) {
 
         String currentMonthStr = this.getCurrentMonthStr();
         String nextMonthStr = this.getNextMonthStr();
@@ -309,14 +309,17 @@ public class AllocateRedisService {
             List<String> currentMonthQueue = listOperations.range(currentMonthQueueKey, 0, -1);
             List<String> nextMonthQueue = currentMonthQueue.stream().filter(item -> StringUtils.isNotBlank(item)).collect(toList());
 
-            Long aLong = CollectionUtils.isEmpty(nextMonthQueue) ? null : listOperations.leftPushAll(nextMonthQueueKey, nextMonthQueue);
+            if (CollectionUtils.isEmpty(nextMonthQueue) ){
+                redisAllocateTemplete.delete(nextMonthQueueKey);
+                listOperations.leftPushAll(nextMonthQueueKey, nextMonthQueue);
+            }
         }
     }
 
     /**
      * 城市一级吧queue：根据城市id，获取一级吧.
      */
-    public Integer getSubCompanyIdFromQueue(String token, String cityName){
+    public Integer getSubCompanyIdFromQueue(String token, String cityName) {
         String subCompanyId = null;
         if (StringUtils.isNotBlank(cityName) && StringUtils.isNotBlank(token)) {
 
@@ -327,9 +330,6 @@ public class AllocateRedisService {
             // 目标数据缓存key
             String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityName);
 
-            // 加锁处理
-            String lockKey = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("lock");
-            Long lockToken = cRMRedisLockHelp.lockBySetNX(lockKey);
             if (listOperations.size(key) > 0) {
                 // 当缓存中有，取出然后移到queue尾部
                 subCompanyId = listOperations.leftPop(key);
@@ -345,12 +345,12 @@ public class AllocateRedisService {
                     if (cityName.equals(cityNameTemp) && CollectionUtils.isNotEmpty(subCompanyIdList2)) {
                         redisAllocateTemplete.delete(CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityNameTemp));
                         subCompanyId = subCompanyIdList2.iterator().next(); // 取出1个
+                        redisAllocateTemplete.delete(CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityNameTemp));
                         listOperations.leftPushAll(CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityNameTemp), subCompanyIdList2);
                         break;
                     }
                 }
             }
-            this.cRMRedisLockHelp.unlockForSetNx2(lockKey, lockToken);
         }
         return StringUtils.isBlank(subCompanyId) ? null : Integer.valueOf(subCompanyId);
     }
@@ -374,19 +374,19 @@ public class AllocateRedisService {
 
     /**
      * 城市下一级吧queue：刷新数据.
-     *
+     * <p>
      * 由于一级吧数据来源于商机系统，需要暴露一个刷新缓存给商机系统接口.
      */
     public void flushSubCompanyQueue(String token) {
 
         AvatarApiDTO<List<FirstBarDTO>> allSubCompany = avatarClientService.findAllSubCompany(token);
         List<FirstBarDTO> data = null;
-        if (allSubCompany !=null && allSubCompany.getResult() == 0 && allSubCompany.getData() != null) {
+        if (allSubCompany != null && allSubCompany.getResult() == 0 && allSubCompany.getData() != null) {
             data = allSubCompany.getData();
         }
 
         Map<String, List<Integer>> cityNameMappingSubCompanyId = CollectionUtils.isEmpty(data) ? new HashMap<>() : data.stream().collect(groupingBy(FirstBarDTO::getCity, mapping(FirstBarDTO::getId, toList())));
-        for (Map.Entry<String, List<Integer>>  entry : cityNameMappingSubCompanyId.entrySet()) {
+        for (Map.Entry<String, List<Integer>> entry : cityNameMappingSubCompanyId.entrySet()) {
             List<Integer> value = entry.getValue();
             String cityName = entry.getKey();
 
@@ -396,6 +396,7 @@ public class AllocateRedisService {
                 redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
                 redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
                 ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+                redisAllocateTemplete.delete(CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityName));
                 listOperations.leftPushAll(CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityName), subCompanyIdSet);
             }
 
