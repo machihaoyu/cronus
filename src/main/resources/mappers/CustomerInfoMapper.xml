@@ -99,6 +99,7 @@
         <id column="id" property="id" jdbcType="INTEGER" />
         <result column="customer_source" property="customerSource" jdbcType="VARCHAR" />
         <result column="utm_source" property="utmSource" jdbcType="VARCHAR" />
+        <result column="city" property="city" jdbcType="VARCHAR" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
     </resultMap>
     <resultMap id="CustomerBasicDTO" type="com.fjs.cronus.dto.CustomerBasicDTO">
@@ -2432,7 +2433,7 @@
     <!-- 根据电话号码查询查询客户信息 -->
     <select id="selectCustomerDTOByPhone" resultMap="CustomerResultDTO" parameterType="com.fjs.cronus.dto.CustomerPartDTO">
       SELECT
-        id,customer_source,utm_source,create_time
+        id,customer_source,utm_source,city,create_time
       FROM customer_info
       WHERE is_deleted = 0 AND telephonenumber = #{phone,jdbcType=VARCHAR}
     </select>

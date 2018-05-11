@@ -17,6 +17,8 @@ public class CustomerPartDTO implements Serializable {
 
     private String utmSource;
 
+    private String city;
+
     private Date createTime;
 
     public Integer getId() {
@@ -41,6 +43,14 @@ public class CustomerPartDTO implements Serializable {
 
     public void setUtmSource(String utmSource) {
         this.utmSource = utmSource;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public Date getCreateTime() {
