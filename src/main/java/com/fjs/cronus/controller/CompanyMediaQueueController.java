@@ -10,6 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,19 +37,23 @@ public class CompanyMediaQueueController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
             @ApiImplicitParam(name = "subCompanyId", value = "分公司id;一级吧id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "yearmonth", value = "查月份，格式yyyyMM", required = true, paramType = "query", dataType = "string"),
     })
     @GetMapping(value = "/findByCompanyId")
-    public CronusDto findByCompanyId(@RequestHeader(name = "Authorization") String token, Integer subCompanyId) {
+    public CronusDto findByCompanyId(@RequestHeader(name = "Authorization") String token, @RequestParam Integer subCompanyId, @RequestParam String yearmonth) {
         CronusDto result = new CronusDto();
         try {
             // 参加校验
             if (subCompanyId == null) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "subCompanyId 不能为null");
             }
+            if (yearmonth == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "yearmonth 不能为null");
+            }
 
             String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-            List<Map<String, Object>> data = companyMediaQueueService.findByCompanyId(token, Integer.valueOf(userId), subCompanyId);
+            List<Map<String, Object>> data = companyMediaQueueService.findByCompanyId(token, Integer.valueOf(userId), subCompanyId, yearmonth);
             result.setData(data);
             result.setResult(CommonMessage.SUCCESS.getCode());
         } catch (Exception e) {
@@ -81,10 +86,12 @@ public class CompanyMediaQueueController {
             if (StringUtils.isBlank(mediaIds)) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mediaIds 不能为null");
             }
-
             Splitter splitter = Splitter.on(",").omitEmptyStrings().trimResults();
             List<String> mediaIdsList = splitter.splitToList(mediaIds);
             Set<Integer> mediaIdsSet = mediaIdsList.stream().map(Integer::valueOf).collect(Collectors.toSet());
+            if (CollectionUtils.isEmpty(mediaIdsSet)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mediaIds 不能为null");
+            }
 
             Integer companyid = params.getInteger("companyid");
             if (companyid == null) {
@@ -93,7 +100,7 @@ public class CompanyMediaQueueController {
 
             String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-            companyMediaQueueService.addCompanyMediaQueue(token, Integer.valueOf(userId), companyid, mediaIdsSet);
+            companyMediaQueueService.addCompanyMediaQueue(token, Integer.valueOf(userId), companyid, mediaIdsSet, params.getString("yearmonth"));
 
             result.setData(CommonMessage.SUCCESS.getCodeDesc());
             result.setResult(CommonMessage.SUCCESS.getCode());
@@ -134,7 +141,7 @@ public class CompanyMediaQueueController {
 
             String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-            companyMediaQueueService.delCompanyMediaQueue(Integer.valueOf(userId), companyid, mediaId);
+            companyMediaQueueService.delCompanyMediaQueue(Integer.valueOf(userId), companyid, mediaId, params.getString("yearmonth"));
 
             result.setData(CommonMessage.SUCCESS.getCodeDesc());
             result.setResult(CommonMessage.SUCCESS.getCode());

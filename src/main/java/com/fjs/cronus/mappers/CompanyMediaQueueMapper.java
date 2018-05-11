@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface CompanyMediaQueueMapper {
 
-    List<CompanyMediaQueue> findByCompanyId(@Param("companyid") Integer companyId, @Param("status") Integer status);
+    List<CompanyMediaQueue> findByExample(CompanyMediaQueue companyMediaQueue);
+
+    List<CompanyMediaQueue> findByCompanyId(@Param("companyid") Integer companyid, @Param("status") Integer status, @Param("yearmonth") String yearmonth);
 
     void addBatchCompanyMediaQueue(@Param("list")List<CompanyMediaQueue> list);
 

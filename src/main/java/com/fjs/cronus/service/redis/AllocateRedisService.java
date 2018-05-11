@@ -20,6 +20,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -287,6 +288,19 @@ public class AllocateRedisService {
         Date nextMoth = instance.getTime();
 
         return sdf.format(nextMoth);
+    }
+
+    /**
+     * 媒体业务员queue：获取队列下月的，时间串.
+     */
+    public void checkMonthStr(String yearMonth) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+
+        try {
+            Date parse = sdf.parse(yearMonth);
+        } catch (ParseException e) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "格式不正确，需要是 yyyyMM");
+        }
     }
 
     /**

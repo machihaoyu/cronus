@@ -48,6 +48,19 @@ public class CompanyMediaQueue {
      */
     private Integer mediaid;
 
+    /**
+     * 该数据所属月份，格式yyyyMM.
+     */
+    private String yearmonth;
+
+    public String getYearmonth() {
+        return yearmonth;
+    }
+
+    public void setYearmonth(String yearmonth) {
+        this.yearmonth = yearmonth;
+    }
+
     public Integer getId() {
         return id;
     }
