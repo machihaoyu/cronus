@@ -2,6 +2,7 @@ package com.fjs.cronus.controller;
 
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
+import com.fjs.cronus.Common.ServiceConstant;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 
@@ -143,7 +144,7 @@ public class CustomerMeetController {
             int createResult = customerMeetService.addCustomerMeet(customerMeetDTO, resultDto, customerInfo, token);
             if (createResult > 0) {
 //                面见的时候发送数据，客户是mgm来源调用
-                if ("MGM".equals(customerInfo.getCustomerSource())){
+                if (ServiceConstant.MGMCUSTOMERSOURCE.equals(customerInfo.getCustomerSource())){
                     //获取电话号码
                     String phone = customerInfo.getTelephonenumber();
                     //解析,发送
