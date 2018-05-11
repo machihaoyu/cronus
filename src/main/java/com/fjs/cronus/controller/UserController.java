@@ -452,9 +452,7 @@ public class UserController {
         return resultDto;
     }
 
-
-
-    @ApiOperation(value = "listSet", notes = "获取用户可操作的分公司")
+    @ApiOperation(value = "城市下一级吧queue-刷新数据", notes = "城市下一级吧queue：刷新数据 api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")
     })
