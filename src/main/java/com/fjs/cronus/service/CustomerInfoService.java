@@ -675,24 +675,29 @@ public class CustomerInfoService {
         }
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
         if (customerInfo == null) {
-            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+            resultDto.setMessage(ResultResource.NO_CUSTOMEINFO);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            resultDto.setData(null);
+//            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
-        CustomerDTO customerDto = new CustomerDTO();
-        EntityToDto.customerEntityToCustomerDto(customerInfo, customerDto);
-        //d对手机进行解密
-        String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-        customerDto.setTelephonenumber(telephone);
-        customerDto.setRetirementWages(customerInfo.getRetirementWages());
-        String employedInfo = customerInfo.getEmployedInfo();
-        List<EmplouInfo> emplouInfos = new ArrayList<>();
-        if (!StringUtils.isEmpty(employedInfo)) {
-            JSONArray jsonArray = JSONArray.parseArray(employedInfo);
-            emplouInfos = jsonArray.toJavaList(EmplouInfo.class);
-            customerDto.setEmployedInfo(emplouInfos);
+        else {
+            CustomerDTO customerDto = new CustomerDTO();
+            EntityToDto.customerEntityToCustomerDto(customerInfo, customerDto);
+            //d对手机进行解密
+            String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+            customerDto.setTelephonenumber(telephone);
+            customerDto.setRetirementWages(customerInfo.getRetirementWages());
+            String employedInfo = customerInfo.getEmployedInfo();
+            List<EmplouInfo> emplouInfos = new ArrayList<>();
+            if (!StringUtils.isEmpty(employedInfo)) {
+                JSONArray jsonArray = JSONArray.parseArray(employedInfo);
+                emplouInfos = jsonArray.toJavaList(EmplouInfo.class);
+                customerDto.setEmployedInfo(emplouInfos);
+            }
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            resultDto.setData(customerDto);
         }
-        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
-        resultDto.setResult(ResultResource.CODE_SUCCESS);
-        resultDto.setData(customerDto);
         return resultDto;
     }
 
