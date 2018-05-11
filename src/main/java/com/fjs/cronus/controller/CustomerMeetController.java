@@ -53,8 +53,8 @@ public class CustomerMeetController {
     private UcService thorUcService;
     @Autowired
     private CustomerInfoService customerInfoService;
-//    @Autowired
-//    private WalletService walletService;
+    @Autowired
+    private WalletService walletService;
 
     @ApiOperation(value = "根据客户id获取面见记录", notes = "根据客户id获取面见记录")
     @ApiImplicitParams({
@@ -142,16 +142,16 @@ public class CustomerMeetController {
             customerMeetDTO.setCustomerId(customerInfo.getId());
             int createResult = customerMeetService.addCustomerMeet(customerMeetDTO, resultDto, customerInfo, token);
             if (createResult > 0) {
-                //面见的时候发送数据，客户是mgm来源调用
-//                if ("MGM".equals(customerInfo.getCustomerSource())){
-//                    //获取电话号码
-//                    String phone = customerInfo.getTelephonenumber();
-//                    //解析,发送
-//                    WalletApiDTO walletApiDTO = walletService.confirmEffective(token, DEC3Util.des3DecodeCBC(phone));
-//                    if (walletApiDTO.getCode() != 200){
-//                        logger.error("调用MGM错误返回数据："+walletApiDTO.toString());
-//                    }
-//                }
+//                面见的时候发送数据，客户是mgm来源调用
+                if ("MGM".equals(customerInfo.getCustomerSource())){
+                    //获取电话号码
+                    String phone = customerInfo.getTelephonenumber();
+                    //解析,发送
+                    WalletApiDTO walletApiDTO = walletService.confirmEffective(token, DEC3Util.des3DecodeCBC(phone));
+                    if (walletApiDTO.getCode() != 200){
+                        logger.error("调用MGM错误返回数据："+walletApiDTO.toString());
+                    }
+                }
                 theaApiDTO.setResult(CommonMessage.ADD_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
             } else {
