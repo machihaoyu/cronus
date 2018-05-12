@@ -1,5 +1,7 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.PhpApiDto;
@@ -23,6 +25,7 @@ import com.fjs.cronus.service.redis.UserInfoRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.util.DateUtils;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -122,15 +125,15 @@ public class UserService {
         selectMap.put("userIds", companyUserIds);
         selectMap.put("companyid", companyId);
         selectMap.put("mediaid", mediaid);
-        selectMap.put("mediaid", mediaid);
         selectMap.put("status", CommonEnum.entity_status1.getCode());
-        List<UserMonthInfo> userMonthInfoList = CollectionUtils.isEmpty(userMonthInfoDTOList) ? new ArrayList<>() : userMonthInfoService.selectByParamsMap(selectMap);
+        List<UserMonthInfo> userMonthInfoList = userMonthInfoService.selectByParamsMap(selectMap);
+        userMonthInfoList = CollectionUtils.isEmpty(userMonthInfoList) ? new ArrayList<>() : userMonthInfoList;
 
         // ===== 下面循环，做2件事 =====
         // 1、db中的数据 ----赋值---> userMonthInfoDTOList
         // 2、未设置值的数据需要入库db
         List<UserMonthInfo> toAddUserMonthInfoList = new ArrayList<>();
-        Map<Integer, List<UserMonthInfo>> userIdMappingData = CollectionUtils.isEmpty(userMonthInfoList) ? new HashMap<>() : userMonthInfoList.stream().collect(groupingBy(UserMonthInfo::getUserId));
+        Map<Integer, List<UserMonthInfo>> userIdMappingData = userMonthInfoList.stream().collect(groupingBy(UserMonthInfo::getUserId));
         Date now = new Date();
 
         for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
@@ -150,7 +153,7 @@ public class UserService {
 
             } else {
                 // db中无，则需要db新增，vo设置初始化值
-                userMonthInfoDTO.setBaseCustomerNum(CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(mediaid) ? CommonConst.BASE_CUSTOMER_NUM : 0);
+                userMonthInfoDTO.setBaseCustomerNum(0);
                 userMonthInfoDTO.setRewardCustomerNum(0);
                 userMonthInfoDTO.setAssignedCustomerNum(0);
                 userMonthInfoDTO.setEffectiveCustomerNum(0);
@@ -159,7 +162,7 @@ public class UserService {
                 userMonthInfoDTO.setEffectiveDate(effectiveDate);
 
                 UserMonthInfo userMonthInfoTemp = new UserMonthInfo();
-                userMonthInfoTemp.setBaseCustomerNum(CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(mediaid) ? CommonConst.BASE_CUSTOMER_NUM : 0);
+                userMonthInfoTemp.setBaseCustomerNum(0);
                 userMonthInfoTemp.setRewardCustomerNum(0);
                 userMonthInfoTemp.setAssignedCustomerNum(0);
                 userMonthInfoTemp.setEffectiveCustomerNum(0);

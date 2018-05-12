@@ -339,7 +339,7 @@ public class AutoAllocateService {
     private Integer getSubCompanyIdFromQueue(String token, String cityName, BaseChannelDTO baseChannelDTO){
 
         // TODO lihong
-        /*String currentMonthStr = this.allocateRedisService.getCurrentMonthStr();
+        String currentMonthStr = this.allocateRedisService.getCurrentMonthStr();
 
         // 查看该一级吧是否满足商机系统分配规则,满足就分配到业务员
         // 月分配数 < 订购数
@@ -356,46 +356,58 @@ public class AutoAllocateService {
                 // queue中无一级吧
                 exist.add(subCompanyId);
                 break;
-            };
+            }
 
             // 获取当月已分配数
-            AllocateLog allocatelogPara = new AllocateLog();
-            allocatelogPara.setCompanyid(subCompanyId);
-            List<AllocateLog> currentMonthList = allocateLogService.findByParamsAndTime(allocatelogPara, currentMonthStr);
-            currentMonthList = CollectionUtils.isEmpty(currentMonthList) ? new ArrayList<>() : currentMonthList;
+            UserMonthInfo e = new UserMonthInfo();
+            e.setCompanyid(subCompanyId);
+            e.setEffectiveDate(currentMonthStr);
+            e.setStatus(CommonEnum.entity_status1.getCode());
+            List<UserMonthInfo> userMonthInfoDBList = this.userMonthInfoService.findByParams(e);
+            userMonthInfoDBList = CollectionUtils.isEmpty(userMonthInfoDBList) ? new ArrayList<>() : userMonthInfoDBList;
 
+            Integer count = 0; // 该一级吧已分配数
+            List<UserMonthInfo> list = userMonthInfoDBList.stream().filter(item -> item != null && CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(item.getMediaid())).collect(toList());
+            if (list != null && list.get(0) != null && list.get(0).getAssignedCustomerNum() != null) {
+                count = list.get(0).getAssignedCustomerNum();
+            }
+
+            // 从商家系统获取
+            JSONObject json = new JSONObject();
+            json.put("firstBarId ", subCompanyId);
+            json.put("month  ", currentMonthStr);
+            this.avatarClientService.queryOrderNumber(token, json);
             // 调商机系统，获取当月订购数
             Integer num = null;                             // TODO lihong 从商业系统获取
 
-            // 校验总数据
-            Boolean subCompanyOk = currentMonthList.size() < num ? true : false;
-            if (!subCompanyOk) {
+            // 业务校验：该吧的 订购数 > 已分配数
+            if (num <= count) {
                 // 该吧已分配数已经满了
                 exist.add(subCompanyId);
                 break;
             }
 
             // 校验媒体分配数
-            Map<Integer, Long> mediaIdMappingNum = null;  // TODO lihong 从商业系统获取
-            Map<Integer, Long> mediaMappingNum2 = currentMonthList.stream().collect(groupingBy(AllocateLog::getMediaid, counting())); //当月各媒体已分配数
-            for (Integer integer : mediaMappingNum2.keySet()) {
+            Map<Integer, Long> mediaIdMappingNumSys = null;  // TODO lihong 从商业系统获取
+            Map<Integer, Integer> mediaIdMappingNumDB =  userMonthInfoDBList.stream().collect(groupingBy(UserMonthInfo::getMediaid, summingInt(UserMonthInfo::getAssignedCustomerNum))); //当月各媒体已分配数
 
-            }
+
+            // 业务校验：
 
             // 当月该一级吧所有业务员的已分配数
-            Map<Integer, Long> salesmanIdMappingNum = currentMonthList.stream().collect(groupingBy(AllocateLog::getCreateUserId, counting()));
+            Map<Integer, Long> salesmanIdMappingNum = null; //currentMonthList.stream().collect(groupingBy(AllocateLog::getCreateUserId, counting()));
 
             // 获取当月该吧所有业务员，月分配数
-            UserMonthInfo e = new UserMonthInfo();
-            e.setCompanyid(subCompanyId);
-            e.setEffectiveDate(currentMonthStr);
-            e.setStatus(CommonEnum.entity_status1.getCode());
+            UserMonthInfo e2 = new UserMonthInfo();
+            e2.setCompanyid(subCompanyId);
+            e2.setEffectiveDate(currentMonthStr);
+            e2.setStatus(CommonEnum.entity_status1.getCode());
             List<UserMonthInfo> salesmanDataList = this.userMonthInfoService.findByParams(e);
             salesmanDataList = CollectionUtils.isEmpty(salesmanDataList) ? new ArrayList<>() : salesmanDataList;
 
             Integer salesmanId = null;
             Set<Integer> existSale = new HashSet<>();
-            while( subCompanyOk  && !existSale.contains(salesmanId)){
+            while( true  && !existSale.contains(salesmanId)){
                 // 循环一级吧下业务员
 
                 salesmanId = this.allocateRedisService.getAndPush2End(subCompanyId, baseChannelDTO.getMedia_id(), currentMonthStr);
@@ -413,29 +425,7 @@ public class AutoAllocateService {
             }
 
         }
-
-
-
-
-
-
-
-        Integer id = isFirst ? startSubCompanyId : recursionSubCompanyId;
-
-        Integer currentNum = null; // 当月实购数
-        Integer num = null; // 当月订购数
-
-        if (currentNum < num) {
-            // 符合商机系统分配规则
-            return id;
-        } else {
-            // 循环queue获取一级吧，但不能包含最初进入的(包含说明已经全部循环一遍了)
-            Integer temp = this.allocateRedisService.getSubCompanyIdFromQueue(token, cityName);
-            if (temp != null && !startSubCompanyId.equals(temp)){
-                return this.getSubCompanyIdFromQueue(token, cityName, false, startSubCompanyId, temp);
-            }
-        }*/
-            return null;
+        return null;
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.fjs.cronus.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.Common.ResultDescription;
@@ -23,6 +25,7 @@ import com.fjs.cronus.service.UserService;
 import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.CronusRedisService;
+import com.google.gson.Gson;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -37,6 +40,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -333,9 +337,6 @@ public class UserController {
         return resultDto;
     }
 
-    public static void main(String[] args) {
-    }
-
     @ApiOperation(value = "删除用户至自动分配队列", notes = "根据城市删除用户至自动分配队列")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")
@@ -452,13 +453,13 @@ public class UserController {
         return resultDto;
     }
 
-    @ApiOperation(value = "城市下一级吧queue-刷新数据", notes = "城市下一级吧queue：刷新数据 api")
+    @ApiOperation(value = "城市下,一级吧queue-刷新数据", notes = "城市下,一级吧queue：刷新数据 api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")
     })
-    @RequestMapping(value = "/listGet", method = RequestMethod.GET)
+    @RequestMapping(value = "/flushSubCompanyQueue", method = RequestMethod.GET)
     @ResponseBody
-    public TheaApiDTO listGet(@RequestHeader("Authorization") String token ) {
+    public TheaApiDTO flushSubCompanyQueue(@RequestHeader("Authorization") String token ) {
         TheaApiDTO resultDTO = new TheaApiDTO<>();
 
         try {

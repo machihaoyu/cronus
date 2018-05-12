@@ -131,20 +131,6 @@ public class CompanyMediaQueueService {
 
         companyMediaQueueMapper.updateCompanyMediaQueue(valuesParams, whereParams);
 
-        // 不用删除
-        // 逻辑删除user_month_info表数据
-        /*UserMonthInfo whereParamsUserMonthInfo = new UserMonthInfo();
-        whereParamsUserMonthInfo.setCompanyid(companyid);
-        whereParamsUserMonthInfo.setMediaid(mediaId);
-        whereParamsUserMonthInfo.setStatus(CommonEnum.entity_status1.getCode());
-
-        UserMonthInfo valueParamsUserMonthInfo = new UserMonthInfo();
-        valueParamsUserMonthInfo.setLastUpdateUser(currentUserId);
-        valueParamsUserMonthInfo.setLastUpdateTime(now);
-        valueParamsUserMonthInfo.setStatus(CommonEnum.entity_status0.getCode());
-
-        userMonthInfoService.updateUserMonthInfo(whereParamsUserMonthInfo, valueParamsUserMonthInfo);*/
-
         // 删除Redis队列
         allocateRedisService.delCompanyMediaQueueRedisQueue(companyid, mediaId, yearmonth);
     }

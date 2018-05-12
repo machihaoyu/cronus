@@ -102,17 +102,17 @@ public class OcdcService {
         List<String> successList = new ArrayList<>();
         List<String> ocdcMessage = new ArrayList<>();
         List<String> failList = new ArrayList<>();
-
+        boolean i = false; // TODO lihong 未开发完
         //遍历OCDC数据信息
-        if (ocdcData.getData()!=null && ocdcData.getData().size() > 0) {
+        if (i && ocdcData.getData()!=null && ocdcData.getData().size() > 0) {
             List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<CustomerSalePushLog>();
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
             Long lockToken = null;
-            for (String map : ocdcData.getData()) {
-                try { // 以单个顾客为维度try，且加锁
-                        lockToken = this.cRMRedisLockHelp.lockBySetNX2(CommonRedisConst.ALLOCATE_LOCK, 60, 8, 5);
+            try { // 以单个顾客为维度try，且加锁
+            lockToken = this.cRMRedisLockHelp.lockBySetNX2(CommonRedisConst.ALLOCATE_LOCK, 60, 8, 5);
+                for (String map : ocdcData.getData()) {
 
                         // 解析客户信息
                         JsonNode node = objectMapper.readValue(map, JsonNode.class);
@@ -275,11 +275,11 @@ public class OcdcService {
                     if (l > 30 * 1000) {
                         throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "服务超时");
                     }
-                } catch (Exception e) {
-                    logger.error("分配异常", e);
-                }finally {
-                    this.cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_LOCK, lockToken);
                 }
+            } catch (Exception e) {
+                logger.error("分配异常", e);
+            }finally {
+                this.cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_LOCK, lockToken);
             }
 
             // 保存OCDC推送日志
