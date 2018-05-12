@@ -42,4 +42,6 @@ public class CommonRedisConst {
      */
     public static String ROLE_INFO = "roleInfo_";
 
+    public static String LOCK_WAITING_POOL_ALLOCATE="lock_waiting_pool_allocate";
+
 }

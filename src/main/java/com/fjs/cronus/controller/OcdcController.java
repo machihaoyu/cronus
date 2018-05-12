@@ -152,6 +152,24 @@ public class OcdcController {
         return responseData;
     }
 
+    @ApiOperation(value = "待分配池分配锁开关", notes = "待分配池分配锁开关（0 运行，1停止）")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/switchWaitingPoolAllocate", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseData switchWaitingPoolAllocate(@RequestHeader("Authorization") String token) {
+        ResponseData responseData = new ResponseData();
+        try {
+            responseData.setRetData(ocdcService.switchWaitingPoolAllocate());
+            responseData.setErrNum("0");
+        } catch (Exception e) {
+            responseData.setErrMsg(e.getMessage());
+            responseData.setErrNum("1");
+        }
+        return responseData;
+    }
+
     @ApiOperation(value = "当前是否是工作时间", notes = "当前是否是工作时间")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),

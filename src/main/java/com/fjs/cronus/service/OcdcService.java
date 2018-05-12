@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
+import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.crm.OcdcData;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -90,6 +92,9 @@ public class OcdcService {
 
     @Autowired
     private ThorClientService thorClientService;
+
+    @Resource
+    RedisTemplate<String,String> redisConfigTemplete;
 
     @Transactional
     public synchronized List<String> addOcdcCustomer(OcdcData ocdcData, AllocateSource allocateSource, String token) {
@@ -279,6 +284,7 @@ public class OcdcService {
         List<String> allocateEntities = new ArrayList<>();
         String success = "";
         try {
+            logger.info("service_allocate_date:"+servicedData);
             OcdcData ocdcData = new OcdcData();
             List<String> listraw = new ArrayList<>();
             listraw.add(servicedData);
@@ -297,25 +303,48 @@ public class OcdcService {
      * 待分配池定时分配 5min
      */
     public void waitingPoolAllocate(String token) {
-        new Thread(() -> {
-            try {
-                StringBuffer sb = new StringBuffer();
-                sb.append("waitingPoolAllocate--");
-                OcdcData ocdcData = new OcdcData();
-                List<String> listraw = new ArrayList<>();
-                List<AgainAllocateCustomer> list = againAllocateCustomerService.getNonAllocateCustomer();
-                for (AgainAllocateCustomer againCustomer :
-                        list) {
-                    listraw.add(againCustomer.getJsonData());
+        ValueOperations<String, String> redis = redisConfigTemplete.opsForValue();
+        String close = redis.get(CommonRedisConst.LOCK_WAITING_POOL_ALLOCATE);
+        if (StringUtils.isNoneEmpty(close)&&close.equals("1")) {
+            logger.warn(CommonRedisConst.LOCK_WAITING_POOL_ALLOCATE +" lock");
+        }
+        else
+        {
+            new Thread(() -> {
+                try {
+                    StringBuffer sb = new StringBuffer();
+                    sb.append("waitingPoolAllocate--");
+                    OcdcData ocdcData = new OcdcData();
+                    List<String> listraw = new ArrayList<>();
+                    List<AgainAllocateCustomer> list = againAllocateCustomerService.getNonAllocateCustomer();
+                    for (AgainAllocateCustomer againCustomer :
+                            list) {
+                        listraw.add(againCustomer.getJsonData());
+                    }
+                    ocdcData.setData(listraw);
+                    List<String> list1 = addOcdcCustomer(ocdcData, AllocateSource.WAITING, token);
+                    sb.append(list1);
+                    logger.warn(sb.toString());
+                } catch (Exception e) {
+                    logger.error("waitingPoolAllocate--", e.getMessage());
                 }
-                ocdcData.setData(listraw);
-                List<String> list1 = addOcdcCustomer(ocdcData, AllocateSource.WAITING, token);
-                sb.append(list1);
-                logger.warn(sb.toString());
-            } catch (Exception e) {
-                logger.error("waitingPoolAllocate--",e.getMessage());
-            }
-        }).run();
+            }).run();
+        }
+    }
+
+    public String switchWaitingPoolAllocate()
+    {
+        ValueOperations<String, String> redis = redisConfigTemplete.opsForValue();
+        String close = redis.get(CommonRedisConst.LOCK_WAITING_POOL_ALLOCATE);
+        if (StringUtils.isNoneEmpty(close)&&close.equals("1")) {
+            redis.set(CommonRedisConst.LOCK_WAITING_POOL_ALLOCATE,"0");
+            return "0";
+        }
+        else
+        {
+            redis.set(CommonRedisConst.LOCK_WAITING_POOL_ALLOCATE,"1");
+            return "1";
+        }
     }
 
 
