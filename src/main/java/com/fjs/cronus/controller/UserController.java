@@ -421,19 +421,15 @@ public class UserController {
         TheaApiDTO resultDto = new TheaApiDTO();
         try {
             // 参加校验
-            Integer mediaId = params.getInteger("mediaId");
             Integer companyid = params.getInteger("companyid");
 
-            if (mediaId == null) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mediaId 不能为null");
-            }
             if (companyid == null) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "companyid 不能为null");
             }
 
             Integer updateUserId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
 
-            userMonthInfoService.copyCurrentMonthDataToNexMonth(updateUserId, companyid, mediaId);
+            userMonthInfoService.copyCurrentMonthDataToNexMonth(updateUserId, companyid);
 
             resultDto.setResult(CommonMessage.SUCCESS.getCode());
             resultDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
