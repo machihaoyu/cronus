@@ -237,4 +237,8 @@
         </foreach>
     </insert>
 
+    <select id="getOrderNum" resultType="java.lang.Integer">
+        SELECT SUM(`assigned_customer_num`) FROM `user_month_info` WHERE `companyid`=#{companyid} AND `effective_date`=#{effectiveDate} AND `status`=#{status}
+    </select>
+
 </mapper>

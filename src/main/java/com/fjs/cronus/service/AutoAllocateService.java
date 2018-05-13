@@ -8,6 +8,9 @@ import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
+import com.fjs.cronus.dto.avatar.AvatarApiDTO;
+import com.fjs.cronus.dto.avatar.OrderNumberDTO;
+import com.fjs.cronus.dto.avatar.OrderNumberDetailDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.BaseChannelDTO;
@@ -142,6 +145,7 @@ public class AutoAllocateService {
 
             boolean allocateToPublic = this.isAllocateToPublic(customerDTO.getUtmSource()); // 根据渠道，判断是否需要自动分配
 
+            // 商机系统需要产出的几个变量
             Integer subCompanyIdBox = null; // 一级吧id
             Integer salesmanIdBox = null;   // 业务员id
             BaseChannelDTO baseChannelDTO = null; // 来源、媒体、渠道
@@ -312,151 +316,138 @@ public class AutoAllocateService {
      */
     private Boolean allocateForAvatar(String token, AllocateSource allocateSource, CustomerDTO customerDTO, BaseChannelDTO baseChannelDTO, Integer subCompanyIdBox, Integer salesmanIdBox) {
 
-        // TODO lihong
-        /*Integer media_id = baseChannelDTO.getMedia_id();
-        // 找一级吧（队列获取）
-        subCompanyId = this.getSubCompanyIdFromQueue(token, customerDTO.getCity(), true, subCompanyId, null);
-        if (subCompanyId == null) return false; // 进入待分配池（缓存被意外动过导致为null情况）
-
-        // 根据媒体找业务员（队列获取）
-        Integer source_id = baseChannelDTO.getSource_id();
-        String currentMonthStr = this.allocateRedisService.getCurrentMonthStr();
-        Integer salesmanId = this.allocateRedisService.getAndPush2End(subCompanyId, media_id, currentMonthStr);
-        if (salesmanId == null){
-            // 具体媒体queue无时，去总分配queue找
-            salesmanId = this.allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
-            media_id = CommonConst.COMPANY_MEDIA_QUEUE_COUNT;
-            baseChannelDTO.setMedia_id(CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
-            if (salesmanId == null) return false; // 进入待分配池
-        }
-        salesmanId = this.getAndCheckSalesmanId(subCompanyId, media_id, currentMonthStr, true, salesmanId, null);
-        if (salesmanId == null) return false; // 进入待分配池（缓存被意外动过导致为null情况）
-
-        subCompanyIdBox = subCompanyId; // 记录分给的一级吧
-        salesmanIdBox = salesmanId;     // 记录分给的业务员*/
-        return true; // 符合商机系统
-    }
-
-    /**
-     * 商机分配规则:获取一级吧id.
-     */
-    private Integer getSubCompanyIdFromQueue(String token, String cityName, BaseChannelDTO baseChannelDTO){
-
-        // TODO lihong
         String currentMonthStr = this.allocateRedisService.getCurrentMonthStr();
 
-        // 查看该一级吧是否满足商机系统分配规则,满足就分配到业务员
-        // 月分配数 < 订购数
+        // 商机分配规则（前提：新客户、在有效城市范围内）
+        // 1、 根据城市，从城市queue中获取一级吧
+        // 2、 要求该一级吧媒体的订购数（商机系统获取） > 已购数
+        // 3、 从该媒体的业务员分配queue中，找业务员
+        // 4、 要求业务员 分配数 > 已购数
+        // 5、 如4不满足，则从总queue中，找业务员
+        // 5、 要求业务员 分配数 > 已购数
+        // 6、 最终要么为客户找到业务员，要么进入待分配池
 
-        Integer subCompanyId = null;
-        Set<Integer> exist = new HashSet<>();
+        Integer media_id = baseChannelDTO.getMedia_id(); // 媒体id
+        boolean isFindSuccess = false; // 找到接待的业务员
 
-        while(!exist.contains(subCompanyId)) {
-            // 循环城市下一级吧
+        Integer subCompanyId = null; // 要找的一级吧
+        Integer salesmanId = null;   // 要找的业务员
+
+        Set<Integer> existCompanyid = new HashSet<>();
+        while(!existCompanyid.contains(subCompanyId)) {
+            // 循环城市下一级吧queue
 
             // 从queue获取一级吧
-            subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(token, cityName);
+            subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(token, customerDTO.getCity());
             if (subCompanyId == null) {
-                // queue中无一级吧
-                exist.add(subCompanyId);
+                // queue中无一级吧，城市下无一级吧
                 break;
             }
 
             // 获取当月已分配数
-            UserMonthInfo e = new UserMonthInfo();
-            e.setCompanyid(subCompanyId);
-            e.setEffectiveDate(currentMonthStr);
-            e.setStatus(CommonEnum.entity_status1.getCode());
-            List<UserMonthInfo> userMonthInfoDBList = userMonthInfoMapper.select(e);
-            userMonthInfoDBList = CollectionUtils.isEmpty(userMonthInfoDBList) ? new ArrayList<>() : userMonthInfoDBList;
-
-            Integer count = 0; // 该一级吧已分配数
-            List<UserMonthInfo> list = userMonthInfoDBList.stream().filter(item -> item != null && CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(item.getMediaid())).collect(toList());
-            if (list != null && list.get(0) != null && list.get(0).getAssignedCustomerNum() != null) {
-                count = list.get(0).getAssignedCustomerNum();
-            }
+            Integer orderNumOfCompany = userMonthInfoMapper.getOrderNum(subCompanyId, currentMonthStr, CommonEnum.entity_status1.getCode());
+            orderNumOfCompany = orderNumOfCompany == null ? 0 : orderNumOfCompany;
 
             // 从商家系统获取
             JSONObject json = new JSONObject();
             json.put("firstBarId ", subCompanyId);
             json.put("month  ", currentMonthStr);
-            this.avatarClientService.queryOrderNumber(token, json);
-            // 调商机系统，获取当月订购数
-            Integer num = null;                             // TODO lihong 从商业系统获取
-
-            // 业务校验：该吧的 订购数 > 已分配数
-            if (num <= count) {
-                // 该吧已分配数已经满了
-                exist.add(subCompanyId);
-                break;
+            AvatarApiDTO<OrderNumberDTO> orderNumberDTOAvatarApiDTO = this.avatarClientService.queryOrderNumber(token, json);
+            if (orderNumberDTOAvatarApiDTO == null || orderNumberDTOAvatarApiDTO.getResult() != 0) {
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "请求商机系统异常：响应为null");
+            }
+            if (orderNumberDTOAvatarApiDTO.getResult() != 0) {
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "请求商机系统异常:" + orderNumberDTOAvatarApiDTO.getMessage());
+            }
+            OrderNumberDTO data = orderNumberDTOAvatarApiDTO.getData();
+            if (data == null || CollectionUtils.isEmpty(data.getOrderNumberList())) {
+                // 响应正常，但无数据视为未订购
+                existCompanyid.add(subCompanyId);
+                continue;
+            }
+            Integer orderNumber = null;
+            List<OrderNumberDetailDTO> orderNumberList = data.getOrderNumberList();
+            for (OrderNumberDetailDTO orderNumberDetailDTO : orderNumberList) {
+                if (media_id.equals(orderNumberDetailDTO.getMeidaId())) {
+                    orderNumber = orderNumberDetailDTO.getOrderNumber();
+                    break;
+                }
+            }
+            if (orderNumber == null || orderNumber.equals(0)) {
+                // 无订购数
+                existCompanyid.add(subCompanyId);
+                continue;
+            }
+            if (orderNumOfCompany >= orderNumber) {
+                // 已购数 >= 订购数
+                existCompanyid.add(subCompanyId);
+                continue;
             }
 
-            // 校验媒体分配数
-            Map<Integer, Long> mediaIdMappingNumSys = null;  // TODO lihong 从商业系统获取
-            Map<Integer, Integer> mediaIdMappingNumDB =  userMonthInfoDBList.stream().collect(groupingBy(UserMonthInfo::getMediaid, summingInt(UserMonthInfo::getAssignedCustomerNum))); //当月各媒体已分配数
+            String saleFlag = null; // 由于业务员可以在不同媒体队列中出现，所以需要联合媒体id一起作为标记；结构：mediaid$saleid
+            Set<String> existSale = new HashSet<>();
+            while(!existSale.contains(saleFlag)){
+                // 业务员queue
 
+                boolean idFromCountQueue = false; // 记录业务员是从特殊媒体queue取出，还是总queue中取出.
 
-            // 业务校验：
-
-            // 当月该一级吧所有业务员的已分配数
-            Map<Integer, Long> salesmanIdMappingNum = null; //currentMonthList.stream().collect(groupingBy(AllocateLog::getCreateUserId, counting()));
-
-            // 获取当月该吧所有业务员，月分配数
-            UserMonthInfo e2 = new UserMonthInfo();
-            e2.setCompanyid(subCompanyId);
-            e2.setEffectiveDate(currentMonthStr);
-            e2.setStatus(CommonEnum.entity_status1.getCode());
-            List<UserMonthInfo> salesmanDataList = this.userMonthInfoMapper.select(e);
-            salesmanDataList = CollectionUtils.isEmpty(salesmanDataList) ? new ArrayList<>() : salesmanDataList;
-
-            Integer salesmanId = null;
-            Set<Integer> existSale = new HashSet<>();
-            while( true  && !existSale.contains(salesmanId)){
-                // 循环一级吧下业务员
-
-                salesmanId = this.allocateRedisService.getAndPush2End(subCompanyId, baseChannelDTO.getMedia_id(), currentMonthStr);
+                // 找业务员
+                salesmanId = this.allocateRedisService.getAndPush2End(subCompanyId, media_id, currentMonthStr);
                 if (salesmanId == null) {
                     // 业务需求，特殊queue中找不到就去总队列中找
                     salesmanId = this.allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
+                    idFromCountQueue = true;
                 }
-                if (salesmanId == null) break; // queue中无业务员
+                if (salesmanId == null){
+                    // 特殊队列、总队列都没业务员
+                    break;
+                }
 
-                //
+                // 比较该业务员的 已购数据、分配数
+                UserMonthInfo e = new UserMonthInfo();
+                e.setCompanyid(subCompanyId);
+                e.setUserId(salesmanId);
+                e.setMediaid(idFromCountQueue ?  CommonConst.COMPANY_MEDIA_QUEUE_COUNT : media_id);
+                e.setEffectiveDate(currentMonthStr);
+                e.setStatus(CommonEnum.entity_status1.getCode());
+                List<UserMonthInfo> select = userMonthInfoMapper.select(e);
+                if (CollectionUtils.isEmpty(select)) {
+                    // 数据错误，直接忽略，给下一个业务员处理
+                    existSale.add(media_id + "$" + salesmanId);
+                    continue;
+                }
 
+                UserMonthInfo userMonthInfo = select.get(0);
+                if (userMonthInfo == null
+                        || userMonthInfo.getBaseCustomerNum() == null
+                        || userMonthInfo.getRewardCustomerNum() == null
+                        || userMonthInfo.getAssignedCustomerNum() == null
+                        ) {
+                    // 数据错误，直接忽略，给下一个业务员处理
+                    existSale.add(media_id + "$" + salesmanId);
+                    continue;
+                }
 
+                if (userMonthInfo.getAssignedCustomerNum() >=  (userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) ) {
+                    // 该业务员 已购数 >= 分配数
+                    existSale.add(media_id + "$" + salesmanId);
+                    continue;
+                }
 
-                existSale.add(salesmanId);
+                // 该客户由该业务员接待
+                isFindSuccess = true;
+                break;
             }
 
-        }
-        return null;
-    }
-
-    /**
-     * 商机分配规则:获取一级吧下，符合商机系统规则的业务员.
-     */
-    private Integer getAndCheckSalesmanId(Integer subCompanyId, Integer mediaId, String currentMonthStr, boolean isFirst, Integer startSalesmanId, Integer recursionSaleSmanId) {
-        // 查看该一级吧是否满足商机系统分配规则,满足就分配到业务员
-        // 规则：
-        // 1、优先从特殊队列（媒体对应的队列）找
-        // 2、再从总分配队列找
-        Integer id = isFirst ? startSalesmanId : recursionSaleSmanId;
-
-        Integer currentNum = null; // 当月实购数
-        Integer num = null; // 当月订购数
-
-
-        if (currentNum < num) {
-            // 符合商机系统分配规则
-            return id;
-        } else {
-            // 循环queue找，但不能包含最初进入的(包含说明已经全部循环一遍了)
-            Integer temp = this.allocateRedisService.getAndPush2End(subCompanyId, mediaId, currentMonthStr);
-            if (temp != null && !startSalesmanId.equals(temp)){
-                return this.getAndCheckSalesmanId(subCompanyId, mediaId, currentMonthStr, false, startSalesmanId, temp);
+            if (isFindSuccess) {
+                // 已找到接待的业务员
+                subCompanyIdBox = subCompanyId;
+                salesmanIdBox = salesmanId;
+                break;
             }
-            return null;
         }
+
+        return isFindSuccess; // 符合商机系统
     }
 
     /**

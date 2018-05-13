@@ -19,4 +19,9 @@ public interface UserMonthInfoMapper extends MyMapper<UserMonthInfo>{
     Integer updateUserMonthInfo(@Param("whereParams") UserMonthInfo whereParams, @Param("valueParams") UserMonthInfo valueParams);
 
     Integer insertList2(List<UserMonthInfo> userMonthInfos);
+
+    /**
+     * 获取某一级吧，该月已购数.
+     */
+    Integer getOrderNum(@Param("companyid") Integer subCompanyId, @Param("effectiveDate") String effectiveDate, @Param("status") Integer status);
 }
