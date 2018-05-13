@@ -24,4 +24,9 @@ public interface UserMonthInfoMapper extends MyMapper<UserMonthInfo>{
      * 获取某一级吧，该月已购数.
      */
     Integer getOrderNum(@Param("companyid") Integer subCompanyId, @Param("effectiveDate") String effectiveDate, @Param("status") Integer status);
+
+    /**
+     * 更新业务员分配数.
+     */
+    void update2IncrNum(@Param("id")Integer id);
 }

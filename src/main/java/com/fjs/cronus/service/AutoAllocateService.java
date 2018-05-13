@@ -149,14 +149,16 @@ public class AutoAllocateService {
             Integer subCompanyIdBox = null; // 一级吧id
             Integer salesmanIdBox = null;   // 业务员id
             BaseChannelDTO baseChannelDTO = null; // 来源、媒体、渠道
+            String currentMonthStr = null; // 当月字符串
 
             // 分配规则
             if ( ( customerDTO.getId() == null || customerDTO.getId().equals(0) ) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
                 // 商机系统分支
                 // 规则：1、新用户；2、在有效城市范围内
-
+                currentMonthStr = this.allocateRedisService.getCurrentMonthStr();
                 baseChannelDTO = this.getChannelInfoByChannelName(customerDTO.getUtmSource()); // 根据渠道获取来源、媒体
-                if (this.allocateForAvatar(token, allocateSource, customerDTO, baseChannelDTO, subCompanyIdBox, salesmanIdBox)) {
+
+                if (this.allocateForAvatar(token, allocateSource, customerDTO, baseChannelDTO, subCompanyIdBox, salesmanIdBox, currentMonthStr)) {
                     allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
                     customerDTO.setOwnerUserId(salesmanIdBox);
                 } else {
@@ -279,6 +281,10 @@ public class AutoAllocateService {
                         String loan = this.addLoan(customerDTO, token);
                         allocateEntity.setDescription(loan);
                     }
+
+                    // TODO lihong 记录分配数
+                    this.userMonthInfoService.incrNum2DB(subCompanyIdBox, baseChannelDTO, salesmanIdBox, currentMonthStr);
+
                     this.sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     break;
                 case "2": // 进入待分配池
@@ -314,10 +320,7 @@ public class AutoAllocateService {
     /**
      * 商机系统分配规则.
      */
-    private Boolean allocateForAvatar(String token, AllocateSource allocateSource, CustomerDTO customerDTO, BaseChannelDTO baseChannelDTO, Integer subCompanyIdBox, Integer salesmanIdBox) {
-
-        String currentMonthStr = this.allocateRedisService.getCurrentMonthStr();
-
+    private Boolean allocateForAvatar(String token, AllocateSource allocateSource, CustomerDTO customerDTO, BaseChannelDTO baseChannelDTO, Integer subCompanyIdBox, Integer salesmanIdBox, String currentMonthStr) {
         // 商机分配规则（前提：新客户、在有效城市范围内）
         // 1、 根据城市，从城市queue中获取一级吧
         // 2、 要求该一级吧媒体的订购数（商机系统获取） > 已购数

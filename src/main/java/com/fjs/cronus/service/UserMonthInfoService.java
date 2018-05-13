@@ -3,6 +3,7 @@ package com.fjs.cronus.service;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonRedisConst;
+import com.fjs.cronus.dto.thea.BaseChannelDTO;
 import com.fjs.cronus.entity.CompanyMediaQueue;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CompanyMediaQueueMapper;
@@ -318,4 +319,37 @@ public class UserMonthInfoService {
         }
     }
 
+    /**
+     * ocdc 推送后，自动分配成功后，记录该业务员的分配数.
+     */
+    public synchronized void incrNum2DB(Integer subCompanyId, BaseChannelDTO baseChannelDTO, Integer salesmanId, String currentMonth) {
+
+        UserMonthInfo e = new UserMonthInfo();
+        e.setCompanyid(subCompanyId);
+        e.setMediaid(baseChannelDTO.getMedia_id());
+        e.setUserId(salesmanId);
+        e.setEffectiveDate(currentMonth);
+        e.setStatus(CommonEnum.entity_status1.getCode());
+        List<UserMonthInfo> select = userMonthInfoMapper.select(e);
+
+        Date now = new Date();
+        if (CollectionUtils.isEmpty(select) || select.get(0) == null) {
+            // 无就新增:正常情况下事不会走这条分支
+            // 记录数据
+            UserMonthInfo ee = new UserMonthInfo();
+            ee.setCreateTime(now);
+            ee.setLastUpdateTime(now);
+            ee.setAssignedCustomerNum(1);
+            ee.setBaseCustomerNum(-9999);
+            ee.setStatus(CommonEnum.entity_status0.getCode());
+            userMonthInfoMapper.insert(ee);
+        } else {
+            UserMonthInfo userMonthInfo = select.get(0);
+
+            // CAS 方式更新数据
+            userMonthInfoMapper.update2IncrNum(userMonthInfo.getId());
+        }
+
+        // TODO lihong 记录日志
+    }
 }

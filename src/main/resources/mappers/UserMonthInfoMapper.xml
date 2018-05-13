@@ -241,4 +241,8 @@
         SELECT SUM(`assigned_customer_num`) FROM `user_month_info` WHERE `companyid`=#{companyid} AND `effective_date`=#{effectiveDate} AND `status`=#{status}
     </select>
 
+    <update id="update2IncrNum">
+        UPDATE `user_month_info` SET `assigned_customer_num`= `assigned_customer_num`+1 WHERE `id`=#{id}
+    </update>
+
 </mapper>
