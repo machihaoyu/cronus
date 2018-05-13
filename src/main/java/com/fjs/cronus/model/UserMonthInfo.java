@@ -4,6 +4,7 @@ package com.fjs.cronus.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.persistence.Column;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -28,36 +29,45 @@ public class UserMonthInfo implements Serializable{
     private Integer id;
 
     @ApiModelProperty(value = "用户ID", required = false)
+    @Column(name = "user_id")
     private Integer userId;
 
     @ApiModelProperty(value = "月申请数", required = false)
+    @Column(name = "base_customer_num")
     private Integer baseCustomerNum;
 
     @ApiModelProperty(value = "月奖励数", required = false)
+    @Column(name = "reward_customer_num")
     private Integer rewardCustomerNum;
 
     @ApiModelProperty(value = "已分配数", required = false)
+    @Column(name = "assigned_customer_num")
     private Integer assignedCustomerNum;
 
     @ApiModelProperty(value = "有效数", required = false)
+    @Column(name = "effective_customer_num")
     private Integer effectiveCustomerNum;
 
     @ApiModelProperty(value = "创建时间", required = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @Column(name = "create_time")
     private Date createTime;
 
     @ApiModelProperty(value = "最新保存时间", required = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @Column(name = "last_update_time")
     private Date lastUpdateTime;
 
     @ApiModelProperty(value = "生效时间", required = false)
-
+    @Column(name = "effective_date")
     private String effectiveDate;
 
     @ApiModelProperty(value = "最新保存用户ID", required = false)
+    @Column(name = "last_update_user")
     private Integer lastUpdateUser;
 
     @ApiModelProperty(value = "创建用户ID", required = false)
+    @Column(name = "create_user_id")
     private Integer createUserId;
 
     /**

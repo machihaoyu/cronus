@@ -203,7 +203,7 @@
         </where>
     </update>
 
-    <insert id="insertList" parameterType="java.util.List" useGeneratedKeys="true">
+    <insert id="insertList2" parameterType="java.util.List" useGeneratedKeys="true">
         INSERT INTO user_month_info (
             user_id,
             base_customer_num,

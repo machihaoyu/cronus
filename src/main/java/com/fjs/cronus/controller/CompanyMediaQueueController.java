@@ -37,7 +37,6 @@ public class CompanyMediaQueueController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
             @ApiImplicitParam(name = "subCompanyId", value = "分公司id;一级吧id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "yearmonth", value = "查月份，格式yyyyMM", required = true, paramType = "query", dataType = "string"),
     })
     @GetMapping(value = "/findByCompanyId")
     public CronusDto findByCompanyId(@RequestHeader(name = "Authorization") String token, @RequestParam Integer subCompanyId, @RequestParam String yearmonth) {
@@ -47,13 +46,9 @@ public class CompanyMediaQueueController {
             if (subCompanyId == null) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "subCompanyId 不能为null");
             }
-            if (yearmonth == null) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "yearmonth 不能为null");
-            }
-
             String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-            List<Map<String, Object>> data = companyMediaQueueService.findByCompanyId(token, Integer.valueOf(userId), subCompanyId, yearmonth);
+            List<Map<String, Object>> data = companyMediaQueueService.findByCompanyId(token, Integer.valueOf(userId), subCompanyId);
             result.setData(data);
             result.setResult(CommonMessage.SUCCESS.getCode());
         } catch (Exception e) {
@@ -75,7 +70,7 @@ public class CompanyMediaQueueController {
     @ApiOperation(value = "创建特殊队列", notes = " 创建特殊队列 api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
-            @ApiImplicitParam(name = "params", value = "提交数据", required = false, paramType = "body", dataType = "object", example = "{'mediaIds':'1,2,3','companyid':'123'}"),
+            @ApiImplicitParam(name = "params", value = "提交数据,{'mediaIds':'1,2,3','companyid':123}", paramType = "body", dataType = "JSONObject"),
     })
     @PostMapping(value = "/addCompanyMediaQueue")
     public CronusDto addCompanyMediaQueue(@RequestHeader(name = "Authorization") String token, @RequestBody JSONObject params) {
@@ -100,7 +95,7 @@ public class CompanyMediaQueueController {
 
             String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-            companyMediaQueueService.addCompanyMediaQueue(token, Integer.valueOf(userId), companyid, mediaIdsSet, params.getString("yearmonth"));
+            companyMediaQueueService.addCompanyMediaQueue(token, Integer.valueOf(userId), companyid, mediaIdsSet);
 
             result.setData(CommonMessage.SUCCESS.getCodeDesc());
             result.setResult(CommonMessage.SUCCESS.getCode());
@@ -123,7 +118,7 @@ public class CompanyMediaQueueController {
     @ApiOperation(value = "删除特殊队列", notes = "删除特殊队列 api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
-            @ApiImplicitParam(name = "params", value = "提交数据", required = false, paramType = "body", dataType = "object", example = "{'mediaId':'1','companyid':'123'}"),
+            @ApiImplicitParam(name = "params", value = "提交数据,{'mediaId':1,'companyid':123,}", paramType = "body", dataType = "JSONObject"),
     })
     @PostMapping(value = "/delCompanyMediaQueue")
     public CronusDto delCompanyMediaQueue(@RequestHeader(name = "Authorization") String token,@RequestBody JSONObject params) {
@@ -141,7 +136,7 @@ public class CompanyMediaQueueController {
 
             String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-            companyMediaQueueService.delCompanyMediaQueue(Integer.valueOf(userId), companyid, mediaId, params.getString("yearmonth"));
+            companyMediaQueueService.delCompanyMediaQueue(Integer.valueOf(userId), companyid, mediaId);
 
             result.setData(CommonMessage.SUCCESS.getCodeDesc());
             result.setResult(CommonMessage.SUCCESS.getCode());
@@ -154,6 +149,36 @@ public class CompanyMediaQueueController {
             } else {
                 // 未知异常
                 logger.error("创建特殊队列", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "test", notes = "test api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "params", value = "提交数据", required = false, paramType = "body", dataType = "object"),
+    })
+    @PostMapping(value = "/test")
+    public CronusDto test(@RequestHeader(name = "Authorization") String token,@RequestBody JSONObject params) {
+        CronusDto result = new CronusDto();
+        try {
+            // 参加校验
+            companyMediaQueueService.test();
+
+            result.setData(CommonMessage.SUCCESS.getCodeDesc());
+            result.setResult(CommonMessage.SUCCESS.getCode());
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("test", e);
                 result.setResult(CommonMessage.FAIL.getCode());
                 result.setMessage(e.getMessage());
             }

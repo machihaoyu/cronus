@@ -3,23 +3,25 @@ package com.fjs.cronus.service;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonRedisConst;
+import com.fjs.cronus.entity.CompanyMediaQueue;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.CompanyMediaQueueMapper;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
-import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.UserMonthInfo;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.CRMRedisLockHelp;
-import com.fjs.cronus.util.DateUtils;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import tk.mybatis.mapper.entity.Example;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 
@@ -41,6 +43,10 @@ public class UserMonthInfoService {
     @Autowired
     private AllocateRedisService allocateRedisService;
 
+    @Autowired
+    private CompanyMediaQueueMapper companyMediaQueueMapper;
+
+
     public List<UserMonthInfo> selectByParamsMap(Map<String, Object> map) {
         return userMonthInfoMapper.selectByParamsMap(map);
     }
@@ -50,7 +56,7 @@ public class UserMonthInfoService {
     }
 
     public Integer insertList(List<UserMonthInfo> userMonthInfoList) {
-        return userMonthInfoMapper.insertList(userMonthInfoList);
+        return userMonthInfoMapper.insertList2(userMonthInfoList);
     }
 
     public List<UserMonthInfo> findByParams(UserMonthInfo params) {
@@ -66,72 +72,109 @@ public class UserMonthInfoService {
 
             Date now = new Date();
             Object o = null;
-            // 获取当月、下月的effective_date
+            // ====== 业务分析 ======
+            // 1、拷贝是只将该一级吧，当月的分配数---拷贝到--->下月
+            // 2、只拷贝用户关注的特殊渠道
+            // 3、如果是关注且存在--->覆盖、如果是关注且不存在--->新增、如果是不关注且存在--->归0
 
+            // 获取当月、下月的effective_date
             String currentMothStr = allocateRedisService.getCurrentMonthStr();
             String nextMothfStr = allocateRedisService.getNextMonthStr();
 
+            // 获取用户关注的媒体
+            CompanyMediaQueue e = new CompanyMediaQueue();
+            e.setCompanyid(companyid);
+            e.setStatus(CommonEnum.entity_status1.getCode());
+            List<CompanyMediaQueue> companyMediaQueueList = companyMediaQueueMapper.select(e);
+            Set<Integer> followMediaSet = CollectionUtils.isEmpty(companyMediaQueueList) ? new HashSet<>() : companyMediaQueueList.stream().map(CompanyMediaQueue::getMediaid).collect(toSet());
+            if (CollectionUtils.isEmpty(followMediaSet)) {
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "数据异常，未发现用户关注媒体队列数据");
+            }
+
             // 获取下月的分配数
-            UserMonthInfo whereParams3 = new UserMonthInfo();
-            whereParams3.setStatus(CommonEnum.entity_status1.getCode());
-            whereParams3.setCompanyid(companyid);
-            whereParams3.setEffectiveDate(nextMothfStr);
-            List<UserMonthInfo> nextMonthAllDataList = userMonthInfoMapper.findByParams(whereParams3);
+            UserMonthInfo whereParams = new UserMonthInfo();
+            whereParams.setStatus(CommonEnum.entity_status1.getCode());
+            whereParams.setCompanyid(companyid);
+            whereParams.setEffectiveDate(nextMothfStr);
+            List<UserMonthInfo> nextMonthAllDataList = userMonthInfoMapper.select(whereParams);
             nextMonthAllDataList = CollectionUtils.isEmpty(nextMonthAllDataList) ? new ArrayList<>() : nextMonthAllDataList;
 
-            // 获取当月数据
-            UserMonthInfo whereParams2 = new UserMonthInfo();
-            whereParams2.setStatus(CommonEnum.entity_status1.getCode());
-            whereParams2.setCompanyid(companyid);
-            whereParams2.setEffectiveDate(currentMothStr);
-            List<UserMonthInfo> currentMothDataList = userMonthInfoMapper.findByParams(whereParams2);
+            Map<String, List<UserMonthInfo>> nextMonthData = nextMonthAllDataList.stream().collect(groupingBy(i -> {
+                return i.getUserId() + "$" + i.getMediaid();
+            }));
+
+            // 获取当月数据、关注着的分配数
+            Example example = new Example(UserMonthInfo.class);
+            Example.Criteria criteria = example.createCriteria();
+            criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
+            criteria.andEqualTo("companyid", companyid);
+            criteria.andEqualTo("effectiveDate", currentMothStr);
+            Set<Integer> mediaSet = followMediaSet;
+            mediaSet.add(CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
+            criteria.andIn("mediaid", mediaSet);
+            List<UserMonthInfo> currentMothDataList = userMonthInfoMapper.selectByExample(example);
             currentMothDataList = CollectionUtils.isEmpty(currentMothDataList) ? new ArrayList<>() : currentMothDataList;
 
-            // 业务校验：下月总队列数据 需要>= 这月总队列数据
-            Map<Integer, List<UserMonthInfo>> nextMonthCountMap = nextMonthAllDataList.stream().filter(i -> CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())).collect(groupingBy(UserMonthInfo::getUserId,toList()));
-            List<UserMonthInfo> currentMonthCount = currentMothDataList.stream().filter(i -> CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())).collect(toList());
-            if (CollectionUtils.isEmpty(currentMonthCount)) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，未找到当月的总队列数据");
-            }
-            if (nextMonthCountMap != null && nextMonthCountMap.size() > 0) {
-                for (UserMonthInfo currentMonth : currentMonthCount) {
-                    List<UserMonthInfo> nextMonthList = nextMonthCountMap.get(currentMonth.getUserId());
-                    if (CollectionUtils.isEmpty(nextMonthList) || nextMonthList.get(0) == null) {
-                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，在下月总队列中未找到业务员为 " + currentMonth.getUserId() + " 的数据");
-                    }
-                    UserMonthInfo nextMonthInfo = nextMonthList.get(0);
-                    if (nextMonthInfo.getBaseCustomerNum() < currentMonth.getBaseCustomerNum()) {
-                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "业务员为 " + currentMonth.getUserId() + " 下月总队列分配数 < 当月分配数");
-                    }
-                    if (nextMonthInfo.getRewardCustomerNum() < currentMonth.getRewardCustomerNum()) {
-                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "业务员为 " + currentMonth.getUserId() + " 下月总队列奖励数 < 当月奖励数");
-                    }
-                }
-            }
+            // 找要入库的数据
+            List<UserMonthInfo> toCoverData = new ArrayList<>();    // 覆被盖
+            List<UserMonthInfo> toInitData = nextMonthAllDataList.stream().filter(i->i !=null && !mediaSet.contains(i.getMediaid())).collect(toList()); // 要归0
+            List<UserMonthInfo> toNewData = new ArrayList<>();      // 要新增的
 
-            // 准备入库数据
-            List<UserMonthInfo> toDB = new ArrayList<>();
-            List<Integer> mediaIds = new ArrayList<>();
-            Set<String> nextMonthExsitData = nextMonthAllDataList.stream().map(i -> "下月已存在数据不用复制" + i.getMediaid() + "$" + i.getUserId()).collect(toSet());
             for (UserMonthInfo userMonthInfo : currentMothDataList) {
-                String tempId = "下月已存在数据不用复制" + userMonthInfo.getMediaid() + "$" + userMonthInfo.getUserId();
-                if (!nextMonthExsitData.contains(tempId)) {
-                    userMonthInfo.setEffectiveDate(nextMothfStr);
-                    userMonthInfo.setLastUpdateTime(now);
-                    userMonthInfo.setLastUpdateUser(updateUserId);
-                    userMonthInfo.setCreateTime(now);
-                    userMonthInfo.setCreateUserId(updateUserId);
-                    userMonthInfo.setAssignedCustomerNum(0);
-                    userMonthInfo.setEffectiveCustomerNum(0);
-                    toDB.add(userMonthInfo);
-                    mediaIds.add(userMonthInfo.getMediaid());
+                String key2 = userMonthInfo.getUserId() + "$" + userMonthInfo.getMediaid();
+                List<UserMonthInfo> list = nextMonthData.get(key2);
+                if (CollectionUtils.isEmpty(list) || list.get(0) == null) {
+                    // 当月有，下月无 ---> 新增
+                    UserMonthInfo copy = new UserMonthInfo();
+                    copy.setBaseCustomerNum(userMonthInfo.getBaseCustomerNum());
+                    copy.setRewardCustomerNum(userMonthInfo.getRewardCustomerNum());
+                    copy.setAssignedCustomerNum(0);
+                    copy.setEffectiveCustomerNum(0);
+                    copy.setEffectiveDate(nextMothfStr);
+                    copy.setLastUpdateTime(now);
+                    copy.setCreateTime(now);
+                    copy.setUserId(userMonthInfo.getUserId());
+                    copy.setCreateUserId(updateUserId);
+                    copy.setLastUpdateUser(updateUserId);
+                    copy.setCompanyid(companyid);
+                    copy.setMediaid(userMonthInfo.getMediaid());
+                    toNewData.add(copy);
+                } else {
+                    // 当月有，下月有 ---> 覆被盖
+                    UserMonthInfo copy = new UserMonthInfo();
+                    BeanUtils.copyProperties(list.get(0), copy);
+                    copy.setBaseCustomerNum(userMonthInfo.getBaseCustomerNum());
+                    copy.setRewardCustomerNum(userMonthInfo.getRewardCustomerNum());
+                    copy.setAssignedCustomerNum(0);
+                    copy.setEffectiveCustomerNum(0);
+                    copy.setLastUpdateTime(now);
+                    copy.setLastUpdateUser(updateUserId);
+                    toCoverData.add(copy);
                 }
             }
 
-            if ( CollectionUtils.isEmpty(toDB) ){
-                this.insertList(toDB);
+            // 入库
+            for (UserMonthInfo o1 : toInitData) {
+                UserMonthInfo copy = new UserMonthInfo();
+                copy.setId(o1.getId());
+                copy.setBaseCustomerNum(0);
+                copy.setRewardCustomerNum(0);
+                copy.setAssignedCustomerNum(0);
+                copy.setEffectiveCustomerNum(0);
+                copy.setLastUpdateTime(now);
+                copy.setLastUpdateUser(updateUserId);
+                userMonthInfoMapper.updateByPrimaryKeySelective(copy);
+            }
+
+            for (UserMonthInfo s : toCoverData) {
+                userMonthInfoMapper.updateByPrimaryKeySelective(s);
+            }
+            if (CollectionUtils.isNotEmpty(toNewData)) {
+                userMonthInfoMapper.insertList(toNewData);
+            }
+            if ( CollectionUtils.isNotEmpty(followMediaSet) ){
                 // 拷贝redis队列
-                for (Integer mediaId : mediaIds) {
+                for (Integer mediaId : followMediaSet) {
                     allocateRedisService.copyCurrentMonthQueue(companyid, mediaId);
                 }
             }
@@ -160,14 +203,16 @@ public class UserMonthInfoService {
             // ===== 业务校验 =====
             // 总分配队列新增不用校验
             // 减少情况
-            // 1、总分配队列的[月申请数]、[月奖励数] 不能分别 < 其他特殊渠道[月申请数]之和、[月奖励数]之和
+            // 1、总分配队列的[月申请数]、[月奖励数]  > 其他特殊渠道[月申请数]之和、[月奖励数]之和
             // 2、特殊渠道 [月申请数]、[月奖励数] 不能分别 >  (总分配队列[月申请数]、[月奖励数] 分别 - 剩余特殊渠道[月申请数]之和、[月奖励数]之和)
-            UserMonthInfo params = new UserMonthInfo();
-            params.setCompanyid(companyid);
-            params.setUserId(userId);
-            params.setEffectiveDate(effectiveDate);
-            params.setStatus(CommonEnum.entity_status1.getCode());
-            List<UserMonthInfo> userAllMedialDataList = this.findByParams(params); // 获取用户所以媒体、具体月份、具体吧的分配数据
+
+            // 获取用户所以媒体、具体月份、具体吧的分配数据
+            UserMonthInfo ee = new UserMonthInfo();
+            ee.setCompanyid(companyid);
+            ee.setUserId(userId);
+            ee.setEffectiveDate(effectiveDate);
+            ee.setStatus( CommonEnum.entity_status1.getCode());
+            List<UserMonthInfo> userAllMedialDataList = userMonthInfoMapper.select(ee);
             userAllMedialDataList = CollectionUtils.isEmpty(userAllMedialDataList) ? new ArrayList<>() : userAllMedialDataList;
 
             if (CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(mediaid)) {
@@ -244,20 +289,20 @@ public class UserMonthInfoService {
             }
 
             // 数据入库
-            UserMonthInfo whereParams = new UserMonthInfo();
-            whereParams.setUserId(userId);
-            whereParams.setEffectiveDate(effectiveDate);
-            whereParams.setCompanyid(companyid);
-            whereParams.setMediaid(mediaid);
-            whereParams.setStatus(CommonEnum.entity_status1.getCode());
-
             UserMonthInfo valueParams = new UserMonthInfo();
             valueParams.setLastUpdateUser(loginUserId);
             valueParams.setBaseCustomerNum(baseCustomerNum);
             valueParams.setRewardCustomerNum(rewardCustomerNum);
             valueParams.setLastUpdateTime(new Date());
 
-            this.updateUserMonthInfo(whereParams, valueParams);
+            Example example2 = new Example(UserMonthInfo.class);
+            Example.Criteria criteria1 = example2.createCriteria();
+            criteria1.andEqualTo("userId", userId);
+            criteria1.andEqualTo("effectiveDate", effectiveDate);
+            criteria1.andEqualTo("companyid", companyid);
+            criteria1.andEqualTo("status", CommonEnum.entity_status1.getCode());
+
+            userMonthInfoMapper.updateByExampleSelective(valueParams, example2);
 
             // 在20秒内未完成运算，视为失败；事务回滚；redis解锁
             long l = cRMRedisLockHelp.getCurrentTimeFromRedisServicer() - lockToken;

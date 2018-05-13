@@ -19,6 +19,7 @@ import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.enums.AllocateEnum;
 import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UserMonthInfo;
@@ -109,6 +110,9 @@ public class AutoAllocateService {
 
     @Autowired
     private CompanyMediaQueueService companyMediaQueueService;
+
+    @Autowired
+    private UserMonthInfoMapper userMonthInfoMapper;
 
     /**
      * 判断是不是客户主动申请渠道
@@ -363,7 +367,7 @@ public class AutoAllocateService {
             e.setCompanyid(subCompanyId);
             e.setEffectiveDate(currentMonthStr);
             e.setStatus(CommonEnum.entity_status1.getCode());
-            List<UserMonthInfo> userMonthInfoDBList = this.userMonthInfoService.findByParams(e);
+            List<UserMonthInfo> userMonthInfoDBList = userMonthInfoMapper.select(e);
             userMonthInfoDBList = CollectionUtils.isEmpty(userMonthInfoDBList) ? new ArrayList<>() : userMonthInfoDBList;
 
             Integer count = 0; // 该一级吧已分配数
@@ -402,7 +406,7 @@ public class AutoAllocateService {
             e2.setCompanyid(subCompanyId);
             e2.setEffectiveDate(currentMonthStr);
             e2.setStatus(CommonEnum.entity_status1.getCode());
-            List<UserMonthInfo> salesmanDataList = this.userMonthInfoService.findByParams(e);
+            List<UserMonthInfo> salesmanDataList = this.userMonthInfoMapper.select(e);
             salesmanDataList = CollectionUtils.isEmpty(salesmanDataList) ? new ArrayList<>() : salesmanDataList;
 
             Integer salesmanId = null;

@@ -8,12 +8,15 @@ import com.fjs.cronus.dto.thea.BaseCommonDTO;
 import com.fjs.cronus.entity.CompanyMediaQueue;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CompanyMediaQueueMapper;
+import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.UserMonthInfo;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.entity.Example;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -37,14 +40,18 @@ public class CompanyMediaQueueService {
     private UserMonthInfoService userMonthInfoService;
 
     @Autowired
+    private UserMonthInfoMapper userMonthInfoMapper;
+
+    @Autowired
     private AllocateRedisService allocateRedisService;
 
-    public List<Map<String, Object>> findByCompanyId(String token, Integer currentUserId, Integer subCompanyId, String yearMonth) {
-
-        this.allocateRedisService.checkMonthStr(yearMonth);
+    public List<Map<String, Object>> findByCompanyId(String token, Integer currentUserId, Integer subCompanyId) {
 
         // 获取指定一级吧其下的特殊队列
-        List<CompanyMediaQueue> companyMediaQueueList = companyMediaQueueMapper.findByCompanyId(subCompanyId, CommonEnum.entity_status1.getCode(), yearMonth);
+        CompanyMediaQueue e = new CompanyMediaQueue();
+        e.setCompanyid(subCompanyId);
+        e.setStatus(CommonEnum.entity_status1.getCode());
+        List<CompanyMediaQueue> companyMediaQueueList = companyMediaQueueMapper.select(e);
         companyMediaQueueList = CollectionUtils.isEmpty(companyMediaQueueList) ? new ArrayList<>() : companyMediaQueueList;
 
         Set<Integer> mediaIds = companyMediaQueueList.stream().filter(item -> item != null && item.getMediaid() != null).map(CompanyMediaQueue::getMediaid).collect(toSet());
@@ -68,10 +75,10 @@ public class CompanyMediaQueueService {
 
             for (BaseCommonDTO baseCommonDTO : allMediaList) {
                 if (baseCommonDTO != null && baseCommonDTO.getId() != null && mediaIds.contains(baseCommonDTO.getId())) {
-                    Map<String, Object> e = new HashMap<>();
-                    e.put("id", baseCommonDTO.getId());
-                    e.put("name", baseCommonDTO.getName());
-                    result.add(e);
+                    Map<String, Object> e2 = new HashMap<>();
+                    e2.put("id", baseCommonDTO.getId());
+                    e2.put("name", baseCommonDTO.getName());
+                    result.add(e2);
                 }
             }
         }
@@ -79,43 +86,42 @@ public class CompanyMediaQueueService {
         return result;
     }
 
-    public void addCompanyMediaQueue(String token, Integer currentUserId, Integer companyid, Set<Integer> mediaIds, String yearmonth) {
-
-        this.allocateRedisService.checkMonthStr(yearmonth);
+    public void addCompanyMediaQueue(String token, Integer currentUserId, Integer companyid, Set<Integer> mediaIds) {
 
         // 获取指定一级吧其下的特殊队列
-        List<CompanyMediaQueue> companyMediaQueueList = companyMediaQueueMapper.findByCompanyId(companyid, CommonEnum.entity_status1.getCode(), yearmonth);
+        CompanyMediaQueue e = new CompanyMediaQueue();
+        e.setCompanyid(companyid);
+        e.setStatus(CommonEnum.entity_status1.getCode());
+        List<CompanyMediaQueue> companyMediaQueueList = companyMediaQueueMapper.select(e);
         Set<Integer> mediaIdsDB = CollectionUtils.isEmpty(companyMediaQueueList) ? new HashSet<>() : companyMediaQueueList.stream().filter(item -> item != null && item.getMediaid() != null).map(CompanyMediaQueue::getMediaid).collect(toSet());
 
         Collection nowData = CollectionUtils.subtract(mediaIds, mediaIdsDB);
 
         // 准备入库数据
-        List<CompanyMediaQueue> data = new ArrayList<>(nowData.size());
+        List<CompanyMediaQueue> toDB = new ArrayList<>(nowData.size());
 
         Iterator<Integer> iterator = nowData.iterator();
         Date now = new Date();
         while (iterator.hasNext()) {
-            CompanyMediaQueue e = new CompanyMediaQueue();
-            e.setCreated(now);
-            e.setCreateid(currentUserId);
-            e.setUpdated(now);
-            e.setUpdateid(currentUserId);
-            e.setStatus(CommonEnum.entity_status1.getCode());
-            e.setCompanyid(companyid);
-            e.setMediaid(iterator.next());
-            e.setYearmonth(yearmonth);
+            CompanyMediaQueue e2 = new CompanyMediaQueue();
+            e2.setCreated(now);
+            e2.setCreateid(currentUserId);
+            e2.setUpdated(now);
+            e2.setUpdateid(currentUserId);
+            e2.setStatus(CommonEnum.entity_status1.getCode());
+            e2.setCompanyid(companyid);
+            e2.setMediaid(iterator.next());
+            toDB.add(e2);
         }
 
-        if (CollectionUtils.isNotEmpty(data)) companyMediaQueueMapper.addBatchCompanyMediaQueue(data);
+        if (CollectionUtils.isNotEmpty(toDB)) companyMediaQueueMapper.insertList(toDB);
     }
 
-    public void delCompanyMediaQueue(Integer currentUserId, Integer companyid, Integer mediaId, String yearmonth) {
+    public void delCompanyMediaQueue(Integer currentUserId, Integer companyid, Integer mediaId) {
 
         if (CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(mediaId)) {
             return;// 总队列不能删除
         }
-
-        this.allocateRedisService.checkMonthStr(yearmonth);
 
         Date now = new Date();
         // 逻辑删除company_media_queue表数据
@@ -124,15 +130,54 @@ public class CompanyMediaQueueService {
         valuesParams.setUpdateid(currentUserId);
         valuesParams.setStatus(CommonEnum.entity_status0.getCode());
 
-        CompanyMediaQueue whereParams = new CompanyMediaQueue();
-        whereParams.setCompanyid(companyid);
-        whereParams.setMediaid(mediaId);
-        whereParams.setStatus(CommonEnum.entity_status1.getCode());
+        Example example = new Example(CompanyMediaQueue.class);
+        Example.Criteria c = example.createCriteria();
+        c.andEqualTo("companyid", companyid);
+        c.andEqualTo("mediaid", mediaId);
+        c.andEqualTo("status", CommonEnum.entity_status1.getCode());
+        companyMediaQueueMapper.updateByExampleSelective(valuesParams, example);
 
-        companyMediaQueueMapper.updateCompanyMediaQueue(valuesParams, whereParams);
+        // 获取当月、下月字符串
+        String currentMonthStr = this.allocateRedisService.getCurrentMonthStr();
+        String nextMonthStr = this.allocateRedisService.getNextMonthStr();
+
+        // 对业务员分配数据的影响：当月的不动，下月的全初始化为0
+        Example example3 = new Example(UserMonthInfo.class);
+        Example.Criteria criteria1 = example3.createCriteria();
+        criteria1.andEqualTo("companyid", companyid);
+        criteria1.andEqualTo("mediaId", mediaId);
+        criteria1.andEqualTo("effectiveDate", nextMonthStr);
+        List<UserMonthInfo> nextMontMediaDataList = userMonthInfoMapper.selectByExample(example3);
+        nextMontMediaDataList = CollectionUtils.isEmpty(nextMontMediaDataList) ? new ArrayList<>() : nextMontMediaDataList;
+
+        Set<Integer> ids = nextMontMediaDataList.stream().map(UserMonthInfo::getId).collect(toSet());
+
+        if (CollectionUtils.isNotEmpty(ids)) {
+            UserMonthInfo valuesParams2 = new UserMonthInfo();
+            valuesParams2.setBaseCustomerNum(0);
+            valuesParams2.setRewardCustomerNum(0);
+            valuesParams2.setLastUpdateUser(currentUserId);
+            valuesParams2.setLastUpdateTime(now);
+
+            Example whereParams = new Example(UserMonthInfo.class);
+            Example.Criteria criteria = whereParams.createCriteria();
+            criteria.andIn("id", ids);
+
+            userMonthInfoMapper.updateByExampleSelective(valuesParams2, whereParams);
+        }
+
 
         // 删除Redis队列
-        allocateRedisService.delCompanyMediaQueueRedisQueue(companyid, mediaId, yearmonth);
+        allocateRedisService.delCompanyMediaQueueRedisQueue(companyid, mediaId, currentMonthStr);
+        allocateRedisService.delCompanyMediaQueueRedisQueue(companyid, mediaId, nextMonthStr);
+    }
+
+    public void test() {
+        CompanyMediaQueue record = new CompanyMediaQueue();
+        Example example = new Example(CompanyMediaQueue.class);
+        Example.Criteria c = example.createCriteria();
+        c.andEqualTo("id", 1);
+        //companyMediaQueueMapper.updateByExampleSelective(record, example);
     }
 
 }

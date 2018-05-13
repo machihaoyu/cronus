@@ -16,6 +16,7 @@ import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.uc.CrmCitySubCompanyDto;
 import com.fjs.cronus.dto.uc.LightUserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerUseful;
 import com.fjs.cronus.model.UserMonthInfo;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -80,6 +82,9 @@ public class UserService {
     @Autowired
     private TheaClientService theaClientService;
 
+    @Autowired
+    private UserMonthInfoMapper userMonthInfoMapper;
+
     public List<SubCompanyDto> getDepartmentByWhere(String token, Integer user_id) {
         List<SubCompanyDto> subCompanyDtos = new ArrayList<SubCompanyDto>();
 
@@ -120,13 +125,14 @@ public class UserService {
         }
 
         // 获取员工分配信息
-        Map<String, Object> selectMap = new HashMap<>();
-        selectMap.put("effectiveDate", effectiveDate);
-        selectMap.put("userIds", companyUserIds);
-        selectMap.put("companyid", companyId);
-        selectMap.put("mediaid", mediaid);
-        selectMap.put("status", CommonEnum.entity_status1.getCode());
-        List<UserMonthInfo> userMonthInfoList = userMonthInfoService.selectByParamsMap(selectMap);
+        Example example = new Example(UserMonthInfo.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("effectiveDate", effectiveDate);
+        criteria.andIn("userId", companyUserIds);
+        criteria.andEqualTo("companyid", companyId);
+        criteria.andEqualTo("mediaid", mediaid);
+        criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
+        List<UserMonthInfo> userMonthInfoList = userMonthInfoMapper.selectByExample(example);
         userMonthInfoList = CollectionUtils.isEmpty(userMonthInfoList) ? new ArrayList<>() : userMonthInfoList;
 
         // ===== 下面循环，做2件事 =====
