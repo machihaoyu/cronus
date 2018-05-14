@@ -153,29 +153,33 @@ public class AutoAllocateService {
 
             // 分配规则
             if ( ( customerDTO.getId() == null || customerDTO.getId().equals(0) ) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
-                // 商机系统分支
-                // 规则：1、新用户；2、在有效城市范围内
+                // 商机系统分支(新用户、在有效城市范围内)
+                // 规则：
+                // 1、新用户
+                // 2、在有效城市范围内
+
+
                 currentMonthStr = this.allocateRedisService.getCurrentMonthStr();
                 baseChannelDTO = this.getChannelInfoByChannelName(customerDTO.getUtmSource()); // 根据渠道获取来源、媒体
 
-                if (this.allocateForAvatar(token, allocateSource, customerDTO, baseChannelDTO, subCompanyIdBox, salesmanIdBox, currentMonthStr)) {
+                if (this.allocateForAvatar(token, customerDTO, baseChannelDTO, subCompanyIdBox, salesmanIdBox, currentMonthStr)) {
                     allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
                     customerDTO.setOwnerUserId(salesmanIdBox);
                 } else {
                     allocateEntity.setAllocateStatus(AllocateEnum.WAITING_POOL);
                 }
-            }if (StringUtils.isNotEmpty(ownerUser.getUser_id())) { // 存在这个在职负责人
-                customerDTO.setOwnerUserId(Integer.valueOf(ownerUser.getUser_id()));
-                allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
+            } else if (StringUtils.isNotEmpty(ownerUser.getUser_id())) { // 存在这个在职负责人
+                   customerDTO.setOwnerUserId(Integer.valueOf(ownerUser.getUser_id()));
+                   allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
             } else if (allocateToPublic) { // 公盘;根据渠道，判断是否需要自动分配
-                allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
-                customerDTO.setOwnerUserId(0);
+                   allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
+                   customerDTO.setOwnerUserId(0);
             } else if (CommonConst.CUSTOMER_SOURCE_FANGSUDAI.equals(customerDTO.getUtmSource())
                     && CommonConst.UTM_SOURCE_FANGXIN.equals(customerDTO.getUtmSource())) { // 公盘;房速贷、渠道fangxin 直接到公盘
-                customerDTO.setOwnerUserId(0);
-                allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
+                   customerDTO.setOwnerUserId(0);
+                   allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
             } else if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) { // 在有效分配城市内
-                Integer ownUserId = this.getAllocateUser(customerDTO.getCity());
+                Integer ownUserId = this.getAllocateUser(customerDTO.getCity()); // 根据城市，找queue中业务员
                 if (ownUserId > 0) { // 自动分配队列
                     customerDTO.setOwnerUserId(ownUserId);
                     allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
@@ -319,7 +323,7 @@ public class AutoAllocateService {
     /**
      * 商机系统分配规则.
      */
-    private Boolean allocateForAvatar(String token, AllocateSource allocateSource, CustomerDTO customerDTO, BaseChannelDTO baseChannelDTO, Integer subCompanyIdBox, Integer salesmanIdBox, String currentMonthStr) {
+    private Boolean allocateForAvatar(String token, CustomerDTO customerDTO, BaseChannelDTO baseChannelDTO, Integer subCompanyIdBox, Integer salesmanIdBox, String currentMonthStr) {
         // 商机分配规则（前提：新客户、在有效城市范围内）
         // 1、 根据城市，从城市queue中获取一级吧
         // 2、 要求该一级吧媒体的订购数（商机系统获取） > 已购数

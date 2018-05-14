@@ -128,7 +128,7 @@ public class OcdcService {
                         AllocateEntity allocateEntity = new AllocateEntity();
                         CustomerDTO customerDTO = this.getCustomer(customerSalePushLog.getTelephonenumber());
                         if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) {
-                            //重复客户
+                            // 老客户
 
                             if (allocateSource.getCode().equals("2")) {
                                 // 待分配池
@@ -140,7 +140,7 @@ public class OcdcService {
                                 allocateEntity.setAllocateStatus(AllocateEnum.DUPLICATE_CUSTOMER);
                                 allocateEntity.setSuccess(true);
                             } else {
-                                // OCDC or 客户
+                                // OCDC or 客服系统
 
                                 responseMessage.append("重复客户");
                                 responseMessage.append("-");
