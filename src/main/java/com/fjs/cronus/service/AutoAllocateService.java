@@ -375,7 +375,7 @@ public class AutoAllocateService {
                     break;
                 }
             }
-            if (orderNumber == null || orderNumber.equals(0)) {
+            if (orderNumber == null) {
                 // 无订购数
                 existCompanyid.add(subCompanyId);
                 continue;
@@ -405,17 +405,19 @@ public class AutoAllocateService {
                     break;
                 }
 
+                Integer temp = idFromCountQueue ? CommonConst.COMPANY_MEDIA_QUEUE_COUNT : media_id;
+
                 // 比较该业务员的 已购数据、分配数
                 UserMonthInfo e = new UserMonthInfo();
                 e.setCompanyid(subCompanyId);
                 e.setUserId(salesmanId);
-                e.setMediaid(idFromCountQueue ?  CommonConst.COMPANY_MEDIA_QUEUE_COUNT : media_id);
+                e.setMediaid(temp);
                 e.setEffectiveDate(currentMonthStr);
                 e.setStatus(CommonEnum.entity_status1.getCode());
                 List<UserMonthInfo> select = userMonthInfoMapper.select(e);
                 if (CollectionUtils.isEmpty(select)) {
                     // 数据错误，直接忽略，给下一个业务员处理
-                    existSale.add(media_id + "$" + salesmanId);
+                    existSale.add(temp + "$" + salesmanId);
                     continue;
                 }
 
@@ -426,13 +428,13 @@ public class AutoAllocateService {
                         || userMonthInfo.getAssignedCustomerNum() == null
                         ) {
                     // 数据错误，直接忽略，给下一个业务员处理
-                    existSale.add(media_id + "$" + salesmanId);
+                    existSale.add(temp + "$" + salesmanId);
                     continue;
                 }
 
                 if (userMonthInfo.getAssignedCustomerNum() >=  (userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) ) {
                     // 该业务员 已购数 >= 分配数
-                    existSale.add(media_id + "$" + salesmanId);
+                    existSale.add(temp + "$" + salesmanId);
                     continue;
                 }
 
