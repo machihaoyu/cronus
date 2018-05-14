@@ -3,7 +3,6 @@ package com.fjs.cronus.service;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.thea.Loan;
-import com.fjs.cronus.api.thea.MailDTO;
 import com.fjs.cronus.dto.thea.MailBatchDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
@@ -130,6 +129,7 @@ public class AutoCleanService {
             beforeCountMap = customerInfoService.countForAutoClean();
             //获取各种需要屏蔽自动分配的的ID
             List<Integer> customerIdsByManage = this.countCannotAutoNumberModel();
+            List<String> excludeSources = this.getExcludeSources();
             List<Integer> allUserIds = new ArrayList<>();
             List<Integer> userIdsByConfig = this.getCannotAutoUserIdByConfig();
             List<Integer> userIdsByCompany = this.getCannotAutoUserIdByCompany();
@@ -146,6 +146,9 @@ public class AutoCleanService {
 //        List<Integer> inStatus = this.getAutoCleanStatus();
             paramsMap.put("level", "意向客户");
             paramsMap.put("remain", CommonEnum.NO.getCode());
+            if (null != excludeSources && excludeSources.size() > 0) {
+                paramsMap.put("excludeSources", excludeSources);
+            }
             if (null != customerIdsByManage && customerIdsByManage.size() > 0) {
                 paramsMap.put("customerIds", customerIdsByManage);
             }
@@ -223,6 +226,13 @@ public class AutoCleanService {
             logger.error("清洗失败：" + e.getMessage(),e);
         }
         return message;
+    }
+
+    private List<String> getExcludeSources()
+    {
+        List<String> source = new ArrayList<>();
+        source.add("mgm");
+        return source;
     }
 
     private String convertListToString(List<String> list)

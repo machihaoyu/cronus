@@ -2016,6 +2016,12 @@
             <if test="null != remain">
                 AND remain = #{remain}
             </if>
+            <if test="null != excludeSources">
+                AND customer_source NOT IN
+                <foreach item="item" index="index" collection="excludeSources" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
             <if test="null != notInOwnUserIds">
                 AND own_user_id NOT IN
                 <foreach item="item" index="index" collection="notInOwnUserIds" open="(" separator="," close=")">
