@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * Created by gf on 2018/5/3. url = "http://192.168.1.124:1420",
  */
 //@FeignClient(value = "${client.feign.wallet-backend}", url = "http://192.168.1.124:1420")
-@FeignClient(value = "${client.feign.wallet-backend}", configuration = FeignClientConfig.class)
+//@FeignClient(value = "${client.feign.wallet-backend}", configuration = FeignClientConfig.class)
 public interface WalletService {
 
     /**
@@ -24,8 +24,8 @@ public interface WalletService {
      * @param telephone
      * @return
      */
-    @RequestMapping(value = "/apiwithout/v1/theaapi/confirmEffective", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    WalletApiDTO confirmEffective(@RequestHeader("Authorization") String token, @RequestParam(value = "telephone") String telephone);
+//    @RequestMapping(value = "/apiwithout/v1/theaapi/confirmEffective", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//    WalletApiDTO confirmEffective(@RequestHeader("Authorization") String token, @RequestParam(value = "telephone") String telephone);
 
 
 }
