@@ -181,9 +181,12 @@
 
     </select>
 
-    <select id="findPageData" resultType="com.fjs.cronus.model.CustomerSalePushLog">
+    <select id="findPageData" resultMap="BaseResultMap">
         SELECT <include refid="base_column" /> FROM `customer_sale_push_log`
         <where>
+            <if test="customerSalePushLog.id != null ">
+                and id = #{customerSalePushLog.id}
+            </if>
             <if test="customerSalePushLog.telephonenumber != null and customerSalePushLog.telephonenumber !=''">
                 and telephonenumber = #{customerSalePushLog.telephonenumber}
             </if>

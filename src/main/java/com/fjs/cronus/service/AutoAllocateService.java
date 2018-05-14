@@ -451,7 +451,7 @@ public class AutoAllocateService {
             }
         }
 
-        return isFindSuccess; // 符合商机系统
+        return isFindSuccess;
     }
 
     /**

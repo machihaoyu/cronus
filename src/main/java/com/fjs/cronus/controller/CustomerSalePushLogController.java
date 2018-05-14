@@ -36,10 +36,12 @@ public class CustomerSalePushLogController {
     @ApiOperation(value = "根据条件查询日志信息", notes = " 根据条件查询日志信息 api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
-            @ApiImplicitParam(name = "params", value = "提交数据,{'mediaIds':'1,2,3','companyid':123}", paramType = "body", dataType = "JSONObject"),
+            @ApiImplicitParam(name = "params", value = "提交数据,{'mediaIds':'1,2,3','companyid':123}", paramType = "body", dataType = "JSONObject", required = false),
+            @ApiImplicitParam(name = "pageNum", value = "页码", paramType = "query", dataType = "Integer", required = false),
+            @ApiImplicitParam(name = "pageSize", value = "每页展示数量", paramType = "query", dataType = "Integer", required = false),
     })
     @PostMapping(value = "/findPageData")
-    public CronusDto findPageData(@RequestBody CustomerSalePushLog params, @RequestParam Integer pageNum, @RequestParam Integer pageSize) {
+    public CronusDto findPageData(@RequestBody(required = false) CustomerSalePushLog params, @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize) {
         CronusDto result = new CronusDto();
         try {
             // 参数处理
