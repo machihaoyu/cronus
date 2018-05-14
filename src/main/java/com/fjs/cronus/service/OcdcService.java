@@ -501,7 +501,7 @@ public class OcdcService {
                 customerSalePushLog.setHouseAlone(CommonEnum.HOUSE_ALONE_0.getCodeDesc());
             }
             if (null != map.get("house_location") && StringUtils.isNotBlank(map.get("house_location").toString())) {
-                customerSalePushLog.setHouseLoan(map.get("house_location").asText());
+                customerSalePushLog.setHouseLocation(map.get("house_location").asText());
             }
             if (null != map.get("city") && StringUtils.isNotBlank(map.get("city").toString())) {
                 customerSalePushLog.setCity(map.get("city").asText());
