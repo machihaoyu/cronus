@@ -2,11 +2,10 @@ package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fjs.cronus.Common.*;
-import com.fjs.cronus.api.thea.LoanDTO;
-import com.fjs.cronus.controller.CustomerController;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.CustomerBasicDTO;
+import com.fjs.cronus.dto.CustomerPartDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
@@ -18,7 +17,6 @@ import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.LoanDTO6;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
-import com.fjs.cronus.dto.uc.UserSortInfoDTO;
 import com.fjs.cronus.enums.CustListTimeOrderEnum;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.AllocateLogMapper;
@@ -38,7 +36,6 @@ import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
 import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -678,24 +675,29 @@ public class CustomerInfoService {
         }
         CustomerInfo customerInfo = customerInfoMapper.findByFeild(paramsMap);
         if (customerInfo == null) {
-            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+            resultDto.setMessage(ResultResource.NO_CUSTOMEINFO);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            resultDto.setData(null);
+//            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
         }
-        CustomerDTO customerDto = new CustomerDTO();
-        EntityToDto.customerEntityToCustomerDto(customerInfo, customerDto);
-        //d对手机进行解密
-        String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-        customerDto.setTelephonenumber(telephone);
-        customerDto.setRetirementWages(customerInfo.getRetirementWages());
-        String employedInfo = customerInfo.getEmployedInfo();
-        List<EmplouInfo> emplouInfos = new ArrayList<>();
-        if (!StringUtils.isEmpty(employedInfo)) {
-            JSONArray jsonArray = JSONArray.parseArray(employedInfo);
-            emplouInfos = jsonArray.toJavaList(EmplouInfo.class);
-            customerDto.setEmployedInfo(emplouInfos);
+        else {
+            CustomerDTO customerDto = new CustomerDTO();
+            EntityToDto.customerEntityToCustomerDto(customerInfo, customerDto);
+            //d对手机进行解密
+            String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+            customerDto.setTelephonenumber(telephone);
+            customerDto.setRetirementWages(customerInfo.getRetirementWages());
+            String employedInfo = customerInfo.getEmployedInfo();
+            List<EmplouInfo> emplouInfos = new ArrayList<>();
+            if (!StringUtils.isEmpty(employedInfo)) {
+                JSONArray jsonArray = JSONArray.parseArray(employedInfo);
+                emplouInfos = jsonArray.toJavaList(EmplouInfo.class);
+                customerDto.setEmployedInfo(emplouInfos);
+            }
+            resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            resultDto.setData(customerDto);
         }
-        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
-        resultDto.setResult(ResultResource.CODE_SUCCESS);
-        resultDto.setData(customerDto);
         return resultDto;
     }
 
@@ -2157,6 +2159,17 @@ public class CustomerInfoService {
         }
     }
 
+    public CustomerPartDTO selectCustomerDTOByPhone(String phone){
+        //对手机号码进行加密
+        String telephone = DEC3Util.des3EncodeCBC(phone);
+        return customerInfoMapper.selectCustomerDTOByPhone(telephone);
+    }
 
+    public CustomerBasicDTO selectCustomerById(Integer id){
+
+        CustomerBasicDTO customerBasicDTO = customerInfoMapper.selectCustomerById(id);
+        customerBasicDTO.setTelephonenumber(DEC3Util.des3DecodeCBC(customerBasicDTO.getTelephonenumber()));
+        return customerBasicDTO;
+    }
 
 }

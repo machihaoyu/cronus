@@ -285,7 +285,7 @@ public class AutoAllocateService {
         loanDTO.setOwnUserId(customerDTO.getOwnerUserId());
         loanDTO.setOwnUserName(customerDTO.getOwnUserName());
         loanDTO.setCompanyId(customerDTO.getSubCompanyId());
-        loanDTO.setUtmSource("自申请");
+        loanDTO.setUtmSource(customerDTO.getUtmSource());
         return theaClientService.insertLoan(loanDTO, token);
 //        }
     }

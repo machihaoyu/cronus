@@ -2,9 +2,11 @@ package com.fjs.cronus.controller;
 
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
+import com.fjs.cronus.Common.ServiceConstant;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 
+import com.fjs.cronus.dto.api.WalletApiDTO;
 import com.fjs.cronus.dto.cronus.AddCustomerMeetDTO;
 import com.fjs.cronus.dto.thea.CustomerMeetDTO;
 
@@ -14,7 +16,9 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerMeet;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.CustomerMeetService;
+import com.fjs.cronus.service.client.WalletService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DEC3Util;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -49,7 +53,9 @@ public class CustomerMeetController {
     @Autowired
     private UcService thorUcService;
     @Autowired
-    CustomerInfoService customerInfoService;
+    private CustomerInfoService customerInfoService;
+//    @Autowired
+//    private WalletService walletService;
 
     @ApiOperation(value = "根据客户id获取面见记录", notes = "根据客户id获取面见记录")
     @ApiImplicitParams({
@@ -137,6 +143,16 @@ public class CustomerMeetController {
             customerMeetDTO.setCustomerId(customerInfo.getId());
             int createResult = customerMeetService.addCustomerMeet(customerMeetDTO, resultDto, customerInfo, token);
             if (createResult > 0) {
+////                面见的时候发送数据，客户是mgm来源调用
+//                if (ServiceConstant.MGMCUSTOMERSOURCE.equals(customerInfo.getCustomerSource())){
+//                    //获取电话号码
+//                    String phone = customerInfo.getTelephonenumber();
+//                    //解析,发送
+//                    WalletApiDTO walletApiDTO = walletService.confirmEffective(token, DEC3Util.des3DecodeCBC(phone));
+//                    if (walletApiDTO.getCode() != 200){
+//                        logger.error("调用MGM错误返回数据："+walletApiDTO.toString());
+//                    }
+//                }
                 theaApiDTO.setResult(CommonMessage.ADD_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
             } else {

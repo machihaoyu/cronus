@@ -102,4 +102,6 @@ public class ResultResource {
     public static String EXIXTVIPUSER_ERROR = "已经存在这个用户";
 
     public static String EXIXTVIPUTMSOURCE_ERROR = "已经存在这个渠道";
+
+    public static String NO_CUSTOMEINFO = "客户不存在";
 }

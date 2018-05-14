@@ -95,6 +95,18 @@
       <result column="employed_info" jdbcType="LONGVARCHAR" property="employedInfo" />
       <result column="ext" jdbcType="LONGVARCHAR" property="ext" />
   </resultMap>
+    <resultMap id="CustomerResultDTO" type="com.fjs.cronus.dto.CustomerPartDTO">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="customer_source" property="customerSource" jdbcType="VARCHAR" />
+        <result column="utm_source" property="utmSource" jdbcType="VARCHAR" />
+        <result column="city" property="city" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <resultMap id="CustomerBasicDTO" type="com.fjs.cronus.dto.CustomerBasicDTO">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="telephonenumber" property="telephonenumber" jdbcType="VARCHAR" />
+        <result column="customer_source" property="customerSource" jdbcType="VARCHAR" />
+    </resultMap>
     <sql id="Base_Column_List">
         id, telephonenumber, customer_name, customer_type, customer_level, spare_phone, age,
         marriage, id_card, province_huji, sex, customer_address, customer_street, house_status,
@@ -2004,6 +2016,12 @@
             <if test="null != remain">
                 AND remain = #{remain}
             </if>
+            <if test="null != excludeSources">
+                AND customer_source NOT IN
+                <foreach item="item" index="index" collection="excludeSources" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
             <if test="null != notInOwnUserIds">
                 AND own_user_id NOT IN
                 <foreach item="item" index="index" collection="notInOwnUserIds" open="(" separator="," close=")">
@@ -2417,4 +2435,19 @@
        </trim>
        </foreach>
     </insert>
+
+    <!-- 根据电话号码查询查询客户信息 -->
+    <select id="selectCustomerDTOByPhone" resultMap="CustomerResultDTO" parameterType="com.fjs.cronus.dto.CustomerPartDTO">
+      SELECT
+        id,customer_source,utm_source,city,create_time
+      FROM customer_info
+      WHERE is_deleted = 0 AND telephonenumber = #{phone,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectCustomerById" resultMap="CustomerBasicDTO" parameterType="com.fjs.cronus.dto.CustomerBasicDTO">
+      SELECT
+        id,telephonenumber,customer_source
+      FROM customer_info
+      WHERE is_deleted = 0 AND id = #{id,jdbcType=INTEGER}
+    </select>
 </mapper>
