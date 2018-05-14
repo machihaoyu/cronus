@@ -46,6 +46,7 @@
         <result column="ext" property="ext" jdbcType="LONGVARCHAR"/>
         <result column="repeat_callback_time" property="repeatCallbackTime" jdbcType="TIMESTAMP"/>
         <result column="house_status" property="houseStatus" jdbcType="TIMESTAMP"/>
+        <result column="errorinfo" property="errorinfo" jdbcType="VARCHAR"/>
     </resultMap>
     <!--基础表字段-->
     <sql id="base_column">
@@ -54,17 +55,19 @@
         sex,customer_address,per_description,house_amount,house_type,house_value,house_area,house_age,
         house_loan,house_alone,house_location,city,retain,create_time,update_time,receive_time,is_lock,
         phone_view_time,phone_view_uid,phone_view_count,autostatus,utm_source,customer_source,
-        customer_classify,laiyuan,ext,repeat_callback_time,house_status
+        customer_classify,laiyuan,ext,repeat_callback_time,house_status,errorinfo
     </sql>
     <!--批量添加数据-->
     <insert id="insertList" parameterType="java.util.List" useGeneratedKeys="true">
         INSERT INTO customer_sale_push_log
-        (ocdc_id,customer_id,loan_id,telephonenumber,customer_name,owner_user_id,owner_user_name,
+        (
+        ocdc_id,customer_id,loan_id,telephonenumber,customer_name,owner_user_id,owner_user_name,
         creater_user_id,customer_level,loan_amount,spare_phone,age,marriage,id_card,province_huji,
         sex,customer_address,per_description,house_amount,house_type,house_value,house_area,house_age,
         house_loan,house_alone,house_location,city,retain,create_time,update_time,receive_time,is_lock,
         phone_view_time,phone_view_uid,phone_view_count,autostatus,utm_source,customer_source,
-        customer_classify,laiyuan,ext,repeat_callback_time,house_status)
+        customer_classify,laiyuan,ext,repeat_callback_time,house_status,errorinfo
+        )
         values
         <foreach collection="list" item="customerSalePushLog" index="index" separator=",">
             (
@@ -110,7 +113,8 @@
             #{customerSalePushLog.laiyuan},
             #{customerSalePushLog.ext},
             #{customerSalePushLog.repeatCallbackTime},
-            #{customerSalePushLog.houseStatus}
+            #{customerSalePushLog.houseStatus},
+            #{customerSalePushLog.errorinfo},
             )
         </foreach>
     </insert>
@@ -175,5 +179,31 @@
            and telephonenumber =#{telephone}
         </if>
 
+    </select>
+
+    <select id="findPageData" resultType="com.fjs.cronus.model.CustomerSalePushLog">
+        SELECT <include refid="base_column" /> FROM `customer_sale_push_log`
+        <where>
+            <if test="customerSalePushLog.telephonenumber != null and customerSalePushLog.telephonenumber !=''">
+                and telephonenumber = #{customerSalePushLog.telephonenumber}
+            </if>
+            <if test="customerSalePushLog.customerName != null and customerSalePushLog.customerName !=''">
+                and customer_name = #{customerSalePushLog.customerName}
+            </if>
+            <if test="customerSalePushLog.ocdcId != null ">
+                and ocdc_id = #{customerSalePushLog.ocdcId}
+            </if>
+            <if test="customerSalePushLog.customerId != null ">
+                and customer_id = #{customerSalePushLog.customerId}
+            </if>
+            <if test="customerSalePushLog.loanId != null ">
+                and loan_id = #{customerSalePushLog.loanId}
+            </if>
+            <if test="customerSalePushLog.idCard != null ">
+                and id_card = #{customerSalePushLog.idCard}
+            </if>
+        </where>
+        ORDER BY `create_time` DESC
+        LIMIT #{start}, #{pageSize}
     </select>
 </mapper>

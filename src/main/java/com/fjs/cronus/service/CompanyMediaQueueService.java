@@ -173,11 +173,14 @@ public class CompanyMediaQueueService {
     }
 
     public void test() {
-        CompanyMediaQueue record = new CompanyMediaQueue();
-        Example example = new Example(CompanyMediaQueue.class);
-        Example.Criteria c = example.createCriteria();
-        c.andEqualTo("id", 1);
-        //companyMediaQueueMapper.updateByExampleSelective(record, example);
+
+        CompanyMediaQueue e = new CompanyMediaQueue();
+        e.setCompanyid(2);
+        e.setMediaid(2);
+        e.setCreated(new Date());
+
+        //System.out.println(companyMediaQueueMapper.insertUseGeneratedKeys(e));
+        //System.out.println(e.getId());
     }
 
 }

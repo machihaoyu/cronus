@@ -92,6 +92,16 @@ public class CustomerSalePushLog {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date repeatCallbackTime;
 
+    private String errorinfo;
+
+    public String getErrorinfo() {
+        return errorinfo;
+    }
+
+    public void setErrorinfo(String errorinfo) {
+        this.errorinfo = errorinfo;
+    }
+
     public Integer getId() {
         return id;
     }

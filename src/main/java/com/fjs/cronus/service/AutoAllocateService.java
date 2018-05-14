@@ -282,8 +282,7 @@ public class AutoAllocateService {
                         allocateEntity.setDescription(loan);
                     }
 
-                    // TODO lihong 记录分配数
-                    this.userMonthInfoService.incrNum2DB(subCompanyIdBox, baseChannelDTO, salesmanIdBox, currentMonthStr);
+                    this.userMonthInfoService.incrNum2DB(subCompanyIdBox, baseChannelDTO, salesmanIdBox, currentMonthStr, customerDTO);
 
                     this.sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     break;

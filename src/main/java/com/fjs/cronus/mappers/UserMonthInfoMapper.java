@@ -29,4 +29,10 @@ public interface UserMonthInfoMapper extends MyMapper<UserMonthInfo>{
      * 更新业务员分配数.
      */
     void update2IncrNum(@Param("id")Integer id);
+
+    /**
+     * 获取sum,根据条件.
+     */
+    Integer selectSum(@Param("companyid")Integer companyid, @Param("sourceid")Integer sourceid, @Param("mediaid")Integer mediaid, @Param("effectiveDate")String effectiveDate, @Param("status")Integer status);
+
 }

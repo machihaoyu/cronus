@@ -25,4 +25,12 @@ public class CustomerSalePushLogService {
         customerSalePushLogMapper.insertList(customerSalePushLogList);
 //        return count;
     }
+
+    public List<CustomerSalePushLog> findPageData(CustomerSalePushLog params, Integer pageNum, Integer pageSize) {
+
+        if (pageNum <= 0) pageNum = 0;
+        if (pageSize <= 0) pageSize = 10;
+        List<CustomerSalePushLog> pageData = customerSalePushLogMapper.findPageData(params, pageNum*pageSize, pageSize);
+        return pageData;
+    }
 }

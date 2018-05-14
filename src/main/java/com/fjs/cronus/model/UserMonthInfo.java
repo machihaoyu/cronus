@@ -5,12 +5,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.persistence.Column;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by feng on 2017/9/22.
  */
+@Table(name = "user_month_info")
 public class UserMonthInfo implements Serializable{
             /*`id` int(10) NOT NULL AUTO_INCREMENT COMMENT '主键',
             `user_id` int(10) DEFAULT NULL COMMENT '业务员ID',

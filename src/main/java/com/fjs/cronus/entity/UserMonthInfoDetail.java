@@ -1,54 +1,40 @@
 package com.fjs.cronus.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
 
-/**
- * 单位、媒体的队列表；一级吧、媒体的队列表.
- */
-public class CompanyMediaQueue {
+@Table(name = "user_month_info_detail")
+public class UserMonthInfoDetail {
 
-    /**
-     * 主键id
-     */
-    @Id
     private Integer id;
-    /**
-     * 创建时间
-     */
     private Date created;
-    /**
-     * 创建人
-     */
     private Integer createid;
-    /**
-     * 修改时间
-     */
-    private Date updated;
-    /**
-     * 修改人
-     */
+    private Integer updated;
     private Integer updateid;
-    /**
-     * 删除时间
-     */
     private Date deleted;
-    /**
-     * 删除人
-     */
     private Integer deleteid;
-    /**
-     * 数据状态；0-删除，1-正常
-     */
     private Integer status;
-    /**
-     * 单位id
-     */
+    @Column(name = "effective_date")
+    private String effectiveDate;
     private Integer companyid;
-    /**
-     * 媒体id
-     */
+    private Integer sourceid;
     private Integer mediaid;
+    private Integer accountid;
+    private Integer channelid;
+    @Column(name = "customer_info")
+    private String customerInfo;
+    @Column(name = "user_month_info_id")
+    private Integer userMonthInfoId;
+
+    public Integer getUserMonthInfoId() {
+        return userMonthInfoId;
+    }
+
+    public void setUserMonthInfoId(Integer userMonthInfoId) {
+        this.userMonthInfoId = userMonthInfoId;
+    }
 
     public Integer getId() {
         return id;
@@ -74,11 +60,11 @@ public class CompanyMediaQueue {
         this.createid = createid;
     }
 
-    public Date getUpdated() {
+    public Integer getUpdated() {
         return updated;
     }
 
-    public void setUpdated(Date updated) {
+    public void setUpdated(Integer updated) {
         this.updated = updated;
     }
 
@@ -114,6 +100,14 @@ public class CompanyMediaQueue {
         this.status = status;
     }
 
+    public String getEffectiveDate() {
+        return effectiveDate;
+    }
+
+    public void setEffectiveDate(String effectiveDate) {
+        this.effectiveDate = effectiveDate;
+    }
+
     public Integer getCompanyid() {
         return companyid;
     }
@@ -122,11 +116,43 @@ public class CompanyMediaQueue {
         this.companyid = companyid;
     }
 
+    public Integer getSourceid() {
+        return sourceid;
+    }
+
+    public void setSourceid(Integer sourceid) {
+        this.sourceid = sourceid;
+    }
+
     public Integer getMediaid() {
         return mediaid;
     }
 
     public void setMediaid(Integer mediaid) {
         this.mediaid = mediaid;
+    }
+
+    public Integer getAccountid() {
+        return accountid;
+    }
+
+    public void setAccountid(Integer accountid) {
+        this.accountid = accountid;
+    }
+
+    public Integer getChannelid() {
+        return channelid;
+    }
+
+    public void setChannelid(Integer channelid) {
+        this.channelid = channelid;
+    }
+
+    public String getCustomerInfo() {
+        return customerInfo;
+    }
+
+    public void setCustomerInfo(String customerInfo) {
+        this.customerInfo = customerInfo;
     }
 }

@@ -203,7 +203,7 @@
         </where>
     </update>
 
-    <insert id="insertList2" parameterType="java.util.List" useGeneratedKeys="true">
+    <insert id="insertList2" parameterType="java.util.List">
         INSERT INTO user_month_info (
             user_id,
             base_customer_num,
@@ -244,5 +244,18 @@
     <update id="update2IncrNum">
         UPDATE `user_month_info` SET `assigned_customer_num`= `assigned_customer_num`+1 WHERE `id`=#{id}
     </update>
+
+    <select id="selectSum" resultType="java.lang.Integer">
+        SELECT SUM(`assigned_customer_num`) FROM `user_month_info`
+        WHERE `companyid`=#{companyid}
+        <if test="sourceid != null">
+          AND `sourceid`=#{sourceid}
+        </if>
+        <if test="mediaid != null">
+            AND `mediaid`=#{mediaid}
+        </if>
+        AND `effective_date`=#{effectiveDate}
+        AND `status`=#{status}
+    </select>
 
 </mapper>

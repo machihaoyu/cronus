@@ -1,12 +1,16 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonRedisConst;
+import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.thea.BaseChannelDTO;
 import com.fjs.cronus.entity.CompanyMediaQueue;
+import com.fjs.cronus.entity.UserMonthInfoDetail;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CompanyMediaQueueMapper;
+import com.fjs.cronus.mappers.UserMonthInfoDetailMapper;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.UserMonthInfo;
 import com.fjs.cronus.service.redis.AllocateRedisService;
@@ -22,7 +26,6 @@ import tk.mybatis.mapper.entity.Example;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 
@@ -46,6 +49,9 @@ public class UserMonthInfoService {
 
     @Autowired
     private CompanyMediaQueueMapper companyMediaQueueMapper;
+
+    @Autowired
+    private UserMonthInfoDetailMapper userMonthInfoDetailMapper;
 
 
     public List<UserMonthInfo> selectByParamsMap(Map<String, Object> map) {
@@ -322,7 +328,7 @@ public class UserMonthInfoService {
     /**
      * ocdc 推送后，自动分配成功后，记录该业务员的分配数.
      */
-    public synchronized void incrNum2DB(Integer subCompanyId, BaseChannelDTO baseChannelDTO, Integer salesmanId, String currentMonth) {
+    public synchronized void incrNum2DB(Integer subCompanyId, BaseChannelDTO baseChannelDTO, Integer salesmanId, String currentMonth, CustomerDTO customerDTO) {
 
         UserMonthInfo e = new UserMonthInfo();
         e.setCompanyid(subCompanyId);
@@ -332,6 +338,7 @@ public class UserMonthInfoService {
         e.setStatus(CommonEnum.entity_status1.getCode());
         List<UserMonthInfo> select = userMonthInfoMapper.select(e);
 
+        Integer id = null;
         Date now = new Date();
         if (CollectionUtils.isEmpty(select) || select.get(0) == null) {
             // 无就新增:正常情况下事不会走这条分支
@@ -342,14 +349,46 @@ public class UserMonthInfoService {
             ee.setAssignedCustomerNum(1);
             ee.setBaseCustomerNum(-9999);
             ee.setStatus(CommonEnum.entity_status0.getCode());
-            userMonthInfoMapper.insert(ee);
+            userMonthInfoMapper.insertUseGeneratedKeys(ee);
+            id = ee.getId();
         } else {
             UserMonthInfo userMonthInfo = select.get(0);
-
-            // CAS 方式更新数据
             userMonthInfoMapper.update2IncrNum(userMonthInfo.getId());
+            id = userMonthInfo.getId();
         }
 
-        // TODO lihong 记录日志
+        UserMonthInfoDetail detail = new UserMonthInfoDetail();
+        detail.setCreated(now);
+        detail.setCompanyid(subCompanyId);
+        detail.setSourceid(baseChannelDTO.getSource_id());
+        detail.setMediaid(baseChannelDTO.getMedia_id());
+        detail.setAccountid(baseChannelDTO.getAccount_id());
+        detail.setChannelid(baseChannelDTO.getId());
+        detail.setEffectiveDate(currentMonth);
+        detail.setCustomerInfo(JSONObject.toJSONString(customerDTO));
+        detail.setUserMonthInfoId(id);
+        userMonthInfoDetailMapper.insert(detail);
+    }
+
+    public FindMediaAssignedCustomerNumDTO findAssignedCustomerNum(FindMediaAssignedCustomerNumDTO params) {
+
+        List<FindMediaAssignedCustomerNumItmDTO> list = params.getList();
+        for (FindMediaAssignedCustomerNumItmDTO item : list) {
+            Integer selectSum = userMonthInfoMapper.selectSum(item.getCompanyid(), item.getSourceid(), item.getMediaid(), item.getMonth(), CommonEnum.entity_status1.getCode());
+            Integer sum = selectSum;
+            item.setAssigned_customer_num(sum == null ? 0 : sum);
+        }
+        return params;
+    }
+
+    public FindCompanyAssignedCustomerNumDTO findAssignedCustomerNum(FindCompanyAssignedCustomerNumDTO params) {
+
+        List<FindCompanyAssignedCustomerNumItmDTO> list = params.getList();
+        for (FindCompanyAssignedCustomerNumItmDTO item : list) {
+            Integer selectSum = userMonthInfoMapper.selectSum(item.getCompanyid(), null, null, item.getMonth(), CommonEnum.entity_status1.getCode());
+            Integer sum = selectSum;
+            item.setAssigned_customer_num(sum == null ? 0 : sum);
+        }
+        return params;
     }
 }

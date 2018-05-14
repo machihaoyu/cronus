@@ -2,6 +2,7 @@ package com.fjs.cronus.mappers;
 
 import com.fjs.cronus.dto.cronus.RepeatCustomerSaleDTO;
 import com.fjs.cronus.model.CustomerSalePushLog;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -18,4 +19,6 @@ public interface CustomerSalePushLogMapper {
     public Integer repeatcustomerListConut(Map<String,Object> paramsMap);
 
     public List<CustomerSalePushLog> findByFeild(Map<String,Object> paramsMap);
+
+    List<CustomerSalePushLog> findPageData(@Param("customerSalePushLog") CustomerSalePushLog params, @Param("start") Integer start, @Param("pageSize") Integer pageSize);
 }
