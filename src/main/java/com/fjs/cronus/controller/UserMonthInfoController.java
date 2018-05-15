@@ -163,29 +163,32 @@ public class UserMonthInfoController {
     public CronusDto findSubCompany(@RequestHeader(name = "Authorization") String token) {
         CronusDto result = new CronusDto();
         try {
-            Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-
-            Map<String, Object> ms = new HashMap<>();
-
             CronusDto<UserInfoDTO> cronusDto = thorService.getUserInfoByToken(token, null);
             AvatarApiDTO<List<FirstBarDTO>> allSubCompany = avatarClientService.findAllSubCompany(token);
 
             Map<String, Object> resultMap = new HashMap<>();
-            List<FirstBarDTO> data = allSubCompany.getData();
-            UserInfoDTO data1 = cronusDto.getData();
+            if (cronusDto != null
+                    && cronusDto.getResult() == 0
+                    && cronusDto.getData() != null
+                    && allSubCompany != null
+                    && allSubCompany.getResult() == 0
+                    && CollectionUtils.isNotEmpty(allSubCompany.getData())
+                    ) {
 
-            for (FirstBarDTO datum : data) {
-                if (datum != null && datum.getId() != null && datum.getId().equals(data1.getSub_company_id())) {
-                    resultMap.put("id", datum.getId());
-                    resultMap.put("firstBar", datum.getFirstBar());
+                List<FirstBarDTO> data = allSubCompany.getData();
+                UserInfoDTO data1 = cronusDto.getData();
+
+                for (FirstBarDTO datum : data) {
+                    if (datum != null && datum.getId() != null && datum.getId().toString().equals(data1.getSub_company_id())) {
+                        resultMap.put("id", datum.getId());
+                        resultMap.put("firstBar", datum.getFirstBar());
+                    }
                 }
+
             }
 
-            ms.put("thorService", data1);
-            ms.put("avatarClientService", data);
             result.setData(resultMap);
             result.setResult(CommonMessage.SUCCESS.getCode());
-            result.setMessage(JSONObject.toJSONString(ms));
         } catch (Exception e) {
             if (e instanceof CronusException) {
                 // 已知异常
