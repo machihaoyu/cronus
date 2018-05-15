@@ -237,5 +237,9 @@ public class CommonConst {
     public static final String SMS_SIGN = "【房金云】";
 
     public static String COMPANY_EXECUTIVES = "公司高管";
+
+    // user_month_info_detail表，type字段
+    public static final Integer USER_MONTH_INFO_DETAIL_TYPE1 = 1;
+    public static final Integer USER_MONTH_INFO_DETAIL_TYPE2 = 2;
 }
 

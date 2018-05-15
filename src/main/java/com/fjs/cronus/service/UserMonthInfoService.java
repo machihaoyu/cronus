@@ -336,7 +336,7 @@ public class UserMonthInfoService {
         e.setUserId(salesmanId);
         e.setEffectiveDate(currentMonth);
         e.setStatus(CommonEnum.entity_status1.getCode());
-        List<UserMonthInfo> select = userMonthInfoMapper.select(e);
+        List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(e);// 悲观锁查询
 
         Integer id = null;
         Date now = new Date();
@@ -366,6 +366,7 @@ public class UserMonthInfoService {
         detail.setChannelid(baseChannelDTO.getId());
         detail.setEffectiveDate(currentMonth);
         detail.setCustomerInfo(JSONObject.toJSONString(customerDTO));
+        detail.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE1);
         detail.setUserMonthInfoId(id);
         userMonthInfoDetailMapper.insert(detail);
     }

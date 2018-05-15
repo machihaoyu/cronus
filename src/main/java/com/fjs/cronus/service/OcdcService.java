@@ -112,7 +112,10 @@ public class OcdcService {
 
             Long lockToken = null;
             try { // try 此次 50个一批的信息，作为响应信息，如中间某个出差需要记录
-                lockToken = this.cRMRedisLockHelp.lockBySetNX2(CommonRedisConst.ALLOCATE_LOCK, 5 * 60, 14, 5);// 锁5分钟，其他并行线程重试14次，每次等5秒
+
+                // 锁4分钟，如2分钟内未计算完，就超时抛错回滚;
+                // 其他并行线程重试30次，每次等待5秒，共2分30秒
+                lockToken = this.cRMRedisLockHelp.lockBySetNX2(CommonRedisConst.ALLOCATE_LOCK, 4 * 60, 30, 5);
                 for (String map : ocdcData.getData()) {
 
                     // 解析客户信息

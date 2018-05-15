@@ -214,7 +214,6 @@ public class AutoAllocateService {
                 }
             }
 
-
             // 保存客户
             SimpleUserInfoDTO simpleUserInfoDTO = null;
             Integer customerId = 0;
@@ -362,7 +361,8 @@ public class AutoAllocateService {
             subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(token, customerDTO.getCity());
             if (subCompanyId == null) {
                 // queue中无一级吧，城市下无一级吧
-                break;
+                //break;
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, customerDTO.getCity() + " 队列下未找到一级吧");
             }
 
             // 获取当月已分配数
@@ -412,7 +412,8 @@ public class AutoAllocateService {
                 }
                 if (salesmanId == null){
                     // 特殊队列、总队列都没业务员
-                    break;
+                    // break;
+                    throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "【"+customerDTO.getCity() + "】下，id为【"+subCompanyId+"】的一级吧,在id为【"+media_id+"】的特殊媒体队列和总分配队列都未能找到业务员");
                 }
 
                 Integer temp = idFromCountQueue ? CommonConst.COMPANY_MEDIA_QUEUE_COUNT : media_id;

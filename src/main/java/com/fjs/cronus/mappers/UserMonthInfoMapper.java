@@ -35,4 +35,8 @@ public interface UserMonthInfoMapper extends MyMapper<UserMonthInfo>{
      */
     Integer selectSum(@Param("companyid")Integer companyid, @Param("sourceid")Integer sourceid, @Param("mediaid")Integer mediaid, @Param("effectiveDate")String effectiveDate, @Param("status")Integer status);
 
+    /**
+     * 加悲观锁查.
+     */
+    List<UserMonthInfo> findByParamsForUpdate(UserMonthInfo e);
 }
