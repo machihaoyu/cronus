@@ -157,8 +157,8 @@ public class UserMonthInfoController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
     })
-    @PostMapping(value = "/findCompanyAssignedCustomerNum")
-    public CronusDto findAssignedCustomerNum(@RequestHeader(name = "Authorization") String token) {
+    @PostMapping(value = "/findSubCompany")
+    public CronusDto findSubCompany(@RequestHeader(name = "Authorization") String token) {
         CronusDto result = new CronusDto();
         try {
             Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
@@ -197,7 +197,7 @@ public class UserMonthInfoController {
                 result.setMessage(temp.getResponseError().getMessage());
             } else {
                 // 未知异常
-                logger.error("查询一级吧、某月、某来源、某媒体实购数（分配数）:", e);
+                logger.error("获取登录用户一级吧:", e);
                 result.setResult(CommonMessage.FAIL.getCode());
                 result.setMessage(e.getMessage());
             }
