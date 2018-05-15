@@ -247,13 +247,11 @@ public class UserController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
             @ApiImplicitParam(name = "companyId", value = "公司Id", required = true, paramType = "query", dataType = "Integer", defaultValue = "-1"),
             @ApiImplicitParam(name = "effectiveDate", value = "查询时间", required = true, paramType = "query", dataType = "String", defaultValue = "201710"),
-            @ApiImplicitParam(name = "city", value = "城市", required = true, paramType = "query", dataType = "String", defaultValue = "上海"),
             @ApiImplicitParam(name = "mediaid", value = "媒体", required = true, paramType = "query", dataType = "Integer", defaultValue = "-1")
     })
     @RequestMapping(value = "/getUsersByCompanyId", method = RequestMethod.GET)
     @ResponseBody
     public TheaApiDTO<Map<String, List<UserMonthInfoDTO>>> getUsersByCompanyId(
-            @RequestParam(required = true) String city,
             @RequestParam(required = true) Integer companyId,
             @RequestParam(required = true) String effectiveDate,
             @RequestParam(required = true) Integer mediaid
@@ -268,7 +266,7 @@ public class UserController {
 
             Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
 
-            resultDTO.setData(userService.getUserMonthInfoList(city, companyId, effectiveDate, userId, mediaid));
+            resultDTO.setData(userService.getUserMonthInfoList(companyId, effectiveDate, userId, mediaid));
             resultDTO.setResult(ResultDescription.CODE_SUCCESS);
             resultDTO.setMessage(ResultDescription.MESSAGE_SUCCESS);
         } catch (Exception e) {

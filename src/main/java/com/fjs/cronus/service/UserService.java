@@ -100,7 +100,7 @@ public class UserService {
     }
 
 
-    public Map<String, List<UserMonthInfoDTO>> getUserMonthInfoList(String city, Integer companyId, String effectiveDate, Integer userIdByOption, Integer mediaid) throws Exception {
+    public Map<String, List<UserMonthInfoDTO>> getUserMonthInfoList(Integer companyId, String effectiveDate, Integer userIdByOption, Integer mediaid) throws Exception {
 
         // 获取公司员工列表
         ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(publicToken, companyId);
