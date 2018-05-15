@@ -1,5 +1,7 @@
 package com.fjs.cronus.controller;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.avatar.AvatarApiDTO;
@@ -163,6 +165,7 @@ public class UserMonthInfoController {
         try {
             Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
 
+            Map<String, Object> ms = new HashMap<>();
 
             CronusDto<UserInfoDTO> cronusDto = thorService.getUserInfoByToken(token, null);
             AvatarApiDTO<List<FirstBarDTO>> allSubCompany = avatarClientService.findAllSubCompany(token);
@@ -178,8 +181,11 @@ public class UserMonthInfoController {
                 }
             }
 
+            ms.put("thorService", data1);
+            ms.put("avatarClientService", data);
             result.setData(resultMap);
             result.setResult(CommonMessage.SUCCESS.getCode());
+            result.setMessage(JSONObject.toJSONString(ms));
         } catch (Exception e) {
             if (e instanceof CronusException) {
                 // 已知异常
