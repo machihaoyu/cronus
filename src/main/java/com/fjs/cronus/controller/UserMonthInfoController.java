@@ -167,24 +167,15 @@ public class UserMonthInfoController {
             CronusDto<UserInfoDTO> cronusDto = thorService.getUserInfoByToken(token, null);
             AvatarApiDTO<List<FirstBarDTO>> allSubCompany = avatarClientService.findAllSubCompany(token);
 
-            Map<Integer, String> resultMap = new HashMap<>();
-            if (cronusDto != null
-                    && cronusDto.getResult() == 0
-                    && cronusDto.getData() != null
-                    && allSubCompany != null
-                    && allSubCompany.getResult() == 0
-                    && CollectionUtils.isNotEmpty(allSubCompany.getData())
-                    ) {
+            Map<String, Object> resultMap = new HashMap<>();
+            List<FirstBarDTO> data = allSubCompany.getData();
+            UserInfoDTO data1 = cronusDto.getData();
 
-                List<FirstBarDTO> data = allSubCompany.getData();
-                UserInfoDTO data1 = cronusDto.getData();
-
-                for (FirstBarDTO datum : data) {
-                    if (datum != null && datum.getId() != null && datum.getId().equals(data1.getSub_company_id())) {
-                        resultMap.put(datum.getId(), datum.getFirstBar());
-                    }
+            for (FirstBarDTO datum : data) {
+                if (datum != null && datum.getId() != null && datum.getId().equals(data1.getSub_company_id())) {
+                    resultMap.put("id", datum.getId());
+                    resultMap.put("firstBar", datum.getFirstBar());
                 }
-
             }
 
             result.setData(resultMap);

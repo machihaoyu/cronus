@@ -395,9 +395,23 @@ public class UserMonthInfoService {
         e.setEffectiveDate(currentMonthStr);
         e.setStatus(CommonEnum.entity_status1.getCode());
         List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(e);
-
+        if (CollectionUtils.isEmpty(select) || select.get(0) == null) {
+            // 无就新增:正常情况下事不会走这条分支
+            // 记录数据
+            UserMonthInfo ee = new UserMonthInfo();
+            ee.setCreateTime(now);
+            ee.setLastUpdateTime(now);
+            ee.setAssignedCustomerNum(1);
+            ee.setBaseCustomerNum(-9999);
+            ee.setStatus(CommonEnum.entity_status0.getCode());
+            userMonthInfoMapper.insertUseGeneratedKeys(ee);
+            id = ee.getId();
+        } else {
+            UserMonthInfo userMonthInfo = select.get(0);
+            userMonthInfoMapper.update2IncrNum(userMonthInfo.getId());
+            id = userMonthInfo.getId();
+        }
         // 主表 incr，加加
-        // TODO lihong
 
         // 明细表记录明细
         Integer id = null;
