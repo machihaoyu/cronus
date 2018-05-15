@@ -149,7 +149,7 @@ public class AutoAllocateService {
             needDataBox.put(companyIdKey, null); // 一级吧id
             needDataBox.put(salesmanIdKey, null);   // 业务员id
 
-            BaseChannelDTO baseChannelDTO = this.getChannelInfoByChannelName(customerDTO.getUtmSource());; // 根据渠道获取来源、媒体、渠道
+            BaseChannelDTO baseChannelDTO = userMonthInfoService.getChannelInfoByChannelName(customerDTO.getUtmSource());; // 根据渠道获取来源、媒体、渠道
             String currentMonthStr = this.allocateRedisService.getCurrentMonthStr();; // 当月字符串
 
             // 分配规则
@@ -484,27 +484,6 @@ public class AutoAllocateService {
         loanDTO.setUtmSource("自申请");
         return theaClientService.insertLoan(loanDTO, token);
 //        }
-    }
-
-    /**
-     * 根据渠道获取渠道基本信息（目的获取来源id、媒体id）.
-     */
-    private BaseChannelDTO getChannelInfoByChannelName(String UtmSource) {
-        JSONObject params = new JSONObject();
-        params.put("channelName", UtmSource);
-        TheaApiDTO<BaseChannelDTO> infoByChannelName = theaService.getInfoByChannelName(params);
-
-        BaseChannelDTO result = new BaseChannelDTO();
-        if (infoByChannelName.getResult() == 0 && infoByChannelName.getData() != null){
-            result = infoByChannelName.getData();
-        }
-        if (result == null || result.getSource_id() == null) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "Source_id 不能为null");
-        }
-        if (result.getMedia_id() == null) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "Media_id 不能为null");
-        }
-        return result;
     }
 
     private void sendMessage(String customerName, Integer toId, SimpleUserInfoDTO ownerUser, String token) {

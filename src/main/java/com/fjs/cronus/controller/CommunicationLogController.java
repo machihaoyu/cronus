@@ -111,6 +111,7 @@ public class CommunicationLogController {
             }
         }
         String token = request.getHeader("Authorization");
+        Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
         UserInfoDTO userInfoDTO = thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
 
           /*PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);

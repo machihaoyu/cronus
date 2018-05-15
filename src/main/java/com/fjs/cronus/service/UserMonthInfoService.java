@@ -5,6 +5,7 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.dto.cronus.*;
+import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.BaseChannelDTO;
 import com.fjs.cronus.entity.CompanyMediaQueue;
 import com.fjs.cronus.entity.UserMonthInfoDetail;
@@ -12,7 +13,9 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CompanyMediaQueueMapper;
 import com.fjs.cronus.mappers.UserMonthInfoDetailMapper;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
+import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UserMonthInfo;
+import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import org.apache.commons.collections.CollectionUtils;
@@ -53,6 +56,8 @@ public class UserMonthInfoService {
     @Autowired
     private UserMonthInfoDetailMapper userMonthInfoDetailMapper;
 
+    @Autowired
+    private TheaService theaService;
 
     public List<UserMonthInfo> selectByParamsMap(Map<String, Object> map) {
         return userMonthInfoMapper.selectByParamsMap(map);
@@ -336,7 +341,7 @@ public class UserMonthInfoService {
         e.setUserId(salesmanId);
         e.setEffectiveDate(currentMonth);
         e.setStatus(CommonEnum.entity_status1.getCode());
-        List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(e);// 悲观锁查询
+        List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(e);
 
         Integer id = null;
         Date now = new Date();
@@ -371,6 +376,59 @@ public class UserMonthInfoService {
         userMonthInfoDetailMapper.insert(detail);
     }
 
+    /**
+     * 记录有效数.
+     */
+    public void incrNum2DB(CustomerInfo customerDto, Integer salesmanId){
+
+        Integer subCompanyId = customerDto.getSubCompanyId();
+        String utmSource = customerDto.getUtmSource();
+        String currentMonthStr = this.allocateRedisService.getCurrentMonthStr();
+
+        BaseChannelDTO baseChannelDTO = this.getChannelInfoByChannelName(utmSource);
+
+        // 先查该记录
+        UserMonthInfo e = new UserMonthInfo();
+        e.setCompanyid(subCompanyId);
+        e.setMediaid(baseChannelDTO.getMedia_id());
+        e.setUserId(salesmanId);
+        e.setEffectiveDate(currentMonthStr);
+        e.setStatus(CommonEnum.entity_status1.getCode());
+        List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(e);
+
+        // 主表 incr，加加
+        // TODO lihong
+
+        // 明细表记录明细
+        Integer id = null;
+        Date now = new Date();
+
+    }
+
+    /**
+     * 根据渠道获取渠道基本信息（目的获取来源id、媒体id）.
+     */
+    public BaseChannelDTO getChannelInfoByChannelName(String UtmSource) {
+        JSONObject params = new JSONObject();
+        params.put("channelName", UtmSource);
+        TheaApiDTO<BaseChannelDTO> infoByChannelName = theaService.getInfoByChannelName(params);
+
+        BaseChannelDTO result = new BaseChannelDTO();
+        if (infoByChannelName.getResult() == 0 && infoByChannelName.getData() != null){
+            result = infoByChannelName.getData();
+        }
+        if (result == null || result.getSource_id() == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "Source_id 不能为null");
+        }
+        if (result.getMedia_id() == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "Media_id 不能为null");
+        }
+        return result;
+    }
+
+    /**
+     * 查某一级吧下某媒体的已分配数.
+     */
     public FindMediaAssignedCustomerNumDTO findAssignedCustomerNum(FindMediaAssignedCustomerNumDTO params) {
 
         List<FindMediaAssignedCustomerNumItmDTO> list = params.getList();
@@ -382,6 +440,9 @@ public class UserMonthInfoService {
         return params;
     }
 
+    /**
+     * 查某一级吧的已分配数.
+     */
     public FindCompanyAssignedCustomerNumDTO findAssignedCustomerNum(FindCompanyAssignedCustomerNumDTO params) {
 
         List<FindCompanyAssignedCustomerNumItmDTO> list = params.getList();
