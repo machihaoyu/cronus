@@ -350,23 +350,30 @@ public class UserMonthInfoService {
      */
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void incrNum2DBForOCDCPush(Integer subCompanyId, BaseChannelDTO baseChannelDTO, Integer salesmanId, String currentMonth, CustomerDTO customerDTO) {
+        // ------ 业务分析 ------
+        // 先找媒体队列的分配数据，无，说明未设置，一级巴长只设置了总队列分配数
+        // 如果特殊队列无，就手动新增，并++（只需月分配数、已分配数），且总队列也要也要++（只需要已分配数）
 
-        UserMonthInfo e = new UserMonthInfo();
-        e.setCompanyid(subCompanyId);
-        e.setMediaid(baseChannelDTO.getMedia_id());
-        e.setUserId(salesmanId);
-        e.setEffectiveDate(currentMonth);
-        e.setStatus(CommonEnum.entity_status1.getCode());
-        List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, baseChannelDTO.getMedia_id(), salesmanId, currentMonth, CommonEnum.entity_status1.getCode());
+        // 查询并启用悲观锁
+        // 应该至少找到一条记录，最多2条（总分配队列、当前媒体的队列）
+        List<UserMonthInfo> mediaDataList = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, baseChannelDTO.getMedia_id(), CommonConst.COMPANY_MEDIA_QUEUE_COUNT,salesmanId, currentMonth, CommonEnum.entity_status1.getCode());
 
         Integer id = null;
         Date now = new Date();
 
-        // 主表 incr
-        if (CollectionUtils.isEmpty(select) || select.get(0) == null) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，分配给了该员工，但未找到分配数据（subCompanyId=" + subCompanyId + "，Mediaid=" + baseChannelDTO.getMedia_id() + "，salesmanId=" + salesmanId + "，currentMonth=" + currentMonth + "）");
-        } else {
-            UserMonthInfo userMonthInfo = select.get(0);
+        // 主表和特殊队列表都++
+        if (CollectionUtils.isEmpty(mediaDataList)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，分配给了该员工，但未找到分配数据（包括总队列也未找到）（subCompanyId=" + subCompanyId + "，Mediaid=" + baseChannelDTO.getMedia_id() + "，salesmanId=" + salesmanId + "，currentMonth=" + currentMonth + "）");
+        }else {
+
+            Map<Integer, List<UserMonthInfo>> collect = mediaDataList.stream().collect(groupingBy(UserMonthInfo::getMediaid));
+            List<UserMonthInfo> countQueueList = collect.get(CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
+            List<UserMonthInfo> mediaQueueList = collect.get(baseChannelDTO.getMedia_id());
+
+
+
+
+            UserMonthInfo userMonthInfo = mediaDataList.get(0);
             userMonthInfo.setSourceid(baseChannelDTO.getSource_id());
             userMonthInfo.setAccountid(baseChannelDTO.getAccount_id());
             userMonthInfo.setChannelid(baseChannelDTO.getId());

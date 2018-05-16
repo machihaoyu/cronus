@@ -219,9 +219,12 @@ public class UserService {
     /**
      * 获取分配队列
      */
-    public List<Map<String, String>> getAllocateQueue(Integer companyid, Integer media, String effectiveDate) {
+    public List<Map<String, String>> getAllocateQueue(Integer companyid, Integer media, String monthFlag) {
+
+        String monthStr = this.allocateRedisService.getMonthStr(monthFlag);
+
         List<Map<String, String>> allocateQueue = new ArrayList<>();
-        List<Integer> ids = allocateRedisService.finaAllFromQueue(companyid, media, effectiveDate);
+        List<Integer> ids = allocateRedisService.finaAllFromQueue(companyid, media, monthStr);
         for (Integer userId : ids) {
             Map<String, String> allocateQueueMap = new HashMap<>();
             AppUserDto appUserDto = this.getUserInfoByField(null, Integer.valueOf(userId), null);

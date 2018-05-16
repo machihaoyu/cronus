@@ -220,24 +220,31 @@ public class UserController {
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
             @ApiImplicitParam(name = "companyid", value = "一级吧id", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "media", value = "媒体id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "effectiveDate", value = "月", required = true, paramType = "query", dataType = "String")
+            @ApiImplicitParam(name = "monthFlag", value = "时间标记，值为" + CommonConst.USER_MONTH_INFO_MONTH_CURRENT + "," +CommonConst.USER_MONTH_INFO_MONTH_NEXT, required = true, paramType = "query", dataType = "String")
     })
     @RequestMapping(value = "/getAllocateQueue", method = RequestMethod.GET)
     @ResponseBody
-    public TheaApiDTO<List<Map<String, String>>> getAllocateQueue(@RequestParam("companyid") Integer companyid, @RequestParam("media") Integer media, @RequestParam("effectiveDate") String effectiveDate) {
+    public TheaApiDTO<List<Map<String, String>>> getAllocateQueue(@RequestParam("companyid") Integer companyid, @RequestParam("media") Integer media, @RequestParam("monthFlag") String monthFlag) {
         TheaApiDTO<List<Map<String, String>>> resultDTO = new TheaApiDTO<>();
         try {
-            List<Map<String, String>> map = userService.getAllocateQueue(companyid, media, effectiveDate);
+            List<Map<String, String>> map = userService.getAllocateQueue(companyid, media, monthFlag);
 
             resultDTO.setData(map);
             resultDTO.setResult(ResultDescription.CODE_SUCCESS);
             resultDTO.setMessage(ResultDescription.MESSAGE_SUCCESS);
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("-----------查询城市分配队列失败！！--------" + e);
-            resultDTO.setData(null);
-            resultDTO.setResult(ResultDescription.CODE_FAIL);
-            resultDTO.setMessage(ResultDescription.MESSAGE_FAIL);
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                resultDTO.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                resultDTO.setMessage(temp.getResponseError().getMessage());
+            } else {
+                logger.error("-----------查询城市分配队列失败！！--------" + e);
+                // 未知异常
+                resultDTO.setResult(CommonMessage.FAIL.getCode());
+                resultDTO.setMessage(e.getMessage());
+            }
+
         }
         return resultDTO;
     }
@@ -334,9 +341,17 @@ public class UserController {
             resultDto.setResult(CommonMessage.ADD_SUCCESS.getCode());
             resultDto.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
         } catch (Exception e) {
-            logger.error("------------添加用户至分配队列失败-----------" + e);
-            resultDto.setResult(CommonMessage.ADD_FAIL.getCode());
-            resultDto.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                resultDto.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                resultDto.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("------------添加用户至分配队列失败-----------" + e);
+                resultDto.setResult(CommonMessage.FAIL.getCode());
+                resultDto.setMessage(e.getMessage());
+            }
         }
         return resultDto;
     }
@@ -356,9 +371,17 @@ public class UserController {
             resultDto.setResult(CommonMessage.DELETE_SUCCESS.getCode());
             resultDto.setMessage(CommonMessage.DELETE_SUCCESS.getCodeDesc());
         } catch (Exception e) {
-            logger.error("------------删除用户至分配队列失败-----------" + e);
-            resultDto.setResult(CommonMessage.DELETE_SUCCESS.getCode());
-            resultDto.setMessage(CommonMessage.DELETE_SUCCESS.getCodeDesc());
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                resultDto.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                resultDto.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("------------删除用户至分配队列失败-----------" + e);
+                resultDto.setResult(CommonMessage.FAIL.getCode());
+                resultDto.setMessage(e.getMessage());
+            }
         }
         return resultDto;
     }

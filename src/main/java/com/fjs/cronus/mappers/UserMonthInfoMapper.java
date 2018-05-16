@@ -37,5 +37,5 @@ public interface UserMonthInfoMapper extends MyMapper<UserMonthInfo>{
     /**
      * 加悲观锁查.
      */
-    List<UserMonthInfo> findByParamsForUpdate(@Param("subCompanyId")Integer subCompanyId, @Param("mediaid")Integer mediaid, @Param("salesmanId")Integer salesmanId, @Param("currentMonth")String currentMonth, @Param("status")Integer status);
+    List<UserMonthInfo> findByParamsForUpdate(@Param("subCompanyId")Integer subCompanyId, @Param("mediaid")Integer mediaid, @Param("countMediaid")Integer countMediaid, @Param("salesmanId")Integer salesmanId, @Param("currentMonth")String currentMonth, @Param("status")Integer status);
 }

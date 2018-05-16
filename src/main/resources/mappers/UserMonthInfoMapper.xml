@@ -69,13 +69,13 @@
         </where>
     </select>
 
-    <select id="findByParamsForUpdate" parameterType="com.fjs.cronus.model.UserMonthInfo" resultMap="BaseResultMap">
+    <select id="findByParamsForUpdate" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List"/> FROM `user_month_info`
         WHERE
         `user_id` = #{salesmanId}
         AND `effective_date` = #{currentMonth}
         AND `companyid` = #{subCompanyId}
-        AND `mediaid`` = #{mediaid}
+        AND `mediaid` IN (#{mediaid}, #{countMediaid})
         AND `status` = #{status}
         FOR  UPDATE
     </select>
