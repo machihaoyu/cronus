@@ -377,13 +377,13 @@ public class UserMonthInfoService {
      * 记录有效数.
      */
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void incrNum2DB(CustomerInfo customerDto, Integer salesmanId) {
+    public void incrNum2DB(CustomerInfo customerDto, Integer salesmanId, String token) {
 
         Integer subCompanyId = customerDto.getSubCompanyId();
         String utmSource = customerDto.getUtmSource();
         String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT);
 
-        BaseChannelDTO baseChannelDTO = this.getChannelInfoByChannelName(utmSource);
+        BaseChannelDTO baseChannelDTO = this.getChannelInfoByChannelName(token, utmSource);
         Date now = new Date();
 
         // 先查该记录
@@ -436,10 +436,10 @@ public class UserMonthInfoService {
     /**
      * 根据渠道获取渠道基本信息（目的获取来源id、媒体id）.
      */
-    public BaseChannelDTO getChannelInfoByChannelName(String UtmSource) {
+    public BaseChannelDTO getChannelInfoByChannelName(String token, String UtmSource) {
         JSONObject params = new JSONObject();
         params.put("channelName", UtmSource);
-        TheaApiDTO<BaseChannelDTO> infoByChannelName = theaService.getInfoByChannelName(params);
+        TheaApiDTO<BaseChannelDTO> infoByChannelName = theaService.getInfoByChannelName(token, params);
 
         BaseChannelDTO result = new BaseChannelDTO();
         if (infoByChannelName.getResult() == 0 && infoByChannelName.getData() != null) {

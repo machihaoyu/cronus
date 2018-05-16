@@ -147,7 +147,7 @@ public class AutoAllocateService {
             needDataBox.put(companyIdKey, null); // 一级吧id
             needDataBox.put(salesmanIdKey, null);   // 业务员id
 
-            BaseChannelDTO baseChannelDTO = userMonthInfoService.getChannelInfoByChannelName(customerDTO.getUtmSource());; // 根据渠道获取来源、媒体、渠道
+            BaseChannelDTO baseChannelDTO = userMonthInfoService.getChannelInfoByChannelName(token, customerDTO.getUtmSource());; // 根据渠道获取来源、媒体、渠道
             String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT); // 当月字符串
             boolean isNewCustomerFromAvatar = false;
 

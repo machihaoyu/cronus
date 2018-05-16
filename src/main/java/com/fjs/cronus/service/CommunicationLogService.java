@@ -148,7 +148,7 @@ public class CommunicationLogService {
             customerDto.setConfirm(CommonConst.CONFIRM__STATUS_EFFECT);
 
             // 记录已确认数
-            userMonthInfoService.incrNum2DB(customerDto, loginUserId);
+            userMonthInfoService.incrNum2DB(customerDto, loginUserId, token);
         }
         if (customerUsefulDTO.getLoanAmount() != null && customerUsefulDTO.getLoanAmount().intValue() == 0){
             customerDto.setConfirm(CommonConst.CONFIRM__STATUS_NOEFFECT);

@@ -95,8 +95,8 @@ public interface TheaService {
     public TheaApiDTO addLoan(@RequestBody LoanDTO6 loanDTO, @RequestHeader("Authorization")String token);
 
     @RequestMapping(value = "/media/v1/getAllMedia",method = RequestMethod.GET)
-    TheaApiDTO getAllMedia(String token);
+    TheaApiDTO getAllMedia(@RequestHeader("Authorization")String token);
 
     @RequestMapping(value = "/channel/v1/getInfoByChannelName", method = RequestMethod.POST)
-    TheaApiDTO<BaseChannelDTO> getInfoByChannelName(JSONObject jsonObject);
+    TheaApiDTO<BaseChannelDTO> getInfoByChannelName(@RequestHeader("Authorization")String token, @RequestBody JSONObject jsonObject);
 }
