@@ -10,6 +10,8 @@ import com.fjs.cronus.service.redis.CommonRedisService;
 import com.fjs.cronus.util.SmsUtils;
 import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,6 +27,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 public class SmsService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomerInfoService.class);
 
     @Value("${token.current}")
     private String currentToken;
@@ -77,6 +81,7 @@ public class SmsService {
 
     public Integer sendCommunication(String telephoneNumber, String content) {
         Integer smsResult =0;
+        logger.warn("第一步 : sendCommunication >>>>>>----------");
         if (smsChannelOpen()) {
             content = CommonConst.SMS_SIGN + content;
             smsResult = sendHebeMessage(telephoneNumber, content);
@@ -99,11 +104,13 @@ public class SmsService {
         smsMessage.setMobile(phones);
         JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(smsMessage));
         CommonApiDTO commonApiDTO = hebeService.sendMessage(currentToken, jsonObject);
+        logger.warn("第三步 : sendHebeMessage >>>>>>>>>>>--------" + commonApiDTO.getResult());
         return commonApiDTO.getResult();
     }
 
     public boolean smsChannelOpen()
     {
+        logger.warn("第二步 : smsChannelOpen >>>>>>>>>>>--------------" + smsSwitch);
         if (smsSwitch.equals("1")) {
             return true;
         }
