@@ -142,12 +142,12 @@ public class CompanyMediaQueueService {
         String nextMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_NEXT);
 
         // 对业务员分配数据的影响：当月的不动，下月的全初始化为0
-        Example example3 = new Example(UserMonthInfo.class);
-        Example.Criteria criteria1 = example3.createCriteria();
-        criteria1.andEqualTo("companyid", companyid);
-        criteria1.andEqualTo("mediaId", mediaId);
-        criteria1.andEqualTo("effectiveDate", nextMonthStr);
-        List<UserMonthInfo> nextMontMediaDataList = userMonthInfoMapper.selectByExample(example3);
+        UserMonthInfo u = new UserMonthInfo();
+        u.setCompanyid(companyid);
+        u.setMediaid(mediaId);
+        u.setEffectiveDate(nextMonthStr);
+        u.setStatus(CommonEnum.entity_status1.getCode());
+        List<UserMonthInfo> nextMontMediaDataList = userMonthInfoMapper.select(u);
         nextMontMediaDataList = CollectionUtils.isEmpty(nextMontMediaDataList) ? new ArrayList<>() : nextMontMediaDataList;
 
         Set<Integer> ids = nextMontMediaDataList.stream().map(UserMonthInfo::getId).collect(toSet());
@@ -162,6 +162,7 @@ public class CompanyMediaQueueService {
             Example whereParams = new Example(UserMonthInfo.class);
             Example.Criteria criteria = whereParams.createCriteria();
             criteria.andIn("id", ids);
+            criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
 
             userMonthInfoMapper.updateByExampleSelective(valuesParams2, whereParams);
         }
