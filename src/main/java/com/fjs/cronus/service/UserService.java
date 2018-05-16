@@ -183,6 +183,7 @@ public class UserService {
                 userMonthInfoTemp.setLastUpdateUser(userIdByOption);
                 userMonthInfoTemp.setCompanyid(companyId);
                 userMonthInfoTemp.setMediaid(mediaid);
+                userMonthInfoTemp.setStatus(CommonEnum.entity_status1.getCode());
                 toAddUserMonthInfoList.add(userMonthInfoTemp);
             }
         }

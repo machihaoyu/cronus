@@ -143,6 +143,7 @@ public class UserMonthInfoService {
                     copy.setLastUpdateUser(updateUserId);
                     copy.setCompanyid(companyid);
                     copy.setMediaid(userMonthInfo.getMediaid());
+                    copy.setStatus(CommonEnum.entity_status1.getCode());
                     toNewData.add(copy);
                 } else if (mediaSet.contains(list.get(0).getMediaid())) {
                     // 当月有，下月有 ---> 覆被盖
@@ -179,7 +180,7 @@ public class UserMonthInfoService {
                 userMonthInfoMapper.updateByPrimaryKeySelective(s);
             }
             if (CollectionUtils.isNotEmpty(toNewData)) {
-                userMonthInfoMapper.insertList(toNewData);
+                this.insertList(toNewData);
             }
             if (CollectionUtils.isNotEmpty(followMediaSet)) {
                 // 拷贝redis队列
