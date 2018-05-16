@@ -416,7 +416,7 @@ public class UserMonthInfoService {
         e.setUserId(salesmanId);
         e.setEffectiveDate(currentMonthStr);
         e.setStatus(CommonEnum.entity_status1.getCode());
-        List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, baseChannelDTO.getMedia_id(), salesmanId, currentMonthStr, CommonEnum.entity_status1.getCode());
+        List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, baseChannelDTO.getMedia_id(), CommonConst.COMPANY_MEDIA_QUEUE_COUNT, salesmanId, currentMonthStr, CommonEnum.entity_status1.getCode());
 
         UserMonthInfoDetail ee = new UserMonthInfoDetail();
         ee.setCustomerid(customerDto.getId());
