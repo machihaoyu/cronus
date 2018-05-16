@@ -18,7 +18,7 @@ public class EditAllocateDTO {
     private Integer companyid;
 
     @ApiModelProperty(value="媒体id")
-    private Integer medialid;
+    private Integer mediaid;
 
     @ApiModelProperty(value="当前或下月,值为" + CommonConst.USER_MONTH_INFO_MONTH_CURRENT + "," +CommonConst.USER_MONTH_INFO_MONTH_NEXT)
     private String monthFlag;
@@ -47,12 +47,12 @@ public class EditAllocateDTO {
         this.companyid = companyid;
     }
 
-    public Integer getMedialid() {
-        return medialid;
+    public Integer getMediaid() {
+        return mediaid;
     }
 
-    public void setMedialid(Integer medialid) {
-        this.medialid = medialid;
+    public void setMediaid(Integer mediaid) {
+        this.mediaid = mediaid;
     }
 
     public String getMonthFlag() {

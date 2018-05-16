@@ -336,7 +336,7 @@ public class UserController {
         TheaApiDTO resultDto = new TheaApiDTO();
         try {
 
-            allocateRedisService.addUserToAllocateTemplete2(editAllocateDTO.getUserId(), editAllocateDTO.getCompanyid(), editAllocateDTO.getMedialid(), editAllocateDTO.getMonthFlag());
+            allocateRedisService.addUserToAllocateTemplete2(editAllocateDTO.getUserId(), editAllocateDTO.getCompanyid(), editAllocateDTO.getMediaid(), editAllocateDTO.getMonthFlag());
 
             resultDto.setResult(CommonMessage.ADD_SUCCESS.getCode());
             resultDto.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
@@ -366,7 +366,7 @@ public class UserController {
         TheaApiDTO resultDto = new TheaApiDTO();
         try {
 
-            allocateRedisService.delUserToAllocateTemplete2(editAllocateDTO.getUserId(), editAllocateDTO.getCompanyid(), editAllocateDTO.getMedialid(), editAllocateDTO.getMonthFlag());
+            allocateRedisService.delUserToAllocateTemplete2(editAllocateDTO.getUserId(), editAllocateDTO.getCompanyid(), editAllocateDTO.getMediaid(), editAllocateDTO.getMonthFlag());
 
             resultDto.setResult(CommonMessage.DELETE_SUCCESS.getCode());
             resultDto.setMessage(CommonMessage.DELETE_SUCCESS.getCodeDesc());
