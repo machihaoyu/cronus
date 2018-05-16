@@ -333,7 +333,7 @@ public class UserMonthInfoService {
      * ocdc 推送后，自动分配成功后，记录该业务员的分配数.
      */
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void incrNum2DB(Integer subCompanyId, BaseChannelDTO baseChannelDTO, Integer salesmanId, String currentMonth, CustomerDTO customerDTO) {
+    public void incrNum2DBForOCDCPush(Integer subCompanyId, BaseChannelDTO baseChannelDTO, Integer salesmanId, String currentMonth, CustomerDTO customerDTO) {
 
         UserMonthInfo e = new UserMonthInfo();
         e.setCompanyid(subCompanyId);
@@ -394,6 +394,15 @@ public class UserMonthInfoService {
         e.setEffectiveDate(currentMonthStr);
         e.setStatus(CommonEnum.entity_status1.getCode());
         List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, baseChannelDTO.getMedia_id(), salesmanId, currentMonthStr, CommonEnum.entity_status1.getCode());
+
+        // 业务说明：一个用户只能算一次.
+        UserMonthInfoDetail ee = new UserMonthInfoDetail();
+        ee.setCustomerid(customerDto.getId());
+        ee.setStatus(CommonEnum.entity_status1.getCode());
+        List<UserMonthInfoDetail> select1 = userMonthInfoDetailMapper.select(ee);
+        if (CollectionUtils.isEmpty(select)) {
+            return;
+        }
 
         Integer id = null;
         // 主表 incr

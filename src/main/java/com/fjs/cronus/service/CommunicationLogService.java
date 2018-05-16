@@ -59,11 +59,14 @@ public class CommunicationLogService {
     TheaClientService theaClientService;
     @Autowired
     CommentService commentService;
+    @Autowired
+    UserMonthInfoService userMonthInfoService;
+
     //添加
     @Autowired
     SmsService smsService;
     @Transactional
-    public Integer addLog(CustomerUsefulDTO customerUsefulDTO, CustomerInfo customerDto, UserInfoDTO userInfoDTO, String token){
+    public Integer addLog(CustomerUsefulDTO customerUsefulDTO, CustomerInfo customerDto, UserInfoDTO userInfoDTO, String token, Integer loginUserId){
         Date date=new Date();
         //修改客户
         customerUsefulDTO.setHouseStatus(customerUsefulDTO.getHouseStatus());
@@ -143,6 +146,9 @@ public class CommunicationLogService {
         //确认状态
         if (customerUsefulDTO.getLoanAmount() != null && customerUsefulDTO.getLoanAmount().intValue() > 0){
             customerDto.setConfirm(CommonConst.CONFIRM__STATUS_EFFECT);
+
+            // 记录已确认数
+            userMonthInfoService.incrNum2DB(customerDto, loginUserId);
         }
         if (customerUsefulDTO.getLoanAmount() != null && customerUsefulDTO.getLoanAmount().intValue() == 0){
             customerDto.setConfirm(CommonConst.CONFIRM__STATUS_NOEFFECT);

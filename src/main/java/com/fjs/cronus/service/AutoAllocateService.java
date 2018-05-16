@@ -12,7 +12,6 @@ import com.fjs.cronus.dto.avatar.AvatarApiDTO;
 import com.fjs.cronus.dto.avatar.OrderNumberDTO;
 import com.fjs.cronus.dto.avatar.OrderNumberDetailDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
-import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.BaseChannelDTO;
 import com.fjs.cronus.dto.thea.WorkDayDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
@@ -49,7 +48,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
-import static java.util.stream.Collectors.*;
 
 /**
  * Created by feng on 2017/9/21.
@@ -278,7 +276,7 @@ public class AutoAllocateService {
                                 // TODO lihong ocdcid放入表
                                 if (isNewCustomerFromAvatar) {
                                     // 新客户已找到业务员，记录分配数
-                                    this.userMonthInfoService.incrNum2DB((Integer) needDataBox.get(companyIdKey), baseChannelDTO, (Integer) needDataBox.get(salesmanIdKey), currentMonthStr, customerDTO);
+                                    this.userMonthInfoService.incrNum2DBForOCDCPush((Integer) needDataBox.get(companyIdKey), baseChannelDTO, (Integer) needDataBox.get(salesmanIdKey), currentMonthStr, customerDTO);
                                 }
                             }
 
