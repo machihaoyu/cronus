@@ -1,5 +1,6 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonMessage;
@@ -66,11 +67,11 @@ public class CompanyMediaQueueService {
         // 获取媒体的name
         if (CollectionUtils.isNotEmpty(mediaIds)) {
             // 获取系统所有媒体
-            TheaApiDTO allMedia = theaService.getAllMedia(token);
+            TheaApiDTO<List<BaseCommonDTO>> allMedia = theaService.getAllMedia(token);
             if (!CommonMessage.SUCCESS.getCode().equals(allMedia.getResult())) {
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, allMedia.getMessage());
             }
-            List<BaseCommonDTO> allMediaList = (List<BaseCommonDTO>) allMedia.getData();
+            List<BaseCommonDTO> allMediaList = allMedia.getData();
             allMediaList = CollectionUtils.isEmpty(allMediaList) ? new ArrayList<>() : allMediaList;
 
             for (BaseCommonDTO baseCommonDTO : allMediaList) {

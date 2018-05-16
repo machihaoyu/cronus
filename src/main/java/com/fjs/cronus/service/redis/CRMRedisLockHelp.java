@@ -35,16 +35,6 @@ public class CRMRedisLockHelp {
      */
     private static final String UNLOCK_LU_SCRIPT = "if (redis.call('GET', KEYS[1]) == ARGV[1]) then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-    /**
-     * 设置redis 序列化器，解决setNX 成功但是expire失败情况.
-     */
-    private RedisTemplate getRedisTemplate() {
-        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-        redisTemplate.setKeySerializer(stringRedisSerializer);
-        redisTemplate.setValueSerializer(stringRedisSerializer);
-        return redisTemplate;
-    }
-
     private RedisScript getRedisScript(String scriptStr) {
         // 脚本对象
         return new RedisScript<String>() {
@@ -116,8 +106,11 @@ public class CRMRedisLockHelp {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "redis 缓存 timeout 时间太短");
         }
 
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+
         // 执行脚本
-        Object result = this.getRedisTemplate().execute(redisScript, new StringRedisSerializer(), new StringRedisSerializer(), Collections.singletonList(key), value, String.valueOf(timeout));
+        Object result = redisTemplate.execute(redisScript, new StringRedisSerializer(), new StringRedisSerializer(), Collections.singletonList(key), value, String.valueOf(timeout));
         if ("OK".equals(result)) {
             // 成功，返回 OK
             return true;
@@ -156,8 +149,11 @@ public class CRMRedisLockHelp {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "redis 缓存 unlockFlag 不能为空");
         }
 
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+
         // 执行脚本
-        Object result = this.getRedisTemplate().execute(redisScript, new StringRedisSerializer(), new StringRedisSerializer(), Collections.singletonList(key), lockToken);
+        Object result = redisTemplate.execute(redisScript, new StringRedisSerializer(), new StringRedisSerializer(), Collections.singletonList(key), lockToken);
         if (result !=null && "1".equals(result.toString())) {
             // 成功，返回 1
             return true;
@@ -177,7 +173,10 @@ public class CRMRedisLockHelp {
             }
         };
 
-        Object result = this.getRedisTemplate().execute(redisCallback);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+
+        Object result = redisTemplate.execute(redisCallback);
         if (result == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "从redis服务器获取当前时间异常，响应为null");
         }
