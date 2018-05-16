@@ -14,12 +14,6 @@ public interface UserMonthInfoMapper extends MyMapper<UserMonthInfo>{
 
     List<UserMonthInfo> selectByParamsMap(Map<String, Object> map);
 
-    List<UserMonthInfo> findByParams(UserMonthInfo params);
-
-    Integer updateUserMonthInfo(@Param("whereParams") UserMonthInfo whereParams, @Param("valueParams") UserMonthInfo valueParams);
-
-    Integer insertList2(List<UserMonthInfo> userMonthInfos);
-
     /**
      * 获取某一级吧，该月已购数.
      */
@@ -28,7 +22,12 @@ public interface UserMonthInfoMapper extends MyMapper<UserMonthInfo>{
     /**
      * 更新业务员分配数.
      */
-    void update2IncrNum(@Param("id")Integer id);
+    void update2IncrNumForAssignedCustomerNum(@Param("id")Integer id);
+
+    /**
+     * 更新业务员确认数.
+     */
+    void update2IncrNumForEffectiveCustomerNum(@Param("id")Integer id);
 
     /**
      * 获取sum,根据条件.
@@ -38,5 +37,5 @@ public interface UserMonthInfoMapper extends MyMapper<UserMonthInfo>{
     /**
      * 加悲观锁查.
      */
-    List<UserMonthInfo> findByParamsForUpdate(UserMonthInfo e);
+    List<UserMonthInfo> findByParamsForUpdate(@Param("subCompanyId")Integer subCompanyId, @Param("mediaid")Integer mediaid, @Param("salesmanId")Integer salesmanId, @Param("currentMonth")String currentMonth, @Param("status")Integer status);
 }

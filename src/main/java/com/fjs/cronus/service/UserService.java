@@ -100,13 +100,16 @@ public class UserService {
     }
 
 
-    public Map<String, List<UserMonthInfoDTO>> getUserMonthInfoList(Integer companyId, String effectiveDate, Integer userIdByOption, Integer mediaid) throws Exception {
+    public Map<String, List<UserMonthInfoDTO>> getUserMonthInfoList(Integer companyId, String monthFlag, Integer userIdByOption, Integer mediaid) throws Exception {
 
         // 获取公司员工列表
         ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(publicToken, companyId);
         if (baseUcDTO.getResult().equals(1) || baseUcDTO.getData().size() == 0) {
             return null;
         }
+
+        // 获取时间
+        String effectiveDate = this.allocateRedisService.getMonthStr(monthFlag);
 
         // 员工ids
         List<Integer> companyUserIds = new ArrayList<>();

@@ -246,27 +246,33 @@ public class UserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
             @ApiImplicitParam(name = "companyId", value = "公司Id", required = true, paramType = "query", dataType = "Integer", defaultValue = "-1"),
-            @ApiImplicitParam(name = "effectiveDate", value = "查询时间", required = true, paramType = "query", dataType = "String", defaultValue = "201710"),
+            @ApiImplicitParam(name = "monthFlag", value = "查询时间标记，值为" + CommonConst.USER_MONTH_INFO_MONTH_CURRENT + "," + CommonConst.USER_MONTH_INFO_MONTH_NEXT, required = true, paramType = "query", dataType = "String", defaultValue = "201710"),
             @ApiImplicitParam(name = "mediaid", value = "媒体", required = true, paramType = "query", dataType = "Integer", defaultValue = "-1")
     })
     @RequestMapping(value = "/getUsersByCompanyId", method = RequestMethod.GET)
     @ResponseBody
     public TheaApiDTO<Map<String, List<UserMonthInfoDTO>>> getUsersByCompanyId(
-            @RequestParam(required = true) Integer companyId,
-            @RequestParam(required = true) String effectiveDate,
-            @RequestParam(required = true) Integer mediaid
+            @RequestParam Integer companyId,
+            @RequestParam String monthFlag,
+            @RequestParam Integer mediaid
     ) {
         TheaApiDTO<Map<String, List<UserMonthInfoDTO>>> resultDTO = new TheaApiDTO<>();
         try {
-            //判断输入的查询时间是否为
-            //"201701"
-            if (StringUtils.isBlank(effectiveDate) || !effectiveDate.matches("[0-9]{6}")) {
-                throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
+            if (companyId == null ) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "companyId 不能为空");
+            }
+            if (mediaid == null ) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mediaid 不能为空");
+            }
+            if (StringUtils.isBlank(monthFlag) ) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "monthFlag 不能为空");
             }
 
+
+            //判断输入的查询时间是否为
             Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
 
-            resultDTO.setData(userService.getUserMonthInfoList(companyId, effectiveDate, userId, mediaid));
+            resultDTO.setData(userService.getUserMonthInfoList(companyId, monthFlag, userId, mediaid));
             resultDTO.setResult(ResultDescription.CODE_SUCCESS);
             resultDTO.setMessage(ResultDescription.MESSAGE_SUCCESS);
         } catch (Exception e) {
@@ -323,7 +329,7 @@ public class UserController {
         TheaApiDTO resultDto = new TheaApiDTO();
         try {
 
-            allocateRedisService.addUserToAllocateTemplete2(editAllocateDTO.getUserId(), editAllocateDTO.getCompanyid(), editAllocateDTO.getMedialid(), editAllocateDTO.getEffectiveDate());
+            allocateRedisService.addUserToAllocateTemplete2(editAllocateDTO.getUserId(), editAllocateDTO.getCompanyid(), editAllocateDTO.getMedialid(), editAllocateDTO.getMonthFlag());
 
             resultDto.setResult(CommonMessage.ADD_SUCCESS.getCode());
             resultDto.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());
@@ -345,7 +351,7 @@ public class UserController {
         TheaApiDTO resultDto = new TheaApiDTO();
         try {
 
-            allocateRedisService.delUserToAllocateTemplete2(editAllocateDTO.getUserId(), editAllocateDTO.getCompanyid(), editAllocateDTO.getMedialid(), editAllocateDTO.getEffectiveDate());
+            allocateRedisService.delUserToAllocateTemplete2(editAllocateDTO.getUserId(), editAllocateDTO.getCompanyid(), editAllocateDTO.getMedialid(), editAllocateDTO.getMonthFlag());
 
             resultDto.setResult(CommonMessage.DELETE_SUCCESS.getCode());
             resultDto.setMessage(CommonMessage.DELETE_SUCCESS.getCodeDesc());
@@ -368,7 +374,7 @@ public class UserController {
         try {
             // 参数校验
             Integer userId = editUserMonthInfoDTO.getUserId();
-            String effectiveDate = editUserMonthInfoDTO.getEffectiveDate();
+            String monthFlag = editUserMonthInfoDTO.getMonthFlag();
             Integer baseCustomerNum = editUserMonthInfoDTO.getBaseCustomerNum();
             Integer rewardCustomerNum = editUserMonthInfoDTO.getRewardCustomerNum();
             Integer companyid = editUserMonthInfoDTO.getCompanyid();
@@ -382,13 +388,10 @@ public class UserController {
             if (baseCustomerNum < 0 || rewardCustomerNum < 0) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "baseCustomerNum or rewardCustomerNum 数据错误");
             }
-            if (StringUtils.isBlank(effectiveDate) || !effectiveDate.matches("[0-9]{6}")) {
-                throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
-            }
 
             Integer loginUserId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
 
-            userMonthInfoService.editUserMonthInfo(loginUserId, userId, companyid, mediaid, effectiveDate.trim(), baseCustomerNum, rewardCustomerNum);
+            userMonthInfoService.editUserMonthInfo(loginUserId, userId, companyid, mediaid, monthFlag, baseCustomerNum, rewardCustomerNum);
 
             resultDto.setResult(CommonMessage.UPDATE_SUCCESS.getCode());
             resultDto.setMessage(CommonMessage.UPDATE_SUCCESS.getCodeDesc());

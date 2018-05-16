@@ -138,8 +138,8 @@ public class CompanyMediaQueueService {
         companyMediaQueueMapper.updateByExampleSelective(valuesParams, example);
 
         // 获取当月、下月字符串
-        String currentMonthStr = this.allocateRedisService.getCurrentMonthStr();
-        String nextMonthStr = this.allocateRedisService.getNextMonthStr();
+        String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT);
+        String nextMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_NEXT);
 
         // 对业务员分配数据的影响：当月的不动，下月的全初始化为0
         Example example3 = new Example(UserMonthInfo.class);

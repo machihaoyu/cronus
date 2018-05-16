@@ -15,7 +15,10 @@
         <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
         <result column="effective_date" property="effectiveDate" jdbcType="VARCHAR" />
         <result column="companyid" property="companyid" jdbcType="INTEGER" />
+        <result column="sourceid" property="sourceid" jdbcType="INTEGER" />
         <result column="mediaid" property="mediaid" jdbcType="INTEGER" />
+        <result column="accountid" property="accountid" jdbcType="INTEGER" />
+        <result column="channelid" property="channelid" jdbcType="INTEGER" />
         <result column="status" property="status" jdbcType="INTEGER" />
     </resultMap>
 
@@ -32,7 +35,10 @@
         `last_update_user`,
         `effective_date`,
         `companyid`,
+        `sourceid`,
         `mediaid`,
+        `accountid`,
+        `channelid`,
         `status`
     </sql>
 
@@ -63,235 +69,31 @@
         </where>
     </select>
 
-    <select id="findByParams" parameterType="com.fjs.cronus.model.UserMonthInfo" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List"/> FROM `user_month_info`
-        <where>
-            <if test="id != null">
-                AND id = #{id}
-            </if>
-            <if test="userId != null">
-                AND user_id = #{userId}
-            </if>
-            <if test="baseCustomerNum != null ">
-                AND base_customer_num = #{baseCustomerNum}
-            </if>
-            <if test="rewardCustomerNum != null ">
-                AND reward_customer_num = #{rewardCustomerNum}
-            </if>
-            <if test="assignedCustomerNum != null ">
-                AND assigned_customer_num = #{assignedCustomerNum}
-            </if>
-            <if test="assignedCustomerNum != null ">
-                AND effective_customer_num = #{effectiveCustomerNum}
-            </if>
-            <if test="createTime != null ">
-                AND create_time = #{createTime}
-            </if>
-            <if test="createUserId != null ">
-                AND create_user_id = #{createUserId}
-            </if>
-            <if test="lastUpdateTime != null ">
-                AND last_update_time = #{lastUpdateTime}
-            </if>
-            <if test="lastUpdateUser != null ">
-                AND last_update_user = #{lastUpdateUser}
-            </if>
-            <if test="effectiveDate != null ">
-                AND effective_date = #{effectiveDate}
-            </if>
-            <if test="companyid != null ">
-                AND companyid = #{companyid}
-            </if>
-            <if test="mediaid != null ">
-                AND mediaid = #{mediaid}
-            </if>
-            <if test="status != null ">
-                AND `status` = #{status}
-            </if>
-        </where>
-    </select>
-
     <select id="findByParamsForUpdate" parameterType="com.fjs.cronus.model.UserMonthInfo" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List"/> FROM `user_month_info`
-        <where>
-            <if test="id != null">
-                AND id = #{id}
-            </if>
-            <if test="userId != null">
-                AND user_id = #{userId}
-            </if>
-            <if test="baseCustomerNum != null ">
-                AND base_customer_num = #{baseCustomerNum}
-            </if>
-            <if test="rewardCustomerNum != null ">
-                AND reward_customer_num = #{rewardCustomerNum}
-            </if>
-            <if test="assignedCustomerNum != null ">
-                AND assigned_customer_num = #{assignedCustomerNum}
-            </if>
-            <if test="assignedCustomerNum != null ">
-                AND effective_customer_num = #{effectiveCustomerNum}
-            </if>
-            <if test="createTime != null ">
-                AND create_time = #{createTime}
-            </if>
-            <if test="createUserId != null ">
-                AND create_user_id = #{createUserId}
-            </if>
-            <if test="lastUpdateTime != null ">
-                AND last_update_time = #{lastUpdateTime}
-            </if>
-            <if test="lastUpdateUser != null ">
-                AND last_update_user = #{lastUpdateUser}
-            </if>
-            <if test="effectiveDate != null ">
-                AND effective_date = #{effectiveDate}
-            </if>
-            <if test="companyid != null ">
-                AND companyid = #{companyid}
-            </if>
-            <if test="mediaid != null ">
-                AND mediaid = #{mediaid}
-            </if>
-            <if test="status != null ">
-                AND `status` = #{status}
-            </if>
-        </where>
+        WHERE
+        `user_id` = #{salesmanId}
+        AND `effective_date` = #{currentMonth}
+        AND `companyid` = #{subCompanyId}
+        AND `mediaid`` = #{mediaid}
+        AND `status` = #{status}
         FOR  UPDATE
     </select>
-
-    <update id="updateUserMonthInfo">
-        UPDATE user_month_info
-        <set>
-            <if test="valueParams.id != null">
-                id = #{valueParams.id},
-            </if>
-            <if test="valueParams.userId != null">
-                user_id = #{valueParams.userId},
-            </if>
-            <if test="valueParams.baseCustomerNum != null ">
-                base_customer_num = #{valueParams.baseCustomerNum},
-            </if>
-            <if test="valueParams.rewardCustomerNum != null ">
-                reward_customer_num = #{valueParams.rewardCustomerNum},
-            </if>
-            <if test="valueParams.assignedCustomerNum != null ">
-                assigned_customer_num = #{valueParams.assignedCustomerNum},
-            </if>
-            <if test="valueParams.assignedCustomerNum != null ">
-                effective_customer_num = #{valueParams.effectiveCustomerNum},
-            </if>
-            <if test="valueParams.createTime != null ">
-                create_time = #{valueParams.createTime},
-            </if>
-            <if test="valueParams.createUserId != null ">
-                create_user_id = #{valueParams.createUserId},
-            </if>
-            <if test="valueParams.lastUpdateTime != null ">
-                last_update_time = #{valueParams.lastUpdateTime},
-            </if>
-            <if test="valueParams.lastUpdateUser != null ">
-                last_update_user = #{valueParams.lastUpdateUser},
-            </if>
-            <if test="valueParams.effectiveDate != null ">
-                effective_date = #{valueParams.effectiveDate},
-            </if>
-            <if test="valueParams.companyid != null ">
-                companyid = #{valueParams.companyid},
-            </if>
-            <if test="valueParams.mediaid != null ">
-                mediaid = #{valueParams.mediaid},
-            </if>
-            <if test="valueParams.status != null ">
-                status = #{valueParams.status},
-            </if>
-        </set>
-        <where>
-            <if test="whereParams.id != null">
-                AND id = #{whereParams.id}
-            </if>
-            <if test="whereParams.userId != null">
-                AND user_id = #{whereParams.userId}
-            </if>
-            <if test="whereParams.baseCustomerNum != null ">
-                AND base_customer_num = #{whereParams.baseCustomerNum}
-            </if>
-            <if test="whereParams.rewardCustomerNum != null ">
-                AND reward_customer_num = #{whereParams.rewardCustomerNum}
-            </if>
-            <if test="whereParams.assignedCustomerNum != null ">
-                AND assigned_customer_num = #{whereParams.assignedCustomerNum}
-            </if>
-            <if test="whereParams.assignedCustomerNum != null ">
-                AND effective_customer_num = #{whereParams.effectiveCustomerNum}
-            </if>
-            <if test="whereParams.createTime != null ">
-                AND create_time = #{whereParams.createTime}
-            </if>
-            <if test="whereParams.createUserId != null ">
-                AND create_user_id = #{whereParams.createUserId}
-            </if>
-            <if test="whereParams.lastUpdateTime != null ">
-                AND last_update_time = #{whereParams.lastUpdateTime}
-            </if>
-            <if test="whereParams.lastUpdateUser != null ">
-                AND last_update_user = #{whereParams.lastUpdateUser}
-            </if>
-            <if test="whereParams.effectiveDate != null ">
-                AND effective_date = #{whereParams.effectiveDate}
-            </if>
-            <if test="whereParams.companyid != null ">
-                AND companyid = #{whereParams.companyid}
-            </if>
-            <if test="whereParams.mediaid != null ">
-                AND mediaid = #{whereParams.mediaid}
-            </if>
-            <if test="whereParams.status != null ">
-                AND status = #{whereParams.status}
-            </if>
-        </where>
-    </update>
-
-    <insert id="insertList2" parameterType="java.util.List">
-        INSERT INTO user_month_info (
-            user_id,
-            base_customer_num,
-            reward_customer_num,
-            assigned_customer_num,
-            effective_customer_num,
-            create_time,
-            create_user_id,
-            last_update_time,
-            effective_date,
-            last_update_user,
-            companyid,
-            mediaid
-        )
-        values
-        <foreach collection="list" item="userMonthInfo" index="index" separator=",">
-            (
-            #{userMonthInfo.userId},
-            #{userMonthInfo.baseCustomerNum},
-            #{userMonthInfo.rewardCustomerNum},
-            #{userMonthInfo.assignedCustomerNum},
-            #{userMonthInfo.effectiveCustomerNum},
-            #{userMonthInfo.createTime},
-            #{userMonthInfo.createUserId},
-            #{userMonthInfo.lastUpdateTime},
-            #{userMonthInfo.effectiveDate},
-            #{userMonthInfo.lastUpdateUser},
-            #{userMonthInfo.companyid},
-            #{userMonthInfo.mediaid}
-            )
-        </foreach>
-    </insert>
 
     <select id="getOrderNum" resultType="java.lang.Integer">
         SELECT SUM(`assigned_customer_num`) FROM `user_month_info` WHERE `companyid`=#{companyid} AND `effective_date`=#{effectiveDate} AND `status`=#{status}
     </select>
 
-    <update id="update2IncrNum">
-        UPDATE `user_month_info` SET `assigned_customer_num`= `assigned_customer_num`+1 WHERE `id`=#{id}
+    <update id="update2IncrNumForAssignedCustomerNum">
+        UPDATE `user_month_info`
+        SET `assigned_customer_num`= `assigned_customer_num`+1,
+        WHERE `id`=#{id}
+    </update>
+
+    <update id="update2IncrNumForEffectiveCustomerNum">
+        UPDATE `user_month_info`
+        SET `effective_customer_num`= `effective_customer_num`+1,
+        WHERE `id`=#{id}
     </update>
 
     <select id="selectSum" resultType="java.lang.Integer">

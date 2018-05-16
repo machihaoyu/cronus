@@ -150,7 +150,9 @@ public class AutoAllocateService {
             needDataBox.put(salesmanIdKey, null);   // 业务员id
 
             BaseChannelDTO baseChannelDTO = userMonthInfoService.getChannelInfoByChannelName(customerDTO.getUtmSource());; // 根据渠道获取来源、媒体、渠道
-            String currentMonthStr = this.allocateRedisService.getCurrentMonthStr();; // 当月字符串
+            String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT); // 当月字符串
+            boolean isNewCustomerFromAvatar = false;
+
 
             // 分配规则
             if ( customerDTO.getId() == null || customerDTO.getId().equals(0) ) {
@@ -169,8 +171,8 @@ public class AutoAllocateService {
                         allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
                         customerDTO.setOwnerUserId((Integer) needDataBox.get(salesmanIdKey));
 
-                        // 新客户已找到业务员，记录分配数
-                        this.userMonthInfoService.incrNum2DB((Integer) needDataBox.get(companyIdKey), baseChannelDTO, (Integer) needDataBox.get(salesmanIdKey), currentMonthStr, customerDTO);
+                        // 标记
+                        isNewCustomerFromAvatar = true;
                     } else {
                         // 未找到，进待分配池
                         allocateEntity.setAllocateStatus(AllocateEnum.WAITING_POOL);
@@ -273,7 +275,13 @@ public class AutoAllocateService {
                             CronusDto cronusDto1 = customerInfoService.addOcdcCustomer(customerDTO, token);
                             if (cronusDto1.getResult() == 0) {
                                 customerDTO.setId(Integer.parseInt(cronusDto1.getData().toString()));
+
+                                if (isNewCustomerFromAvatar) {
+                                    // 新客户已找到业务员，记录分配数
+                                    this.userMonthInfoService.incrNum2DB((Integer) needDataBox.get(companyIdKey), baseChannelDTO, (Integer) needDataBox.get(salesmanIdKey), currentMonthStr, customerDTO);
+                                }
                             }
+
                             break;
                         case "2": // 再分配池
                             break;

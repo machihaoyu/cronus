@@ -39,7 +39,7 @@ public class CompanyMediaQueueController {
             @ApiImplicitParam(name = "subCompanyId", value = "分公司id;一级吧id", required = true, paramType = "query", dataType = "int"),
     })
     @GetMapping(value = "/findByCompanyId")
-    public CronusDto findByCompanyId(@RequestHeader(name = "Authorization") String token, @RequestParam Integer subCompanyId, @RequestParam String yearmonth) {
+    public CronusDto findByCompanyId(@RequestHeader(name = "Authorization") String token, @RequestParam Integer subCompanyId ) {
         CronusDto result = new CronusDto();
         try {
             // 参加校验

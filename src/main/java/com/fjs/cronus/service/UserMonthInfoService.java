@@ -63,16 +63,8 @@ public class UserMonthInfoService {
         return userMonthInfoMapper.selectByParamsMap(map);
     }
 
-    public Integer updateUserMonthInfo(UserMonthInfo whereParams, UserMonthInfo valueParams) {
-        return userMonthInfoMapper.updateUserMonthInfo(whereParams, valueParams);
-    }
-
     public Integer insertList(List<UserMonthInfo> userMonthInfoList) {
-        return userMonthInfoMapper.insertList2(userMonthInfoList);
-    }
-
-    public List<UserMonthInfo> findByParams(UserMonthInfo params) {
-        return userMonthInfoMapper.findByParams(params);
+        return userMonthInfoMapper.insertList(userMonthInfoList);
     }
 
     public void copyCurrentMonthDataToNexMonth(Integer updateUserId, Integer companyid) {
@@ -90,8 +82,8 @@ public class UserMonthInfoService {
             // 3、如果是关注且存在--->覆盖、如果是关注且不存在--->新增、如果是不关注且存在--->归0
 
             // 获取当月、下月的effective_date
-            String currentMothStr = allocateRedisService.getCurrentMonthStr();
-            String nextMothfStr = allocateRedisService.getNextMonthStr();
+            String currentMothStr = allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT);
+            String nextMothfStr = allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_NEXT);
 
             // 获取用户关注的媒体
             CompanyMediaQueue e = new CompanyMediaQueue();
@@ -204,7 +196,7 @@ public class UserMonthInfoService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void editUserMonthInfo(Integer loginUserId, Integer userId, Integer companyid, Integer mediaid, String effectiveDate, Integer baseCustomerNum, Integer rewardCustomerNum) {
+    public void editUserMonthInfo(Integer loginUserId, Integer userId, Integer companyid, Integer mediaid, String monthFlag, Integer baseCustomerNum, Integer rewardCustomerNum) {
 
         // 锁
         String key = CommonRedisConst.USERMONTHINFO_EDIT.concat("$").concat(companyid.toString()).concat("$").concat(mediaid.toString());
@@ -217,6 +209,8 @@ public class UserMonthInfoService {
             // 减少情况
             // 1、总分配队列的[月申请数]、[月奖励数]  > 其他特殊渠道[月申请数]之和、[月奖励数]之和
             // 2、特殊渠道 [月申请数]、[月奖励数] 不能分别 >  (总分配队列[月申请数]、[月奖励数] 分别 - 剩余特殊渠道[月申请数]之和、[月奖励数]之和)
+
+            String effectiveDate = this.allocateRedisService.getMonthStr(monthFlag);
 
             // 获取用户所以媒体、具体月份、具体吧的分配数据
             UserMonthInfo ee = new UserMonthInfo();
@@ -333,7 +327,8 @@ public class UserMonthInfoService {
     /**
      * ocdc 推送后，自动分配成功后，记录该业务员的分配数.
      */
-    public synchronized void incrNum2DB(Integer subCompanyId, BaseChannelDTO baseChannelDTO, Integer salesmanId, String currentMonth, CustomerDTO customerDTO) {
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void incrNum2DB(Integer subCompanyId, BaseChannelDTO baseChannelDTO, Integer salesmanId, String currentMonth, CustomerDTO customerDTO) {
 
         UserMonthInfo e = new UserMonthInfo();
         e.setCompanyid(subCompanyId);
@@ -341,24 +336,20 @@ public class UserMonthInfoService {
         e.setUserId(salesmanId);
         e.setEffectiveDate(currentMonth);
         e.setStatus(CommonEnum.entity_status1.getCode());
-        List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(e);
+        List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, baseChannelDTO.getMedia_id(), salesmanId, currentMonth, CommonEnum.entity_status1.getCode());
 
         Integer id = null;
         Date now = new Date();
+
+        // 主表 incr
         if (CollectionUtils.isEmpty(select) || select.get(0) == null) {
-            // 无就新增:正常情况下事不会走这条分支
-            // 记录数据
-            UserMonthInfo ee = new UserMonthInfo();
-            ee.setCreateTime(now);
-            ee.setLastUpdateTime(now);
-            ee.setAssignedCustomerNum(1);
-            ee.setBaseCustomerNum(-9999);
-            ee.setStatus(CommonEnum.entity_status0.getCode());
-            userMonthInfoMapper.insertUseGeneratedKeys(ee);
-            id = ee.getId();
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，分配给了该员工，但未找到分配数据（subCompanyId="+subCompanyId+"，Mediaid="+baseChannelDTO.getMedia_id()+"，salesmanId="+salesmanId+"，currentMonth="+currentMonth+"）");
         } else {
             UserMonthInfo userMonthInfo = select.get(0);
-            userMonthInfoMapper.update2IncrNum(userMonthInfo.getId());
+            userMonthInfo.setSourceid(baseChannelDTO.getSource_id());
+            userMonthInfo.setAccountid(baseChannelDTO.getAccount_id());
+            userMonthInfo.setChannelid(baseChannelDTO.getId());
+            userMonthInfoMapper.update2IncrNumForAssignedCustomerNum(userMonthInfo.getId());
             id = userMonthInfo.getId();
         }
 
@@ -373,19 +364,22 @@ public class UserMonthInfoService {
         detail.setCustomerInfo(JSONObject.toJSONString(customerDTO));
         detail.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE1);
         detail.setUserMonthInfoId(id);
+        detail.setCustomerid(customerDTO.getId());
         userMonthInfoDetailMapper.insert(detail);
     }
 
     /**
      * 记录有效数.
      */
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void incrNum2DB(CustomerInfo customerDto, Integer salesmanId){
 
         Integer subCompanyId = customerDto.getSubCompanyId();
         String utmSource = customerDto.getUtmSource();
-        String currentMonthStr = this.allocateRedisService.getCurrentMonthStr();
+        String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT);
 
         BaseChannelDTO baseChannelDTO = this.getChannelInfoByChannelName(utmSource);
+        Date now = new Date();
 
         // 先查该记录
         UserMonthInfo e = new UserMonthInfo();
@@ -394,28 +388,35 @@ public class UserMonthInfoService {
         e.setUserId(salesmanId);
         e.setEffectiveDate(currentMonthStr);
         e.setStatus(CommonEnum.entity_status1.getCode());
-        List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(e);
-        /*if (CollectionUtils.isEmpty(select) || select.get(0) == null) {
-            // 无就新增:正常情况下事不会走这条分支
-            // 记录数据
-            UserMonthInfo ee = new UserMonthInfo();
-            ee.setCreateTime(now);
-            ee.setLastUpdateTime(now);
-            ee.setAssignedCustomerNum(1);
-            ee.setBaseCustomerNum(-9999);
-            ee.setStatus(CommonEnum.entity_status0.getCode());
-            userMonthInfoMapper.insertUseGeneratedKeys(ee);
-            id = ee.getId();
+        List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, baseChannelDTO.getMedia_id(), salesmanId, currentMonthStr, CommonEnum.entity_status1.getCode());
+
+        Integer id = null;
+        // 主表 incr
+        if (CollectionUtils.isEmpty(select) || select.get(0) == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，该客户已分配给了该业务员，但未找到分配数据（subCompanyId="+subCompanyId+"，Mediaid="+baseChannelDTO.getMedia_id()+"，salesmanId="+salesmanId+"，currentMonth="+currentMonthStr+"）");
         } else {
             UserMonthInfo userMonthInfo = select.get(0);
-            userMonthInfoMapper.update2IncrNum(userMonthInfo.getId());
+            userMonthInfo.setSourceid(baseChannelDTO.getSource_id());
+            userMonthInfo.setAccountid(baseChannelDTO.getAccount_id());
+            userMonthInfo.setChannelid(baseChannelDTO.getId());
+            userMonthInfoMapper.update2IncrNumForEffectiveCustomerNum(userMonthInfo.getId());
             id = userMonthInfo.getId();
-        }*/
-        // 主表 incr，加加
+        }
 
         // 明细表记录明细
-        Integer id = null;
-        Date now = new Date();
+        UserMonthInfoDetail detail = new UserMonthInfoDetail();
+        detail.setCreated(now);
+        detail.setCompanyid(subCompanyId);
+        detail.setSourceid(baseChannelDTO.getSource_id());
+        detail.setMediaid(baseChannelDTO.getMedia_id());
+        detail.setAccountid(baseChannelDTO.getAccount_id());
+        detail.setChannelid(baseChannelDTO.getId());
+        detail.setEffectiveDate(currentMonthStr);
+        detail.setCustomerInfo(JSONObject.toJSONString(customerDto));
+        detail.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE2);
+        detail.setUserMonthInfoId(id);
+        detail.setCustomerid(customerDto.getId());
+        userMonthInfoDetailMapper.insert(detail);
 
     }
 

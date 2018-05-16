@@ -1,5 +1,6 @@
 package com.fjs.cronus.service.redis;
 
+import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.dto.avatar.AvatarApiDTO;
 import com.fjs.cronus.dto.avatar.FirstBarDTO;
@@ -177,10 +178,12 @@ public class AllocateRedisService {
     /**
      * 媒体业务员queue：添加到队列尾部.
      */
-    public void addUserToAllocateTemplete2(Integer userId, Integer companyId, Integer medial, String effectiveDate) {
+    public void addUserToAllocateTemplete2(Integer userId, Integer companyId, Integer medial, String monthFlag) {
         if (userId == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "userId 不能为null");
         }
+
+        String effectiveDate = this.getMonthStr(monthFlag);
 
         redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
         redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
@@ -194,10 +197,12 @@ public class AllocateRedisService {
     /**
      * 媒体业务员queue：移除.
      */
-    public void delUserToAllocateTemplete2(Integer userId, Integer companyId, Integer medial, String effectiveDate) {
+    public void delUserToAllocateTemplete2(Integer userId, Integer companyId, Integer medial, String monthFlag) {
         if (userId == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "userId 不能为null");
         }
+
+        String effectiveDate = this.getMonthStr(monthFlag);
 
         redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
         redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
@@ -271,23 +276,31 @@ public class AllocateRedisService {
     /**
      * 媒体业务员queue：获取队列当月的，时间串.
      */
-    public String getCurrentMonthStr() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
-        return sdf.format(new Date());
-    }
+    public String getMonthStr(String monthFlag){
+        if (StringUtils.isBlank(monthFlag)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "monthFlag 不能为null");
+        }
+        monthFlag = monthFlag.trim();
 
-    /**
-     * 媒体业务员queue：获取队列下月的，时间串.
-     */
-    public String getNextMonthStr() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
 
-        Calendar instance = Calendar.getInstance();
-        Date currentMoth = instance.getTime();
-        instance.add(Calendar.MONTH, 1);
-        Date nextMoth = instance.getTime();
+        String effectiveDate = null;
+        if (CommonConst.USER_MONTH_INFO_MONTH_CURRENT.equalsIgnoreCase(monthFlag)) {
+            effectiveDate = sdf.format(new Date());
+        } else if (CommonConst.USER_MONTH_INFO_MONTH_NEXT.equalsIgnoreCase(monthFlag)) {
 
-        return sdf.format(nextMoth);
+            Calendar instance = Calendar.getInstance();
+            instance.add(Calendar.MONTH, 1);
+            Date nextMoth = instance.getTime();
+
+            effectiveDate = sdf.format(nextMoth);
+        }
+
+        if (StringUtils.isBlank(effectiveDate)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "monthFlag 格式不正确");
+        }
+
+        return effectiveDate;
     }
 
     /**
@@ -308,8 +321,8 @@ public class AllocateRedisService {
      */
     public void copyCurrentMonthQueue(Integer companyId, Integer medial) {
 
-        String currentMonthStr = this.getCurrentMonthStr();
-        String nextMonthStr = this.getNextMonthStr();
+        String currentMonthStr = this.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT);
+        String nextMonthStr = this.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT);
 
         if (companyId != null && medial != null && StringUtils.isNotBlank(currentMonthStr) && StringUtils.isNotBlank(nextMonthStr)) {
 

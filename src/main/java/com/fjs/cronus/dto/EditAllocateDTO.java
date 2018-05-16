@@ -1,5 +1,6 @@
 package com.fjs.cronus.dto;
 
+import com.fjs.cronus.Common.CommonConst;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -19,8 +20,8 @@ public class EditAllocateDTO {
     @ApiModelProperty(value="媒体id")
     private Integer medialid;
 
-    @ApiModelProperty(value="当前或下月的值")
-    private String effectiveDate;
+    @ApiModelProperty(value="当前或下月,值为" + CommonConst.USER_MONTH_INFO_MONTH_CURRENT + "," +CommonConst.USER_MONTH_INFO_MONTH_NEXT)
+    private String monthFlag;
 
     public Integer getUserId() {
         return userId;
@@ -54,11 +55,11 @@ public class EditAllocateDTO {
         this.medialid = medialid;
     }
 
-    public String getEffectiveDate() {
-        return effectiveDate;
+    public String getMonthFlag() {
+        return monthFlag;
     }
 
-    public void setEffectiveDate(String effectiveDate) {
-        this.effectiveDate = effectiveDate;
+    public void setMonthFlag(String monthFlag) {
+        this.monthFlag = monthFlag;
     }
 }
