@@ -58,6 +58,9 @@ public class UserMonthInfoService {
     private UserMonthInfoDetailMapper userMonthInfoDetailMapper;
 
     @Autowired
+    private CompanyMediaQueueService companyMediaQueueService;
+
+    @Autowired
     private TheaService theaService;
 
     public List<UserMonthInfo> selectByParamsMap(Map<String, Object> map) {
@@ -65,6 +68,9 @@ public class UserMonthInfoService {
     }
 
     public Integer insertList(List<UserMonthInfo> userMonthInfoList) {
+        // 这里使用的tk.mybatis的批量，包一层；
+        // 原因：在无指定值的字段会插入null，如果mysql上设置了int(2) DEFAULT '1'不会为默认值
+        userMonthInfoList.stream().forEach(i->i.setStatus(CommonEnum.entity_status1.getCode()));
         return userMonthInfoMapper.insertList(userMonthInfoList);
     }
 
@@ -203,6 +209,14 @@ public class UserMonthInfoService {
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void editUserMonthInfo(Integer loginUserId, Integer userId, Integer companyid, Integer mediaid, String monthFlag, Integer baseCustomerNum, Integer rewardCustomerNum) {
+
+
+        // 校验
+        Set<Integer> mediaidAll = this.companyMediaQueueService.findFollowMediaidAll(companyid);
+        if (!mediaidAll.contains(mediaid)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "参数错误，该一级吧未关注此媒体（id="+mediaid+"）");
+        }
+
 
         // 锁
         String key = CommonRedisConst.USERMONTHINFO_EDIT.concat("$").concat(companyid.toString()).concat("$").concat(mediaid.toString());
@@ -371,7 +385,7 @@ public class UserMonthInfoService {
         detail.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE1);
         detail.setUserMonthInfoId(id);
         detail.setCustomerid(customerDTO.getId());
-        userMonthInfoDetailMapper.insert(detail);
+        userMonthInfoDetailMapper.insertSelective(detail);
     }
 
     /**
@@ -396,12 +410,13 @@ public class UserMonthInfoService {
         e.setStatus(CommonEnum.entity_status1.getCode());
         List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, baseChannelDTO.getMedia_id(), salesmanId, currentMonthStr, CommonEnum.entity_status1.getCode());
 
-        // 业务说明：一个用户只能算一次.
         UserMonthInfoDetail ee = new UserMonthInfoDetail();
         ee.setCustomerid(customerDto.getId());
         ee.setStatus(CommonEnum.entity_status1.getCode());
+        ee.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE2);
         List<UserMonthInfoDetail> select1 = userMonthInfoDetailMapper.select(ee);
-        if (CollectionUtils.isEmpty(select)) {
+        if (CollectionUtils.isNotEmpty(select)) {
+            // 业务说明：一个用户只能算一次.
             return;
         }
 
@@ -431,7 +446,7 @@ public class UserMonthInfoService {
         detail.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE2);
         detail.setUserMonthInfoId(id);
         detail.setCustomerid(customerDto.getId());
-        userMonthInfoDetailMapper.insert(detail);
+        userMonthInfoDetailMapper.insertSelective(detail);
     }
 
     /**

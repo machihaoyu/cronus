@@ -115,7 +115,35 @@ public class CompanyMediaQueueService {
             toDB.add(e2);
         }
 
-        if (CollectionUtils.isNotEmpty(toDB)) companyMediaQueueMapper.insertList(toDB);
+        if (CollectionUtils.isNotEmpty(toDB)) this.insertList(toDB);
+    }
+
+    public void insertList(List<CompanyMediaQueue> data){
+        // 包一层，批量插入，无值的字段，会插入null，便于后期处理
+        companyMediaQueueMapper.insertList(data);
+    }
+
+    /**
+     * 获取一级吧关注的queue、不包括总队列.
+     */
+    public Set<Integer> findFollowMediaidFromDB(Integer companyid){
+        // 获取用户关注的媒体
+        CompanyMediaQueue e = new CompanyMediaQueue();
+        e.setCompanyid(companyid);
+        e.setStatus(CommonEnum.entity_status1.getCode());
+        List<CompanyMediaQueue> companyMediaQueueList = companyMediaQueueMapper.select(e);
+        return CollectionUtils.isEmpty(companyMediaQueueList) ? new HashSet<>() : companyMediaQueueList.stream().map(CompanyMediaQueue::getMediaid).collect(toSet());
+
+    }
+
+    /**
+     * 获取一级吧关注的queue、包括总队列.
+     */
+    public Set<Integer> findFollowMediaidAll(Integer companyid){
+        // 获取用户关注的媒体
+        Set<Integer> followMediaSet = this.findFollowMediaidFromDB(companyid);
+        followMediaSet.add(CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
+        return followMediaSet;
     }
 
     public void delCompanyMediaQueue(Integer currentUserId, Integer companyid, Integer mediaId) {

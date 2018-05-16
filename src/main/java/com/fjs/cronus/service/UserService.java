@@ -85,6 +85,9 @@ public class UserService {
     @Autowired
     private UserMonthInfoMapper userMonthInfoMapper;
 
+    @Autowired
+    private CompanyMediaQueueService companyMediaQueueService;
+
     public List<SubCompanyDto> getDepartmentByWhere(String token, Integer user_id) {
         List<SubCompanyDto> subCompanyDtos = new ArrayList<SubCompanyDto>();
 
@@ -106,6 +109,12 @@ public class UserService {
         ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(publicToken, companyId);
         if (baseUcDTO.getResult().equals(1) || baseUcDTO.getData().size() == 0) {
             return null;
+        }
+
+        // 校验
+        Set<Integer> mediaidAll = this.companyMediaQueueService.findFollowMediaidAll(companyId);
+        if (!mediaidAll.contains(mediaid)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "参数错误，该一级吧未关注此媒体（id="+mediaid+"）");
         }
 
         // 获取时间
