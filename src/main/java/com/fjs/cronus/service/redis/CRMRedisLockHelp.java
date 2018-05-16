@@ -69,23 +69,8 @@ public class CRMRedisLockHelp {
      * 加锁.
      */
     public Long lockBySetNX(String key) {
-
-        Integer i = 0; // 重试次数
-        Long lockToken = 0L; // 标记，用于解锁
-        long  timeout = 60 * 1000; // 60秒
-
-        while (i < 5) {
-            lockToken = this.getCurrentTimeFromRedisServicer() + timeout + 1;
-            i++;
-            if (this.lockBySetNX(key, lockToken.toString(), timeout, this.getRedisScript(SETNX_LUA_SCRIPT)))
-                return lockToken;
-            try {
-                TimeUnit.SECONDS.sleep(3);// 睡眠3秒
-            } catch (InterruptedException e) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "设置睡眠异常" + e.getMessage());
-            }
-        }
-        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "redis 获取分布式锁失败");
+        // 默认加锁1分钟、重试5次，每次等3秒
+        return this.lockBySetNX2(key,60, 5, 3);
     }
 
     /**
@@ -144,8 +129,8 @@ public class CRMRedisLockHelp {
     /**
      * 解锁.
      */
-    public boolean unlockForSetNx(String lockKey, String flag) {
-        return this.unlockForSetNx(lockKey, flag, this.getRedisScript(UNLOCK_LU_SCRIPT));
+    public boolean unlockForSetNx(String lockKey, String lockToken) {
+        return this.unlockForSetNx(lockKey, lockToken, this.getRedisScript(UNLOCK_LU_SCRIPT));
     }
 
     /**
