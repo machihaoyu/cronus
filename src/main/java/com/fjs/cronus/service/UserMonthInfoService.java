@@ -479,28 +479,4 @@ public class UserMonthInfoService {
         return params;
     }
 
-    public static void main(String[] args) {
-        int count = 100;
-        CountDownLatch c = new CountDownLatch(count);
-
-        for (int i = 0; i < count; i++) {
-            final int y = i;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    System.out.println("i = " + y);
-                    //c.countDown();
-                }
-            }
-
-            ).start();
-
-        }
-
-        try {
-            c.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 }
