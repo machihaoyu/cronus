@@ -325,6 +325,7 @@ public class UserMonthInfoService {
             Example.Criteria criteria1 = example2.createCriteria();
             criteria1.andEqualTo("userId", userId);
             criteria1.andEqualTo("effectiveDate", effectiveDate);
+            criteria1.andEqualTo("mediaid", mediaid);
             criteria1.andEqualTo("companyid", companyid);
             criteria1.andEqualTo("status", CommonEnum.entity_status1.getCode());
 
