@@ -122,7 +122,7 @@ public class UserMonthInfoService {
 
             // 找要入库的数据
             List<UserMonthInfo> toCoverData = new ArrayList<>();    // 覆被盖
-            List<UserMonthInfo> toInitData = nextMonthAllDataList.stream().filter(i -> i != null && !mediaSet.contains(i.getMediaid())).collect(toList()); // 要归0
+            Set<Integer> toInitData = nextMonthAllDataList.stream().filter(i -> i != null && !mediaSet.contains(i.getMediaid())).map(UserMonthInfo::getId).collect(toSet()); // 要归0
             List<UserMonthInfo> toNewData = new ArrayList<>();      // 要新增的
 
             for (UserMonthInfo userMonthInfo : currentMothDataList) {
@@ -159,16 +159,20 @@ public class UserMonthInfoService {
             }
 
             // 入库
-            for (UserMonthInfo o1 : toInitData) {
-                UserMonthInfo copy = new UserMonthInfo();
-                copy.setId(o1.getId());
-                copy.setBaseCustomerNum(0);
-                copy.setRewardCustomerNum(0);
-                copy.setAssignedCustomerNum(0);
-                copy.setEffectiveCustomerNum(0);
-                copy.setLastUpdateTime(now);
-                copy.setLastUpdateUser(updateUserId);
-                userMonthInfoMapper.updateByPrimaryKeySelective(copy);
+            if (CollectionUtils.isNotEmpty(toInitData)) {
+                UserMonthInfo value = new UserMonthInfo();
+                value.setBaseCustomerNum(0);
+                value.setRewardCustomerNum(0);
+                value.setAssignedCustomerNum(0);
+                value.setEffectiveCustomerNum(0);
+                value.setLastUpdateTime(now);
+                value.setLastUpdateUser(updateUserId);
+
+                Example ee = new Example(UserMonthInfo.class);
+                Example.Criteria criteria1 = ee.createCriteria();
+                criteria1.andIn("id", toInitData);
+                criteria1.andEqualTo("status", CommonEnum.entity_status1.getCode());
+                userMonthInfoMapper.updateByExampleSelective(value, ee);
             }
 
             for (UserMonthInfo s : toCoverData) {
