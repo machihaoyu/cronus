@@ -275,7 +275,7 @@ public class AutoAllocateService {
                             CronusDto cronusDto1 = customerInfoService.addOcdcCustomer(customerDTO, token);
                             if (cronusDto1.getResult() == 0) {
                                 customerDTO.setId(Integer.parseInt(cronusDto1.getData().toString()));
-
+                                // TODO lihong ocdcid放入表
                                 if (isNewCustomerFromAvatar) {
                                     // 新客户已找到业务员，记录分配数
                                     this.userMonthInfoService.incrNum2DB((Integer) needDataBox.get(companyIdKey), baseChannelDTO, (Integer) needDataBox.get(salesmanIdKey), currentMonthStr, customerDTO);

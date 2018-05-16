@@ -29,6 +29,7 @@ import tk.mybatis.mapper.entity.Example;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 import static java.util.stream.Collectors.*;
 
@@ -77,9 +78,9 @@ public class UserMonthInfoService {
             Date now = new Date();
             Object o = null;
             // ====== 业务分析 ======
-            // 1、拷贝是只将该一级吧，当月的分配数---拷贝到--->下月
+            // 1、拷贝是只将该一级吧，当月的分配数(月分配数、月奖励数)---拷贝到--->下月
             // 2、只拷贝用户关注的特殊渠道
-            // 3、如果是关注且存在--->覆盖、如果是关注且不存在--->新增、如果是不关注且存在--->归0
+            // 3、如果是，关注且存在--->覆盖、如果是关注且不存在--->新增、如果是不关注且存在--->归0
 
             // 获取当月、下月的effective_date
             String currentMothStr = allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT);
@@ -121,7 +122,7 @@ public class UserMonthInfoService {
 
             // 找要入库的数据
             List<UserMonthInfo> toCoverData = new ArrayList<>();    // 覆被盖
-            List<UserMonthInfo> toInitData = nextMonthAllDataList.stream().filter(i->i !=null && !mediaSet.contains(i.getMediaid())).collect(toList()); // 要归0
+            List<UserMonthInfo> toInitData = nextMonthAllDataList.stream().filter(i -> i != null && !mediaSet.contains(i.getMediaid())).collect(toList()); // 要归0
             List<UserMonthInfo> toNewData = new ArrayList<>();      // 要新增的
 
             for (UserMonthInfo userMonthInfo : currentMothDataList) {
@@ -143,16 +144,16 @@ public class UserMonthInfoService {
                     copy.setCompanyid(companyid);
                     copy.setMediaid(userMonthInfo.getMediaid());
                     toNewData.add(copy);
-                } else {
+                } else if (mediaSet.contains(list.get(0).getMediaid())) {
                     // 当月有，下月有 ---> 覆被盖
                     UserMonthInfo copy = new UserMonthInfo();
-                    BeanUtils.copyProperties(list.get(0), copy);
                     copy.setBaseCustomerNum(userMonthInfo.getBaseCustomerNum());
                     copy.setRewardCustomerNum(userMonthInfo.getRewardCustomerNum());
                     copy.setAssignedCustomerNum(0);
                     copy.setEffectiveCustomerNum(0);
                     copy.setLastUpdateTime(now);
                     copy.setLastUpdateUser(updateUserId);
+                    copy.setId(list.get(0).getId());
                     toCoverData.add(copy);
                 }
             }
@@ -176,7 +177,7 @@ public class UserMonthInfoService {
             if (CollectionUtils.isNotEmpty(toNewData)) {
                 userMonthInfoMapper.insertList(toNewData);
             }
-            if ( CollectionUtils.isNotEmpty(followMediaSet) ){
+            if (CollectionUtils.isNotEmpty(followMediaSet)) {
                 // 拷贝redis队列
                 for (Integer mediaId : followMediaSet) {
                     allocateRedisService.copyCurrentMonthQueue(companyid, mediaId);
@@ -217,7 +218,7 @@ public class UserMonthInfoService {
             ee.setCompanyid(companyid);
             ee.setUserId(userId);
             ee.setEffectiveDate(effectiveDate);
-            ee.setStatus( CommonEnum.entity_status1.getCode());
+            ee.setStatus(CommonEnum.entity_status1.getCode());
             List<UserMonthInfo> userAllMedialDataList = userMonthInfoMapper.select(ee);
             userAllMedialDataList = CollectionUtils.isEmpty(userAllMedialDataList) ? new ArrayList<>() : userAllMedialDataList;
 
@@ -343,7 +344,7 @@ public class UserMonthInfoService {
 
         // 主表 incr
         if (CollectionUtils.isEmpty(select) || select.get(0) == null) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，分配给了该员工，但未找到分配数据（subCompanyId="+subCompanyId+"，Mediaid="+baseChannelDTO.getMedia_id()+"，salesmanId="+salesmanId+"，currentMonth="+currentMonth+"）");
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，分配给了该员工，但未找到分配数据（subCompanyId=" + subCompanyId + "，Mediaid=" + baseChannelDTO.getMedia_id() + "，salesmanId=" + salesmanId + "，currentMonth=" + currentMonth + "）");
         } else {
             UserMonthInfo userMonthInfo = select.get(0);
             userMonthInfo.setSourceid(baseChannelDTO.getSource_id());
@@ -372,7 +373,7 @@ public class UserMonthInfoService {
      * 记录有效数.
      */
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void incrNum2DB(CustomerInfo customerDto, Integer salesmanId){
+    public void incrNum2DB(CustomerInfo customerDto, Integer salesmanId) {
 
         Integer subCompanyId = customerDto.getSubCompanyId();
         String utmSource = customerDto.getUtmSource();
@@ -393,7 +394,7 @@ public class UserMonthInfoService {
         Integer id = null;
         // 主表 incr
         if (CollectionUtils.isEmpty(select) || select.get(0) == null) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，该客户已分配给了该业务员，但未找到分配数据（subCompanyId="+subCompanyId+"，Mediaid="+baseChannelDTO.getMedia_id()+"，salesmanId="+salesmanId+"，currentMonth="+currentMonthStr+"）");
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，该客户已分配给了该业务员，但未找到分配数据（subCompanyId=" + subCompanyId + "，Mediaid=" + baseChannelDTO.getMedia_id() + "，salesmanId=" + salesmanId + "，currentMonth=" + currentMonthStr + "）");
         } else {
             UserMonthInfo userMonthInfo = select.get(0);
             userMonthInfo.setSourceid(baseChannelDTO.getSource_id());
@@ -417,7 +418,6 @@ public class UserMonthInfoService {
         detail.setUserMonthInfoId(id);
         detail.setCustomerid(customerDto.getId());
         userMonthInfoDetailMapper.insert(detail);
-
     }
 
     /**
@@ -429,7 +429,7 @@ public class UserMonthInfoService {
         TheaApiDTO<BaseChannelDTO> infoByChannelName = theaService.getInfoByChannelName(params);
 
         BaseChannelDTO result = new BaseChannelDTO();
-        if (infoByChannelName.getResult() == 0 && infoByChannelName.getData() != null){
+        if (infoByChannelName.getResult() == 0 && infoByChannelName.getData() != null) {
             result = infoByChannelName.getData();
         }
         if (result == null || result.getSource_id() == null) {
@@ -437,6 +437,12 @@ public class UserMonthInfoService {
         }
         if (result.getMedia_id() == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "Media_id 不能为null");
+        }
+        if (result == null || result.getAccount_id() == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "getAccount_id 不能为null");
+        }
+        if (result == null || result.getId() == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "id 不能为null");
         }
         return result;
     }
@@ -467,5 +473,30 @@ public class UserMonthInfoService {
             item.setAssigned_customer_num(sum == null ? 0 : sum);
         }
         return params;
+    }
+
+    public static void main(String[] args) {
+        int count = 100;
+        CountDownLatch c = new CountDownLatch(count);
+
+        for (int i = 0; i < count; i++) {
+            final int y = i;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.println("i = " + y);
+                    //c.countDown();
+                }
+            }
+
+            ).start();
+
+        }
+
+        try {
+            c.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
