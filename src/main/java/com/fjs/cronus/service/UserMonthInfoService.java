@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonRedisConst;
+import com.fjs.cronus.controller.UserController;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.BaseChannelDTO;
@@ -19,6 +20,8 @@ import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,6 +41,8 @@ import static java.util.stream.Collectors.*;
  */
 @Service
 public class UserMonthInfoService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserMonthInfoService.class);
 
     @Autowired
     private AllocateLogService allocateLogService;
@@ -115,7 +120,9 @@ public class UserMonthInfoService {
             criteria.andEqualTo("effectiveDate", currentMothStr);
             criteria.andIn("mediaid", followMediaSet);
             List<UserMonthInfo> currentMothDataList = userMonthInfoMapper.selectByExample(example);
-            currentMothDataList = CollectionUtils.isEmpty(currentMothDataList) ? new ArrayList<>() : currentMothDataList;
+            if (CollectionUtils.isEmpty(currentMothDataList)){
+                return;
+            }
 
             // 找要入库的数据
             List<UserMonthInfo> toCoverData = new ArrayList<>();    // 覆被盖
@@ -127,6 +134,7 @@ public class UserMonthInfoService {
                 List<UserMonthInfo> list = nextMonthData.get(key2);
                 if (CollectionUtils.isEmpty(list) || list.get(0) == null) {
                     // 当月有，下月无 ---> 新增
+                    logger.info("当月有，下月无 ---> 新增" + userMonthInfo.getUserId() + " " + userMonthInfo.getCompanyid() + " " + userMonthInfo.getMediaid() + " " + userMonthInfo.getEffectiveDate());
                     UserMonthInfo copy = new UserMonthInfo();
                     copy.setBaseCustomerNum(userMonthInfo.getBaseCustomerNum());
                     copy.setRewardCustomerNum(userMonthInfo.getRewardCustomerNum());
@@ -144,6 +152,7 @@ public class UserMonthInfoService {
                     toNewData.add(copy);
                 } else if (followMediaSet.contains(list.get(0).getMediaid())) {
                     // 当月有，下月有 ---> 覆被盖
+                    logger.info("当月有，下月有 ---> 覆被盖" + userMonthInfo.getUserId() + " " + userMonthInfo.getCompanyid() + " " + userMonthInfo.getMediaid() + " " + userMonthInfo.getEffectiveDate());
                     UserMonthInfo copy = new UserMonthInfo();
                     copy.setBaseCustomerNum(userMonthInfo.getBaseCustomerNum());
                     copy.setRewardCustomerNum(userMonthInfo.getRewardCustomerNum());
@@ -172,6 +181,9 @@ public class UserMonthInfoService {
                 criteria1.andEqualTo("status", CommonEnum.entity_status1.getCode());
                 userMonthInfoMapper.updateByExampleSelective(value, ee);
             }
+            logger.info("toInitData = " + toInitData.size());
+            logger.info("toCoverData = " + toCoverData.size());
+            logger.info("toNewData = " + toNewData.size());
 
             for (UserMonthInfo s : toCoverData) {
                 userMonthInfoMapper.updateByPrimaryKeySelective(s);
