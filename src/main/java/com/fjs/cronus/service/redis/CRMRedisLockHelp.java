@@ -1,6 +1,7 @@
 package com.fjs.cronus.service.redis;
 
 import com.fjs.cronus.exception.CronusException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.script.DigestUtils;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -182,5 +185,36 @@ public class CRMRedisLockHelp {
         }
 
         return (Long) result;
+    }
+
+    /**
+     * 样例：redis 乐观锁处理业务.
+     */
+    public void watchToService(){
+        String key = "test123";
+
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        redisTemplate.setEnableTransactionSupport(true);
+
+        try{
+            redisTemplate.watch(key);
+
+            String count = redisTemplate.opsForValue().get(key);
+            if (!StringUtils.isNumeric(count)) {
+                return;
+            }
+
+            if (Integer.valueOf(count) > 0) {
+                redisTemplate.multi();
+                redisTemplate.opsForValue().increment(key, -1);
+                List<Object> execResult = redisTemplate.exec();
+                if (CollectionUtils.isNotEmpty(execResult) && execResult.get(0) != null && StringUtils.isNumeric(execResult.get(0).toString())) {
+                    // 自定义业务逻辑
+                }
+            }
+        } finally {
+            redisTemplate.unwatch();
+        }
     }
 }
