@@ -334,9 +334,9 @@ public class AllocateRedisService {
             String nextMonthQueueKey = this.getKey(companyId, medial, nextMonthStr);
 
             List<String> currentMonthQueue = listOperations.range(currentMonthQueueKey, 0, -1);
-            List<String> nextMonthQueue = currentMonthQueue.stream().filter(item -> StringUtils.isNotBlank(item)).collect(toList());
+            Set<String> nextMonthQueue = currentMonthQueue.stream().filter(item -> StringUtils.isNotBlank(item) ).collect(toSet());
 
-            if (CollectionUtils.isEmpty(nextMonthQueue) ){
+            if (CollectionUtils.isNotEmpty(nextMonthQueue) ){
                 redisAllocateTemplete.delete(nextMonthQueueKey);
                 listOperations.leftPushAll(nextMonthQueueKey, nextMonthQueue);
             }
