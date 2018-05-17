@@ -134,7 +134,6 @@ public class UserMonthInfoService {
                 List<UserMonthInfo> list = nextMonthData.get(key2);
                 if (CollectionUtils.isEmpty(list) || list.get(0) == null) {
                     // 当月有，下月无 ---> 新增
-                    logger.info("当月有，下月无 ---> 新增" + userMonthInfo.getUserId() + " " + userMonthInfo.getCompanyid() + " " + userMonthInfo.getMediaid() + " " + userMonthInfo.getEffectiveDate());
                     UserMonthInfo copy = new UserMonthInfo();
                     copy.setBaseCustomerNum(userMonthInfo.getBaseCustomerNum());
                     copy.setRewardCustomerNum(userMonthInfo.getRewardCustomerNum());
@@ -152,7 +151,6 @@ public class UserMonthInfoService {
                     toNewData.add(copy);
                 } else if (followMediaSet.contains(list.get(0).getMediaid())) {
                     // 当月有，下月有 ---> 覆被盖
-                    logger.info("当月有，下月有 ---> 覆被盖" + userMonthInfo.getUserId() + " " + userMonthInfo.getCompanyid() + " " + userMonthInfo.getMediaid() + " " + userMonthInfo.getEffectiveDate());
                     UserMonthInfo copy = new UserMonthInfo();
                     copy.setBaseCustomerNum(userMonthInfo.getBaseCustomerNum());
                     copy.setRewardCustomerNum(userMonthInfo.getRewardCustomerNum());
@@ -181,16 +179,29 @@ public class UserMonthInfoService {
                 criteria1.andEqualTo("status", CommonEnum.entity_status1.getCode());
                 userMonthInfoMapper.updateByExampleSelective(value, ee);
             }
-            logger.info("toInitData = " + toInitData.size());
-            logger.info("toCoverData = " + toCoverData.size());
-            logger.info("toNewData = " + toNewData.size());
 
             for (UserMonthInfo s : toCoverData) {
-                userMonthInfoMapper.updateByPrimaryKeySelective(s);
+                UserMonthInfo value = new UserMonthInfo();
+                value.setBaseCustomerNum(s.getBaseCustomerNum());
+                value.setRewardCustomerNum(s.getRewardCustomerNum());
+                value.setAssignedCustomerNum(0);
+                value.setEffectiveCustomerNum(0);
+                value.setLastUpdateTime(now);
+                value.setLastUpdateUser(updateUserId);
+
+
+                Example ee = new Example(UserMonthInfo.class);
+                Example.Criteria criteria1 = ee.createCriteria();
+                criteria1.andEqualTo("status", CommonEnum.entity_status1.getCode());
+                criteria1.andEqualTo("id", s.getId());
+
+                userMonthInfoMapper.updateByExampleSelective(value, ee);
             }
+
             if (CollectionUtils.isNotEmpty(toNewData)) {
                 this.insertList(toNewData);
             }
+
             if (CollectionUtils.isNotEmpty(followMediaSet)) {
                 // 拷贝redis队列
                 for (Integer mediaId : followMediaSet) {
