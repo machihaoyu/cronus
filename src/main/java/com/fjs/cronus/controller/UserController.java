@@ -437,7 +437,8 @@ public class UserController {
 
     @ApiOperation(value = "拷贝当月数据到下月", notes = "拷贝当月数据到下月 API")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "params", value = "请求参数,值：{'companyid':123}", required = true, paramType = "body", dataType = "JSONObject"),
     })
     @RequestMapping(value = "/copyCurrentMonthDataToNexMonth", method = RequestMethod.POST)
     @ResponseBody

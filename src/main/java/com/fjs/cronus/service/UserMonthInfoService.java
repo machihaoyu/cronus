@@ -93,14 +93,7 @@ public class UserMonthInfoService {
             String nextMothfStr = allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_NEXT);
 
             // 获取用户关注的媒体
-            CompanyMediaQueue e = new CompanyMediaQueue();
-            e.setCompanyid(companyid);
-            e.setStatus(CommonEnum.entity_status1.getCode());
-            List<CompanyMediaQueue> companyMediaQueueList = companyMediaQueueMapper.select(e);
-            Set<Integer> followMediaSet = CollectionUtils.isEmpty(companyMediaQueueList) ? new HashSet<>() : companyMediaQueueList.stream().map(CompanyMediaQueue::getMediaid).collect(toSet());
-            if (CollectionUtils.isEmpty(followMediaSet)) {
-                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "数据异常，未发现用户关注媒体队列数据");
-            }
+            Set<Integer> followMediaSet = this.companyMediaQueueService.findFollowMediaidAll(companyid);
 
             // 获取下月的分配数
             UserMonthInfo whereParams = new UserMonthInfo();
@@ -120,15 +113,13 @@ public class UserMonthInfoService {
             criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
             criteria.andEqualTo("companyid", companyid);
             criteria.andEqualTo("effectiveDate", currentMothStr);
-            Set<Integer> mediaSet = followMediaSet;
-            mediaSet.add(CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
-            criteria.andIn("mediaid", mediaSet);
+            criteria.andIn("mediaid", followMediaSet);
             List<UserMonthInfo> currentMothDataList = userMonthInfoMapper.selectByExample(example);
             currentMothDataList = CollectionUtils.isEmpty(currentMothDataList) ? new ArrayList<>() : currentMothDataList;
 
             // 找要入库的数据
             List<UserMonthInfo> toCoverData = new ArrayList<>();    // 覆被盖
-            Set<Integer> toInitData = nextMonthAllDataList.stream().filter(i -> i != null && !mediaSet.contains(i.getMediaid())).map(UserMonthInfo::getId).collect(toSet()); // 要归0
+            Set<Integer> toInitData = nextMonthAllDataList.stream().filter(i -> i != null && !followMediaSet.contains(i.getMediaid())).map(UserMonthInfo::getId).collect(toSet()); // 要归0
             List<UserMonthInfo> toNewData = new ArrayList<>();      // 要新增的
 
             for (UserMonthInfo userMonthInfo : currentMothDataList) {
@@ -151,7 +142,7 @@ public class UserMonthInfoService {
                     copy.setMediaid(userMonthInfo.getMediaid());
                     copy.setStatus(CommonEnum.entity_status1.getCode());
                     toNewData.add(copy);
-                } else if (mediaSet.contains(list.get(0).getMediaid())) {
+                } else if (followMediaSet.contains(list.get(0).getMediaid())) {
                     // 当月有，下月有 ---> 覆被盖
                     UserMonthInfo copy = new UserMonthInfo();
                     copy.setBaseCustomerNum(userMonthInfo.getBaseCustomerNum());
