@@ -219,15 +219,15 @@ public class UserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
             @ApiImplicitParam(name = "companyid", value = "一级吧id", required = true, paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "media", value = "媒体id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "mediaid", value = "媒体id", required = true, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "monthFlag", value = "时间标记，值为" + CommonConst.USER_MONTH_INFO_MONTH_CURRENT + "," +CommonConst.USER_MONTH_INFO_MONTH_NEXT, required = true, paramType = "query", dataType = "String")
     })
     @RequestMapping(value = "/getAllocateQueue", method = RequestMethod.GET)
     @ResponseBody
-    public TheaApiDTO<List<Map<String, String>>> getAllocateQueue(@RequestParam("companyid") Integer companyid, @RequestParam("media") Integer media, @RequestParam("monthFlag") String monthFlag) {
+    public TheaApiDTO<List<Map<String, String>>> getAllocateQueue(@RequestParam("companyid") Integer companyid, @RequestParam("mediaid") Integer mediaid, @RequestParam("monthFlag") String monthFlag) {
         TheaApiDTO<List<Map<String, String>>> resultDTO = new TheaApiDTO<>();
         try {
-            List<Map<String, String>> map = userService.getAllocateQueue(companyid, media, monthFlag);
+            List<Map<String, String>> map = userService.getAllocateQueue(companyid, mediaid, monthFlag);
 
             resultDTO.setData(map);
             resultDTO.setResult(ResultDescription.CODE_SUCCESS);
