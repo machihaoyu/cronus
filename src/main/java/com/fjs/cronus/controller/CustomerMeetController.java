@@ -150,6 +150,7 @@ public class CustomerMeetController {
                     //解析,发送
                     new Thread(
                             () -> {
+                                logger.info("调用mgm开始--->token:"+token+",phone:"+DEC3Util.des3DecodeCBC(phone));
                                 WalletApiDTO walletApiDTO = walletService.confirmEffective(token, DEC3Util.des3DecodeCBC(phone));
                                 if (walletApiDTO.getCode() != 200){
                                     logger.error("调用MGM错误返回数据："+walletApiDTO.toString());
