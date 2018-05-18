@@ -105,6 +105,7 @@ public class SmsService {
         JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(smsMessage));
         CommonApiDTO commonApiDTO = hebeService.sendMessage(currentToken, jsonObject);
         logger.warn("第三步 : sendHebeMessage >>>>>>>>>>>--------" + commonApiDTO.getResult());
+        logger.warn("jsonObject >>>>>>>>>----" + jsonObject);
         return commonApiDTO.getResult();
     }
 
