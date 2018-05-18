@@ -322,7 +322,7 @@ public class AllocateRedisService {
     public void copyCurrentMonthQueue(Integer companyId, Integer medial) {
 
         String currentMonthStr = this.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT);
-        String nextMonthStr = this.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT);
+        String nextMonthStr = this.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_NEXT);
 
         if (companyId != null && medial != null && StringUtils.isNotBlank(currentMonthStr) && StringUtils.isNotBlank(nextMonthStr)) {
 
