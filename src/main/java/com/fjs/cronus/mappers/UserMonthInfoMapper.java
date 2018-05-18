@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by feng on 2017/9/22.
@@ -22,12 +23,12 @@ public interface UserMonthInfoMapper extends MyMapper<UserMonthInfo>{
     /**
      * 更新业务员分配数.
      */
-    void update2IncrNumForAssignedCustomerNum(@Param("id")Integer id);
+    void update2IncrNumForAssignedCustomerNum(@Param("sourceId")Integer source_id, @Param("accountId")Integer account_id, @Param("channelId")Integer channelId, @Param("ids") Set<Integer> ids, @Param("currentMonth") String currentMonth);
 
     /**
      * 更新业务员确认数.
      */
-    void update2IncrNumForEffectiveCustomerNum(@Param("id")Integer id);
+    void update2IncrNumForEffectiveCustomerNum(@Param("ids")Set<Integer> id);
 
     /**
      * 获取sum,根据条件.

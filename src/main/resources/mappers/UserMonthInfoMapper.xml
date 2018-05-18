@@ -87,13 +87,27 @@
     <update id="update2IncrNumForAssignedCustomerNum">
         UPDATE `user_month_info`
         SET `assigned_customer_num`= `assigned_customer_num`+1,
-        WHERE `id`=#{id}
+        `sourceid` = #{sourceId},
+        `accountid` = #{accountId},
+        `channelid` = #{channelId}
+        WHERE
+        `id` IN (
+        <foreach collection="ids" item="item" separator=",">
+            #{item}
+        </foreach>
+        )
+        AND `effective_date`=#{currentMonth}
     </update>
 
     <update id="update2IncrNumForEffectiveCustomerNum">
         UPDATE `user_month_info`
         SET `effective_customer_num`= `effective_customer_num`+1,
-        WHERE `id`=#{id}
+        WHERE
+        `id` IN (
+        <foreach collection="ids" item="item" separator=",">
+            #{item}
+        </foreach>
+        )
     </update>
 
     <select id="selectSum" resultType="java.lang.Integer">

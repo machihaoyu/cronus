@@ -347,6 +347,8 @@ public class AllocateRedisService {
      * 城市一级吧queue：根据城市id，获取一级吧.
      */
     public Integer getSubCompanyIdFromQueue(String token, String cityName) {
+
+        // TODO lihong 一级吧级别数据发送变化，缓存key结构为   mediaid$城市名
         String subCompanyId = null;
         if (StringUtils.isNotBlank(cityName) && StringUtils.isNotBlank(token)) {
 
