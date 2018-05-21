@@ -2,6 +2,7 @@ package com.fjs.cronus.util;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -16,6 +17,8 @@ public final class DateUtils {
      * 英文简写（默认）如：2010-12-01
      */
     public static String FORMAT_SHORT = "yyyy-MM-dd";
+
+    public static String FORMAT_SHORT2 = "yyyyMMdd";
     /**
      * 英文全称 如：2010-12-01 23:15:06
      */
@@ -433,6 +436,21 @@ public final class DateUtils {
 
     public static void main(String [] args){
         try {
+
+//            Date myDate2 = parse("2018-05-21 00:00:00",FORMAT_LONG);
+//
+            Date date2 = new Date();
+//
+//            if (DateUtils.getTodayStartTime().compareTo(myDate2) == 1)
+//            {
+//                System.out.println("ddddd");
+//            }
+            int a = getHour(date2);
+//            Date date2= new Date("20180101");
+            String date = DateUtils.format(new Date(),DateUtils.FORMAT_SHORT2);
+//            String date2 = DateUtils.format(DateUtils.addDay(new Date(),-8),DateUtils.FORMAT_SHORT);
+            System.out.println(a);
+//            System.out.println(date2+" 00:00:00");
         /* *//*   DateUtils  dateUtil = new DateUtils();*//*
             int gethour = getHour(new Date());
             int minute = getMinute(new Date());
@@ -440,12 +458,12 @@ public final class DateUtils {
             System.out.println(gethour);
             System.out.println(minute);
             System.out.println(week);*/
-            Date n = getTodayStartTime();
-            String today = DateUtils.format(n,DateUtils.FORMAT_LONG);
-            Date m = getTodayEndTime();
-            String tom = DateUtils.format(m,DateUtils.FORMAT_LONG);
-            String d = getDateString(1515035116);
-            System.out.println(d);
+//            Date n = getTodayStartTime();
+//            String today = DateUtils.format(n,DateUtils.FORMAT_LONG);
+//            Date m = getTodayEndTime();
+//            String tom = DateUtils.format(m,DateUtils.FORMAT_LONG);
+//            String d = getDateString(1515035116);
+//            System.out.println(d);
         } catch (Exception e) {
             // TODO: handle exception
         }

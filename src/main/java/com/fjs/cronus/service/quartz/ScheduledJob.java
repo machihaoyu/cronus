@@ -45,6 +45,9 @@ public class ScheduledJob {
     @Resource
     private CustomerInfoService customerInfoService;
 
+    @Autowired
+    private DealgoService dealgoService;
+
     private SimpleDateFormat dateFormat() {
         return new SimpleDateFormat("HH:mm:ss");
     }
@@ -67,6 +70,9 @@ public class ScheduledJob {
         //autoAllocateService.nonCommunicateAgainAllocate(token);
 
         autoCleanService.autoCleanTask();
+
+        //dealgo 接口数据
+        dealgoService.initProfileTask();
 
 //        logger.error("定时任务 ------> 新注册客户15天发送短信");
         customerInfoService.sandMessage();
