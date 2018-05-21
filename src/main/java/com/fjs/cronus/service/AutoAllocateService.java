@@ -142,7 +142,7 @@ public class AutoAllocateService {
             // 获取自动分配的城市
             String allocateCities = theaClientService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY);
 
-            // 需要去不同方法取数据(初始化为null，知道里面放什么)
+            // 需要去不同方法取数据(初始化为null，知道里面key是什么)
             Map<String, Object> needDataBox = new HashMap<>();
             needDataBox.put(companyIdKey, null); // 一级吧id
             needDataBox.put(salesmanIdKey, null);   // 业务员id
