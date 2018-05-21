@@ -1402,9 +1402,13 @@ public class CustomerInfoService {
                 customerInfoMapper.updateCustomer(customerInfo);
                 try {
                     //发送短信
-                    String message = "尊敬的客户您好，因公司人员调整，房金所新的融资经理" + userInfoDTO.getName()
-                            + userInfoDTO.getTelephone() + "将继续为您服务，感谢您对房金所的支持与信赖。";
-                    smsService.sendCommunication(customerInfo.getTelephonenumber(), message);
+                    String message = "尊敬的客户您好，因公司人员调整，房金所新的融资经理" + userInfoDTO.getName() + "，"
+                            + userInfoDTO.getTelephone() + "，将继续为您服务，感谢您对房金所的支持与信赖。";
+                    String customerPhome = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+                    Integer count = smsService.sendCommunication(customerPhome, message);
+                    logger.warn("用户手机号为 : " + customerPhome);
+                    logger.warn("removeCustomerAll 发送短信成功 -------------" + count);
+                    logger.warn("短信内容为 : " + message);
                 } catch (Exception e) {
                     logger.error("removeCustomerAll >>>>>> 员工离职时给客户发送短信失败" + e.getMessage(),e);
                 }
