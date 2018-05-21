@@ -1,11 +1,15 @@
 package com.fjs.cronus.service.redis;
 
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.dto.avatar.AvatarApiDTO;
 import com.fjs.cronus.dto.avatar.FirstBarDTO;
+import com.fjs.cronus.dto.loan.TheaApiDTO;
+import com.fjs.cronus.dto.thea.BaseCommonDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.client.AvatarClientService;
+import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.util.CommonUtil;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -43,17 +47,8 @@ public class AllocateRedisService {
     private AvatarClientService avatarClientService;
 
     @Resource
-    private CRMRedisLockHelp cRMRedisLockHelp;
+    private TheaService theaService;
 
-    /**
-     * 切割器.
-     */
-    private Splitter splitter = Splitter.on(",").trimResults().omitEmptyStrings();
-
-    /**
-     * 连接器.
-     */
-    private Joiner joiner = Joiner.on(",").skipNulls();
 
 
     /**
@@ -222,7 +217,6 @@ public class AllocateRedisService {
         String key = this.getKey(companyId, medial, effectiveDate);
         ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
         List<String> range = listOperations.range(key, 0, -1);
-
         return range.stream().filter(item -> item != null).map(Integer::valueOf).collect(toList());
     }
 
@@ -344,11 +338,10 @@ public class AllocateRedisService {
     }
 
     /**
-     * 城市一级吧queue：根据城市id，获取一级吧.
+     * 城市一级吧queue：找一级吧.
      */
-    public Integer getSubCompanyIdFromQueue(String token, String cityName) {
+    public Integer getSubCompanyIdFromQueue(String token, String cityName, Integer mediaid) {
 
-        // TODO lihong 一级吧级别数据发送变化，缓存key结构为   mediaid$城市名
         String subCompanyId = null;
         if (StringUtils.isNotBlank(cityName) && StringUtils.isNotBlank(token)) {
 
@@ -357,7 +350,7 @@ public class AllocateRedisService {
             ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
 
             // 目标数据缓存key
-            String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityName);
+            String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaid.toString()).concat("$").concat(cityName);
 
             if (listOperations.size(key) > 0) {
                 // 当缓存中有，取出然后移到queue尾部
@@ -372,10 +365,9 @@ public class AllocateRedisService {
                     Set<String> subCompanyIdList2 = CollectionUtils.isEmpty(subCompanyIdList) ? new HashSet<>() : subCompanyIdList.stream().filter(item -> item != null).map(String::valueOf).collect(toSet());
 
                     if (cityName.equals(cityNameTemp) && CollectionUtils.isNotEmpty(subCompanyIdList2)) {
-                        redisAllocateTemplete.delete(CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityNameTemp));
                         subCompanyId = subCompanyIdList2.iterator().next(); // 取出1个
-                        redisAllocateTemplete.delete(CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityNameTemp));
-                        listOperations.leftPushAll(CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityNameTemp), subCompanyIdList2);
+                        redisAllocateTemplete.delete(key);
+                        listOperations.leftPushAll(key, subCompanyIdList2);
                         break;
                     }
                 }
@@ -395,8 +387,7 @@ public class AllocateRedisService {
             if (allSubCompany != null && allSubCompany.getResult() == 0 && allSubCompany.getData() != null) {
                 data = allSubCompany.getData();
             }
-            Map<String, List<Integer>> cityNameMappingSubCompanyId = CollectionUtils.isEmpty(data) ? new HashMap<>() : data.stream().collect(groupingBy(FirstBarDTO::getCity, mapping(FirstBarDTO::getId, toList())));
-            return cityNameMappingSubCompanyId;
+            return CollectionUtils.isEmpty(data) ? new HashMap<>() : data.stream().collect(groupingBy(FirstBarDTO::getCity, mapping(FirstBarDTO::getId, toList())));
         }
         return new HashMap<>();
     }
@@ -414,6 +405,17 @@ public class AllocateRedisService {
             data = allSubCompany.getData();
         }
 
+        // 获取系统所有媒体
+        TheaApiDTO<List<BaseCommonDTO>> allMedia = theaService.getAllMedia(token);
+        if (!CommonMessage.SUCCESS.getCode().equals(allMedia.getResult())) {
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, allMedia.getMessage());
+        }
+        List<BaseCommonDTO> allMediaList = allMedia.getData();
+        Set<String> mediaids = CollectionUtils.isEmpty(allMediaList) ? null : allMediaList.stream().filter(i -> i != null && i.getId() != null).map(BaseCommonDTO::getId).map(String::valueOf).collect(toSet());;
+        if (CollectionUtils.isEmpty(mediaids)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "系统数据异常，系统中未找到媒体数据");
+        }
+
         Map<String, List<Integer>> cityNameMappingSubCompanyId = CollectionUtils.isEmpty(data) ? new HashMap<>() : data.stream().collect(groupingBy(FirstBarDTO::getCity, mapping(FirstBarDTO::getId, toList())));
         for (Map.Entry<String, List<Integer>> entry : cityNameMappingSubCompanyId.entrySet()) {
             List<Integer> value = entry.getValue();
@@ -422,13 +424,19 @@ public class AllocateRedisService {
             Set<String> subCompanyIdSet = CollectionUtils.isEmpty(value) ? new HashSet<>() : value.stream().filter(item -> item != null).map(String::valueOf).collect(toSet());
 
             if (StringUtils.isNotBlank(cityName) && CollectionUtils.isNotEmpty(subCompanyIdSet)) {
-                redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
-                redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
-                ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
-                redisAllocateTemplete.delete(CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityName));
-                listOperations.leftPushAll(CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat(cityName), subCompanyIdSet);
+
+                for (String mediaid : mediaids) {
+                    String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaid).concat("$").concat(cityName);
+                    redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
+                    redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
+                    ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+                    redisAllocateTemplete.delete(key);
+                    listOperations.leftPushAll(key, subCompanyIdSet);
+                }
+
             }
 
         }
     }
+
 }

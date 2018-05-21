@@ -201,7 +201,7 @@ public class AutoAllocateService {
                 } else if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) { // 在有效分配城市内
 
                     // 根据城市，去找一级吧下业务员
-                    if (this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, needDataBox)) { //找到业务员
+                    if (this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, needDataBox, baseChannelDTO.getMedia_id())) { //找到业务员
                         allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
                         customerDTO.setOwnerUserId((Integer) needDataBox.get(salesmanIdKey));
                     } else { // 未找到，进入待分配池
@@ -364,11 +364,11 @@ public class AutoAllocateService {
             // 循环城市下一级吧queue
 
             // 从queue获取一级吧
-            subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(token, customerDTO.getCity());
+            subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(token, customerDTO.getCity(), media_id);
             if (subCompanyId == null) {
                 // queue中无一级吧，城市下无一级吧
                 //break;
-                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, customerDTO.getCity() + " 队列下未找到一级吧");
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, customerDTO.getCity() + " 队列下未找到一级吧(mediaid="+media_id+", cityName="+customerDTO.getCity()+")");
             }
 
             // 获取当月已分配数
@@ -419,7 +419,7 @@ public class AutoAllocateService {
                 if (salesmanId == null){
                     // 特殊队列、总队列都没业务员
                     // break;
-                    throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "【"+customerDTO.getCity() + "】下，id为【"+subCompanyId+"】的一级吧,在id为【"+media_id+"】的特殊媒体队列和总分配队列都未能找到业务员");
+                    throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "【"+customerDTO.getCity() + "】下，id为【"+subCompanyId+"】的一级吧,在mediaid为【"+media_id+"】的特殊媒体队列和总分配队列都未能找到业务员");
                 }
 
                 Integer temp = idFromCountQueue ? CommonConst.COMPANY_MEDIA_QUEUE_COUNT : media_id;
@@ -588,7 +588,7 @@ public class AutoAllocateService {
         return allocateToPublic;
     }
 
-    private boolean getAllocateUserV2(String token, String city, String currentMonthStr, Map<String, Object> needDataBox) {
+    private boolean getAllocateUserV2(String token, String city, String currentMonthStr, Map<String, Object> needDataBox, Integer mediaid) {
 
         // 该客户由该业务员接待
         boolean isFindSuccess = false;
@@ -600,7 +600,7 @@ public class AutoAllocateService {
         while(!existCompanyid.contains(subCompanyId)) {
             // 从城市queue获取一级吧
 
-            subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(token, city);
+            subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(token, city, mediaid);
             if (subCompanyId == null) break;
 
             // 从一级吧下总队列中找业务员

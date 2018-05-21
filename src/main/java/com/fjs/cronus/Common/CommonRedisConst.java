@@ -14,6 +14,8 @@ public class CommonRedisConst {
 
     /**
      * 自动分配：业务员queue redis key.
+     *
+     * key结构：listAllocate$一级吧id$mediaid$yyyyMM
      */
     public static String ALLOCATE_LIST ="listAllocate";
 
@@ -23,7 +25,9 @@ public class CommonRedisConst {
     public static String ALLOCATE_LOCK ="AllocateLock";
 
     /**
-     * 自动分配：城市下一级吧queue redis key.
+     * 自动分配：一级吧queue redis key.
+     *
+     * key结构：listAllocateSubCompany$mediaid$城市名
      */
     public static String ALLOCATE_SUBCOMPANYID ="listAllocateSubCompany";
 
