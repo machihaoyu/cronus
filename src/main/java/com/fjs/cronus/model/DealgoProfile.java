@@ -1,5 +1,7 @@
 package com.fjs.cronus.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Date;
 
 /**
@@ -13,10 +15,15 @@ public class DealgoProfile {
     private String sid;
     private String cid;
     private String uniqueId;
+    @ApiModelProperty(value = "标签名")
     private String name;
+    @ApiModelProperty(value = "标签值")
     private String value;
+    @ApiModelProperty(value = "沟通记录")
     private String evidence;
+    @ApiModelProperty(value = "简短沟通记录")
     private String briefEvidence;
+    @ApiModelProperty(value = "中度沟通记录")
     private String mediumEvidence;
     private int score;
     private String number;

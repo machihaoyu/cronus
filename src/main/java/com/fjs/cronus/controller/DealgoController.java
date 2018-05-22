@@ -36,7 +36,7 @@ public class DealgoController {
     })
     @RequestMapping(value = "/getProfile", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto getProfile(@RequestParam String telephone,@RequestParam String name) {
+    public CronusDto<List<DealgoProfile>> getProfile(@RequestParam String telephone,@RequestParam String name) {
         CronusDto cronusDto = new CronusDto();
         try {
             String phone = DEC3Util.des3DecodeCBC(telephone);
