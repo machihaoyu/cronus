@@ -31,7 +31,7 @@ public class DealgoController {
     @ApiOperation(value="获取", notes="获取dealgo用户画像")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
-            @ApiImplicitParam(name = "telephone", value = "手机号（加密）", required = true, paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "telephone", value = "手机号", required = true, paramType = "query", dataType = "String"),
             @ApiImplicitParam(name = "name", value = "标签名", required = true, paramType = "query", dataType = "String")
     })
     @RequestMapping(value = "/getProfile", method = RequestMethod.GET)
@@ -39,8 +39,8 @@ public class DealgoController {
     public CronusDto<List<DealgoProfile>> getProfile(@RequestParam String telephone,@RequestParam String name) {
         CronusDto cronusDto = new CronusDto();
         try {
-            String phone = DEC3Util.des3DecodeCBC(telephone);
-            List<DealgoProfile> dealgoProfiles = dealgoService.getDealgoData(phone,name);
+//            String phone = DEC3Util.des3DecodeCBC(telephone);
+            List<DealgoProfile> dealgoProfiles = dealgoService.getDealgoData(telephone,name);
             cronusDto.setData(dealgoProfiles);
             cronusDto.setResult(0);
         } catch (Exception e) {
