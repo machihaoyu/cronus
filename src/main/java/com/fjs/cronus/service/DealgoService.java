@@ -61,7 +61,7 @@ public class DealgoService {
                 stringBuilder.append("--done");
                 return;
             } else {
-                if ( 10 < hour && hour < 12) {
+                if ( 1 < hour && hour < 3) {
                     stringBuilder.append("--exe time");
                     new Thread(() -> {
                         initProfile();
