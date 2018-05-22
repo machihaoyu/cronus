@@ -51,20 +51,28 @@ public class DealgoService {
     * */
     public void initProfileTask() {
         try {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("--initProfileTask");
             Date date = new Date();
             Integer hour = DateUtils.getHour(date);
             ValueOperations<String, String> redis = redisConfigTemplete.opsForValue();
             String done = redis.get("initProfileTask");
             if (StringUtils.isNoneEmpty(done) && done.equals("1")) {
+                stringBuilder.append("--done");
                 return;
             } else {
                 if ( 11< hour && hour < 12) {
+                    stringBuilder.append("--exe time");
                     new Thread(() -> {
                         initProfile();
                     }).run();
                 }
+                else {
+                    stringBuilder.append("-- not exe time");
+                }
 
             }
+            logger.info(stringBuilder.toString());
         }catch (Exception e)
         {
             logger.error("initProfileTask",e);
