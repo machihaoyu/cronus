@@ -58,7 +58,7 @@ public class DealgoService {
             if (StringUtils.isNoneEmpty(done) && done.equals("1")) {
                 return;
             } else {
-                if ( 1< hour && hour < 2) {
+                if ( 11< hour && hour < 12) {
                     new Thread(() -> {
                         initProfile();
                     }).run();
