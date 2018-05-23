@@ -1399,7 +1399,7 @@ public class CustomerInfoService {
                 customerInfo.setReceiveTime(date);
                 customerInfo.setRemain(remain);
                 customerInfo.setLastUpdateTime(date);
-                customerInfo.setLastUpdateUser(Integer.valueOf(systemUserInfo.getUser_id()));
+                customerInfo.setLastUpdateUser(removeDTO.getEmpId());
                 customerInfoMapper.updateCustomer(customerInfo);
                 try {
                     //发送短信
@@ -1425,7 +1425,7 @@ public class CustomerInfoService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            removeCustomerAddLog(customerInfoList, removeDTO.getEmpId(), Integer.valueOf(systemUserInfo.getUser_id()), systemUserInfo.getName());
+            removeCustomerAddLog(customerInfoList, removeDTO.getEmpId(), removeDTO.getEmpId(), systemUserInfo.getName());
             flag = true;
         }
 
