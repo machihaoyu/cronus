@@ -183,6 +183,8 @@ public class CustomerInfo extends BaseModel {
 
     private Integer receiveId;
 
+    private Integer ocdcId;
+
     public Integer getCompanyId() {
         return companyId;
     }
@@ -861,5 +863,13 @@ public class CustomerInfo extends BaseModel {
 
     public void setReceiveId(Integer receiveId) {
         this.receiveId = receiveId;
+    }
+
+    public Integer getOcdcId() {
+        return ocdcId;
+    }
+
+    public void setOcdcId(Integer ocdcId) {
+        this.ocdcId = ocdcId;
     }
 }
