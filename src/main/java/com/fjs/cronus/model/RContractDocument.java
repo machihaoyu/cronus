@@ -22,6 +22,7 @@ public class RContractDocument extends  BaseModel{
     private Document document;
 
     private DocumentCategory documentCategory;
+    private Integer serviceContractId;
 
     public Integer getId() {
         return id;
@@ -101,5 +102,13 @@ public class RContractDocument extends  BaseModel{
 
     public void setDocumentCategory(DocumentCategory documentCategory) {
         this.documentCategory = documentCategory;
+    }
+
+    public Integer getServiceContractId() {
+        return serviceContractId;
+    }
+
+    public void setServiceContractId(Integer serviceContractId) {
+        this.serviceContractId = serviceContractId;
     }
 }

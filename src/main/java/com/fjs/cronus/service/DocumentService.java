@@ -1122,4 +1122,189 @@ public class DocumentService {
         return null;
     }
 
+    public String uploadType(MultipartFile file, String fileName, String contractId, String serviceContractId,String customerId,
+                                     String category, String source, String token) {
+        //校验参数
+        if (category == null || "".equals(category)) {
+            throw new CronusException(CronusException.Type.CRM_OCRDOCUMENTCAGORY_ERROR);
+        }
+        Integer categoryParam = Integer.valueOf(category);
+        Integer contractIdParam = null;
+        Integer customerIdParam = null;
+        Integer serviceContractIdParam = null;
+        if (contractId != null && !"".equals(contractId)) {
+            contractIdParam = Integer.valueOf(contractId);
+        }
+        if (!StringUtils.isEmpty(serviceContractId)){
+            serviceContractIdParam = Integer.valueOf(serviceContractId);
+        }
+        if (customerId != null && !"".equals(customerId)) {
+            customerIdParam = Integer.valueOf(customerId);
+        }
+        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO == null) {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        Integer user_id = Integer.valueOf(userInfoDTO.getUser_id());
+        if (user_id == null) {
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR);
+        }
+        //校验文件的类型与大小
+        if (file == null) {
+            throw new CronusException(CronusException.Type.CRM_NOTNULL_UPLOAD);
+        }
+        if (file.getSize() > ResultResource.FILEMAXSIZE) {
+            throw new CronusException(CronusException.Type.CRM_MAXSIZE_UPLOAD);
+        }
+        Long size = file.getSize();
+        //校验文件格式
+        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+        if (!Arrays.<String>asList(ResultResource.FILETYPE).contains(suffix)) {
+            throw new CronusException(CronusException.Type.CRM_FILETYPR_UPLOAD);
+        }
+        //取当前时间的长整形值包含毫秒
+        long millis = System.currentTimeMillis();
+        //加上三位随机数
+        Random random = new Random();
+        int end3 = random.nextInt(999);
+        //如果不足三位前面补0 图片新名称
+        String name = millis + String.format("%03d", end3);
+        //生成文件md5
+        try {
+            String md5 = MD5Util.getMd5CodeInputStream(file.getInputStream());
+            //开始上传图片
+            CronusDto uploadDto = uploadPcStreamDocument(file.getInputStream(), fileName,name + "." + suffix);
+            if (uploadDto != null && uploadDto.getData() != null) {
+                String result = FastJsonUtils.obj2JsonString(uploadDto.getData());
+                //把json格式的数据转为对象
+                Map<String, Object> map = FastJsonUtils.getSingleBean(result, Map.class);
+                String thumbName = map.get("name").toString();
+                String thunbPath = map.get("imagePath").toString();
+                String url = map.get("url").toString();
+                //封装参数
+                UploadDocumentDTO paramsDto = new UploadDocumentDTO();
+                paramsDto.setName(fileName);
+                paramsDto.setExt(suffix);
+                paramsDto.setMd5(md5);
+                paramsDto.setSavename(thumbName);
+                paramsDto.setSavepath(thunbPath + "/");
+                paramsDto.setSize(Integer.parseInt(size.toString()));
+                paramsDto.setSource(source);
+                paramsDto.setType(suffix);
+                paramsDto.setKey(name);
+
+                NewDocumentDTO documentDto = newType(paramsDto, user_id, categoryParam, customerIdParam, contractIdParam,
+                        serviceContractIdParam, userInfoDTO.getName());
+                if (documentDto.getStatus() == -1) {
+                    throw new CronusException(CronusException.Type.CRM_CONTROCTDOCU_ERROR);
+                }
+                //调用图文识别接口
+                Integer rc_document_id = documentDto.getContract_document_id();
+                //异步无回调
+                //把附件转为base64
+                String imageBase64 = FileBase64ConvertUitl.encodeBase64File(file.getInputStream());
+                addOcrInfo(categoryParam, customerIdParam, imageBase64, rc_document_id, user_id, token, null, userInfoDTO);
+                return url;
+            } else {
+                throw new CronusException(CronusException.Type.CRM_UPLOADERROR_ERROR);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //生成一条新的合同数据
+    @Transactional
+    public NewDocumentDTO newType(UploadDocumentDTO uploadDocumentDTO, Integer user_id, Integer category, Integer customerId,
+                                      Integer contratId, Integer serviceContratId, String userName) {
+        Document document = new Document();
+        Integer status = 0;
+        Integer documentId = null;
+        Map<String, Object> paramsMap = new HashMap<>();
+        //检查文件是否重复
+        String md5 = uploadDocumentDTO.getMd5();
+        Date date = new Date();
+        document.setDocumentName(uploadDocumentDTO.getName());
+        document.setDocumentSavename(uploadDocumentDTO.getSavename());
+        document.setDocumentMd5(uploadDocumentDTO.getMd5());
+        document.setDocumentType(uploadDocumentDTO.getType());
+        document.setDocumentExt(uploadDocumentDTO.getExt());
+        document.setDocumentSavepath(uploadDocumentDTO.getSavepath());
+        document.setDocumentSize(Integer.valueOf(uploadDocumentDTO.getSize()));
+        document.setCreateTime(date);
+        document.setCreateUser(user_id);
+        document.setLastUpdateTime(date);
+        document.setLastUpdateUser(user_id);
+        document.setIsDeleted(0);
+        //判断是不是c端
+        if ("C".equals(uploadDocumentDTO.getSource())) {
+            document.setIsFlag(1);
+        } else {
+            document.setIsFlag(0);
+        }
+        documentMapper.addDocument(document);
+        documentId = document.getId();
+        //}
+        if (documentId < 0) {
+            status = -1;
+        }
+        Map<String, Object> contract_document_data = new HashMap<>();
+        contract_document_data.put("document_c_id", contratId);
+        contract_document_data.put("rc_document_source", uploadDocumentDTO.getSource());
+        //添加一条附件与人的关联记录
+        RContractDocument rContractDocument = new RContractDocument();
+        if (contratId == null) {
+            rContractDocument.setContractId(0);
+        } else {
+            rContractDocument.setContractId(contratId);
+        }
+        if (serviceContratId == null) {
+            rContractDocument.setServiceContractId(0);
+        } else {
+            rContractDocument.setServiceContractId(serviceContratId);
+        }
+        rContractDocument.setCustomerId(customerId);
+        rContractDocument.setDocumentId(documentId);
+        rContractDocument.setDocumentCId(category);
+        rContractDocument.setRcDocumentSource(uploadDocumentDTO.getSource());
+        rContractDocument.setCreatorId(user_id);
+        rContractDocument.setCreateTime(date);
+        rContractDocument.setCreateUser(user_id);
+        rContractDocument.setLastUpdateUser(user_id);
+        rContractDocument.setLastUpdateTime(date);
+        rContractDocument.setIsDeleted(0);
+        //插入数据
+        rContractDocumentMapper.addConDocument(rContractDocument);
+        if (rContractDocument == null) {
+            throw new CronusException(CronusException.Type.CRM_CONTROCTDOCU_ERROR);
+        }
+        Integer rcontrac_doucument_id = rContractDocument.getId();//附件关系id
+        NewDocumentDTO newDocumentDTO = new NewDocumentDTO();
+        newDocumentDTO.setDocument(document.getDocumentSavepath() + document.getDocumentSavename());
+        if (Arrays.<String>asList(ResultResource.FILETYPE).contains(document.getDocumentExt())) {
+            //添加缩略图_S _M
+            newDocumentDTO.setM_document(document.getDocumentSavepath() + "_M" + document.getDocumentSavename());
+            newDocumentDTO.setS_document(document.getDocumentSavepath() + "_S" + document.getDocumentSavename());
+        }
+        //根据id查询catory信息
+        DocumentCategory documentCategory = documentCategoryMapper.selectByKey(category);
+        newDocumentDTO.setContract_document_id(rContractDocument.getId());
+        newDocumentDTO.setCategory_id(category);
+        newDocumentDTO.setCategory_name(documentCategory.getDocumentCNameHeader() + " " + documentCategory.getDocumentCName());
+        newDocumentDTO.setContract_id(contratId);
+        newDocumentDTO.setExt(document.getDocumentExt());
+        newDocumentDTO.setName(uploadDocumentDTO.getName());
+        if (contratId != null && contratId > 0) {
+            //TODO 根据合同id查询到合同信息
+            newDocumentDTO.setM_name("");
+        } else {
+            newDocumentDTO.setM_name("");
+        }
+        //TODO 从缓存中查询到相关信息
+        newDocumentDTO.setUp_name(userName);
+        newDocumentDTO.setUp_date(date);
+        newDocumentDTO.setStatus(status);
+        return newDocumentDTO;
+    }
 }

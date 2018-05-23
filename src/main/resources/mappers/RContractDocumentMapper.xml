@@ -15,11 +15,12 @@
     <result column="create_user" property="createUser" jdbcType="INTEGER" />
     <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
     <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="service_contract_id" property="serviceContractId" jdbcType="INTEGER" />
     <association property="document" column= "document_id" javaType="com.fjs.cronus.model.Document" select="com.fjs.cronus.mappers.DocumentMapper.selectByKey"/>
     <association property="documentCategory" column= "document_c_id" javaType="com.fjs.cronus.model.DocumentCategory" select="com.fjs.cronus.mappers.DocumentCategoryMapper.selectByKey"/>
   </resultMap>
   <sql id="Base_Column_List" >
-    id, contract_id, customer_id, document_id, creator_id, document_c_id, document_name, 
+    id, contract_id, service_contract_id,customer_id, document_id, creator_id, document_c_id, document_name,
     rc_document_source, create_time, last_update_time, create_user, last_update_user, 
     is_deleted
   </sql>

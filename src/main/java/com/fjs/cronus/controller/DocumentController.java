@@ -139,6 +139,62 @@ public class DocumentController {
         return resultDto;
     }
 
+    @ApiOperation(value = "渠道交易Pc端上传附件", notes = "渠道交易Pc端上传附件")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", dataType = "string"),
+            @ApiImplicitParam(name = "contractId", value = "合同id，非必传上传合同需要", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "serviceContractId", value = "协议id", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "category", value = "附件类型", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "source", value = "来源pc端传'PC',C端传'C'", required = false, paramType = "query", dataType = "String"),
+    })
+    @RequestMapping(value = "/uploadType", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto uploadType(@RequestHeader("Authorization") String token, HttpServletRequest request) {
+        logger.info("渠道start uploadTopicPictureList!");
+        CronusDto resultDto = new CronusDto();
+        List fileList = new ArrayList();
+        try {
+            CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
+                    request.getSession().getServletContext());
+            logger.info("渠道End CommonsMultipartResolver!");
+            if (multipartResolver.isMultipart(request)) {
+                logger.info("渠道multipartResolver.isMultipart(request)");
+                //将request变成多部分request
+                MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
+                String contractId = multiRequest.getParameter("contractId");
+                String customerId = multiRequest.getParameter("customerId");
+                String category = multiRequest.getParameter("category");
+                String source = multiRequest.getParameter("source");
+                String serviceContractId = multiRequest.getParameter("serviceContractId");
+                //获取multiRequest 中所有的文件名
+                Iterator iter = multiRequest.getFileNames();
+                while (iter.hasNext()) {
+                    logger.info("渠道iter.hasNext()");
+                    //一次遍历所有文件
+                    MultipartFile file = multiRequest.getFile(iter.next().toString());
+                    if (file != null) {
+                        String fileName = file.getOriginalFilename();
+                        //开始上传图片
+                        String path = documentService.uploadType(file, fileName, contractId,serviceContractId, customerId, category, source, token);
+                        fileList.add(path);
+                    }
+                }
+                resultDto.setData(fileList);
+                resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+                resultDto.setResult(ResultResource.CODE_SUCCESS);
+            }
+        } catch (Exception e) {
+            logger.error("渠道上传图片失败", e);
+            if (e instanceof CronusException) {
+                CronusException cronusException = (CronusException) e;
+                throw cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        return resultDto;
+    }
+
     /*@ApiOperation(value = "下载附件", notes = "下载附件")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
