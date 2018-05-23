@@ -367,8 +367,7 @@ public class AutoAllocateService {
             subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(token, customerDTO.getCity(), media_id);
             if (subCompanyId == null) {
                 // queue中无一级吧，城市下无一级吧
-                //break;
-                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, customerDTO.getCity() + " 队列下未找到一级吧(mediaid="+media_id+", cityName="+customerDTO.getCity()+")");
+                break;
             }
 
             // 获取当月已分配数
@@ -384,7 +383,7 @@ public class AutoAllocateService {
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "请求商机系统异常：响应为null");
             }
             if (orderNumberDTOAvatarApiDTO.getResult() != 0) {
-                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "请求商机系统异常:" + orderNumberDTOAvatarApiDTO.getMessage());
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "请求商机系统异常:" + " result:" +orderNumberDTOAvatarApiDTO.getResult() + " message:" + orderNumberDTOAvatarApiDTO.getMessage());
             }
             OrderNumberDTO data = orderNumberDTOAvatarApiDTO.getData();
             if (data == null || CollectionUtils.isEmpty(data.getOrderNumberList())) {
@@ -418,8 +417,7 @@ public class AutoAllocateService {
                 }
                 if (salesmanId == null){
                     // 特殊队列、总队列都没业务员
-                    // break;
-                    throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "【"+customerDTO.getCity() + "】下，id为【"+subCompanyId+"】的一级吧,在mediaid为【"+media_id+"】的特殊媒体队列和总分配队列都未能找到业务员");
+                    break;
                 }
 
                 Integer temp = idFromCountQueue ? CommonConst.COMPANY_MEDIA_QUEUE_COUNT : media_id;
