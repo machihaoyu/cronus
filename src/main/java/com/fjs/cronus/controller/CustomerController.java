@@ -9,6 +9,7 @@ import com.fjs.cronus.dto.CustomerBasicDTO;
 import com.fjs.cronus.dto.CustomerPartDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
+import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.api.WalletApiDTO;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
@@ -58,6 +59,9 @@ public class CustomerController {
     TheaClientService theaClientService;
     @Autowired
     AllocateLogService allocateLogService;
+
+    @Autowired
+    SmsService smsService;
     @ApiOperation(value = "获取客户列表", notes = "获取客户列表信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
@@ -800,19 +804,21 @@ public class CustomerController {
 
         CronusDto cronusDto = new CronusDto();
         //校验权限
-        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
-        String[] authority = resultDto.getAuthority();
-        if (authority.length > 0) {
-            List<String> authList = Arrays.asList(authority);
-            if (authList.contains(CommonConst.REMOVE_CUSTOMER)) {
-                cronusDto.setResult(ResultResource.CODE_OTHER_ERROR);
-                cronusDto.setMessage(CommonConst.NO_AUTHORIZE);
-                return cronusDto;
-            }
-        }
-        UserInfoDTO userInfoDTO = resultDto.getUser_info();
+//        PHPLoginDto resultDto = thorUcService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
+        SimpleUserInfoDTO systemUserInfo = thorUcService.getSystemUserInfo(token, removeDTO.getEmpId());
+//        String[] authority = resultDto.getAuthority();
+//        if (authority.length > 0) {
+//            List<String> authList = Arrays.asList(authority);
+//            if (authList.contains(CommonConst.REMOVE_CUSTOMER)) {
+//                cronusDto.setResult(ResultResource.CODE_OTHER_ERROR);
+//                cronusDto.setMessage(CommonConst.NO_AUTHORIZE);
+//                return cronusDto;
+//            }
+//        }
+//        UserInfoDTO userInfoDTO = resultDto.getUser_info();
+
         try {
-            cronusDto = customerInfoService.removeCustomerAll(removeDTO, userInfoDTO, token);
+            cronusDto = customerInfoService.removeCustomerAll(removeDTO, systemUserInfo, token);
             return cronusDto;
         } catch (Exception e) {
             logger.error("--------------->removeCustomer离职员工批量转移操作失败", e);
@@ -1199,4 +1205,20 @@ public class CustomerController {
         return theaApiDTO;
     }
 
+
+
+    @ApiOperation(value = "查询用户信息", notes = "根据客户id，查询电话号码及来源")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+
+    })
+    @RequestMapping(value = "/querykdsgn", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto querykdsgn(){
+        String message = "尊敬的客户您好，因公司人员调整，房金所新的融资经理张三，18701780932，将继续为您服务，感谢您对房金所的支持与信赖。";
+//                    Integer count = smsService.sendCommunication(customerInfo.getTelephonenumber(), message);
+        Integer count = smsService.sendCommunication("XEDU5hxi9bwBoyJ6ynon5w==", message);
+
+        return  null;
+    }
 }

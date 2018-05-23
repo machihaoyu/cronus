@@ -8,6 +8,7 @@ import com.fjs.cronus.dto.CustomerBasicDTO;
 import com.fjs.cronus.dto.CustomerPartDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPUserDto;
+import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
@@ -1325,7 +1326,7 @@ public class CustomerInfoService {
         }
     }
 
-    public CronusDto<Boolean> removeCustomerAll(RemoveDTO removeDTO, UserInfoDTO userInfoDTO, String token) {
+    public CronusDto<Boolean> removeCustomerAll(RemoveDTO removeDTO, SimpleUserInfoDTO systemUserInfo, String token) {
         Date date = new Date();
         CronusDto<Boolean> resultDto = new CronusDto<>();
         boolean flag = false;
@@ -1339,12 +1340,12 @@ public class CustomerInfoService {
             return resultDto;
         }
         //判断这个负责人是不是在职的
-        if (userInfoDTO == null || !"1".equals(userInfoDTO.getStatus())) {
-            resultDto.setData(flag);
-            resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTOERSTATUS_ERROR);
-            resultDto.setResult(ResultResource.CODE_SUCCESS);
-            return resultDto;
-        }
+//        if (userInfoDTO == null || !"1".equals(userInfoDTO.getStatus())) {
+//            resultDto.setData(flag);
+//            resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTOERSTATUS_ERROR);
+//            resultDto.setResult(ResultResource.CODE_SUCCESS);
+//            return resultDto;
+//        }
         if (StringUtils.isEmpty(removeDTO.getIds())) {
             resultDto.setData(flag);
             resultDto.setMessage(ResultResource.MESSAGE_REMOVECUSTNOTNULL_ERROR);
@@ -1391,19 +1392,19 @@ public class CustomerInfoService {
 
             for (CustomerInfo customerInfo : customerInfoList) {
                 Integer remain = customerInfo.getRemain();
-                customerInfo.setSubCompanyId(Integer.valueOf(userInfoDTO.getSub_company_id()));
+                customerInfo.setSubCompanyId(Integer.valueOf(systemUserInfo.getSub_company_id()));
                 customerInfo.setOwnUserId(removeDTO.getEmpId());
                 AppUserDto userInfoByID = ucService.getUserInfoByID(token,removeDTO.getEmpId());
                 customerInfo.setOwnUserName(userInfoByID.getName());
                 customerInfo.setReceiveTime(date);
                 customerInfo.setRemain(remain);
                 customerInfo.setLastUpdateTime(date);
-                customerInfo.setLastUpdateUser(Integer.valueOf(userInfoDTO.getUser_id()));
+                customerInfo.setLastUpdateUser(Integer.valueOf(systemUserInfo.getUser_id()));
                 customerInfoMapper.updateCustomer(customerInfo);
                 try {
                     //发送短信
-                    String message = "尊敬的客户您好，因公司人员调整，房金所新的融资经理" + userInfoDTO.getName() + "，"
-                            + userInfoDTO.getTelephone() + "，将继续为您服务，感谢您对房金所的支持与信赖。";
+                    String message = "尊敬的客户您好，因公司人员调整，房金所新的融资经理" + systemUserInfo.getName() + "，"
+                            + systemUserInfo.getTelephone() + "，将继续为您服务，感谢您对房金所的支持与信赖。";
                     String customerPhome = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
                     Integer count = smsService.sendCommunication(customerPhome, message);
                     logger.warn("用户手机号为 : " + customerPhome);
@@ -1424,7 +1425,7 @@ public class CustomerInfoService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            removeCustomerAddLog(customerInfoList, removeDTO.getEmpId(), Integer.valueOf(userInfoDTO.getUser_id()), userInfoDTO.getName());
+            removeCustomerAddLog(customerInfoList, removeDTO.getEmpId(), Integer.valueOf(systemUserInfo.getUser_id()), systemUserInfo.getName());
             flag = true;
         }
 
