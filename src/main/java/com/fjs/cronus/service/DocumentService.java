@@ -1279,7 +1279,6 @@ public class DocumentService {
         if (rContractDocument == null) {
             throw new CronusException(CronusException.Type.CRM_CONTROCTDOCU_ERROR);
         }
-        Integer rcontrac_doucument_id = rContractDocument.getId();//附件关系id
         NewDocumentDTO newDocumentDTO = new NewDocumentDTO();
         newDocumentDTO.setDocument(document.getDocumentSavepath() + document.getDocumentSavename());
         if (Arrays.<String>asList(ResultResource.FILETYPE).contains(document.getDocumentExt())) {

@@ -84,6 +84,9 @@
       <if test="contractId != null" >
         contract_id,
       </if>
+      <if test="serviceContractId != null" >
+        service_contract_id,
+      </if>
       <if test="customerId != null" >
         customer_id,
       </if>
@@ -121,6 +124,9 @@
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="contractId != null" >
         #{contractId,jdbcType=INTEGER},
+      </if>
+      <if test="serviceContractId != null" >
+        #{serviceContractId,jdbcType=INTEGER},
       </if>
       <if test="customerId != null" >
         #{customerId,jdbcType=INTEGER},
