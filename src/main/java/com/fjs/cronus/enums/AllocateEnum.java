@@ -8,8 +8,8 @@ public enum AllocateEnum {
     EXIST_OWNER("3", "已存在负责人"),
     TO_SERVICE_SYSTEM("4","推入客服系统"),
     THREE_NON_CUSTOMER("5","三无重复时间"),
-    DUPLICATE_CUSTOMER("6","重复客户");
-
+    DUPLICATE_CUSTOMER("6","重复客户"),
+    AVATAR_POOL("-1","商机池");
 
     private String code;
 

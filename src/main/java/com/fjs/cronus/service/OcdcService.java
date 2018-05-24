@@ -261,6 +261,7 @@ public class OcdcService {
                             successList.add(customerSalePushLog.getOcdcId().toString());
                         } else {
                             failList.add(customerSalePushLog.getOcdcId().toString());
+                            customerSalePushLog.setErrorinfo(allocateEntity.getDescription());
                         }
 
                     } catch (RuntimeException e) {

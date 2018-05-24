@@ -172,8 +172,9 @@ public class AutoAllocateService {
                         // 标记
                         isNewCustomerFromAvatar = true;
                     } else {
-                        // 未找到，进待分配池
-                        allocateEntity.setAllocateStatus(AllocateEnum.WAITING_POOL);
+                        // 未找到，进商机池
+                        allocateEntity.setAllocateStatus(AllocateEnum.AVATAR_POOL);
+                        customerDTO.setOwnerUserId(-1); // 标记是商机池，-1
                     }
                 } else {
                     // 进客服系统
@@ -248,6 +249,7 @@ public class AutoAllocateService {
                     switch (allocateEntity.getAllocateStatus().getCode()) {
                         case "0": // 公盘
                         case "1": // 自动分配队列
+                        case "-1": // 商机池
                         case "3": // 已存在负责人
                             if (customerDTO.getOwnerUserId() != null && customerDTO.getOwnerUserId() > 0) { // 已存在负责人
                                 simpleUserInfoDTO = thorClientService.getUserInfoById(token, customerDTO.getOwnerUserId());
@@ -273,7 +275,6 @@ public class AutoAllocateService {
                             CronusDto cronusDto1 = customerInfoService.addOcdcCustomer(customerDTO, token);
                             if (cronusDto1.getResult() == 0) {
                                 customerDTO.setId(Integer.parseInt(cronusDto1.getData().toString()));
-                                // TODO lihong ocdcid放入表
                                 if (isNewCustomerFromAvatar) {
                                     // 新客户已找到业务员，记录分配数
                                     this.userMonthInfoService.incrNum2DBForOCDCPush((Integer) needDataBox.get(companyIdKey), baseChannelDTO, (Integer) needDataBox.get(salesmanIdKey), currentMonthStr, customerDTO);
@@ -334,7 +335,7 @@ public class AutoAllocateService {
 
         } catch (Exception e) {
             logger.error("-------------------自动分配失败:ocdcDataId=" + customerDTO.getTelephonenumber() + "-------------------", e);
-            allocateEntity.setDescription("自动分配失败");
+            allocateEntity.setDescription("自动分配失败:" + e.getMessage());
             allocateEntity.setSuccess(false);
         }
         return allocateEntity;
