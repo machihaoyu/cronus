@@ -1138,7 +1138,7 @@ public class DocumentService {
         if (!StringUtils.isEmpty(serviceContractId)){
             serviceContractIdParam = Integer.valueOf(serviceContractId);
         }
-        if (customerId != null && !"".equals(customerId)) {
+        if (customerId != null && !"".equals(customerId) && !"null".equals(customerId)) {
             customerIdParam = Integer.valueOf(customerId);
         }
         UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEM_NAME_ENGLISH);
@@ -1306,5 +1306,88 @@ public class DocumentService {
         newDocumentDTO.setUp_date(date);
         newDocumentDTO.setStatus(status);
         return newDocumentDTO;
+    }
+
+    public CronusDto<Boolean> validType(Integer serviceContractId, Integer productType, String token) {
+        CronusDto resultDto = new CronusDto();
+        //搜索检索的附件标示
+        Map<String, Object> paramsMap = new HashMap<>();
+        List<String> document_c_names = Arrays.<String>asList(ResultResource.DOCUMENT_C_NAMES);
+        paramsMap.put("document_c_names", document_c_names);
+        List<DocumentCategory> documentCategoryList = documentCategoryMapper.findListByFeild(paramsMap);
+        //遍历存入
+        Map<String, Integer> map = new HashMap<>();
+        for (DocumentCategory documentCategory : documentCategoryList) {
+            map.put(documentCategory.getDocumentCName(), documentCategory.getId());
+        }
+        if (documentCategoryList == null) {
+            throw new CronusException(CronusException.Type.CRM_VALIDAOCUMENRCOUNT_ERROR);
+        }
+        if (document_c_names.size() != documentCategoryList.size()) {
+            throw new CronusException(CronusException.Type.CRM_VALIDAOCUMENRCOUNT_ERROR);
+        }
+        //下面找出客户上传了哪些附件
+        //根据客户id查询出上传了哪些附件customer_id
+        paramsMap.clear();
+        paramsMap.put("serviceContractId", serviceContractId);
+        List<Integer> documentCids = rContractDocumentMapper.findTypeByFeild(paramsMap);
+        String message = "";
+        switch (ProductTyoeEnum.getByValue(productType)) {
+            case producttype_credit:
+                //判断是否含有身份证正面信息
+                if (!documentCids.contains(map.get(ResultResource.INENTITY))) {
+                    message = "【借款人身份证】";
+                }
+                if (!documentCids.contains(map.get(ResultResource.HOUSEHOLD)) && !documentCids.contains(map.get(ResultResource.ACCUMULATION)) && !documentCids.contains(map.get(ResultResource.BACKDEBUT))
+                        && !documentCids.contains(map.get(ResultResource.PROOFPOLICY)) && !documentCids.contains(map.get(ResultResource.CERTIFICATE))) {
+                    message = message + "【借款人银行流水/房产证/公积金证明/保单证明/行驶证证明 至少需一】";
+                }
+                if (!documentCids.contains(map.get(ResultResource.CONTRACT)) && !documentCids.contains(map.get(ResultResource.VOUCHER)) && !documentCids.contains(map.get(ResultResource.PAPERMATERIAL))) {
+                    message = message + "【借款合同/放款凭证/纸质证明材料 至少需一】";
+                }
+                break;
+            case producttype_mortgage:
+                if (!documentCids.contains(map.get(ResultResource.INENTITY))) {
+                    message = "【请上传借款人身份证】";
+                }
+                if (!documentCids.contains(map.get(ResultResource.HOUSEREGISTER))) {
+                    message = message + "【请上传户口本】";
+                }
+                if (!documentCids.contains(map.get(ResultResource.HOUSEHOLD)) && !documentCids.contains(map.get(ResultResource.CERTIFICATE))) {
+                    message = message + "【房产证/行驶证证明 至少需一】";
+                }
+                if (!documentCids.contains(map.get(ResultResource.CONTRACT)) && !documentCids.contains(map.get(ResultResource.VOUCHER)) && !documentCids.contains(map.get(ResultResource.PAPERMATERIAL))) {
+                    message = message + "【借款合同/放款凭证/纸质证明材料 至少需一】";
+                }
+                break;
+            case producttype_ransomfloor:
+                if (!documentCids.contains(map.get(ResultResource.INENTITY))) {
+                    message = "【借款人身份证】";
+                }
+                if (!documentCids.contains(map.get(ResultResource.HOUSEHOLD))) {
+                    message = message + "【房产证】";
+                }
+                if (!documentCids.contains(map.get(ResultResource.HOUSEREGISTER))) {
+                    message = message + "【借款人户口簿】";
+                }
+                if (!documentCids.contains(map.get(ResultResource.CONTRACT)) && !documentCids.contains(map.get(ResultResource.VOUCHER)) && !documentCids.contains(map.get(ResultResource.PAPERMATERIAL))) {
+                    message = message + "【借款合同/放款凭证/纸质证明材料 至少需一】";
+                }
+                break;
+            default:
+                message = "参数错误";
+                break;
+        }
+        if (!"".equals(message)) {
+            message = "请上传附件" + message;
+            resultDto.setMessage(message);
+            resultDto.setResult(ResultResource.CODE_SUCCESS);
+            resultDto.setData(false);
+            return resultDto;
+        }
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setData(true);
+        return resultDto;
     }
 }

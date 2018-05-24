@@ -242,4 +242,19 @@
       and  r.document_c_id = #{catagoryId}
     </if>
   </select>
+
+  <select id="findTypeByFeild" parameterType="java.util.Map" resultType="java.lang.Integer">
+    select
+    DISTINCT(document_c_id)
+    from r_contract_document r
+    left join document d on d.id = r.document_id
+    where r.is_deleted = 0
+    and d.is_flag IN (0,2)
+    <if test="rc_document_id != null">
+      and r.id = #{rc_document_id}
+    </if>
+    <if test="serviceContractId != null">
+      and r.service_contract_id = #{serviceContractId}
+    </if>
+  </select>
 </mapper>

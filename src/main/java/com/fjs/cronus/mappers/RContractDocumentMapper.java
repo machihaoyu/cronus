@@ -28,4 +28,6 @@ public interface RContractDocumentMapper{
     List<RContractDocument> ocrAppDocument(Map<String,Object> paramsMap);
 
     Integer ocrAppDocumentCount(Map<String,Object> paramsMap);
+
+    List<Integer> findTypeByFeild(Map<String,Object> paramsMap);
 }

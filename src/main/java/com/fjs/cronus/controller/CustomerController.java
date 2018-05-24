@@ -1221,4 +1221,33 @@ public class CustomerController {
 
         return  null;
     }
+
+    @ApiOperation(value = "判断渠道交易的附件上传情况", notes = "判断渠道交易的附件上传情况")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", dataType = "string"),
+            @ApiImplicitParam(name = "serviceContractId", value = "协议id", required = true, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "productType", value = "产品类型1：信用，2：抵押，3：赎楼", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/validType", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto validType(@RequestParam Integer serviceContractId, @RequestParam Integer productType, @RequestHeader("Authorization") String token) {
+        CronusDto cronusDto = new CronusDto();
+        if (serviceContractId == null || serviceContractId == 0) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        if (productType == null || productType == 0) {
+            throw new CronusException(CronusException.Type.CRM_VALIDAOCUMENRTOCON_ERROR);
+        }
+        try {
+            cronusDto = documentService.validType(serviceContractId, productType, token);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->判断渠道交易的附件上传情况失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException) e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
 }
