@@ -62,7 +62,7 @@ public class ScheduledJob {
         //调用任务
         communicationLogService.sendMessToCustomer(token);
         customerMeetService.sendMessMeetToCustomer(token);
-        ocdcService.waitingPoolAllocate(token);
+        //ocdcService.waitingPoolAllocate(token);
 
         //autoAllocateService.nonCommunicateAgainAllocate(token);
 
