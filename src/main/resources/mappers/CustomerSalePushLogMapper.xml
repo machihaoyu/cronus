@@ -114,7 +114,7 @@
             #{customerSalePushLog.ext},
             #{customerSalePushLog.repeatCallbackTime},
             #{customerSalePushLog.houseStatus},
-            #{customerSalePushLog.errorinfo},
+            #{customerSalePushLog.errorinfo}
             )
         </foreach>
     </insert>
