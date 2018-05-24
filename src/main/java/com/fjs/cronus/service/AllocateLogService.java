@@ -123,7 +123,7 @@ public class AllocateLogService {
     }
 
     @Transactional
-    public Integer autoAllocateAddAllocatelog(Integer customerId, Integer newOwnerUserId, Integer operationCode, Integer subCompanyId, Integer media) {
+    public Integer autoAllocateAddAllocatelog(Integer customerId, Integer newOwnerUserId, Integer operationCode) {
         Date date = new Date();
         //添加分配日志
         AllocateLog allocateLog = new AllocateLog();
@@ -133,8 +133,6 @@ public class AllocateLogService {
 
         allocateLog.setCreateUserId(CommonConst.SYSTEM_ID);
         allocateLog.setCreateUserName(CommonConst.SYSTEM_NAME);
-        allocateLog.setCompanyid(subCompanyId);
-        allocateLog.setMediaid(media);
         switch (operationCode) {
             case 1:
                 allocateLog.setOperation(CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCodeDesc());

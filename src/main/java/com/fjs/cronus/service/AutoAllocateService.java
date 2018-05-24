@@ -302,7 +302,7 @@ public class AutoAllocateService {
                     CustomerInfo customerInfo = new CustomerInfo();
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
                     allocateLogService.autoAllocateAddAllocatelog(customerInfo.getId(), customerDTO.getOwnerUserId(),
-                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode(), (Integer) needDataBox.get(companyIdKey), baseChannelDTO.getMedia_id());
+                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode());
 
                     if (this.isActiveApplicationChannel(customerDTO)) {
                         String loan = this.addLoan(customerDTO, token);

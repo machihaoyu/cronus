@@ -41,28 +41,8 @@ public class AllocateLog {
 
     private String result;
 
-    private Integer companyid;
-
-    private Integer mediaid;
-
     public static long getSerialVersionUID() {
         return serialVersionUID;
-    }
-
-    public Integer getCompanyid() {
-        return companyid;
-    }
-
-    public void setCompanyid(Integer companyid) {
-        this.companyid = companyid;
-    }
-
-    public Integer getMediaid() {
-        return mediaid;
-    }
-
-    public void setMediaid(Integer mediaid) {
-        this.mediaid = mediaid;
     }
 
     public Integer getId() {
