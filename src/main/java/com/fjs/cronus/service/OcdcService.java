@@ -260,6 +260,7 @@ public class OcdcService {
                         if (allocateEntity.isSuccess()) {
                             successList.add(customerSalePushLog.getOcdcId().toString());
                         } else {
+                            logger.info("进入商机分支9："+customerDTO.getTelephonenumber() + " " + allocateEntity.getDescription());
                             failList.add(customerSalePushLog.getOcdcId().toString());
                             customerSalePushLog.setErrorinfo(allocateEntity.getDescription());
                         }

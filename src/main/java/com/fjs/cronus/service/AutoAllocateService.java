@@ -154,6 +154,7 @@ public class AutoAllocateService {
 
             // 分配规则
             if ( customerDTO.getId() == null || customerDTO.getId().equals(0) ) {
+                logger.info("进入商机分支1："+customerDTO.getTelephonenumber());
                 // 新客户：走商机系统规则
 
                 // 商机系统分支
@@ -163,8 +164,10 @@ public class AutoAllocateService {
                 // 1.2、未找到、进待分配池
                 // 2、新客户，不在有效城市范围内--->进客服系统
                 if (StringUtils.contains(allocateCities, customerDTO.getCity())) {
+                    logger.info("进入商机分支2："+customerDTO.getTelephonenumber());
 
                     if (this.allocateForAvatar(token, customerDTO, baseChannelDTO,  needDataBox, currentMonthStr)) {
+                        logger.info("进入商机分支4："+customerDTO.getTelephonenumber());
                         // 找到被分配的业务员
                         allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
                         customerDTO.setOwnerUserId((Integer) needDataBox.get(salesmanIdKey));
@@ -172,11 +175,13 @@ public class AutoAllocateService {
                         // 标记
                         isNewCustomerFromAvatar = true;
                     } else {
+                        logger.info("进入商机分支5："+customerDTO.getTelephonenumber());
                         // 未找到，进商机池
                         allocateEntity.setAllocateStatus(AllocateEnum.AVATAR_POOL);
                         customerDTO.setOwnerUserId(-1); // 标记是商机池，-1
                     }
                 } else {
+                    logger.info("进入商机分支3："+customerDTO.getTelephonenumber());
                     // 进客服系统
                     allocateEntity.setAllocateStatus(AllocateEnum.TO_SERVICE_SYSTEM);
                 }
@@ -242,6 +247,7 @@ public class AutoAllocateService {
                     customerInfoService.editCustomerSys(customerInfo, token);
                 }
             } else { // 新客户
+                logger.info("进入商机分支6："+customerDTO.getTelephonenumber());
 
                 CronusDto<CustomerDTO> cronusDto = customerInfoService.fingByphone(customerDTO.getTelephonenumber());
                 CustomerDTO hasCustomer = cronusDto.getData();
@@ -270,6 +276,7 @@ public class AutoAllocateService {
                                     customerDTO.setRemain(CommonConst.REMAIN_STATUS_YES);
                                 }
                             }
+                            logger.info("进入商机分支7："+customerDTO.getTelephonenumber());
 
                             // 新建用户信息
                             CronusDto cronusDto1 = customerInfoService.addOcdcCustomer(customerDTO, token);
@@ -467,7 +474,7 @@ public class AutoAllocateService {
                 break;
             }
         }
-
+        logger.info("进入商机分支8："+customerDTO.getTelephonenumber() + " " + subCompanyId + " " + salesmanId);
         return isFindSuccess;
     }
 
