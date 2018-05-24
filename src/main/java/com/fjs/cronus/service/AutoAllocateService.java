@@ -377,7 +377,7 @@ public class AutoAllocateService {
 
             // 从商机系统获取
             JSONObject json = new JSONObject();
-            json.put("firstBarId ", subCompanyId);
+            json.put("firstBarId", subCompanyId);
             json.put("month", currentMonthStr);
             AvatarApiDTO<OrderNumberDTO> orderNumberDTOAvatarApiDTO = this.avatarClientService.queryOrderNumber(token, json);
             if (orderNumberDTOAvatarApiDTO == null || orderNumberDTOAvatarApiDTO.getResult() != 0) {
