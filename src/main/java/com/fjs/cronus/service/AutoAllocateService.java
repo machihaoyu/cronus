@@ -134,6 +134,7 @@ public class AutoAllocateService {
 
     @Transactional
     public synchronized AllocateEntity autoAllocate(CustomerDTO customerDTO, AllocateSource allocateSource, String token) {
+        logger.info("进入商机分支11："+customerDTO.getTelephonenumber());
 
         AllocateEntity allocateEntity = new AllocateEntity();
         allocateEntity.setSuccess(true);
@@ -187,6 +188,7 @@ public class AutoAllocateService {
                 }
             } else {
                 // 老客户
+                logger.info("进入商机分支12："+customerDTO.getTelephonenumber());
 
                 // 规则：
                 // 1、根据ocdc的传的特殊标记找业务员，找打就分给该业务员

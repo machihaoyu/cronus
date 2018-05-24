@@ -131,6 +131,8 @@ public class OcdcService {
                         AllocateEntity allocateEntity = new AllocateEntity();
                         CustomerDTO customerDTO = this.getCustomer(customerSalePushLog.getTelephonenumber());
                         if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) {
+
+                            logger.info("进入商机分支13："+customerDTO.getTelephonenumber());
                             // 老客户
 
                             if (allocateSource.getCode().equals("2")) {
@@ -209,6 +211,7 @@ public class OcdcService {
                             }
                         } else {
                             // 新客户
+                            logger.info("进入商机分支10："+customerDTO.getTelephonenumber());
 
                             responseMessage.append("新客户，自动分配");
                             responseMessage.append("-");
