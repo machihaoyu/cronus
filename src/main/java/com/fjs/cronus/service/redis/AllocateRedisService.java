@@ -298,6 +298,30 @@ public class AllocateRedisService {
     }
 
     /**
+     * 转为商机的时间格式.
+     * yyyyMM   -->  yyyy-MM
+     */
+    public String getMonthStr4avatar(String month){
+        if (StringUtils.isBlank(month)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "month 不能为null");
+        }
+        month = month.trim();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM");
+
+        Date parse = null;
+        try {
+            parse = sdf.parse(month);
+        } catch (ParseException e) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "日期转换异常");
+        }
+        String format = sdf2.format(parse);
+
+        return format;
+    }
+
+    /**
      * 媒体业务员queue：获取队列下月的，时间串.
      */
     public void checkMonthStr(String yearMonth) {
