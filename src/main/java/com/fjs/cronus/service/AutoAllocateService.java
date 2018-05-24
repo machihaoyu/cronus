@@ -335,7 +335,7 @@ public class AutoAllocateService {
 
         } catch (Exception e) {
             logger.error("-------------------自动分配失败:ocdcDataId=" + customerDTO.getTelephonenumber() + "-------------------", e);
-            allocateEntity.setDescription("自动分配失败:" + e.getMessage());
+            allocateEntity.setDescription("自动分配失败: errorMessage=" + e.getMessage() + " telephonenumber=" + customerDTO.getTelephonenumber() + " ocdcId=" + customerDTO.getOcdcId());
             allocateEntity.setSuccess(false);
         }
         return allocateEntity;
@@ -378,7 +378,7 @@ public class AutoAllocateService {
             // 从商机系统获取
             JSONObject json = new JSONObject();
             json.put("firstBarId ", subCompanyId);
-            json.put("month  ", currentMonthStr);
+            json.put("month", currentMonthStr);
             AvatarApiDTO<OrderNumberDTO> orderNumberDTOAvatarApiDTO = this.avatarClientService.queryOrderNumber(token, json);
             if (orderNumberDTOAvatarApiDTO == null || orderNumberDTOAvatarApiDTO.getResult() != 0) {
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "请求商机系统异常：响应为null");

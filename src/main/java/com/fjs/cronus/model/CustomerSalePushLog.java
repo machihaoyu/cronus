@@ -2,6 +2,7 @@ package com.fjs.cronus.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonRawValue;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -99,7 +100,11 @@ public class CustomerSalePushLog {
     }
 
     public void setErrorinfo(String errorinfo) {
-        this.errorinfo = errorinfo;
+        if (StringUtils.isNotBlank(this.errorinfo)) {
+            this.errorinfo = this.errorinfo + errorinfo;
+        } else {
+            this.errorinfo = errorinfo;
+        }
     }
 
     public Integer getId() {
