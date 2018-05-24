@@ -210,4 +210,30 @@ public class RContractDocumentService {
         return mapList;
     }
 
+    //渠道交易的附件
+    public CronusDto findDocByServiceId(Integer serviceId){
+        CronusDto resultDto = new CronusDto();
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("serviceContractId",serviceId);
+        List<RContractDocument> documentList = rContractDocumentMapper.ocrDocumentType(paramsMap);
+        List<OcrDocumentDto> ocrDocumentDtos = new ArrayList<>();
+        for (RContractDocument rcdocument : documentList) {
+            OcrDocumentDto ocrDocumentDto = new OcrDocumentDto();
+            ocrDocumentDto.setDocument_id(rcdocument.getDocument().getId());
+            ocrDocumentDto.setDocument_name(rcdocument.getDocumentName());
+            ocrDocumentDto.setDocument_c_name(rcdocument.getDocumentCategory().getDocumentCName());
+            ocrDocumentDto.setDocument_c_name_header(rcdocument.getDocumentCategory().getDocumentCNameHeader());
+            ocrDocumentDto.setRc_document_id(rcdocument.getId());
+            ocrDocumentDto.setDocumentSavename(rcdocument.getDocument().getDocumentSavename());
+            ocrDocumentDto.setFlag(rcdocument.getDocument().getIsFlag());
+            ocrDocumentDto.setDocumentSavepath(ResultResource.DOWNLOADFOOTPATH + rcdocument.getDocument().getDocumentSavepath());
+            ocrDocumentDto.setUrl(aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
+            ocrDocumentDtos.add(ocrDocumentDto);
+        }
+        resultDto.setData(ocrDocumentDtos);
+        resultDto.setResult(ResultResource.CODE_SUCCESS);
+        resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+
+        return  resultDto;
+    }
 }

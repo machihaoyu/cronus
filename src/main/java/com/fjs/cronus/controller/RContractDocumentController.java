@@ -113,4 +113,26 @@ public class RContractDocumentController {
         }
         return resultDto;
     }
+
+    @ApiOperation(value = "渠道交易根据协议id查找附件信息", notes = "渠道根据协议id查找附件信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", dataType = "string"),
+            @ApiImplicitParam(name = "serviceContractId", value = "协议id", required = true, paramType = "query", dataType = "int")
+    })
+    @RequestMapping(value = "/findDocByServiceId", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<List<OcrDocumentDto>> findDocByServiceId(@RequestParam Integer serviceContractId) {
+        CronusDto<List<OcrDocumentDto>> cronusDto = new CronusDto();
+        try {
+            cronusDto = rContractDocumentService.findDocByServiceId(serviceContractId);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->findDocByServiceId获取渠道附件信息失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException) e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
 }
