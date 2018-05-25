@@ -75,7 +75,7 @@ public class UserMonthInfoService {
     public Integer insertList(List<UserMonthInfo> userMonthInfoList) {
         // 这里使用的tk.mybatis的批量，包一层；
         // 原因：在无指定值的字段会插入null，如果mysql上设置了int(2) DEFAULT '1'不会为默认值
-        userMonthInfoList.stream().forEach(i->i.setStatus(CommonEnum.entity_status1.getCode()));
+        userMonthInfoList.stream().forEach(i -> i.setStatus(CommonEnum.entity_status1.getCode()));
         return userMonthInfoMapper.insertList(userMonthInfoList);
     }
 
@@ -120,7 +120,7 @@ public class UserMonthInfoService {
             criteria.andEqualTo("effectiveDate", currentMothStr);
             criteria.andIn("mediaid", followMediaSet);
             List<UserMonthInfo> currentMothDataList = userMonthInfoMapper.selectByExample(example);
-            if (CollectionUtils.isEmpty(currentMothDataList)){
+            if (CollectionUtils.isEmpty(currentMothDataList)) {
                 return;
             }
 
@@ -228,7 +228,7 @@ public class UserMonthInfoService {
         // 校验
         Set<Integer> mediaidAll = this.companyMediaQueueService.findFollowMediaidAll(companyid);
         if (!mediaidAll.contains(mediaid)) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "参数错误，该一级吧未关注此媒体（id="+mediaid+"）");
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "参数错误，该一级吧未关注此媒体（id=" + mediaid + "）");
         }
 
 
@@ -370,7 +370,7 @@ public class UserMonthInfoService {
 
         // 查询并启用悲观锁
         // 应该至少找到一条记录，最多2条（总分配队列、当前媒体的队列）
-        List<UserMonthInfo> mediaDataList = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, baseChannelDTO.getMedia_id(), CommonConst.COMPANY_MEDIA_QUEUE_COUNT,salesmanId, currentMonth, CommonEnum.entity_status1.getCode());
+        List<UserMonthInfo> mediaDataList = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, baseChannelDTO.getMedia_id(), CommonConst.COMPANY_MEDIA_QUEUE_COUNT, salesmanId, currentMonth, CommonEnum.entity_status1.getCode());
 
         Integer id = null;
         Date now = new Date();
@@ -378,7 +378,7 @@ public class UserMonthInfoService {
         // 主表和特殊队列表都++
         if (CollectionUtils.isEmpty(mediaDataList)) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，分配给了该员工，但未找到分配数据（包括总队列也未找到）（subCompanyId=" + subCompanyId + "，Mediaid=" + baseChannelDTO.getMedia_id() + "，salesmanId=" + salesmanId + "，currentMonth=" + currentMonth + "）");
-        }else {
+        } else {
 
             Map<Integer, List<UserMonthInfo>> mediaIdMappingData = mediaDataList.stream().collect(groupingBy(UserMonthInfo::getMediaid));
             if (mediaIdMappingData.size() == 0 || mediaIdMappingData.size() > 2) {
@@ -396,7 +396,7 @@ public class UserMonthInfoService {
                 UserMonthInfo userMonthInfoTemp = new UserMonthInfo();
                 userMonthInfoTemp.setBaseCustomerNum(1);
                 userMonthInfoTemp.setRewardCustomerNum(0);
-                userMonthInfoTemp.setAssignedCustomerNum(1);
+                userMonthInfoTemp.setAssignedCustomerNum(0);
                 userMonthInfoTemp.setEffectiveCustomerNum(0);
                 userMonthInfoTemp.setEffectiveDate(currentMonth);
                 userMonthInfoTemp.setLastUpdateTime(now);
@@ -466,15 +466,14 @@ public class UserMonthInfoService {
         }
 
         Integer id = null;
-        // 主表 incr
-        if (CollectionUtils.isEmpty(select) || select.get(0) == null) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，该客户已分配给了该业务员，但未找到分配数据（subCompanyId=" + subCompanyId + "，Mediaid=" + baseChannelDTO.getMedia_id() + "，salesmanId=" + salesmanId + "，currentMonth=" + currentMonthStr + "）");
-        } else {
-
-            Set<Integer> ids = select.stream().map(UserMonthInfo::getId).collect(toSet());
-            userMonthInfoMapper.update2IncrNumForEffectiveCustomerNum(ids);
-            id = select.stream().filter( i -> i != null && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())).map(UserMonthInfo::getId).findAny().orElse(null);
+        if (CollectionUtils.isEmpty(select) || select.size() != 2) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，（subCompanyId=" + subCompanyId + "，Mediaid=" + baseChannelDTO.getMedia_id() + "，salesmanId=" + salesmanId + "，currentMonth=" + currentMonthStr + "）");
         }
+
+        // 主表 incr
+        Set<Integer> ids = select.stream().map(UserMonthInfo::getId).collect(toSet());
+        userMonthInfoMapper.update2IncrNumForEffectiveCustomerNum(ids);
+        id = select.stream().filter(i -> i != null && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())).map(UserMonthInfo::getId).findAny().orElse(null);
 
         // 明细表记录明细
         UserMonthInfoDetail detail = new UserMonthInfoDetail();
