@@ -364,21 +364,14 @@ public class AutoAllocateService {
         // 6、 最终要么为客户找到业务员，要么进入待分配池
 
         Integer media_id = baseChannelDTO.getMedia_id(); // 媒体id
-        boolean isFindSuccess = false; // 找到接待的业务员
+        boolean result = false;
 
-        Integer subCompanyId = null; // 要找的一级吧
-        Integer salesmanId = null;   // 要找的业务员
-
-        Set<Integer> existCompanyid = new HashSet<>();
-        while(!existCompanyid.contains(subCompanyId)) {
+        long size = allocateRedisService.getSubCompanyIdQueueSize(token, customerDTO.getCity(), media_id);
+        for (int j = 0; j < size; j++) {
             // 循环城市下一级吧queue
 
             // 从queue获取一级吧
-            subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(token, customerDTO.getCity(), media_id);
-            if (subCompanyId == null) {
-                // queue中无一级吧，城市下无一级吧
-                break;
-            }
+            Integer subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(customerDTO.getCity(), media_id);
 
             // 获取当月已分配数
             Integer orderNumOfCompany = userMonthInfoMapper.getOrderNum(subCompanyId, currentMonthStr, CommonEnum.entity_status1.getCode());
@@ -398,9 +391,9 @@ public class AutoAllocateService {
             OrderNumberDTO data = orderNumberDTOAvatarApiDTO.getData();
             if (data == null || CollectionUtils.isEmpty(data.getOrderNumberList())) {
                 // 响应正常，但无数据视为未订购
-                existCompanyid.add(subCompanyId);
                 continue;
             }
+
             List<OrderNumberDetailDTO> orderNumberList = data.getOrderNumberList();
             Integer orderNumber = orderNumberList.stream().filter(i -> i != null && media_id.equals(i.getMeidaId())).map(OrderNumberDetailDTO::getOrderNumber).findAny().orElse(0);
             logger.info("进入商机分支14："+customerDTO.getTelephonenumber()+" subCompanyId="+ subCompanyId+" media_id="+media_id+" 订购数="+ orderNumber);
@@ -408,30 +401,22 @@ public class AutoAllocateService {
             // 业务校验：一级吧已购数、订购数
             if (orderNumOfCompany >= orderNumber) {
                 // 已购数 >= 订购数
-                existCompanyid.add(subCompanyId);
                 continue;
             }
 
-            String saleFlag = null; // 由于业务员可以在不同媒体队列中出现，所以需要联合媒体id一起作为标记；结构：mediaid$saleid
-            Set<String> existSale = new HashSet<>();
-            while(!existSale.contains(saleFlag)){
-                // 业务员queue
-
-                boolean idFromCountQueue = false; // 记录业务员是从特殊媒体queue取出，还是总queue中取出.
-
-                // 找业务员
-                salesmanId = this.allocateRedisService.getAndPush2End(subCompanyId, media_id, currentMonthStr);
-                if (salesmanId == null) {
-                    // 业务需求，特殊queue中找不到就去总队列中找
-                    salesmanId = this.allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
-                    idFromCountQueue = true;
-                }
-                if (salesmanId == null){
-                    // 特殊队列、总队列都没业务员
-                    break;
-                }
+            // 找业务员
+            Integer salesmanId = null;
+            boolean idFromCountQueue = false; // 记录业务员是从特殊媒体queue取出，还是总queue中取出.
+            long queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr);
+            if (queueSizeMedia == 0) {
+                idFromCountQueue = true;
+                queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
+            }
+            for (int k = 0; k < queueSizeMedia; k++) {
+                // 需要业务员queue找业务员
 
                 Integer temp = idFromCountQueue ? CommonConst.COMPANY_MEDIA_QUEUE_COUNT : media_id;
+                salesmanId = allocateRedisService.getAndPush2End(subCompanyId, temp, currentMonthStr);
 
                 // 比较该业务员的 已购数据、分配数
                 UserMonthInfo e = new UserMonthInfo();
@@ -441,10 +426,11 @@ public class AutoAllocateService {
                 e.setEffectiveDate(currentMonthStr);
                 e.setStatus(CommonEnum.entity_status1.getCode());
                 List<UserMonthInfo> select = userMonthInfoMapper.select(e);
+
                 if (CollectionUtils.isEmpty(select)
                         ) {
                     // 数据错误，直接忽略，给下一个业务员处理
-                    existSale.add(temp + "$" + salesmanId);
+                    salesmanId = null;
                     continue;
                 }
 
@@ -455,30 +441,31 @@ public class AutoAllocateService {
                         || userMonthInfo.getAssignedCustomerNum() == null
                         ) {
                     // 数据错误，直接忽略，给下一个业务员处理
-                    existSale.add(temp + "$" + salesmanId);
+                    salesmanId = null;
                     continue;
                 }
 
                 if (userMonthInfo.getAssignedCustomerNum() >=  (userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) ) {
                     // 该业务员 已购数 >= 分配数
-                    existSale.add(temp + "$" + salesmanId);
+                    salesmanId = null;
                     continue;
                 }
 
-                // 该客户由该业务员接待
-                isFindSuccess = true;
-                break;
+                // 找到业务员接待
+                if (salesmanId != null) {
+                    result = true;
+                    break;
+                }
             }
-
-            if (isFindSuccess) {
-                // 已找到接待的业务员
+            if (result) {
                 needDataBox.put(companyIdKey, subCompanyId);
                 needDataBox.put(salesmanIdKey, salesmanId);
+                logger.info("进入商机分支15："+customerDTO.getTelephonenumber() + " subCompanyId=" + subCompanyId + " salesmanId=" + salesmanId);
                 break;
             }
         }
         logger.info("进入商机分支8："+customerDTO.getTelephonenumber());
-        return isFindSuccess;
+        return result;
     }
 
     /**
@@ -599,29 +586,26 @@ public class AutoAllocateService {
 
     private boolean getAllocateUserV2(String token, String city, String currentMonthStr, Map<String, Object> needDataBox, Integer mediaid) {
 
-        // 该客户由该业务员接待
         boolean isFindSuccess = false;
 
-        Integer subCompanyId = null; // 要找的一级吧
-        Integer salesmanId = null;   // 要找的业务员
+        long size = allocateRedisService.getSubCompanyIdQueueSize(token, city, mediaid);
+        for (int i = 0; i < size; i++) {
 
-        Set<Integer> existCompanyid = new HashSet<>();
-        while(!existCompanyid.contains(subCompanyId)) {
-            // 从城市queue获取一级吧
-
-            subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(token, city, mediaid);
-            if (subCompanyId == null) break;
-
-            // 从一级吧下总队列中找业务员
-            salesmanId = this.allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
-            if (salesmanId != null) {
-                // 找到业务员
-                needDataBox.put(companyIdKey, subCompanyId);
-                needDataBox.put(salesmanIdKey, salesmanId);
-                isFindSuccess = true;
+            Integer subCompanyId = allocateRedisService.getSubCompanyIdFromQueue(city, mediaid);
+            long size2 = allocateRedisService.getQueueSize(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
+            for (int j = 0; j < size2; j++) {
+                Integer salesmanId = allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
+                if (salesmanId != null) {
+                    // 找到业务员
+                    needDataBox.put(companyIdKey, subCompanyId);
+                    needDataBox.put(salesmanIdKey, salesmanId);
+                    isFindSuccess = true;
+                    break;
+                }
+            }
+            if (isFindSuccess) {
                 break;
             }
-            existCompanyid.add(subCompanyId);
         }
         return isFindSuccess;
     }

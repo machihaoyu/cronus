@@ -240,6 +240,19 @@ public class AllocateRedisService {
     }
 
     /**
+     * 媒体业务员queue：队列长度.
+     */
+    public long getQueueSize(Integer companyId, Integer medial, String effectiveDate) {
+
+        redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
+        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
+
+        String key = this.getKey(companyId, medial, effectiveDate);
+        Long size = redisAllocateTemplete.opsForList().size(key);
+        return size == null ? 0 : size;
+    }
+
+    /**
      * 媒体业务员queue：删除队列.
      */
     public void delCompanyMediaQueueRedisQueue(Integer companyId, Integer medial, String effectiveDate) {
@@ -364,10 +377,10 @@ public class AllocateRedisService {
     /**
      * 城市一级吧queue：找一级吧.
      */
-    public Integer getSubCompanyIdFromQueue(String token, String cityName, Integer mediaid) {
+    public Integer getSubCompanyIdFromQueue(String cityName, Integer mediaid) {
 
         String subCompanyId = null;
-        if (StringUtils.isNotBlank(cityName) && StringUtils.isNotBlank(token)) {
+        if (StringUtils.isNotBlank(cityName)) {
 
             redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
             redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
@@ -380,6 +393,30 @@ public class AllocateRedisService {
                 // 当缓存中有，取出然后移到queue尾部
                 subCompanyId = listOperations.leftPop(key);
                 listOperations.rightPush(key, subCompanyId);
+            }
+        }
+        return StringUtils.isBlank(subCompanyId) ? null : Integer.valueOf(subCompanyId);
+    }
+
+    /**
+     * 城市一级吧queue：队列长度.
+     */
+    public long getSubCompanyIdQueueSize(String token, String cityName, Integer mediaid) {
+
+        Long size = 0L;
+        if (StringUtils.isNotBlank(cityName) && StringUtils.isNotBlank(token)) {
+
+            redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
+            redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
+            ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+
+
+            // 目标数据缓存key
+            String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaid.toString()).concat("$").concat(cityName);
+
+            if (listOperations.size(key) > 0) {
+                // 当缓存中有，取出然后移到queue尾部
+                size = listOperations.size(key);
             } else {
                 // 当缓存无，去库中取并放入到缓存中
                 Map<String, List<Integer>> subCompanyByCityName = this.findSubCompanyByCityName(token, cityName);
@@ -389,15 +426,16 @@ public class AllocateRedisService {
                     Set<String> subCompanyIdList2 = CollectionUtils.isEmpty(subCompanyIdList) ? new HashSet<>() : subCompanyIdList.stream().filter(item -> item != null).map(String::valueOf).collect(toSet());
 
                     if (cityName.equals(cityNameTemp) && CollectionUtils.isNotEmpty(subCompanyIdList2)) {
-                        subCompanyId = subCompanyIdList2.iterator().next(); // 取出1个
                         redisAllocateTemplete.delete(key);
                         listOperations.leftPushAll(key, subCompanyIdList2);
+                        size = Long.valueOf(subCompanyIdList2.size());
                         break;
                     }
                 }
             }
         }
-        return StringUtils.isBlank(subCompanyId) ? null : Integer.valueOf(subCompanyId);
+
+        return size == null ? 0 : size;
     }
 
     /**
