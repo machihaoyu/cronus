@@ -118,7 +118,7 @@ public class CompanyMediaQueueService {
         if (CollectionUtils.isNotEmpty(toDB)) this.insertList(toDB);
     }
 
-    public void insertList(List<CompanyMediaQueue> data){
+    public void insertList(List<CompanyMediaQueue> data) {
         // 包一层，批量插入，无值的字段，会插入null，便于后期处理
         companyMediaQueueMapper.insertList(data);
     }
@@ -126,7 +126,7 @@ public class CompanyMediaQueueService {
     /**
      * 获取一级吧关注的queue、不包括总队列.
      */
-    public Set<Integer> findFollowMediaidFromDB(Integer companyid){
+    public Set<Integer> findFollowMediaidFromDB(Integer companyid) {
         // 获取用户关注的媒体
         CompanyMediaQueue e = new CompanyMediaQueue();
         e.setCompanyid(companyid);
@@ -139,7 +139,7 @@ public class CompanyMediaQueueService {
     /**
      * 获取一级吧关注的queue、包括总队列.
      */
-    public Set<Integer> findFollowMediaidAll(Integer companyid){
+    public Set<Integer> findFollowMediaidAll(Integer companyid) {
         // 获取用户关注的媒体
         Set<Integer> followMediaSet = this.findFollowMediaidFromDB(companyid);
         followMediaSet.add(CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
@@ -170,7 +170,7 @@ public class CompanyMediaQueueService {
         String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT);
         String nextMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_NEXT);
 
-        // 对业务员分配数据的影响：当月的不动，下月的全初始化为0
+        // 获取下月的分配数据
         UserMonthInfo u = new UserMonthInfo();
         u.setCompanyid(companyid);
         u.setMediaid(mediaId);
@@ -179,12 +179,23 @@ public class CompanyMediaQueueService {
         List<UserMonthInfo> nextMontMediaDataList = userMonthInfoMapper.select(u);
         nextMontMediaDataList = CollectionUtils.isEmpty(nextMontMediaDataList) ? new ArrayList<>() : nextMontMediaDataList;
 
-        Set<Integer> ids = nextMontMediaDataList.stream().map(UserMonthInfo::getId).collect(toSet());
+        Set<Integer> ids = nextMontMediaDataList.stream()
+                .filter(i -> {
+                    if (i != null && i.getId() != null && (!Integer.valueOf(0).equals(i.getBaseCustomerNum()) || !Integer.valueOf(0).equals(i.getRewardCustomerNum())) ){
+                        return true;
+                    } else {
+                        return false;
+                    }
+                })
+                .map(UserMonthInfo::getId).collect(toSet());
 
+        // 将下月的分配数据设为0
         if (CollectionUtils.isNotEmpty(ids)) {
             UserMonthInfo valuesParams2 = new UserMonthInfo();
             valuesParams2.setBaseCustomerNum(0);
             valuesParams2.setRewardCustomerNum(0);
+            valuesParams2.setAssignedCustomerNum(0);
+            valuesParams2.setEffectiveCustomerNum(0);
             valuesParams2.setLastUpdateUser(currentUserId);
             valuesParams2.setLastUpdateTime(now);
 
@@ -194,6 +205,48 @@ public class CompanyMediaQueueService {
             criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
 
             userMonthInfoMapper.updateByExampleSelective(valuesParams2, whereParams);
+        }
+
+        // 获取当月的分配数
+        UserMonthInfo u2 = new UserMonthInfo();
+        u2.setCompanyid(companyid);
+        u2.setMediaid(mediaId);
+        u2.setEffectiveDate(currentMonthStr);
+        u2.setStatus(CommonEnum.entity_status1.getCode());
+        List<UserMonthInfo> currentMontMediaDataList = userMonthInfoMapper.select(u2);
+        currentMontMediaDataList = CollectionUtils.isEmpty(currentMontMediaDataList) ? new ArrayList<>() : currentMontMediaDataList;
+
+        // 设置本月的分配数据规则
+        // 1、如无已分配数，则设置为0
+        // 2、如有已分配数，则设为已分配数
+        List<UserMonthInfo> currentMonthData2UpdateList = currentMontMediaDataList.stream()
+                .filter(i -> {
+                    if (i != null && i.getId() != null && (!Integer.valueOf(0).equals(i.getBaseCustomerNum()) || !Integer.valueOf(0).equals(i.getRewardCustomerNum())) ) {
+                        return true;
+                    }else {
+                        return false;
+                    }
+                }).collect(toList());
+
+        if (CollectionUtils.isNotEmpty(currentMonthData2UpdateList)) {
+            for (UserMonthInfo userMonthInfo : currentMonthData2UpdateList) {
+
+                if (userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum() > userMonthInfo.getAssignedCustomerNum()) {
+                    UserMonthInfo valuesParams2 = new UserMonthInfo();
+                    valuesParams2.setBaseCustomerNum(userMonthInfo.getAssignedCustomerNum());
+                    valuesParams2.setRewardCustomerNum(0);
+                    valuesParams2.setLastUpdateUser(currentUserId);
+                    valuesParams2.setLastUpdateTime(now);
+
+                    Example whereParams = new Example(UserMonthInfo.class);
+                    Example.Criteria criteria = whereParams.createCriteria();
+                    criteria.andEqualTo("id", userMonthInfo.getId());
+                    criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
+
+                    userMonthInfoMapper.updateByExampleSelective(valuesParams2, whereParams);
+                }
+
+            }
         }
 
 

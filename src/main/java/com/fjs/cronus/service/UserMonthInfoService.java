@@ -380,23 +380,50 @@ public class UserMonthInfoService {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，分配给了该员工，但未找到分配数据（包括总队列也未找到）（subCompanyId=" + subCompanyId + "，Mediaid=" + baseChannelDTO.getMedia_id() + "，salesmanId=" + salesmanId + "，currentMonth=" + currentMonth + "）");
         }else {
 
-            Set<Integer> ids = mediaDataList.stream().map(UserMonthInfo::getId).collect(toSet());
-            if (CollectionUtils.isEmpty(ids) || ids.size() > 2) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，找到多条数据，应该最多2条（subCompanyId=" + subCompanyId + "，Mediaid=" + baseChannelDTO.getMedia_id() + "，salesmanId=" + salesmanId + "，currentMonth=" + currentMonth + "）");
+            Map<Integer, List<UserMonthInfo>> mediaIdMappingData = mediaDataList.stream().collect(groupingBy(UserMonthInfo::getMediaid));
+            if (mediaIdMappingData.size() == 0 || mediaIdMappingData.size() > 2) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，应该最多2条（subCompanyId=" + subCompanyId + "，Mediaid=" + baseChannelDTO.getMedia_id() + "，salesmanId=" + salesmanId + "，currentMonth=" + currentMonth + "）");
             }
 
-            userMonthInfoMapper.update2IncrNumForAssignedCustomerNum(baseChannelDTO.getSource_id(), baseChannelDTO.getAccount_id(), baseChannelDTO.getId(), ids, currentMonth);
+            List<UserMonthInfo> list = mediaIdMappingData.get(CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
+            UserMonthInfo countData = list.get(0);// 总分配队列
 
-            id = mediaDataList.stream().filter( i -> i != null && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())).map(UserMonthInfo::getId).findAny().orElse(null);
+            List<UserMonthInfo> list2 = mediaIdMappingData.get(baseChannelDTO.getMedia_id());
+            UserMonthInfo mediaData = list == null ? null : list.get(0);// 特殊分配队列
+
+            if (mediaData == null) {
+                // 新建
+                UserMonthInfo userMonthInfoTemp = new UserMonthInfo();
+                userMonthInfoTemp.setBaseCustomerNum(1);
+                userMonthInfoTemp.setRewardCustomerNum(0);
+                userMonthInfoTemp.setAssignedCustomerNum(1);
+                userMonthInfoTemp.setEffectiveCustomerNum(0);
+                userMonthInfoTemp.setEffectiveDate(currentMonth);
+                userMonthInfoTemp.setLastUpdateTime(now);
+                userMonthInfoTemp.setCreateTime(now);
+                userMonthInfoTemp.setUserId(salesmanId);
+                //userMonthInfoTemp.setCreateUserId(userIdByOption);
+                //userMonthInfoTemp.setLastUpdateUser(userIdByOption);
+                userMonthInfoTemp.setCompanyid(subCompanyId);
+                userMonthInfoTemp.setMediaid(baseChannelDTO.getMedia_id());
+                userMonthInfoTemp.setStatus(CommonEnum.entity_status1.getCode());
+                userMonthInfoMapper.insertUseGeneratedKeys(userMonthInfoTemp);
+
+                id = userMonthInfoTemp.getId();
+            } else {
+                id = mediaData.getId();
+            }
+
+            Set<Integer> ids = new HashSet<>();
+            ids.add(id);
+            ids.add(countData.getId());
+            userMonthInfoMapper.update2IncrNumForAssignedCustomerNum(ids, currentMonth);
         }
 
         UserMonthInfoDetail detail = new UserMonthInfoDetail();
         detail.setCreated(now);
         detail.setCompanyid(subCompanyId);
-        detail.setSourceid(baseChannelDTO.getSource_id());
         detail.setMediaid(baseChannelDTO.getMedia_id());
-        detail.setAccountid(baseChannelDTO.getAccount_id());
-        detail.setChannelid(baseChannelDTO.getId());
         detail.setEffectiveDate(currentMonth);
         detail.setCustomerInfo(JSONObject.toJSONString(customerDTO));
         detail.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE1);
@@ -452,10 +479,7 @@ public class UserMonthInfoService {
         UserMonthInfoDetail detail = new UserMonthInfoDetail();
         detail.setCreated(now);
         detail.setCompanyid(subCompanyId);
-        detail.setSourceid(baseChannelDTO.getSource_id());
         detail.setMediaid(baseChannelDTO.getMedia_id());
-        detail.setAccountid(baseChannelDTO.getAccount_id());
-        detail.setChannelid(baseChannelDTO.getId());
         detail.setEffectiveDate(currentMonthStr);
         detail.setCustomerInfo(JSONObject.toJSONString(customerDto));
         detail.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE2);
@@ -498,7 +522,7 @@ public class UserMonthInfoService {
 
         List<FindMediaAssignedCustomerNumItmDTO> list = params.getList();
         for (FindMediaAssignedCustomerNumItmDTO item : list) {
-            Integer selectSum = userMonthInfoMapper.selectSum(item.getCompanyid(), item.getSourceid(), item.getMediaid(), item.getMonth(), CommonEnum.entity_status1.getCode());
+            Integer selectSum = userMonthInfoMapper.selectSum(item.getCompanyid(), item.getMediaid(), item.getMonth(), CommonEnum.entity_status1.getCode());
             Integer sum = selectSum;
             item.setAssigned_customer_num(sum == null ? 0 : sum);
         }
@@ -512,7 +536,7 @@ public class UserMonthInfoService {
 
         List<FindCompanyAssignedCustomerNumItmDTO> list = params.getList();
         for (FindCompanyAssignedCustomerNumItmDTO item : list) {
-            Integer selectSum = userMonthInfoMapper.selectSum(item.getCompanyid(), null, null, item.getMonth(), CommonEnum.entity_status1.getCode());
+            Integer selectSum = userMonthInfoMapper.selectSum(item.getCompanyid(), null, item.getMonth(), CommonEnum.entity_status1.getCode());
             Integer sum = selectSum;
             item.setAssigned_customer_num(sum == null ? 0 : sum);
         }

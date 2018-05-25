@@ -262,6 +262,7 @@ public class OcdcService {
                         // 搜集 成功 or 失败 的数据
                         if (allocateEntity.isSuccess()) {
                             successList.add(customerSalePushLog.getOcdcId().toString());
+                            customerSalePushLog.setErrorinfo("成功无异常");
                         } else {
                             logger.info("进入商机分支9："+customerDTO.getTelephonenumber() + " " + allocateEntity.getDescription());
                             failList.add(customerSalePushLog.getOcdcId().toString());

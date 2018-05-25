@@ -78,52 +78,15 @@ public class UserMonthInfo implements Serializable{
     private Integer companyid;
 
     /**
-     * 来源.
-     */
-    private Integer sourceid;
-
-    /**
      * 媒体.
      */
     private Integer mediaid;
 
-    /**
-     * 转换.
-     */
-    private Integer accountid;
-    /**
-     * 渠道.
-     */
-    private Integer channelid;
 
     /**
      * 数据状态；0-删除，1-正常
      */
     private Integer status;
-
-    public Integer getSourceid() {
-        return sourceid;
-    }
-
-    public void setSourceid(Integer sourceid) {
-        this.sourceid = sourceid;
-    }
-
-    public Integer getAccountid() {
-        return accountid;
-    }
-
-    public void setAccountid(Integer accountid) {
-        this.accountid = accountid;
-    }
-
-    public Integer getChannelid() {
-        return channelid;
-    }
-
-    public void setChannelid(Integer channelid) {
-        this.channelid = channelid;
-    }
 
     public Integer getStatus() {
         return status;

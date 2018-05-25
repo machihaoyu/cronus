@@ -19,10 +19,7 @@ public class UserMonthInfoDetail {
     @Column(name = "effective_date")
     private String effectiveDate;
     private Integer companyid;
-    private Integer sourceid;
     private Integer mediaid;
-    private Integer accountid;
-    private Integer channelid;
     @Column(name = "customer_info")
     private String customerInfo;
     @Column(name = "user_month_info_id")
@@ -134,36 +131,12 @@ public class UserMonthInfoDetail {
         this.companyid = companyid;
     }
 
-    public Integer getSourceid() {
-        return sourceid;
-    }
-
-    public void setSourceid(Integer sourceid) {
-        this.sourceid = sourceid;
-    }
-
     public Integer getMediaid() {
         return mediaid;
     }
 
     public void setMediaid(Integer mediaid) {
         this.mediaid = mediaid;
-    }
-
-    public Integer getAccountid() {
-        return accountid;
-    }
-
-    public void setAccountid(Integer accountid) {
-        this.accountid = accountid;
-    }
-
-    public Integer getChannelid() {
-        return channelid;
-    }
-
-    public void setChannelid(Integer channelid) {
-        this.channelid = channelid;
     }
 
     public String getCustomerInfo() {

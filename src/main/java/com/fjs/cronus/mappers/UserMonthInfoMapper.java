@@ -23,7 +23,7 @@ public interface UserMonthInfoMapper extends MyMapper<UserMonthInfo>{
     /**
      * 更新业务员分配数.
      */
-    void update2IncrNumForAssignedCustomerNum(@Param("sourceId")Integer source_id, @Param("accountId")Integer account_id, @Param("channelId")Integer channelId, @Param("ids") Set<Integer> ids, @Param("currentMonth") String currentMonth);
+    void update2IncrNumForAssignedCustomerNum(@Param("ids") Set<Integer> ids, @Param("currentMonth") String currentMonth);
 
     /**
      * 更新业务员确认数.
@@ -33,7 +33,7 @@ public interface UserMonthInfoMapper extends MyMapper<UserMonthInfo>{
     /**
      * 获取sum,根据条件.
      */
-    Integer selectSum(@Param("companyid")Integer companyid, @Param("sourceid")Integer sourceid, @Param("mediaid")Integer mediaid, @Param("effectiveDate")String effectiveDate, @Param("status")Integer status);
+    Integer selectSum(@Param("companyid")Integer companyid, @Param("mediaid")Integer mediaid, @Param("effectiveDate")String effectiveDate, @Param("status")Integer status);
 
     /**
      * 加悲观锁查.

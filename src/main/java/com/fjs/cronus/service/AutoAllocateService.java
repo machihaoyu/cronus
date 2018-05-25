@@ -403,6 +403,7 @@ public class AutoAllocateService {
             }
             List<OrderNumberDetailDTO> orderNumberList = data.getOrderNumberList();
             Integer orderNumber = orderNumberList.stream().filter(i -> i != null && media_id.equals(i.getMeidaId())).map(OrderNumberDetailDTO::getOrderNumber).findAny().orElse(0);
+            logger.info("进入商机分支14："+customerDTO.getTelephonenumber()+" subCompanyId="+ subCompanyId+" media_id="+media_id+" 订购数="+ orderNumber);
 
             // 业务校验：一级吧已购数、订购数
             if (orderNumOfCompany >= orderNumber) {
@@ -476,7 +477,7 @@ public class AutoAllocateService {
                 break;
             }
         }
-        logger.info("进入商机分支8："+customerDTO.getTelephonenumber() + " " + subCompanyId + " " + salesmanId);
+        logger.info("进入商机分支8："+customerDTO.getTelephonenumber());
         return isFindSuccess;
     }
 

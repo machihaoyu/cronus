@@ -15,10 +15,7 @@
         <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER" />
         <result column="effective_date" property="effectiveDate" jdbcType="VARCHAR" />
         <result column="companyid" property="companyid" jdbcType="INTEGER" />
-        <result column="sourceid" property="sourceid" jdbcType="INTEGER" />
         <result column="mediaid" property="mediaid" jdbcType="INTEGER" />
-        <result column="accountid" property="accountid" jdbcType="INTEGER" />
-        <result column="channelid" property="channelid" jdbcType="INTEGER" />
         <result column="status" property="status" jdbcType="INTEGER" />
     </resultMap>
 
@@ -35,10 +32,7 @@
         `last_update_user`,
         `effective_date`,
         `companyid`,
-        `sourceid`,
         `mediaid`,
-        `accountid`,
-        `channelid`,
         `status`
     </sql>
 
@@ -86,10 +80,7 @@
 
     <update id="update2IncrNumForAssignedCustomerNum">
         UPDATE `user_month_info`
-        SET `assigned_customer_num`= `assigned_customer_num`+1,
-        `sourceid` = #{sourceId},
-        `accountid` = #{accountId},
-        `channelid` = #{channelId}
+        SET `assigned_customer_num`= `assigned_customer_num`+1
         WHERE
         `id` IN (
         <foreach collection="ids" item="item" separator=",">
@@ -113,9 +104,6 @@
     <select id="selectSum" resultType="java.lang.Integer">
         SELECT SUM(`assigned_customer_num`) FROM `user_month_info`
         WHERE `companyid`=#{companyid}
-        <if test="sourceid != null">
-          AND `sourceid`=#{sourceid}
-        </if>
         <if test="mediaid != null">
             AND `mediaid`=#{mediaid}
         </if>
