@@ -392,11 +392,13 @@ public class UserMonthInfoService {
             UserMonthInfo mediaData = list2 == null ? null : list2.get(0);// 特殊分配队列
 
             if (mediaData == null) {
+                // 特殊分配队列没有时，需要手动创建
+
                 // 新建
                 UserMonthInfo userMonthInfoTemp = new UserMonthInfo();
                 userMonthInfoTemp.setBaseCustomerNum(1);
                 userMonthInfoTemp.setRewardCustomerNum(0);
-                userMonthInfoTemp.setAssignedCustomerNum(0);
+                userMonthInfoTemp.setAssignedCustomerNum(1);
                 userMonthInfoTemp.setEffectiveCustomerNum(0);
                 userMonthInfoTemp.setEffectiveDate(currentMonth);
                 userMonthInfoTemp.setLastUpdateTime(now);
@@ -410,6 +412,10 @@ public class UserMonthInfoService {
                 userMonthInfoMapper.insertUseGeneratedKeys(userMonthInfoTemp);
 
                 id = userMonthInfoTemp.getId();
+
+                Set<Integer> ids = new HashSet<>();
+                ids.add(list.get(0).getId());// 只给总的加，上面已经加过了
+                userMonthInfoMapper.update2IncrNumForAssignedCustomerNum(ids, currentMonth);
             } else {
 
                 // 处理通过总分配队列分配过来，但是具体的该特殊队列的分配数又不够情况
@@ -423,12 +429,13 @@ public class UserMonthInfoService {
                     userMonthInfoMapper.updateByExampleSelective(userMonthInfoTemp, example);
                 }
                 id = mediaData.getId();
+
+                Set<Integer> ids = new HashSet<>();
+                ids.add(id);
+                ids.add(countData.getId());
+                userMonthInfoMapper.update2IncrNumForAssignedCustomerNum(ids, currentMonth);
             }
 
-            Set<Integer> ids = new HashSet<>();
-            ids.add(id);
-            ids.add(countData.getId());
-            userMonthInfoMapper.update2IncrNumForAssignedCustomerNum(ids, currentMonth);
         }
 
         UserMonthInfoDetail detail = new UserMonthInfoDetail();
