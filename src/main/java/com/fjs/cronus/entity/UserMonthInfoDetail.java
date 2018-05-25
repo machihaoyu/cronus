@@ -24,8 +24,18 @@ public class UserMonthInfoDetail {
     private String customerInfo;
     @Column(name = "user_month_info_id")
     private Integer userMonthInfoId;
+    @Column(name = "user_id")
+    private Integer userId;
     private Integer customerid;
     private Integer type;
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
 
     public Integer getCustomerid() {
         return customerid;

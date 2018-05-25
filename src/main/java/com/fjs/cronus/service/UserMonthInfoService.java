@@ -389,7 +389,7 @@ public class UserMonthInfoService {
             UserMonthInfo countData = list.get(0);// 总分配队列
 
             List<UserMonthInfo> list2 = mediaIdMappingData.get(baseChannelDTO.getMedia_id());
-            UserMonthInfo mediaData = list == null ? null : list.get(0);// 特殊分配队列
+            UserMonthInfo mediaData = list2 == null ? null : list2.get(0);// 特殊分配队列
 
             if (mediaData == null) {
                 // 新建
@@ -422,6 +422,7 @@ public class UserMonthInfoService {
 
         UserMonthInfoDetail detail = new UserMonthInfoDetail();
         detail.setCreated(now);
+        detail.setUserId(salesmanId);
         detail.setCompanyid(subCompanyId);
         detail.setMediaid(baseChannelDTO.getMedia_id());
         detail.setEffectiveDate(currentMonth);
@@ -478,6 +479,7 @@ public class UserMonthInfoService {
         // 明细表记录明细
         UserMonthInfoDetail detail = new UserMonthInfoDetail();
         detail.setCreated(now);
+        detail.setUserId(salesmanId);
         detail.setCompanyid(subCompanyId);
         detail.setMediaid(baseChannelDTO.getMedia_id());
         detail.setEffectiveDate(currentMonthStr);
