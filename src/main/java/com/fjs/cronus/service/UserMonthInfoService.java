@@ -418,16 +418,6 @@ public class UserMonthInfoService {
                 userMonthInfoMapper.update2IncrNumForAssignedCustomerNum(ids, currentMonth);
             } else {
 
-                // 处理通过总分配队列分配过来，但是具体的该特殊队列的分配数又不够情况
-                boolean flag = mediaData.getBaseCustomerNum() + mediaData.getRewardCustomerNum() < (mediaData.getAssignedCustomerNum() + 1);
-                if (flag) {
-                    UserMonthInfo userMonthInfoTemp = new UserMonthInfo();
-                    userMonthInfoTemp.setBaseCustomerNum(userMonthInfoTemp.getBaseCustomerNum() + 1);
-                    Example example = new Example(UserMonthInfo.class);
-                    Example.Criteria criteria = example.createCriteria();
-                    criteria.andEqualTo("id", mediaData.getId());
-                    userMonthInfoMapper.updateByExampleSelective(userMonthInfoTemp, example);
-                }
                 id = mediaData.getId();
 
                 Set<Integer> ids = new HashSet<>();
