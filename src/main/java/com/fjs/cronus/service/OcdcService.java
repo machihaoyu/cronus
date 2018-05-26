@@ -205,57 +205,55 @@ public class OcdcService {
                             BeanUtils.copyProperties(customerSalePushLog, customerDTO);
                             allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                         }
-
-                        responseMessage.append(allocateEntity.getDescription());
-                        responseMessage.append("-");
-                        responseMessage.append(allocateEntity.getAllocateStatus().getDesc());
-                        responseMessage.append("-");
-                        boolean waitingPoolUpdateStatus = true;
-
-                        // 根据分配结果，再分配处理
-                        if (allocateEntity.getAllocateStatus() != null && allocateEntity.isSuccess()) {
-                            switch (allocateEntity.getAllocateStatus().getCode()) {
-                                case "0":
-                                case "1":
-                                    break;
-                                case "2":
-                                    // 未分配，添加到待分配池
-                                    if (!allocateSource.getCode().equals("2")) {
-                                        AgainAllocateCustomer againAllocateCustomer = new AgainAllocateCustomer();
-                                        againAllocateCustomer.setDataId(customerSalePushLog.getOcdcId());
-                                        againAllocateCustomer.setJsonData(map);
-                                        againAllocateCustomer.setCreateTime(new Date());
-                                        againAllocateCustomer.setUpdateTime(new Date());
-                                        againAllocateCustomerService.addAgainAllocateCustomer(againAllocateCustomer);
-                                    }
-                                    waitingPoolUpdateStatus=false;
-                                    break;
-                                case "3":
-                                    break;
-                                case "4":
-                                    // 推入客服系统
-                                    responseMessage.append(this.pushServiceSystem(map)); // 未分配城市客户到客服系统
-                                    responseMessage.append("-");
-                                    break;
-                                case "5":
-                                case "6":
-                                    break;
-                            }
-                            if (allocateSource.getCode().equals("2") && waitingPoolUpdateStatus) {
-                                updateWaitingPoolStatus(customerSalePushLog.getOcdcId());
-                            }
-                        }
-
                         // 搜集 成功 or 失败 的数据
                         if (allocateEntity.isSuccess()) {
+                            responseMessage.append(allocateEntity.getDescription());
+                            responseMessage.append("-");
+                            responseMessage.append(allocateEntity.getAllocateStatus().getDesc());
+                            responseMessage.append("-");
+                            boolean waitingPoolUpdateStatus = true;
+
+                            // 根据分配结果，再分配处理
+                            if (allocateEntity.getAllocateStatus() != null && allocateEntity.isSuccess()) {
+                                switch (allocateEntity.getAllocateStatus().getCode()) {
+                                    case "0":
+                                    case "1":
+                                        break;
+                                    case "2":
+                                        // 未分配，添加到待分配池
+                                        if (!allocateSource.getCode().equals("2")) {
+                                            AgainAllocateCustomer againAllocateCustomer = new AgainAllocateCustomer();
+                                            againAllocateCustomer.setDataId(customerSalePushLog.getOcdcId());
+                                            againAllocateCustomer.setJsonData(map);
+                                            againAllocateCustomer.setCreateTime(new Date());
+                                            againAllocateCustomer.setUpdateTime(new Date());
+                                            againAllocateCustomerService.addAgainAllocateCustomer(againAllocateCustomer);
+                                        }
+                                        waitingPoolUpdateStatus=false;
+                                        break;
+                                    case "3":
+                                        break;
+                                    case "4":
+                                        // 推入客服系统
+                                        responseMessage.append(this.pushServiceSystem(map)); // 未分配城市客户到客服系统
+                                        responseMessage.append("-");
+                                        break;
+                                    case "5":
+                                    case "6":
+                                        break;
+                                }
+                                if (allocateSource.getCode().equals("2") && waitingPoolUpdateStatus) {
+                                    updateWaitingPoolStatus(customerSalePushLog.getOcdcId());
+                                }
+                            }
+
                             successList.add(customerSalePushLog.getOcdcId().toString());
-                            customerSalePushLog.setErrorinfo("成功无异常");
                         } else {
-                            failList.add(customerSalePushLog.getOcdcId().toString());
                             customerSalePushLog.setErrorinfo(allocateEntity.getDescription());
+                            failList.add(customerSalePushLog.getOcdcId().toString());
                         }
 
-                    } catch (RuntimeException e) {
+                    } catch (Exception e) {
                         logger.error("分配失败", e);
                         responseMessage.append(e.getMessage());
 
