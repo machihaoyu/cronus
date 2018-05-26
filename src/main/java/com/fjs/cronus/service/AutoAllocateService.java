@@ -5,7 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 
+import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.api.thea.LoanDTO;
+import com.fjs.cronus.dto.AllocateForAvatarDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.avatar.AvatarApiDTO;
@@ -29,6 +31,7 @@ import com.fjs.cronus.service.client.AvatarClientService;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
+import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.thea.ThorClientService;
@@ -44,7 +47,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -118,6 +123,9 @@ public class AutoAllocateService {
     @Autowired
     private UserMonthInfoMapper userMonthInfoMapper;
 
+    @Autowired
+    private CRMRedisLockHelp cRMRedisLockHelp;
+
     /**
      * 判断是不是客户主动申请渠道
      *
@@ -132,30 +140,32 @@ public class AutoAllocateService {
             return false;
     }
 
-    @Transactional
+    /**
+     * 处理单个客户的分配.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public synchronized AllocateEntity autoAllocate(CustomerDTO customerDTO, AllocateSource allocateSource, String token) {
-        logger.info("进入商机分支11："+customerDTO.getTelephonenumber());
 
         AllocateEntity allocateEntity = new AllocateEntity();
         allocateEntity.setSuccess(true);
+        Long lockToken = null;
 
         try {
+            // 锁1分钟，如20分钟内未计算完，就超时抛错回滚;
+            // 其他并行线程重试6次，每次等待5秒，共30秒
+            lockToken = this.cRMRedisLockHelp.lockBySetNX2(CommonRedisConst.ALLOCATE_LOCK, 60, 6, 5);
+
             // 获取自动分配的城市
             String allocateCities = theaClientService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY);
 
             // 需要去不同方法取数据(初始化为null，知道里面key是什么)
-            Map<String, Object> needDataBox = new HashMap<>();
-            needDataBox.put(companyIdKey, null); // 一级吧id
-            needDataBox.put(salesmanIdKey, null);   // 业务员id
+            AllocateForAvatarDTO signCustomAllocate = new AllocateForAvatarDTO();
 
             BaseChannelDTO baseChannelDTO = userMonthInfoService.getChannelInfoByChannelName(token, customerDTO.getUtmSource());; // 根据渠道获取来源、媒体、渠道
             String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT); // 当月字符串
-            boolean isNewCustomerFromAvatar = false;
-
 
             // 分配规则
             if ( customerDTO.getId() == null || customerDTO.getId().equals(0) ) {
-                logger.info("进入商机分支1："+customerDTO.getTelephonenumber());
                 // 新客户：走商机系统规则
 
                 // 商机系统分支
@@ -165,30 +175,23 @@ public class AutoAllocateService {
                 // 1.2、未找到、进待分配池
                 // 2、新客户，不在有效城市范围内--->进客服系统
                 if (StringUtils.contains(allocateCities, customerDTO.getCity())) {
-                    logger.info("进入商机分支2："+customerDTO.getTelephonenumber());
 
-                    if (this.allocateForAvatar(token, customerDTO, baseChannelDTO,  needDataBox, currentMonthStr)) {
-                        logger.info("进入商机分支4："+customerDTO.getTelephonenumber());
+                    signCustomAllocate = this.allocateForAvatar(token, customerDTO, baseChannelDTO, currentMonthStr);
+                    if (signCustomAllocate.getSuccessOfAvatar()) {
                         // 找到被分配的业务员
                         allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
-                        customerDTO.setOwnerUserId((Integer) needDataBox.get(salesmanIdKey));
-
-                        // 标记
-                        isNewCustomerFromAvatar = true;
+                        customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
                     } else {
-                        logger.info("进入商机分支5："+customerDTO.getTelephonenumber());
                         // 未找到，进商机池
                         allocateEntity.setAllocateStatus(AllocateEnum.AVATAR_POOL);
                         customerDTO.setOwnerUserId(-1); // 标记是商机池，-1
                     }
                 } else {
-                    logger.info("进入商机分支3："+customerDTO.getTelephonenumber());
                     // 进客服系统
                     allocateEntity.setAllocateStatus(AllocateEnum.TO_SERVICE_SYSTEM);
                 }
             } else {
                 // 老客户
-                logger.info("进入商机分支12："+customerDTO.getTelephonenumber());
 
                 // 规则：
                 // 1、根据ocdc的传的特殊标记找业务员，找打就分给该业务员
@@ -202,16 +205,15 @@ public class AutoAllocateService {
 
                 if (StringUtils.isNotEmpty(ownerUser.getUser_id())) { // 存在这个在职负责人
 
-                        needDataBox.put(salesmanIdKey, ownerUser.getSub_company_id());
-                        needDataBox.put(salesmanIdKey, ownerUser.getUser_id());
-                        customerDTO.setOwnerUserId((Integer) needDataBox.get(salesmanIdKey));
+                        customerDTO.setOwnerUserId(Integer.valueOf(ownerUser.getUser_id()));
                         allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
                 } else if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) { // 在有效分配城市内
 
                     // 根据城市，去找一级吧下业务员
-                    if (this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, needDataBox, baseChannelDTO.getMedia_id())) { //找到业务员
+                    signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, baseChannelDTO.getMedia_id());
+                    if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
                         allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
-                        customerDTO.setOwnerUserId((Integer) needDataBox.get(salesmanIdKey));
+                        customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
                     } else { // 未找到，进入待分配池
                         customerDTO.setOwnerUserId(0);
                         allocateEntity.setAllocateStatus(AllocateEnum.WAITING_POOL);
@@ -249,7 +251,6 @@ public class AutoAllocateService {
                     customerInfoService.editCustomerSys(customerInfo, token);
                 }
             } else { // 新客户
-                logger.info("进入商机分支6："+customerDTO.getTelephonenumber());
 
                 CronusDto<CustomerDTO> cronusDto = customerInfoService.fingByphone(customerDTO.getTelephonenumber());
                 CustomerDTO hasCustomer = cronusDto.getData();
@@ -278,15 +279,14 @@ public class AutoAllocateService {
                                     customerDTO.setRemain(CommonConst.REMAIN_STATUS_YES);
                                 }
                             }
-                            logger.info("进入商机分支7："+customerDTO.getTelephonenumber());
 
                             // 新建用户信息
                             CronusDto cronusDto1 = customerInfoService.addOcdcCustomer(customerDTO, token);
                             if (cronusDto1.getResult() == 0) {
                                 customerDTO.setId(Integer.parseInt(cronusDto1.getData().toString()));
-                                if (isNewCustomerFromAvatar) {
+                                if (signCustomAllocate.getSuccessOfAvatar()) {
                                     // 新客户已找到业务员，记录分配数
-                                    this.userMonthInfoService.incrNum2DBForOCDCPush((Integer) needDataBox.get(companyIdKey), baseChannelDTO, (Integer) needDataBox.get(salesmanIdKey), currentMonthStr, customerDTO);
+                                    this.userMonthInfoService.incrNum2DBForOCDCPush(signCustomAllocate, baseChannelDTO, currentMonthStr, customerDTO);
                                 }
                             }
 
@@ -342,10 +342,19 @@ public class AutoAllocateService {
                     break;
             }
 
+            // 在20秒内未完成运算，视为失败；事务回滚；redis解锁;让给其他线程资源
+            long l = this.cRMRedisLockHelp.getCurrentTimeFromRedisServicer() - lockToken;
+            if (l > (20 * 1000)) {
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "服务超时（redis锁超时）");
+            }
+
         } catch (Exception e) {
             logger.error("-------------------自动分配失败:ocdcDataId=" + customerDTO.getTelephonenumber() + "-------------------", e);
             allocateEntity.setDescription("自动分配失败: errorMessage=" + e.getMessage() + " telephonenumber=" + customerDTO.getTelephonenumber() + " ocdcId=" + customerDTO.getOcdcId());
             allocateEntity.setSuccess(false);
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }finally {
+            this.cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_LOCK, lockToken);
         }
         return allocateEntity;
     }
@@ -353,7 +362,7 @@ public class AutoAllocateService {
     /**
      * 商机系统分配规则.
      */
-    private Boolean allocateForAvatar(String token, CustomerDTO customerDTO, BaseChannelDTO baseChannelDTO, Map<String, Object> needDataBox, String currentMonthStr) {
+    private AllocateForAvatarDTO allocateForAvatar(String token, CustomerDTO customerDTO, BaseChannelDTO baseChannelDTO, String currentMonthStr) {
         // 商机分配规则（前提：新客户、在有效城市范围内）
         // 1、 根据城市，从城市queue中获取一级吧
         // 2、 要求该一级吧媒体的订购数（商机系统获取） > 已购数
@@ -363,8 +372,9 @@ public class AutoAllocateService {
         // 5、 要求业务员 分配数 > 已购数
         // 6、 最终要么为客户找到业务员，要么进入待分配池
 
+        AllocateForAvatarDTO result = new AllocateForAvatarDTO();
+
         Integer media_id = baseChannelDTO.getMedia_id(); // 媒体id
-        boolean result = false;
 
         long size = allocateRedisService.getSubCompanyIdQueueSize(token, customerDTO.getCity(), media_id);
         for (int j = 0; j < size; j++) {
@@ -396,7 +406,6 @@ public class AutoAllocateService {
 
             List<OrderNumberDetailDTO> orderNumberList = data.getOrderNumberList();
             Integer orderNumber = orderNumberList.stream().filter(i -> i != null && media_id.equals(i.getMeidaId())).map(OrderNumberDetailDTO::getOrderNumber).findAny().orElse(0);
-            logger.info("进入商机分支14："+customerDTO.getTelephonenumber()+" subCompanyId="+ subCompanyId+" media_id="+media_id+" 订购数="+ orderNumber);
 
             // 业务校验：一级吧已购数、订购数
             if (orderNumOfCompany >= orderNumber) {
@@ -405,13 +414,16 @@ public class AutoAllocateService {
             }
 
             // 找业务员
+            //
             Integer salesmanId = null;
+            Set<Integer> followMediaidFromDB = this.companyMediaQueueService.findFollowMediaidFromDB(subCompanyId);
             boolean idFromCountQueue = false; // 记录业务员是从特殊媒体queue取出，还是总queue中取出.
             long queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr);
             if (queueSizeMedia == 0) {
-                idFromCountQueue = true;
                 queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
+                idFromCountQueue = true;
             }
+
             for (int k = 0; k < queueSizeMedia; k++) {
                 // 需要业务员queue找业务员
 
@@ -451,20 +463,55 @@ public class AutoAllocateService {
                     continue;
                 }
 
+                // 校验，如果是从总队列中找，且也关注了特殊队列，需要校验满足特殊队列分配数 > 已分配数
+                if (idFromCountQueue && followMediaidFromDB.contains(media_id)) {
+                    UserMonthInfo e2 = new UserMonthInfo();
+                    e2.setCompanyid(subCompanyId);
+                    e2.setUserId(salesmanId);
+                    e2.setMediaid(temp);
+                    e2.setEffectiveDate(currentMonthStr);
+                    e2.setStatus(CommonEnum.entity_status1.getCode());
+                    List<UserMonthInfo> select2 = userMonthInfoMapper.select(e2);
+
+                    if (CollectionUtils.isEmpty(select2)
+                            ) {
+                        // 数据错误，直接忽略，给下一个业务员处理
+                        salesmanId = null;
+                        continue;
+                    }
+
+                    UserMonthInfo userMonthInfo2 = select2.get(0);
+                    if (userMonthInfo2 == null
+                            || userMonthInfo2.getBaseCustomerNum() == null
+                            || userMonthInfo2.getRewardCustomerNum() == null
+                            || userMonthInfo2.getAssignedCustomerNum() == null
+                            ) {
+                        // 数据错误，直接忽略，给下一个业务员处理
+                        salesmanId = null;
+                        continue;
+                    }
+
+                    if (userMonthInfo2.getAssignedCustomerNum() >=  (userMonthInfo2.getBaseCustomerNum() + userMonthInfo2.getRewardCustomerNum()) ) {
+                        // 该业务员 已购数 >= 分配数
+                        salesmanId = null;
+                        continue;
+                    }
+                }
+
                 // 找到业务员接待
                 if (salesmanId != null) {
-                    result = true;
                     break;
                 }
             }
-            if (result) {
-                needDataBox.put(companyIdKey, subCompanyId);
-                needDataBox.put(salesmanIdKey, salesmanId);
-                logger.info("进入商机分支15："+customerDTO.getTelephonenumber() + " subCompanyId=" + subCompanyId + " salesmanId=" + salesmanId);
+            if (salesmanId != null) {
+                result.setCompanyid(subCompanyId);
+                result.setSalesmanId(salesmanId);
+                result.setMediaid(subCompanyId);
+                result.setFrommediaid(idFromCountQueue ? CommonConst.COMPANY_MEDIA_QUEUE_COUNT : media_id);
+                result.setSuccessOfAvatar(true);
                 break;
             }
         }
-        logger.info("进入商机分支8："+customerDTO.getTelephonenumber());
         return result;
     }
 
@@ -584,9 +631,12 @@ public class AutoAllocateService {
         return allocateToPublic;
     }
 
-    private boolean getAllocateUserV2(String token, String city, String currentMonthStr, Map<String, Object> needDataBox, Integer mediaid) {
+    /**
+     * 老客户，会从总分配队列找业务员.
+     */
+    private AllocateForAvatarDTO getAllocateUserV2(String token, String city, String currentMonthStr, Integer mediaid) {
 
-        boolean isFindSuccess = false;
+        AllocateForAvatarDTO result = new AllocateForAvatarDTO();
 
         long size = allocateRedisService.getSubCompanyIdQueueSize(token, city, mediaid);
         for (int i = 0; i < size; i++) {
@@ -597,17 +647,17 @@ public class AutoAllocateService {
                 Integer salesmanId = allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
                 if (salesmanId != null) {
                     // 找到业务员
-                    needDataBox.put(companyIdKey, subCompanyId);
-                    needDataBox.put(salesmanIdKey, salesmanId);
-                    isFindSuccess = true;
+                    result.setCompanyid(subCompanyId);
+                    result.setSalesmanId(salesmanId);
+                    result.setSuccessOfOldcustomer(true);
                     break;
                 }
             }
-            if (isFindSuccess) {
+            if (result.getSuccessOfOldcustomer()) {
                 break;
             }
         }
-        return isFindSuccess;
+        return result;
     }
 
     /**

@@ -84,21 +84,14 @@ public class OcdcService {
     private AutoAllocateService autoAllocateService;
 
     @Autowired
-    private CustomerInfoMapper customerInfoMapper;
-
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
-
-    @Autowired
     private CustomerInfoService customerInfoService;
 
     @Autowired
     private ThorClientService thorClientService;
 
-    @Autowired
-    private CRMRedisLockHelp cRMRedisLockHelp;
-
-    @Transactional(rollbackFor = Exception.class)
+    /**
+     * 处理一批（目前是50个）客户分配.
+     */
     public synchronized List<String> addOcdcCustomer(OcdcData ocdcData, AllocateSource allocateSource, String token) {
 
         List<String> successList = new ArrayList<>();
@@ -110,12 +103,9 @@ public class OcdcService {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-            Long lockToken = null;
+
             try { // try 此次 50个一批的信息，作为响应信息，如中间某个出差需要记录
 
-                // 锁4分钟，如2分钟内未计算完，就超时抛错回滚;
-                // 其他并行线程重试30次，每次等待5秒，共2分30秒
-                lockToken = this.cRMRedisLockHelp.lockBySetNX2(CommonRedisConst.ALLOCATE_LOCK, 4 * 60, 30, 5);
                 for (String map : ocdcData.getData()) {
 
                     // 解析客户信息
@@ -131,8 +121,6 @@ public class OcdcService {
                         AllocateEntity allocateEntity = new AllocateEntity();
                         CustomerDTO customerDTO = this.getCustomer(customerSalePushLog.getTelephonenumber());
                         if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) {
-
-                            logger.info("进入商机分支13："+customerDTO.getTelephonenumber());
                             // 老客户
 
                             if (allocateSource.getCode().equals("2")) {
@@ -211,7 +199,6 @@ public class OcdcService {
                             }
                         } else {
                             // 新客户
-                            logger.info("进入商机分支10："+customerDTO.getTelephonenumber());
 
                             responseMessage.append("新客户，自动分配");
                             responseMessage.append("-");
@@ -264,7 +251,6 @@ public class OcdcService {
                             successList.add(customerSalePushLog.getOcdcId().toString());
                             customerSalePushLog.setErrorinfo("成功无异常");
                         } else {
-                            logger.info("进入商机分支9："+customerDTO.getTelephonenumber() + " " + allocateEntity.getDescription());
                             failList.add(customerSalePushLog.getOcdcId().toString());
                             customerSalePushLog.setErrorinfo(allocateEntity.getDescription());
                         }
@@ -290,17 +276,9 @@ public class OcdcService {
 
                     // 记录单个客户推送信息
                     customerSalePushLogList.add(customerSalePushLog);
-
-                    // 在2分钟内未完成运算，视为失败；事务回滚；redis解锁;让给其他线程资源
-                    long l = this.cRMRedisLockHelp.getCurrentTimeFromRedisServicer() - lockToken;
-                    if (l > (2 *  60 * 1000)) {
-                        throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "服务超时");
-                    }
                 }
             } catch (Exception e) {
                 logger.error("分配异常", e);
-            }finally {
-                this.cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_LOCK, lockToken);
             }
 
             // 保存OCDC推送日志

@@ -28,6 +28,15 @@ public class UserMonthInfoDetail {
     private Integer userId;
     private Integer customerid;
     private Integer type;
+    private Integer fromediaid;
+
+    public Integer getFromediaid() {
+        return fromediaid;
+    }
+
+    public void setFromediaid(Integer fromediaid) {
+        this.fromediaid = fromediaid;
+    }
 
     public Integer getUserId() {
         return userId;

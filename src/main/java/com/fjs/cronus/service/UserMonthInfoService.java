@@ -5,6 +5,7 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.controller.UserController;
+import com.fjs.cronus.dto.AllocateForAvatarDTO;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.BaseChannelDTO;
@@ -363,26 +364,26 @@ public class UserMonthInfoService {
      * ocdc 推送后，自动分配成功后，记录该业务员的分配数.
      */
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void incrNum2DBForOCDCPush(Integer subCompanyId, BaseChannelDTO baseChannelDTO, Integer salesmanId, String currentMonth, CustomerDTO customerDTO) {
+    public void incrNum2DBForOCDCPush(AllocateForAvatarDTO signCustomAllocate, BaseChannelDTO baseChannelDTO, String currentMonth, CustomerDTO customerDTO) {
         // ------ 业务分析 ------
         // 先找媒体队列的分配数据，无，说明未设置，说明一级巴长只设置了总队列分配数
         //
 
         // 查询并启用悲观锁
         // 应该至少找到一条记录，最多2条（总分配队列、当前媒体的队列）
-        List<UserMonthInfo> mediaDataList = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, baseChannelDTO.getMedia_id(), CommonConst.COMPANY_MEDIA_QUEUE_COUNT, salesmanId, currentMonth, CommonEnum.entity_status1.getCode());
+        List<UserMonthInfo> mediaDataList = userMonthInfoMapper.findByParamsForUpdate(signCustomAllocate.getCompanyid(), baseChannelDTO.getMedia_id(), CommonConst.COMPANY_MEDIA_QUEUE_COUNT, signCustomAllocate.getSalesmanId(), currentMonth, CommonEnum.entity_status1.getCode());
 
         Integer id = null;
         Date now = new Date();
 
         // 主表和特殊队列表都++
         if (CollectionUtils.isEmpty(mediaDataList)) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，分配给了该员工，但未找到分配数据（包括总队列也未找到）（subCompanyId=" + subCompanyId + "，Mediaid=" + baseChannelDTO.getMedia_id() + "，salesmanId=" + salesmanId + "，currentMonth=" + currentMonth + "）");
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，分配给了该员工，但未找到分配数据（包括总队列也未找到）（subCompanyId=" + signCustomAllocate.getCompanyid() + "，Mediaid=" + baseChannelDTO.getMedia_id() + "，salesmanId=" + signCustomAllocate.getSalesmanId() + "，currentMonth=" + currentMonth + "）");
         } else {
 
             Map<Integer, List<UserMonthInfo>> mediaIdMappingData = mediaDataList.stream().collect(groupingBy(UserMonthInfo::getMediaid));
             if (mediaIdMappingData.size() == 0 || mediaIdMappingData.size() > 2) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，应该最多2条（subCompanyId=" + subCompanyId + "，Mediaid=" + baseChannelDTO.getMedia_id() + "，salesmanId=" + salesmanId + "，currentMonth=" + currentMonth + "）");
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，应该最多2条（subCompanyId=" + signCustomAllocate.getCompanyid() + "，Mediaid=" + baseChannelDTO.getMedia_id() + "，salesmanId=" + signCustomAllocate.getSalesmanId() + "，currentMonth=" + currentMonth + "）");
             }
 
             List<UserMonthInfo> list = mediaIdMappingData.get(CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
@@ -403,10 +404,10 @@ public class UserMonthInfoService {
                 userMonthInfoTemp.setEffectiveDate(currentMonth);
                 userMonthInfoTemp.setLastUpdateTime(now);
                 userMonthInfoTemp.setCreateTime(now);
-                userMonthInfoTemp.setUserId(salesmanId);
+                userMonthInfoTemp.setUserId(signCustomAllocate.getSalesmanId());
                 //userMonthInfoTemp.setCreateUserId(userIdByOption);
                 //userMonthInfoTemp.setLastUpdateUser(userIdByOption);
-                userMonthInfoTemp.setCompanyid(subCompanyId);
+                userMonthInfoTemp.setCompanyid(signCustomAllocate.getCompanyid());
                 userMonthInfoTemp.setMediaid(baseChannelDTO.getMedia_id());
                 userMonthInfoTemp.setStatus(CommonEnum.entity_status1.getCode());
                 userMonthInfoMapper.insertUseGeneratedKeys(userMonthInfoTemp);
@@ -414,7 +415,7 @@ public class UserMonthInfoService {
                 id = userMonthInfoTemp.getId();
 
                 Set<Integer> ids = new HashSet<>();
-                ids.add(list.get(0).getId());// 只给总的加，上面已经加过了
+                ids.add(list.get(0).getId());// 只给总的加，特定媒体上面已经加过了
                 userMonthInfoMapper.update2IncrNumForAssignedCustomerNum(ids, currentMonth);
             } else {
 
@@ -430,13 +431,14 @@ public class UserMonthInfoService {
 
         UserMonthInfoDetail detail = new UserMonthInfoDetail();
         detail.setCreated(now);
-        detail.setUserId(salesmanId);
-        detail.setCompanyid(subCompanyId);
+        detail.setUserId(signCustomAllocate.getSalesmanId());
+        detail.setCompanyid(signCustomAllocate.getCompanyid());
         detail.setMediaid(baseChannelDTO.getMedia_id());
         detail.setEffectiveDate(currentMonth);
         detail.setCustomerInfo(JSONObject.toJSONString(customerDTO));
         detail.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE1);
         detail.setUserMonthInfoId(id);
+        detail.setFromediaid(signCustomAllocate.getFrommediaid());
         detail.setCustomerid(customerDTO.getId());
         userMonthInfoDetailMapper.insertSelective(detail);
     }
