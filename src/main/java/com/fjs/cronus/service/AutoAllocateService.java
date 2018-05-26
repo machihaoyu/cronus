@@ -140,6 +140,7 @@ public class AutoAllocateService {
             return false;
     }
 
+
     /**
      * 处理单个客户的分配.
      */
@@ -415,26 +416,21 @@ public class AutoAllocateService {
 
             // 找业务员
             //
+            // 先去特殊队列找，找不到然后去总分配队列找
             Integer salesmanId = null;
             Set<Integer> followMediaidFromDB = this.companyMediaQueueService.findFollowMediaidFromDB(subCompanyId);
             boolean idFromCountQueue = false; // 记录业务员是从特殊媒体queue取出，还是总queue中取出.
             long queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr);
-            if (queueSizeMedia == 0) {
-                queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
-                idFromCountQueue = true;
-            }
+            for (int i = 0; i < queueSizeMedia; i++) {
+                // 去特殊分配队列找
 
-            for (int k = 0; k < queueSizeMedia; k++) {
-                // 需要业务员queue找业务员
-
-                Integer temp = idFromCountQueue ? CommonConst.COMPANY_MEDIA_QUEUE_COUNT : media_id;
-                salesmanId = allocateRedisService.getAndPush2End(subCompanyId, temp, currentMonthStr);
+                salesmanId = allocateRedisService.getAndPush2End(subCompanyId, media_id, currentMonthStr);
 
                 // 比较该业务员的 已购数据、分配数
                 UserMonthInfo e = new UserMonthInfo();
                 e.setCompanyid(subCompanyId);
                 e.setUserId(salesmanId);
-                e.setMediaid(temp);
+                e.setMediaid(media_id);
                 e.setEffectiveDate(currentMonthStr);
                 e.setStatus(CommonEnum.entity_status1.getCode());
                 List<UserMonthInfo> select = userMonthInfoMapper.select(e);
@@ -463,46 +459,96 @@ public class AutoAllocateService {
                     continue;
                 }
 
-                // 校验，如果是从总队列中找，且也关注了特殊队列，需要校验满足特殊队列分配数 > 已分配数
-                if (idFromCountQueue && followMediaidFromDB.contains(media_id)) {
-                    UserMonthInfo e2 = new UserMonthInfo();
-                    e2.setCompanyid(subCompanyId);
-                    e2.setUserId(salesmanId);
-                    e2.setMediaid(temp);
-                    e2.setEffectiveDate(currentMonthStr);
-                    e2.setStatus(CommonEnum.entity_status1.getCode());
-                    List<UserMonthInfo> select2 = userMonthInfoMapper.select(e2);
-
-                    if (CollectionUtils.isEmpty(select2)
-                            ) {
-                        // 数据错误，直接忽略，给下一个业务员处理
-                        salesmanId = null;
-                        continue;
-                    }
-
-                    UserMonthInfo userMonthInfo2 = select2.get(0);
-                    if (userMonthInfo2 == null
-                            || userMonthInfo2.getBaseCustomerNum() == null
-                            || userMonthInfo2.getRewardCustomerNum() == null
-                            || userMonthInfo2.getAssignedCustomerNum() == null
-                            ) {
-                        // 数据错误，直接忽略，给下一个业务员处理
-                        salesmanId = null;
-                        continue;
-                    }
-
-                    if (userMonthInfo2.getAssignedCustomerNum() >=  (userMonthInfo2.getBaseCustomerNum() + userMonthInfo2.getRewardCustomerNum()) ) {
-                        // 该业务员 已购数 >= 分配数
-                        salesmanId = null;
-                        continue;
-                    }
-                }
-
                 // 找到业务员接待
                 if (salesmanId != null) {
                     break;
                 }
             }
+            if (salesmanId == null) {
+                // 去总分配队列找
+
+                queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
+                for (int k = 0; k < queueSizeMedia; k++) {
+                    idFromCountQueue = true;
+                    // 需要业务员queue找业务员
+
+                    salesmanId = allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
+
+                    // 比较该业务员的 已购数据、分配数
+                    UserMonthInfo e = new UserMonthInfo();
+                    e.setCompanyid(subCompanyId);
+                    e.setUserId(salesmanId);
+                    e.setMediaid(CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
+                    e.setEffectiveDate(currentMonthStr);
+                    e.setStatus(CommonEnum.entity_status1.getCode());
+                    List<UserMonthInfo> select = userMonthInfoMapper.select(e);
+
+                    if (CollectionUtils.isEmpty(select)
+                            ) {
+                        // 数据错误，直接忽略，给下一个业务员处理
+                        salesmanId = null;
+                        continue;
+                    }
+
+                    UserMonthInfo userMonthInfo = select.get(0);
+                    if (userMonthInfo == null
+                            || userMonthInfo.getBaseCustomerNum() == null
+                            || userMonthInfo.getRewardCustomerNum() == null
+                            || userMonthInfo.getAssignedCustomerNum() == null
+                            ) {
+                        // 数据错误，直接忽略，给下一个业务员处理
+                        salesmanId = null;
+                        continue;
+                    }
+
+                    if (userMonthInfo.getAssignedCustomerNum() >=  (userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) ) {
+                        // 该业务员 已购数 >= 分配数
+                        salesmanId = null;
+                        continue;
+                    }
+
+                    // 校验，如果是从总队列中找，且也关注了特殊队列，需要校验满足特殊队列分配数 > 已分配数
+                    if (followMediaidFromDB.contains(media_id)) {
+                        UserMonthInfo e2 = new UserMonthInfo();
+                        e2.setCompanyid(subCompanyId);
+                        e2.setUserId(salesmanId);
+                        e2.setMediaid(media_id);
+                        e2.setEffectiveDate(currentMonthStr);
+                        e2.setStatus(CommonEnum.entity_status1.getCode());
+                        List<UserMonthInfo> select2 = userMonthInfoMapper.select(e2);
+
+                        if (CollectionUtils.isEmpty(select2)
+                                ) {
+                            // 数据错误，直接忽略，给下一个业务员处理
+                            salesmanId = null;
+                            continue;
+                        }
+
+                        UserMonthInfo userMonthInfo2 = select2.get(0);
+                        if (userMonthInfo2 == null
+                                || userMonthInfo2.getBaseCustomerNum() == null
+                                || userMonthInfo2.getRewardCustomerNum() == null
+                                || userMonthInfo2.getAssignedCustomerNum() == null
+                                ) {
+                            // 数据错误，直接忽略，给下一个业务员处理
+                            salesmanId = null;
+                            continue;
+                        }
+
+                        if (userMonthInfo2.getAssignedCustomerNum() >=  (userMonthInfo2.getBaseCustomerNum() + userMonthInfo2.getRewardCustomerNum()) ) {
+                            // 该业务员 已购数 >= 分配数
+                            salesmanId = null;
+                            continue;
+                        }
+                    }
+
+                    // 找到业务员接待
+                    if (salesmanId != null) {
+                        break;
+                    }
+                }
+            }
+
             if (salesmanId != null) {
                 result.setCompanyid(subCompanyId);
                 result.setSalesmanId(salesmanId);
