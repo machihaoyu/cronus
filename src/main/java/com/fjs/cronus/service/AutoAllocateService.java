@@ -163,7 +163,7 @@ public class AutoAllocateService {
             // 需要去不同方法取数据(初始化为null，知道里面key是什么)
             AllocateForAvatarDTO signCustomAllocate = new AllocateForAvatarDTO();
 
-            BaseChannelDTO baseChannelDTO = userMonthInfoService.getChannelInfoByChannelName(token, customerDTO.getUtmSource());; // 根据渠道获取来源、媒体、渠道
+            Integer mediaId = userMonthInfoService.getChannelInfoByChannelName(token, customerDTO.getUtmSource()); // 根据渠道获取来源、媒体、渠道
             String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT); // 当月字符串
 
             // 分配规则
@@ -178,7 +178,7 @@ public class AutoAllocateService {
                 // 2、新客户，不在有效城市范围内--->进客服系统
                 if (StringUtils.contains(allocateCities, customerDTO.getCity())) {
 
-                    signCustomAllocate = this.allocateForAvatar(token, customerDTO, baseChannelDTO, currentMonthStr);
+                    signCustomAllocate = this.allocateForAvatar(token, customerDTO, mediaId, currentMonthStr);
                     if (signCustomAllocate.getSuccessOfAvatar()) {
                         // 找到被分配的业务员
                         allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
@@ -212,7 +212,7 @@ public class AutoAllocateService {
                 } else if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) { // 在有效分配城市内
 
                     // 根据城市，去找一级吧下业务员
-                    signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, baseChannelDTO.getMedia_id());
+                    signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, mediaId);
                     if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
                         allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
                         customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
@@ -288,7 +288,7 @@ public class AutoAllocateService {
                                 customerDTO.setId(Integer.parseInt(cronusDto1.getData().toString()));
                                 if (signCustomAllocate.getSuccessOfAvatar()) {
                                     // 新客户已找到业务员，记录分配数
-                                    this.userMonthInfoService.incrNum2DBForOCDCPush(signCustomAllocate, baseChannelDTO, currentMonthStr, customerDTO);
+                                    this.userMonthInfoService.incrNum2DBForOCDCPush(signCustomAllocate, mediaId, currentMonthStr, customerDTO);
                                 }
                             }
 
@@ -375,7 +375,7 @@ public class AutoAllocateService {
     /**
      * 商机系统分配规则.
      */
-    private AllocateForAvatarDTO allocateForAvatar(String token, CustomerDTO customerDTO, BaseChannelDTO baseChannelDTO, String currentMonthStr) {
+    private AllocateForAvatarDTO allocateForAvatar(String token, CustomerDTO customerDTO, Integer media_id, String currentMonthStr) {
         // 商机分配规则（前提：新客户、在有效城市范围内）
         // 1、 根据城市，从城市queue中获取一级吧
         // 2、 要求该一级吧媒体的订购数（商机系统获取） > 已购数
@@ -386,8 +386,6 @@ public class AutoAllocateService {
         // 6、 最终要么为客户找到业务员，要么进入待分配池
 
         AllocateForAvatarDTO result = new AllocateForAvatarDTO();
-
-        Integer media_id = baseChannelDTO.getMedia_id(); // 媒体id
 
         long size = allocateRedisService.getSubCompanyIdQueueSize(token, customerDTO.getCity(), media_id);
         for (int j = 0; j < size; j++) {
