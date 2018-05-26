@@ -353,7 +353,7 @@ public class AutoAllocateService {
         } catch (Exception e) {
             logger.error("-------------------自动分配失败:ocdcDataId=" + customerDTO.getTelephonenumber() + "-------------------", e);
             StringBuffer sb = new StringBuffer();
-            sb.append("自动分配失败: errorMessage=" + e.getMessage() + " telephonenumber=" + customerDTO.getTelephonenumber() + " ocdcId=" + customerDTO.getOcdcId())
+            sb.append("自动分配失败: errorMessage=" + e.getMessage() + " telephonenumber=" + customerDTO.getTelephonenumber() + " ocdcId=" + customerDTO.getOcdcId());
             // 以单个客户为维度，记录每个客户分配异常的信息
             if (e instanceof BaseException) {
                 // 已知异常
