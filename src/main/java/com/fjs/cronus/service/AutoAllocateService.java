@@ -365,6 +365,8 @@ public class AutoAllocateService {
             }
             allocateEntity.setDescription(sb.toString());
             allocateEntity.setSuccess(false);
+            logger.info("------- sb ---------" + sb.toString());
+            logger.info("------- allocateEntity ---------" + allocateEntity.getDescription());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }finally {
             this.cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_LOCK, lockToken);
