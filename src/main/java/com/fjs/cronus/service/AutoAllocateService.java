@@ -397,7 +397,7 @@ public class AutoAllocateService {
             Integer subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(customerDTO.getCity(), media_id);
 
             // 获取当月已分配数
-            Integer orderNumOfCompany = userMonthInfoMapper.getOrderNum(subCompanyId, currentMonthStr, CommonEnum.entity_status1.getCode());
+            Integer orderNumOfCompany = userMonthInfoMapper.getOrderNum(subCompanyId, currentMonthStr, CommonEnum.entity_status1.getCode(), media_id);
             orderNumOfCompany = orderNumOfCompany == null ? 0 : orderNumOfCompany;
 
             // 从商机系统获取
