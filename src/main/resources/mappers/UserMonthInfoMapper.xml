@@ -75,7 +75,7 @@
     </select>
 
     <select id="getOrderNum" resultType="java.lang.Integer">
-        SELECT SUM(`assigned_customer_num`) FROM `user_month_info` WHERE `companyid`=#{companyid} AND `effective_date`=#{effectiveDate} AND `mediaid`== -1  AND `status`=#{status}
+        SELECT SUM(`assigned_customer_num`) FROM `user_month_info` WHERE `companyid`=#{companyid} AND `effective_date`=#{effectiveDate} AND `mediaid`= -1  AND `status`=#{status}
     </select>
 
     <update id="update2IncrNumForAssignedCustomerNum">
