@@ -38,6 +38,7 @@ import com.fjs.cronus.service.thea.ThorClientService;
 import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
+import com.fjs.framework.exception.BaseException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -351,7 +352,18 @@ public class AutoAllocateService {
 
         } catch (Exception e) {
             logger.error("-------------------自动分配失败:ocdcDataId=" + customerDTO.getTelephonenumber() + "-------------------", e);
-            allocateEntity.setDescription("自动分配失败: errorMessage=" + e.getMessage() + " telephonenumber=" + customerDTO.getTelephonenumber() + " ocdcId=" + customerDTO.getOcdcId());
+            StringBuffer sb = new StringBuffer();
+            sb.append("自动分配失败: errorMessage=" + e.getMessage() + " telephonenumber=" + customerDTO.getTelephonenumber() + " ocdcId=" + customerDTO.getOcdcId())
+            // 以单个客户为维度，记录每个客户分配异常的信息
+            if (e instanceof BaseException) {
+                // 已知异常
+                BaseException be = (BaseException) e;
+                sb.append(" 已知异常：" + be.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                sb.append(" 未知异常：" +e.getMessage());
+            }
+            allocateEntity.setDescription(sb.toString());
             allocateEntity.setSuccess(false);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }finally {
