@@ -559,6 +559,7 @@ public class UserMonthInfoService {
      * 总分配队列获取一级吧各媒体（除去总分配队列）月分配数详情.
      */
     public List<Map<String, Object>> findMonthAllocateData(String monthFlag, Integer companyid, Integer mediaid, Integer salemanid, String token) {
+        logger.info("--- findMonthAllocateData ----> 1");
 
         String monthStr = allocateRedisService.getMonthStr(monthFlag);
         List<Map<String, Object>> result = new ArrayList<>();
@@ -577,6 +578,10 @@ public class UserMonthInfoService {
         if (CollectionUtils.isEmpty(select)) {
             return result;
         }
+        logger.info("--- findMonthAllocateData ----> 2");
+        for (UserMonthInfo userMonthInfo : select) {
+            logger.info("--- findMonthAllocateData ----> 3" + userMonthInfo.getId());
+        }
 
         // 过滤掉总分配队列
         List<UserMonthInfo> collect = select.stream()
@@ -591,6 +596,10 @@ public class UserMonthInfoService {
                 .collect(toList());
         if (CollectionUtils.isEmpty(collect)) {
             return result;
+        }
+        logger.info("--- findMonthAllocateData ----> 4");
+        for (UserMonthInfo userMonthInfo : collect) {
+            logger.info("--- findMonthAllocateData ----> 5" + userMonthInfo.getId());
         }
 
         // 获取系统所有媒体
@@ -608,16 +617,16 @@ public class UserMonthInfoService {
         }
 
         for (UserMonthInfo userMonthInfo : collect) {
-            if (userMonthInfo != null) {
-                Map<String, Object> temp = new HashMap<>(1);
-                temp.put("id", userMonthInfo.getId());
-                temp.put("mediaid", userMonthInfo.getMediaid());
-                temp.put("name", idMappingName.get(userMonthInfo.getMediaid()));
-                temp.put("baseCustomerNum", userMonthInfo.getBaseCustomerNum());
-                temp.put("rewardCustomerNum", userMonthInfo.getRewardCustomerNum());
-                result.add(temp);
-            }
+            Map<String, Object> temp = new HashMap<>(1);
+            temp.put("id", userMonthInfo.getId());
+            temp.put("mediaid", userMonthInfo.getMediaid());
+            temp.put("name", idMappingName.get(userMonthInfo.getMediaid()));
+            temp.put("baseCustomerNum", userMonthInfo.getBaseCustomerNum());
+            temp.put("rewardCustomerNum", userMonthInfo.getRewardCustomerNum());
+            result.add(temp);
+            logger.info("--- findMonthAllocateData ----> 6" + temp);
         }
+        logger.info("--- findMonthAllocateData ----> 7" + result);
 
         return result;
     }
