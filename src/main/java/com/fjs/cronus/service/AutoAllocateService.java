@@ -618,7 +618,7 @@ public class AutoAllocateService {
     }
 
     public void pushlog(String tel, String title, Object params, Object resp){
-        logger.info("-------- tel ------->" + title + " 参数：" + params + " 响应：" + resp);
+        logger.info("-------- " + tel + " ------->" + title + " 参数：" + params + " 响应：" + resp);
     }
 
 
