@@ -207,49 +207,6 @@ public class CompanyMediaQueueService {
             userMonthInfoMapper.updateByExampleSelective(valuesParams2, whereParams);
         }
 
-        // 获取当月的分配数
-        UserMonthInfo u2 = new UserMonthInfo();
-        u2.setCompanyid(companyid);
-        u2.setMediaid(mediaId);
-        u2.setEffectiveDate(currentMonthStr);
-        u2.setStatus(CommonEnum.entity_status1.getCode());
-        List<UserMonthInfo> currentMontMediaDataList = userMonthInfoMapper.select(u2);
-        currentMontMediaDataList = CollectionUtils.isEmpty(currentMontMediaDataList) ? new ArrayList<>() : currentMontMediaDataList;
-
-        // 设置本月的分配数据规则
-        // 1、如无已分配数，则设置为0
-        // 2、如有已分配数，则设为已分配数
-        List<UserMonthInfo> currentMonthData2UpdateList = currentMontMediaDataList.stream()
-                .filter(i -> {
-                    if (i != null && i.getId() != null && (!Integer.valueOf(0).equals(i.getBaseCustomerNum()) || !Integer.valueOf(0).equals(i.getRewardCustomerNum())) ) {
-                        return true;
-                    }else {
-                        return false;
-                    }
-                }).collect(toList());
-
-        if (CollectionUtils.isNotEmpty(currentMonthData2UpdateList)) {
-            for (UserMonthInfo userMonthInfo : currentMonthData2UpdateList) {
-
-                if (userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum() > userMonthInfo.getAssignedCustomerNum()) {
-                    UserMonthInfo valuesParams2 = new UserMonthInfo();
-                    valuesParams2.setBaseCustomerNum(userMonthInfo.getAssignedCustomerNum());
-                    valuesParams2.setRewardCustomerNum(0);
-                    valuesParams2.setLastUpdateUser(currentUserId);
-                    valuesParams2.setLastUpdateTime(now);
-
-                    Example whereParams = new Example(UserMonthInfo.class);
-                    Example.Criteria criteria = whereParams.createCriteria();
-                    criteria.andEqualTo("id", userMonthInfo.getId());
-                    criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
-
-                    userMonthInfoMapper.updateByExampleSelective(valuesParams2, whereParams);
-                }
-
-            }
-        }
-
-
         // 删除Redis队列
         allocateRedisService.delCompanyMediaQueueRedisQueue(companyid, mediaId, currentMonthStr);
         allocateRedisService.delCompanyMediaQueueRedisQueue(companyid, mediaId, nextMonthStr);

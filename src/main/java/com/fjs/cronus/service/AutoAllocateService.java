@@ -433,8 +433,9 @@ public class AutoAllocateService {
             //
             // 先去特殊队列找，找不到然后去总分配队列找
             Integer salesmanId = null;
+            Set<Integer> followMediaidFromDB = this.companyMediaQueueService.findFollowMediaidFromDB(subCompanyId);
             boolean idFromCountQueue = false; // 记录业务员是从特殊媒体queue取出，还是总queue中取出.
-            long queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr);
+            long queueSizeMedia = !followMediaidFromDB.contains(media_id) ? 0 : allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr); // 未关注着不从该特殊队列中找
             for (int i = 0; i < queueSizeMedia; i++) {
                 // 去特殊分配队列找
 
@@ -532,7 +533,6 @@ public class AutoAllocateService {
                     }
 
                     // 校验，如果是从总队列中找，且也关注了特殊队列，需要校验满足特殊队列分配数 > 已分配数
-                    Set<Integer> followMediaidFromDB = this.companyMediaQueueService.findFollowMediaidFromDB(subCompanyId);
                     if (followMediaidFromDB.contains(media_id)) {
                         UserMonthInfo e2 = new UserMonthInfo();
                         e2.setCompanyid(subCompanyId);
