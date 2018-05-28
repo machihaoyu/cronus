@@ -400,7 +400,7 @@ public class UserMonthInfoService {
 
                 // 新建
                 UserMonthInfo userMonthInfoTemp = new UserMonthInfo();
-                userMonthInfoTemp.setBaseCustomerNum(1);
+                userMonthInfoTemp.setBaseCustomerNum(0);
                 userMonthInfoTemp.setRewardCustomerNum(0);
                 userMonthInfoTemp.setAssignedCustomerNum(1);
                 userMonthInfoTemp.setEffectiveCustomerNum(0);
