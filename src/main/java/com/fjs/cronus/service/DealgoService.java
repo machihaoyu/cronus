@@ -108,7 +108,7 @@ public class DealgoService {
             stringBuilder.append("--end");
             logger.info(stringBuilder.toString());
             ValueOperations<String, String> redis = redisConfigTemplete.opsForValue();
-            redis.set("initProfileTask","1",10, TimeUnit.MINUTES);
+            redis.set("initProfileTask","1",30, TimeUnit.MINUTES);
             logger.info(stringBuilder.toString());
         }catch (Exception e)
         {
