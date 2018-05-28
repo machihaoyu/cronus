@@ -100,7 +100,8 @@ public class DealgoService {
 
             if (DateUtils.getTodayStartTime().compareTo(fetchDate) == 1)
             {
-                stringBuilder.append("--get dealgo data");
+                stringBuilder.append("--get dealgo data ");
+                stringBuilder.append(url);
                 DealgoData dealgoData = restTemplate.getForObject(url, DealgoData.class);
                 batchInsert(dealgoData, fetchDate);
             }
