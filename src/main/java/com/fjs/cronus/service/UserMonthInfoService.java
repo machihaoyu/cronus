@@ -580,7 +580,14 @@ public class UserMonthInfoService {
 
         // 过滤掉总分配队列
         select = select.stream()
-                .filter(i -> i != null && i.getMediaid() != null && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid()))
+                .filter(i -> i != null
+                        && i.getMediaid() != null
+                        && i.getBaseCustomerNum() != null
+                        && i.getBaseCustomerNum() > 0
+                        && i.getRewardCustomerNum() != null
+                        && i.getRewardCustomerNum() > 0
+                        && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())
+                )
                 .collect(toList());
         if (CollectionUtils.isEmpty(select)) {
             return result;
@@ -705,7 +712,7 @@ public class UserMonthInfoService {
 
             Example example = new Example(UserMonthInfoDetail.class);
             Example.Criteria criteria = example.createCriteria();
-            criteria.andEqualTo("Status", CommonEnum.entity_status1.getCode());
+            criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
             criteria.andEqualTo("companyid", companyid);
             criteria.andEqualTo("userId", salemanid);
             criteria.andEqualTo("effectiveDate", monthStr);
