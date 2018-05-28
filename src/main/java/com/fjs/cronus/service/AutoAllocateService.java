@@ -14,15 +14,16 @@ import com.fjs.cronus.dto.avatar.AvatarApiDTO;
 import com.fjs.cronus.dto.avatar.OrderNumberDTO;
 import com.fjs.cronus.dto.avatar.OrderNumberDetailDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
-import com.fjs.cronus.dto.thea.BaseChannelDTO;
 import com.fjs.cronus.dto.thea.WorkDayDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.CrmUserDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.AllocateEntity;
+import com.fjs.cronus.entity.UserMonthInfoDetail;
 import com.fjs.cronus.enums.AllocateEnum;
 import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.UserMonthInfoDetailMapper;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
@@ -51,9 +52,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.util.*;
+import static java.util.stream.Collectors.*;
 
 /**
  * Created by feng on 2017/9/21.
@@ -123,6 +126,9 @@ public class AutoAllocateService {
 
     @Autowired
     private UserMonthInfoMapper userMonthInfoMapper;
+
+    @Autowired
+    private UserMonthInfoDetailMapper userMonthInfoDetailMapper;
 
     @Autowired
     private CRMRedisLockHelp cRMRedisLockHelp;
@@ -216,9 +222,8 @@ public class AutoAllocateService {
                     if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
                         allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
                         customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
-                    } else { // 未找到，进入待分配池
-                        customerDTO.setOwnerUserId(0);
-                        allocateEntity.setAllocateStatus(AllocateEnum.WAITING_POOL);
+                    } else { // 未找到，抛错记录日志
+                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "老客户去队列没找到业务员");
                     }
                 } else {
                     customerDTO.setOwnerUserId(0);
@@ -365,8 +370,6 @@ public class AutoAllocateService {
             }
             allocateEntity.setDescription(sb.toString());
             allocateEntity.setSuccess(false);
-            logger.info("------- sb ---------" + sb.toString());
-            logger.info("------- allocateEntity ---------" + allocateEntity.getDescription());
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }finally {
             this.cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_LOCK, lockToken);
@@ -430,7 +433,6 @@ public class AutoAllocateService {
             //
             // 先去特殊队列找，找不到然后去总分配队列找
             Integer salesmanId = null;
-            Set<Integer> followMediaidFromDB = this.companyMediaQueueService.findFollowMediaidFromDB(subCompanyId);
             boolean idFromCountQueue = false; // 记录业务员是从特殊媒体queue取出，还是总queue中取出.
             long queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr);
             for (int i = 0; i < queueSizeMedia; i++) {
@@ -439,12 +441,13 @@ public class AutoAllocateService {
                 salesmanId = allocateRedisService.getAndPush2End(subCompanyId, media_id, currentMonthStr);
 
                 // 比较该业务员的 已购数据、分配数
+                // 获取月分配数
                 UserMonthInfo e = new UserMonthInfo();
                 e.setCompanyid(subCompanyId);
                 e.setUserId(salesmanId);
-                e.setMediaid(media_id);
                 e.setEffectiveDate(currentMonthStr);
                 e.setStatus(CommonEnum.entity_status1.getCode());
+                e.setMediaid(media_id);
                 List<UserMonthInfo> select = userMonthInfoMapper.select(e);
 
                 if (CollectionUtils.isEmpty(select)
@@ -453,19 +456,28 @@ public class AutoAllocateService {
                     salesmanId = null;
                     continue;
                 }
+                UserMonthInfo userMonthInfo = select.stream()
+                        .filter(item -> item != null && item.getBaseCustomerNum() != null && item.getRewardCustomerNum() != null)
+                        .findAny()
+                        .orElse(null);
 
-                UserMonthInfo userMonthInfo = select.get(0);
-                if (userMonthInfo == null
-                        || userMonthInfo.getBaseCustomerNum() == null
-                        || userMonthInfo.getRewardCustomerNum() == null
-                        || userMonthInfo.getAssignedCustomerNum() == null
-                        ) {
+                if (userMonthInfo == null) {
                     // 数据错误，直接忽略，给下一个业务员处理
                     salesmanId = null;
                     continue;
                 }
 
-                if (userMonthInfo.getAssignedCustomerNum() >=  (userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) ) {
+                // 获取已分配数
+                UserMonthInfoDetail e2 = new UserMonthInfoDetail();
+                e2.setCompanyid(subCompanyId);
+                e2.setEffectiveDate(currentMonthStr);
+                e2.setUserId(salesmanId);
+                e2.setFromediaid(media_id);
+                e2.setStatus(CommonEnum.entity_status1.getCode());
+                int i1 = userMonthInfoDetailMapper.selectCount(e2);
+
+                // 比较特殊媒体
+                if ( i1 > userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) {
                     // 该业务员 已购数 >= 分配数
                     salesmanId = null;
                     continue;
@@ -520,6 +532,7 @@ public class AutoAllocateService {
                     }
 
                     // 校验，如果是从总队列中找，且也关注了特殊队列，需要校验满足特殊队列分配数 > 已分配数
+                    Set<Integer> followMediaidFromDB = this.companyMediaQueueService.findFollowMediaidFromDB(subCompanyId);
                     if (followMediaidFromDB.contains(media_id)) {
                         UserMonthInfo e2 = new UserMonthInfo();
                         e2.setCompanyid(subCompanyId);
@@ -536,18 +549,25 @@ public class AutoAllocateService {
                             continue;
                         }
 
-                        UserMonthInfo userMonthInfo2 = select2.get(0);
-                        if (userMonthInfo2 == null
-                                || userMonthInfo2.getBaseCustomerNum() == null
-                                || userMonthInfo2.getRewardCustomerNum() == null
-                                || userMonthInfo2.getAssignedCustomerNum() == null
-                                ) {
+                        UserMonthInfo userMonthInfo2 = select2.stream()
+                                .filter(item -> item != null && item.getBaseCustomerNum() != null && item.getRewardCustomerNum() != null)
+                                .findAny().orElse(null);
+                        if (userMonthInfo2 == null) {
                             // 数据错误，直接忽略，给下一个业务员处理
                             salesmanId = null;
                             continue;
                         }
 
-                        if (userMonthInfo2.getAssignedCustomerNum() >=  (userMonthInfo2.getBaseCustomerNum() + userMonthInfo2.getRewardCustomerNum()) ) {
+                        // 获取已分配数
+                        UserMonthInfoDetail e3 = new UserMonthInfoDetail();
+                        e3.setCompanyid(subCompanyId);
+                        e3.setEffectiveDate(currentMonthStr);
+                        e3.setUserId(salesmanId);
+                        e3.setFromediaid(media_id);
+                        e3.setStatus(CommonEnum.entity_status1.getCode());
+                        int i1 = userMonthInfoDetailMapper.selectCount(e3);
+
+                        if (i1 >=  (userMonthInfo2.getBaseCustomerNum() + userMonthInfo2.getRewardCustomerNum()) ) {
                             // 该业务员 已购数 >= 分配数
                             salesmanId = null;
                             continue;
@@ -572,6 +592,7 @@ public class AutoAllocateService {
         }
         return result;
     }
+
 
     /**
      * 主动申请渠道添加交易

@@ -205,5 +205,70 @@ public class UserMonthInfoController {
         return result;
     }
 
+    @ApiOperation(value = "总分配队列获取一级吧各媒体（除去总分配队列）月分配数详情", notes = "总分配队列获取一级吧各媒体（除去总分配队列）月分配数详情 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+    })
+    @PostMapping(value = "/findMonthAllocateData")
+    public CronusDto findMonthAllocateData(@RequestHeader(name = "Authorization") String token) {
+        CronusDto result = new CronusDto();
+        try {
+
+            String monthFlag = "";
+            Integer companyid = null;
+            Integer mediaid = null;
+            Integer salemanid = null;
+
+            List<Map<String, Object>> resultdata = userMonthInfoService.findMonthAllocateData(monthFlag, companyid, mediaid, salemanid, token);
+            result.setData(resultdata);
+            result.setResult(CommonMessage.SUCCESS.getCode());
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("总分配队列获取一级吧各媒体（除去总分配队列）月分配数详情:", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "获取一级吧媒体已分配数详情", notes = "获取一级吧媒体已分配数详情 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+    })
+    @PostMapping(value = "/findAllocateData")
+    public CronusDto findAllocateData(@RequestHeader(name = "Authorization") String token) {
+        CronusDto result = new CronusDto();
+        try {
+
+            String monthFlag = "";
+            Integer companyid = null;
+            Integer mediaid = null;
+            Integer salemanid = null;
+
+            List<Map<String, Object>> resultdata = userMonthInfoService.findAllocateData(monthFlag, companyid, mediaid, salemanid, token);
+            result.setData(resultdata);
+            result.setResult(CommonMessage.SUCCESS.getCode());
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("获取一级吧媒体已分配数详情:", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
 
 }

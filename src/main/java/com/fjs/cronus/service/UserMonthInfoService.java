@@ -3,12 +3,14 @@ package com.fjs.cronus.service;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
+import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.controller.UserController;
 import com.fjs.cronus.dto.AllocateForAvatarDTO;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.BaseChannelDTO;
+import com.fjs.cronus.dto.thea.BaseCommonDTO;
 import com.fjs.cronus.entity.CompanyMediaQueue;
 import com.fjs.cronus.entity.UserMonthInfoDetail;
 import com.fjs.cronus.exception.CronusException;
@@ -512,7 +514,7 @@ public class UserMonthInfoService {
         TheaApiDTO<Integer> infoByChannelName = theaService.getMediaidByChannelName(token, params);
 
 
-        if (infoByChannelName == null){
+        if (infoByChannelName == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，响应 infoByChannelName==null");
         }
         if (infoByChannelName.getResult() != 0) {
@@ -553,4 +555,180 @@ public class UserMonthInfoService {
         return params;
     }
 
+    /**
+     * 总分配队列获取一级吧各媒体（除去总分配队列）月分配数详情.
+     */
+    public List<Map<String, Object>> findMonthAllocateData(String monthFlag, Integer companyid, Integer mediaid, Integer salemanid, String token) {
+
+        String monthStr = allocateRedisService.getMonthStr(monthFlag);
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        if (!CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(mediaid)) {
+            return result;
+        }
+
+        // 获取该业务分配情况
+        UserMonthInfo e = new UserMonthInfo();
+        e.setCompanyid(companyid);
+        e.setEffectiveDate(monthStr);
+        e.setUserId(salemanid);
+        e.setStatus(CommonEnum.entity_status1.getCode());
+        List<UserMonthInfo> select = userMonthInfoMapper.select(e);
+        if (CollectionUtils.isEmpty(select)) {
+            return result;
+        }
+
+        // 过滤掉总分配队列
+        select = select.stream()
+                .filter(i -> i != null && i.getMediaid() != null && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid()))
+                .collect(toList());
+        if (CollectionUtils.isEmpty(select)) {
+            return result;
+        }
+
+        // 获取系统所有媒体
+        TheaApiDTO<List<BaseCommonDTO>> allMedia = theaService.getAllMedia(token);
+        if (!CommonMessage.SUCCESS.getCode().equals(allMedia.getResult())) {
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, allMedia.getMessage());
+        }
+        List<BaseCommonDTO> allMediaList = allMedia.getData();
+        if (CollectionUtils.isEmpty(allMediaList)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "系统数据异常，未找到媒体数据");
+        }
+        Map<Integer, String> idMappingName = allMediaList.stream().collect(toMap(BaseCommonDTO::getId, BaseCommonDTO::getName, (x, y) -> x));
+        if (idMappingName == null || idMappingName.size() == 0) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "系统数据异常，未找到媒体数据");
+        }
+
+        for (UserMonthInfo userMonthInfo : select) {
+            if (userMonthInfo != null) {
+                Map<String, Object> temp = new HashMap<>(1);
+                temp.put("id", userMonthInfo.getId());
+                temp.put("mediaid", userMonthInfo.getMediaid());
+                temp.put("name", idMappingName.get(userMonthInfo.getMediaid()));
+                temp.put("baseCustomerNum", userMonthInfo.getBaseCustomerNum());
+                temp.put("rewardCustomerNum", userMonthInfo.getRewardCustomerNum());
+                result.add(temp);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 获取一级吧媒体已分配数详情.
+     */
+    public List<Map<String, Object>> findAllocateData(String monthFlag, Integer companyid, Integer mediaid, Integer salemanid, String token) {
+
+        String monthStr = allocateRedisService.getMonthStr(monthFlag);
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        if (!CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(mediaid)) {
+            // 总分配队列
+
+            // 获取该业务分配情况
+            Example example = new Example(UserMonthInfoDetail.class);
+            Example.Criteria criteria = example.createCriteria();
+            criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
+            criteria.andEqualTo("companyid", companyid);
+            criteria.andEqualTo("userId", salemanid);
+            criteria.andEqualTo("effectiveDate", monthStr);
+            criteria.andNotEqualTo("mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
+
+            List<UserMonthInfoDetail> select = userMonthInfoDetailMapper.selectByExample(example);
+            if (CollectionUtils.isEmpty(select)) return result;
+
+            Map<Integer, Long> collect = select.stream()
+                    .filter(i -> i != null && i.getMediaid() != null)
+                    .collect(groupingBy(UserMonthInfoDetail::getMediaid, counting()));
+            if (collect == null || collect.size() == 0) {
+                return result;
+            }
+
+            // 获取系统所有媒体
+            TheaApiDTO<List<BaseCommonDTO>> allMedia = theaService.getAllMedia(token);
+            if (!CommonMessage.SUCCESS.getCode().equals(allMedia.getResult())) {
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, allMedia.getMessage());
+            }
+            List<BaseCommonDTO> allMediaList = allMedia.getData();
+            if (CollectionUtils.isEmpty(allMediaList)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "系统数据异常，未找到媒体数据");
+            }
+            Map<Integer, String> idMappingName = allMediaList.stream().collect(toMap(BaseCommonDTO::getId, BaseCommonDTO::getName, (x, y) -> x));
+            if (idMappingName == null || idMappingName.size() == 0) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "系统数据异常，未找到媒体数据");
+            }
+
+            for (Map.Entry<Integer, Long> entry : collect.entrySet()) {
+                Map<String, Object> temp = new HashMap<>();
+                temp.put("mediaid", entry.getKey());
+                temp.put("name", idMappingName.get(entry.getKey()));
+                temp.put("assignedCustomerNum", entry.getValue());
+                result.add(temp);
+            }
+            return result;
+        } else {
+            // 特殊分配队列
+
+            // 获取系统所有媒体
+            TheaApiDTO<List<BaseCommonDTO>> allMedia = theaService.getAllMedia(token);
+            if (!CommonMessage.SUCCESS.getCode().equals(allMedia.getResult())) {
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, allMedia.getMessage());
+            }
+            List<BaseCommonDTO> allMediaList = allMedia.getData();
+            if (CollectionUtils.isEmpty(allMediaList)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "系统数据异常，未找到媒体数据");
+            }
+            Map<Integer, String> idMappingName = allMediaList.stream().collect(toMap(BaseCommonDTO::getId, BaseCommonDTO::getName, (x, y) -> x));
+            if (idMappingName == null || idMappingName.size() == 0) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "系统数据异常，未找到媒体数据");
+            }
+
+            // 设置初始化值
+            Map<String, Object> temp = new HashMap<>();
+            temp.put("mediaid", mediaid);
+            temp.put("name", mediaid);
+            temp.put("assignedCustomerNum", 0);
+            result.add(temp);
+
+            temp = new HashMap<>();
+            temp.put("mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
+            temp.put("name", "总分配队列");
+            temp.put("assignedCustomerNum", 0);
+            result.add(temp);
+
+
+            // 获取该业务分配情况
+            Set<Integer> mediaids = new HashSet<>();
+            mediaids.add(mediaid);
+            mediaids.add(CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
+
+            Example example = new Example(UserMonthInfoDetail.class);
+            Example.Criteria criteria = example.createCriteria();
+            criteria.andEqualTo("Status", CommonEnum.entity_status1.getCode());
+            criteria.andEqualTo("companyid", companyid);
+            criteria.andEqualTo("userId", salemanid);
+            criteria.andEqualTo("effectiveDate", monthStr);
+            criteria.andIn("mediaid", mediaids);
+
+            List<UserMonthInfoDetail> select = userMonthInfoDetailMapper.selectByExample(example);
+            if (CollectionUtils.isEmpty(select)) return result;
+            Map<Integer, Long> collect = select.stream()
+                    .filter(i -> i != null && i.getMediaid() != null)
+                    .collect(groupingBy(UserMonthInfoDetail::getMediaid, counting()));
+            if (collect == null || collect.size() == 0) {
+                return result;
+            }
+
+            result = new ArrayList<>();
+            for (Map.Entry<Integer, Long> entry : collect.entrySet()) {
+                Map<String, Object> temp2 = new HashMap<>();
+                temp2.put("mediaid", entry.getKey());
+                temp2.put("name", CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(entry.getKey()) ? "总分配队列" : idMappingName.get(entry.getKey()));
+                temp2.put("assignedCustomerNum", entry.getValue());
+                result.add(temp2);
+            }
+            return result;
+        }
+    }
 }
