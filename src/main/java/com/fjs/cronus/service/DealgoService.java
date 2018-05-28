@@ -55,7 +55,7 @@ public class DealgoService {
             stringBuilder.append("--initProfileTask");
             Date date = new Date();
             Integer hour = DateUtils.getHour(date);
-            if ( 0 < hour && hour < 24) {
+            if ( 0 < hour && hour < 6) {
                 ValueOperations<String, String> redis = redisConfigTemplete.opsForValue();
                 stringBuilder.append("init profile: hour " + hour);
                 String done = redis.get("initProfileTask");
@@ -97,18 +97,18 @@ public class DealgoService {
 //            String url = "http://api.rcrai.com/fangjs/customer/profile?start=" + getFetchDate(date);
             Date fetchDate = DateUtils.addDay(date,1);
             String url = profileUrl+"?start=" + getFetchDate(fetchDate);
+            stringBuilder.append(url);
 
             if (DateUtils.getTodayStartTime().compareTo(fetchDate) == 1)
             {
                 stringBuilder.append("--get dealgo data ");
-                stringBuilder.append(url);
                 DealgoData dealgoData = restTemplate.getForObject(url, DealgoData.class);
                 batchInsert(dealgoData, fetchDate);
             }
             stringBuilder.append("--end");
             logger.info(stringBuilder.toString());
             ValueOperations<String, String> redis = redisConfigTemplete.opsForValue();
-            redis.set("initProfileTask","1",30, TimeUnit.MINUTES);
+            redis.set("initProfileTask","1",60, TimeUnit.MINUTES);
             logger.info(stringBuilder.toString());
         }catch (Exception e)
         {
