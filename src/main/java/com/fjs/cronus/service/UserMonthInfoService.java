@@ -630,7 +630,7 @@ public class UserMonthInfoService {
         String monthStr = allocateRedisService.getMonthStr(monthFlag);
         List<Map<String, Object>> result = new ArrayList<>();
 
-        if (!CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(mediaid)) {
+        if (CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(mediaid)) {
             // 总分配队列
 
             // 获取该业务分配情况
@@ -694,7 +694,7 @@ public class UserMonthInfoService {
             // 设置初始化值
             Map<String, Object> temp = new HashMap<>();
             temp.put("mediaid", mediaid);
-            temp.put("name", mediaid);
+            temp.put("name", idMappingName.get(mediaid));
             temp.put("assignedCustomerNum", 0);
             result.add(temp);
 
