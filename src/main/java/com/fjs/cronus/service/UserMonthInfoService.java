@@ -559,7 +559,6 @@ public class UserMonthInfoService {
      * 总分配队列获取一级吧各媒体（除去总分配队列）月分配数详情.
      */
     public List<Map<String, Object>> findMonthAllocateData(String monthFlag, Integer companyid, Integer mediaid, Integer salemanid, String token) {
-        logger.info("--- findMonthAllocateData ----> 1");
 
         String monthStr = allocateRedisService.getMonthStr(monthFlag);
         List<Map<String, Object>> result = new ArrayList<>();
@@ -578,10 +577,6 @@ public class UserMonthInfoService {
         if (CollectionUtils.isEmpty(select)) {
             return result;
         }
-        logger.info("--- findMonthAllocateData ----> 2");
-        for (UserMonthInfo userMonthInfo : select) {
-            logger.info("--- findMonthAllocateData ----> 3" + userMonthInfo.getId());
-        }
 
         // 过滤掉总分配队列
         List<UserMonthInfo> collect = select.stream()
@@ -589,17 +584,11 @@ public class UserMonthInfoService {
                         && i.getMediaid() != null
                         && i.getBaseCustomerNum() != null
                         && i.getBaseCustomerNum() > 0
-                        && i.getRewardCustomerNum() != null
-                        && i.getRewardCustomerNum() > 0
                         && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())
                 )
                 .collect(toList());
         if (CollectionUtils.isEmpty(collect)) {
             return result;
-        }
-        logger.info("--- findMonthAllocateData ----> 4");
-        for (UserMonthInfo userMonthInfo : collect) {
-            logger.info("--- findMonthAllocateData ----> 5" + userMonthInfo.getId());
         }
 
         // 获取系统所有媒体
@@ -624,9 +613,7 @@ public class UserMonthInfoService {
             temp.put("baseCustomerNum", userMonthInfo.getBaseCustomerNum());
             temp.put("rewardCustomerNum", userMonthInfo.getRewardCustomerNum());
             result.add(temp);
-            logger.info("--- findMonthAllocateData ----> 6" + temp);
         }
-        logger.info("--- findMonthAllocateData ----> 7" + result);
 
         return result;
     }
