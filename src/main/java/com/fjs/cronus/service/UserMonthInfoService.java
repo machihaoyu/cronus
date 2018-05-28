@@ -579,7 +579,7 @@ public class UserMonthInfoService {
         }
 
         // 过滤掉总分配队列
-        select = select.stream()
+        List<UserMonthInfo> collect = select.stream()
                 .filter(i -> i != null
                         && i.getMediaid() != null
                         && i.getBaseCustomerNum() != null
@@ -589,7 +589,7 @@ public class UserMonthInfoService {
                         && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())
                 )
                 .collect(toList());
-        if (CollectionUtils.isEmpty(select)) {
+        if (CollectionUtils.isEmpty(collect)) {
             return result;
         }
 
@@ -607,7 +607,7 @@ public class UserMonthInfoService {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "系统数据异常，未找到媒体数据");
         }
 
-        for (UserMonthInfo userMonthInfo : select) {
+        for (UserMonthInfo userMonthInfo : collect) {
             if (userMonthInfo != null) {
                 Map<String, Object> temp = new HashMap<>(1);
                 temp.put("id", userMonthInfo.getId());
