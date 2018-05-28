@@ -99,4 +99,7 @@ public interface TheaService {
 
     @RequestMapping(value = "/channel/v1/getInfoByChannelName", method = RequestMethod.POST)
     TheaApiDTO<BaseChannelDTO> getInfoByChannelName(@RequestHeader("Authorization")String token, @RequestBody JSONObject jsonObject);
+
+    @RequestMapping(value = "/channel/v1/getMediaidByChannelName", method = RequestMethod.POST)
+    TheaApiDTO<Integer> getMediaidByChannelName(@RequestHeader("Authorization")String token, @RequestBody JSONObject jsonObject);
 }

@@ -509,24 +509,20 @@ public class UserMonthInfoService {
         }
         JSONObject params = new JSONObject();
         params.put("channelName", UtmSource);
-        TheaApiDTO<BaseChannelDTO> infoByChannelName = theaService.getInfoByChannelName(token, params);
+        TheaApiDTO<Integer> infoByChannelName = theaService.getMediaidByChannelName(token, params);
 
 
         if (infoByChannelName == null){
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，infoByChannelName==null");
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，响应 infoByChannelName==null");
         }
         if (infoByChannelName.getResult() != 0) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，result !=0, mesage=" + infoByChannelName.getMessage());
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，响应 result !=0, mesage=" + infoByChannelName.getMessage());
         }
 
-        BaseChannelDTO result = infoByChannelName.getData();
-        if (result == null) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，data=null");
+        if (infoByChannelName.getData() == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，响应 data=null");
         }
-        if (result.getMedia_id() == null) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，mediaid=null");
-        }
-        return result.getMedia_id();
+        return infoByChannelName.getData();
     }
 
     /**
