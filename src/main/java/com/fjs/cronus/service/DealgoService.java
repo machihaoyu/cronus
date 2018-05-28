@@ -55,9 +55,9 @@ public class DealgoService {
             stringBuilder.append("--initProfileTask");
             Date date = new Date();
             Integer hour = DateUtils.getHour(date);
-            if ( 1 < hour && hour < 3) {
+            if ( 0 < hour && hour < 24) {
                 ValueOperations<String, String> redis = redisConfigTemplete.opsForValue();
-                String done = redis.get("initProfileTask");
+                String done = redis.get("init profile: hour " + hour);
                 if (StringUtils.isNoneEmpty(done) && done.equals("1")) {
                     stringBuilder.append("--done");
                     return;
@@ -106,7 +106,7 @@ public class DealgoService {
             stringBuilder.append("--end");
             logger.info(stringBuilder.toString());
             ValueOperations<String, String> redis = redisConfigTemplete.opsForValue();
-            redis.set("initProfileTask","1",60, TimeUnit.MINUTES);
+            redis.set("initProfileTask","1",6, TimeUnit.HOURS);
         }catch (Exception e)
         {
             logger.error("initProfile",e);
