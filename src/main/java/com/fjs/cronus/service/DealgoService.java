@@ -55,12 +55,12 @@ public class DealgoService {
             stringBuilder.append("--initProfileTask");
             Date date = new Date();
             Integer hour = DateUtils.getHour(date);
-            if ( 0 < hour && hour < 20) {
+            if ( 0 < hour && hour < 24) {
                 ValueOperations<String, String> redis = redisConfigTemplete.opsForValue();
-                String done = redis.get("init profile: hour " + hour);
+                stringBuilder.append("init profile: hour " + hour);
+                String done = redis.get("initProfileTask");
                 if (StringUtils.isNoneEmpty(done) && done.equals("1")) {
                     stringBuilder.append("--done");
-                    return;
                 } else {
                     stringBuilder.append("--exe time");
                     new Thread(() -> {
@@ -95,18 +95,20 @@ public class DealgoService {
             stringBuilder.append(date.toString());
             restTemplate.getMessageConverters().set(1, new StringHttpMessageConverter(StandardCharsets.UTF_8));
 //            String url = "http://api.rcrai.com/fangjs/customer/profile?start=" + getFetchDate(date);
-            String url = profileUrl+"?start=" + getFetchDate(date);
+            Date fetchDate = DateUtils.addDay(date,1);
+            String url = profileUrl+"?start=" + getFetchDate(fetchDate);
 
-            if (DateUtils.getTodayStartTime().compareTo(date) == 1)
+            if (DateUtils.getTodayStartTime().compareTo(fetchDate) == 1)
             {
                 stringBuilder.append("--get dealgo data");
                 DealgoData dealgoData = restTemplate.getForObject(url, DealgoData.class);
-                batchInsert(dealgoData, date);
+                batchInsert(dealgoData, fetchDate);
             }
             stringBuilder.append("--end");
             logger.info(stringBuilder.toString());
             ValueOperations<String, String> redis = redisConfigTemplete.opsForValue();
-            redis.set("initProfileTask","1",20, TimeUnit.HOURS);
+            redis.set("initProfileTask","1",10, TimeUnit.MINUTES);
+            logger.info(stringBuilder.toString());
         }catch (Exception e)
         {
             logger.error("initProfile",e);
@@ -115,7 +117,7 @@ public class DealgoService {
 
     private String getFetchDate(Date date)
     {
-        return DateUtils.format(DateUtils.addDay(date,1),DateUtils.FORMAT_SHORT2);
+        return DateUtils.format(date,DateUtils.FORMAT_SHORT2);
     }
 
     @Autowired
