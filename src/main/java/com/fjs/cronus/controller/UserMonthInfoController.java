@@ -2,6 +2,7 @@ package com.fjs.cronus.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.avatar.AvatarApiDTO;
@@ -208,16 +209,32 @@ public class UserMonthInfoController {
     @ApiOperation(value = "总分配队列获取一级吧各媒体（除去总分配队列）月分配数详情", notes = "总分配队列获取一级吧各媒体（除去总分配队列）月分配数详情 api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "params", value = "提交数据,{" +
+                    "\"monthFlag\":\""+CommonConst.USER_MONTH_INFO_MONTH_CURRENT +"、"+CommonConst.USER_MONTH_INFO_MONTH_NEXT+"\"," +
+                    "\"companyid\":123," +
+                    "\"mediaid\":123," +
+                    "\"salemanid\":123," +
+                    "}", required = true, dataType = "JSONObject"),
     })
     @PostMapping(value = "/findMonthAllocateData")
-    public CronusDto findMonthAllocateData(@RequestHeader(name = "Authorization") String token) {
+    public CronusDto findMonthAllocateData(@RequestHeader(name = "Authorization") String token, @RequestBody JSONObject params) {
         CronusDto result = new CronusDto();
         try {
 
-            String monthFlag = "";
-            Integer companyid = null;
-            Integer mediaid = null;
-            Integer salemanid = null;
+            String monthFlag = params.getString("monthFlag");
+            Integer companyid = params.getInteger("companyid");
+            Integer mediaid = params.getInteger("mediaid");
+            Integer salemanid = params.getInteger("salemanid");
+
+            if (companyid == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "companyid 不能为空");
+            }
+            if (mediaid == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mediaid 不能为空");
+            }
+            if (salemanid == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "salemanid 不能为空");
+            }
 
             List<Map<String, Object>> resultdata = userMonthInfoService.findMonthAllocateData(monthFlag, companyid, mediaid, salemanid, token);
             result.setData(resultdata);
@@ -238,19 +255,35 @@ public class UserMonthInfoController {
         return result;
     }
 
-    @ApiOperation(value = "获取一级吧媒体已分配数详情", notes = "获取一级吧媒体已分配数详情 api")
+    @ApiOperation(value = "队列获取一级吧媒体已分配数详情", notes = "队列获取一级吧媒体已分配数详情 api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "params", value = "提交数据,{" +
+                    "\"monthFlag\":\""+CommonConst.USER_MONTH_INFO_MONTH_CURRENT +"、"+CommonConst.USER_MONTH_INFO_MONTH_NEXT+"\"," +
+                    "\"companyid\":123," +
+                    "\"mediaid\":123," +
+                    "\"salemanid\":123," +
+                    "}", required = true, dataType = "JSONObject"),
     })
     @PostMapping(value = "/findAllocateData")
-    public CronusDto findAllocateData(@RequestHeader(name = "Authorization") String token) {
+    public CronusDto findAllocateData(@RequestHeader(name = "Authorization") String token, @RequestBody JSONObject params) {
         CronusDto result = new CronusDto();
         try {
 
-            String monthFlag = "";
-            Integer companyid = null;
-            Integer mediaid = null;
-            Integer salemanid = null;
+            String monthFlag = params.getString("monthFlag");
+            Integer companyid = params.getInteger("companyid");
+            Integer mediaid = params.getInteger("mediaid");
+            Integer salemanid = params.getInteger("salemanid");
+
+            if (companyid == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "companyid 不能为空");
+            }
+            if (mediaid == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mediaid 不能为空");
+            }
+            if (salemanid == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "salemanid 不能为空");
+            }
 
             List<Map<String, Object>> resultdata = userMonthInfoService.findAllocateData(monthFlag, companyid, mediaid, salemanid, token);
             result.setData(resultdata);
