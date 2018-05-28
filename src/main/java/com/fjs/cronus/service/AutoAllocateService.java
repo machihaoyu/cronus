@@ -153,6 +153,7 @@ public class AutoAllocateService {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public synchronized AllocateEntity autoAllocate(CustomerDTO customerDTO, AllocateSource allocateSource, String token) {
+        pushlog(customerDTO.getTelephonenumber(), "进入分配方法", null, null);
 
         AllocateEntity allocateEntity = new AllocateEntity();
         allocateEntity.setSuccess(true);
@@ -175,6 +176,7 @@ public class AutoAllocateService {
             // 分配规则
             if ( customerDTO.getId() == null || customerDTO.getId().equals(0) ) {
                 // 新客户：走商机系统规则
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支", null, null);
 
                 // 商机系统分支
                 // 规则：
@@ -186,11 +188,13 @@ public class AutoAllocateService {
 
                     signCustomAllocate = this.allocateForAvatar(token, customerDTO, mediaId, currentMonthStr);
                     if (signCustomAllocate.getSuccessOfAvatar()) {
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-找到业务员", null, null);
                         // 找到被分配的业务员
                         allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
                         customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
                     } else {
                         // 未找到，进商机池
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-未找到业务员", null, null);
                         allocateEntity.setAllocateStatus(AllocateEnum.AVATAR_POOL);
                         customerDTO.setOwnerUserId(-1); // 标记是商机池，-1
                     }
@@ -200,6 +204,7 @@ public class AutoAllocateService {
                 }
             } else {
                 // 老客户
+                pushlog(customerDTO.getTelephonenumber(), "老用户分支", null, null);
 
                 // 规则：
                 // 1、根据ocdc的传的特殊标记找业务员，找打就分给该业务员
@@ -393,15 +398,18 @@ public class AutoAllocateService {
         AllocateForAvatarDTO result = new AllocateForAvatarDTO();
 
         long size = allocateRedisService.getSubCompanyIdQueueSize(token, customerDTO.getCity(), media_id);
+        pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-城市找吧", "city=" + customerDTO.getCity() +" media_id=" + media_id, "size=" + size);
         for (int j = 0; j < size; j++) {
             // 循环城市下一级吧queue
 
             // 从queue获取一级吧
             Integer subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(customerDTO.getCity(), media_id);
+            pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-一级吧", null, "subCompanyId=" + subCompanyId);
 
             // 获取当月已分配数
             Integer orderNumOfCompany = userMonthInfoMapper.getOrderNum(subCompanyId, currentMonthStr, CommonEnum.entity_status1.getCode(), media_id);
             orderNumOfCompany = orderNumOfCompany == null ? 0 : orderNumOfCompany;
+            pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-一级吧月已分配数", null, "orderNumOfCompany=" + orderNumOfCompany);
 
             // 从商机系统获取
             JSONObject json = new JSONObject();
@@ -422,6 +430,7 @@ public class AutoAllocateService {
 
             List<OrderNumberDetailDTO> orderNumberList = data.getOrderNumberList();
             Integer orderNumber = orderNumberList.stream().filter(i -> i != null && media_id.equals(i.getMeidaId())).map(OrderNumberDetailDTO::getOrderNumber).findAny().orElse(0);
+            pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-从商机获取订单数", null, "orderNumber=" + orderNumber);
 
             // 业务校验：一级吧已购数、订购数
             if (orderNumOfCompany >= orderNumber) {
@@ -434,12 +443,16 @@ public class AutoAllocateService {
             // 先去特殊队列找，找不到然后去总分配队列找
             Integer salesmanId = null;
             Set<Integer> followMediaidFromDB = this.companyMediaQueueService.findFollowMediaidFromDB(subCompanyId);
+            pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-关注的媒体", null, "followMediaidFromDB=" + followMediaidFromDB);
             boolean idFromCountQueue = false; // 记录业务员是从特殊媒体queue取出，还是总queue中取出.
             long queueSizeMedia = !followMediaidFromDB.contains(media_id) ? 0 : allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr); // 未关注着不从该特殊队列中找
+            pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-", null, "queueSizeMedia=" + queueSizeMedia);
             for (int i = 0; i < queueSizeMedia; i++) {
                 // 去特殊分配队列找
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-进入特殊分配队列", null, null);
 
                 salesmanId = allocateRedisService.getAndPush2End(subCompanyId, media_id, currentMonthStr);
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "salesmanId=" + salesmanId);
 
                 // 比较该业务员的 已购数据、分配数
                 // 获取月分配数
@@ -457,9 +470,13 @@ public class AutoAllocateService {
                     salesmanId = null;
                     continue;
                 }
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "select.size=" + select.size());
                 UserMonthInfo userMonthInfo = select.stream()
-                        .filter(item -> item != null && item.getBaseCustomerNum() != null && item.getRewardCustomerNum() != null)
-                        .findAny()
+                        .filter(item -> item != null
+                                && item.getBaseCustomerNum() != null
+                                && item.getRewardCustomerNum() != null
+                                && item.getAssignedCustomerNum() != null
+                        ).findAny()
                         .orElse(null);
 
                 if (userMonthInfo == null) {
@@ -467,18 +484,13 @@ public class AutoAllocateService {
                     salesmanId = null;
                     continue;
                 }
-
-                // 获取已分配数
-                UserMonthInfoDetail e2 = new UserMonthInfoDetail();
-                e2.setCompanyid(subCompanyId);
-                e2.setEffectiveDate(currentMonthStr);
-                e2.setUserId(salesmanId);
-                e2.setFromediaid(media_id);
-                e2.setStatus(CommonEnum.entity_status1.getCode());
-                int i1 = userMonthInfoDetailMapper.selectCount(e2);
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getId=" + userMonthInfo.getId());
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getAssignedCustomerNum=" + userMonthInfo.getAssignedCustomerNum());
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getBaseCustomerNum=" + userMonthInfo.getBaseCustomerNum());
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getRewardCustomerNum=" + userMonthInfo.getRewardCustomerNum());
 
                 // 比较特殊媒体
-                if ( i1 > userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) {
+                if ( userMonthInfo.getAssignedCustomerNum() >= userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) {
                     // 该业务员 已购数 >= 分配数
                     salesmanId = null;
                     continue;
@@ -486,11 +498,13 @@ public class AutoAllocateService {
 
                 // 找到业务员接待
                 if (salesmanId != null) {
+                    pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特，找到业务员", null, "salesmanId="+ salesmanId);
                     break;
                 }
             }
             if (salesmanId == null) {
                 // 去总分配队列找
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-进入总分配队列", null, null);
 
                 queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
                 for (int k = 0; k < queueSizeMedia; k++) {
@@ -498,6 +512,7 @@ public class AutoAllocateService {
                     // 需要业务员queue找业务员
 
                     salesmanId = allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
+                    pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总", null, "salesmanId="+ salesmanId);
 
                     // 比较该业务员的 已购数据、分配数
                     UserMonthInfo e = new UserMonthInfo();
@@ -514,6 +529,7 @@ public class AutoAllocateService {
                         salesmanId = null;
                         continue;
                     }
+                    pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总", null, "select.size="+ select.size());
 
                     UserMonthInfo userMonthInfo = select.get(0);
                     if (userMonthInfo == null
@@ -525,6 +541,9 @@ public class AutoAllocateService {
                         salesmanId = null;
                         continue;
                     }
+                    pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总", null, "getBaseCustomerNum="+ userMonthInfo.getBaseCustomerNum());
+                    pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总", null, "getRewardCustomerNum="+ userMonthInfo.getRewardCustomerNum());
+                    pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总", null, "getAssignedCustomerNum="+ userMonthInfo.getAssignedCustomerNum());
 
                     if (userMonthInfo.getAssignedCustomerNum() >=  (userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) ) {
                         // 该业务员 已购数 >= 分配数
@@ -534,6 +553,9 @@ public class AutoAllocateService {
 
                     // 校验，如果是从总队列中找，且也关注了特殊队列，需要校验满足特殊队列分配数 > 已分配数
                     if (followMediaidFromDB.contains(media_id)) {
+
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总-特", null, "salesmanId="+ salesmanId);
+
                         UserMonthInfo e2 = new UserMonthInfo();
                         e2.setCompanyid(subCompanyId);
                         e2.setUserId(salesmanId);
@@ -548,9 +570,14 @@ public class AutoAllocateService {
                             salesmanId = null;
                             continue;
                         }
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总-特", null, "select2.size="+ select2.size());
 
                         UserMonthInfo userMonthInfo2 = select2.stream()
-                                .filter(item -> item != null && item.getBaseCustomerNum() != null && item.getRewardCustomerNum() != null)
+                                .filter(item -> item != null
+                                        && item.getBaseCustomerNum() != null
+                                        && item.getRewardCustomerNum() != null
+                                        && item.getAssignedCustomerNum() != null
+                                )
                                 .findAny().orElse(null);
                         if (userMonthInfo2 == null) {
                             // 数据错误，直接忽略，给下一个业务员处理
@@ -558,16 +585,11 @@ public class AutoAllocateService {
                             continue;
                         }
 
-                        // 获取已分配数
-                        UserMonthInfoDetail e3 = new UserMonthInfoDetail();
-                        e3.setCompanyid(subCompanyId);
-                        e3.setEffectiveDate(currentMonthStr);
-                        e3.setUserId(salesmanId);
-                        e3.setFromediaid(media_id);
-                        e3.setStatus(CommonEnum.entity_status1.getCode());
-                        int i1 = userMonthInfoDetailMapper.selectCount(e3);
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总-特", null, "getBaseCustomerNum="+ userMonthInfo2.getBaseCustomerNum());
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总-特", null, "getRewardCustomerNum="+ userMonthInfo2.getRewardCustomerNum());
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总-特", null, "getAssignedCustomerNum="+ userMonthInfo2.getAssignedCustomerNum());
 
-                        if (i1 >=  (userMonthInfo2.getBaseCustomerNum() + userMonthInfo2.getRewardCustomerNum()) ) {
+                        if (userMonthInfo2.getAssignedCustomerNum() >=  userMonthInfo2.getBaseCustomerNum() + userMonthInfo2.getRewardCustomerNum()) {
                             // 该业务员 已购数 >= 分配数
                             salesmanId = null;
                             continue;
@@ -576,12 +598,14 @@ public class AutoAllocateService {
 
                     // 找到业务员接待
                     if (salesmanId != null) {
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总，找到业务员", null, "salesmanId="+ salesmanId);
                         break;
                     }
                 }
             }
 
             if (salesmanId != null) {
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-找到业务员", null, "salesmanId="+ salesmanId);
                 result.setCompanyid(subCompanyId);
                 result.setSalesmanId(salesmanId);
                 result.setMediaid(subCompanyId);
@@ -591,6 +615,10 @@ public class AutoAllocateService {
             }
         }
         return result;
+    }
+
+    public void pushlog(String tel, String title, Object params, Object resp){
+        logger.info("-------- tel ------->" + title + " 参数：" + params + " 响应：" + resp);
     }
 
 
