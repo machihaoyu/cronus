@@ -815,4 +815,14 @@ public class UserMonthInfoService {
 
         return null;
     }
+
+    public List<Map<Integer, Object>> findAllocateDataByTimAndMedia(Date starttime, Date endstart, Integer mediaid, String token) {
+
+        Example example = new Example(UserMonthInfo.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("mediaid", mediaid);
+        List<Map<Integer, Object>> list = userMonthInfoDetailMapper.findAllocateDataByTimAndMedia(starttime, endstart, mediaid);
+        return CollectionUtils.isEmpty(list) ? new ArrayList<>():list;
+    }
+
 }

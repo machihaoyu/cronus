@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.UserMonthInfoDetailMapper">
+
+    <select id="findAllocateDataByTimAndMedia" resultType="java.util.HashMap">
+        SELECT companyid, COUNT(id) AS num  FROM user_month_info_detail
+        WHERE mediaid=#{mediaid}
+        AND created &gt;= #{starttime}
+        AND created &lt;= #{endstart}
+        AND `status`=1
+        GROUP BY companyid;
+    </select>
+
+</mapper>

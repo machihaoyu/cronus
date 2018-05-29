@@ -416,7 +416,7 @@ public class UserMonthInfoController {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "endstart 不能为空");
             }
 
-            List<Map<String, Object>> resultdata = null;//userMonthInfoService.findAllocateDataByMonthAndCompanyid(parse, companyid, token);
+            List<Map<Integer, Object>> resultdata = userMonthInfoService.findAllocateDataByTimAndMedia(starttime, endstart, mediaid, token);
             result.setData(resultdata);
             result.setResult(CommonMessage.SUCCESS.getCode());
         } catch (Exception e) {
