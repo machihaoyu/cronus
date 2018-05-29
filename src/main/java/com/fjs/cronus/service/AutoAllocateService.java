@@ -779,7 +779,7 @@ public class AutoAllocateService {
     }
 
     /**
-     * 老客户，会从总分配队列找业务员.
+     * 老客户，会从总分配队列(借用商机系统的队列)找业务员.
      */
     private AllocateForAvatarDTO getAllocateUserV2(String token, String city, String currentMonthStr, Integer mediaid) {
 
