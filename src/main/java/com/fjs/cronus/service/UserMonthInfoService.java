@@ -760,6 +760,7 @@ public class UserMonthInfoService {
         Example.Criteria criteria = e.createCriteria();
         criteria.andEqualTo("effectiveDate", format);
         criteria.andIn("companyid", companyids);
+        criteria.andEqualTo("mediaid",  CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
         criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
         List<UserMonthInfo> list = userMonthInfoMapper.selectByExample(e);
         if (CollectionUtils.isEmpty(list)) {
@@ -770,7 +771,6 @@ public class UserMonthInfoService {
                 .filter(i -> i != null
                         && i.getCompanyid() != null
                         && i.getMediaid() != null
-                        && CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())
                         && i.getAssignedCustomerNum() != null)
                 .collect(groupingBy(UserMonthInfo::getCompanyid, summingLong(UserMonthInfo::getAssignedCustomerNum)));
 
@@ -795,6 +795,7 @@ public class UserMonthInfoService {
         Example.Criteria criteria = e.createCriteria();
         criteria.andEqualTo("effectiveDate", format);
         criteria.andEqualTo("companyid", companyid);
+        criteria.andEqualTo("mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
         criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
         List<UserMonthInfo> list = userMonthInfoMapper.selectByExample(e);
         if (CollectionUtils.isEmpty(list)) {
@@ -804,7 +805,6 @@ public class UserMonthInfoService {
         Map<Integer, Long> collect = list.stream()
                 .filter(i -> i != null
                         && i.getMediaid() != null
-                        && CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())
                         && i.getAssignedCustomerNum() != null)
                 .collect(groupingBy(UserMonthInfo::getMediaid, summingLong(UserMonthInfo::getAssignedCustomerNum)));
 
