@@ -719,7 +719,7 @@ public class UserMonthInfoService {
 
             Map<String, Object> temp2 = new HashMap<>();
             temp2.put("mediaid", mediaid);
-            temp2.put("name", null);
+            temp2.put("name", idMappingName.get(mediaid));
             temp2.put("assignedCustomerNum", 0);
 
             result.add(temp);
@@ -730,7 +730,6 @@ public class UserMonthInfoService {
                     temp.put("assignedCustomerNum", entry.getValue());
                 }
                 if (mediaid.equals(entry.getKey())){
-                    temp2.put("name", idMappingName.get(mediaid));
                     temp2.put("assignedCustomerNum", entry.getValue());
                 }
             }
