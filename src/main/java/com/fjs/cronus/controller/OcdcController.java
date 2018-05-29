@@ -49,7 +49,6 @@ public class OcdcController {
     @ResponseBody
     public CronusDto ocdcCustomerPush(@RequestHeader("Authorization") String token, @RequestBody String ocdcRawData) {
         OcdcData ocdcData = JSON.parseObject(ocdcRawData, OcdcData.class);
-        logger.info("---------- ocdc 推送信息 ----------->" + JSONObject.toJSONString(ocdcRawData));
         CronusDto resultDto = new CronusDto();
         try {
             resultDto.setData(ocdcService.addOcdcCustomer(ocdcData, AllocateSource.OCDC, token));
