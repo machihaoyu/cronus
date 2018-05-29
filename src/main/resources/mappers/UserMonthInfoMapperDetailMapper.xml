@@ -8,6 +8,7 @@
         AND created &gt;= #{starttime}
         AND created &lt;= #{endstart}
         AND `status`=1
+        AND `type`=1
         GROUP BY companyid;
     </select>
 
