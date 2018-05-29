@@ -631,7 +631,7 @@ public class UserMonthInfoService {
             // 总分配队列
 
             // 获取该业务分配情况
-            Example example = new Example(UserMonthInfoDetail.class);
+            Example example = new Example(UserMonthInfo.class);
             Example.Criteria criteria = example.createCriteria();
             criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
             criteria.andEqualTo("companyid", companyid);
@@ -640,12 +640,17 @@ public class UserMonthInfoService {
             criteria.andEqualTo("type", CommonConst.USER_MONTH_INFO_DETAIL_TYPE1);
             criteria.andNotEqualTo("mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
 
-            List<UserMonthInfoDetail> select = userMonthInfoDetailMapper.selectByExample(example);
+            List<UserMonthInfo> select = userMonthInfoMapper.selectByExample(example);
             if (CollectionUtils.isEmpty(select)) return result;
 
-            Map<Integer, Long> collect = select.stream()
-                    .filter(i -> i != null && i.getMediaid() != null)
-                    .collect(groupingBy(UserMonthInfoDetail::getMediaid, counting()));
+            Map<Integer, Integer> collect = select.stream()
+                    .filter(i -> i != null
+                            && i.getMediaid() != null
+                            && i.getAssignedCustomerNum() != null
+                            && i.getAssignedCustomerNum() > 0
+                    )
+                    .collect(toMap(UserMonthInfo::getMediaid, UserMonthInfo::getAssignedCustomerNum, (x, y) -> x));
+
             if (collect == null || collect.size() == 0) {
                 return result;
             }
@@ -664,7 +669,7 @@ public class UserMonthInfoService {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "系统数据异常，未找到媒体数据");
             }
 
-            for (Map.Entry<Integer, Long> entry : collect.entrySet()) {
+            for (Map.Entry<Integer, Integer> entry : collect.entrySet()) {
                 Map<String, Object> temp = new HashMap<>();
                 temp.put("mediaid", entry.getKey());
                 temp.put("name", idMappingName.get(entry.getKey()));
@@ -690,10 +695,6 @@ public class UserMonthInfoService {
             }
 
             // 获取该业务分配情况
-            Set<Integer> mediaids = new HashSet<>();
-            mediaids.add(mediaid);
-            mediaids.add(CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
-
             Example example = new Example(UserMonthInfoDetail.class);
             Example.Criteria criteria = example.createCriteria();
             criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
@@ -701,13 +702,16 @@ public class UserMonthInfoService {
             criteria.andEqualTo("userId", salemanid);
             criteria.andEqualTo("type", CommonConst.USER_MONTH_INFO_DETAIL_TYPE1);
             criteria.andEqualTo("effectiveDate", monthStr);
-            criteria.andIn("mediaid", mediaids);
+            criteria.andEqualTo("mediaid", mediaid);
 
             List<UserMonthInfoDetail> select = userMonthInfoDetailMapper.selectByExample(example);
-            if (CollectionUtils.isEmpty(select)) return result;
+            if (CollectionUtils.isEmpty(select)) select = new ArrayList<>();
             Map<Integer, Long> collect = select.stream()
-                    .filter(i -> i != null && i.getMediaid() != null)
-                    .collect(groupingBy(UserMonthInfoDetail::getMediaid, counting()));
+                    .filter(i -> i != null
+                            && i.getMediaid() != null
+                            && i.getFromediaid() != null
+                    )
+                    .collect(groupingBy(UserMonthInfoDetail::getFromediaid, counting()));
             if (collect == null || collect.size() == 0) {
 
                 // 设置初始化值
