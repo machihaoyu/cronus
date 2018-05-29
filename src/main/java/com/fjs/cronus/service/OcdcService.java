@@ -235,9 +235,10 @@ public class OcdcService {
                                         break;
                                     case "4":
                                         // 推入客服系统
-                                        responseMessage.append(this.pushServiceSystem(map)); // 未分配城市客户到客服系统
+                                        String resp = this.pushServiceSystem(map);
+                                        responseMessage.append(resp); // 未分配城市客户到客服系统
                                         responseMessage.append("-");
-                                        customerSalePushLog.setErrorinfo("已推入客服系统"); // 临时记录，没地方记录
+                                        customerSalePushLog.setErrorinfo("已推入客服系统，响应数据：" + resp); // 临时记录，没地方记录
                                         break;
                                     case "5":
                                     case "6":
