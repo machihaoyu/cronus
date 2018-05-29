@@ -770,7 +770,7 @@ public class UserMonthInfoService {
                 .filter(i -> i != null
                         && i.getCompanyid() != null
                         && i.getMediaid() != null
-                        && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())
+                        && CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())
                         && i.getAssignedCustomerNum() != null)
                 .collect(groupingBy(UserMonthInfo::getCompanyid, summingLong(UserMonthInfo::getAssignedCustomerNum)));
 
@@ -804,7 +804,7 @@ public class UserMonthInfoService {
         Map<Integer, Long> collect = list.stream()
                 .filter(i -> i != null
                         && i.getMediaid() != null
-                        && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())
+                        && CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())
                         && i.getAssignedCustomerNum() != null)
                 .collect(groupingBy(UserMonthInfo::getMediaid, summingLong(UserMonthInfo::getAssignedCustomerNum)));
 
