@@ -758,7 +758,7 @@ public class UserMonthInfoService {
 
         Example e = new Example(UserMonthInfo.class);
         Example.Criteria criteria = e.createCriteria();
-        criteria.andEqualTo("effective_date", format);
+        criteria.andEqualTo("effectiveDate", format);
         criteria.andIn("companyid", companyids);
         criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
         List<UserMonthInfo> list = userMonthInfoMapper.selectByExample(e);
@@ -793,7 +793,7 @@ public class UserMonthInfoService {
 
         Example e = new Example(UserMonthInfo.class);
         Example.Criteria criteria = e.createCriteria();
-        criteria.andEqualTo("effective_date", format);
+        criteria.andEqualTo("effectiveDate", format);
         criteria.andEqualTo("companyid", companyid);
         criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
         List<UserMonthInfo> list = userMonthInfoMapper.selectByExample(e);
@@ -822,5 +822,5 @@ public class UserMonthInfoService {
         List<Map<Integer, Object>> list = userMonthInfoDetailMapper.findAllocateDataByTimAndMedia(starttime, endstart, mediaid);
         return CollectionUtils.isEmpty(list) ? new ArrayList<>() : list;
     }
-
+    
 }
