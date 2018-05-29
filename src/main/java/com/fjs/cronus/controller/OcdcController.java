@@ -1,6 +1,7 @@
 package com.fjs.cronus.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.crm.OcdcData;
 import com.fjs.cronus.dto.crm.ResponseData;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.spring.web.json.Json;
 
 /**
  * 客户
@@ -47,6 +49,7 @@ public class OcdcController {
     @ResponseBody
     public CronusDto ocdcCustomerPush(@RequestHeader("Authorization") String token, @RequestBody String ocdcRawData) {
         OcdcData ocdcData = JSON.parseObject(ocdcRawData, OcdcData.class);
+        logger.info("---------- ocdc 推送信息 ----------->" + JSONObject.toJSONString(ocdcRawData));
         CronusDto resultDto = new CronusDto();
         try {
             resultDto.setData(ocdcService.addOcdcCustomer(ocdcData, AllocateSource.OCDC, token));
