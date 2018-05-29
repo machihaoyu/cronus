@@ -795,7 +795,7 @@ public class UserMonthInfoService {
         Example.Criteria criteria = e.createCriteria();
         criteria.andEqualTo("effectiveDate", format);
         criteria.andEqualTo("companyid", companyid);
-        criteria.andEqualTo("mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
+        criteria.andNotEqualTo("mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
         criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
         List<UserMonthInfo> list = userMonthInfoMapper.selectByExample(e);
         if (CollectionUtils.isEmpty(list)) {
@@ -815,7 +815,7 @@ public class UserMonthInfoService {
             result.add(map);
         }
 
-        return null;
+        return result;
     }
 
     public List<Map<Integer, Object>> findAllocateDataByTimAndMedia(Date starttime, Date endstart, Integer mediaid, String token) {
