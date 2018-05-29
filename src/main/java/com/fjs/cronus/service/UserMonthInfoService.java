@@ -637,7 +637,6 @@ public class UserMonthInfoService {
             criteria.andEqualTo("companyid", companyid);
             criteria.andEqualTo("userId", salemanid);
             criteria.andEqualTo("effectiveDate", monthStr);
-            criteria.andEqualTo("type", CommonConst.USER_MONTH_INFO_DETAIL_TYPE1);
             criteria.andNotEqualTo("mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
 
             List<UserMonthInfo> select = userMonthInfoMapper.selectByExample(example);
@@ -731,10 +730,10 @@ public class UserMonthInfoService {
             } else {
                 // 有数据
                 result = new ArrayList<>();
-                boolean b = false;
+                Boolean b = false;
                 for (Map.Entry<Integer, Long> entry : collect.entrySet()) {
 
-                    b = CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(entry.getKey()) ? true : false;
+                    b =  b || CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(entry.getKey()) ? true : false;
                     Map<String, Object> temp2 = new HashMap<>();
                     temp2.put("mediaid", entry.getKey());
                     temp2.put("name", b ? "总分配队列" : idMappingName.get(entry.getKey()));
