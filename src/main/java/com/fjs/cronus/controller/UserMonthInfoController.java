@@ -29,10 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Api(description = "月分配队列-控制器")
 @RequestMapping("/api/v1/userMonthInfo")
@@ -50,7 +47,8 @@ public class UserMonthInfoController {
     @Autowired
     private AvatarClientService avatarClientService;
 
-    @ApiOperation(value = "查询一级吧、某媒体实购数（分配数）", notes = "查询一级吧、某媒体实购数（分配数） api")
+    @Deprecated
+    @ApiOperation(value = "商机系统：查询一级吧、某媒体实购数（分配数）", notes = "查询一级吧、某媒体实购数（分配数） api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
             @ApiImplicitParam(name = "params", value = "提交数据,{'list':[{'companyid':1,'sourceid':2,'mediaid':3,'month':'2018-05'}]}", required = true, dataType = "JSONObject"),
@@ -106,7 +104,8 @@ public class UserMonthInfoController {
         return result;
     }
 
-    @ApiOperation(value = "查询一级吧实购数（分配数）", notes = "查询一级吧实购数（分配数） api")
+    @Deprecated
+    @ApiOperation(value = "商机系统：查询一级吧实购数（分配数）", notes = "查询一级吧实购数（分配数） api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
             @ApiImplicitParam(name = "params", value = "提交数据,{'list':[{'companyid':1,'month':'2018-05'}]}", required = true, dataType = "JSONObject"),
@@ -297,6 +296,138 @@ public class UserMonthInfoController {
             } else {
                 // 未知异常
                 logger.error("获取一级吧媒体已分配数详情:", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "商机系统：获取某月所有一级巴的实购数量", notes = "商机系统：获取某月所有一级巴的实购数量 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "params", value = "提交数据,{\"mothstr\":\"2018-05\",\"companyids\":[1,2,3,4]}", required = true, dataType = "JSONObject"),
+    })
+    @PostMapping(value = "/findAllocateDataByMonthAndCompanyids")
+    public CronusDto findAllocateDataByMonthAndCompanyids(@RequestHeader(name = "Authorization") String token, @RequestBody JSONObject params) {
+        CronusDto result = new CronusDto();
+        try {
+
+            String mothstr = params.getString("mothstr");
+            JSONArray companyids = params.getJSONArray("companyids");
+
+            if (CollectionUtils.isEmpty(companyids)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "companyid 不能为空");
+            }
+            if (StringUtils.isBlank(mothstr)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mothstr 不能为空");
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+            Date parse = sdf.parse(mothstr);
+            if (parse == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mothstr 时间格式错误");
+            }
+            List<Integer> integers = companyids.toJavaList(Integer.class);
+
+            List<Map<String, Object>> resultdata = userMonthInfoService.findAllocateDataByMonthAndCompanyids(parse, new HashSet<>(integers), token);
+            result.setData(resultdata);
+            result.setResult(CommonMessage.SUCCESS.getCode());
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("商机系统：获取某月所有一级巴的实购数量:", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "商机系统：获取某月一级巴下面所有的实购数(来源媒体实购数)", notes = "商机系统：获取某月一级巴下面所有的实购数(来源媒体实购数) api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "params", value = "提交数据,{\"mothstr\":\"2018-05\",\"companyid\":123}", required = true, dataType = "JSONObject"),
+    })
+    @PostMapping(value = "/findAllocateDataByMonthAndCompanyid")
+    public CronusDto findAllocateDataByMonthAndCompanyid(@RequestHeader(name = "Authorization") String token, @RequestBody JSONObject params) {
+        CronusDto result = new CronusDto();
+        try {
+
+            String mothstr = params.getString("mothstr");
+            Integer companyid = params.getInteger("companyid");
+
+            if (companyid == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "companyid 不能为空");
+            }
+            if (StringUtils.isBlank(mothstr)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mothstr 不能为空");
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+            Date parse = sdf.parse(mothstr);
+            if (parse == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mothstr 时间格式错误");
+            }
+
+            List<Map<String, Object>> resultdata = userMonthInfoService.findAllocateDataByMonthAndCompanyid(parse, companyid, token);
+            result.setData(resultdata);
+            result.setResult(CommonMessage.SUCCESS.getCode());
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("商机系统：获取某月一级巴下面所有的实购数(来源媒体实购数):", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "商机系统：根据时间(精确到日),来源媒体,查出所有一级巴的实购数", notes = "商机系统：根据时间(精确到日),来源媒体,查出所有一级巴的实购数 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "params", value = "提交数据,{\"starttime\":时间戳,\"endstart\":时间戳,\"mediaid\":123}", required = true, dataType = "JSONObject"),
+    })
+    @PostMapping(value = "/findAllocateDataByTimAndMedia")
+    public CronusDto findAllocateDataByTimAndMedia(@RequestHeader(name = "Authorization") String token, @RequestBody JSONObject params) {
+        CronusDto result = new CronusDto();
+        try {
+
+            Date starttime = params.getDate("starttime");
+            Date endstart = params.getDate("endstart");
+            Integer mediaid = params.getInteger("mediaid");
+
+            if (starttime == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "starttime 不能为空");
+            }
+            if (endstart == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "endstart 不能为空");
+            }
+            if (mediaid == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "endstart 不能为空");
+            }
+
+            List<Map<String, Object>> resultdata = null;//userMonthInfoService.findAllocateDataByMonthAndCompanyid(parse, companyid, token);
+            result.setData(resultdata);
+            result.setResult(CommonMessage.SUCCESS.getCode());
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("商机系统：根据时间(精确到日),来源媒体,查出所有一级巴的实购数:", e);
                 result.setResult(CommonMessage.FAIL.getCode());
                 result.setMessage(e.getMessage());
             }

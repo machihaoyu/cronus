@@ -1,5 +1,6 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
@@ -744,5 +745,74 @@ public class UserMonthInfoService {
                 return result;
             }
         }
+    }
+
+    public List<Map<String, Object>> findAllocateDataByMonthAndCompanyids(Date parse, Set<Integer> companyids, String token) {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+        String format = sdf.format(parse);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        Example e = new Example(UserMonthInfo.class);
+        Example.Criteria criteria = e.createCriteria();
+        criteria.andEqualTo("effective_date", format);
+        criteria.andIn("companyid", companyids);
+        criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
+        List<UserMonthInfo> list = userMonthInfoMapper.selectByExample(e);
+        if (CollectionUtils.isEmpty(list)) {
+            return result;
+        }
+
+        Map<Integer, Long> collect = list.stream()
+                .filter(i -> i != null
+                        && i.getCompanyid() != null
+                        && i.getMediaid() != null
+                        && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())
+                        && i.getAssignedCustomerNum() != null)
+                .collect(groupingBy(UserMonthInfo::getCompanyid, summingLong(UserMonthInfo::getAssignedCustomerNum)));
+
+        for (Map.Entry<Integer, Long> entry : collect.entrySet()) {
+            Map<String, Object> map = new HashMap<>(1);
+            map.put("companid", entry.getKey());
+            map.put("num", entry.getValue());
+            result.add(map);
+        }
+
+        return result;
+    }
+
+    public List<Map<String, Object>> findAllocateDataByMonthAndCompanyid(Date parse, Integer companyid, String token) {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+        String format = sdf.format(parse);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        Example e = new Example(UserMonthInfo.class);
+        Example.Criteria criteria = e.createCriteria();
+        criteria.andEqualTo("effective_date", format);
+        criteria.andEqualTo("companyid", companyid);
+        criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
+        List<UserMonthInfo> list = userMonthInfoMapper.selectByExample(e);
+        if (CollectionUtils.isEmpty(list)) {
+            return result;
+        }
+
+        Map<Integer, Long> collect = list.stream()
+                .filter(i -> i != null
+                        && i.getMediaid() != null
+                        && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())
+                        && i.getAssignedCustomerNum() != null)
+                .collect(groupingBy(UserMonthInfo::getMediaid, summingLong(UserMonthInfo::getAssignedCustomerNum)));
+
+        for (Map.Entry<Integer, Long> entry : collect.entrySet()) {
+            Map<String, Object> map = new HashMap<>(1);
+            map.put("mediaid", entry.getKey());
+            map.put("num", entry.getValue());
+            result.add(map);
+        }
+
+        return null;
     }
 }

@@ -496,6 +496,46 @@ public class AutoAllocateService {
                     continue;
                 }
 
+                // 比较总队列数量
+                UserMonthInfo e2 = new UserMonthInfo();
+                e2.setCompanyid(subCompanyId);
+                e2.setUserId(salesmanId);
+                e2.setEffectiveDate(currentMonthStr);
+                e2.setStatus(CommonEnum.entity_status1.getCode());
+                e2.setMediaid(CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
+                List<UserMonthInfo> select2 = userMonthInfoMapper.select(e2);
+
+                if (CollectionUtils.isEmpty(select2)
+                        ) {
+                    // 数据错误，直接忽略，给下一个业务员处理
+                    salesmanId = null;
+                    continue;
+                }
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "select.size=" + select.size());
+                UserMonthInfo userMonthInfo2 = select2.stream()
+                        .filter(item -> item != null
+                                && item.getBaseCustomerNum() != null
+                                && item.getRewardCustomerNum() != null
+                                && item.getAssignedCustomerNum() != null
+                        ).findAny()
+                        .orElse(null);
+                if (userMonthInfo2 == null) {
+                    // 数据错误，直接忽略，给下一个业务员处理
+                    salesmanId = null;
+                    continue;
+                }
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getId=" + userMonthInfo2.getId());
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getAssignedCustomerNum=" + userMonthInfo2.getAssignedCustomerNum());
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getBaseCustomerNum=" + userMonthInfo2.getBaseCustomerNum());
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getRewardCustomerNum=" + userMonthInfo2.getRewardCustomerNum());
+
+                // 比较总
+                if ( userMonthInfo2.getAssignedCustomerNum() >= userMonthInfo2.getBaseCustomerNum() + userMonthInfo2.getRewardCustomerNum()) {
+                    // 该业务员 已购数 >= 分配数
+                    salesmanId = null;
+                    continue;
+                }
+
                 // 找到业务员接待
                 if (salesmanId != null) {
                     pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特，找到业务员", null, "salesmanId="+ salesmanId);
