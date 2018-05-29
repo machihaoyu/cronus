@@ -519,11 +519,11 @@ public class UserMonthInfoService {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，参数：UtmSource=" + UtmSource + ",响应 infoByChannelName==null");
         }
         if (infoByChannelName.getResult() != 0) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，参数：UtmSource=" + UtmSource + "响应 result !=0, mesage=" + infoByChannelName.getMessage());
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，参数：UtmSource=" + UtmSource + ",响应 result !=0, mesage=" + infoByChannelName.getMessage());
         }
 
         if (infoByChannelName.getData() == null) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，参数：UtmSource=" + UtmSource + "响应 data=null");
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，参数：UtmSource=" + UtmSource + ",响应 data=null");
         }
         return infoByChannelName.getData();
     }
