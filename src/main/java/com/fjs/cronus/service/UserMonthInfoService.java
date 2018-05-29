@@ -711,44 +711,30 @@ public class UserMonthInfoService {
                             && i.getFromediaid() != null
                     )
                     .collect(groupingBy(UserMonthInfoDetail::getFromediaid, counting()));
-            if (collect == null || collect.size() == 0) {
 
-                // 设置初始化值
-                Map<String, Object> temp = new HashMap<>();
-                temp.put("mediaid", mediaid);
-                temp.put("name", idMappingName.get(mediaid));
-                temp.put("assignedCustomerNum", 0);
-                result.add(temp);
+            Map<String, Object> temp = new HashMap<>();
+            temp.put("mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
+            temp.put("name", "总分配队列");
+            temp.put("assignedCustomerNum", 0);
 
-                temp = new HashMap<>();
-                temp.put("mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
-                temp.put("name", "总分配队列");
-                temp.put("assignedCustomerNum", 0);
-                result.add(temp);
+            Map<String, Object> temp2 = new HashMap<>();
+            temp2.put("mediaid", mediaid);
+            temp2.put("name", null);
+            temp2.put("assignedCustomerNum", 0);
 
-                return result;
-            } else {
-                // 有数据
-                result = new ArrayList<>();
-                Boolean b = false;
-                for (Map.Entry<Integer, Long> entry : collect.entrySet()) {
+            result.add(temp);
+            result.add(temp2);
 
-                    b =  b || CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(entry.getKey()) ? true : false;
-                    Map<String, Object> temp2 = new HashMap<>();
-                    temp2.put("mediaid", entry.getKey());
-                    temp2.put("name", b ? "总分配队列" : idMappingName.get(entry.getKey()));
+            for (Map.Entry<Integer, Long> entry : collect.entrySet()) {
+                if (CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(entry.getKey())) {
+                    temp.put("assignedCustomerNum", entry.getValue());
+                }
+                if (mediaid.equals(entry.getKey())){
+                    temp2.put("name", idMappingName.get(mediaid));
                     temp2.put("assignedCustomerNum", entry.getValue());
-                    result.add(temp2);
                 }
-                if (!b) {
-                    Map<String, Object> temp = new HashMap<>();
-                    temp.put("mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
-                    temp.put("name", "总分配队列");
-                    temp.put("assignedCustomerNum", 0);
-                    result.add(temp);
-                }
-                return result;
             }
+            return result;
         }
     }
 
