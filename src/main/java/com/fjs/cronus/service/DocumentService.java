@@ -1334,41 +1334,41 @@ public class DocumentService {
         switch (ProductTyoeEnum.getByValue(productType)) {
             case producttype_credit:
                 //判断是否含有身份证正面信息
-                if (!documentCids.contains(map.get(ResultResource.INENTITY))) {
-                    message = "【借款人身份证】";
-                }
-                if (!documentCids.contains(map.get(ResultResource.HOUSEHOLD)) && !documentCids.contains(map.get(ResultResource.ACCUMULATION)) && !documentCids.contains(map.get(ResultResource.BACKDEBUT))
-                        && !documentCids.contains(map.get(ResultResource.PROOFPOLICY)) && !documentCids.contains(map.get(ResultResource.CERTIFICATE))) {
-                    message = message + "【借款人银行流水/房产证/公积金证明/保单证明/行驶证证明 至少需一】";
-                }
+//                if (!documentCids.contains(map.get(ResultResource.INENTITY))) {
+//                    message = "【借款人身份证】";
+//                }
+//                if (!documentCids.contains(map.get(ResultResource.HOUSEHOLD)) && !documentCids.contains(map.get(ResultResource.ACCUMULATION)) && !documentCids.contains(map.get(ResultResource.BACKDEBUT))
+//                        && !documentCids.contains(map.get(ResultResource.PROOFPOLICY)) && !documentCids.contains(map.get(ResultResource.CERTIFICATE))) {
+//                    message = message + "【借款人银行流水/房产证/公积金证明/保单证明/行驶证证明 至少需一】";
+//                }
                 if (!documentCids.contains(map.get(ResultResource.CONTRACT)) && !documentCids.contains(map.get(ResultResource.VOUCHER)) && !documentCids.contains(map.get(ResultResource.PAPERMATERIAL))) {
                     message = message + "【借款合同/放款凭证/纸质证明材料 至少需一】";
                 }
                 break;
             case producttype_mortgage:
-                if (!documentCids.contains(map.get(ResultResource.INENTITY))) {
-                    message = "【请上传借款人身份证】";
-                }
-                if (!documentCids.contains(map.get(ResultResource.HOUSEREGISTER))) {
-                    message = message + "【请上传户口本】";
-                }
-                if (!documentCids.contains(map.get(ResultResource.HOUSEHOLD)) && !documentCids.contains(map.get(ResultResource.CERTIFICATE))) {
-                    message = message + "【房产证/行驶证证明 至少需一】";
-                }
+//                if (!documentCids.contains(map.get(ResultResource.INENTITY))) {
+//                    message = "【请上传借款人身份证】";
+//                }
+//                if (!documentCids.contains(map.get(ResultResource.HOUSEREGISTER))) {
+//                    message = message + "【请上传户口本】";
+//                }
+//                if (!documentCids.contains(map.get(ResultResource.HOUSEHOLD)) && !documentCids.contains(map.get(ResultResource.CERTIFICATE))) {
+//                    message = message + "【房产证/行驶证证明 至少需一】";
+//                }
                 if (!documentCids.contains(map.get(ResultResource.CONTRACT)) && !documentCids.contains(map.get(ResultResource.VOUCHER)) && !documentCids.contains(map.get(ResultResource.PAPERMATERIAL))) {
                     message = message + "【借款合同/放款凭证/纸质证明材料 至少需一】";
                 }
                 break;
             case producttype_ransomfloor:
-                if (!documentCids.contains(map.get(ResultResource.INENTITY))) {
-                    message = "【借款人身份证】";
-                }
-                if (!documentCids.contains(map.get(ResultResource.HOUSEHOLD))) {
-                    message = message + "【房产证】";
-                }
-                if (!documentCids.contains(map.get(ResultResource.HOUSEREGISTER))) {
-                    message = message + "【借款人户口簿】";
-                }
+//                if (!documentCids.contains(map.get(ResultResource.INENTITY))) {
+//                    message = "【借款人身份证】";
+//                }
+//                if (!documentCids.contains(map.get(ResultResource.HOUSEHOLD))) {
+//                    message = message + "【房产证】";
+//                }
+//                if (!documentCids.contains(map.get(ResultResource.HOUSEREGISTER))) {
+//                    message = message + "【借款人户口簿】";
+//                }
                 if (!documentCids.contains(map.get(ResultResource.CONTRACT)) && !documentCids.contains(map.get(ResultResource.VOUCHER)) && !documentCids.contains(map.get(ResultResource.PAPERMATERIAL))) {
                     message = message + "【借款合同/放款凭证/纸质证明材料 至少需一】";
                 }
