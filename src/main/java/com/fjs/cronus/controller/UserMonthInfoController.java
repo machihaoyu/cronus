@@ -6,6 +6,8 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.avatar.AvatarApiDTO;
+import com.fjs.cronus.dto.avatar.FirstBarConsumeDTO;
+import com.fjs.cronus.dto.avatar.FirstBarConsumeDTO2;
 import com.fjs.cronus.dto.avatar.FirstBarDTO;
 import com.fjs.cronus.dto.cronus.FindCompanyAssignedCustomerNumDTO;
 import com.fjs.cronus.dto.cronus.FindCompanyAssignedCustomerNumItmDTO;
@@ -28,8 +30,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Api(description = "月分配队列-控制器")
 @RequestMapping("/api/v1/userMonthInfo")
@@ -58,7 +62,7 @@ public class UserMonthInfoController {
         CronusDto result = new CronusDto();
         try {
             // 参加校验
-            if (params == null ||CollectionUtils.isEmpty(params.getList())) {
+            if (params == null || CollectionUtils.isEmpty(params.getList())) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "参数不能为 空");
             }
             List<FindMediaAssignedCustomerNumItmDTO> list = params.getList();
@@ -115,7 +119,7 @@ public class UserMonthInfoController {
         CronusDto result = new CronusDto();
         try {
             // 参加校验
-            if (params == null ||CollectionUtils.isEmpty(params.getList())) {
+            if (params == null || CollectionUtils.isEmpty(params.getList())) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "参数不能为 空");
             }
             List<FindCompanyAssignedCustomerNumItmDTO> list = params.getList();
@@ -209,7 +213,7 @@ public class UserMonthInfoController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
             @ApiImplicitParam(name = "params", value = "提交数据,{" +
-                    "\"monthFlag\":\""+CommonConst.USER_MONTH_INFO_MONTH_CURRENT +"、"+CommonConst.USER_MONTH_INFO_MONTH_NEXT+"\"," +
+                    "\"monthFlag\":\"" + CommonConst.USER_MONTH_INFO_MONTH_CURRENT + "、" + CommonConst.USER_MONTH_INFO_MONTH_NEXT + "\"," +
                     "\"companyid\":123," +
                     "\"mediaid\":123," +
                     "\"salemanid\":123," +
@@ -258,7 +262,7 @@ public class UserMonthInfoController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
             @ApiImplicitParam(name = "params", value = "提交数据,{" +
-                    "\"monthFlag\":\""+CommonConst.USER_MONTH_INFO_MONTH_CURRENT +"、"+CommonConst.USER_MONTH_INFO_MONTH_NEXT+"\"," +
+                    "\"monthFlag\":\"" + CommonConst.USER_MONTH_INFO_MONTH_CURRENT + "、" + CommonConst.USER_MONTH_INFO_MONTH_NEXT + "\"," +
                     "\"companyid\":123," +
                     "\"mediaid\":123," +
                     "\"salemanid\":123," +
@@ -398,26 +402,42 @@ public class UserMonthInfoController {
             @ApiImplicitParam(name = "params", value = "提交数据,{\"starttime\":时间戳,\"endstart\":时间戳,\"mediaid\":123}", required = true, dataType = "JSONObject"),
     })
     @PostMapping(value = "/findAllocateDataByTimAndMedia")
-    public CronusDto findAllocateDataByTimAndMedia(@RequestHeader(name = "Authorization") String token, @RequestBody JSONObject params) {
+    public CronusDto findAllocateDataByTimAndMedia(@RequestHeader(name = "Authorization") String token, @RequestBody JSONArray params) {
         CronusDto result = new CronusDto();
         try {
 
-            Date starttime = params.getDate("starttime");
-            Date endstart = params.getDate("endstart");
-            Integer mediaid = params.getInteger("mediaid");
+            List<FirstBarConsumeDTO> list = params.toJavaList(FirstBarConsumeDTO.class);
+            if (CollectionUtils.isEmpty(list)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "list 不能为空");
+            }
+            System.out.println(list);
 
-            if (starttime == null) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "starttime 不能为空");
-            }
-            if (endstart == null) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "endstart 不能为空");
-            }
-            if (mediaid == null) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "endstart 不能为空");
+            // 时间戳转时间对象
+            List<FirstBarConsumeDTO2> list2 = new ArrayList<>(list.size());
+            for (FirstBarConsumeDTO item : list) {
+                FirstBarConsumeDTO2 e = new FirstBarConsumeDTO2();
+                e.setFirstBarId(item.getFirstBarId());
+                e.setMedia(item.getMedia());
+                e.setEndTimeParse(new Date(item.getEndTime()));
+                e.setStartTimeParse(new Date(item.getStartTime()));
+                list2.add(e);
             }
 
-            List<Map<Integer, Object>> resultdata = userMonthInfoService.findAllocateDataByTimAndMedia(starttime, endstart, mediaid, token);
-            result.setData(resultdata);
+            List<FirstBarConsumeDTO> allocateDataByTimAndMedia = userMonthInfoService.findAllocateDataByTimAndMedia(list2);
+            Map<String, Integer> collect = allocateDataByTimAndMedia.stream().collect(Collectors.toMap((i) -> {
+                        return i.getFirstBarId() + "$" + i.getMedia();
+                    }
+                    , FirstBarConsumeDTO::getAllocate
+                    , (x, y) -> x)
+            );
+
+            for (FirstBarConsumeDTO item : list) {
+                String s = item.getFirstBarId() + "$" + item.getMedia();
+                Integer integer = collect.get(s);
+                item.setAllocate(integer == null ? 0 : integer);
+            }
+
+            result.setData(list);
             result.setResult(CommonMessage.SUCCESS.getCode());
         } catch (Exception e) {
             if (e instanceof CronusException) {
@@ -434,5 +454,35 @@ public class UserMonthInfoController {
         }
         return result;
     }
+
+    @ApiOperation(value = "商机系统：查看分配log", notes = "商机系统：查看分配log api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            //@ApiImplicitParam(name = "params", value = "提交数据,{\"starttime\":时间戳,\"endstart\":时间戳,\"mediaid\":123}", required = true, dataType = "JSONObject"),
+    })
+    @PostMapping(value = "/findAllocatelog")
+    public CronusDto findAllocatelog(@RequestHeader(name = "Authorization") String token) {
+        CronusDto result = new CronusDto();
+        try {
+
+            List<Map<Integer, Object>> resultdata = userMonthInfoService.findAllocatelog(1, 0);
+            result.setData(resultdata);
+            result.setResult(CommonMessage.SUCCESS.getCode());
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("商机系统：查看分配log:", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
 
 }

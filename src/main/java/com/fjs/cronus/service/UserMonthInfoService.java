@@ -1,18 +1,16 @@
 package com.fjs.cronus.service;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.Common.CommonRedisConst;
-import com.fjs.cronus.controller.UserController;
 import com.fjs.cronus.dto.AllocateForAvatarDTO;
+import com.fjs.cronus.dto.avatar.FirstBarConsumeDTO;
+import com.fjs.cronus.dto.avatar.FirstBarConsumeDTO2;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
-import com.fjs.cronus.dto.thea.BaseChannelDTO;
 import com.fjs.cronus.dto.thea.BaseCommonDTO;
-import com.fjs.cronus.entity.CompanyMediaQueue;
 import com.fjs.cronus.entity.UserMonthInfoDetail;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CompanyMediaQueueMapper;
@@ -27,7 +25,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -37,7 +34,6 @@ import tk.mybatis.mapper.entity.Example;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 
 import static java.util.stream.Collectors.*;
 
@@ -729,7 +725,7 @@ public class UserMonthInfoService {
                 if (CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(entry.getKey())) {
                     temp.put("assignedCustomerNum", entry.getValue());
                 }
-                if (mediaid.equals(entry.getKey())){
+                if (mediaid.equals(entry.getKey())) {
                     temp2.put("assignedCustomerNum", entry.getValue());
                 }
             }
@@ -748,7 +744,7 @@ public class UserMonthInfoService {
         Example.Criteria criteria = e.createCriteria();
         criteria.andEqualTo("effectiveDate", format);
         criteria.andIn("companyid", companyids);
-        criteria.andEqualTo("mediaid",  CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
+        criteria.andEqualTo("mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT);
         criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
         List<UserMonthInfo> list = userMonthInfoMapper.selectByExample(e);
         if (CollectionUtils.isEmpty(list)) {
@@ -806,9 +802,30 @@ public class UserMonthInfoService {
         return result;
     }
 
-    public List<Map<Integer, Object>> findAllocateDataByTimAndMedia(Date starttime, Date endstart, Integer mediaid, String token) {
-        List<Map<Integer, Object>> list = userMonthInfoDetailMapper.findAllocateDataByTimAndMedia(starttime, endstart, mediaid);
-        return CollectionUtils.isEmpty(list) ? new ArrayList<>() : list;
+    public List<FirstBarConsumeDTO> findAllocateDataByTimAndMedia(List<FirstBarConsumeDTO2> list) {
+        return userMonthInfoDetailMapper.findAllocateDataByTimAndMedia(list);
     }
-    
+
+    public List<Map<Integer, Object>> findAllocatelog(int pageNum, int pageSize) {
+
+        UserMonthInfoDetail d = new UserMonthInfoDetail();
+        d.setStatus(CommonEnum.entity_status1.getCode());
+        d.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE1);
+        int i = userMonthInfoDetailMapper.selectCount(d);
+
+        if (i > 0) {
+            int start = pageNum <= 1 ? 0 : (pageNum - 1) * pageSize;
+            int end = 20;
+
+            Example example = new Example(UserMonthInfoDetail.class);
+            Example.Criteria criteria = example.createCriteria();
+            criteria.andEqualTo("type", CommonConst.USER_MONTH_INFO_DETAIL_TYPE1);
+            userMonthInfoDetailMapper.selectByExample(example);
+        }
+
+
+        //List<Map<Integer, Object>> list = userMonthInfoDetailMapper.findAllocateDataByTimAndMedia(starttime, endstart, mediaid);
+        return null; //CollectionUtils.isEmpty(list) ? new ArrayList<>() : list;
+    }
+
 }

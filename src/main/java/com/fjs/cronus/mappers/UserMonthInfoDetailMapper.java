@@ -1,5 +1,7 @@
 package com.fjs.cronus.mappers;
 
+import com.fjs.cronus.dto.avatar.FirstBarConsumeDTO;
+import com.fjs.cronus.dto.avatar.FirstBarConsumeDTO2;
 import com.fjs.cronus.entity.UserMonthInfoDetail;
 import com.fjs.cronus.util.MyMapper;
 import org.apache.ibatis.annotations.Param;
@@ -9,6 +11,5 @@ import java.util.List;
 import java.util.Map;
 
 public interface UserMonthInfoDetailMapper extends MyMapper<UserMonthInfoDetail> {
-
-    List<Map<Integer,Object>> findAllocateDataByTimAndMedia(@Param("starttime") Date starttime, @Param("endstart") Date endstart, @Param("mediaid") Integer mediaid);
+    List<FirstBarConsumeDTO> findAllocateDataByTimAndMedia(@Param("list") List<FirstBarConsumeDTO2> list);
 }
