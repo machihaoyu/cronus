@@ -456,21 +456,17 @@ public class UserMonthInfoService {
      */
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void incrNum2DB(CustomerInfo customerDto, Integer salesmanId, String token) {
+        logger.info("---- 有效数 --> salesmanId=" + salesmanId + " id=" + customerDto.getId() + " tel=" + customerDto.getTelephonenumber() + " utmSource=" +customerDto.getUtmSource() + " companyid=" + customerDto.getCompanyId());
 
         Integer subCompanyId = customerDto.getSubCompanyId();
         String utmSource = customerDto.getUtmSource();
         String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT);
 
         Integer mediaid = this.getChannelInfoByChannelName(token, utmSource);
+        logger.info("---- 有效数 --> mediaid=" + mediaid);
         Date now = new Date();
 
         // 先查该记录
-        UserMonthInfo e = new UserMonthInfo();
-        e.setCompanyid(subCompanyId);
-        e.setMediaid(mediaid);
-        e.setUserId(salesmanId);
-        e.setEffectiveDate(currentMonthStr);
-        e.setStatus(CommonEnum.entity_status1.getCode());
         List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, mediaid, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, salesmanId, currentMonthStr, CommonEnum.entity_status1.getCode());
 
         // 业务说明：一个用户只能算一次.
@@ -478,10 +474,11 @@ public class UserMonthInfoService {
         ee.setCustomerid(customerDto.getId());
         ee.setStatus(CommonEnum.entity_status1.getCode());
         ee.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE2);
-        List<UserMonthInfoDetail> dataExist = userMonthInfoDetailMapper.select(ee);
-        if (CollectionUtils.isNotEmpty(dataExist)) {
+        int i1 = userMonthInfoDetailMapper.selectCount(ee);
+        if (i1 > 0) {
             return;
         }
+        logger.info("---- 有效数 --> i1=" + i1);
 
         Integer id = null;
         if (CollectionUtils.isEmpty(select) || select.size() != 2) {
@@ -490,6 +487,7 @@ public class UserMonthInfoService {
 
         // 主表 incr
         Set<Integer> ids = select.stream().map(UserMonthInfo::getId).collect(toSet());
+        logger.info("---- 有效数 --> ids=" + ids);
         userMonthInfoMapper.update2IncrNumForEffectiveCustomerNum(ids);
         id = select.stream().filter(i -> i != null && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())).map(UserMonthInfo::getId).findAny().orElse(null);
 

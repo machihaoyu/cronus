@@ -144,6 +144,7 @@ public class CommunicationLogService {
         }
         customerDto.setCommunicateTime(date);
         //确认状态
+        logger.info("---- 有效数进入前 --> LoanAmount=" + customerUsefulDTO.getLoanAmount());
         if (customerUsefulDTO.getLoanAmount() != null && customerUsefulDTO.getLoanAmount().intValue() > 0){
             customerDto.setConfirm(CommonConst.CONFIRM__STATUS_EFFECT);
 
