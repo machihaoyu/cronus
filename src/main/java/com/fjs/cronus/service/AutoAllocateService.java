@@ -176,7 +176,7 @@ public class AutoAllocateService {
             // 分配规则
             if ( customerDTO.getId() == null || customerDTO.getId().equals(0) ) {
                 // 新客户：走商机系统规则
-                pushlog(customerDTO.getTelephonenumber(), "新用户分支", null, null);
+                pushlog(customerDTO.getTelephonenumber(), "进入新用户分支", null, null);
 
                 // 商机系统分支
                 // 规则：
@@ -204,7 +204,7 @@ public class AutoAllocateService {
                 }
             } else {
                 // 老客户
-                pushlog(customerDTO.getTelephonenumber(), "老用户分支", null, null);
+                pushlog(customerDTO.getTelephonenumber(), "进入老用户分支", null, null);
 
                 // 规则：
                 // 1、根据ocdc的传的特殊标记找业务员，找打就分给该业务员
@@ -217,20 +217,24 @@ public class AutoAllocateService {
                 //boolean allocateToPublic = this.isAllocateToPublic(customerDTO.getUtmSource()); // 根据渠道，判断是否需要自动分配
 
                 if (StringUtils.isNotEmpty(ownerUser.getUser_id())) { // 存在这个在职负责人
+                    pushlog(customerDTO.getTelephonenumber(), "老用户分支-找到指定业务员-", null, null);
 
                         customerDTO.setOwnerUserId(Integer.valueOf(ownerUser.getUser_id()));
                         allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
                 } else if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) { // 在有效分配城市内
-
+                    pushlog(customerDTO.getTelephonenumber(), "老用户分支-有效城市找业务员-", null, null);
                     // 根据城市，去找一级吧下业务员
                     signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, mediaId);
                     if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
+                        pushlog(customerDTO.getTelephonenumber(), "老用户分支-有效城市找业务员-找到", null, null);
                         allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
                         customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
                     } else { // 未找到，抛错记录日志
+                        pushlog(customerDTO.getTelephonenumber(), "老用户分支-有效城市找业务员-未找到", null, null);
                         throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "老客户去队列没找到业务员");
                     }
                 } else {
+                    pushlog(customerDTO.getTelephonenumber(), "老用户分支-客服系统-", null, null);
                     customerDTO.setOwnerUserId(0);
                     allocateEntity.setAllocateStatus(AllocateEnum.TO_SERVICE_SYSTEM);
                 }
@@ -786,12 +790,16 @@ public class AutoAllocateService {
         AllocateForAvatarDTO result = new AllocateForAvatarDTO();
 
         long size = allocateRedisService.getSubCompanyIdQueueSize(token, city, mediaid);
+        pushlog(null, "老用户分支-有效城市找业务员-找一级吧", " city=" + city + " mediaid=" + mediaid, " size=" + size);
         for (int i = 0; i < size; i++) {
 
             Integer subCompanyId = allocateRedisService.getSubCompanyIdFromQueue(city, mediaid);
+            pushlog(null, "老用户分支-有效城市找业务员-找一级吧", null, " subCompanyId=" + subCompanyId);
             long size2 = allocateRedisService.getQueueSize(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
+            pushlog(null, "老用户分支-有效城市找业务员-找业务员", null, " size2=" + size2);
             for (int j = 0; j < size2; j++) {
                 Integer salesmanId = allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
+                pushlog(null, "老用户分支-有效城市找业务员-找业务员", null, " salesmanId=" + salesmanId);
                 if (salesmanId != null) {
                     // 找到业务员
                     result.setCompanyid(subCompanyId);

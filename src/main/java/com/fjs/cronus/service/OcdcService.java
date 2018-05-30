@@ -124,6 +124,7 @@ public class OcdcService {
                             // 老客户
 
                             if (allocateSource.getCode().equals("2")) {
+                                logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入待分配池- ");
                                 // 待分配池
 
                                 Map<String, Object> againAllocateMap = new HashMap<>();
@@ -140,6 +141,7 @@ public class OcdcService {
                                 customerDTO.setTelephonenumber(customerSalePushLog.getTelephonenumber());
                                 customerDTO.setLoanAmount(customerSalePushLog.getLoanAmount());
                                 if (this.isActiveApplicationChannel(customerSalePushLog)) {
+                                    logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入主动申请渠道- ");
                                     // 主动申请渠道
 
                                     responseMessage.append("主动申请渠道");
@@ -147,12 +149,14 @@ public class OcdcService {
                                     // 无负责人
                                     if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
                                         // 自动分配
+                                        logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入主动申请渠道-自动分配 ");
 
                                         responseMessage.append("自动分配");
                                         responseMessage.append("-");
                                         allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                                     } else {
                                         // 有负责人分给对应的业务员
+                                        logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入主动申请渠道-创建交易 ");
 
                                         this.sendMail(token, customerDTO);
                                         SimpleUserInfoDTO simpleUserInfoDTO = thorClientService.getUserInfoById(token, customerDTO.getOwnerUserId()); // 获取负责人信息
@@ -169,24 +173,29 @@ public class OcdcService {
                                     }
                                 } else {
                                     // 非主动申请
+                                    logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入非主动申请- ");
 
                                     if (this.isThreeNonCustomer(customerSalePushLog) || this.isRepeatPushInTime(customerSalePushLog)) {
                                         // 三无、指定时间段内不能重复推入客户
+                                        logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入非主动申请-三无 ");
 
                                         allocateEntity.setSuccess(true);
                                         allocateEntity.setAllocateStatus(AllocateEnum.THREE_NON_CUSTOMER);
                                         responseMessage.append("三无-重复时间申请");
                                         responseMessage.append("-");
                                     } else {
+                                        logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入非主动申请-非三无 ");
 
                                         if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
                                             // 无负责人，自动分配
+                                            logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入非主动申请-无负责人，自动分配 ");
 
                                             responseMessage.append("自动分配");
                                             responseMessage.append("-");
                                             allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                                         } else {
                                             // 发消息业务员，提醒跟进
+                                            logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入非主动申请-有负责人，发消息 ");
 
                                             responseMessage.append("有负责人，发消息");
                                             responseMessage.append("-");
