@@ -92,7 +92,7 @@
 
     <update id="update2IncrNumForEffectiveCustomerNum">
         UPDATE `user_month_info`
-        SET `effective_customer_num`= `effective_customer_num`+1,
+        SET `effective_customer_num`= `effective_customer_num`+1
         WHERE
         `id` IN (
         <foreach collection="ids" item="item" separator=",">
