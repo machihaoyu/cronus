@@ -6,8 +6,12 @@ import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.dto.AllocateForAvatarDTO;
+import com.fjs.cronus.dto.BasePageableDTO;
+import com.fjs.cronus.dto.BasePageableVO;
+import com.fjs.cronus.dto.avatar.AvatarApiDTO;
 import com.fjs.cronus.dto.avatar.FirstBarConsumeDTO;
 import com.fjs.cronus.dto.avatar.FirstBarConsumeDTO2;
+import com.fjs.cronus.dto.avatar.FirstBarDTO;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.BaseCommonDTO;
@@ -18,6 +22,7 @@ import com.fjs.cronus.mappers.UserMonthInfoDetailMapper;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UserMonthInfo;
+import com.fjs.cronus.service.client.AvatarClientService;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.CRMRedisLockHelp;
@@ -68,6 +73,9 @@ public class UserMonthInfoService {
 
     @Autowired
     private TheaService theaService;
+
+    @Autowired
+    private AvatarClientService avatarClientService;
 
     public List<UserMonthInfo> selectByParamsMap(Map<String, Object> map) {
         return userMonthInfoMapper.selectByParamsMap(map);
@@ -806,26 +814,51 @@ public class UserMonthInfoService {
         return userMonthInfoDetailMapper.findAllocateDataByTimAndMedia(list);
     }
 
-    public List<Map<Integer, Object>> findAllocatelog(int pageNum, int pageSize) {
+    public BasePageableVO findAllocatelog(BasePageableDTO page, String token) {
 
         UserMonthInfoDetail d = new UserMonthInfoDetail();
         d.setStatus(CommonEnum.entity_status1.getCode());
         d.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE1);
         int i = userMonthInfoDetailMapper.selectCount(d);
 
+        BasePageableVO basePageableVO = new BasePageableVO();
         if (i > 0) {
-            int start = pageNum <= 1 ? 0 : (pageNum - 1) * pageSize;
-            int end = 20;
 
-            Example example = new Example(UserMonthInfoDetail.class);
-            Example.Criteria criteria = example.createCriteria();
-            criteria.andEqualTo("type", CommonConst.USER_MONTH_INFO_DETAIL_TYPE1);
-            userMonthInfoDetailMapper.selectByExample(example);
+            basePageableVO.setPageNum(page.getPageNum());
+            basePageableVO.setPageSize(page.getPageSize());
+            // 获取分配明细数据
+            List<UserMonthInfoDetail> list = userMonthInfoDetailMapper.findPageData(page.getPageOffset(), page.getPageSize(), CommonConst.USER_MONTH_INFO_DETAIL_TYPE1, CommonEnum.entity_status1.getCode());
+            list = CollectionUtils.isEmpty(list) ? new ArrayList<>() : list;
+
+            // 获取所有吧数据
+            AvatarApiDTO<List<FirstBarDTO>> allSubCompany = avatarClientService.findAllSubCompany(token);
+            if (allSubCompany == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求 avatarClientService 服务异常， allSubCompany == null");
+            }
+            if (allSubCompany.getResult() != 0) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求 avatarClientService 服务异常" + allSubCompany.getResult() + " " + allSubCompany.getMessage());
+            }
+            List<FirstBarDTO> companyList = allSubCompany.getData();
+            companyList = CollectionUtils.isEmpty(companyList) ? new ArrayList<>() : companyList;
+
+            Map<Integer, String> idMappingCompany = companyList.stream()
+                    .filter(item -> item != null && item.getId() != null)
+                    .collect(toMap(FirstBarDTO::getId, item -> item.getCity() + "," + item.getFirstBar(), (x, y) -> x));
+
+            // 拼装数据
+            List<Map<String, Object>> data = new ArrayList<>();
+            for (UserMonthInfoDetail userMonthInfoDetail : list) {
+                Map<String, Object> temp = new HashMap<>(1);
+                temp.put("createTime", userMonthInfoDetail.getCreated());
+                temp.put("customerName", userMonthInfoDetail.getCustomerid());
+                temp.put("companyAndCity", idMappingCompany.get(userMonthInfoDetail.getCompanyid()));
+                data.add(temp);
+            }
+
+            basePageableVO.setList(data);
         }
-
-
-        //List<Map<Integer, Object>> list = userMonthInfoDetailMapper.findAllocateDataByTimAndMedia(starttime, endstart, mediaid);
-        return null; //CollectionUtils.isEmpty(list) ? new ArrayList<>() : list;
+        basePageableVO.setCount(i);
+        return basePageableVO;
     }
 
 }

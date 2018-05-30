@@ -7,11 +7,19 @@
             SELECT `companyid` AS firstBarId, mediaid AS media, COUNT(id) AS allocate  FROM `user_month_info_detail`
             WHERE `created` &gt;= #{item.startTimeParse}
             AND `created` &lt;= #{item.endTimeParse}
-            AND companyid=#{item.firstBarId}
-            AND mediaid=#{item.media}
+            <if test="item.firstBarId != null">
+              AND companyid=#{item.firstBarId}
+            </if>
+            <if test="item.media != null">
+              AND mediaid=#{item.media}
+            </if>
             AND `status`=1
             AND `type`=1
         </foreach>
+    </select>
+
+    <select id="findPageData" resultType="com.fjs.cronus.entity.UserMonthInfoDetail">
+        SELECT * FROM `user_month_info_detail` WHERE `status`=#{status} AND `type`=#{type} ORDER BY `created` DESC  limit #{start}, #{end}
     </select>
 
 </mapper>

@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
+import com.fjs.cronus.dto.BasePageableDTO;
+import com.fjs.cronus.dto.BasePageableVO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.avatar.AvatarApiDTO;
 import com.fjs.cronus.dto.avatar.FirstBarConsumeDTO;
@@ -399,18 +401,29 @@ public class UserMonthInfoController {
     @ApiOperation(value = "商机系统：根据时间(精确到日),来源媒体,查出所有一级巴的实购数", notes = "商机系统：根据时间(精确到日),来源媒体,查出所有一级巴的实购数 api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
-            @ApiImplicitParam(name = "params", value = "提交数据,{\"starttime\":时间戳,\"endstart\":时间戳,\"mediaid\":123}", required = true, dataType = "JSONObject"),
+            @ApiImplicitParam(name = "params", value = "提交数据,[{\"firstBarId\":123,\"media\":123,\"startTime\":时间戳,\"endTime\":时间戳}]", required = true, dataType = "JSONObject"),
     })
     @PostMapping(value = "/findAllocateDataByTimAndMedia")
     public CronusDto findAllocateDataByTimAndMedia(@RequestHeader(name = "Authorization") String token, @RequestBody JSONArray params) {
         CronusDto result = new CronusDto();
         try {
 
+            // 参数校验
             List<FirstBarConsumeDTO> list = params.toJavaList(FirstBarConsumeDTO.class);
             if (CollectionUtils.isEmpty(list)) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "list 不能为空");
             }
-            System.out.println(list);
+            for (FirstBarConsumeDTO firstBarConsumeDTO : list) {
+                if (firstBarConsumeDTO == null) {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "集合中元素 不能为空");
+                }
+                if (firstBarConsumeDTO.getStartTime() == null) {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "StartTime 不能为空");
+                }
+                if (firstBarConsumeDTO.getEndTime() == null) {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "EndTime 不能为空");
+                }
+            }
 
             // 时间戳转时间对象
             List<FirstBarConsumeDTO2> list2 = new ArrayList<>(list.size());
@@ -423,6 +436,7 @@ public class UserMonthInfoController {
                 list2.add(e);
             }
 
+            // 拼装数据结构
             List<FirstBarConsumeDTO> allocateDataByTimAndMedia = userMonthInfoService.findAllocateDataByTimAndMedia(list2);
             Map<String, Integer> collect = allocateDataByTimAndMedia.stream().collect(Collectors.toMap((i) -> {
                         return i.getFirstBarId() + "$" + i.getMedia();
@@ -458,15 +472,13 @@ public class UserMonthInfoController {
     @ApiOperation(value = "商机系统：查看分配log", notes = "商机系统：查看分配log api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
-            //@ApiImplicitParam(name = "params", value = "提交数据,{\"starttime\":时间戳,\"endstart\":时间戳,\"mediaid\":123}", required = true, dataType = "JSONObject"),
+            @ApiImplicitParam(name = "basePageableDTO", value = "提交数据", required = true, dataType = "BasePageableDTO"),
     })
     @PostMapping(value = "/findAllocatelog")
-    public CronusDto findAllocatelog(@RequestHeader(name = "Authorization") String token) {
+    public CronusDto findAllocatelog(@RequestHeader(name = "Authorization") String token, @RequestBody BasePageableDTO basePageableDTO) {
         CronusDto result = new CronusDto();
         try {
-
-            List<Map<Integer, Object>> resultdata = userMonthInfoService.findAllocatelog(1, 0);
-            result.setData(resultdata);
+            result.setData(userMonthInfoService.findAllocatelog(basePageableDTO, token));
             result.setResult(CommonMessage.SUCCESS.getCode());
         } catch (Exception e) {
             if (e instanceof CronusException) {

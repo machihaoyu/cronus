@@ -12,4 +12,6 @@ import java.util.Map;
 
 public interface UserMonthInfoDetailMapper extends MyMapper<UserMonthInfoDetail> {
     List<FirstBarConsumeDTO> findAllocateDataByTimAndMedia(@Param("list") List<FirstBarConsumeDTO2> list);
+
+    List<UserMonthInfoDetail> findPageData(@Param("start")int start, @Param("end")int end, @Param("type")Integer type, @Param("status")Integer status);
 }
