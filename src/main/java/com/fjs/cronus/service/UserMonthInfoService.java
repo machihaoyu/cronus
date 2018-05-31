@@ -456,18 +456,39 @@ public class UserMonthInfoService {
      */
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void incrNum2DB(CustomerInfo customerDto, Integer salesmanId, String token) {
-        logger.info("---- 有效数 --> salesmanId=" + salesmanId + " id=" + customerDto.getId() + " tel=" + customerDto.getTelephonenumber() + " utmSource=" +customerDto.getUtmSource() + " companyid=" + customerDto.getCompanyId());
-
+        // 参数校验
         Integer subCompanyId = customerDto.getSubCompanyId();
         String utmSource = customerDto.getUtmSource();
-        String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT);
+        Date createTime = customerDto.getCreateTime();
+        if (subCompanyId == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "subCompanyId 不能为null");
+        }
+        if (StringUtils.isBlank(utmSource)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "utmSource 不能为null");
+        }
+        if (createTime == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "createTime 不能为null");
+        }
 
+        // 业务处理
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String createTimeStr = sdf.format(createTime);
+
+        logger.info("---- 有效数 --> salesmanId=" + salesmanId + " id=" + customerDto.getId() + " tel=" + customerDto.getTelephonenumber() + " utmSource=" +customerDto.getUtmSource() + " companyid=" + customerDto.getCompanyId());
         Integer mediaid = this.getChannelInfoByChannelName(token, utmSource);
+
         logger.info("---- 有效数 --> mediaid=" + mediaid);
         Date now = new Date();
 
         // 先查该记录
-        List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, mediaid, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, salesmanId, currentMonthStr, CommonEnum.entity_status1.getCode());
+        List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, mediaid, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, salesmanId, createTimeStr, CommonEnum.entity_status1.getCode());
+        if (CollectionUtils.isEmpty(select)) {
+            // 无分配记录，说明该用户不是走商机进入。例如：手动分配
+            return;
+        }
+        if (select.size() != 2) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，（subCompanyId=" + subCompanyId + "，Mediaid=" + mediaid + "，salesmanId=" + salesmanId + "，createTimeStr=" + createTimeStr + "）");
+        }
 
         // 业务说明：一个用户只能算一次.
         UserMonthInfoDetail ee = new UserMonthInfoDetail();
@@ -480,16 +501,11 @@ public class UserMonthInfoService {
         }
         logger.info("---- 有效数 --> i1=" + i1);
 
-        Integer id = null;
-        if (CollectionUtils.isEmpty(select) || select.size() != 2) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，（subCompanyId=" + subCompanyId + "，Mediaid=" + mediaid + "，salesmanId=" + salesmanId + "，currentMonth=" + currentMonthStr + "）");
-        }
-
         // 主表 incr
         Set<Integer> ids = select.stream().map(UserMonthInfo::getId).collect(toSet());
         logger.info("---- 有效数 --> ids=" + ids);
         userMonthInfoMapper.update2IncrNumForEffectiveCustomerNum(ids);
-        id = select.stream().filter(i -> i != null && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())).map(UserMonthInfo::getId).findAny().orElse(null);
+        Integer id = select.stream().filter(i -> i != null && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())).map(UserMonthInfo::getId).findAny().orElse(null);
 
         // 明细表记录明细
         UserMonthInfoDetail detail = new UserMonthInfoDetail();
@@ -497,7 +513,7 @@ public class UserMonthInfoService {
         detail.setUserId(salesmanId);
         detail.setCompanyid(subCompanyId);
         detail.setMediaid(mediaid);
-        detail.setEffectiveDate(currentMonthStr);
+        detail.setEffectiveDate(createTimeStr);
         detail.setCustomerInfo(JSONObject.toJSONString(customerDto));
         detail.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE2);
         detail.setUserMonthInfoId(id);
