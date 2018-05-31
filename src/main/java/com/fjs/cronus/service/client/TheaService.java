@@ -93,4 +93,13 @@ public interface TheaService {
 
     @RequestMapping(value = "/loan/v1/addLoan", method = RequestMethod.POST)
     public TheaApiDTO addLoan(@RequestBody LoanDTO6 loanDTO, @RequestHeader("Authorization")String token);
+
+    @RequestMapping(value = "/media/v1/getAllMedia",method = RequestMethod.GET)
+    TheaApiDTO<List<BaseCommonDTO>> getAllMedia(@RequestHeader("Authorization")String token);
+
+    @RequestMapping(value = "/channel/v1/getInfoByChannelName", method = RequestMethod.POST)
+    TheaApiDTO<BaseChannelDTO> getInfoByChannelName(@RequestHeader("Authorization")String token, @RequestBody JSONObject jsonObject);
+
+    @RequestMapping(value = "/channel/v1/getMediaidByChannelName", method = RequestMethod.POST)
+    TheaApiDTO<Integer> getMediaidByChannelName(@RequestHeader("Authorization")String token, @RequestBody JSONObject jsonObject);
 }

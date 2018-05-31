@@ -4,12 +4,15 @@ package com.fjs.cronus.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.persistence.Column;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by feng on 2017/9/22.
  */
+@Table(name = "user_month_info")
 public class UserMonthInfo implements Serializable{
             /*`id` int(10) NOT NULL AUTO_INCREMENT COMMENT '主键',
             `user_id` int(10) DEFAULT NULL COMMENT '业务员ID',
@@ -28,37 +31,86 @@ public class UserMonthInfo implements Serializable{
     private Integer id;
 
     @ApiModelProperty(value = "用户ID", required = false)
+    @Column(name = "user_id")
     private Integer userId;
 
     @ApiModelProperty(value = "月申请数", required = false)
+    @Column(name = "base_customer_num")
     private Integer baseCustomerNum;
 
     @ApiModelProperty(value = "月奖励数", required = false)
+    @Column(name = "reward_customer_num")
     private Integer rewardCustomerNum;
 
     @ApiModelProperty(value = "已分配数", required = false)
+    @Column(name = "assigned_customer_num")
     private Integer assignedCustomerNum;
 
     @ApiModelProperty(value = "有效数", required = false)
+    @Column(name = "effective_customer_num")
     private Integer effectiveCustomerNum;
 
     @ApiModelProperty(value = "创建时间", required = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @Column(name = "create_time")
     private Date createTime;
 
     @ApiModelProperty(value = "最新保存时间", required = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @Column(name = "last_update_time")
     private Date lastUpdateTime;
 
     @ApiModelProperty(value = "生效时间", required = false)
-
+    @Column(name = "effective_date")
     private String effectiveDate;
 
     @ApiModelProperty(value = "最新保存用户ID", required = false)
+    @Column(name = "last_update_user")
     private Integer lastUpdateUser;
 
     @ApiModelProperty(value = "创建用户ID", required = false)
+    @Column(name = "create_user_id")
     private Integer createUserId;
+
+    /**
+     * 一级吧.
+     */
+    private Integer companyid;
+
+    /**
+     * 媒体.
+     */
+    private Integer mediaid;
+
+
+    /**
+     * 数据状态；0-删除，1-正常
+     */
+    private Integer status;
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public Integer getCompanyid() {
+        return companyid;
+    }
+
+    public void setCompanyid(Integer companyid) {
+        this.companyid = companyid;
+    }
+
+    public Integer getMediaid() {
+        return mediaid;
+    }
+
+    public void setMediaid(Integer mediaid) {
+        this.mediaid = mediaid;
+    }
 
     public Integer getId() {
         return id;

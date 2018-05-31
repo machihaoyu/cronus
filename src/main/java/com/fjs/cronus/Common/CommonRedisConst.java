@@ -13,11 +13,33 @@ public class CommonRedisConst {
 
 
     /**
-     * 交易自动分配Redis配置信息
-     * 完整 "listAllocate上海"
-     * 永久储存
+     * 自动分配：业务员queue redis key.
+     *
+     * key结构：listAllocate$一级吧id$mediaid$yyyyMM
      */
     public static String ALLOCATE_LIST ="listAllocate";
+
+    /**
+     * 自动分配：octc推送时，redis锁.
+     */
+    public static String ALLOCATE_LOCK ="AllocateLock";
+
+    /**
+     * 自动分配：一级吧queue redis key.
+     *
+     * key结构：listAllocateSubCompany$mediaid$城市名
+     */
+    public static String ALLOCATE_SUBCOMPANYID ="listAllocateSubCompany";
+
+    /**
+     * 每月员工后台分配数据，锁key.
+     */
+    public static String USERMONTHINFO_EDIT = "userMonthInfoEdit";
+
+    /**
+     * 每月员工后台分配数据copy，锁key.
+     */
+    public static String USERMONTHINFO_COPY = "userMonthInfoCOPY";
 
     /**
      * 用户下属人员的ID集

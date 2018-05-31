@@ -259,6 +259,8 @@ public class CustomerDTO {
     @ApiModelProperty(value = "是否保留  0不保留1保留2已签合同",notes = "是否保留  0不保留1保留2已签合同")
     private Integer remain;
 
+    private Integer ocdcId;
+
     /*   @ApiModelProperty(value = "海贷魔方 扩展字段",notes = "海贷魔方 扩展字段")
     private String ext;
 
@@ -947,5 +949,13 @@ public class CustomerDTO {
 
     public void setRemain(Integer remain) {
         this.remain = remain;
+    }
+
+    public Integer getOcdcId() {
+        return ocdcId;
+    }
+
+    public void setOcdcId(Integer ocdcId) {
+        this.ocdcId = ocdcId;
     }
 }

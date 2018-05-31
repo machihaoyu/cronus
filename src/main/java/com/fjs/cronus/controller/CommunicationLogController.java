@@ -111,6 +111,7 @@ public class CommunicationLogController {
             }
         }
         String token = request.getHeader("Authorization");
+        Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
         UserInfoDTO userInfoDTO = thorUcService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
 
           /*PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
@@ -141,7 +142,7 @@ public class CommunicationLogController {
         }
         try {
             //CustomerInfo customer=
-            int createResult = communicationLogService.addLog(customerUsefulDTO, customerInfo, userInfoDTO, token);
+            int createResult = communicationLogService.addLog(customerUsefulDTO, customerInfo, userInfoDTO, token, userId);
             if (createResult > 0) {
                 theaApiDTO.setResult(CommonMessage.ADD_SUCCESS.getCode());
                 theaApiDTO.setMessage(CommonMessage.ADD_SUCCESS.getCodeDesc());

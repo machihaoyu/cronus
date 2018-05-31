@@ -123,6 +123,7 @@ public class CommonConst {
     //用户初始化分配数
     public static int BASE_CUSTOMER_NUM = 80;
     public static int REWARD_CUSTOMER_NUM = 0;
+    public static Integer COMPANY_MEDIA_QUEUE_COUNT = -1; // 总分配队列，媒体id值是-1
 
     //特殊渠道
     public static String SPECIAL_UTM_SOURCE = "SpecialUtmSource";
@@ -236,5 +237,13 @@ public class CommonConst {
     public static final String SMS_SIGN = "【房金云】";
 
     public static String COMPANY_EXECUTIVES = "公司高管";
+
+    // user_month_info_detail表，type字段
+    public static final Integer USER_MONTH_INFO_DETAIL_TYPE1 = 1; // 分配数操作
+    public static final Integer USER_MONTH_INFO_DETAIL_TYPE2 = 2; // 确认数操作
+
+    // user_month_info业务，时间标记
+    public static final String USER_MONTH_INFO_MONTH_CURRENT = "current";   // 当月
+    public static final String USER_MONTH_INFO_MONTH_NEXT = "next";         // 下月
 }
 

@@ -344,6 +344,7 @@ public class CustomerInfoService {
         customerInfo.setAutostatus(1);//自动分配
         customerInfo.setCommunicateId(0);
         customerInfo.setFirstAllocateTime(date);
+        customerInfo.setOcdcId(customerDTO.getOcdcId());
         customerInfoMapper.insertCustomer(customerInfo);
         if (customerInfo.getId() == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);

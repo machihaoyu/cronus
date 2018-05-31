@@ -41,6 +41,10 @@ public class AllocateLog {
 
     private String result;
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
     public Integer getId() {
         return id;
     }

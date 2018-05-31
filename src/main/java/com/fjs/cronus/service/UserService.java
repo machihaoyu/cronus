@@ -1,6 +1,9 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.config.RedisConfig;
 import com.fjs.cronus.dto.CronusDto;
@@ -10,9 +13,11 @@ import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.CityDto;
 import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
-import com.fjs.cronus.dto.uc.BaseUcDTO;
+import com.fjs.cronus.dto.thea.BaseChannelDTO;
 import com.fjs.cronus.dto.uc.CrmCitySubCompanyDto;
 import com.fjs.cronus.dto.uc.LightUserInfoDTO;
+import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerUseful;
 import com.fjs.cronus.model.UserMonthInfo;
@@ -20,18 +25,20 @@ import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.UserInfoRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;
-import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DateUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
 import java.util.*;
+import static java.util.stream.Collectors.*;
 
 /**
  * Created by yinzf on 2017/10/20.
@@ -76,6 +83,12 @@ public class UserService {
     @Autowired
     private TheaClientService theaClientService;
 
+    @Autowired
+    private UserMonthInfoMapper userMonthInfoMapper;
+
+    @Autowired
+    private CompanyMediaQueueService companyMediaQueueService;
+
     public List<SubCompanyDto> getDepartmentByWhere(String token, Integer user_id) {
         List<SubCompanyDto> subCompanyDtos = new ArrayList<SubCompanyDto>();
 
@@ -91,143 +104,110 @@ public class UserService {
     }
 
 
-    public Map<String, List<UserMonthInfoDTO>> getUserMonthInfoList(String city, Integer companyId, String effectiveDate, Integer userIdByOption) throws Exception {
+    public Map<String, List<UserMonthInfoDTO>> getUserMonthInfoList(Integer companyId, String monthFlag, Integer userIdByOption, Integer mediaid) throws Exception {
+
+        // 获取公司员工列表
         ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(publicToken, companyId);
         if (baseUcDTO.getResult().equals(1) || baseUcDTO.getData().size() == 0) {
             return null;
         }
+
+        // 校验
+        Set<Integer> mediaidAll = this.companyMediaQueueService.findFollowMediaidAll(companyId);
+        if (!mediaidAll.contains(mediaid)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "参数错误，该一级吧未关注此媒体（id="+mediaid+"）");
+        }
+
+        // 获取时间
+        String effectiveDate = this.allocateRedisService.getMonthStr(monthFlag);
+
+        // 员工ids
         List<Integer> companyUserIds = new ArrayList<>();
-        //设置初始化列表项
+        // 设置初始化列表项
         List<UserMonthInfoDTO> userMonthInfoDTOList = new ArrayList<>();
         for (LightUserInfoDTO lightUserInfoDTO : baseUcDTO.getData()) {
+
+            companyUserIds.add(lightUserInfoDTO.getId());
+
             UserMonthInfoDTO userMonthInfoDTO = new UserMonthInfoDTO();
             userMonthInfoDTO.setUserId(lightUserInfoDTO.getId());
-            companyUserIds.add(lightUserInfoDTO.getId());
             userMonthInfoDTO.setDepartmentId(lightUserInfoDTO.getDepartmentId());
-
-            if (StringUtils.isNotBlank(lightUserInfoDTO.getName())) {
-                userMonthInfoDTO.setName(lightUserInfoDTO.getName());
-            }
-            if (StringUtils.isNotBlank(lightUserInfoDTO.getDepartment())) {
-                userMonthInfoDTO.setDepartmentName(lightUserInfoDTO.getDepartment());
-            }
+            if (StringUtils.isNotBlank(lightUserInfoDTO.getName())) userMonthInfoDTO.setName(lightUserInfoDTO.getName());
+            if (StringUtils.isNotBlank(lightUserInfoDTO.getDepartment())) userMonthInfoDTO.setDepartmentName(lightUserInfoDTO.getDepartment());
             userMonthInfoDTOList.add(userMonthInfoDTO);
         }
-        //查找全部区段的信息
-        Map<String, Object> selectMap = new HashMap<>();
-        selectMap.put("effectiveDate", effectiveDate);
-        selectMap.put("userIds", companyUserIds);
-        List<UserMonthInfo> userMonthInfoList = userMonthInfoService.selectByParamsMap(selectMap);
-        //检查系统中已查找出的userIds
+
+        // 获取员工分配信息
+        Example example = new Example(UserMonthInfo.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("effectiveDate", effectiveDate);
+        criteria.andIn("userId", companyUserIds);
+        criteria.andEqualTo("companyid", companyId);
+        criteria.andEqualTo("mediaid", mediaid);
+        criteria.andEqualTo("status", CommonEnum.entity_status1.getCode());
+        List<UserMonthInfo> userMonthInfoList = userMonthInfoMapper.selectByExample(example);
+        userMonthInfoList = CollectionUtils.isEmpty(userMonthInfoList) ? new ArrayList<>() : userMonthInfoList;
+
+        // ===== 下面循环，做2件事 =====
+        // 1、db中的数据 ----赋值---> userMonthInfoDTOList
+        // 2、未设置值的数据需要入库db
+        List<UserMonthInfo> toAddUserMonthInfoList = new ArrayList<>();
+        Map<Integer, List<UserMonthInfo>> userIdMappingData = userMonthInfoList.stream().collect(groupingBy(UserMonthInfo::getUserId));
+        Date now = new Date();
+
         for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
-            for (UserMonthInfo userMonthInfo : userMonthInfoList) {
-                if (userMonthInfo.getUserId().equals(userMonthInfoDTO.getUserId())) {
-                    userMonthInfoDTO.setAssignedCustomerNum(0);
-                    userMonthInfoDTO.setEffectiveCustomerNum(0);
-                    userMonthInfoDTO.setBaseCustomerNum(userMonthInfo.getBaseCustomerNum());
-                    userMonthInfoDTO.setLastUpdateTime(userMonthInfo.getLastUpdateTime());
-                    userMonthInfoDTO.setRewardCustomerNum(userMonthInfo.getRewardCustomerNum());
-                    userMonthInfoDTO.setLastUpdateTime(userMonthInfo.getLastUpdateTime());
-                    userMonthInfoDTO.setLastUpdateUser(userMonthInfo.getLastUpdateUser());
-                    userMonthInfoDTO.setEffectiveDate(userMonthInfo.getEffectiveDate());
-                }
-            }
-        }
-        //系统中未设置分配数的业务员，给他们设置初始化的分配数,并且给数据库新增数据
-        List<Integer> unSetUserIds = new ArrayList<>();
-        List<UserMonthInfo> insertList = new ArrayList<>();
-        for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
-            if (null == userMonthInfoDTO.getBaseCustomerNum()) {
-                UserMonthInfo userMonthInfo = new UserMonthInfo();
-                userMonthInfoDTO.setBaseCustomerNum(CommonConst.BASE_CUSTOMER_NUM);
-                userMonthInfoDTO.setRewardCustomerNum(CommonConst.REWARD_CUSTOMER_NUM);
-                userMonthInfoDTO.setLastUpdateTime(new Date());
+            List<UserMonthInfo> userMonthInfos = userIdMappingData.get(userMonthInfoDTO.getUserId());
+            if (CollectionUtils.isNotEmpty(userMonthInfos) && userMonthInfos.get(0) != null) {
+                // db中有，则赋值给vo
+                UserMonthInfo userMonthInfo = userMonthInfos.get(0);
+
+                userMonthInfoDTO.setAssignedCustomerNum(userMonthInfo.getAssignedCustomerNum());
+                userMonthInfoDTO.setEffectiveCustomerNum(userMonthInfo.getEffectiveCustomerNum());
+                userMonthInfoDTO.setBaseCustomerNum(userMonthInfo.getBaseCustomerNum());
+                userMonthInfoDTO.setLastUpdateTime(userMonthInfo.getLastUpdateTime());
+                userMonthInfoDTO.setRewardCustomerNum(userMonthInfo.getRewardCustomerNum());
+                userMonthInfoDTO.setLastUpdateTime(userMonthInfo.getLastUpdateTime());
+                userMonthInfoDTO.setLastUpdateUser(userMonthInfo.getLastUpdateUser());
+                userMonthInfoDTO.setEffectiveDate(userMonthInfo.getEffectiveDate());
+
+            } else {
+                // db中无，则需要db新增，vo设置初始化值
+                userMonthInfoDTO.setBaseCustomerNum(0);
+                userMonthInfoDTO.setRewardCustomerNum(0);
+                userMonthInfoDTO.setAssignedCustomerNum(0);
                 userMonthInfoDTO.setEffectiveCustomerNum(0);
-                userMonthInfoDTO.setCreateTime(new Date());
+                userMonthInfoDTO.setLastUpdateTime(now);
+                userMonthInfoDTO.setCreateTime(now);
                 userMonthInfoDTO.setEffectiveDate(effectiveDate);
-//                unSetUserIds.add(userMonthInfoDTO.getUserId());
-                userMonthInfo.setBaseCustomerNum(CommonConst.BASE_CUSTOMER_NUM);
-                userMonthInfo.setAssignedCustomerNum(0);
-                userMonthInfo.setEffectiveCustomerNum(0);
-                userMonthInfo.setEffectiveDate(effectiveDate);
-                userMonthInfo.setRewardCustomerNum(CommonConst.REWARD_CUSTOMER_NUM);
-                userMonthInfo.setLastUpdateTime(new Date());
-                userMonthInfo.setCreateTime(new Date());
-                userMonthInfo.setUserId(userMonthInfoDTO.getUserId());
-                userMonthInfo.setCreateUserId(userIdByOption);
-                userMonthInfo.setLastUpdateUser(userIdByOption);
-                insertList.add(userMonthInfo);
-            }
-        }
-        //初始化用户分配数并且，将初始化数据保存至数据库中
-        if (null != insertList && insertList.size() > 0) {
-            Integer insertCount = userMonthInfoService.insertList(insertList);
-        }
-        //获取这些业务员的自动分配数和确认数
-        Map<String, Object> allocateMap = new HashMap<>();
-        allocateMap.put("newOwnerIds", companyUserIds);
-        allocateMap.put("createBeginDate", DateUtils.getBeginDateByStr(effectiveDate));
-        allocateMap.put("createEndDate", DateUtils.getEndDateByStr(effectiveDate));
-        List<AllocateLog> allocateLogList = allocateLogService.selectByParamsMap(allocateMap);
-        //计算业务员的已分配数
-        for (AllocateLog allocateLog : allocateLogList) {
-            for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
-                if (null != allocateLog.getNewOwnerId() && allocateLog.getNewOwnerId().equals(userMonthInfoDTO.getUserId())) {
-                    userMonthInfoDTO.setAssignedCustomerNum(userMonthInfoDTO.getAssignedCustomerNum() + 1);
-                }
-            }
-        }
-        List<Integer> userIds = new ArrayList<>();
 
-        if (allocateLogList.size() > 0) {
-            for (int i = 1; i < allocateLogList.size(); i++) {
-                userIds.add(allocateLogList.get(i).getNewOwnerId());
+                UserMonthInfo userMonthInfoTemp = new UserMonthInfo();
+                userMonthInfoTemp.setBaseCustomerNum(0);
+                userMonthInfoTemp.setRewardCustomerNum(0);
+                userMonthInfoTemp.setAssignedCustomerNum(0);
+                userMonthInfoTemp.setEffectiveCustomerNum(0);
+                userMonthInfoTemp.setEffectiveDate(effectiveDate);
+                userMonthInfoTemp.setLastUpdateTime(now);
+                userMonthInfoTemp.setCreateTime(now);
+                userMonthInfoTemp.setUserId(userMonthInfoDTO.getUserId());
+                userMonthInfoTemp.setCreateUserId(userIdByOption);
+                userMonthInfoTemp.setLastUpdateUser(userIdByOption);
+                userMonthInfoTemp.setCompanyid(companyId);
+                userMonthInfoTemp.setMediaid(mediaid);
+                userMonthInfoTemp.setStatus(CommonEnum.entity_status1.getCode());
+                toAddUserMonthInfoList.add(userMonthInfoTemp);
             }
         }
-        Map<String, Object> userFullSelectMap = new HashMap<>();
-        Date date = DateUtils.getBeginDateByStr(effectiveDate);
 
-        userFullSelectMap.put("year", DateUtils.getYear2(date));
-        userFullSelectMap.put("month", DateUtils.getMonth(date));
-        userFullSelectMap.put("loanAmountMin", 0);
-        if (userIds.size()>0) {
-            userFullSelectMap.put("inLoanId", userIds);
+        // 未分配数据数据入库
+        if (CollectionUtils.isNotEmpty(toAddUserMonthInfoList)) {
+            userMonthInfoService.insertList(toAddUserMonthInfoList);
         }
-        List<CustomerUseful> customerUsefulList = customerUsefulService.countByMap(userFullSelectMap);
-        //计算业务员的有效分配数
-        for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
-            int effectCountNum = userMonthInfoDTO.getEffectiveCustomerNum();
-            for (CustomerUseful customerUseful : customerUsefulList) {
-                if (null != customerUseful.getCreateUser() && customerUseful.getCreateUser().equals(userMonthInfoDTO.getUserId())) {
-                    effectCountNum++;
-                }
-            }
-            userMonthInfoDTO.setEffectiveCustomerNum(effectCountNum);
-        }
-        //处理最终返回值
-//        List<Map<String, List<UserMonthInfoDTO>>> resultDTO = new ArrayList<>();
-        //部门名列表
-        List<String> departmentNameList = new ArrayList<>();
-        for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
-            if (StringUtils.isNotBlank(userMonthInfoDTO.getDepartmentName())
-                    && !departmentNameList.contains(userMonthInfoDTO.getDepartmentName())) {
-                departmentNameList.add(userMonthInfoDTO.getDepartmentName());
-            }
-        }
-        Map<String, List<UserMonthInfoDTO>> departmentMap = new HashMap<>();
-        for (String departmentName : departmentNameList) {
-            List<UserMonthInfoDTO> singleList = new ArrayList<>();
-            for (UserMonthInfoDTO userMonthInfoDTO : userMonthInfoDTOList) {
-                if (StringUtils.isNotBlank(userMonthInfoDTO.getDepartmentName())
-                        && userMonthInfoDTO.getDepartmentName().equals(departmentName)) {
-                    singleList.add(userMonthInfoDTO);
-                }
-            }
-            departmentMap.put(departmentName, singleList);
-        }
-        return departmentMap;
+
+        // 组装界面需要的数据结构
+        return userMonthInfoDTOList.parallelStream()
+                .filter(item -> item != null && StringUtils.isNotEmpty(item.getDepartmentName()))
+                .collect(groupingBy(UserMonthInfoDTO::getDepartmentName, toList()));
     }
-
 
     public List<PhpDepartmentModel> getSubCompanys(String token, Integer companyId) {
         List<PhpDepartmentModel> phpDepartmentModelList = new ArrayList<PhpDepartmentModel>();
@@ -238,21 +218,17 @@ public class UserService {
     }
 
     /**
-     * 获取城市分配队列
-     *
-     * @param city 城市
-     * @return
+     * 获取分配队列
      */
-    public List<Map<String, String>> getAllocateQueue(String city) {
+    public List<Map<String, String>> getAllocateQueue(Integer companyid, Integer media, String monthFlag) {
+
+        String monthStr = this.allocateRedisService.getMonthStr(monthFlag);
+
         List<Map<String, String>> allocateQueue = new ArrayList<>();
-        String userIdsStr = allocateRedisService.getAllocateTemplet(city);
-        if (StringUtils.isBlank(userIdsStr)) {
-            return allocateQueue;
-        }
-        List<Integer> ids = CommonUtil.initStrtoIntegerList(userIdsStr);
+        List<Integer> ids = allocateRedisService.finaAllFromQueue(companyid, media, monthStr);
         for (Integer userId : ids) {
             Map<String, String> allocateQueueMap = new HashMap<>();
-            AppUserDto appUserDto = getUserInfoByField(null, Integer.valueOf(userId), null);
+            AppUserDto appUserDto = this.getUserInfoByField(null, Integer.valueOf(userId), null);
             allocateQueueMap.put(userId.toString(), appUserDto.getName());
             allocateQueue.add(allocateQueueMap);
         }
@@ -285,7 +261,7 @@ public class UserService {
         return crmCitySubCompanyDtoList;
     }
 
-    public AppUserDto getUserInfoByField(String telephone, Integer userId, String ownUserName) {
+    private AppUserDto getUserInfoByField(String telephone, Integer userId, String ownUserName) {
         AppUserDto appUserDto = null;
         if (userId != null) {
             String key = "USERINFO" + userId;

@@ -69,6 +69,7 @@ public class ScheduledJob {
         logger.info("3.waitingPoolAllocate start");
         ocdcService.waitingPoolAllocate(token);
         logger.info("3.waitingPoolAllocate end");
+        //ocdcService.waitingPoolAllocate(token);
 
         //autoAllocateService.nonCommunicateAgainAllocate(token);
 
