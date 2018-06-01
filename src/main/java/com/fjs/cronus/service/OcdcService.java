@@ -273,6 +273,7 @@ public class OcdcService {
                         } else {
                             failList.add(customerSalePushLog.getOcdcId().toString());
                         }
+                        logger.info("--- SingleCutomerAllocateDevInfoUtil ---> " + SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
                         customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
                         customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
 
