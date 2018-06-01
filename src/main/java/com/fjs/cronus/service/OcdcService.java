@@ -273,8 +273,8 @@ public class OcdcService {
                         } else {
                             failList.add(customerSalePushLog.getOcdcId().toString());
                         }
-                        logger.info("--- SingleCutomerAllocateDevInfoUtil ---> " + SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
-                        logger.info("---  customerSalePushLog.getOcdcId() ---> " + customerSalePushLog.getOcdcId().toString());
+                        logger.info("--- SingleCutomerAllocateDevInfoUtil 1---> " + SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
+                        logger.info("---  customerSalePushLog.getOcdcId() 2---> " + customerSalePushLog.getOcdcId().toString());
                         String s = SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString();
                         customerSalePushLog.setErrorinfo(s);
                         customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
@@ -299,7 +299,7 @@ public class OcdcService {
                         customerSalePushLog.setErrorinfo(s);
                         customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
 
-                        logger.info("---  customerSalePushLog.getOcdcId() ---> " + customerSalePushLog.getOcdcId().toString());
+                        logger.info("---  customerSalePushLog.getOcdcId() 3---> " + customerSalePushLog.getOcdcId().toString());
                         failList.add(customerSalePushLog.getOcdcId().toString());
                     }
 
