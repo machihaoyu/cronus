@@ -478,7 +478,7 @@ public class AutoAllocateService {
                 // 未关注着不从该特殊队列中找
                 queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr);
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k26 + j
-                        , ImmutableMap.of("为在关注队列内", "不从特殊队列中找业务员"));
+                        , ImmutableMap.of("未在关注队列内", "不从特殊队列中找业务员"));
             } else {
                 queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr);
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k26 + j
@@ -487,6 +487,8 @@ public class AutoAllocateService {
             }
 
             for (int i = 0; i < queueSizeMedia; i++) {
+                SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k46 + j);
+
                 // 去特殊分配队列找
                 salesmanId = allocateRedisService.getAndPush2End(subCompanyId, media_id, currentMonthStr);
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k27 + j + "$" + i
