@@ -47,6 +47,7 @@
         <result column="repeat_callback_time" property="repeatCallbackTime" jdbcType="TIMESTAMP"/>
         <result column="house_status" property="houseStatus" jdbcType="TIMESTAMP"/>
         <result column="errorinfo" property="errorinfo" jdbcType="VARCHAR"/>
+        <result column="pushstatus" property="pushstatus" jdbcType="INTEGER"/>
     </resultMap>
     <!--基础表字段-->
     <sql id="base_column">
@@ -55,7 +56,7 @@
         sex,customer_address,per_description,house_amount,house_type,house_value,house_area,house_age,
         house_loan,house_alone,house_location,city,retain,create_time,update_time,receive_time,is_lock,
         phone_view_time,phone_view_uid,phone_view_count,autostatus,utm_source,customer_source,
-        customer_classify,laiyuan,ext,repeat_callback_time,house_status,errorinfo
+        customer_classify,laiyuan,ext,repeat_callback_time,house_status,errorinfo,pushstatus
     </sql>
     <!--批量添加数据-->
     <insert id="insertList" parameterType="java.util.List" useGeneratedKeys="true">
@@ -66,7 +67,7 @@
         sex,customer_address,per_description,house_amount,house_type,house_value,house_area,house_age,
         house_loan,house_alone,house_location,city,retain,create_time,update_time,receive_time,is_lock,
         phone_view_time,phone_view_uid,phone_view_count,autostatus,utm_source,customer_source,
-        customer_classify,laiyuan,ext,repeat_callback_time,house_status,errorinfo
+        customer_classify,laiyuan,ext,repeat_callback_time,house_status,errorinfo,pushstatus
         )
         values
         <foreach collection="list" item="customerSalePushLog" index="index" separator=",">
@@ -114,7 +115,8 @@
             #{customerSalePushLog.ext},
             #{customerSalePushLog.repeatCallbackTime},
             #{customerSalePushLog.houseStatus},
-            #{customerSalePushLog.errorinfo}
+            #{customerSalePushLog.errorinfo},
+            #{customerSalePushLog.pushstatus},
             )
         </foreach>
     </insert>

@@ -93,7 +93,23 @@ public class CustomerSalePushLog {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date repeatCallbackTime;
 
+    /**
+     * 记录相关信息（普通信息+错误信息）.
+     */
     private String errorinfo;
+
+    /**
+     * 分配状态；0-成功，1-失败.
+     */
+    private Integer pushstatus;
+
+    public Integer getPushstatus() {
+        return pushstatus;
+    }
+
+    public void setPushstatus(Integer pushstatus) {
+        this.pushstatus = pushstatus;
+    }
 
     public String getErrorinfo() {
         return errorinfo;

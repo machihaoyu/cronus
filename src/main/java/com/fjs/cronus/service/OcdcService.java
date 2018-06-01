@@ -22,7 +22,10 @@ import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.thea.ThorClientService;
 import com.fjs.cronus.util.DEC3Util;
+import com.fjs.cronus.util.SingleCutomerAllocateDevInfo;
+import com.fjs.cronus.util.SingleCutomerAllocateDevInfoUtil;
 import com.fjs.framework.exception.BaseException;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -91,7 +94,7 @@ public class OcdcService {
     private ThorClientService thorClientService;
 
     @Resource
-    private RedisTemplate<String,String> redisConfigTemplete;
+    private RedisTemplate<String, String> redisConfigTemplete;
 
     @Autowired
     private CustomerInfoMapper customerInfoMapper;
@@ -106,7 +109,7 @@ public class OcdcService {
         List<String> ocdcMessage = new ArrayList<>();
         List<String> failList = new ArrayList<>();
         //遍历OCDC数据信息
-        if (ocdcData.getData()!=null && ocdcData.getData().size() > 0) {
+        if (ocdcData.getData() != null && ocdcData.getData().size() > 0) {
             List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<CustomerSalePushLog>();
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -115,6 +118,7 @@ public class OcdcService {
             try { // try 此次 50个一批的信息，作为响应信息，如中间某个出差需要记录
 
                 for (String map : ocdcData.getData()) {
+                    SingleCutomerAllocateDevInfoUtil.local.set(new SingleCutomerAllocateDevInfo());
 
                     // 解析客户信息
                     JsonNode node = objectMapper.readValue(map, JsonNode.class);
@@ -130,10 +134,11 @@ public class OcdcService {
                         CustomerDTO customerDTO = this.getCustomer(customerSalePushLog.getTelephonenumber());
                         if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) {
                             // 老客户
+                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k1);
 
                             if (allocateSource.getCode().equals("2")) {
-                                logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入待分配池- ");
                                 // 待分配池
+                                SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k2);
 
                                 Map<String, Object> againAllocateMap = new HashMap<>();
                                 againAllocateMap.put("dataId", customerSalePushLog.getOcdcId());
@@ -149,22 +154,22 @@ public class OcdcService {
                                 customerDTO.setTelephonenumber(customerSalePushLog.getTelephonenumber());
                                 customerDTO.setLoanAmount(customerSalePushLog.getLoanAmount());
                                 if (this.isActiveApplicationChannel(customerSalePushLog)) {
-                                    logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入主动申请渠道- ");
                                     // 主动申请渠道
+                                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k3);
 
                                     responseMessage.append("主动申请渠道");
                                     responseMessage.append("-");
                                     // 无负责人
                                     if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
                                         // 自动分配
-                                        logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入主动申请渠道-自动分配 ");
+                                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k4);
 
                                         responseMessage.append("自动分配");
                                         responseMessage.append("-");
                                         allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                                     } else {
                                         // 有负责人分给对应的业务员
-                                        logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入主动申请渠道-创建交易 ");
+                                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k5, ImmutableMap.of("salemanid", customerDTO.getOwnerUserId()));
 
                                         this.sendMail(token, customerDTO);
                                         SimpleUserInfoDTO simpleUserInfoDTO = thorClientService.getUserInfoById(token, customerDTO.getOwnerUserId()); // 获取负责人信息
@@ -181,29 +186,27 @@ public class OcdcService {
                                     }
                                 } else {
                                     // 非主动申请
-                                    logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入非主动申请- ");
+                                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k6);
 
                                     if (this.isThreeNonCustomer(customerSalePushLog) || this.isRepeatPushInTime(customerSalePushLog)) {
                                         // 三无、指定时间段内不能重复推入客户
-                                        logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入非主动申请-三无 ");
+                                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k7);
 
                                         allocateEntity.setSuccess(true);
                                         allocateEntity.setAllocateStatus(AllocateEnum.THREE_NON_CUSTOMER);
                                         responseMessage.append("三无-重复时间申请");
                                         responseMessage.append("-");
                                     } else {
-                                        logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入非主动申请-非三无 ");
-
                                         if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
                                             // 无负责人，自动分配
-                                            logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入非主动申请-无负责人，自动分配 ");
+                                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k4);
 
                                             responseMessage.append("自动分配");
                                             responseMessage.append("-");
                                             allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                                         } else {
                                             // 发消息业务员，提醒跟进
-                                            logger.info("-------- " + customerDTO.getTelephonenumber() + " -------> 老用户分支-进入非主动申请-有负责人，发消息 ");
+                                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k8);
 
                                             responseMessage.append("有负责人，发消息");
                                             responseMessage.append("-");
@@ -216,6 +219,7 @@ public class OcdcService {
                             }
                         } else {
                             // 新客户
+                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k9);
 
                             responseMessage.append("新客户，自动分配");
                             responseMessage.append("-");
@@ -246,7 +250,7 @@ public class OcdcService {
                                             againAllocateCustomer.setUpdateTime(new Date());
                                             againAllocateCustomerService.addAgainAllocateCustomer(againAllocateCustomer);
                                         }
-                                        waitingPoolUpdateStatus=false;
+                                        waitingPoolUpdateStatus = false;
                                         break;
                                     case "3":
                                         break;
@@ -255,7 +259,6 @@ public class OcdcService {
                                         String resp = this.pushServiceSystem(map);
                                         responseMessage.append(resp); // 未分配城市客户到客服系统
                                         responseMessage.append("-");
-                                        customerSalePushLog.setErrorinfo("已推入客服系统，响应数据：" + resp); // 临时记录，没地方记录
                                         break;
                                     case "5":
                                     case "6":
@@ -268,9 +271,10 @@ public class OcdcService {
 
                             successList.add(customerSalePushLog.getOcdcId().toString());
                         } else {
-                            customerSalePushLog.setErrorinfo(allocateEntity.getDescription());
                             failList.add(customerSalePushLog.getOcdcId().toString());
                         }
+                        customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
+                        customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
 
                     } catch (Exception e) {
                         logger.error("分配失败", e);
@@ -307,8 +311,7 @@ public class OcdcService {
         return ocdcMessage;
     }
 
-    private void updateWaitingPoolStatus(Integer dataId)
-    {
+    private void updateWaitingPoolStatus(Integer dataId) {
         Map<String, Object> againAllocateMap = new HashMap<>();
         againAllocateMap.put("dataId", dataId);
         againAllocateMap.put("status", CommonEnum.AGAIN_ALLOCATE_STATUS_1.getCode());
@@ -362,11 +365,9 @@ public class OcdcService {
     public void waitingPoolAllocate(String token) {
         ValueOperations<String, String> redis = redisConfigTemplete.opsForValue();
         String close = redis.get(CommonRedisConst.LOCK_WAITING_POOL_ALLOCATE);
-        if (StringUtils.isNoneEmpty(close)&&close.equals("1")) {
-            logger.warn(CommonRedisConst.LOCK_WAITING_POOL_ALLOCATE +" lock");
-        }
-        else
-        {
+        if (StringUtils.isNoneEmpty(close) && close.equals("1")) {
+            logger.warn(CommonRedisConst.LOCK_WAITING_POOL_ALLOCATE + " lock");
+        } else {
             new Thread(() -> {
                 try {
                     StringBuffer sb = new StringBuffer();
@@ -389,17 +390,14 @@ public class OcdcService {
         }
     }
 
-    public String switchWaitingPoolAllocate()
-    {
+    public String switchWaitingPoolAllocate() {
         ValueOperations<String, String> redis = redisConfigTemplete.opsForValue();
         String close = redis.get(CommonRedisConst.LOCK_WAITING_POOL_ALLOCATE);
-        if (StringUtils.isNoneEmpty(close)&&close.equals("1")) {
-            redis.set(CommonRedisConst.LOCK_WAITING_POOL_ALLOCATE,"0");
+        if (StringUtils.isNoneEmpty(close) && close.equals("1")) {
+            redis.set(CommonRedisConst.LOCK_WAITING_POOL_ALLOCATE, "0");
             return "0";
-        }
-        else
-        {
-            redis.set(CommonRedisConst.LOCK_WAITING_POOL_ALLOCATE,"1");
+        } else {
+            redis.set(CommonRedisConst.LOCK_WAITING_POOL_ALLOCATE, "1");
             return "1";
         }
     }
@@ -500,7 +498,7 @@ public class OcdcService {
                 customerSalePushLog.setCustomerLevel(CommonEnum.CUSTOMER_LEVEL_0.getCodeDesc());
             }
             if (null != map.get("loan_amount") && StringUtils.isNotBlank(map.get("loan_amount").toString())) {
-                float value = (float)(Math.round(map.get("loan_amount").asLong()*100/10000))/100;
+                float value = (float) (Math.round(map.get("loan_amount").asLong() * 100 / 10000)) / 100;
                 customerSalePushLog.setLoanAmount(new BigDecimal(value));
             }
             if (null != map.get("spare_phone") && StringUtils.isNotBlank(map.get("spare_phone").toString())) {
@@ -688,7 +686,7 @@ public class OcdcService {
             postParameters.add("data", json);
             String str = restTemplate.postForObject(customerToService, postParameters, String.class);
             return str;
-        }else return "";
+        } else return "";
     }
 
 
@@ -723,27 +721,24 @@ public class OcdcService {
             postParameters.add("fail", fails.toString());
             String str = restTemplate.postForObject(pushCallback, postParameters, String.class);
             return str;
-        }
-        else return "";
+        } else return "";
     }
 
     public boolean phpSysConnectStatus() {
         SysConfig sysConfig = sysConfigService.getConfigByName("oldconnect");
         if (sysConfig.getConValue().equals("1")) {
             return true;
-        }
-        else return false;
+        } else return false;
     }
 
     /*
     * 获取时间范围内客户手机号
     * */
-    public List<String> getCustomerPhone(String start, String end)
-    {
+    public List<String> getCustomerPhone(String start, String end) {
         List<String> newPhones = new ArrayList<>();
-        List<String> ts = customerInfoMapper.getCustomerPhone(start,end);
-        for (String ph:
-             ts) {
+        List<String> ts = customerInfoMapper.getCustomerPhone(start, end);
+        for (String ph :
+                ts) {
             newPhones.add(DEC3Util.des3DecodeCBC(ph));
         }
         return newPhones;
