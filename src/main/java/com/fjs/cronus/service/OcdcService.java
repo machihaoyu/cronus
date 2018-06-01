@@ -18,7 +18,6 @@ import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.AgainAllocateCustomer;
 import com.fjs.cronus.model.CustomerSalePushLog;
 import com.fjs.cronus.model.SysConfig;
-import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.thea.ThorClientService;
 import com.fjs.cronus.util.DEC3Util;
@@ -34,7 +33,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -42,7 +40,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -118,7 +115,7 @@ public class OcdcService {
             try { // try 此次 50个一批的信息，作为响应信息，如中间某个出差需要记录
 
                 for (String map : ocdcData.getData()) {
-                    SingleCutomerAllocateDevInfoUtil.local.set(new SingleCutomerAllocateDevInfo());
+                    SingleCutomerAllocateDevInfo devInfoBox = new SingleCutomerAllocateDevInfo(); // 收集各种数据
 
                     // 解析客户信息
                     JsonNode node = objectMapper.readValue(map, JsonNode.class);
@@ -134,11 +131,11 @@ public class OcdcService {
                         CustomerDTO customerDTO = this.getCustomer(customerSalePushLog.getTelephonenumber());
                         if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) {
                             // 老客户
-                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k1);
+                            devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k1);
 
                             if (allocateSource.getCode().equals("2")) {
                                 // 待分配池
-                                SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k2);
+                                devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k2);
 
                                 Map<String, Object> againAllocateMap = new HashMap<>();
                                 againAllocateMap.put("dataId", customerSalePushLog.getOcdcId());
@@ -155,21 +152,21 @@ public class OcdcService {
                                 customerDTO.setLoanAmount(customerSalePushLog.getLoanAmount());
                                 if (this.isActiveApplicationChannel(customerSalePushLog)) {
                                     // 主动申请渠道
-                                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k3);
+                                    devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k3);
 
                                     responseMessage.append("主动申请渠道");
                                     responseMessage.append("-");
                                     // 无负责人
                                     if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
                                         // 自动分配
-                                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k4);
+                                        devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k4);
 
                                         responseMessage.append("自动分配");
                                         responseMessage.append("-");
-                                        allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
+                                        allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token, devInfoBox);
                                     } else {
                                         // 有负责人分给对应的业务员
-                                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k5, ImmutableMap.of("salemanid", customerDTO.getOwnerUserId()));
+                                        devInfoBox.setInfo4Req(SingleCutomerAllocateDevInfoUtil.k5, ImmutableMap.of("salemanid", customerDTO.getOwnerUserId()));
 
                                         this.sendMail(token, customerDTO);
                                         SimpleUserInfoDTO simpleUserInfoDTO = thorClientService.getUserInfoById(token, customerDTO.getOwnerUserId()); // 获取负责人信息
@@ -186,11 +183,11 @@ public class OcdcService {
                                     }
                                 } else {
                                     // 非主动申请
-                                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k6);
+                                    devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k6);
 
                                     if (this.isThreeNonCustomer(customerSalePushLog) || this.isRepeatPushInTime(customerSalePushLog)) {
                                         // 三无、指定时间段内不能重复推入客户
-                                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k7);
+                                        devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k7);
 
                                         allocateEntity.setSuccess(true);
                                         allocateEntity.setAllocateStatus(AllocateEnum.THREE_NON_CUSTOMER);
@@ -199,14 +196,14 @@ public class OcdcService {
                                     } else {
                                         if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
                                             // 无负责人，自动分配
-                                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k4);
+                                            devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k4);
 
                                             responseMessage.append("自动分配");
                                             responseMessage.append("-");
-                                            allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
+                                            allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token, devInfoBox);
                                         } else {
                                             // 发消息业务员，提醒跟进
-                                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k8);
+                                            devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k8);
 
                                             responseMessage.append("有负责人，发消息");
                                             responseMessage.append("-");
@@ -219,12 +216,12 @@ public class OcdcService {
                             }
                         } else {
                             // 新客户
-                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k9);
+                            devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k9);
 
                             responseMessage.append("新客户，自动分配");
                             responseMessage.append("-");
                             BeanUtils.copyProperties(customerSalePushLog, customerDTO);
-                            allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
+                            allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token, devInfoBox);
                         }
                         // 搜集 成功 or 失败 的数据
                         if (allocateEntity.isSuccess()) {
@@ -273,11 +270,11 @@ public class OcdcService {
                         } else {
                             failList.add(customerSalePushLog.getOcdcId().toString());
                         }
-                        logger.info("--- SingleCutomerAllocateDevInfoUtil 1---> " + SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
+                        logger.info("--- SingleCutomerAllocateDevInfoUtil 1---> " + devInfoBox.getInfo().toString());
                         logger.info("---  customerSalePushLog.getOcdcId() 2---> " + customerSalePushLog.getOcdcId().toString());
-                        String s = SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString();
+                        String s = devInfoBox.getInfo().toString();
                         customerSalePushLog.setErrorinfo(s);
-                        customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
+                        customerSalePushLog.setPushstatus(devInfoBox.getSuccess() ? 1 : 0);
 
                     } catch (Exception e) {
                         logger.error("分配失败", e);
@@ -293,11 +290,11 @@ public class OcdcService {
                             // 未知异常
                             str = e.getMessage();
                         }
-                        SingleCutomerAllocateDevInfoUtil.local.get().setSuccess(false);
-                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k45, ImmutableMap.of("异常",str));
-                        String s = SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString();
+                        devInfoBox.setSuccess(false);
+                        devInfoBox.setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k45, ImmutableMap.of("异常", str));
+                        String s = devInfoBox.getInfo().toString();
                         customerSalePushLog.setErrorinfo(s);
-                        customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
+                        customerSalePushLog.setPushstatus(devInfoBox.getSuccess() ? 1 : 0);
 
                         logger.info("---  customerSalePushLog.getOcdcId() 3---> " + customerSalePushLog.getOcdcId().toString());
                         failList.add(customerSalePushLog.getOcdcId().toString());
