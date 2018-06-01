@@ -116,7 +116,7 @@
             #{customerSalePushLog.repeatCallbackTime},
             #{customerSalePushLog.houseStatus},
             #{customerSalePushLog.errorinfo},
-            #{customerSalePushLog.pushstatus},
+            #{customerSalePushLog.pushstatus}
             )
         </foreach>
     </insert>
