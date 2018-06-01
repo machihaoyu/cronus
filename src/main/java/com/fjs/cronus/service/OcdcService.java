@@ -289,9 +289,11 @@ public class OcdcService {
                     }
 
                     // 搜集数据，作为响应
+                    logger.info("----- ocdcMessage.add ----->");
                     ocdcMessage.add(responseMessage.toString());
 
                     // 记录单个客户推送信息
+                    logger.info("----- customerSalePushLogList.add ----->");
                     customerSalePushLogList.add(customerSalePushLog);
                 }
             } catch (Exception e) {
@@ -299,11 +301,14 @@ public class OcdcService {
             }
 
             // 保存OCDC推送日志
+            logger.info("----- insertList ----->" + (customerSalePushLogList == null ? customerSalePushLogList.size() : null));
             customerSalePushLogService.insertList(customerSalePushLogList);
 
             // rest 响应此次请求的客户信息
+            logger.info("----- autoAllocateFeedback ----->" + successList + " " + failList);
             this.autoAllocateFeedback(successList, failList);
         }
+        logger.info("----- 自动分配 end ----->" + ocdcMessage);
         return ocdcMessage;
     }
 
