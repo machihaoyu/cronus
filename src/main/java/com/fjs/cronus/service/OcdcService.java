@@ -274,7 +274,9 @@ public class OcdcService {
                             failList.add(customerSalePushLog.getOcdcId().toString());
                         }
                         logger.info("--- SingleCutomerAllocateDevInfoUtil ---> " + SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
-                        customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
+                        logger.info("---  customerSalePushLog.getOcdcId() ---> " + customerSalePushLog.getOcdcId().toString());
+                        String s = SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString();
+                        customerSalePushLog.setErrorinfo(s);
                         customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
 
                     } catch (Exception e) {
@@ -293,8 +295,11 @@ public class OcdcService {
                         }
                         SingleCutomerAllocateDevInfoUtil.local.get().setSuccess(false);
                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k45, ImmutableMap.of("异常",str));
-                        customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
+                        String s = SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString();
+                        customerSalePushLog.setErrorinfo(s);
                         customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
+
+                        logger.info("---  customerSalePushLog.getOcdcId() ---> " + customerSalePushLog.getOcdcId().toString());
                         failList.add(customerSalePushLog.getOcdcId().toString());
                     }
 
@@ -311,6 +316,8 @@ public class OcdcService {
             // 保存OCDC推送日志
             customerSalePushLogService.insertList(customerSalePushLogList);
 
+            logger.info("--- successList ---> " + successList);
+            logger.info("--- failList ---> " + failList);
             // rest 响应此次请求的客户信息
             this.autoAllocateFeedback(successList, failList);
         }
