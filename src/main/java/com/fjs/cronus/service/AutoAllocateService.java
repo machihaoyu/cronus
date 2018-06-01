@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
+
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.AllocateForAvatarDTO;
@@ -18,6 +19,7 @@ import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.CrmUserDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.AllocateEntity;
+import com.fjs.cronus.entity.UserMonthInfoDetail;
 import com.fjs.cronus.enums.AllocateEnum;
 import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
@@ -34,9 +36,10 @@ import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.thea.ThorClientService;
-import com.fjs.cronus.util.*;
+import com.fjs.cronus.util.CommonUtil;
+import com.fjs.cronus.util.DateUtils;
+import com.fjs.cronus.util.EntityToDto;
 import com.fjs.framework.exception.BaseException;
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,9 +52,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.util.*;
+import static java.util.stream.Collectors.*;
 
 /**
  * Created by feng on 2017/9/21.
@@ -147,7 +152,9 @@ public class AutoAllocateService {
      * 处理单个客户的分配.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public synchronized AllocateEntity autoAllocate(CustomerDTO customerDTO, AllocateSource allocateSource, String token, SingleCutomerAllocateDevInfo devInfoBox) {
+    public synchronized AllocateEntity autoAllocate(CustomerDTO customerDTO, AllocateSource allocateSource, String token) {
+        pushlog(customerDTO.getTelephonenumber(), "进入分配方法", null, null);
+
         AllocateEntity allocateEntity = new AllocateEntity();
         allocateEntity.setSuccess(true);
         Long lockToken = null;
@@ -159,20 +166,17 @@ public class AutoAllocateService {
 
             // 获取自动分配的城市
             String allocateCities = theaClientService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY);
-            devInfoBox.setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k11, ImmutableMap.of("allocateCities", allocateCities));
 
             // 需要去不同方法取数据(初始化为null，知道里面key是什么)
             AllocateForAvatarDTO signCustomAllocate = new AllocateForAvatarDTO();
 
             Integer mediaId = userMonthInfoService.getChannelInfoByChannelName(token, customerDTO.getUtmSource()); // 根据渠道获取来源、媒体、渠道
-            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k12, ImmutableMap.of("UtmSource", customerDTO.getUtmSource()), ImmutableMap.of("mediaId", mediaId));
-
             String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT); // 当月字符串
 
             // 分配规则
-            if (customerDTO.getId() == null || customerDTO.getId().equals(0)) {
+            if ( customerDTO.getId() == null || customerDTO.getId().equals(0) ) {
                 // 新客户：走商机系统规则
-                devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k13);
+                pushlog(customerDTO.getTelephonenumber(), "进入新用户分支", null, null);
 
                 // 商机系统分支
                 // 规则：
@@ -181,28 +185,26 @@ public class AutoAllocateService {
                 // 1.2、未找到、进待分配池
                 // 2、新客户，不在有效城市范围内--->进客服系统
                 if (StringUtils.contains(allocateCities, customerDTO.getCity())) {
-                    devInfoBox.setInfo4Req(SingleCutomerAllocateDevInfoUtil.k15, ImmutableMap.of("city", customerDTO.getCity()));
 
-                    signCustomAllocate = this.allocateForAvatar(token, customerDTO, mediaId, currentMonthStr, devInfoBox);
+                    signCustomAllocate = this.allocateForAvatar(token, customerDTO, mediaId, currentMonthStr);
                     if (signCustomAllocate.getSuccessOfAvatar()) {
-                        devInfoBox.setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k14, ImmutableMap.of("SalesmanId", signCustomAllocate.getSalesmanId()));
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-找到业务员", null, null);
                         // 找到被分配的业务员
                         allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
                         customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
                     } else {
                         // 未找到，进商机池
-                        devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k17);
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-未找到业务员", null, null);
                         allocateEntity.setAllocateStatus(AllocateEnum.AVATAR_POOL);
                         customerDTO.setOwnerUserId(-1); // 标记是商机池，-1
                     }
                 } else {
                     // 进客服系统
-                    devInfoBox.setInfo4Req(SingleCutomerAllocateDevInfoUtil.k16, ImmutableMap.of("city", customerDTO.getCity()));
                     allocateEntity.setAllocateStatus(AllocateEnum.TO_SERVICE_SYSTEM);
                 }
             } else {
                 // 老客户
-                devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k1);
+                pushlog(customerDTO.getTelephonenumber(), "进入老用户分支", null, null);
 
                 // 规则：
                 // 1、根据ocdc的传的特殊标记找业务员，找打就分给该业务员
@@ -215,24 +217,24 @@ public class AutoAllocateService {
                 //boolean allocateToPublic = this.isAllocateToPublic(customerDTO.getUtmSource()); // 根据渠道，判断是否需要自动分配
 
                 if (StringUtils.isNotEmpty(ownerUser.getUser_id())) { // 存在这个在职负责人
-                    devInfoBox.setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k18, ImmutableMap.of("salemanid", ownerUser.getUser_id()));
+                    pushlog(customerDTO.getTelephonenumber(), "老用户分支-找到指定业务员-", null, null);
 
-                    customerDTO.setOwnerUserId(Integer.valueOf(ownerUser.getUser_id()));
-                    allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
+                        customerDTO.setOwnerUserId(Integer.valueOf(ownerUser.getUser_id()));
+                        allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
                 } else if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) { // 在有效分配城市内
-                    devInfoBox.setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k15, ImmutableMap.of("city", customerDTO.getCity()));
+                    pushlog(customerDTO.getTelephonenumber(), "老用户分支-有效城市找业务员-", null, null);
                     // 根据城市，去找一级吧下业务员
-                    signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, mediaId, devInfoBox);
+                    signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, mediaId);
                     if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
-                        devInfoBox.setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k14, ImmutableMap.of("SalesmanId", signCustomAllocate.getSalesmanId()));
+                        pushlog(customerDTO.getTelephonenumber(), "老用户分支-有效城市找业务员-找到", null, null);
                         allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
                         customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
                     } else { // 未找到，抛错记录日志
-                        devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k19);
+                        pushlog(customerDTO.getTelephonenumber(), "老用户分支-有效城市找业务员-未找到", null, null);
                         throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "老客户去队列没找到业务员");
                     }
                 } else {
-                    devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k16);
+                    pushlog(customerDTO.getTelephonenumber(), "老用户分支-客服系统-", null, null);
                     customerDTO.setOwnerUserId(0);
                     allocateEntity.setAllocateStatus(AllocateEnum.TO_SERVICE_SYSTEM);
                 }
@@ -288,7 +290,7 @@ public class AutoAllocateService {
                             // 处理是否保留
                             customerDTO.setLastUpdateTime(new Date());
                             customerDTO.setRemain(CommonConst.REMAIN_STATUS_NO);
-                            if (allocateEntity.getAllocateStatus().getCode().equals("3") || allocateEntity.getAllocateStatus().getCode().equals("1")) {
+                            if (allocateEntity.getAllocateStatus().getCode().equals("3")||allocateEntity.getAllocateStatus().getCode().equals("1")){
                                 if (this.isActiveApplicationChannel(customerDTO)) {
                                     customerDTO.setRemain(CommonConst.REMAIN_STATUS_YES);
                                 }
@@ -359,7 +361,6 @@ public class AutoAllocateService {
             // 在20秒内未完成运算，视为失败；事务回滚；redis解锁;让给其他线程资源
             long l = this.cRMRedisLockHelp.getCurrentTimeFromRedisServicer() - lockToken;
             if (l > (20 * 1000)) {
-                devInfoBox.setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k20, ImmutableMap.of("请求耗时", l));
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "服务超时（redis锁超时）");
             }
 
@@ -371,16 +372,15 @@ public class AutoAllocateService {
             if (e instanceof BaseException) {
                 // 已知异常
                 BaseException be = (BaseException) e;
-                sb.append(" 已知异常:" + be.getResponseError().getMessage());
+                sb.append(" 已知异常：" + be.getResponseError().getMessage());
             } else {
                 // 未知异常
-                sb.append(" 未知异常:" + e.getMessage());
+                sb.append(" 未知异常：" +e.getMessage());
             }
-            devInfoBox.setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k10, ImmutableMap.of("errorMessage", sb.toString()));
-            devInfoBox.setSuccess(false);
+            allocateEntity.setDescription(sb.toString());
             allocateEntity.setSuccess(false);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-        } finally {
+        }finally {
             this.cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_LOCK, lockToken);
         }
         return allocateEntity;
@@ -389,7 +389,7 @@ public class AutoAllocateService {
     /**
      * 商机系统分配规则.
      */
-    private AllocateForAvatarDTO allocateForAvatar(String token, CustomerDTO customerDTO, Integer media_id, String currentMonthStr, SingleCutomerAllocateDevInfo devInfoBox) {
+    private AllocateForAvatarDTO allocateForAvatar(String token, CustomerDTO customerDTO, Integer media_id, String currentMonthStr) {
         // 商机分配规则（前提：新客户、在有效城市范围内）
         // 1、 根据城市，从城市queue中获取一级吧
         // 2、 要求该一级吧媒体的订购数（商机系统获取） > 已购数
@@ -402,27 +402,18 @@ public class AutoAllocateService {
         AllocateForAvatarDTO result = new AllocateForAvatarDTO();
 
         long size = allocateRedisService.getSubCompanyIdQueueSize(token, customerDTO.getCity(), media_id);
-        devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k21
-                , ImmutableMap.of("media_id", media_id, "city", customerDTO.getCity())
-                , ImmutableMap.of("队列大小", size));
+        pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-城市找吧", "city=" + customerDTO.getCity() +" media_id=" + media_id, "size=" + size);
         for (int j = 0; j < size; j++) {
             // 循环城市下一级吧queue
 
             // 从queue获取一级吧
             Integer subCompanyId = this.allocateRedisService.getSubCompanyIdFromQueue(customerDTO.getCity(), media_id);
-            devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k22 + j
-                    , ImmutableMap.of("media_id", media_id, "city", customerDTO.getCity())
-                    , ImmutableMap.of("subCompanyId", subCompanyId));
-            if (subCompanyId == null) {
-                continue;
-            }
+            pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-一级吧", null, "subCompanyId=" + subCompanyId);
 
             // 获取当月已分配数
             Integer orderNumOfCompany = userMonthInfoMapper.getOrderNum(subCompanyId, currentMonthStr, CommonEnum.entity_status1.getCode(), media_id);
             orderNumOfCompany = orderNumOfCompany == null ? 0 : orderNumOfCompany;
-            devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k23 + j
-                    , ImmutableMap.of("subCompanyId", subCompanyId, "currentMonthStr", currentMonthStr, "media_id", media_id)
-                    , ImmutableMap.of("当月已分配数", orderNumOfCompany));
+            pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-一级吧月已分配数", null, "orderNumOfCompany=" + orderNumOfCompany);
 
             // 从商机系统获取
             JSONObject json = new JSONObject();
@@ -433,21 +424,17 @@ public class AutoAllocateService {
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "请求商机系统异常：响应为null");
             }
             if (orderNumberDTOAvatarApiDTO.getResult() != 0) {
-                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "请求商机系统异常:" + " result:" + orderNumberDTOAvatarApiDTO.getResult() + " message:" + orderNumberDTOAvatarApiDTO.getMessage());
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "请求商机系统异常:" + " result:" +orderNumberDTOAvatarApiDTO.getResult() + " message:" + orderNumberDTOAvatarApiDTO.getMessage());
             }
             OrderNumberDTO data = orderNumberDTOAvatarApiDTO.getData();
             if (data == null || CollectionUtils.isEmpty(data.getOrderNumberList())) {
                 // 响应正常，但无数据视为未订购
-                devInfoBox.setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k24 + j
-                        , ImmutableMap.of("响应正常，但无数据视为未订购", 0));
                 continue;
             }
 
             List<OrderNumberDetailDTO> orderNumberList = data.getOrderNumberList();
             Integer orderNumber = orderNumberList.stream().filter(i -> i != null && media_id.equals(i.getMeidaId())).map(OrderNumberDetailDTO::getOrderNumber).findAny().orElse(0);
-            devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k24 + j
-                    , ImmutableMap.of("firstBarId", subCompanyId, "currentMonthStr", currentMonthStr)
-                    , ImmutableMap.of("订购数", orderNumber));
+            pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-从商机获取订单数", null, "orderNumber=" + orderNumber);
 
             // 业务校验：一级吧已购数、订购数
             if (orderNumOfCompany >= orderNumber) {
@@ -460,33 +447,16 @@ public class AutoAllocateService {
             // 先去特殊队列找，找不到然后去总分配队列找
             Integer salesmanId = null;
             Set<Integer> followMediaidFromDB = this.companyMediaQueueService.findFollowMediaidFromDB(subCompanyId);
-            devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k25 + j
-                    , ImmutableMap.of("subCompanyId", subCompanyId)
-                    , ImmutableMap.of("mediaids", followMediaidFromDB));
-
+            pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-关注的媒体", null, "followMediaidFromDB=" + followMediaidFromDB);
             boolean idFromCountQueue = false; // 记录业务员是从特殊媒体queue取出，还是总queue中取出.
-            long queueSizeMedia = 0;
-            if (!followMediaidFromDB.contains(media_id)) {
-                // 未关注着不从该特殊队列中找
-                queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr);
-                devInfoBox.setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k26 + j
-                        , ImmutableMap.of("为在关注队列内", "不从特殊队列中找业务员"));
-            } else {
-                queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr);
-                devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k26 + j
-                        , ImmutableMap.of("subCompanyId", subCompanyId, "media_id", media_id, "currentMonthStr", currentMonthStr)
-                        , ImmutableMap.of("队列大小", queueSizeMedia));
-            }
-
+            long queueSizeMedia = !followMediaidFromDB.contains(media_id) ? 0 : allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr); // 未关注着不从该特殊队列中找
+            pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-", null, "queueSizeMedia=" + queueSizeMedia);
             for (int i = 0; i < queueSizeMedia; i++) {
                 // 去特殊分配队列找
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-进入特殊分配队列", null, null);
+
                 salesmanId = allocateRedisService.getAndPush2End(subCompanyId, media_id, currentMonthStr);
-                devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k27 + j + "$" + i
-                        , ImmutableMap.of("subCompanyId", subCompanyId, "media_id", media_id, "currentMonthStr", currentMonthStr)
-                        , ImmutableMap.of("salesmanId", salesmanId));
-                if (salesmanId == null) {
-                    continue;
-                }
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "salesmanId=" + salesmanId);
 
                 // 比较该业务员的 已购数据、分配数
                 // 获取月分配数
@@ -501,12 +471,10 @@ public class AutoAllocateService {
                 if (CollectionUtils.isEmpty(select)
                         ) {
                     // 数据错误，直接忽略，给下一个业务员处理
-                    devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k28 + j + "$" + i
-                            , ImmutableMap.of("subCompanyId", subCompanyId, "media_id", media_id, "currentMonthStr", currentMonthStr, "salesmanId", salesmanId)
-                            , ImmutableMap.of("list", "列表为空 or 0", "数据错误，直接忽略", "给下一个业务员处理"));
                     salesmanId = null;
                     continue;
                 }
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "select.size=" + select.size());
                 UserMonthInfo userMonthInfo = select.stream()
                         .filter(item -> item != null
                                 && item.getBaseCustomerNum() != null
@@ -517,21 +485,16 @@ public class AutoAllocateService {
 
                 if (userMonthInfo == null) {
                     // 数据错误，直接忽略，给下一个业务员处理
-                    devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k28 + j + "$" + i
-                            , ImmutableMap.of("subCompanyId", subCompanyId, "media_id", media_id, "currentMonthStr", currentMonthStr, "salesmanId", salesmanId)
-                            , ImmutableMap.of("userMonthInfo", "数据为null", "list大小", select.size()));
                     salesmanId = null;
                     continue;
                 }
-                devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k28 + j + "$" + i
-                        , ImmutableMap.of("subCompanyId", subCompanyId, "media_id", media_id, "currentMonthStr", currentMonthStr, "salesmanId", salesmanId)
-                        , ImmutableMap.of("userMonthInfoid", userMonthInfo.getId(),
-                                "AssignedCustomerNum", userMonthInfo.getAssignedCustomerNum(),
-                                "RewardCustomerNum", userMonthInfo.getRewardCustomerNum(),
-                                "BaseCustomerNum", userMonthInfo.getBaseCustomerNum()));
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getId=" + userMonthInfo.getId());
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getAssignedCustomerNum=" + userMonthInfo.getAssignedCustomerNum());
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getBaseCustomerNum=" + userMonthInfo.getBaseCustomerNum());
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getRewardCustomerNum=" + userMonthInfo.getRewardCustomerNum());
 
                 // 比较特殊媒体
-                if (userMonthInfo.getAssignedCustomerNum() >= userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) {
+                if ( userMonthInfo.getAssignedCustomerNum() >= userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) {
                     // 该业务员 已购数 >= 分配数
                     salesmanId = null;
                     continue;
@@ -549,12 +512,10 @@ public class AutoAllocateService {
                 if (CollectionUtils.isEmpty(select2)
                         ) {
                     // 数据错误，直接忽略，给下一个业务员处理
-                    devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k29 + j + "$" + i
-                            , ImmutableMap.of("subCompanyId", subCompanyId, "media_id", CommonConst.COMPANY_MEDIA_QUEUE_COUNT, "currentMonthStr", currentMonthStr, "salesmanId", salesmanId)
-                            , ImmutableMap.of("list", "队列为空 or 0", "数据错误，直接忽略", "给下一个业务员处理"));
                     salesmanId = null;
                     continue;
                 }
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "select.size=" + select.size());
                 UserMonthInfo userMonthInfo2 = select2.stream()
                         .filter(item -> item != null
                                 && item.getBaseCustomerNum() != null
@@ -564,21 +525,16 @@ public class AutoAllocateService {
                         .orElse(null);
                 if (userMonthInfo2 == null) {
                     // 数据错误，直接忽略，给下一个业务员处理
-                    devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k29 + j + "$" + i
-                            , ImmutableMap.of("subCompanyId", subCompanyId, "media_id", CommonConst.COMPANY_MEDIA_QUEUE_COUNT, "currentMonthStr", currentMonthStr, "salesmanId", salesmanId)
-                            , ImmutableMap.of("userMonthInfo2", "数据为null", "list大小", select2.size(), "数据错误，直接忽略", "给下一个业务员处理"));
                     salesmanId = null;
                     continue;
                 }
-                devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k29 + j + "$" + i
-                        , ImmutableMap.of("subCompanyId", subCompanyId, "media_id", CommonConst.COMPANY_MEDIA_QUEUE_COUNT, "currentMonthStr", currentMonthStr, "salesmanId", salesmanId)
-                        , ImmutableMap.of("userMonthInfo id", userMonthInfo2.getId()
-                                , "BaseCustomerNum", userMonthInfo2.getBaseCustomerNum()
-                                , "RewardCustomerNum", userMonthInfo2.getRewardCustomerNum()
-                                , "AssignedCustomerNum", userMonthInfo2.getAssignedCustomerNum()));
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getId=" + userMonthInfo2.getId());
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getAssignedCustomerNum=" + userMonthInfo2.getAssignedCustomerNum());
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getBaseCustomerNum=" + userMonthInfo2.getBaseCustomerNum());
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特", null, "getRewardCustomerNum=" + userMonthInfo2.getRewardCustomerNum());
 
                 // 比较总
-                if (userMonthInfo2.getAssignedCustomerNum() >= userMonthInfo2.getBaseCustomerNum() + userMonthInfo2.getRewardCustomerNum()) {
+                if ( userMonthInfo2.getAssignedCustomerNum() >= userMonthInfo2.getBaseCustomerNum() + userMonthInfo2.getRewardCustomerNum()) {
                     // 该业务员 已购数 >= 分配数
                     salesmanId = null;
                     continue;
@@ -586,31 +542,21 @@ public class AutoAllocateService {
 
                 // 找到业务员接待
                 if (salesmanId != null) {
-                    devInfoBox.setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k30 + j + "$" + i
-                            , ImmutableMap.of("salesmanId", salesmanId)
-                    );
+                    pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-特，找到业务员", null, "salesmanId="+ salesmanId);
                     break;
                 }
             }
             if (salesmanId == null) {
                 // 去总分配队列找
-                devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k31 + j);
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-进入总分配队列", null, null);
 
                 queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
-                devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k32 + j
-                        , ImmutableMap.of("subCompanyId", subCompanyId, "currentMonthStr", currentMonthStr, "mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT)
-                        , ImmutableMap.of("队列大小", queueSizeMedia));
                 for (int k = 0; k < queueSizeMedia; k++) {
                     idFromCountQueue = true;
                     // 需要业务员queue找业务员
 
                     salesmanId = allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
-                    if (salesmanId == null) {
-                        devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k33 + j + "$" + k
-                                , ImmutableMap.of("subCompanyId", subCompanyId, "currentMonthStr", currentMonthStr, "mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT)
-                                , ImmutableMap.of("salesmanId", "数据为null", "数据错误，直接忽略", "给下一个业务员处理"));
-                        continue;
-                    }
+                    pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总", null, "salesmanId="+ salesmanId);
 
                     // 比较该业务员的 已购数据、分配数
                     UserMonthInfo e = new UserMonthInfo();
@@ -624,12 +570,10 @@ public class AutoAllocateService {
                     if (CollectionUtils.isEmpty(select)
                             ) {
                         // 数据错误，直接忽略，给下一个业务员处理
-                        devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k34 + j + "$" + k
-                                , ImmutableMap.of("subCompanyId", subCompanyId, "salesmanId", salesmanId, "currentMonthStr", currentMonthStr, "mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT)
-                                , ImmutableMap.of("list", "数据为null or 0", "数据错误，直接忽略", "给下一个业务员处理"));
                         salesmanId = null;
                         continue;
                     }
+                    pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总", null, "select.size="+ select.size());
 
                     UserMonthInfo userMonthInfo = select.get(0);
                     if (userMonthInfo == null
@@ -638,19 +582,14 @@ public class AutoAllocateService {
                             || userMonthInfo.getAssignedCustomerNum() == null
                             ) {
                         // 数据错误，直接忽略，给下一个业务员处理
-                        devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k34 + j + "$" + k
-                                , ImmutableMap.of("subCompanyId", subCompanyId, "salesmanId", salesmanId, "currentMonthStr", currentMonthStr, "mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT)
-                                , ImmutableMap.of("userMonthInfo", "数据为null", "list", select.size(), "数据错误，直接忽略", "给下一个业务员处理"));
                         salesmanId = null;
                         continue;
                     }
-                    devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k34 + j + "$" + k
-                            , ImmutableMap.of("subCompanyId", subCompanyId, "salesmanId", salesmanId, "currentMonthStr", currentMonthStr, "mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT)
-                            , ImmutableMap.of("BaseCustomerNum", userMonthInfo.getBaseCustomerNum()
-                                    , "AssignedCustomerNum", userMonthInfo.getAssignedCustomerNum()
-                                    , "RewardCustomerNum", userMonthInfo.getRewardCustomerNum()));
+                    pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总", null, "getBaseCustomerNum="+ userMonthInfo.getBaseCustomerNum());
+                    pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总", null, "getRewardCustomerNum="+ userMonthInfo.getRewardCustomerNum());
+                    pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总", null, "getAssignedCustomerNum="+ userMonthInfo.getAssignedCustomerNum());
 
-                    if (userMonthInfo.getAssignedCustomerNum() >= (userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum())) {
+                    if (userMonthInfo.getAssignedCustomerNum() >=  (userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) ) {
                         // 该业务员 已购数 >= 分配数
                         salesmanId = null;
                         continue;
@@ -659,7 +598,7 @@ public class AutoAllocateService {
                     // 校验，如果是从总队列中找，且也关注了特殊队列，需要校验满足特殊队列分配数 > 已分配数
                     if (followMediaidFromDB.contains(media_id)) {
 
-                        devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k35 + j + "$" + k);
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总-特", null, "salesmanId="+ salesmanId);
 
                         UserMonthInfo e2 = new UserMonthInfo();
                         e2.setCompanyid(subCompanyId);
@@ -672,12 +611,10 @@ public class AutoAllocateService {
                         if (CollectionUtils.isEmpty(select2)
                                 ) {
                             // 数据错误，直接忽略，给下一个业务员处理
-                            devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k36 + j + "$" + k
-                                    , ImmutableMap.of("subCompanyId", subCompanyId, "salesmanId", salesmanId, "media_id", media_id, "currentMonthStr", currentMonthStr)
-                                    , ImmutableMap.of("list", "数据为null or 0", "数据错误，直接忽略", "给下一个业务员处理"));
                             salesmanId = null;
                             continue;
                         }
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总-特", null, "select2.size="+ select2.size());
 
                         UserMonthInfo userMonthInfo2 = select2.stream()
                                 .filter(item -> item != null
@@ -688,14 +625,15 @@ public class AutoAllocateService {
                                 .findAny().orElse(null);
                         if (userMonthInfo2 == null) {
                             // 数据错误，直接忽略，给下一个业务员处理
-                            devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k36 + j + "$" + k
-                                    , ImmutableMap.of("subCompanyId", subCompanyId, "salesmanId", salesmanId, "media_id", media_id, "currentMonthStr", currentMonthStr)
-                                    , ImmutableMap.of("userMonthInfo2", "数据为null", "数据错误，直接忽略", "给下一个业务员处理"));
                             salesmanId = null;
                             continue;
                         }
 
-                        if (userMonthInfo2.getAssignedCustomerNum() >= userMonthInfo2.getBaseCustomerNum() + userMonthInfo2.getRewardCustomerNum()) {
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总-特", null, "getBaseCustomerNum="+ userMonthInfo2.getBaseCustomerNum());
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总-特", null, "getRewardCustomerNum="+ userMonthInfo2.getRewardCustomerNum());
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总-特", null, "getAssignedCustomerNum="+ userMonthInfo2.getAssignedCustomerNum());
+
+                        if (userMonthInfo2.getAssignedCustomerNum() >=  userMonthInfo2.getBaseCustomerNum() + userMonthInfo2.getRewardCustomerNum()) {
                             // 该业务员 已购数 >= 分配数
                             salesmanId = null;
                             continue;
@@ -704,16 +642,14 @@ public class AutoAllocateService {
 
                     // 找到业务员接待
                     if (salesmanId != null) {
-                        devInfoBox.setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k38 + j + "$" + k
-                                , ImmutableMap.of("salesmanId", salesmanId));
+                        pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-总，找到业务员", null, "salesmanId="+ salesmanId);
                         break;
                     }
                 }
             }
 
             if (salesmanId != null) {
-                devInfoBox.setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k39 + j
-                        , ImmutableMap.of("salesmanId", salesmanId, "idFromCountQueue", idFromCountQueue));
+                pushlog(customerDTO.getTelephonenumber(), "新用户分支-商机分配-找到业务员", null, "salesmanId="+ salesmanId);
                 result.setCompanyid(subCompanyId);
                 result.setSalesmanId(salesmanId);
                 result.setMediaid(subCompanyId);
@@ -725,14 +661,13 @@ public class AutoAllocateService {
         return result;
     }
 
-    /*public void pushlog(String tel, String title, Object params, Object resp){
+    public void pushlog(String tel, String title, Object params, Object resp){
         logger.info("-------- " + tel + " ------->" + title + " 参数：" + params + " 响应：" + resp);
-    }*/
+    }
 
 
     /**
      * 主动申请渠道添加交易
-     *
      * @param customerDTO
      * @param token
      */
@@ -771,8 +706,9 @@ public class AutoAllocateService {
                     crmUserDTOList) {
                 smsService.sendCRMAssistant(crmUserDTO.getPhone());
             }
-        } catch (Exception e) {
-            logger.error("--sendCRMAssistantMessage:", e);
+        }catch (Exception e)
+        {
+            logger.error("--sendCRMAssistantMessage:",e);
         }
     }
 
@@ -810,7 +746,7 @@ public class AutoAllocateService {
             String phone = extJson.get("owner_user_phone").toString();
             // 获取业务员信息
             try {
-                BaseUcDTO<UserInfoDTO> thorApiDTO = thorUcService.getUserInfoByField(token, phone, null, null);
+                BaseUcDTO<UserInfoDTO> thorApiDTO = thorUcService.getUserInfoByField(token,phone, null, null);
                 if (0 == thorApiDTO.getErrNum() && thorApiDTO.getRetData() != null) {
                     userInfoDTO = thorApiDTO.getRetData();
 //                    salerId = Integer.valueOf(userInfoDTO.getUser_id());
@@ -838,7 +774,7 @@ public class AutoAllocateService {
         // 判断该推送客户是否在限制渠道中/进公盘
         String[] utmSourceStrArray;
         if (StringUtils.isNotBlank(allocateToNoUserPool)) {
-            utmSourceStrArray = allocateToNoUserPool.replace("[", "").replace("]", "").replace("\"", "").split(",");
+            utmSourceStrArray = allocateToNoUserPool.replace("[","").replace("]","").replace("\"","").split(",");
             if (ArrayUtils.contains(utmSourceStrArray, utmSource)) {
                 allocateToPublic = true;
             }
@@ -849,31 +785,23 @@ public class AutoAllocateService {
     /**
      * 老客户，会从总分配队列(借用商机系统的队列)找业务员.
      */
-    private AllocateForAvatarDTO getAllocateUserV2(String token, String city, String currentMonthStr, Integer mediaid, SingleCutomerAllocateDevInfo devInfoBox) {
+    private AllocateForAvatarDTO getAllocateUserV2(String token, String city, String currentMonthStr, Integer mediaid) {
 
         AllocateForAvatarDTO result = new AllocateForAvatarDTO();
 
         long size = allocateRedisService.getSubCompanyIdQueueSize(token, city, mediaid);
-        devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k40
-                , ImmutableMap.of("city", city, "mediaid", mediaid)
-                , ImmutableMap.of("队列大小", size));
+        pushlog(null, "老用户分支-有效城市找业务员-找一级吧", " city=" + city + " mediaid=" + mediaid, " size=" + size);
         for (int i = 0; i < size; i++) {
 
             Integer subCompanyId = allocateRedisService.getSubCompanyIdFromQueue(city, mediaid);
-            devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k41 + "$" + i
-                    , ImmutableMap.of("city", city, "mediaid", mediaid)
-                    , ImmutableMap.of("subCompanyId", subCompanyId));
+            pushlog(null, "老用户分支-有效城市找业务员-找一级吧", null, " subCompanyId=" + subCompanyId);
             long size2 = allocateRedisService.getQueueSize(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
-            devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k42 + "$" + i
-                    , ImmutableMap.of("subCompanyId", subCompanyId, "currentMonthStr", currentMonthStr)
-                    , ImmutableMap.of("队列大小", size));
+            pushlog(null, "老用户分支-有效城市找业务员-找业务员", null, " size2=" + size2);
             for (int j = 0; j < size2; j++) {
                 Integer salesmanId = allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
-
+                pushlog(null, "老用户分支-有效城市找业务员-找业务员", null, " salesmanId=" + salesmanId);
                 if (salesmanId != null) {
                     // 找到业务员
-                    devInfoBox.setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k44 + "$" + i + "$" + j
-                            , ImmutableMap.of("salesmanId", salesmanId));
                     result.setCompanyid(subCompanyId);
                     result.setSalesmanId(salesmanId);
                     result.setSuccessOfOldcustomer(true);
@@ -883,9 +811,6 @@ public class AutoAllocateService {
             if (result.getSuccessOfOldcustomer()) {
                 break;
             }
-        }
-        if (!result.getSuccessOfOldcustomer()) {
-            devInfoBox.setInfo(SingleCutomerAllocateDevInfoUtil.k43);
         }
         return result;
     }
@@ -1035,14 +960,15 @@ public class AutoAllocateService {
                     //failList 添加到缓存
                     existFailList.addAll(failList);
                     cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, failList);
-                    if (successList.size() > 0) {
+                    if (successList.size()>0) {
                         theaService.invalidLoans(token, convertListToString(successList));
                     }
                     sb.append("--");
                     sb.append("failList:" + failList.toString());
                     sb.append("--");
                     sb.append("successList:" + successList.toString());
-                } else {
+                }
+                else {
                     sb.append("--non work time");
                 }
             } catch (Exception e) {
@@ -1053,7 +979,8 @@ public class AutoAllocateService {
         }).run();
     }
 
-    private String convertListToString(List<Integer> list) {
+    private String convertListToString(List<Integer> list)
+    {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
             stringBuilder.append(list.get(i));
@@ -1067,16 +994,17 @@ public class AutoAllocateService {
 
     /**
      * 设置未沟通重新分配状态
-     *
      * @param status
      */
-    public boolean nonCommunicateAllocateStatus(String status) {
+    public boolean nonCommunicateAllocateStatus(String status)
+    {
         boolean setStatus = false;
         ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
         if (status.equals("1")) {
             redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.YES.getCode().toString());
             setStatus = true;
-        } else if (status.equals("0")) {
+        }
+        else if (status.equals("0")){
             redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.NO.getCode().toString());
             setStatus = true;
         }
@@ -1085,10 +1013,10 @@ public class AutoAllocateService {
 
     /**
      * 获取未沟通状态
-     *
      * @return
      */
-    public String getNonCommunicateAllocateStatus() {
+    public String getNonCommunicateAllocateStatus()
+    {
         ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
         return redisConfigOptions.get(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE);
     }
