@@ -22,7 +22,7 @@
         SELECT * FROM `user_month_info_detail` WHERE `status`=#{status} AND `type`=#{type} ORDER BY `created` DESC  limit #{start}, #{end}
     </select>
 
-    <select id="findAllocateDataByTimAndMedia" parameterType="com.fjs.cronus.dto.avatar.FirstBarConsumeDTO2"
+    <select id="findAllocateDataByTimAndMedia2" parameterType="com.fjs.cronus.dto.avatar.FirstBarConsumeDTO2"
             resultType="java.lang.Integer">
             SELECT COUNT(id) AS allocate  FROM `user_month_info_detail`
             WHERE `created` &gt;= #{startTimeParse}
