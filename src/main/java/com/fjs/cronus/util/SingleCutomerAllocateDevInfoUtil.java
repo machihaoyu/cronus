@@ -57,5 +57,6 @@ public class SingleCutomerAllocateDevInfoUtil {
     public static final String k42 = "老用户获取总队列queue大小,";
     public static final String k43 = "老用户循环queue找业务员,";
     public static final String k44 = "老用户循环queue,找到业务员,";
+    // ------------------ 老顾客，借用商机的总队列找业务员 end---------------------------------
 
 }
