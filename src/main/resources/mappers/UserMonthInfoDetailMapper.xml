@@ -4,14 +4,14 @@
 
     <select id="findAllocateDataByTimAndMedia" resultType="com.fjs.cronus.dto.avatar.FirstBarConsumeDTO">
         <foreach collection="list" separator="UNION ALL" item="item">
-            SELECT `companyid` AS firstBarId, mediaid AS media, COUNT(id) AS allocate  FROM `user_month_info_detail`
+            SELECT `companyid` AS firstBarId, mediaid AS media, COUNT(id) AS allocate FROM `user_month_info_detail`
             WHERE `created` &gt;= #{item.startTimeParse}
             AND `created` &lt;= #{item.endTimeParse}
             <if test="item.firstBarId != null">
-              AND companyid=#{item.firstBarId}
+                AND companyid=#{item.firstBarId}
             </if>
             <if test="item.media != null">
-              AND mediaid=#{item.media}
+                AND mediaid=#{item.media}
             </if>
             AND `status`=1
             AND `type`=1
@@ -20,6 +20,17 @@
 
     <select id="findPageData" resultType="com.fjs.cronus.entity.UserMonthInfoDetail">
         SELECT * FROM `user_month_info_detail` WHERE `status`=#{status} AND `type`=#{type} ORDER BY `created` DESC  limit #{start}, #{end}
+    </select>
+
+    <select id="findAllocateDataByTimAndMedia" parameterType="com.fjs.cronus.dto.avatar.FirstBarConsumeDTO2"
+            resultType="java.lang.Integer">
+            SELECT COUNT(id) AS allocate  FROM `user_month_info_detail`
+            WHERE `created` &gt;= #{startTimeParse}
+            AND `created` &lt;= #{endTimeParse}
+                AND companyid=#{firstBarId}
+                AND mediaid=#{media}
+            AND `status`=1
+            AND `type`=1
     </select>
 
 </mapper>

@@ -824,8 +824,13 @@ public class UserMonthInfoService {
         return result;
     }
 
-    public List<FirstBarConsumeDTO> findAllocateDataByTimAndMedia(List<FirstBarConsumeDTO2> list) {
-        return userMonthInfoDetailMapper.findAllocateDataByTimAndMedia(list);
+    public Map<Integer, Integer> findAllocateDataByTimAndMedia(List<FirstBarConsumeDTO2> list) {
+        Map<Integer, Integer> result = new HashMap<>();
+        for (FirstBarConsumeDTO2 firstBarConsumeDTO2 : list) {
+            Integer i = userMonthInfoDetailMapper.findAllocateDataByTimAndMedia2(firstBarConsumeDTO2);
+            result.put(firstBarConsumeDTO2.getId(), i == null ? 0 : i);
+        }
+        return result;
     }
 
     public BasePageableVO findAllocatelog(BasePageableDTO page, String token) {
@@ -873,16 +878,6 @@ public class UserMonthInfoService {
         }
         basePageableVO.setCount(i);
         return basePageableVO;
-    }
-
-    public static void main(String[] args) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date d = new Date(1525104000794L);
-
-        Date d2 = new Date(1527782399794L);
-
-        System.out.println(sdf.format(d));
-        System.out.println(sdf.format(d2));
     }
 
 }

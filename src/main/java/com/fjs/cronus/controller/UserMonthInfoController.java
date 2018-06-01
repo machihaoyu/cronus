@@ -423,12 +423,22 @@ public class UserMonthInfoController {
                 if (firstBarConsumeDTO.getEndTime() == null) {
                     throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "EndTime 不能为空");
                 }
+                if (firstBarConsumeDTO.getId() == null) {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "id 不能为空");
+                }
+                if (firstBarConsumeDTO.getFirstBarId() == null) {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "FirstBarId 不能为空");
+                }
+                if (firstBarConsumeDTO.getMedia() == null) {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "media 不能为空");
+                }
             }
 
             // 时间戳转时间对象
             List<FirstBarConsumeDTO2> list2 = new ArrayList<>(list.size());
             for (FirstBarConsumeDTO item : list) {
                 FirstBarConsumeDTO2 e = new FirstBarConsumeDTO2();
+                e.setId(item.getId());
                 e.setFirstBarId(item.getFirstBarId());
                 e.setMedia(item.getMedia());
                 e.setEndTimeParse(new Date(item.getEndTime()));
@@ -437,17 +447,10 @@ public class UserMonthInfoController {
             }
 
             // 拼装数据结构
-            List<FirstBarConsumeDTO> allocateDataByTimAndMedia = userMonthInfoService.findAllocateDataByTimAndMedia(list2);
-            Map<String, Integer> collect = allocateDataByTimAndMedia.stream().collect(Collectors.toMap((i) -> {
-                        return i.getFirstBarId() + "$" + i.getMedia();
-                    }
-                    , FirstBarConsumeDTO::getAllocate
-                    , (x, y) -> x)
-            );
+            Map<Integer, Integer> map = userMonthInfoService.findAllocateDataByTimAndMedia(list2);
 
             for (FirstBarConsumeDTO item : list) {
-                String s = item.getFirstBarId() + "$" + item.getMedia();
-                Integer integer = collect.get(s);
+                Integer integer = map.get(item.getId());
                 item.setAllocate(integer == null ? 0 : integer);
             }
 
