@@ -282,14 +282,19 @@ public class OcdcService {
                         responseMessage.append(e.getMessage());
 
                         // 以单个客户为维度，记录每个客户分配异常的信息
+                        String str = "";
                         if (e instanceof BaseException) {
                             // 已知异常
                             BaseException be = (BaseException) e;
-                            customerSalePushLog.setErrorinfo(be.getResponseError().getMessage());
+                            str = be.getResponseError().getMessage();
                         } else {
                             // 未知异常
-                            customerSalePushLog.setErrorinfo(e.getMessage());
+                            str = e.getMessage();
                         }
+                        SingleCutomerAllocateDevInfoUtil.local.get().setSuccess(false);
+                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k45, ImmutableMap.of("异常",str));
+                        customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
+                        customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
                         failList.add(customerSalePushLog.getOcdcId().toString());
                     }
 

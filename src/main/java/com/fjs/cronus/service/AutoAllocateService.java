@@ -892,6 +892,9 @@ public class AutoAllocateService {
                 break;
             }
         }
+        if (!result.getSuccessOfOldcustomer()) {
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k43);
+        }
         return result;
     }
 
