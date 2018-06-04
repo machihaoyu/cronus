@@ -709,15 +709,6 @@ public class AutoAllocateService {
                     if (salesmanId != null) {
                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k38 + j + "$" + k
                                 , ImmutableMap.of("salesmanId", salesmanId));
-
-                        // 找到业务员，且实购数 == 已购数,需要发送手机短信
-                        if (orderNumOfCompany + 1 == orderNumber) {
-                            JSONObject params = new JSONObject();
-                            params.put("firstBarId", subCompanyId);
-                            params.put("mediaId", media_id);
-                            params.put("time", new Date().getTime());
-                            avatarClientService.purchaseSmsNotice(token, params);
-                        }
                         break;
                     }
                 }
@@ -731,6 +722,16 @@ public class AutoAllocateService {
                 result.setMediaid(subCompanyId);
                 result.setFrommediaid(idFromCountQueue ? CommonConst.COMPANY_MEDIA_QUEUE_COUNT : media_id);
                 result.setSuccessOfAvatar(true);
+
+                // 找到业务员，且实购数 == 已购数,需要发送手机短信
+                if (orderNumOfCompany + 1 == orderNumber) {
+                    JSONObject params = new JSONObject();
+                    params.put("firstBarId", subCompanyId);
+                    params.put("mediaId", media_id);
+                    params.put("time", new Date().getTime());
+                    avatarClientService.purchaseSmsNotice(token, params);
+                }
+                
                 break;
             }
         }
