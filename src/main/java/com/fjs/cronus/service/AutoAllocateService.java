@@ -599,6 +599,18 @@ public class AutoAllocateService {
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k32 + j
                         , ImmutableMap.of("subCompanyId", subCompanyId, "currentMonthStr", currentMonthStr, "mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT)
                         , ImmutableMap.of("队列大小", queueSizeMedia));
+
+                // 是否需要判断特殊队列(特殊队列是否被关注)
+                boolean flag = false;
+                if (queueSizeMedia > 0) {
+                    flag = true;
+                } else {
+                    Set<Integer> followMediaidFromDB = this.companyMediaQueueService.findFollowMediaidFromDB(subCompanyId);
+                    if (followMediaidFromDB.contains(media_id)) {
+                        flag = true;
+                    }
+                }
+
                 for (int k = 0; k < queueSizeMedia; k++) {
                     idFromCountQueue = true;
                     // 需要业务员queue找业务员
@@ -656,8 +668,7 @@ public class AutoAllocateService {
                     }
 
                     // 校验，如果是从总队列中找，且也关注了特殊队列，需要校验满足特殊队列分配数 > 已分配数
-                    long queueSizeOfMediaid = allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr);
-                    if (queueSizeOfMediaid > 0) {
+                    if (flag) {
 
                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k35 + j + "$" + k);
 
