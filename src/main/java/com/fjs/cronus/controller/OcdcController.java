@@ -5,6 +5,7 @@ import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.crm.OcdcData;
 import com.fjs.cronus.dto.crm.ResponseData;
+import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.service.AutoCleanService;
 import com.fjs.cronus.service.AutoAllocateService;
 import com.fjs.cronus.service.OcdcService;
@@ -52,8 +53,7 @@ public class OcdcController {
         OcdcData ocdcData = JSON.parseObject(ocdcRawData, OcdcData.class);
         CronusDto resultDto = new CronusDto();
         try {
-            // TODO lihong
-            // resultDto.setData(ocdcService.addOcdcCustomer(ocdcData, AllocateSource.OCDC, token));
+            resultDto.setData(ocdcService.addOcdcCustomer(ocdcData, AllocateSource.OCDC, token));
             resultDto.setResult(0);
         } catch (Exception e) {
             resultDto.setResult(1);
