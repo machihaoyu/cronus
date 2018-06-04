@@ -15,6 +15,7 @@ import com.fjs.cronus.util.FtpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import sun.misc.BASE64Encoder;
 
@@ -217,7 +218,8 @@ public class RContractDocumentService {
         paramsMap.put("serviceContractId",serviceId);
         List<RContractDocument> documentList = rContractDocumentMapper.ocrDocumentType(paramsMap);
         List<OcrDocumentDto> ocrDocumentDtos = new ArrayList<>();
-        for (RContractDocument rcdocument : documentList) {
+        if (!CollectionUtils.isEmpty(documentList)){
+            RContractDocument rcdocument = documentList.get(0);
             OcrDocumentDto ocrDocumentDto = new OcrDocumentDto();
             ocrDocumentDto.setDocument_id(rcdocument.getDocument().getId());
             ocrDocumentDto.setDocument_name(rcdocument.getDocumentName());
@@ -230,6 +232,8 @@ public class RContractDocumentService {
             ocrDocumentDto.setUrl(aliyunOssUrl + ResultResource.DOWNLOADFOOTPATH +rcdocument.getDocument().getDocumentSavepath() + rcdocument.getDocument().getDocumentSavename());
             ocrDocumentDtos.add(ocrDocumentDto);
         }
+
+
         resultDto.setData(ocrDocumentDtos);
         resultDto.setResult(ResultResource.CODE_SUCCESS);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
