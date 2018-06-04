@@ -161,7 +161,7 @@ public class OcdcService {
                                     responseMessage.append("主动申请渠道");
                                     responseMessage.append("-");
                                     // 无负责人
-                                    if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
+                                    if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() <= 0) {
                                         // 自动分配
                                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k4);
 
@@ -206,7 +206,7 @@ public class OcdcService {
                                         responseMessage.append("三无-重复时间申请");
                                         responseMessage.append("-");
                                     } else {
-                                        if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() == 0) {
+                                        if (customerDTO.getOwnerUserId() == null || customerDTO.getOwnerUserId() <= 0) {
                                             // 无负责人，自动分配
                                             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k4);
 
