@@ -189,7 +189,7 @@ public class AutoAllocateService {
                 // 1.2、未找到、进待分配池
                 // 2、新客户，不在有效城市范围内--->进客服系统
                 if (StringUtils.contains(allocateCities, customerDTO.getCity())) {
-                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k15, ImmutableMap.of("city", customerDTO.getCity()));
+                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k15);
 
                     signCustomAllocate = this.allocateForAvatar(token, customerDTO, mediaId, currentMonthStr);
                     if (signCustomAllocate.getSuccessOfAvatar()) {

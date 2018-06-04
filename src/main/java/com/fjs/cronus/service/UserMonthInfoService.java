@@ -457,9 +457,23 @@ public class UserMonthInfoService {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void incrNum2DB(CustomerInfo customerDto, Integer salesmanId, String token) {
         // 参数校验
+        if (customerDto.getId() == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "customeId 不能为null");
+        }
+
+        UserMonthInfoDetail detail = new UserMonthInfoDetail();
+        detail.setStatus(CommonEnum.entity_status1.getCode());
+        detail.setCustomerid(customerDto.getId());
+        int i = userMonthInfoDetailMapper.selectCount(detail);
+        if (i == 0) {
+            // 非商机进入顾客，不走下面业务
+            return;
+        }
+
         Integer subCompanyId = customerDto.getSubCompanyId();
         String utmSource = customerDto.getUtmSource();
         Date createTime = customerDto.getCreateTime();
+
         if (subCompanyId == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "subCompanyId 不能为null");
         }
