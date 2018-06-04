@@ -228,7 +228,7 @@ public class AutoAllocateService {
                     customerDTO.setOwnerUserId(Integer.valueOf(ownerUser.getUser_id()));
                     allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
                 } else if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) { // 在有效分配城市内
-                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k15, ImmutableMap.of("city", customerDTO.getCity()));
+                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k15);
                     // 根据城市，去找一级吧下业务员
                     signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, mediaId);
                     if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
