@@ -61,5 +61,6 @@ public class SingleCutomerAllocateDevInfoUtil {
     // ------------------ 老顾客，借用商机的总队列找业务员 end---------------------------------
     public static final String k45 = "ocdcservice.addOcdcCustomer分配失败";
     public static final String k47 = "三无客户-指定时间内重复推送";
+    public static final String k48 = "实购数=订购数，发送短信";
 
 }

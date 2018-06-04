@@ -181,12 +181,6 @@ public class AutoAllocateService {
                 // 新客户：走商机系统规则
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k13);
 
-                // 商机系统分支
-                // 规则：
-                // 1、新客户，在有效城市范围内--->走商机分配规则找业务员
-                // 1.1、找到，分配给业务员
-                // 1.2、未找到、进待分配池
-                // 2、新客户，不在有效城市范围内--->进客服系统
                 if (StringUtils.contains(allocateCities, customerDTO.getCity())) {
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k15);
 
@@ -210,13 +204,6 @@ public class AutoAllocateService {
             } else {
                 // 老客户
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k1);
-
-                // 规则：
-                // 1、根据ocdc的传的特殊标记找业务员，找打就分给该业务员
-                // 2、在有效城市范围内（根据城市queue找一级吧，再根据一级吧分配queue找业务员）找业务员
-                // 2.1、找到，分配给业务员
-                // 2.2、未找到、进待分配池
-                // 3、进客户系统
 
                 UserInfoDTO ownerUser = this.getOwnerUser(customerDTO, token); // 获取负责人
                 //boolean allocateToPublic = this.isAllocateToPublic(customerDTO.getUtmSource()); // 根据渠道，判断是否需要自动分配
@@ -724,6 +711,9 @@ public class AutoAllocateService {
 
                 // 找到业务员，且实购数 == 已购数,需要发送手机短信
                 if (orderNumOfCompany + 1 == orderNumber) {
+                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k48 + j
+                            , ImmutableMap.of("orderNumOfCompany", orderNumOfCompany, "orderNumber", orderNumber));
+
                     JSONObject params = new JSONObject();
                     params.put("firstBarId", subCompanyId);
                     params.put("mediaId", media_id);
