@@ -36,7 +36,7 @@ public class SingleCutomerAllocateDevInfoUtil {
     public static final String k22 = "循环城市、媒体queue,";
     public static final String k23 = "获取某一级吧、某媒体、某月的已分配数,";
     public static final String k24 = "请求商机系统,";
-    public static final String k25 = "获取关注的媒体,";
+    //public static final String k25 = "获取关注的媒体,";
     public static final String k46 = "进入特殊分配队列分支，找业务员,";
     public static final String k26 = "根据某一级吧、某媒体（特殊队列）、某月查queue大小,";
     public static final String k27 = "循环某一级吧、某媒体（特殊队列）、某月queue找业务员,";

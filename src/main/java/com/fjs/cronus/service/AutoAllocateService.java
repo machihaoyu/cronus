@@ -467,29 +467,18 @@ public class AutoAllocateService {
             //
             // 先去特殊队列找，找不到然后去总分配队列找
             Integer salesmanId = null;
-            Set<Integer> followMediaidFromDB = this.companyMediaQueueService.findFollowMediaidFromDB(subCompanyId);
-            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k25 + j
-                    , ImmutableMap.of("subCompanyId", subCompanyId)
-                    , ImmutableMap.of("mediaids", followMediaidFromDB));
 
             boolean idFromCountQueue = false; // 记录业务员是从特殊媒体queue取出，还是总queue中取出.
-            long queueSizeMedia = 0;
-            if (!followMediaidFromDB.contains(media_id)) {
-                // 未关注着不从该特殊队列中找
-                queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr);
-                SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k26 + j
-                        , ImmutableMap.of("未在关注队列内", "不从特殊队列中找业务员"));
-            } else {
-                queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr);
-                SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k26 + j
-                        , ImmutableMap.of("subCompanyId", subCompanyId, "media_id", media_id, "currentMonthStr", currentMonthStr)
-                        , ImmutableMap.of("队列大小", queueSizeMedia));
-            }
+
+            long queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr);
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k26 + j
+                    , ImmutableMap.of("subCompanyId", subCompanyId, "media_id", media_id, "currentMonthStr", currentMonthStr)
+                    , ImmutableMap.of("队列大小", queueSizeMedia));
 
             for (int i = 0; i < queueSizeMedia; i++) {
+                // 去特殊分配队列找
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k46 + j);
 
-                // 去特殊分配队列找
                 salesmanId = allocateRedisService.getAndPush2End(subCompanyId, media_id, currentMonthStr);
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k27 + j + "$" + i
                         , ImmutableMap.of("subCompanyId", subCompanyId, "media_id", media_id, "currentMonthStr", currentMonthStr)
@@ -587,7 +576,7 @@ public class AutoAllocateService {
                                 , "RewardCustomerNum", userMonthInfo2.getRewardCustomerNum()
                                 , "AssignedCustomerNum", userMonthInfo2.getAssignedCustomerNum()));
 
-                // 比较总
+                // 比较总队列
                 if (userMonthInfo2.getAssignedCustomerNum() >= userMonthInfo2.getBaseCustomerNum() + userMonthInfo2.getRewardCustomerNum()) {
                     // 该业务员 已购数 >= 分配数
                     salesmanId = null;
@@ -667,7 +656,8 @@ public class AutoAllocateService {
                     }
 
                     // 校验，如果是从总队列中找，且也关注了特殊队列，需要校验满足特殊队列分配数 > 已分配数
-                    if (followMediaidFromDB.contains(media_id)) {
+                    long queueSizeOfMediaid = allocateRedisService.getQueueSize(subCompanyId, media_id, currentMonthStr);
+                    if (queueSizeOfMediaid > 0) {
 
                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k35 + j + "$" + k);
 
