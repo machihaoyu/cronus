@@ -153,9 +153,17 @@ public class CommunicationLogController {
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
             }
         } catch (Exception e) {
-            logger.error("新增沟通日志失败", e);
-            theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
-            theaApiDTO.setMessage(CommonMessage.ADD_FAIL.getCodeDesc());
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                theaApiDTO.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                theaApiDTO.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("新增沟通日志失败", e);
+                theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
+                theaApiDTO.setMessage(e.getMessage());
+            }
         }
         return theaApiDTO;
     }
