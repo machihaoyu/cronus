@@ -1,10 +1,9 @@
-package com.fjs.cronus.service;
+package com.fjs.cronus.service.customerallocate.v2;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
-
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.AllocateForAvatarDTO;
@@ -19,24 +18,21 @@ import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.CrmUserDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.AllocateEntity;
-import com.fjs.cronus.entity.UserMonthInfoDetail;
 import com.fjs.cronus.enums.AllocateEnum;
 import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.mappers.UserMonthInfoDetailMapper;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
-import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UserMonthInfo;
+import com.fjs.cronus.service.*;
 import com.fjs.cronus.service.client.AvatarClientService;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.client.ThorService;
-import com.fjs.cronus.service.redis.AllocateRedisService;
+import com.fjs.cronus.service.redis.AllocateRedisServiceV2;
 import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.thea.ThorClientService;
-import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.SingleCutomerAllocateDevInfoUtil;
@@ -54,18 +50,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.util.*;
-
-import static java.util.stream.Collectors.*;
 
 /**
  * Created by feng on 2017/9/21.
  */
 @Service
-public class AutoAllocateService {
+public class AutoAllocateServiceV2 {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -82,10 +75,10 @@ public class AutoAllocateService {
     private ThorService thorUcService;
 
     @Autowired
-    private AllocateRedisService allocateRedisService;
+    private AllocateRedisServiceV2 allocateRedisService;
 
     @Autowired
-    private UserMonthInfoService userMonthInfoService;
+    private UserMonthInfoServiceV2 userMonthInfoService;
 
     @Autowired
     private AllocateLogService allocateLogService;
@@ -129,9 +122,6 @@ public class AutoAllocateService {
 
     @Autowired
     private UserMonthInfoMapper userMonthInfoMapper;
-
-    @Autowired
-    private UserMonthInfoDetailMapper userMonthInfoDetailMapper;
 
     @Autowired
     private CRMRedisLockHelp cRMRedisLockHelp;
@@ -310,11 +300,6 @@ public class AutoAllocateService {
                 case "0": // 公盘
                     break;
                 case "1": // 自动分配队列
-//                    String[] cityStrArrayAll = StringUtils.split(allocateCities, ",");
-//                    if (ArrayUtils.contains(cityStrArrayAll, customerDTO.getCity())) {
-                    if (allocateCities.contains(customerDTO.getCity())) {
-                        allocateRedisService.changeAllocateTemplet(customerDTO.getOwnerUserId(), customerDTO.getCity());
-                    }
                     // 添加分配日志
                     CustomerInfo customerInfo = new CustomerInfo();
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
@@ -886,181 +871,6 @@ public class AutoAllocateService {
         }
         return result;
     }
-
-    /**
-     * 根据城市获取分配队列信息
-     *
-     * @param city
-     */
-    @Deprecated
-    public Integer getAllocateUser(String city) {
-
-        // 获取业务员id
-        Integer ownUserId = 0;
-        String userIdsStr = allocateRedisService.getAllocateTemplet(city);
-        if (StringUtils.isBlank(userIdsStr)) {
-            return 0;
-        }
-        String[] userIdsArray = userIdsStr.split(",");
-
-        // 查询这个队列里面每个人这这个月的分配数（有限）
-        List<Integer> ids = CommonUtil.initStrtoIntegerList(userIdsStr);
-        Map<String, Object> userMonthMap = new HashMap<>();
-        userMonthMap.put("userIds", ids);
-        userMonthMap.put("effectiveDate", DateUtils.getyyyyMMForThisMonth());
-        List<UserMonthInfo> userMonthInfoServiceList = userMonthInfoService.selectByParamsMap(userMonthMap);
-        List<AllocateLog> allocateLogList = new ArrayList<>();
-        if (null != userMonthInfoServiceList && userMonthInfoServiceList.size() > 0) {
-            //先将所有的客户已分配数归0，原数据表中的数据清空
-            List<Integer> newOwnerIds = new ArrayList<>();
-            for (UserMonthInfo userMonthInfo : userMonthInfoServiceList) {
-                userMonthInfo.setAssignedCustomerNum(0);
-                newOwnerIds.add(userMonthInfo.getUserId());
-            }
-
-            // 获取该分组业务员的已分配交易数
-            Map<String, Object> allocateLogeMap = new HashMap<>();
-            allocateLogeMap.put("newOwnerIds", newOwnerIds);
-//            allocateLogeMap.put("operationsStr", CommonEnum.LOAN_OPERATION_TYPE_0.getCodeDesc() + "," + CommonEnum.LOAN_OPERATION_TYPE_4.getCodeDesc());
-            allocateLogeMap.put("createBeginDate", DateUtils.getStartTimeOfThisMonth());
-            allocateLogeMap.put("createEndDate", DateUtils.getStartTimeOfNextMonth());
-            allocateLogList = allocateLogService.selectByParamsMap(allocateLogeMap);
-
-            // 将查询结果重新封装为一个根据分配队列的ID结果的对象(将已分配的队列加+1)
-            for (int i = 0; i < userIdsArray.length; i++) {
-                String user = userIdsArray[i];
-                for (UserMonthInfo userMonthInfo : userMonthInfoServiceList) {
-                    if (user.equals(userMonthInfo.getUserId().toString())) {
-                        for (AllocateLog allocateLog : allocateLogList) {
-                            if (allocateLog.getNewOwnerId().equals(userMonthInfo.getUserId())) {
-                                userMonthInfo.setAssignedCustomerNum(userMonthInfo.getAssignedCustomerNum() + 1);
-                            }
-                        }
-                        //如果用户的已分配数>= 客户的基础分配数+奖励分配数 的输出用户ID
-                        if ((userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) > userMonthInfo.getAssignedCustomerNum()) {
-                            ownUserId = userMonthInfo.getUserId();
-                            return ownUserId;
-                        }
-                    }
-                }
-            }
-
-        }
-        return ownUserId;
-    }
-
-    /**
-     * 客户未沟通重新分配 定时任务 5min
-     */
-    @Transactional
-    public synchronized void nonCommunicateAgainAllocate(String token) {
-        new Thread(() -> {
-            ValueOperations<String, String> redisConfigOptions = stringRedisTemplate.opsForValue();
-            StringBuilder sb = new StringBuilder();
-            sb.append("nonCommunicateAgainAllocate");
-            try {
-                if (currentWorkDayAndTime(token)) {
-                    sb.append("-start");
-                    String status = redisConfigOptions.get(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE);
-                    if (org.apache.commons.lang.StringUtils.isNotEmpty(status) && status.equals("1")) {
-                        sb.append("-status 1");
-                        return;
-                    }
-                    sb.append("-status 0");
-                    redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.YES.getCode().toString());
-                    List<CustomerInfo> list = customerInfoService.selectNonCommunicateInTime().getData();
-
-                    List<Integer> existFailList = cronusRedisService.getRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO);
-                    if (existFailList == null) {
-                        existFailList = new ArrayList<>();
-                    }
-                    List<Integer> failList = new ArrayList<>();
-                    List<Integer> successList = new ArrayList<>();
-                    for (CustomerInfo customerInfo :
-                            list) {
-                        if (existFailList.contains(customerInfo.getId())) {
-                            if (!existFailList.contains(customerInfo.getId()))
-                                failList.add(customerInfo.getId());
-                            continue;
-                        }
-                        if (!allocateLogService.newestAllocateLog(customerInfo.getId())) {
-                            if (!existFailList.contains(customerInfo.getId()))
-                                failList.add(customerInfo.getId());
-                            continue;
-                        }
-                        Integer ownUserId = 0;
-                        try {
-                            ownUserId = this.getAllocateUser(customerInfo.getCity());
-                        } catch (Exception e) {
-
-                        }
-                        if (ownUserId > 0) {
-                            allocateRedisService.changeAllocateTemplet(customerInfo.getOwnUserId(), customerInfo.getCity());
-
-                            allocateLogService.addAllocatelog(customerInfo, ownUserId,
-                                    CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
-                            SimpleUserInfoDTO simpleUserInfoDTO = thorUcService.getUserInfoById(token, ownUserId).getData();
-                            if (simpleUserInfoDTO != null && null != simpleUserInfoDTO.getSub_company_id()) {
-                                customerInfo.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
-                            } else {
-                                customerInfo.setSubCompanyId(0);
-                            }
-                            customerInfo.setRemain(0);
-                            customerInfo.setOwnUserId(ownUserId);
-                            customerInfo.setOwnUserName(simpleUserInfoDTO.getName());
-                            customerInfo.setReceiveTime(new Date());
-                            customerInfo.setLastUpdateTime(new Date());
-                            customerInfo.setConfirm(1);
-                            customerInfo.setClickCommunicateButton(0);
-                            customerInfo.setCommunicateTime(null);
-                            customerInfoService.updateCustomerNonCommunicate(customerInfo);
-
-
-                            //添加分配日志
-
-                            sendMessage(customerInfo.getCustomerName(), ownUserId, simpleUserInfoDTO, token);
-                            successList.add(customerInfo.getId());
-
-                        } else {
-                            //分配名额已经满了,向这个城市的crm助理发送短信
-                            sendCRMAssistantMessage(customerInfo.getCity(), customerInfo.getCustomerName(), token);
-                            if (!failList.contains(customerInfo.getId()))
-                                failList.add(customerInfo.getId());
-                        }
-                    }
-                    redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.NO.getCode().toString());
-                    //failList 添加到缓存
-                    existFailList.addAll(failList);
-                    cronusRedisService.setRedisFailNonConmunicateAllocateInfo(CommonConst.FAIL_NON_COMMUNICATE_ALLOCATE_INFO, failList);
-                    if (successList.size() > 0) {
-                        theaService.invalidLoans(token, convertListToString(successList));
-                    }
-                    sb.append("--");
-                    sb.append("failList:" + failList.toString());
-                    sb.append("--");
-                    sb.append("successList:" + successList.toString());
-                } else {
-                    sb.append("--non work time");
-                }
-            } catch (Exception e) {
-                redisConfigOptions.set(CommonConst.NON_COMMUNICATE_AGAIN_ALLOCATE, CommonEnum.NO.getCode().toString());
-                logger.error("nonCommunicateAgainAllocate--", e);
-            }
-            logger.warn(sb.toString());
-        }).run();
-    }
-
-    private String convertListToString(List<Integer> list) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < list.size(); i++) {
-            stringBuilder.append(list.get(i));
-            if (i < list.size() - 1) {
-                stringBuilder.append(",");
-            }
-        }
-        return stringBuilder.toString();
-    }
-
 
     /**
      * 设置未沟通重新分配状态

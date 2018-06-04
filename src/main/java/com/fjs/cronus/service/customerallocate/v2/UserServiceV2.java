@@ -1,7 +1,5 @@
-package com.fjs.cronus.service;
+package com.fjs.cronus.service.customerallocate.v2;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.api.PhpApiDto;
@@ -13,21 +11,19 @@ import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.CityDto;
 import com.fjs.cronus.dto.api.uc.PhpDepartmentModel;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
-import com.fjs.cronus.dto.thea.BaseChannelDTO;
 import com.fjs.cronus.dto.uc.CrmCitySubCompanyDto;
 import com.fjs.cronus.dto.uc.LightUserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
-import com.fjs.cronus.model.AllocateLog;
-import com.fjs.cronus.model.CustomerUseful;
 import com.fjs.cronus.model.UserMonthInfo;
+import com.fjs.cronus.service.AllocateLogService;
+import com.fjs.cronus.service.CompanyMediaQueueService;
+import com.fjs.cronus.service.CustomerUsefulService;
 import com.fjs.cronus.service.client.ThorService;
-import com.fjs.cronus.service.redis.AllocateRedisService;
+import com.fjs.cronus.service.redis.AllocateRedisServiceV2;
 import com.fjs.cronus.service.redis.UserInfoRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;
-import com.fjs.cronus.util.DateUtils;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,14 +34,16 @@ import tk.mybatis.mapper.entity.Example;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
-import static java.util.stream.Collectors.*;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by yinzf on 2017/10/20.
  */
 
 @Service
-public class UserService {
+public class UserServiceV2 {
 
     @Value("${token.current}")
     private String publicToken;
@@ -60,7 +58,7 @@ public class UserService {
     private RedisConfig redisConfig;
 
     @Autowired
-    private UserMonthInfoService userMonthInfoService;
+    private UserMonthInfoServiceV2 userMonthInfoService;
 
     @Autowired
     private UserInfoRedisService userInfoRedisService;
@@ -72,7 +70,7 @@ public class UserService {
     private CustomerUsefulService customerUsefulService;
 
     @Autowired
-    private AllocateRedisService allocateRedisService;
+    private AllocateRedisServiceV2 allocateRedisService;
 
 //    @Autowired
 //    private ConfigRedisService configRedisService;

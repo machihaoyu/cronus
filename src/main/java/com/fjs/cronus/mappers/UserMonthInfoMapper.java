@@ -13,6 +13,13 @@ import java.util.Set;
  */
 public interface UserMonthInfoMapper extends MyMapper<UserMonthInfo>{
 
+    Integer saveOne(UserMonthInfo userMonthInfo);
+
+    Integer saveList(List<UserMonthInfo> userMonthInfos);
+
+    Integer insertOne(UserMonthInfo userMonthInfo);
+
+
     List<UserMonthInfo> selectByParamsMap(Map<String, Object> map);
 
     /**

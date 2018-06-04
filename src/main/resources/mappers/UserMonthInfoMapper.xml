@@ -111,4 +111,62 @@
         AND `status`=#{status}
     </select>
 
+    <update id="saveOne" parameterType="com.fjs.cronus.model.UserMonthInfo">
+        UPDATE user_month_info
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="baseCustomerNum != null ">
+                base_customer_num = #{baseCustomerNum},
+            </if>
+            <if test="rewardCustomerNum != null ">
+                reward_customer_num = #{rewardCustomerNum},
+            </if>
+            <if test="assignedCustomerNum != null ">
+                assigned_customer_num = #{assignedCustomerNum},
+            </if>
+            <if test="createTime != null ">
+                create_time = #{createTime},
+            </if>
+            <if test="createUserId != null ">
+                create_user_id = #{createUserId},
+            </if>
+            <if test="lastUpdateTime != null ">
+                last_update_time = #{lastUpdateTime},
+            </if>
+            <if test="lastUpdateUser != null ">
+                last_update_user = #{lastUpdateUser},
+            </if>
+            <if test="effectiveDate != null ">
+                effective_date = #{effectiveDate},
+            </if>
+        </set>
+        WHERE user_id =#{userId} AND effective_date = #{effectiveDate}
+    </update>
+
+    <insert id="insertList2" parameterType="java.util.List" useGeneratedKeys="true">
+        INSERT INTO user_month_info
+        (user_id,base_customer_num,reward_customer_num,assigned_customer_num,effective_customer_num,
+        create_time,create_user_id,last_update_time,effective_date,last_update_user)
+        values
+        <foreach collection="list" item="userMonthInfo" index="index" separator=",">
+            (
+            #{userMonthInfo.userId},
+            #{userMonthInfo.baseCustomerNum},
+            #{userMonthInfo.rewardCustomerNum},
+            #{userMonthInfo.assignedCustomerNum},
+            #{userMonthInfo.effectiveCustomerNum},
+            #{userMonthInfo.createTime},
+            #{userMonthInfo.createUserId},
+            #{userMonthInfo.lastUpdateTime},
+            #{userMonthInfo.effectiveDate},
+            #{userMonthInfo.lastUpdateUser}
+            )
+        </foreach>
+    </insert>
+
 </mapper>

@@ -1,6 +1,5 @@
 package com.fjs.cronus.service;
 
-import com.alibaba.fastjson.JSONArray;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonMessage;
@@ -12,15 +11,13 @@ import com.fjs.cronus.mappers.CompanyMediaQueueMapper;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.UserMonthInfo;
 import com.fjs.cronus.service.client.TheaService;
-import com.fjs.cronus.service.redis.AllocateRedisService;
+import com.fjs.cronus.service.customerallocate.v2.UserMonthInfoServiceV2;
+import com.fjs.cronus.service.redis.AllocateRedisServiceV2;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static java.util.stream.Collectors.*;
@@ -38,13 +35,13 @@ public class CompanyMediaQueueService {
     private TheaService theaService;
 
     @Autowired
-    private UserMonthInfoService userMonthInfoService;
+    private UserMonthInfoServiceV2 userMonthInfoService;
 
     @Autowired
     private UserMonthInfoMapper userMonthInfoMapper;
 
     @Autowired
-    private AllocateRedisService allocateRedisService;
+    private AllocateRedisServiceV2 allocateRedisService;
 
     public List<Map<String, Object>> findByCompanyId(String token, Integer currentUserId, Integer subCompanyId) {
 

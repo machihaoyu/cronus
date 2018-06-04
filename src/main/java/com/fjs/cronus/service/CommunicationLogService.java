@@ -17,6 +17,7 @@ import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.CustomerMeetMapper;
 import com.fjs.cronus.model.*;
+import com.fjs.cronus.service.customerallocate.v2.UserMonthInfoServiceV2;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DEC3Util;
@@ -60,7 +61,7 @@ public class CommunicationLogService {
     @Autowired
     CommentService commentService;
     @Autowired
-    UserMonthInfoService userMonthInfoService;
+    UserMonthInfoServiceV2 userMonthInfoService;
 
     //添加
     @Autowired

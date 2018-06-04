@@ -1,4 +1,4 @@
-package com.fjs.cronus.service;
+package com.fjs.cronus.service.customerallocate.v2;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
@@ -9,7 +9,6 @@ import com.fjs.cronus.dto.AllocateForAvatarDTO;
 import com.fjs.cronus.dto.BasePageableDTO;
 import com.fjs.cronus.dto.BasePageableVO;
 import com.fjs.cronus.dto.avatar.AvatarApiDTO;
-import com.fjs.cronus.dto.avatar.FirstBarConsumeDTO;
 import com.fjs.cronus.dto.avatar.FirstBarConsumeDTO2;
 import com.fjs.cronus.dto.avatar.FirstBarDTO;
 import com.fjs.cronus.dto.cronus.*;
@@ -22,9 +21,11 @@ import com.fjs.cronus.mappers.UserMonthInfoDetailMapper;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UserMonthInfo;
+import com.fjs.cronus.service.AllocateLogService;
+import com.fjs.cronus.service.CompanyMediaQueueService;
 import com.fjs.cronus.service.client.AvatarClientService;
 import com.fjs.cronus.service.client.TheaService;
-import com.fjs.cronus.service.redis.AllocateRedisService;
+import com.fjs.cronus.service.redis.AllocateRedisServiceV2;
 import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,9 +47,9 @@ import static java.util.stream.Collectors.*;
  * Created by feng on 2017/9/22.
  */
 @Service
-public class UserMonthInfoService {
+public class UserMonthInfoServiceV2 {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserMonthInfoService.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserMonthInfoServiceV2.class);
 
     @Autowired
     private AllocateLogService allocateLogService;
@@ -60,7 +61,7 @@ public class UserMonthInfoService {
     private CRMRedisLockHelp cRMRedisLockHelp;
 
     @Autowired
-    private AllocateRedisService allocateRedisService;
+    private AllocateRedisServiceV2 allocateRedisService;
 
     @Autowired
     private CompanyMediaQueueMapper companyMediaQueueMapper;

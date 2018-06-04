@@ -2,6 +2,8 @@ package com.fjs.cronus.service.quartz;
 
 
 import com.fjs.cronus.service.*;
+import com.fjs.cronus.service.customerallocate.v2.AutoAllocateServiceV2;
+import com.fjs.cronus.service.customerallocate.v2.OcdcServiceV2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +16,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Administrator on 2017/8/3 0003.
@@ -34,10 +34,10 @@ public class ScheduledJob {
     private String token;
 
     @Autowired
-    private OcdcService ocdcService;
+    private OcdcServiceV2 ocdcService;
 
     @Autowired
-    private AutoAllocateService autoAllocateService;
+    private AutoAllocateServiceV2 autoAllocateService;
 
     @Autowired
     private AutoCleanService autoCleanService;

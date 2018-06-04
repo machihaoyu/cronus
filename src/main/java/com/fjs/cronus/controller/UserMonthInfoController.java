@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.BasePageableDTO;
-import com.fjs.cronus.dto.BasePageableVO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.avatar.AvatarApiDTO;
 import com.fjs.cronus.dto.avatar.FirstBarConsumeDTO;
@@ -17,7 +16,7 @@ import com.fjs.cronus.dto.cronus.FindMediaAssignedCustomerNumDTO;
 import com.fjs.cronus.dto.cronus.FindMediaAssignedCustomerNumItmDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.service.UserMonthInfoService;
+import com.fjs.cronus.service.customerallocate.v2.UserMonthInfoServiceV2;
 import com.fjs.cronus.service.client.AvatarClientService;
 import com.fjs.cronus.service.client.ThorService;
 import io.swagger.annotations.Api;
@@ -29,13 +28,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Api(description = "月分配队列-控制器")
 @RequestMapping("/api/v1/userMonthInfo")
@@ -45,7 +41,7 @@ public class UserMonthInfoController {
     private static final Logger logger = LoggerFactory.getLogger(ResignCustomerController.class);
 
     @Autowired
-    private UserMonthInfoService userMonthInfoService;
+    private UserMonthInfoServiceV2 userMonthInfoService;
 
     @Autowired
     private ThorService thorService;

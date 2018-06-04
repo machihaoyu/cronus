@@ -7,8 +7,8 @@ import com.fjs.cronus.dto.crm.OcdcData;
 import com.fjs.cronus.dto.crm.ResponseData;
 import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.service.AutoCleanService;
-import com.fjs.cronus.service.customerallocate.v1.AutoAllocateService;
-import com.fjs.cronus.service.customerallocate.v1.OcdcService;
+import com.fjs.cronus.service.customerallocate.v2.AutoAllocateServiceV2;
+import com.fjs.cronus.service.customerallocate.v2.OcdcServiceV2;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -27,17 +27,17 @@ import java.util.List;
  * Created by feng on 2017/7/14.
  */
 @Controller
-@RequestMapping(value = "/api/v1/ocdc")
-public class OcdcController {
+@RequestMapping(value = "/api/v2/ocdc")
+public class OcdcControllerV2 {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     @Autowired
-    private OcdcService ocdcService;
+    private OcdcServiceV2 ocdcService;
 
     @Autowired
-    private AutoAllocateService autoAllocateService;
+    private AutoAllocateServiceV2 autoAllocateService;
 
     @Autowired
     private AutoCleanService autoCleanService;
@@ -126,7 +126,8 @@ public class OcdcController {
     public ResponseData nonCommunicateAgainAllocate(@RequestHeader("Authorization") String token) {
         ResponseData responseData = new ResponseData();
         try {
-            autoAllocateService.nonCommunicateAgainAllocate(token);
+            // TODO lihong
+            // autoAllocateService.nonCommunicateAgainAllocate(token);
             responseData.setErrNum("0");
         } catch (Exception e) {
             responseData.setErrMsg("");
@@ -209,7 +210,7 @@ public class OcdcController {
     @RequestMapping(value = "/getCustomerPhone", method = RequestMethod.GET)
     @ResponseBody
     public CronusDto<List<String>> getCustomerPhone(@RequestHeader("Authorization") String token, @RequestParam(value = "start", required = false) String start,
-                                                    @RequestParam(value = "end", required = false) String end) {
+                                 @RequestParam(value = "end", required = false) String end) {
 
         CronusDto<List<String>> cronusDto = new CronusDto();
         try {
