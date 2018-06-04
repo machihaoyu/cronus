@@ -270,6 +270,7 @@
     left join document d on d.id = r.document_id
     left join document_category c on r.document_c_id =c.id
     where r.is_deleted = 0
+    and r.document_c_id = 650
     AND  d.is_deleted = 0
     <if test="crm_attach_ids!=null and crm_attach_ids.size>0">
       and d.id in
