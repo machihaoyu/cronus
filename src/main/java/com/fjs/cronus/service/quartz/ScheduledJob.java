@@ -2,8 +2,8 @@ package com.fjs.cronus.service.quartz;
 
 
 import com.fjs.cronus.service.*;
-import com.fjs.cronus.service.customerallocate.v2.AutoAllocateServiceV2;
-import com.fjs.cronus.service.customerallocate.v2.OcdcServiceV2;
+import com.fjs.cronus.service.AutoAllocateServiceV2;
+import com.fjs.cronus.service.OcdcServiceV2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

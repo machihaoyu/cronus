@@ -1,23 +1,21 @@
 package com.fjs.cronus.service;
 
 
-import com.fjs.cronus.Common.CommunicationEnum;
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.Common.CommunicationEnum;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.CommunicationDTO;
 import com.fjs.cronus.dto.thea.CommunicationLogDTO;
-import com.fjs.cronus.dto.uc.UserInfoDTO;
-
 import com.fjs.cronus.dto.thea.CustomerUsefulDTO;
+import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CommunicationLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.CustomerMeetMapper;
 import com.fjs.cronus.model.*;
-import com.fjs.cronus.service.customerallocate.v2.UserMonthInfoServiceV2;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DEC3Util;
@@ -149,8 +147,8 @@ public class CommunicationLogService {
         if (customerUsefulDTO.getLoanAmount() != null && customerUsefulDTO.getLoanAmount().intValue() > 0){
             customerDto.setConfirm(CommonConst.CONFIRM__STATUS_EFFECT);
 
-            // 记录已确认数
-            userMonthInfoService.incrNum2DB(customerDto, loginUserId, token);
+            // TODO lihong 记录已确认数
+            //userMonthInfoService.incrNum2DB(customerDto, loginUserId, token);
         }
         if (customerUsefulDTO.getLoanAmount() != null && customerUsefulDTO.getLoanAmount().intValue() == 0){
             customerDto.setConfirm(CommonConst.CONFIRM__STATUS_NOEFFECT);

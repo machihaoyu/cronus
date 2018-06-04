@@ -11,7 +11,6 @@ import com.fjs.cronus.mappers.CompanyMediaQueueMapper;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.UserMonthInfo;
 import com.fjs.cronus.service.client.TheaService;
-import com.fjs.cronus.service.customerallocate.v2.UserMonthInfoServiceV2;
 import com.fjs.cronus.service.redis.AllocateRedisServiceV2;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,7 @@ import tk.mybatis.mapper.entity.Example;
 
 import java.util.*;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * 单位、媒体的队列表；一级吧、媒体的队列表 service.
@@ -33,9 +32,6 @@ public class CompanyMediaQueueService {
 
     @Autowired
     private TheaService theaService;
-
-    @Autowired
-    private UserMonthInfoServiceV2 userMonthInfoService;
 
     @Autowired
     private UserMonthInfoMapper userMonthInfoMapper;

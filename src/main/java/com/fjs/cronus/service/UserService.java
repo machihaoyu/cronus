@@ -1,4 +1,4 @@
-package com.fjs.cronus.service.customerallocate.v1;
+package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.api.PhpApiDto;
@@ -15,9 +15,6 @@ import com.fjs.cronus.dto.uc.LightUserInfoDTO;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerUseful;
 import com.fjs.cronus.model.UserMonthInfo;
-import com.fjs.cronus.service.AllocateLogService;
-import com.fjs.cronus.service.CustomerUsefulService;
-import com.fjs.cronus.service.customerallocate.v2.UserMonthInfoServiceV2;
 import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.UserInfoRedisService;

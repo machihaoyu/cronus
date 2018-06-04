@@ -1,4 +1,4 @@
-package com.fjs.cronus.service.customerallocate.v2;
+package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -24,7 +24,6 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UserMonthInfo;
-import com.fjs.cronus.service.*;
 import com.fjs.cronus.service.client.AvatarClientService;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.client.ThorService;

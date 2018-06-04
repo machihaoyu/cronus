@@ -1,4 +1,4 @@
-package com.fjs.cronus.service.customerallocate.v1;
+package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -18,10 +18,8 @@ import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UserMonthInfo;
-import com.fjs.cronus.service.*;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.client.ThorService;
-import com.fjs.cronus.service.customerallocate.v2.UserMonthInfoServiceV2;
 import com.fjs.cronus.service.redis.AllocateRedisService;
 import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;

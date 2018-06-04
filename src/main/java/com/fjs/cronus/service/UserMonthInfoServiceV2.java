@@ -1,4 +1,4 @@
-package com.fjs.cronus.service.customerallocate.v2;
+package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
@@ -21,8 +21,6 @@ import com.fjs.cronus.mappers.UserMonthInfoDetailMapper;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UserMonthInfo;
-import com.fjs.cronus.service.AllocateLogService;
-import com.fjs.cronus.service.CompanyMediaQueueService;
 import com.fjs.cronus.service.client.AvatarClientService;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.redis.AllocateRedisServiceV2;
@@ -50,9 +48,6 @@ import static java.util.stream.Collectors.*;
 public class UserMonthInfoServiceV2 {
 
     private static final Logger logger = LoggerFactory.getLogger(UserMonthInfoServiceV2.class);
-
-    @Autowired
-    private AllocateLogService allocateLogService;
 
     @Autowired
     private UserMonthInfoMapper userMonthInfoMapper;

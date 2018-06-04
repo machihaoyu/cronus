@@ -1,4 +1,4 @@
-package com.fjs.cronus.service.customerallocate.v2;
+package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
@@ -16,9 +16,6 @@ import com.fjs.cronus.dto.uc.LightUserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.UserMonthInfo;
-import com.fjs.cronus.service.AllocateLogService;
-import com.fjs.cronus.service.CompanyMediaQueueService;
-import com.fjs.cronus.service.CustomerUsefulService;
 import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisServiceV2;
 import com.fjs.cronus.service.redis.UserInfoRedisService;

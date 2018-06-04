@@ -1,4 +1,4 @@
-package com.fjs.cronus.service.customerallocate.v1;
+package com.fjs.cronus.service;
 
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.UserMonthInfo;

@@ -16,7 +16,7 @@ import com.fjs.cronus.dto.cronus.FindMediaAssignedCustomerNumDTO;
 import com.fjs.cronus.dto.cronus.FindMediaAssignedCustomerNumItmDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.service.customerallocate.v2.UserMonthInfoServiceV2;
+import com.fjs.cronus.service.UserMonthInfoServiceV2;
 import com.fjs.cronus.service.client.AvatarClientService;
 import com.fjs.cronus.service.client.ThorService;
 import io.swagger.annotations.Api;
