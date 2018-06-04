@@ -309,7 +309,7 @@ public class OcdcService {
             } catch (Exception e) {
                 logger.error("分配异常", e);
             } finally{
-                // 释放threadload资源（防止内存溢出）
+                // 释放threadload资源（防止内存泄露）
                 SingleCutomerAllocateDevInfoUtil.local.remove();
             }
 
