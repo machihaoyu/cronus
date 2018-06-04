@@ -48,6 +48,9 @@ public class ScheduledJob {
     @Autowired
     private DealgoService dealgoService;
 
+    @Autowired
+    private PanService panService;
+
     private SimpleDateFormat dateFormat() {
         return new SimpleDateFormat("HH:mm:ss");
     }
@@ -81,6 +84,10 @@ public class ScheduledJob {
         logger.info("5.initProfileTask start");
         dealgoService.initProfileTask();
         logger.info("5.initProfileTask end");
+
+        logger.info("5.1.customersFromDiscardTask start");
+        panService.customersFromDiscardTask();
+        logger.info("5.1.customersFromDiscardTask end");
 
 //        logger.error("定时任务 ------> 新注册客户15天发送短信");
         logger.info("6.sandMessage start");

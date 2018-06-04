@@ -769,16 +769,6 @@ public class CustomerController {
         CronusDto cronusDto = new CronusDto();
         //校验权限
         String ids = jsonObject.getString("ids");
-       /* PHPLoginDto resultDto = thorUcService.getAllUserInfo(token,CommonConst.SYSTEMNAME);
-        String[] authority=resultDto.getAuthority();
-        if(authority.length>0){
-            List<String> authList= Arrays.asList(authority);
-            if (authList.contains(CommonConst.REMOVE_LOAN_URL)){
-                cronusDto.setResult(CommonMessage.REMOVE_FAIL.getCode());
-                cronusDto.setMessage(CommonConst.NO_AUTHORIZE);
-                return cronusDto;
-            }
-        }*/
         try {
             cronusDto = customerInfoService.removeCustomer(ids, token);
             return cronusDto;

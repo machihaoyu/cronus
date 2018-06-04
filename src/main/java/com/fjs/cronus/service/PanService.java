@@ -19,12 +19,14 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.AllocateLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
+import com.fjs.cronus.mappers.PublicMapper;
 import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerInfoLog;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
@@ -507,4 +509,37 @@ public class PanService {
         }
         return  result;
     }
+
+
+
+    @Autowired
+    private PublicMapper publicMapper;
+
+    public void customersFromDiscardTask()
+    {
+//        new Thread(() -> {
+//            publicCustomersFromDiscard();
+//        }).run();
+    }
+
+    /**
+     * 获取扔回客户变更为公盘客户0，扔回时间清空
+     */
+    public void publicCustomersFromDiscard() {
+        try {
+            List<Integer> cus = publicMapper.getCustomersFromDiscard();
+
+            if (cus.size() > 0) {
+                String ids = CommonUtil.initIntegerListToStr(cus);
+                publicMapper.updateCustomersFromDiscard(ids);
+            }
+
+        }catch (Exception e)
+        {
+            logger.error("--getCustomersFromDiscard",e);
+        }
+
+    }
+
+
 }
