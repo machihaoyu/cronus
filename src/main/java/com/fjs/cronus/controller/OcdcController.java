@@ -53,7 +53,8 @@ public class OcdcController {
         OcdcData ocdcData = JSON.parseObject(ocdcRawData, OcdcData.class);
         CronusDto resultDto = new CronusDto();
         try {
-            resultDto.setData(ocdcService.addOcdcCustomer(ocdcData, AllocateSource.OCDC, token));
+            // TODO lihong
+            // resultDto.setData(ocdcService.addOcdcCustomer(ocdcData, AllocateSource.OCDC, token));
             resultDto.setResult(0);
         } catch (Exception e) {
             resultDto.setResult(1);
