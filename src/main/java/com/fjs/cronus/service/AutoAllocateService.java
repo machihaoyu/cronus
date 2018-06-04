@@ -398,14 +398,6 @@ public class AutoAllocateService {
      * 商机系统分配规则.
      */
     private AllocateForAvatarDTO allocateForAvatar(String token, CustomerDTO customerDTO, Integer media_id, String currentMonthStr) {
-        // 商机分配规则（前提：新客户、在有效城市范围内）
-        // 1、 根据城市，从城市queue中获取一级吧
-        // 2、 要求该一级吧媒体的订购数（商机系统获取） > 已购数
-        // 3、 从该媒体的业务员分配queue中，找业务员
-        // 4、 要求业务员 分配数 > 已购数
-        // 5、 如4不满足，则从总queue中，找业务员
-        // 5、 要求业务员 分配数 > 已购数
-        // 6、 最终要么为客户找到业务员，要么进入待分配池
 
         AllocateForAvatarDTO result = new AllocateForAvatarDTO();
 
@@ -717,6 +709,15 @@ public class AutoAllocateService {
                     if (salesmanId != null) {
                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k38 + j + "$" + k
                                 , ImmutableMap.of("salesmanId", salesmanId));
+
+                        // 找到业务员，且实购数 == 已购数,需要发送手机短信
+                        if (orderNumOfCompany + 1 == orderNumber) {
+                            JSONObject params = new JSONObject();
+                            params.put("firstBarId", subCompanyId);
+                            params.put("mediaId", media_id);
+                            params.put("time", new Date().getTime());
+                            avatarClientService.purchaseSmsNotice(token, params);
+                        }
                         break;
                     }
                 }

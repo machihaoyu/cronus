@@ -19,4 +19,7 @@ public interface AvatarClientService {
     @RequestMapping(value = "/order/v1/queryOrderNumber", method = RequestMethod.POST)
     AvatarApiDTO<OrderNumberDTO> queryOrderNumber(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject);
 
+    @RequestMapping(value = "/purchase/v1/purchaseSmsNotice", method = RequestMethod.POST)
+    AvatarApiDTO<OrderNumberDTO> purchaseSmsNotice(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject);
+
 }

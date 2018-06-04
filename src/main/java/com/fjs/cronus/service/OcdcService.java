@@ -189,7 +189,7 @@ public class OcdcService {
                                     // 非主动申请
                                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k6);
 
-                                    if (this.isRepeatPushInTime(customerSalePushLog)) {
+                                    /*if (this.isRepeatPushInTime(customerSalePushLog)) {
                                         // 指定时间段内不能重复推入客户
                                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k47);
 
@@ -197,7 +197,7 @@ public class OcdcService {
                                         allocateEntity.setAllocateStatus(AllocateEnum.THREE_NON_CUSTOMER);
                                         responseMessage.append("三无-重复时间申请");
                                         responseMessage.append("-");
-                                    } else if (this.isThreeNonCustomer(customerSalePushLog)) {
+                                    } else */if (this.isThreeNonCustomer(customerSalePushLog)) {
                                         // 三无、指定时间段内不能重复推入客户
                                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k7);
 
