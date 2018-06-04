@@ -2049,9 +2049,7 @@
 
 
     <select id="getNewCustomer" resultMap="BaseResultMap" parameterType="Map">
-        select
-        <include refid="Base_Column_List" />
-        FROM customer_info WHERE is_deleted = 0 AND utm_source IN (#{utmSource})
+        select *  FROM customer_info WHERE is_deleted = 0 AND (customer_source = #{wangluoyingxiao} OR  customer_source = #{androidyysc})
         AND create_time BETWEEN #{timeStart}
         AND #{timeEnd}
     </select>

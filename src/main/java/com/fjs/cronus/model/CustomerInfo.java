@@ -872,4 +872,96 @@ public class CustomerInfo extends BaseModel {
     public void setOcdcId(Integer ocdcId) {
         this.ocdcId = ocdcId;
     }
+
+    @Override
+    public String toString() {
+        return "CustomerInfo{" +
+                "id=" + id +
+                ", telephonenumber='" + telephonenumber + '\'' +
+                ", customerName='" + customerName + '\'' +
+                ", customerType='" + customerType + '\'' +
+                ", customerLevel='" + customerLevel + '\'' +
+                ", sparePhone='" + sparePhone + '\'' +
+                ", age='" + age + '\'' +
+                ", marriage='" + marriage + '\'' +
+                ", idCard='" + idCard + '\'' +
+                ", provinceHuji='" + provinceHuji + '\'' +
+                ", sex='" + sex + '\'' +
+                ", customerAddress='" + customerAddress + '\'' +
+                ", customerStreet='" + customerStreet + '\'' +
+                ", houseStatus='" + houseStatus + '\'' +
+                ", houseAmount='" + houseAmount + '\'' +
+                ", houseType='" + houseType + '\'' +
+                ", houseValue='" + houseValue + '\'' +
+                ", houseArea='" + houseArea + '\'' +
+                ", houseAge='" + houseAge + '\'' +
+                ", houseLoan='" + houseLoan + '\'' +
+                ", houseAlone='" + houseAlone + '\'' +
+                ", houseLocation='" + houseLocation + '\'' +
+                ", city='" + city + '\'' +
+                ", customerClassify='" + customerClassify + '\'' +
+                ", callbackStatus='" + callbackStatus + '\'' +
+                ", callbackTime=" + callbackTime +
+                ", subCompanyId=" + subCompanyId +
+                ", houseLoanValue='" + houseLoanValue + '\'' +
+                ", perDescription='" + perDescription + '\'' +
+                ", expectMoneyTime=" + expectMoneyTime +
+                ", expectLoanTime='" + expectLoanTime + '\'' +
+                ", expectRepaymentWay=" + expectRepaymentWay +
+                ", houseClear=" + houseClear +
+                ", houseOwner='" + houseOwner + '\'' +
+                ", mortgageAmount='" + mortgageAmount + '\'' +
+                ", mortgaeMonth='" + mortgaeMonth + '\'' +
+                ", isHavaCar=" + isHavaCar +
+                ", carWorth='" + carWorth + '\'' +
+                ", carAge=" + carAge +
+                ", isHavaInsurance=" + isHavaInsurance +
+                ", yearPayAmount='" + yearPayAmount + '\'' +
+                ", insuranceTime=" + insuranceTime +
+                ", isHavaDebt=" + isHavaDebt +
+                ", debtMoney='" + debtMoney + '\'' +
+                ", debtMonth=" + debtMonth +
+                ", debtOverdue=" + debtOverdue +
+                ", debtOverdueMoney='" + debtOverdueMoney + '\'' +
+                ", debtTime=" + debtTime +
+                ", workStatus=" + workStatus +
+                ", wagerCard='" + wagerCard + '\'' +
+                ", entryTime=" + entryTime +
+                ", companyType=" + companyType +
+                ", socialSecurity=" + socialSecurity +
+                ", socialMoney='" + socialMoney + '\'' +
+                ", socialTime=" + socialTime +
+                ", providentFund=" + providentFund +
+                ", providentMoney='" + providentMoney + '\'' +
+                ", providentTime=" + providentTime +
+                ", compnyName='" + compnyName + '\'' +
+                ", fixedPhone=" + fixedPhone +
+                ", loanAmount=" + loanAmount +
+                ", customerSource='" + customerSource + '\'' +
+                ", utmSource='" + utmSource + '\'' +
+                ", ownUserId=" + ownUserId +
+                ", ownUserName='" + ownUserName + '\'' +
+                ", receiveTime=" + receiveTime +
+                ", circle=" + circle +
+                ", employedInfo='" + employedInfo + '\'' +
+                ", retirementWages='" + retirementWages + '\'' +
+                ", ext='" + ext + '\'' +
+                ", level='" + level + '\'' +
+                ", remain=" + remain +
+                ", viewTime=" + viewTime +
+                ", viewUid=" + viewUid +
+                ", viewCount=" + viewCount +
+                ", autostatus=" + autostatus +
+                ", firstCommunicateTime=" + firstCommunicateTime +
+                ", firstAllocateTime=" + firstAllocateTime +
+                ", cooperationStatus='" + cooperationStatus + '\'' +
+                ", confirm=" + confirm +
+                ", clickCommunicateButton=" + clickCommunicateButton +
+                ", communicateTime=" + communicateTime +
+                ", companyId=" + companyId +
+                ", communicateId=" + communicateId +
+                ", receiveId=" + receiveId +
+                ", ocdcId=" + ocdcId +
+                '}';
+    }
 }

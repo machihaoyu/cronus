@@ -2100,36 +2100,44 @@ public class CustomerInfoService {
      */
     public void sandMessage() {
 
-        String utmSource = "wangluoyingxiao,androidyysc";
+//        String utmSource = "wangluoyingxiao,androidyysc";
+        String wangluoyingxiao = "wangluoyingxiao";
+        String androidyysc = "androidyysc";
         //16天之前的日期
         String time = getDate(-16);
         String timeStart = time + " 00:00:00";
         String timeEnd = time + " 23:59:59";
         HashMap<String, Object> map = new HashMap<>();
-        map.put("utmSource",utmSource);
+        map.put("wangluoyingxiao",wangluoyingxiao);
+        map.put("androidyysc",androidyysc);
         map.put("timeStart",timeStart);
         map.put("timeEnd",timeEnd);
 
         List<CustomerInfo> customerInfoList = customerInfoMapper.getNewCustomer(map);
+        logger.warn("新用户注册15天之后发送短信查询到的客户为 " + customerInfoList.toString());
 //        String customerphone = "18701780932";
 //        smsService.sendCommunication(customerphone, CommonConst.NEW_CUSTOMER_MESSAGE);
         if (null != customerInfoList && customerInfoList.size() > 0){
-            String key = "new_customer_message";
-            redisTemplate.setKeySerializer(new StringRedisSerializer());
-            redisTemplate.setValueSerializer(new StringRedisSerializer());
-            ValueOperations<String, String> redis = redisTemplate.opsForValue();
-            String flag = redis.get(key);
-            if (flag == null || StringUtils.isEmpty(flag)){
-                redis.set(key,"0",CustomerInfoService.NEW_CUSTOMER_MESSAGE_TIME,TimeUnit.SECONDS);
-                flag = "0";
-            }
-            // 从缓存中取数据, 0-今天未执行, 1-今天执行了
-            if ("0".equals(flag)){
-                for (CustomerInfo customerInfo : customerInfoList){
+
+            for (CustomerInfo customerInfo : customerInfoList){
+                Integer userId = customerInfo.getId();
+                String key = "new_customer_message_" + userId;
+                redisTemplate.setKeySerializer(new StringRedisSerializer());
+                redisTemplate.setValueSerializer(new StringRedisSerializer());
+                ValueOperations<String, String> redis = redisTemplate.opsForValue();
+                String flag = redis.get(key);
+                if (flag == null || StringUtils.isEmpty(flag)){
+                    redis.set(key,"0",CustomerInfoService.NEW_CUSTOMER_MESSAGE_TIME,TimeUnit.SECONDS);
+                    flag = "0";
+                }
+
+                // 从缓存中取数据, 0-今天未执行, 1-今天执行了
+                if ("0".equals(flag)){
                     //解密手机号
                     String customerphone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
                     try {
                         //发送短信
+                        logger.error("新用户注册15天之后发送短信 " + customerInfo.getCustomerName() + " : " + customerphone);
                         smsService.sendCommunication(customerphone, CommonConst.NEW_CUSTOMER_MESSAGE);
 
                         //定时任务,将时间存入redis
@@ -2140,6 +2148,36 @@ public class CustomerInfoService {
                 }
             }
         }
+
+
+//        if (null != customerInfoList && customerInfoList.size() > 0){
+//            String key = "new_customer_message";
+//            redisTemplate.setKeySerializer(new StringRedisSerializer());
+//            redisTemplate.setValueSerializer(new StringRedisSerializer());
+//            ValueOperations<String, String> redis = redisTemplate.opsForValue();
+//            String flag = redis.get(key);
+//            if (flag == null || StringUtils.isEmpty(flag)){
+//                redis.set(key,"0",CustomerInfoService.NEW_CUSTOMER_MESSAGE_TIME,TimeUnit.SECONDS);
+//                flag = "0";
+//            }
+//            // 从缓存中取数据, 0-今天未执行, 1-今天执行了
+//            if ("0".equals(flag)){
+//                for (CustomerInfo customerInfo : customerInfoList){
+//                    //解密手机号
+//                    String customerphone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+//                    try {
+//                        //发送短信
+//                        logger.error("新用户注册15天之后发送短信 " + customerInfo.getCustomerName() + " : " + customerphone);
+//                        smsService.sendCommunication(customerphone, CommonConst.NEW_CUSTOMER_MESSAGE);
+//
+//                        //定时任务,将时间存入redis
+//                        redis.set(key,"1",CustomerInfoService.NEW_CUSTOMER_MESSAGE_TIME,TimeUnit.SECONDS);
+//                    } catch (Exception e) {
+//                        logger.error("sandMessage >>>>>>定时任务 : 新客户15天发送短信失败" + e.getMessage(),e);
+//                    }
+//                }
+//            }
+//        }
 
     }
 
