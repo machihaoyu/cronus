@@ -167,7 +167,6 @@ public class AutoAllocateService {
 
             // 获取自动分配的城市
             String allocateCities = theaClientService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY);
-            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k11, ImmutableMap.of("allocateCities", allocateCities));
 
             // 需要去不同方法取数据(初始化为null，知道里面key是什么)
             AllocateForAvatarDTO signCustomAllocate = new AllocateForAvatarDTO();
