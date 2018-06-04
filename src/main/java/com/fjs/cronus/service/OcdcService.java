@@ -190,7 +190,7 @@ public class OcdcService {
 
                                     if (this.isRepeatPushInTime(customerSalePushLog)) {
                                         // 指定时间段内不能重复推入客户
-                                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k46);
+                                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k47);
 
                                         allocateEntity.setSuccess(true);
                                         allocateEntity.setAllocateStatus(AllocateEnum.THREE_NON_CUSTOMER);

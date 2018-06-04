@@ -461,11 +461,11 @@ public class UserMonthInfoService {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "customeId 不能为null");
         }
 
-        UserMonthInfoDetail detail = new UserMonthInfoDetail();
-        detail.setStatus(CommonEnum.entity_status1.getCode());
-        detail.setCustomerid(customerDto.getId());
-        int i = userMonthInfoDetailMapper.selectCount(detail);
-        if (i == 0) {
+        UserMonthInfoDetail detailTemp = new UserMonthInfoDetail();
+        detailTemp.setStatus(CommonEnum.entity_status1.getCode());
+        detailTemp.setCustomerid(customerDto.getId());
+        int count = userMonthInfoDetailMapper.selectCount(detailTemp);
+        if (count == 0) {
             // 非商机进入顾客，不走下面业务
             return;
         }
