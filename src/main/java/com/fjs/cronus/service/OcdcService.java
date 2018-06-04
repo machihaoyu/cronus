@@ -130,7 +130,7 @@ public class OcdcService {
                     responseMessage.append(customerSalePushLog.getTelephonenumber());
                     responseMessage.append("-");
                     try { // try 单个进来的顾客，记录错误信息
-                        logger.info("------- "+ customerSalePushLog.getTelephonenumber() +" ----------->");
+                        logger.info("---自动分配（单个顾客start）---- "+ customerSalePushLog.getTelephonenumber() +" ----------->");
                         AllocateEntity allocateEntity = new AllocateEntity();
                         CustomerDTO customerDTO = this.getCustomer(customerSalePushLog.getTelephonenumber());
                         if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) {
