@@ -61,7 +61,7 @@ public class AutoAllocateService {
     private AllocateRedisService allocateRedisService;
 
     @Autowired
-    private UserMonthInfoServiceV2 userMonthInfoService;
+    private UserMonthInfoService userMonthInfoService;
 
     @Autowired
     private AllocateLogService allocateLogService;

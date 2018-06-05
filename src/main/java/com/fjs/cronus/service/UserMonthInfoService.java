@@ -25,15 +25,7 @@ public class UserMonthInfoService {
         return userMonthInfoMapper.saveOne(userMonthInfo);
     }
 
-    public Integer saveList(List<UserMonthInfo> userMonthInfos) {
-        return userMonthInfoMapper.saveList(userMonthInfos);
-    }
-
-    public Integer insertOne(UserMonthInfo userMonthInfo) {
-        return userMonthInfoMapper.insertOne(userMonthInfo);
-    }
-
     public Integer insertList(List<UserMonthInfo> userMonthInfoList) {
-        return userMonthInfoMapper.insertList(userMonthInfoList);
+        return userMonthInfoMapper.insertList2(userMonthInfoList);
     }
 }

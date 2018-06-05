@@ -51,7 +51,7 @@ public class UserService {
     private RedisConfig redisConfig;
 
     @Autowired
-    private UserMonthInfoServiceV2 userMonthInfoService;
+    private UserMonthInfoService userMonthInfoService;
 
     @Autowired
     private UserInfoRedisService userInfoRedisService;

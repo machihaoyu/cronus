@@ -15,10 +15,7 @@ public interface UserMonthInfoMapper extends MyMapper<UserMonthInfo>{
 
     Integer saveOne(UserMonthInfo userMonthInfo);
 
-    Integer saveList(List<UserMonthInfo> userMonthInfos);
-
-    Integer insertOne(UserMonthInfo userMonthInfo);
-
+    Integer insertList2(List<UserMonthInfo> userMonthInfoList);
 
     List<UserMonthInfo> selectByParamsMap(Map<String, Object> map);
 
