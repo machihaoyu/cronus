@@ -1915,6 +1915,9 @@
             <if test="lastUpdateTime != null ">
                 last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
             </if>
+            <if test="viewTime != null ">
+                view_time = #{viewTime,jdbcType=TIMESTAMP},
+            </if>
             own_user_id = -2,
             own_user_name = NULL,
             sub_company_id = 0,

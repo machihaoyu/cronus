@@ -1323,6 +1323,7 @@ public class CustomerInfoService {
             paramsMap.put("paramsList", paramsList);
             paramsMap.put("lastUpdateUser", userId);
             paramsMap.put("lastUpdateTime", date);
+            paramsMap.put("viewTime", date);
             customerInfoMapper.batchRemove(paramsMap);
         }
     }
