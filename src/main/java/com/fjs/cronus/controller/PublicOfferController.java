@@ -665,4 +665,22 @@ public class PublicOfferController {
         }
         return cronusDto;
     }
+
+    @ApiOperation(value = "公盘优选", notes = "公盘优选")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/publicSelected", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto<QueryResult<CustomerListDTO>> publicSelected(@RequestHeader("Authorization") String token) {
+        CronusDto resultDto = new CronusDto();
+        try {
+            resultDto.setData(panService.publicSelected());
+            resultDto.setResult(0);
+        } catch (Exception e) {
+            resultDto.setResult(1);
+        }
+        return resultDto;
+    }
+
 }

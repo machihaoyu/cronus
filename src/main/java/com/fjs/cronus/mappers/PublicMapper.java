@@ -1,9 +1,7 @@
 package com.fjs.cronus.mappers;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import com.fjs.cronus.model.CustomerInfo;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -17,5 +15,31 @@ public interface PublicMapper {
 
     @Update("update customer_info c set c.own_user_id = 0,c.view_time = NULL WHERE id in ( #{id})")
     Integer updateCustomersFromDiscard(@Param("ids") String ids);
+
+    /**
+     * 获取公盘优选客户 own_user_id = -3
+     * @return
+     */
+    @Select("SELECT * from customer_info c where c.own_user_id = -3 ")
+    @Results(id = "getPublicSelect", value = {
+            @Result(property = "customerName", column = "customer_name"),
+            @Result(property = "customerLevel", column = "customer_level"),
+            @Result(property = "loanAmount", column = "loan_amount"),
+            @Result(property = "houseStatus", column = "house_status"),
+            @Result(property = "customerSource", column = "customer_source"),
+            @Result(property = "utmSource", column = "utm_source"),
+            @Result(property = "ownUserName", column = "own_user_name"),
+            @Result(property = "createTime", column = "create_time"),
+            @Result(property = "firstAllocateTime", column = "first_allocate_time"),
+            @Result(property = "communicateTime", column = "communicate_time")
+    })
+    List<CustomerInfo> getPublicSelect();
+
+    /**
+     * 获取公盘优选客户数
+     * @return
+     */
+    @Select("SELECT count(1) from customer_info c where c.own_user_id = -3 ")
+    Integer getPublicSelectCount();
 
 }

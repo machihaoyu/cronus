@@ -517,9 +517,9 @@ public class PanService {
 
     public void customersFromDiscardTask()
     {
-//        new Thread(() -> {
-//            publicCustomersFromDiscard();
-//        }).run();
+        new Thread(() -> {
+            publicCustomersFromDiscard();
+        }).run();
     }
 
     /**
@@ -539,6 +539,31 @@ public class PanService {
             logger.error("--getCustomersFromDiscard",e);
         }
 
+    }
+
+    /**
+     * 公盘优选客户
+     */
+    public QueryResult<CustomerListDTO> publicSelected()
+    {
+        QueryResult queryResult = new QueryResult();
+        List<CustomerListDTO> resultList = new ArrayList<>();
+        List<CustomerInfo> customerInfos = publicMapper.getPublicSelect();
+        if (customerInfos != null && customerInfos.size() > 0){
+            for (CustomerInfo customerInfo : customerInfos) {
+                CustomerListDTO customerDto = new CustomerListDTO();
+                EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,2,2);
+                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+                String phoneNumber = telephone.substring(0, 7) + "****";
+                customerDto.setTelephonenumber(phoneNumber);
+                resultList.add(customerDto);
+            }
+            queryResult.setRows(resultList);
+            Integer count = publicMapper.getPublicSelectCount();
+            queryResult.setRows(customerInfos);
+            queryResult.setTotal(count.toString());
+        }
+        return queryResult;
     }
 
 
