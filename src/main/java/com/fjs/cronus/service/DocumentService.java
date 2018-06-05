@@ -1322,9 +1322,9 @@ public class DocumentService {
         if (documentCategoryList == null) {
             throw new CronusException(CronusException.Type.CRM_VALIDAOCUMENRCOUNT_ERROR);
         }
-        if (document_c_names.size() != documentCategoryList.size()) {
-            throw new CronusException(CronusException.Type.CRM_VALIDAOCUMENRCOUNT_ERROR);
-        }
+//        if (document_c_names.size() != documentCategoryList.size()) {
+//            throw new CronusException(CronusException.Type.CRM_VALIDAOCUMENRCOUNT_ERROR);
+//        }
         //下面找出客户上传了哪些附件
         //根据客户id查询出上传了哪些附件customer_id
         paramsMap.clear();
