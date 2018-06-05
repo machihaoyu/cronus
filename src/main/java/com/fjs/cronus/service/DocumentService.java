@@ -1199,11 +1199,11 @@ public class DocumentService {
                     throw new CronusException(CronusException.Type.CRM_CONTROCTDOCU_ERROR);
                 }
                 //调用图文识别接口
-                Integer rc_document_id = documentDto.getContract_document_id();
+//                Integer rc_document_id = documentDto.getContract_document_id();
                 //异步无回调
                 //把附件转为base64
-                String imageBase64 = FileBase64ConvertUitl.encodeBase64File(file.getInputStream());
-                addOcrInfo(categoryParam, customerIdParam, imageBase64, rc_document_id, user_id, token, null, userInfoDTO);
+//                String imageBase64 = FileBase64ConvertUitl.encodeBase64File(file.getInputStream());
+//                addOcrInfo(categoryParam, customerIdParam, imageBase64, rc_document_id, user_id, token, null, userInfoDTO);
                 return url;
             } else {
                 throw new CronusException(CronusException.Type.CRM_UPLOADERROR_ERROR);
