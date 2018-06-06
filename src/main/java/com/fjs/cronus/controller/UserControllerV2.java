@@ -46,7 +46,7 @@ import java.util.Map;
  */
 @Controller
 @Api(description = "用户控制器")
-@RequestMapping("/uc/v2")
+@RequestMapping("/uc/v1")
 public class UserControllerV2 {
     private static final Logger logger = LoggerFactory.getLogger(UserControllerV2.class);
 
