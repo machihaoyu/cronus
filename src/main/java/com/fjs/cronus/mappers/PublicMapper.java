@@ -17,10 +17,10 @@ public interface PublicMapper {
     Integer updateCustomersFromDiscard(@Param("ids") String ids);
 
     /**
-     * 获取公盘优选客户 own_user_id = -3
+     * 获取公盘优选客户 view_uid = 1
      * @return
      */
-    @Select("SELECT * from customer_info c where c.own_user_id = -3 ")
+    @Select("SELECT * from customer_info c where c.view_uid = 1 and c.own_user_id = 0 limit #{start},#{size} ")
     @Results(id = "getPublicSelect", value = {
             @Result(property = "customerName", column = "customer_name"),
             @Result(property = "customerLevel", column = "customer_level"),
@@ -33,13 +33,13 @@ public interface PublicMapper {
             @Result(property = "firstAllocateTime", column = "first_allocate_time"),
             @Result(property = "communicateTime", column = "communicate_time")
     })
-    List<CustomerInfo> getPublicSelect();
+    List<CustomerInfo> getPublicSelect(@Param("start") Integer start,@Param("size") Integer size);
 
     /**
      * 获取公盘优选客户数
      * @return
      */
-    @Select("SELECT count(1) from customer_info c where c.own_user_id = -3 ")
+    @Select("SELECT count(1) FROM customer_info c WHERE c.view_uid = 1 AND c.own_user_id = 0")
     Integer getPublicSelectCount();
 
 }
