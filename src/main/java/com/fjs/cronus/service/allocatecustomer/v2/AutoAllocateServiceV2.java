@@ -557,11 +557,6 @@ public class AutoAllocateServiceV2 {
                 // 去总分配队列找
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k31 + j);
 
-                queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
-                SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k32 + j
-                        , ImmutableMap.of("subCompanyId", subCompanyId, "currentMonthStr", currentMonthStr, "mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT)
-                        , ImmutableMap.of("队列大小", queueSizeMedia));
-
                 // 是否需要判断特殊队列(特殊队列是否被关注)
                 Boolean flag = false;
                 if (queueSizeMedia > 0) {
@@ -575,6 +570,12 @@ public class AutoAllocateServiceV2 {
                         flag = true;
                     }
                 }
+
+                queueSizeMedia = allocateRedisService.getQueueSize(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
+                SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k32 + j
+                        , ImmutableMap.of("subCompanyId", subCompanyId, "currentMonthStr", currentMonthStr, "mediaid", CommonConst.COMPANY_MEDIA_QUEUE_COUNT)
+                        , ImmutableMap.of("队列大小", queueSizeMedia));
+
 
                 for (int k = 0; k < queueSizeMedia; k++) {
                     idFromCountQueue = true;
