@@ -18,8 +18,8 @@ import com.fjs.cronus.dto.uc.ThorQueryDto;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.AllocateLogService;
-import com.fjs.cronus.service.UserMonthInfoServiceV2;
-import com.fjs.cronus.service.UserServiceV2;
+import com.fjs.cronus.service.allocatecustomer.v2.UserMonthInfoServiceV2;
+import com.fjs.cronus.service.allocatecustomer.v2.UserServiceV2;
 import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.redis.AllocateRedisServiceV2;
 import com.fjs.cronus.service.redis.CronusRedisService;
@@ -46,7 +46,7 @@ import java.util.Map;
  */
 @Controller
 @Api(description = "用户控制器")
-@RequestMapping("/uc/v2")
+@RequestMapping("/uc/v1")
 public class UserControllerV2 {
     private static final Logger logger = LoggerFactory.getLogger(UserControllerV2.class);
 
