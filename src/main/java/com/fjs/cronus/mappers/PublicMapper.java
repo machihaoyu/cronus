@@ -31,6 +31,7 @@ public interface PublicMapper {
             @Result(property = "ownUserName", column = "own_user_name"),
             @Result(property = "createTime", column = "create_time"),
             @Result(property = "firstAllocateTime", column = "first_allocate_time"),
+            @Result(property = "cooperationStatus", column = "cooperation_status"),
             @Result(property = "communicateTime", column = "communicate_time")
     })
     List<CustomerInfo> getPublicSelect(@Param("start") Integer start,@Param("size") Integer size);
