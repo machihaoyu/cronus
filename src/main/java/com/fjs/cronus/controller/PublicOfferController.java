@@ -669,13 +669,17 @@ public class PublicOfferController {
     @ApiOperation(value = "公盘优选", notes = "公盘优选")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "page", value = "查询第几页(从1开始)", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "每页显示多少记录", required = false, paramType = "query", dataType = "int"),
     })
-    @RequestMapping(value = "/publicSelected", method = RequestMethod.POST)
+    @RequestMapping(value = "/publicSelected", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto<QueryResult<CustomerListDTO>> publicSelected(@RequestHeader("Authorization") String token) {
+    public CronusDto<QueryResult<CustomerListDTO>> publicSelected(@RequestHeader("Authorization") String token,
+                                                                  @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                                                  @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
         CronusDto resultDto = new CronusDto();
         try {
-            resultDto.setData(panService.publicSelected());
+            resultDto.setData(panService.publicSelected(page,size));
             resultDto.setResult(0);
         } catch (Exception e) {
             resultDto.setResult(1);

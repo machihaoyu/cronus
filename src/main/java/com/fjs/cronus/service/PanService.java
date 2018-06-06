@@ -3,17 +3,11 @@ package com.fjs.cronus.service;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
-import com.fjs.cronus.api.thea.LoanDTO;
-import com.fjs.cronus.controller.PublicOfferController;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
-import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.dto.cronus.PanParamDTO;
-import com.fjs.cronus.dto.cronus.UcUserDTO;
-import com.fjs.cronus.dto.loan.TheaApiDTO;
-import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.enums.CustListTimeOrderEnum;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.AllocateLogMapper;
@@ -30,6 +24,7 @@ import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
+import io.swagger.models.auth.In;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.Table;
 import java.util.*;
 
 /**
@@ -544,13 +538,14 @@ public class PanService {
     /**
      * 公盘优选客户
      */
-    public QueryResult<CustomerListDTO> publicSelected()
+    public QueryResult<CustomerListDTO> publicSelected(Integer page, Integer size)
     {
         QueryResult queryResult = new QueryResult();
         List<CustomerListDTO> resultList = new ArrayList<>();
-        List<CustomerInfo> customerInfos = publicMapper.getPublicSelect();
-        if (customerInfos != null && customerInfos.size() > 0){
-            for (CustomerInfo customerInfo : customerInfos) {
+        Integer start = (page - 1) * size;
+        List<CustomerInfo> customers = publicMapper.getPublicSelect(start,size);
+        if (customers != null && customers.size() > 0){
+            for (CustomerInfo customerInfo : customers) {
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,2,2);
                 String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
@@ -560,7 +555,7 @@ public class PanService {
             }
             queryResult.setRows(resultList);
             Integer count = publicMapper.getPublicSelectCount();
-            queryResult.setRows(customerInfos);
+            queryResult.setRows(customers);
             queryResult.setTotal(count.toString());
         }
         return queryResult;
