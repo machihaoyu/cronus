@@ -563,11 +563,14 @@ public class AutoAllocateServiceV2 {
                         , ImmutableMap.of("队列大小", queueSizeMedia));
 
                 // 是否需要判断特殊队列(特殊队列是否被关注)
-                boolean flag = false;
+                Boolean flag = false;
                 if (queueSizeMedia > 0) {
                     flag = true;
                 } else {
                     Set<Integer> followMediaidFromDB = this.companyMediaQueueService.findFollowMediaidFromDB(subCompanyId);
+                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k25 + j + "$" + j
+                            , ImmutableMap.of("subCompanyId", subCompanyId)
+                            , ImmutableMap.of("关注的媒体", followMediaidFromDB));
                     if (followMediaidFromDB.contains(media_id)) {
                         flag = true;
                     }
