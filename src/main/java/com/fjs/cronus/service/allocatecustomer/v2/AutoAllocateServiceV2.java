@@ -888,8 +888,11 @@ public class AutoAllocateServiceV2 {
     }
 
     public boolean currentWorkDayAndTime(String token) {
+        return currentWorkDayAndTime(token, new Date());
+    }
+
+    public boolean currentWorkDayAndTime(String token, Date date) {
         boolean value = false;
-        Date date = new Date();
         Integer hour = DateUtils.getHour(new Date());
         if (10 <= hour && hour < 18) {
             String month = DateUtils.getYear(date).toString() + "-" + DateUtils.getMonth(date).toString();
