@@ -696,7 +696,7 @@ public class AutoAllocateServiceV2 {
                 // 找到业务员，且实购数 == 已购数,需要发送手机短信
                 if (orderNumOfCompany + 1 == orderNumber) {
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k48 + j
-                            , ImmutableMap.of("orderNumOfCompany", orderNumOfCompany, "orderNumber", orderNumber));
+                            , ImmutableMap.of("实购数", orderNumOfCompany, "订购数", orderNumber, "一级吧", subCompanyId, "媒体id", media_id));
 
                     JSONObject params = new JSONObject();
                     params.put("firstBarId", subCompanyId);
