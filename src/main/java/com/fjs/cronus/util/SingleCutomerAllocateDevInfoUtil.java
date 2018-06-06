@@ -27,7 +27,7 @@ public class SingleCutomerAllocateDevInfoUtil {
     public static final String k14 = "找到业务员";
     public static final String k15 = "有效城市范围内";
     public static final String k16 = "非有效城市范围内,进客服系统";
-    public static final String k17 = "未找到业务员";
+    public static final String k17 = "未找到业务员，进入商机池";
     public static final String k18 = "有指定业务员（外部传入）";
     public static final String k19 = "老客户去队列没找到业务员(手动报错记录信息)";
     public static final String k20 = "redis分布式锁超时";
