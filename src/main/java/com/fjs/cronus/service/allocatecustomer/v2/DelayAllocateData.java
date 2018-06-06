@@ -5,15 +5,19 @@ import java.util.concurrent.TimeUnit;
 
 public class DelayAllocateData implements Delayed {
 
-    private String phone;
+    /**
+     * 存放数据.
+     * 数据结构：phone$salemanid$delaytime
+     */
+    private String data;
 
     /**
      * 延迟的时间，注意是时间点的时间.
      */
     private long delaytime;
 
-    public DelayAllocateData(String phone, long delaytime) {
-        this.phone = phone;
+    public DelayAllocateData(String data, long delaytime) {
+        this.data = data;
         this.delaytime = delaytime;
     }
 
@@ -28,12 +32,12 @@ public class DelayAllocateData implements Delayed {
         return l == 0 ? 0 : (l > 0 ? 1 : -1);
     }
 
-    public String getPhone() {
-        return phone;
+    public String getData() {
+        return data;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setData(String data) {
+        this.data = data;
     }
 
     public long getDelaytime() {

@@ -72,9 +72,8 @@ public class DelayAllocateService {
         if (!CollectionUtils.isEmpty(data)) {
             for (String temp : data) {
                 String[] str = temp.split(cutStr);
-                String phone = str[0];
-                String time = str[1];
-                queue.put(new DelayAllocateData(phone.trim(), Long.valueOf(time)));
+                String time = str[2];
+                queue.put(new DelayAllocateData(temp, Long.valueOf(time)));
             }
         }
 
@@ -90,23 +89,28 @@ public class DelayAllocateService {
     /**
      * 将数据放入queue.
      */
-    public void acceptData(String phone, Integer time, TimeUnit timeUnit) {
+    public void acceptData(String phone, Integer saleManid, Integer time, TimeUnit timeUnit) {
+        // 参数校验
         if (StringUtils.isBlank(phone)) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "phone 不能为null");
         }
         if (time == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "time 不能为null");
         }
+        if (saleManid == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "saleManid 不能为null");
+        }
         if (timeUnit == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "timeUnit 不能为null");
         }
 
+        // 业务校验：是否在工作时间内
         long timeTemp = new Date().getTime() + timeUnit.toMillis(time);
 
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());
         ListOperations<String, String> listOperations = redisTemplate.opsForList();
-        listOperations.rightPush(CommonRedisConst.ALLOCATE_DELAY, phone + cutStr + timeTemp);
+        listOperations.rightPush(CommonRedisConst.ALLOCATE_DELAY, getDataStr(phone, saleManid, timeTemp));
 
         // queue.put(new DelayAllocateData(phone.trim(), timeTemp));
     }
@@ -121,7 +125,7 @@ public class DelayAllocateService {
                 try {
                     DelayAllocateData task = queue.take();
                     new Thread(() -> {
-                        delayAllocate(task.getPhone(), task.getDelaytime());
+                        delayAllocate(task.getData(), task.getDelaytime());
                     }).start();
                 } catch (InterruptedException e) {
                     logger.error("延迟分配异常(处理15分钟未沟通)", e);
@@ -157,6 +161,10 @@ public class DelayAllocateService {
         } finally {
             cRMRedisLockHelp.unlockForSetNx2(key, lockToken);
         }
+    }
+
+    private String getDataStr(String phone, Integer salemanid, long delaytime){
+        return phone.concat(cutStr).concat(salemanid.toString()).concat(cutStr).concat(String.valueOf(delaytime));
     }
 
 }

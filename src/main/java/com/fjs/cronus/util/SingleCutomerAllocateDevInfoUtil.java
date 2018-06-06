@@ -27,7 +27,7 @@ public class SingleCutomerAllocateDevInfoUtil {
     public static final String k14 = "找到业务员";
     public static final String k15 = "有效城市范围内";
     public static final String k16 = "非有效城市范围内,进客服系统";
-    public static final String k17 = "未找到业务员";
+    public static final String k17 = "未找到业务员，进入商机池";
     public static final String k18 = "有指定业务员（外部传入）";
     public static final String k19 = "老客户去队列没找到业务员(手动报错记录信息)";
     public static final String k20 = "redis分布式锁超时";
@@ -36,7 +36,7 @@ public class SingleCutomerAllocateDevInfoUtil {
     public static final String k22 = "循环城市、媒体queue找一级吧,";
     public static final String k23 = "获取某一级吧、某媒体、某月的已分配数,";
     public static final String k24 = "请求商机系统,";
-    //public static final String k25 = "获取关注的媒体,";
+    public static final String k25 = "获取关注的媒体,";
     public static final String k46 = "[特殊分配队列]进入特殊分配队列分支，找业务员,";
     public static final String k26 = "根据某一级吧、某媒体（特殊队列）、某月找业务员queue大小,";
     public static final String k27 = "[特殊分配队列]循环某一级吧、某媒体（特殊队列）、某月queue找业务员,";
