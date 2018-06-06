@@ -62,18 +62,16 @@ public class CRMRedisLockHelp {
      * 加锁.
      */
     public Long lockBySetNX(String key) {
-        // 默认加锁1分钟、重试5次，每次等3秒
-        return this.lockBySetNX2(key,60, 5, 3);
+        return this.lockBySetNX2(key, 60, TimeUnit.SECONDS, 5, 3, TimeUnit.SECONDS);
     }
 
     /**
      * 加锁.
      */
-    public Long lockBySetNX2(String key, int secondOfTimeOut, int retry, int secondOfSleepTime) {
-
+    public Long lockBySetNX2(String key, int secondOfTimeOut, TimeUnit lockTimeUnit, int retry, int secondOfSleepTime, TimeUnit sleepTimeUnit) {
         Integer i = 0; // 重试次数
         Long lockToken = 0L; // 标记，用于解锁
-        long  timeout = secondOfTimeOut * 1000; // 秒
+        long timeout = lockTimeUnit.toMillis(secondOfTimeOut);
 
         while (i < retry) {
             lockToken = this.getCurrentTimeFromRedisServicer() + timeout + 1;
@@ -81,7 +79,7 @@ public class CRMRedisLockHelp {
             if (this.lockBySetNX(key, lockToken.toString(), timeout, this.getRedisScript(SETNX_LUA_SCRIPT)))
                 return lockToken;
             try {
-                TimeUnit.SECONDS.sleep(secondOfSleepTime);// 睡眠3秒
+                TimeUnit.SECONDS.sleep(sleepTimeUnit.toMillis(secondOfSleepTime));// 睡眠3秒
             } catch (InterruptedException e) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "设置睡眠异常" + e.getMessage());
             }
@@ -157,7 +155,7 @@ public class CRMRedisLockHelp {
 
         // 执行脚本
         Object result = redisTemplate.execute(redisScript, new StringRedisSerializer(), new StringRedisSerializer(), Collections.singletonList(key), lockToken);
-        if (result !=null && "1".equals(result.toString())) {
+        if (result != null && "1".equals(result.toString())) {
             // 成功，返回 1
             return true;
         }
@@ -190,14 +188,14 @@ public class CRMRedisLockHelp {
     /**
      * 样例：redis 乐观锁处理业务.
      */
-    public void watchToService(){
+    public void watchToService() {
         String key = "test123";
 
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());
         redisTemplate.setEnableTransactionSupport(true);
 
-        try{
+        try {
             redisTemplate.watch(key);
 
             String count = redisTemplate.opsForValue().get(key);

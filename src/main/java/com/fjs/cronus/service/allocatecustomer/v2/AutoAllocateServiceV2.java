@@ -1,4 +1,4 @@
-package com.fjs.cronus.service;
+package com.fjs.cronus.service.allocatecustomer.v2;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -24,6 +24,8 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.UserMonthInfo;
+import com.fjs.cronus.service.*;
+import com.fjs.cronus.service.allocatecustomer.v2.UserMonthInfoServiceV2;
 import com.fjs.cronus.service.client.AvatarClientService;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.client.ThorService;
@@ -52,6 +54,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by feng on 2017/9/21.
@@ -152,7 +155,7 @@ public class AutoAllocateServiceV2 {
         try {
             // 锁1分钟，如20分钟内未计算完，就超时抛错回滚;
             // 其他并行线程重试6次，每次等待5秒，共30秒
-            lockToken = this.cRMRedisLockHelp.lockBySetNX2(CommonRedisConst.ALLOCATE_LOCK, 60, 6, 5);
+            lockToken = this.cRMRedisLockHelp.lockBySetNX2(CommonRedisConst.ALLOCATE_LOCK, 60, TimeUnit.SECONDS, 6, 5, TimeUnit.SECONDS);
 
             // 获取自动分配的城市
             String allocateCities = theaClientService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY);
@@ -195,7 +198,6 @@ public class AutoAllocateServiceV2 {
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k1);
 
                 UserInfoDTO ownerUser = this.getOwnerUser(customerDTO, token); // 获取负责人
-                //boolean allocateToPublic = this.isAllocateToPublic(customerDTO.getUtmSource()); // 根据渠道，判断是否需要自动分配
 
                 if (StringUtils.isNotEmpty(ownerUser.getUser_id())) { // 存在这个在职负责人
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k18, ImmutableMap.of("salemanid", ownerUser.getUser_id()));
@@ -223,11 +225,9 @@ public class AutoAllocateServiceV2 {
 
             // 保存客户
             SimpleUserInfoDTO simpleUserInfoDTO = null;
-            Integer customerId = 0;
             if (null != customerDTO.getId() && customerDTO.getId() > 0) { // 老客户
 
                 // 更新客户信息
-                customerId = customerDTO.getId();
                 if (null != customerDTO.getOwnerUserId() && customerDTO.getOwnerUserId() > 0) {
                     simpleUserInfoDTO = thorClientService.getUserInfoById(token, customerDTO.getOwnerUserId());
                     if (null != simpleUserInfoDTO.getSub_company_id()) {
@@ -701,10 +701,11 @@ public class AutoAllocateServiceV2 {
                     JSONObject params = new JSONObject();
                     params.put("firstBarId", subCompanyId);
                     params.put("mediaId", media_id);
+                    params.put("realNumber", orderNumOfCompany);
                     params.put("time", new Date().getTime());
                     avatarClientService.purchaseSmsNotice(token, params);
                 }
-                
+
                 break;
             }
         }
@@ -808,23 +809,6 @@ public class AutoAllocateServiceV2 {
         if (userInfoDTO.getStatus() != null && userInfoDTO.getStatus().equals("1")) {
             return userInfoDTO;
         } else return new UserInfoDTO();
-    }
-
-    private boolean isAllocateToPublic(String utmSource) {
-        boolean allocateToPublic = false;
-        // 获取配置中不走自动分配的渠道
-//            String allocateToNoUserPool = "";
-        String allocateToNoUserPool = theaClientService.getConfigByName(CommonConst.ALLOCATE_TO_NO_USER_POOL);
-
-        // 判断该推送客户是否在限制渠道中/进公盘
-        String[] utmSourceStrArray;
-        if (StringUtils.isNotBlank(allocateToNoUserPool)) {
-            utmSourceStrArray = allocateToNoUserPool.replace("[", "").replace("]", "").replace("\"", "").split(",");
-            if (ArrayUtils.contains(utmSourceStrArray, utmSource)) {
-                allocateToPublic = true;
-            }
-        }
-        return allocateToPublic;
     }
 
     /**
