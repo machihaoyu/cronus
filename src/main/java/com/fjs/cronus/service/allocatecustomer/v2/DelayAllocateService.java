@@ -48,6 +48,11 @@ public class DelayAllocateService {
     private RedisTemplate<String, String> redisTemplate;
 
     /**
+     * delay的时间.
+     */
+    public static int time = 15; // 分钟
+
+    /**
      * queue.
      */
     private DelayQueue<DelayAllocateData> queue;
