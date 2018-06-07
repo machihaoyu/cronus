@@ -1,7 +1,6 @@
 package com.fjs.cronus.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.crm.OcdcData;
 import com.fjs.cronus.dto.crm.ResponseData;
@@ -9,6 +8,8 @@ import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.service.AutoCleanService;
 import com.fjs.cronus.service.allocatecustomer.v1.AutoAllocateService;
 import com.fjs.cronus.service.allocatecustomer.v1.OcdcService;
+import com.fjs.cronus.service.allocatecustomer.v2.AutoAllocateServiceV2;
+import com.fjs.cronus.service.allocatecustomer.v2.OcdcServiceV2;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -18,17 +19,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * 客户
  * <p>
  * Created by feng on 2017/7/14.
  */
-@Controller
-@RequestMapping(value = "/api/v1/ocdc")
-public class OcdcController {
+//@Controller
+//@RequestMapping(value = "/api/v1/ocdc")
+public class OcdcControllerV2 {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -37,10 +35,19 @@ public class OcdcController {
     private OcdcService ocdcService;
 
     @Autowired
+    private OcdcServiceV2 ocdcServiceV2;
+
+    @Autowired
     private AutoAllocateService autoAllocateService;
 
     @Autowired
+    private AutoAllocateServiceV2 autoAllocateServiceV2;
+
+    @Autowired
     private AutoCleanService autoCleanService;
+
+   /*
+
 
     @ApiOperation(value = "OCDC推送", notes = "OCDC推送客户信息")
     @ApiImplicitParams({
@@ -53,15 +60,15 @@ public class OcdcController {
         OcdcData ocdcData = JSON.parseObject(ocdcRawData, OcdcData.class);
         CronusDto resultDto = new CronusDto();
         try {
-            resultDto.setData(ocdcService.addOcdcCustomer(ocdcData, AllocateSource.OCDC, token));
+            resultDto.setData(ocdcServiceV2.addOcdcCustomer(ocdcData, AllocateSource.OCDC, token));
             resultDto.setResult(0);
         } catch (Exception e) {
             resultDto.setResult(1);
         }
         return resultDto;
-    }
+    }*/
 
-    @ApiOperation(value = "未沟通分配开关", notes = "未沟通分配开关")
+    /*@ApiOperation(value = "未沟通分配开关", notes = "未沟通分配开关")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
             @ApiImplicitParam(name = "status", value = "状态（1，关闭；0，开启）", required = true, paramType = "body", dataType = "status")
@@ -77,9 +84,9 @@ public class OcdcController {
             resultDto.setResult(1);
         }
         return resultDto;
-    }
+    }*/
 
-    @ApiOperation(value = "未沟通分配开关", notes = "未沟通分配开关")
+    /*@ApiOperation(value = "未沟通分配开关", notes = "未沟通分配开关")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string")
     })
@@ -94,7 +101,10 @@ public class OcdcController {
             resultDto.setResult(1);
         }
         return resultDto;
-    }
+    }*/
+
+    /*
+
 
     @ApiOperation(value = "客服推送", notes = "客服推送客户信息")
     @ApiImplicitParams({
@@ -106,7 +116,7 @@ public class OcdcController {
     public ResponseData serviceAllocate(@RequestHeader("Authorization") String token, @RequestBody String customer) {
         ResponseData responseData = new ResponseData();
         try {
-            String key = ocdcService.serviceAllocate(customer, token);
+            String key = ocdcServiceV2.serviceAllocate(customer, token);
             responseData.setRetData(key);
             responseData.setErrMsg("添加成功");
             responseData.setErrNum("0");
@@ -116,8 +126,8 @@ public class OcdcController {
         }
         return responseData;
     }
-
-    @ApiOperation(value = "未沟通分配", notes = "未沟通分配")
+*/
+    /*@ApiOperation(value = "未沟通分配", notes = "未沟通分配")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
     })
@@ -133,9 +143,9 @@ public class OcdcController {
             responseData.setErrNum("1");
         }
         return responseData;
-    }
+    }*/
 
-    @ApiOperation(value = "待分配池分配", notes = "待分配池分配")
+    /*@ApiOperation(value = "待分配池分配", notes = "待分配池分配")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
     })
@@ -151,9 +161,9 @@ public class OcdcController {
             responseData.setErrNum("1");
         }
         return responseData;
-    }
+    }*/
 
-    @ApiOperation(value = "待分配池分配锁开关", notes = "待分配池分配锁开关（0 运行，1停止）")
+    /*@ApiOperation(value = "待分配池分配锁开关", notes = "待分配池分配锁开关（0 运行，1停止）")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
     })
@@ -169,7 +179,10 @@ public class OcdcController {
             responseData.setErrNum("1");
         }
         return responseData;
-    }
+    }*/
+
+    /*
+
 
     @ApiOperation(value = "当前是否是工作时间", notes = "当前是否是工作时间")
     @ApiImplicitParams({
@@ -180,7 +193,7 @@ public class OcdcController {
     public ResponseData currentWorkDayAndTime(@RequestHeader("Authorization") String token) {
         ResponseData responseData = new ResponseData();
         try {
-            Boolean workTime = autoAllocateService.currentWorkDayAndTime(token);
+            Boolean workTime = autoAllocateServiceV2.currentWorkDayAndTime(token);
             responseData.setRetData(workTime.toString());
             responseData.setErrNum("0");
         } catch (Exception e) {
@@ -198,9 +211,9 @@ public class OcdcController {
     public String autoClean(@RequestHeader("Authorization") String token) {
 
         return autoCleanService.autoClean(token);
-    }
+    }*/
 
-    @ApiOperation(value = "获取时间范围内客户", notes = "获取时间范围内客户")
+    /*@ApiOperation(value = "获取时间范围内客户", notes = "获取时间范围内客户")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", dataType = "string"),
             @ApiImplicitParam(name = "start", value = "start", required = true, paramType = "query", dataType = "String"),
@@ -209,7 +222,7 @@ public class OcdcController {
     @RequestMapping(value = "/getCustomerPhone", method = RequestMethod.GET)
     @ResponseBody
     public CronusDto<List<String>> getCustomerPhone(@RequestHeader("Authorization") String token, @RequestParam(value = "start", required = false) String start,
-                                 @RequestParam(value = "end", required = false) String end) {
+                                                    @RequestParam(value = "end", required = false) String end) {
 
         CronusDto<List<String>> cronusDto = new CronusDto();
         try {
@@ -223,6 +236,6 @@ public class OcdcController {
             cronusDto.setMessage(CommonMessage.FAIL.getCodeDesc());
         }
         return cronusDto;
-    }
+    }*/
 
 }
