@@ -128,6 +128,9 @@ public class AutoAllocateServiceV2 {
     @Autowired
     private CRMRedisLockHelp cRMRedisLockHelp;
 
+    @Autowired
+    private DelayAllocateService delayAllocateService;
+
     /**
      * 判断是不是客户主动申请渠道
      *
@@ -310,7 +313,11 @@ public class AutoAllocateServiceV2 {
                         allocateEntity.setDescription(loan);
                     }
 
-                    this.sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
+                    Integer r = this.sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
+                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k51
+                            , ImmutableMap.of("CustomerName", customerDTO.getCustomerName(), "OwnerUserId", customerDTO.getOwnerUserId(), "simpleUserInfoDTO", simpleUserInfoDTO, "token", token)
+                            , ImmutableMap.of("短信响应", r)
+                    );
                     break;
                 case "2": // 进入待分配池
                     this.sendCRMAssistantMessage(customerDTO.getCity(), customerDTO.getCustomerName(), token);
@@ -328,7 +335,11 @@ public class AutoAllocateServiceV2 {
                         String loan = this.addLoan(customerDTO, token);
                         allocateEntity.setDescription(loan);
                     }
-                    this.sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
+                    Integer rr = this.sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
+                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k52
+                            , ImmutableMap.of("CustomerName", customerDTO.getCustomerName(), "OwnerUserId", customerDTO.getOwnerUserId(), "simpleUserInfoDTO", simpleUserInfoDTO, "token", token)
+                            , ImmutableMap.of("短信响应", rr)
+                    );
                     break;
                 case "4": // 推入客服系统
                     break;
@@ -737,7 +748,7 @@ public class AutoAllocateServiceV2 {
 //        }
     }
 
-    private void sendMessage(String customerName, Integer toId, SimpleUserInfoDTO ownerUser, String token) {
+    private Integer sendMessage(String customerName, Integer toId, SimpleUserInfoDTO ownerUser, String token) {
         theaClientService.sendMail(token,
                 "房金所为您分配了客户名：" + customerName + "，请注意跟进。",
                 0,
@@ -745,7 +756,7 @@ public class AutoAllocateServiceV2 {
                 "系统管理员",
                 toId);
 
-        smsService.sendSmsForAutoAllocate(ownerUser.getTelephone(), customerName);
+        return smsService.sendSmsForAutoAllocate(ownerUser.getTelephone(), customerName);
     }
 
     private void sendCRMAssistantMessage(String customerCity, String customerName, String token) {
@@ -911,5 +922,25 @@ public class AutoAllocateServiceV2 {
             }
         }
         return value;
+    }
+
+    /**
+     * 添加15分钟未沟通Task到处理queue中.
+     */
+    private void addDelayAllocate(String token, String phone){
+        Calendar now = Calendar.getInstance();
+
+        // 业务校验：是否在工作日内
+        if (!currentWorkDayAndTime(token, now.getTime())) {
+            return;
+        }
+
+        // 业务校验：是否在工作时间内
+        if (now.get(Calendar.HOUR_OF_DAY) > 18 || now.get(Calendar.HOUR_OF_DAY) < 10){
+            return;
+        }
+
+        now.add(Calendar.MINUTE, 15);
+        delayAllocateService.acceptData(phone, now.getTime());
     }
 }

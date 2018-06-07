@@ -31,6 +31,7 @@ public class SingleCutomerAllocateDevInfoUtil {
     public static final String k18 = "有指定业务员（外部传入）";
     public static final String k19 = "老客户去队列没找到业务员(手动报错记录信息)";
     public static final String k20 = "redis分布式锁超时";
+
     // ------------------ 商机找业务员规则 start ---------------------------------
     public static final String k21 = "根据城市、媒体查一级吧queue大小";
     public static final String k22 = "循环城市、媒体queue找一级吧,";
@@ -52,15 +53,25 @@ public class SingleCutomerAllocateDevInfoUtil {
     public static final String k38 = "[总分配队列]从queue找到业务员,";
     public static final String k39 = "通过商机规则，找到业务员,";
     // ------------------ 商机找业务员规则 end ---------------------------------
-    // ------------------ 老顾客，借用商机的总队列找业务员 start---------------------------------
+
+    // ------------------ 老顾客，借用商机的总队列找业务员 start ---------------------------------
     public static final String k40 = "老用户根据城市、媒体获取一级吧queue大小,";
     public static final String k41 = "老用户循环城市、媒体的一级吧queue找一级吧,";
     public static final String k42 = "老用户获取业务员总队列queue大小,";
     public static final String k43 = "老用户循环queue,未找业务员,";
     public static final String k44 = "老用户循环queue,找到业务员,";
-    // ------------------ 老顾客，借用商机的总队列找业务员 end---------------------------------
+    // ------------------ 老顾客，借用商机的总队列找业务员 end ---------------------------------
+
     public static final String k45 = "ocdcservice.addOcdcCustomer分配失败";
     public static final String k47 = "三无客户-指定时间内重复推送";
     public static final String k48 = "实购数=订购数，请求商机系统发送短信";
+
+    // ------------------ 15分钟未沟通 start ---------------------------------
+    public static final String k49 = "[15分钟未沟通]触发业务方法";
+    public static final String k50 = "[15分钟未沟通]系统运行异常";
+    // ------------------ 15分钟未沟通 end ---------------------------------
+
+    public static final String k51 = "[短信]自动分配队列";
+    public static final String k52 = "[短信]已存在负责人";
 
 }

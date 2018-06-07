@@ -41,6 +41,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -132,7 +133,7 @@ public class OcdcServiceV2 {
                     responseMessage.append(customerSalePushLog.getTelephonenumber());
                     responseMessage.append("-");
                     try { // try 单个进来的顾客，记录错误信息
-                        logger.info("---自动分配（单个顾客start）---- "+ customerSalePushLog.getTelephonenumber() +" ----------->");
+                        logger.info("---自动分配（单个顾客start）---- " + customerSalePushLog.getTelephonenumber() + " ----------->");
                         AllocateEntity allocateEntity = new AllocateEntity();
                         CustomerDTO customerDTO = this.getCustomer(customerSalePushLog.getTelephonenumber());
                         if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) {
@@ -199,7 +200,8 @@ public class OcdcServiceV2 {
                                         allocateEntity.setAllocateStatus(AllocateEnum.THREE_NON_CUSTOMER);
                                         responseMessage.append("三无-重复时间申请");
                                         responseMessage.append("-");
-                                    } else */if (this.isThreeNonCustomer(customerSalePushLog)) {
+                                    } else */
+                                    if (this.isThreeNonCustomer(customerSalePushLog)) {
                                         // 三无、指定时间段内不能重复推入客户
                                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k7);
 
@@ -303,7 +305,7 @@ public class OcdcServiceV2 {
                             str = e.getMessage();
                         }
                         SingleCutomerAllocateDevInfoUtil.local.get().setSuccess(false);
-                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k45, ImmutableMap.of("异常",str));
+                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k45, ImmutableMap.of("异常", str));
                         String s = SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString();
                         customerSalePushLog.setErrorinfo(s);
                         customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
@@ -319,7 +321,7 @@ public class OcdcServiceV2 {
                 }
             } catch (Exception e) {
                 logger.error("分配异常", e);
-            } finally{
+            } finally {
                 // 释放threadload资源（防止内存泄露）
                 SingleCutomerAllocateDevInfoUtil.local.remove();
             }
@@ -751,6 +753,85 @@ public class OcdcServiceV2 {
         if (sysConfig.getConValue().equals("1")) {
             return true;
         } else return false;
+    }
+
+    /**
+     * 处理15分钟未沟通业务.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public void delayAllocate(String phone, long time) {
+
+        List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<>(1);
+        CustomerSalePushLog customerSalePushLog = new CustomerSalePushLog();
+        customerSalePushLogList.add(customerSalePushLog);
+        Calendar now = Calendar.getInstance();
+
+        try {
+            SingleCutomerAllocateDevInfoUtil.local.set(new SingleCutomerAllocateDevInfo());
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k49,
+                    ImmutableMap.of("phone", phone, "time", time)
+            );
+
+            customerSalePushLog.setTelephonenumber(phone);
+
+            // 根据手机号获取顾客信息
+            CustomerDTO customerDTO = this.getCustomer(phone);
+            if (customerDTO == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "根据手机号找顾客信息为null");
+            }
+            customerSalePushLog.setOcdcId(customerDTO.getOcdcId());
+            customerSalePushLog.setCustomerId(customerDTO.getId());
+            customerSalePushLog.setCustomerName(customerDTO.getCustomerName());
+            customerSalePushLog.setOwnerUserId(customerDTO.getOwnerUserId());
+            customerSalePushLog.setOwnerUserName(customerDTO.getOwnUserName());
+            customerSalePushLog.setOwnerUserName(customerDTO.getOwnUserName());
+            customerSalePushLog.setCreaterUserId(0);
+            customerSalePushLog.setCustomerLevel(customerDTO.getCustomerLevel());
+            customerSalePushLog.setHouseStatus(customerDTO.getHouseStatus());
+            customerSalePushLog.setLoanAmount(customerDTO.getLoanAmount());
+            customerSalePushLog.setSparePhone(customerDTO.getSparePhone());
+            customerSalePushLog.setAge(customerDTO.getAge());
+            customerSalePushLog.setMarriage(customerDTO.getMarriage());
+            customerSalePushLog.setIdCard(customerDTO.getIdCard());
+            customerSalePushLog.setProvinceHuji(customerDTO.getProvinceHuji());
+            customerSalePushLog.setSex(customerDTO.getSex());
+            customerSalePushLog.setCustomerAddress(customerDTO.getCustomerAddress());
+            customerSalePushLog.setPerDescription(customerDTO.getPerDescription());
+            customerSalePushLog.setHouseAmount(customerDTO.getHouseAmount());
+            customerSalePushLog.setHouseType(customerDTO.getHouseType());
+            customerSalePushLog.setHouseArea(customerDTO.getHouseArea());
+            customerSalePushLog.setHouseAge(customerDTO.getHouseAge());
+            customerSalePushLog.setHouseLoan(customerDTO.getHouseLoan());
+            customerSalePushLog.setHouseAlone(customerDTO.getHouseAlone());
+            customerSalePushLog.setHouseLocation(customerDTO.getHouseLocation());
+            customerSalePushLog.setCity(customerDTO.getCity());
+            customerSalePushLog.setRetain(customerDTO.getRemain());
+            customerSalePushLog.setCreateTime(now.getTime());
+            customerSalePushLog.setUpdateTime(now.getTime());
+            customerSalePushLog.setReceiveTime(now.getTime());
+            customerSalePushLog.setAutostatus(1);
+            customerSalePushLog.setUtmSource(customerDTO.getUtmSource());
+            customerSalePushLog.setCustomerSource(customerDTO.getCustomerSource());
+
+        } catch (Exception e) {
+            logger.error("15分钟未沟通业务", e);
+            String str = "";
+            if (e instanceof BaseException) {
+                // 已知异常
+                BaseException be = (BaseException) e;
+                str = be.getResponseError().getMessage();
+            } else {
+                // 未知异常
+                str = e.getMessage();
+            }
+            SingleCutomerAllocateDevInfoUtil.local.get().setSuccess(false);
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k50, ImmutableMap.of("异常", str));
+        } finally {
+            SingleCutomerAllocateDevInfoUtil.local.remove();
+        }
+        customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
+        customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
+        customerSalePushLogService.insertList(customerSalePushLogList);
     }
 
 }
