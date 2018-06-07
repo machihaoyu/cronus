@@ -295,7 +295,7 @@ public class PanService {
     public void receiveCustomerByType(CustomerInfo customerInfo,Integer userId,String token){
         AppUserDto ucUserDTO = ucService.getUserInfoByID(token,userId);
         Date date = new Date();
-        if (customerInfo.getOwnUserId() != 0){
+        if (customerInfo.getOwnUserId() > 0){
             throw new CronusException(CronusException.Type.MESSAGE_PULLCUSTOMEROWNER_ERROR);
         }
         customerInfo.setLastUpdateUser(userId);
