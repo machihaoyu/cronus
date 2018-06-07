@@ -69,6 +69,9 @@ public class SingleCutomerAllocateDevInfoUtil {
     // ------------------ 15分钟未沟通 start ---------------------------------
     public static final String k49 = "[15分钟未沟通]触发业务方法";
     public static final String k50 = "[15分钟未沟通]系统运行异常";
+    public static final String k53 = "[15分钟未沟通]添加延迟处理业务";
+    public static final String k54 = "[15分钟未沟通]调用autoAllocateService.autoAllocate分配方法";
+    public static final String k55 = "[15分钟未沟通]取消再分配";
     // ------------------ 15分钟未沟通 end ---------------------------------
 
     public static final String k51 = "[短信]自动分配队列";

@@ -16,6 +16,7 @@ import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.AgainAllocateCustomer;
+import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerSalePushLog;
 import com.fjs.cronus.model.SysConfig;
 import com.fjs.cronus.service.AgainAllocateCustomerService;
@@ -71,6 +72,9 @@ public class OcdcServiceV2 {
 
     @Value("${phpSystem.serviceKey}")
     private String serviceKey;
+
+    @Value("${token.current}")
+    private String getwayToken;
 
     @Autowired
     private SysConfigService sysConfigService;
@@ -779,6 +783,8 @@ public class OcdcServiceV2 {
             if (customerDTO == null) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "根据手机号找顾客信息为null");
             }
+
+            // init customerSalePushLog
             customerSalePushLog.setOcdcId(customerDTO.getOcdcId());
             customerSalePushLog.setCustomerId(customerDTO.getId());
             customerSalePushLog.setCustomerName(customerDTO.getCustomerName());
@@ -812,7 +818,31 @@ public class OcdcServiceV2 {
             customerSalePushLog.setAutostatus(1);
             customerSalePushLog.setUtmSource(customerDTO.getUtmSource());
             customerSalePushLog.setCustomerSource(customerDTO.getCustomerSource());
+            customerSalePushLog.setLaiyuan(Integer.valueOf(AllocateSource.DELAY.getCode()));
 
+            // 业务校验，在15分钟内添加沟通日志，则取消分配
+            CustomerInfo customerInfo = customerInfoService.findCustomerById(customerDTO.getId());
+            if (customerInfo == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "根据id找顾客为null，customerid=" + customerDTO.getId());
+            }
+            Date communicateTime = customerInfo.getCommunicateTime();
+            if (communicateTime == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "最近沟通时间为null，customerid=" + customerDTO.getId());
+            }
+            if (communicateTime.compareTo(new Date(time))> 0) {
+                SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k55
+                        , ImmutableMap.of("最近沟通时间", communicateTime.getTime(), "此次触发再分配的时间", time)
+                );
+                return;
+            }
+
+            AllocateEntity allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.DELAY, getwayToken);
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k54
+                    , ImmutableMap.of("allocateEntity", allocateEntity)
+            );
+
+            customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
+            customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
         } catch (Exception e) {
             logger.error("15分钟未沟通业务", e);
             String str = "";
@@ -826,11 +856,11 @@ public class OcdcServiceV2 {
             }
             SingleCutomerAllocateDevInfoUtil.local.get().setSuccess(false);
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k50, ImmutableMap.of("异常", str));
+            customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
+            customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
         } finally {
             SingleCutomerAllocateDevInfoUtil.local.remove();
         }
-        customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
-        customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
         customerSalePushLogService.insertList(customerSalePushLogList);
     }
 

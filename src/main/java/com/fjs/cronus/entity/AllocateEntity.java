@@ -33,4 +33,13 @@ public class AllocateEntity {
     public void setAllocateStatus(AllocateEnum allocateStatus) {
         this.allocateStatus = allocateStatus;
     }
+
+    @Override
+    public String toString() {
+        return "AllocateEntity{" +
+                "success=" + success +
+                ", allocateStatus=" + allocateStatus +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

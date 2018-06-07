@@ -7,7 +7,9 @@ public enum AllocateSource {
 
     SERVICES("1", "客服"),
 
-    WAITING("2", "待分配池");
+    WAITING("2", "待分配池"),
+
+    DELAY("3", "15分钟未沟通处理");
 
     private String code;
 

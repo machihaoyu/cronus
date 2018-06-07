@@ -95,7 +95,7 @@ public class DelayAllocateService {
         worker.interrupt();
     }
 
-    public void acceptData(String phone, Date time) {
+    public boolean acceptData(String phone, Date time) {
         // 参数校验
         if (StringUtils.isBlank(phone)) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "phone 不能为null");
@@ -105,8 +105,11 @@ public class DelayAllocateService {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "time 不能为null");
         }
 
-        addData2Redis(phone, time);
-        queue.put(new DelayAllocateData(phone, time.getTime()));
+        if (addData2Redis(phone, time)){
+            queue.put(new DelayAllocateData(phone, time.getTime()));
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -159,10 +162,10 @@ public class DelayAllocateService {
         HashOperations<String, String, String> operater = getOperater();
 
         Boolean aBoolean = operater.putIfAbsent(CommonRedisConst.ALLOCATE_DELAY, phone, parseTime(time));
-        if (aBoolean) {
+        if (!aBoolean) {
             String s = operater.get(CommonRedisConst.ALLOCATE_DELAY, phone);
             Date db = parseTime(s);
-            if (time.compareTo(db) > 0) {
+            if (db != null && time.compareTo(db) > 0) {
                 operater.delete(CommonRedisConst.ALLOCATE_DELAY, phone);
                 aBoolean = operater.putIfAbsent(CommonRedisConst.ALLOCATE_DELAY, phone, parseTime(time));
             }

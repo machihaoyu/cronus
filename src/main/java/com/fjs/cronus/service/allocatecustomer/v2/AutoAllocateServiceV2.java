@@ -200,8 +200,25 @@ public class AutoAllocateServiceV2 {
                 // 老客户
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k1);
 
-                UserInfoDTO ownerUser = this.getOwnerUser(customerDTO, token); // 获取负责人
+                // 15分钟未沟通业务
+                if (allocateSource != null && StringUtils.isNotBlank(allocateSource.getCode()) && AllocateSource.DELAY.getCode().equalsIgnoreCase(allocateSource.getCode())) {
 
+                    signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, mediaId);
+                    if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
+                        if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
+                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k14, ImmutableMap.of("SalesmanId", signCustomAllocate.getSalesmanId()));
+                            allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
+                            customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
+                        } else { // 未找到，抛错记录日志
+                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k19);
+                            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "老客户去队列没找到业务员");
+                        }
+                    } else {
+                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，已经是15分钟未沟通分支，说明是在有效城市内，但此次校验又不是");
+                    }
+                }
+
+                UserInfoDTO ownerUser = this.getOwnerUser(customerDTO, token); // 获取负责人(系统外指定业务员情况)
                 if (StringUtils.isNotEmpty(ownerUser.getUser_id())) { // 存在这个在职负责人
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k18, ImmutableMap.of("salemanid", ownerUser.getUser_id()));
 
@@ -313,11 +330,15 @@ public class AutoAllocateServiceV2 {
                         allocateEntity.setDescription(loan);
                     }
 
+                    // 发送短信
                     Integer r = this.sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, token);
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k51
                             , ImmutableMap.of("CustomerName", customerDTO.getCustomerName(), "OwnerUserId", customerDTO.getOwnerUserId(), "simpleUserInfoDTO", simpleUserInfoDTO, "token", token)
                             , ImmutableMap.of("短信响应", r)
                     );
+
+                    // 添加15分钟未沟通的标记
+                    addDelayAllocate(token, customerDTO.getTelephonenumber());
                     break;
                 case "2": // 进入待分配池
                     this.sendCRMAssistantMessage(customerDTO.getCity(), customerDTO.getCustomerName(), token);
@@ -932,15 +953,29 @@ public class AutoAllocateServiceV2 {
 
         // 业务校验：是否在工作日内
         if (!currentWorkDayAndTime(token, now.getTime())) {
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k53);
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k53
+                    , ImmutableMap.of("MONTH", now.get(Calendar.MONTH) + 1, "hour", now.get(Calendar.HOUR_OF_DAY))
+                    , ImmutableMap.of("不在有效工作日内", now.get(Calendar.DAY_OF_MONTH))
+            );
             return;
         }
 
         // 业务校验：是否在工作时间内
         if (now.get(Calendar.HOUR_OF_DAY) > 18 || now.get(Calendar.HOUR_OF_DAY) < 10){
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k53
+                    , ImmutableMap.of("hour", now.get(Calendar.HOUR_OF_DAY))
+                    , ImmutableMap.of("不在有效工作时间内", now.get(Calendar.HOUR_OF_DAY))
+            );
             return;
         }
 
         now.add(Calendar.MINUTE, 15);
-        delayAllocateService.acceptData(phone, now.getTime());
+        boolean b = delayAllocateService.acceptData(phone, now.getTime());
+        if (!b) {
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k53
+                    , ImmutableMap.of("请求结果", b)
+            );
+        }
     }
 }
