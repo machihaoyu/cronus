@@ -44,14 +44,11 @@ public class DelayAllocateService {
     @Autowired
     private CustomerInfoService customerInfoService;
 
-    @Autowired
-    private AutoAllocateServiceV2 autoAllocateServiceV2;
-
     @Resource
     private RedisTemplate<String, String> redisTemplate;
 
     /**
-     * 处理延迟的queue.
+     * queue.
      */
     private DelayQueue<DelayAllocateData> queue;
 
@@ -59,11 +56,6 @@ public class DelayAllocateService {
      * 工作线程.
      */
     private Thread worker;
-
-    /**
-     * 存到redis中的数据切割符号.
-     */
-    private String cutStr = "$";
 
     @PostConstruct
     public void initQueue() {
@@ -103,38 +95,18 @@ public class DelayAllocateService {
         worker.interrupt();
     }
 
-    public void acceptData(String token, String phone, Integer saleManid, Integer time, TimeUnit timeUnit) {
+    public void acceptData(String phone, Date time) {
         // 参数校验
         if (StringUtils.isBlank(phone)) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "phone 不能为null");
         }
         phone = phone.trim();
-        if (StringUtils.isBlank(token)) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "token 不能为null");
-        }
         if (time == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "time 不能为null");
         }
-        if (saleManid == null) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "saleManid 不能为null");
-        }
-        if (timeUnit == null) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "timeUnit 不能为null");
-        }
 
-        Calendar now = Calendar.getInstance();
-
-        // 业务校验：是否在工作日内
-        if (!autoAllocateServiceV2.currentWorkDayAndTime(token, now.getTime())) return;
-
-        // 业务校验：是否在工作时间内
-        if (now.get(Calendar.HOUR_OF_DAY) > 18 || now.get(Calendar.HOUR_OF_DAY) < 10) return;
-
-        // 触发时间
-        long timeTemp = now.getTime().getTime() + timeUnit.toMillis(time);
-
-        addData2Redis(phone, new Date(timeTemp));
-        queue.put(new DelayAllocateData(phone, timeTemp));
+        addData2Redis(phone, time);
+        queue.put(new DelayAllocateData(phone, time.getTime()));
     }
 
     /**
@@ -160,29 +132,7 @@ public class DelayAllocateService {
      * 处理15分钟未处理重新分配业务.
      */
     private void delayAllocate(String phone, long time) {
-
-        Long lockToken = null;
-        String key = null;
-        try {
-            key = CommonRedisConst.ALLOCATE_DELAY + "lock" + phone;
-            lockToken = cRMRedisLockHelp.lockBySetNX(key);
-
-            // 根据id
-            CustomerDTO customer = ocdcServiceV2.getCustomer(phone);
-
-            // 数据查询，看是否已和业务员沟通；已沟通则不管，未沟通则去分配队列给别的业务员.
-            Integer id = customer.getId();
-
-            CustomerInfo customerInfo = customerInfoService.findCustomerById(id);
-            if (customerInfo != null && customerInfo.getCommunicateTime() != null) {
-
-            }
-
-            ListOperations<String, String> listOperations = redisTemplate.opsForList();
-
-        } finally {
-            cRMRedisLockHelp.unlockForSetNx2(key, lockToken);
-        }
+        ocdcServiceV2.delayAllocate(phone, time);
     }
 
     private Date parseTime(String time) {
@@ -207,7 +157,6 @@ public class DelayAllocateService {
      */
     private Boolean addData2Redis(String phone, Date time) {
         HashOperations<String, String, String> operater = getOperater();
-
 
         Boolean aBoolean = operater.putIfAbsent(CommonRedisConst.ALLOCATE_DELAY, phone, parseTime(time));
         if (aBoolean) {
