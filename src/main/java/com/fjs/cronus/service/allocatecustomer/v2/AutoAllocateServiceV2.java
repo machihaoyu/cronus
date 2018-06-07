@@ -949,14 +949,14 @@ public class AutoAllocateServiceV2 {
      * 添加15分钟未沟通Task到处理queue中.
      */
     private void addDelayAllocate(String token, String phone) {
+        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k53);
         Calendar now = Calendar.getInstance();
 
         // 业务校验：是否在工作日内
         if (!currentWorkDayAndTime(token, now.getTime())) {
-            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k53);
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k53
                     , ImmutableMap.of("MONTH", now.get(Calendar.MONTH) + 1, "hour", now.get(Calendar.HOUR_OF_DAY))
-                    , ImmutableMap.of("不在有效工作日内", now.get(Calendar.DAY_OF_MONTH))
+                    , ImmutableMap.of("不在有效工作日内", "--具体需要查看系统（工作日期管理）--")
             );
             return;
         }
