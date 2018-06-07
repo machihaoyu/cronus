@@ -109,7 +109,7 @@ public class SmsService {
         return commonApiDTO.getResult();
     }
 
-    public boolean smsChannelOpen()
+    private boolean smsChannelOpen()
     {
         logger.warn("第二步 : smsChannelOpen >>>>>>>>>>>--------------" + smsSwitch);
         if (smsSwitch.equals("1")) {

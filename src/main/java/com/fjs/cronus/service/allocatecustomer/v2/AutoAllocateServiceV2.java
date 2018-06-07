@@ -374,7 +374,6 @@ public class AutoAllocateServiceV2 {
             }
 
         } catch (Exception e) {
-            logger.error("-------------------自动分配失败:ocdcDataId=" + customerDTO.getTelephonenumber() + "-------------------", e);
             StringBuffer sb = new StringBuffer();
             sb.append("自动分配失败: errorMessage=" + e.getMessage() + " telephonenumber=" + customerDTO.getTelephonenumber() + " ocdcId=" + customerDTO.getOcdcId());
             // 以单个客户为维度，记录每个客户分配异常的信息
@@ -383,6 +382,7 @@ public class AutoAllocateServiceV2 {
                 BaseException be = (BaseException) e;
                 sb.append(" 已知异常:" + be.getResponseError().getMessage());
             } else {
+                logger.error("-------------------自动分配失败:ocdcDataId=" + customerDTO.getTelephonenumber() + "-------------------", e);
                 // 未知异常
                 sb.append(" 未知异常:" + e.getMessage());
             }
@@ -948,7 +948,7 @@ public class AutoAllocateServiceV2 {
     /**
      * 添加15分钟未沟通Task到处理queue中.
      */
-    private void addDelayAllocate(String token, String phone){
+    private void addDelayAllocate(String token, String phone) {
         Calendar now = Calendar.getInstance();
 
         // 业务校验：是否在工作日内
@@ -962,7 +962,7 @@ public class AutoAllocateServiceV2 {
         }
 
         // 业务校验：是否在工作时间内
-        if (now.get(Calendar.HOUR_OF_DAY) > 18 || now.get(Calendar.HOUR_OF_DAY) < 10){
+        if (now.get(Calendar.HOUR_OF_DAY) > 18 || now.get(Calendar.HOUR_OF_DAY) < 10) {
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k53
                     , ImmutableMap.of("hour", now.get(Calendar.HOUR_OF_DAY))
                     , ImmutableMap.of("不在有效工作时间内", now.get(Calendar.HOUR_OF_DAY))
