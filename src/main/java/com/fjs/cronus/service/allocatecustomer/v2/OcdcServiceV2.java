@@ -24,6 +24,7 @@ import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.CustomerSalePushLogService;
 import com.fjs.cronus.service.SysConfigService;
 import com.fjs.cronus.service.allocatecustomer.v2.AutoAllocateServiceV2;
+import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.thea.ThorClientService;
 import com.fjs.cronus.util.DEC3Util;
@@ -40,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -105,6 +107,11 @@ public class OcdcServiceV2 {
 
     @Autowired
     private CustomerInfoMapper customerInfoMapper;
+
+    @Autowired
+    private CRMRedisLockHelp cRMRedisLockHelp;
+    @Autowired
+    private DelayAllocateService delayAllocateService;
 
     @Transactional
     /**
@@ -769,6 +776,7 @@ public class OcdcServiceV2 {
         CustomerSalePushLog customerSalePushLog = new CustomerSalePushLog();
         customerSalePushLogList.add(customerSalePushLog);
         Calendar now = Calendar.getInstance();
+        Long lockToken = null;
 
         try {
             SingleCutomerAllocateDevInfoUtil.local.set(new SingleCutomerAllocateDevInfo());
@@ -829,17 +837,36 @@ public class OcdcServiceV2 {
             if (communicateTime == null) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "最近沟通时间为null，customerid=" + customerDTO.getId());
             }
-            if (communicateTime.compareTo(new Date(time))> 0) {
+            if (communicateTime.compareTo(new Date(time)) > 0) {
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k55
                         , ImmutableMap.of("最近沟通时间", communicateTime.getTime(), "此次触发再分配的时间", time)
                 );
                 return;
             }
 
+            // 多实例时，只允许一个实例运行
+            boolean getLock = true;
+            try {
+                lockToken = cRMRedisLockHelp.lockBySetNX(CommonRedisConst.ALLOCATE_DELAY_LOCK + phone);
+            } catch (Exception e) {
+                // 捕获获取锁失败，已有其它实例在处理，则放弃此次再分配
+                getLock = false;
+            }
+            if (!getLock) {
+                SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k55
+                        , ImmutableMap.of("已有实例在处理此手机号", "放弃此次处理", "锁存在", time)
+                );
+                return;
+            }
+
+            // 自动分配
             AllocateEntity allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.DELAY, getwayToken);
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k54
                     , ImmutableMap.of("allocateEntity", allocateEntity)
             );
+
+            // 从redis中删除此手机号标记
+            delayAllocateService.deleteData(phone, new Date(time));
 
             customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
             customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
@@ -860,6 +887,7 @@ public class OcdcServiceV2 {
             customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
         } finally {
             SingleCutomerAllocateDevInfoUtil.local.remove();
+            cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_DELAY_LOCK + phone, lockToken);
         }
         customerSalePushLogService.insertList(customerSalePushLogList);
     }

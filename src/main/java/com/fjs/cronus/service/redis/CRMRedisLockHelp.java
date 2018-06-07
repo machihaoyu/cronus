@@ -123,7 +123,7 @@ public class CRMRedisLockHelp {
     /**
      * 解锁.
      */
-    public boolean unlockForSetNx(String lockKey, String lockToken) {
+    private boolean unlockForSetNx(String lockKey, String lockToken) {
         return this.unlockForSetNx(lockKey, lockToken, this.getRedisScript(UNLOCK_LU_SCRIPT));
     }
 

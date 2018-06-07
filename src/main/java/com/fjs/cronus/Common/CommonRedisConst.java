@@ -30,6 +30,11 @@ public class CommonRedisConst {
     public static String ALLOCATE_DELAY ="allocate_delay";
 
     /**
+     * 自动分配：十五分钟未沟通lock.
+     */
+    public static String ALLOCATE_DELAY_LOCK ="allocate_delay_lock";
+
+    /**
      * 自动分配：一级吧queue redis key.
      *
      * key结构：listAllocateSubCompany$mediaid$城市名

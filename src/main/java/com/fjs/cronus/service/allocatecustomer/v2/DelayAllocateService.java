@@ -173,6 +173,16 @@ public class DelayAllocateService {
         return aBoolean;
     }
 
+    public void deleteData(String phone, Date time){
+        HashOperations<String, String, String> operater = getOperater();
+
+        String s = operater.get(CommonRedisConst.ALLOCATE_DELAY, phone);
+        Date time2 = parseTime(s);
+        if (time2 != null && time.compareTo(time2) == 0) {
+            operater.delete(CommonRedisConst.ALLOCATE_DELAY, phone);
+        }
+    }
+
     /**
      * 获取redis hash的操作器.
      */
