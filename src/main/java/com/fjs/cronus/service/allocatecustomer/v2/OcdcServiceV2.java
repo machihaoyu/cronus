@@ -834,10 +834,7 @@ public class OcdcServiceV2 {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "根据id找顾客为null，customerid=" + customerDTO.getId());
             }
             Date communicateTime = customerInfo.getCommunicateTime();
-            if (communicateTime == null) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "最近沟通时间为null，customerid=" + customerDTO.getId());
-            }
-            if (communicateTime.compareTo(new Date(time)) > 0) {
+            if (communicateTime != null && communicateTime.compareTo(new Date(time)) > 0) {
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k55
                         , ImmutableMap.of("最近沟通时间", communicateTime.getTime(), "此次触发再分配的时间", time)
                 );
