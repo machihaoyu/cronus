@@ -837,7 +837,7 @@ public class OcdcServiceV2 {
             Date communicateTime = customerInfo.getCommunicateTime();
             Calendar temp = Calendar.getInstance(); // 调回15分钟前
             temp.setTime(new Date(time));
-            temp.add(Calendar.MINUTE, -DelayAllocateService.time);
+            temp.add(Calendar.MINUTE, -DelayAllocateService.savetime);
             if (communicateTime != null && communicateTime.compareTo(temp.getTime()) > 0) {
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k55
                         , ImmutableMap.of("最近沟通时间", communicateTime.getTime(), "此次触发再分配的时间", time)

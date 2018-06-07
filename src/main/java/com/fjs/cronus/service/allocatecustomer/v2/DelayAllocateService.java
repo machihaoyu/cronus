@@ -1,21 +1,14 @@
 package com.fjs.cronus.service.allocatecustomer.v2;
 
 import com.fjs.cronus.Common.CommonRedisConst;
-import com.fjs.cronus.dto.cronus.CustomerDTO;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.model.CustomerInfo;
-import com.fjs.cronus.service.CustomerInfoService;
-import com.fjs.cronus.service.redis.CRMRedisLockHelp;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -23,9 +16,10 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.DelayQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 商机：15分钟未沟通，重新自动分配.
@@ -38,19 +32,13 @@ public class DelayAllocateService {
     @Autowired
     private OcdcServiceV2 ocdcServiceV2;
 
-    @Autowired
-    private CRMRedisLockHelp cRMRedisLockHelp;
-
-    @Autowired
-    private CustomerInfoService customerInfoService;
-
     @Resource
     private RedisTemplate<String, String> redisTemplate;
 
     /**
      * delay的时间.
      */
-    public static int time = 15; // 分钟
+    public static int savetime = 15; // 分钟
 
     /**
      * queue.
@@ -77,7 +65,7 @@ public class DelayAllocateService {
             // 忽略错误，丢掉此缓存数据；不要影响APP启动
             if (date != null) {
                 Calendar now = Calendar.getInstance();
-                now.add(Calendar.MINUTE, -15);
+                now.add(Calendar.MINUTE, -savetime);
                 Date time1 = now.getTime();
 
                 if (time1.compareTo(date) > 0) {

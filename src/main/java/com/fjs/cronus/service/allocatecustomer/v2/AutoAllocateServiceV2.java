@@ -970,7 +970,7 @@ public class AutoAllocateServiceV2 {
             return;
         }
 
-        now.add(Calendar.MINUTE, DelayAllocateService.time);
+        now.add(Calendar.MINUTE, DelayAllocateService.savetime);
         boolean b = delayAllocateService.acceptData(phone, now.getTime());
         if (!b) {
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k53
