@@ -41,7 +41,7 @@ public class AllocateRedisServiceV2 {
 
 
     @Resource
-    private RedisTemplate<String, String> redisAllocateTemplete;
+    RedisTemplate redisTemplateOps;
 
     @Resource
     private AvatarClientService avatarClientService;
@@ -59,11 +59,8 @@ public class AllocateRedisServiceV2 {
 
         String effectiveDate = this.getMonthStr(monthFlag);
 
-        redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
-        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
-
         String key = this.getKey(companyId, medial, effectiveDate);
-        ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+        ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
         listOperations.remove(key, 500, userId.toString());
         listOperations.rightPush(key, userId.toString());
     }
@@ -78,11 +75,8 @@ public class AllocateRedisServiceV2 {
 
         String effectiveDate = this.getMonthStr(monthFlag);
 
-        redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
-        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
-
         String key = this.getKey(companyId, medial, effectiveDate);
-        ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+        ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
         listOperations.remove(key, 500, userId.toString());
     }
 
@@ -90,11 +84,9 @@ public class AllocateRedisServiceV2 {
      * 媒体业务员queue：获取all.
      */
     public List<Integer> finaAllFromQueue(Integer companyId, Integer medial, String effectiveDate) {
-        redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
-        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
 
         String key = this.getKey(companyId, medial, effectiveDate);
-        ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+        ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
         List<String> range = listOperations.range(key, 0, -1);
         return range.stream().filter(item -> item != null).map(Integer::valueOf).collect(toList());
     }
@@ -104,11 +96,8 @@ public class AllocateRedisServiceV2 {
      */
     public Integer getAndPush2End(Integer companyId, Integer medial, String effectiveDate) {
 
-        redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
-        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
-
         String key = this.getKey(companyId, medial, effectiveDate);
-        ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+        ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
         String s = listOperations.leftPop(key);
         if (StringUtils.isNumeric(s)) {
             listOperations.remove(key, 500, s);
@@ -123,11 +112,8 @@ public class AllocateRedisServiceV2 {
      */
     public long getQueueSize(Integer companyId, Integer medial, String effectiveDate) {
 
-        redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
-        redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
-
         String key = this.getKey(companyId, medial, effectiveDate);
-        Long size = redisAllocateTemplete.opsForList().size(key);
+        Long size = redisTemplateOps.opsForList().size(key);
         return size == null ? 0 : size;
     }
 
@@ -136,7 +122,7 @@ public class AllocateRedisServiceV2 {
      */
     public void delCompanyMediaQueueRedisQueue(Integer companyId, Integer medial, String effectiveDate) {
         String key = this.getKey(companyId, medial, effectiveDate);
-        redisAllocateTemplete.delete(key);
+        redisTemplateOps.delete(key);
     }
 
     /**
@@ -236,9 +222,7 @@ public class AllocateRedisServiceV2 {
 
         if (companyId != null && medial != null && StringUtils.isNotBlank(currentMonthStr) && StringUtils.isNotBlank(nextMonthStr)) {
 
-            redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
-            redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
-            ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+            ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
 
             String currentMonthQueueKey = this.getKey(companyId, medial, currentMonthStr);
             String nextMonthQueueKey = this.getKey(companyId, medial, nextMonthStr);
@@ -247,7 +231,7 @@ public class AllocateRedisServiceV2 {
             Set<String> nextMonthQueue = currentMonthQueue.stream().filter(item -> StringUtils.isNotBlank(item) ).collect(toSet());
 
             if (CollectionUtils.isNotEmpty(nextMonthQueue) ){
-                redisAllocateTemplete.delete(nextMonthQueueKey);
+                redisTemplateOps.delete(nextMonthQueueKey);
                 listOperations.leftPushAll(nextMonthQueueKey, nextMonthQueue);
             }
         }
@@ -261,9 +245,7 @@ public class AllocateRedisServiceV2 {
         String subCompanyId = null;
         if (StringUtils.isNotBlank(cityName)) {
 
-            redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
-            redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
-            ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
+            ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
 
             // 目标数据缓存key
             String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaid.toString()).concat("$").concat(cityName);
@@ -285,10 +267,7 @@ public class AllocateRedisServiceV2 {
         Long size = 0L;
         if (StringUtils.isNotBlank(cityName) && StringUtils.isNotBlank(token)) {
 
-            redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
-            redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
-            ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
-
+            ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
 
             // 目标数据缓存key
             String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaid.toString()).concat("$").concat(cityName);
@@ -305,7 +284,7 @@ public class AllocateRedisServiceV2 {
                     Set<String> subCompanyIdList2 = CollectionUtils.isEmpty(subCompanyIdList) ? new HashSet<>() : subCompanyIdList.stream().filter(item -> item != null).map(String::valueOf).collect(toSet());
 
                     if (cityName.equals(cityNameTemp) && CollectionUtils.isNotEmpty(subCompanyIdList2)) {
-                        redisAllocateTemplete.delete(key);
+                        redisTemplateOps.delete(key);
                         listOperations.leftPushAll(key, subCompanyIdList2);
                         size = Long.valueOf(subCompanyIdList2.size());
                         break;
@@ -368,10 +347,8 @@ public class AllocateRedisServiceV2 {
 
                 for (String mediaid : mediaids) {
                     String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaid).concat("$").concat(cityName);
-                    redisAllocateTemplete.setKeySerializer(new StringRedisSerializer());
-                    redisAllocateTemplete.setValueSerializer(new StringRedisSerializer());
-                    ListOperations<String, String> listOperations = redisAllocateTemplete.opsForList();
-                    redisAllocateTemplete.delete(key);
+                    ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
+                    redisTemplateOps.delete(key);
                     listOperations.leftPushAll(key, subCompanyIdSet);
                 }
 
