@@ -63,11 +63,7 @@ public class DelayAllocateService {
             Date date = parseTime(time);
             // 忽略错误，丢掉此缓存数据；不要影响APP启动
             if (date != null) {
-                Calendar now = Calendar.getInstance();
-                now.add(Calendar.MINUTE, -savetime);
-                Date time1 = now.getTime();
-
-                if (time1.compareTo(date) > 0) {
+                if (new Date().compareTo(date) > 0) {
                     operater.delete(CommonRedisConst.ALLOCATE_DELAY, phone);
                 } else {
                     // 添加最近15分钟的数据
