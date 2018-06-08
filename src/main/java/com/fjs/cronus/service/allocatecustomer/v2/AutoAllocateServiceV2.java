@@ -368,11 +368,12 @@ public class AutoAllocateServiceV2 {
             }
 
             // 在20秒内未完成运算，视为失败；事务回滚；redis解锁;让给其他线程资源
-            long l = this.cRMRedisLockHelp.getCurrentTimeFromRedisServicer() - lockToken;
+            // TODO lihong
+            /*long l = this.cRMRedisLockHelp.getCurrentTimeFromRedisServicer() - lockToken;
             if (l > (20 * 1000)) {
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k20, ImmutableMap.of("请求耗时", l));
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "服务超时（redis锁超时）");
-            }
+            }*/
 
         } catch (Exception e) {
             StringBuffer sb = new StringBuffer();
@@ -392,6 +393,7 @@ public class AutoAllocateServiceV2 {
             allocateEntity.setSuccess(false);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         } finally {
+            // TODO lihong
             // this.cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_LOCK, lockToken);
         }
         return allocateEntity;
