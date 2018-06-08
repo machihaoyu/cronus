@@ -823,7 +823,7 @@ public class OcdcServiceV2 {
             customerSalePushLog.setHouseAlone(customerDTO.getHouseAlone());
             customerSalePushLog.setHouseLocation(customerDTO.getHouseLocation());
             customerSalePushLog.setCity(customerDTO.getCity());
-            customerSalePushLog.setRetain(customerDTO.getRemain());
+            customerSalePushLog.setRetain(customerDTO.getRemain() == null ? 0 : customerDTO.getRemain());
             customerSalePushLog.setCreateTime(now.getTime());
             customerSalePushLog.setUpdateTime(now.getTime());
             customerSalePushLog.setReceiveTime(now.getTime());
