@@ -158,7 +158,8 @@ public class AutoAllocateServiceV2 {
         try {
             // 锁1分钟，如20分钟内未计算完，就超时抛错回滚;
             // 其他并行线程重试6次，每次等待5秒，共30秒
-            lockToken = this.cRMRedisLockHelp.lockBySetNX2(CommonRedisConst.ALLOCATE_LOCK, 60, TimeUnit.SECONDS, 6, 5, TimeUnit.SECONDS);
+            // TODO lihong
+            //lockToken = this.cRMRedisLockHelp.lockBySetNX2(CommonRedisConst.ALLOCATE_LOCK, 60, TimeUnit.SECONDS, 6, 5, TimeUnit.SECONDS);
 
             // 获取自动分配的城市
             String allocateCities = theaClientService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY);
@@ -391,7 +392,7 @@ public class AutoAllocateServiceV2 {
             allocateEntity.setSuccess(false);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         } finally {
-            this.cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_LOCK, lockToken);
+            // this.cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_LOCK, lockToken);
         }
         return allocateEntity;
     }
