@@ -151,6 +151,7 @@ public class AutoAllocateServiceV2 {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public synchronized AllocateEntity autoAllocate(CustomerDTO customerDTO, AllocateSource allocateSource, String token) {
+        logger.info("--- OCDC推送 跟踪 6 ----> " + customerDTO.getTelephonenumber());
         AllocateEntity allocateEntity = new AllocateEntity();
         allocateEntity.setSuccess(true);
         Long lockToken = null;
