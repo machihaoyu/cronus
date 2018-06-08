@@ -133,7 +133,6 @@ public class OcdcServiceV2 {
             try { // try 此次 50个一批的信息，作为响应信息，如中间某个出差需要记录
 
                 for (String map : ocdcData.getData()) {
-                    SingleCutomerAllocateDevInfoUtil.local.set(new SingleCutomerAllocateDevInfo());
 
                     // 解析客户信息
                     JsonNode node = objectMapper.readValue(map, JsonNode.class);
@@ -145,6 +144,7 @@ public class OcdcServiceV2 {
                     responseMessage.append(customerSalePushLog.getTelephonenumber());
                     responseMessage.append("-");
                     try { // try 单个进来的顾客，记录错误信息
+                        SingleCutomerAllocateDevInfoUtil.local.set(new SingleCutomerAllocateDevInfo());
                         logger.info("---自动分配（单个顾客start）---- " + customerSalePushLog.getTelephonenumber() + " ----------->");
                         AllocateEntity allocateEntity = new AllocateEntity();
                         CustomerDTO customerDTO = this.getCustomer(customerSalePushLog.getTelephonenumber());
@@ -336,9 +336,6 @@ public class OcdcServiceV2 {
                 }
             } catch (Exception e) {
                 logger.error("分配异常", e);
-            } finally {
-                // 释放threadload资源（防止内存泄露）
-                SingleCutomerAllocateDevInfoUtil.local.remove();
             }
 
             // 保存OCDC推送日志
