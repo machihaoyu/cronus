@@ -70,7 +70,7 @@ public class ScheduledJob {
         customerMeetService.sendMessMeetToCustomer(token);
 
         logger.info("3.waitingPoolAllocate start");
-        ocdcService.waitingPoolAllocate(token);
+        //ocdcService.waitingPoolAllocate(token);
         logger.info("3.waitingPoolAllocate end");
         //ocdcService.waitingPoolAllocate(token);
 
