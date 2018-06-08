@@ -737,12 +737,15 @@ public class AutoAllocateServiceV2 {
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k48 + j
                             , ImmutableMap.of("实购数", orderNumOfCompany, "订购数", orderNumber, "一级吧", subCompanyId, "媒体id", media_id));
 
-                    JSONObject params = new JSONObject();
-                    params.put("firstBarId", subCompanyId);
-                    params.put("mediaId", media_id);
-                    params.put("realNumber", orderNumOfCompany);
-                    params.put("time", new Date().getTime());
-                    avatarClientService.purchaseSmsNotice(token, params);
+                    final Integer orderNumOfCompany1 = orderNumOfCompany;
+                    new Thread(() -> {
+                        JSONObject params = new JSONObject();
+                        params.put("firstBarId", subCompanyId);
+                        params.put("mediaId", media_id);
+                        params.put("realNumber", orderNumOfCompany1);
+                        params.put("time", new Date().getTime());
+                        avatarClientService.purchaseSmsNotice(token, params);
+                    }).start();
                 }
 
                 break;
@@ -975,7 +978,7 @@ public class AutoAllocateServiceV2 {
 
         now.add(Calendar.MINUTE, DelayAllocateService.savetime);
         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k53
-                ,ImmutableMap.of("phone", phone, "下次触发时间", now.getTime().getTime()));
+                , ImmutableMap.of("phone", phone, "下次触发时间", now.getTime().getTime()));
         boolean b = delayAllocateService.acceptData(phone, now.getTime());
         if (!b) {
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k53
