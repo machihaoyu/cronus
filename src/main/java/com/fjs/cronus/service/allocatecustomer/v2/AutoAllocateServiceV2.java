@@ -158,8 +158,7 @@ public class AutoAllocateServiceV2 {
         try {
             // 锁1分钟，如20分钟内未计算完，就超时抛错回滚;
             // 其他并行线程重试6次，每次等待5秒，共30秒
-            // TODO lihong
-            //lockToken = this.cRMRedisLockHelp.lockBySetNX2(CommonRedisConst.ALLOCATE_LOCK, 60, TimeUnit.SECONDS, 6, 5, TimeUnit.SECONDS);
+            lockToken = this.cRMRedisLockHelp.lockBySetNX2(CommonRedisConst.ALLOCATE_LOCK, 60, TimeUnit.SECONDS, 6, 5, TimeUnit.SECONDS);
 
             // 获取自动分配的城市
             String allocateCities = theaClientService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY);
@@ -201,8 +200,9 @@ public class AutoAllocateServiceV2 {
                 // 老客户
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k1);
 
-                // 15分钟未沟通业务
+                UserInfoDTO ownerUser = this.getOwnerUser(customerDTO, token); // 获取负责人(系统外指定业务员情况)
                 if (allocateSource != null && StringUtils.isNotBlank(allocateSource.getCode()) && AllocateSource.DELAY.getCode().equalsIgnoreCase(allocateSource.getCode())) {
+                    // 15分钟未沟通业务
 
                     signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, mediaId);
                     if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
@@ -217,15 +217,14 @@ public class AutoAllocateServiceV2 {
                     } else {
                         throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，已经是15分钟未沟通分支，说明是在有效城市内，但此次校验又不是");
                     }
-                }
-
-                UserInfoDTO ownerUser = this.getOwnerUser(customerDTO, token); // 获取负责人(系统外指定业务员情况)
-                if (StringUtils.isNotEmpty(ownerUser.getUser_id())) { // 存在这个在职负责人
+                } else if (StringUtils.isNotEmpty(ownerUser.getUser_id())) {
+                    // 存在处理指定业务员情况（客户 or 外部系统可指定业务员）
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k18, ImmutableMap.of("salemanid", ownerUser.getUser_id()));
 
                     customerDTO.setOwnerUserId(Integer.valueOf(ownerUser.getUser_id()));
                     allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
-                } else if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) { // 在有效分配城市内
+                } else if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
+                    // 在有效分配城市内
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k15);
                     // 根据城市，去找一级吧下业务员
                     signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, mediaId);
@@ -368,12 +367,11 @@ public class AutoAllocateServiceV2 {
             }
 
             // 在20秒内未完成运算，视为失败；事务回滚；redis解锁;让给其他线程资源
-            // TODO lihong
-            /*long l = this.cRMRedisLockHelp.getCurrentTimeFromRedisServicer() - lockToken;
+            long l = this.cRMRedisLockHelp.getCurrentTimeFromRedisServicer() - lockToken;
             if (l > (20 * 1000)) {
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k20, ImmutableMap.of("请求耗时", l));
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "服务超时（redis锁超时）");
-            }*/
+            }
 
         } catch (Exception e) {
             StringBuffer sb = new StringBuffer();
@@ -393,8 +391,7 @@ public class AutoAllocateServiceV2 {
             allocateEntity.setSuccess(false);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         } finally {
-            // TODO lihong
-            // this.cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_LOCK, lockToken);
+            this.cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_LOCK, lockToken);
         }
         return allocateEntity;
     }
@@ -974,6 +971,8 @@ public class AutoAllocateServiceV2 {
         }
 
         now.add(Calendar.MINUTE, DelayAllocateService.savetime);
+        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k53
+                ,ImmutableMap.of("phone", phone, "下次触发时间", now.getTime().getTime()));
         boolean b = delayAllocateService.acceptData(phone, now.getTime());
         if (!b) {
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k53

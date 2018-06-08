@@ -249,6 +249,7 @@ public class OcdcServiceV2 {
                             responseMessage.append("新客户，自动分配");
                             responseMessage.append("-");
                             BeanUtils.copyProperties(customerSalePushLog, customerDTO);
+                            customerDTO.setTelephonenumber(customerSalePushLog.getTelephonenumber());// 修改bug，手机被加***
                             allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
                         }
                         // 搜集 成功 or 失败 的数据
@@ -851,7 +852,7 @@ public class OcdcServiceV2 {
 
             // 多实例时，只允许一个实例运行(简单处理下，满足业务场景；可以更严格处理，待优化)
             // TODO lihong
-           /* boolean getLock = true;
+           boolean getLock = true;
             try {
                 lockToken = cRMRedisLockHelp.lockBySetNX(CommonRedisConst.ALLOCATE_DELAY_LOCK + phone);
             } catch (Exception e) {
@@ -863,7 +864,7 @@ public class OcdcServiceV2 {
                         , ImmutableMap.of("已有实例在处理此手机号", "放弃此次处理", "锁存在", time)
                 );
                 return;
-            }*/
+            }
 
             // 自动分配
             AllocateEntity allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.DELAY, getwayToken);
@@ -893,7 +894,7 @@ public class OcdcServiceV2 {
             customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
         } finally {
             SingleCutomerAllocateDevInfoUtil.local.remove();
-            // cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_DELAY_LOCK + phone, lockToken);
+            cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_DELAY_LOCK + phone, lockToken);
         }
         customerSalePushLogService.insertList(customerSalePushLogList);
     }
