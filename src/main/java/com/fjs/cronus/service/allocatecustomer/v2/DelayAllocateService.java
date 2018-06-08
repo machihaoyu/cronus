@@ -132,7 +132,7 @@ public class DelayAllocateService {
     }
 
     private Date parseTime(String time) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date parse = null;
         try {
             parse = sdf.parse(time);
@@ -143,7 +143,7 @@ public class DelayAllocateService {
     }
 
     private String parseTime(Date time) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return sdf.format(time);
     }
 
