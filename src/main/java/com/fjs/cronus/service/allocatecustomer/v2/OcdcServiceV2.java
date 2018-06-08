@@ -114,10 +114,10 @@ public class OcdcServiceV2 {
     @Autowired
     private DelayAllocateService delayAllocateService;
 
-    @Transactional
     /**
      * 处理一批（目前是50个）客户分配.
      */
+    @Transactional
     public synchronized List<String> addOcdcCustomer(OcdcData ocdcData, AllocateSource allocateSource, String token) {
 
         List<String> successList = new ArrayList<>();
