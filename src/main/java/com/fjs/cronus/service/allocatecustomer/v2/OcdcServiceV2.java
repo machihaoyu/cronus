@@ -323,6 +323,9 @@ public class OcdcServiceV2 {
                         customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
 
                         failList.add(customerSalePushLog.getOcdcId().toString());
+                    } finally {
+                        // 释放threadload资源（防止内存泄露）
+                        SingleCutomerAllocateDevInfoUtil.local.remove();
                     }
 
                     // 搜集数据，作为响应
