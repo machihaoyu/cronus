@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.*;
  * <p>
  * Created by feng on 2017/7/14.
  */
-//@Controller
-//@RequestMapping(value = "/api/v1/ocdc")
+@Controller
+@RequestMapping(value = "/api/v1/ocdc")
 public class OcdcControllerV2 {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -46,7 +46,7 @@ public class OcdcControllerV2 {
     @Autowired
     private AutoCleanService autoCleanService;
 
-   /*
+
 
 
     @ApiOperation(value = "OCDC推送", notes = "OCDC推送客户信息")
@@ -66,7 +66,7 @@ public class OcdcControllerV2 {
             resultDto.setResult(1);
         }
         return resultDto;
-    }*/
+    }
 
     /*@ApiOperation(value = "未沟通分配开关", notes = "未沟通分配开关")
     @ApiImplicitParams({
@@ -103,7 +103,7 @@ public class OcdcControllerV2 {
         return resultDto;
     }*/
 
-    /*
+
 
 
     @ApiOperation(value = "客服推送", notes = "客服推送客户信息")
@@ -126,7 +126,7 @@ public class OcdcControllerV2 {
         }
         return responseData;
     }
-*/
+
     /*@ApiOperation(value = "未沟通分配", notes = "未沟通分配")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
@@ -181,7 +181,7 @@ public class OcdcControllerV2 {
         return responseData;
     }*/
 
-    /*
+
 
 
     @ApiOperation(value = "当前是否是工作时间", notes = "当前是否是工作时间")
@@ -211,7 +211,7 @@ public class OcdcControllerV2 {
     public String autoClean(@RequestHeader("Authorization") String token) {
 
         return autoCleanService.autoClean(token);
-    }*/
+    }
 
     /*@ApiOperation(value = "获取时间范围内客户", notes = "获取时间范围内客户")
     @ApiImplicitParams({
