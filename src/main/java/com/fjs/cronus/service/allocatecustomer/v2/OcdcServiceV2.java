@@ -368,9 +368,11 @@ public class OcdcServiceV2 {
     }
 
     private void sendMail(String token, CustomerDTO customerDTO) {
-        theaClientService.sendMail(token,
-                "客户姓名:" + customerDTO.getCustomerName() + ",客户电话:" + customerDTO.getTelephonenumber() + "，重复申请，请注意跟进；",
-                0, 0, "系统管理员", customerDTO.getOwnerUserId());
+        new Thread(() -> {
+            theaClientService.sendMail(token,
+                    "客户姓名:" + customerDTO.getCustomerName() + ",客户电话:" + customerDTO.getTelephonenumber() + "，重复申请，请注意跟进；",
+                    0, 0, "系统管理员", customerDTO.getOwnerUserId());
+        }).start();
     }
 
     /**
