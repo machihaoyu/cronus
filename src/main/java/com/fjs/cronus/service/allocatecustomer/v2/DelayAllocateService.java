@@ -123,6 +123,7 @@ public class DelayAllocateService {
      * 处理15分钟未处理重新分配业务.
      */
     private void delayAllocate(String phone, long time) {
+        logger.info("15分钟未沟通业务----> queue触发");
         ocdcServiceV2.delayAllocate(phone, time);
     }
 

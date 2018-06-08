@@ -775,6 +775,7 @@ public class OcdcServiceV2 {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void delayAllocate(String phone, long time) {
+        logger.info("15分钟未沟通业务----> queue触发，调用ocdc delayAllocate");
 
         List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<>(1);
         CustomerSalePushLog customerSalePushLog = new CustomerSalePushLog();
