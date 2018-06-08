@@ -66,8 +66,8 @@ public class ScheduledJob {
         logger.info("ScheduledJob Start!");
         //查询大于当前时间沟通和面见表获取沟通时间
         //调用任务
-        communicationLogService.sendMessToCustomer(token);
-        customerMeetService.sendMessMeetToCustomer(token);
+        //communicationLogService.sendMessToCustomer(token);
+        //customerMeetService.sendMessMeetToCustomer(token);
 
         logger.info("3.waitingPoolAllocate start");
         //ocdcService.waitingPoolAllocate(token);
@@ -77,21 +77,21 @@ public class ScheduledJob {
         //autoAllocateService.nonCommunicateAgainAllocate(token);
 
         logger.info("4.autoCleanTask start");
-        autoCleanService.autoCleanTask();
+        //autoCleanService.autoCleanTask();
         logger.info("4.autoCleanTask end");
 
         //dealgo 接口数据
         logger.info("5.initProfileTask start");
-        dealgoService.initProfileTask();
+        //dealgoService.initProfileTask();
         logger.info("5.initProfileTask end");
 
         logger.info("5.1.customersFromDiscardTask start");
-        panService.customersFromDiscardTask();
+        //panService.customersFromDiscardTask();
         logger.info("5.1.customersFromDiscardTask end");
 
 //        logger.error("定时任务 ------> 新注册客户15天发送短信");
         logger.info("6.sandMessage start");
-        customerInfoService.sandMessage();
+        //customerInfoService.sandMessage();
         logger.info("6.sandMessage end");
 
         logger.info("ScheduledJob End!");
