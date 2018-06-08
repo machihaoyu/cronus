@@ -394,6 +394,8 @@ public class AutoAllocateServiceV2 {
         } finally {
             this.cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_LOCK, lockToken);
         }
+
+        logger.info("--- OCDC推送 跟踪 7 ----> " + customerDTO.getTelephonenumber());
         return allocateEntity;
     }
 

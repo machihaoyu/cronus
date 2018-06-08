@@ -329,6 +329,7 @@ public class OcdcServiceV2 {
                         // 释放threadload资源（防止内存泄露）
                         SingleCutomerAllocateDevInfoUtil.local.remove();
                     }
+                    logger.info("--- OCDC推送 跟踪 计算完单个 -------> " + customerSalePushLog.getTelephonenumber());
 
                     // 搜集数据，作为响应
                     ocdcMessage.add(responseMessage.toString());
@@ -346,6 +347,7 @@ public class OcdcServiceV2 {
             // rest 响应此次请求的客户信息
             this.autoAllocateFeedback(successList, failList);
         }
+        logger.info("--- OCDC推送 跟踪 计算完这批 -------> ");
         return ocdcMessage;
     }
 
