@@ -33,8 +33,7 @@ public class DelayAllocateService {
     private OcdcServiceV2 ocdcServiceV2;
 
     @Resource
-    private RedisTemplate<String, String> redisTemplate;
-
+    RedisTemplate redisTemplateOps;
     /**
      * delay的时间.
      */
@@ -55,7 +54,7 @@ public class DelayAllocateService {
 
         this.queue = new DelayQueue<>();
         // 从redis获取未处理完的数据 or 因系统重启导致丢失的数据
-        HashOperations<String, String, String> operater = getOperater();
+        HashOperations<String, String, String> operater = redisTemplateOps.opsForHash();
         Map<String, String> entries = operater.entries(CommonRedisConst.ALLOCATE_DELAY);
         for (Map.Entry<String, String> s : entries.entrySet()) {
             String phone = s.getKey();
@@ -152,7 +151,7 @@ public class DelayAllocateService {
      * 只放最新的
      */
     private Boolean addData2Redis(String phone, Date time) {
-        HashOperations<String, String, String> operater = getOperater();
+        HashOperations<String, String, String> operater = redisTemplateOps.opsForHash();
 
         Boolean aBoolean = operater.putIfAbsent(CommonRedisConst.ALLOCATE_DELAY, phone, parseTime(time));
         if (!aBoolean) {
@@ -167,25 +166,13 @@ public class DelayAllocateService {
     }
 
     public void deleteData(String phone, Date time){
-        HashOperations<String, String, String> operater = getOperater();
+        HashOperations<String, String, String> operater = redisTemplateOps.opsForHash();
 
         String s = operater.get(CommonRedisConst.ALLOCATE_DELAY, phone);
         Date time2 = parseTime(s);
         if (time2 != null && time.compareTo(time2) == 0) {
             operater.delete(CommonRedisConst.ALLOCATE_DELAY, phone);
         }
-    }
-
-    /**
-     * 获取redis hash的操作器.
-     */
-    private HashOperations<String, String, String> getOperater() {
-        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
-        HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
-        return hashOperations;
     }
 
 }

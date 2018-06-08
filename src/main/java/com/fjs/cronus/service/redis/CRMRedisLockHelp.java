@@ -9,7 +9,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.script.DigestUtils;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -26,7 +25,7 @@ public class CRMRedisLockHelp {
     private static final Logger logger = LoggerFactory.getLogger(CRMRedisLockHelp.class);
 
     @Resource
-    RedisTemplate<String, String> redisTemplate;
+    RedisTemplate redisTemplateOps;
 
     /**
      * 加锁脚本；setNX 命令对应的 lua 脚本.
@@ -107,11 +106,8 @@ public class CRMRedisLockHelp {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "redis 缓存 timeout 时间太短");
         }
 
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
-
         // 执行脚本
-        Object result = redisTemplate.execute(redisScript, new StringRedisSerializer(), new StringRedisSerializer(), Collections.singletonList(key), value, String.valueOf(timeout));
+        Object result = redisTemplateOps.execute(redisScript, new StringRedisSerializer(), new StringRedisSerializer(), Collections.singletonList(key), value, String.valueOf(timeout));
         if ("OK".equals(result)) {
             // 成功，返回 OK
             return true;
@@ -150,11 +146,8 @@ public class CRMRedisLockHelp {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "redis 缓存 unlockFlag 不能为空");
         }
 
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
-
         // 执行脚本
-        Object result = redisTemplate.execute(redisScript, new StringRedisSerializer(), new StringRedisSerializer(), Collections.singletonList(key), lockToken);
+        Object result = redisTemplateOps.execute(redisScript, new StringRedisSerializer(), new StringRedisSerializer(), Collections.singletonList(key), lockToken);
         if (result != null && "1".equals(result.toString())) {
             // 成功，返回 1
             return true;
@@ -174,10 +167,7 @@ public class CRMRedisLockHelp {
             }
         };
 
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
-
-        Object result = redisTemplate.execute(redisCallback);
+        Object result = redisTemplateOps.execute(redisCallback);
         if (result == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "从redis服务器获取当前时间异常，响应为null");
         }
@@ -191,28 +181,26 @@ public class CRMRedisLockHelp {
     public void watchToService() {
         String key = "test123";
 
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
-        redisTemplate.setEnableTransactionSupport(true);
+        redisTemplateOps.setEnableTransactionSupport(true);
 
         try {
-            redisTemplate.watch(key);
+            redisTemplateOps.watch(key);
 
-            String count = redisTemplate.opsForValue().get(key);
+            String count = (String) redisTemplateOps.opsForValue().get(key);
             if (!StringUtils.isNumeric(count)) {
                 return;
             }
 
             if (Integer.valueOf(count) > 0) {
-                redisTemplate.multi();
-                redisTemplate.opsForValue().increment(key, -1);
-                List<Object> execResult = redisTemplate.exec();
+                redisTemplateOps.multi();
+                redisTemplateOps.opsForValue().increment(key, -1);
+                List<Object> execResult = redisTemplateOps.exec();
                 if (CollectionUtils.isNotEmpty(execResult) && execResult.get(0) != null && StringUtils.isNumeric(execResult.get(0).toString())) {
                     // 自定义业务逻辑
                 }
             }
         } finally {
-            redisTemplate.unwatch();
+            redisTemplateOps.unwatch();
         }
     }
 }
