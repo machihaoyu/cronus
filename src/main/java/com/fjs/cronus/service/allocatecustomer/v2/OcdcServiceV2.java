@@ -368,6 +368,7 @@ public class OcdcServiceV2 {
     }
 
     private void sendMail(String token, CustomerDTO customerDTO) {
+        // 此处异步处理，发送mail(已出现堵死ocdc推送请求的状态)
         new Thread(() -> {
             theaClientService.sendMail(token,
                     "客户姓名:" + customerDTO.getCustomerName() + ",客户电话:" + customerDTO.getTelephonenumber() + "，重复申请，请注意跟进；",
