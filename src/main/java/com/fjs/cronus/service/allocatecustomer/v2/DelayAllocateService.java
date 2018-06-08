@@ -55,7 +55,7 @@ public class DelayAllocateService {
 
         this.queue = new DelayQueue<>();
         // 从redis获取未处理完的数据 or 因系统重启导致丢失的数据
-        /*HashOperations<String, String, String> operater = getOperater();
+        HashOperations<String, String, String> operater = getOperater();
         Map<String, String> entries = operater.entries(CommonRedisConst.ALLOCATE_DELAY);
         for (Map.Entry<String, String> s : entries.entrySet()) {
             String phone = s.getKey();
@@ -77,7 +77,7 @@ public class DelayAllocateService {
             } else {
                 operater.delete(CommonRedisConst.ALLOCATE_DELAY, phone);
             }
-        }*/
+        }
 
         worker = new Thread(new DelayAllocateTask());
         worker.start();
