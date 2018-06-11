@@ -406,7 +406,7 @@ public class AutoAllocateService {
         List<AllocateLog> allocateLogList = new ArrayList<>();
         logger.info("userMonthInfoServiceList -->" + city);
         logger.info("userMonthInfoServiceList -->" + userMonthInfoServiceList);
-        logger.info("userMonthInfoServiceList -->size= " + userMonthInfoServiceList != null ? userMonthInfoServiceList.size());
+        logger.info("userMonthInfoServiceList -->size= " + (userMonthInfoServiceList != null ? userMonthInfoServiceList.size() : 0));
         if (null != userMonthInfoServiceList && userMonthInfoServiceList.size() > 0) {
             //先将所有的客户已分配数归0，原数据表中的数据清空
             List<Integer> newOwnerIds = new ArrayList<>();
