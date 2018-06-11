@@ -114,7 +114,6 @@ public class OcdcServiceV2 {
      */
     @Transactional
     public synchronized List<String> addOcdcCustomer(OcdcData ocdcData, AllocateSource allocateSource, String token) {
-        logger.info("----- OCDC推送 跟踪 2 ----->");
 
         List<String> successList = new ArrayList<>();
         List<String> ocdcMessage = new ArrayList<>();
