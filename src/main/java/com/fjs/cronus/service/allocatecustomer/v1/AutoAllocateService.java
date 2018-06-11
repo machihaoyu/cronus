@@ -404,6 +404,9 @@ public class AutoAllocateService {
         userMonthMap.put("effectiveDate", DateUtils.getyyyyMMForThisMonth());
         List<UserMonthInfo> userMonthInfoServiceList = userMonthInfoService.selectByParamsMap(userMonthMap);
         List<AllocateLog> allocateLogList = new ArrayList<>();
+        logger.info("userMonthInfoServiceList -->" + city);
+        logger.info("userMonthInfoServiceList -->" + userMonthInfoServiceList);
+        logger.info("userMonthInfoServiceList -->size= " + userMonthInfoServiceList != null ? userMonthInfoServiceList.size());
         if (null != userMonthInfoServiceList && userMonthInfoServiceList.size() > 0) {
             //先将所有的客户已分配数归0，原数据表中的数据清空
             List<Integer> newOwnerIds = new ArrayList<>();
@@ -430,6 +433,10 @@ public class AutoAllocateService {
                             }
                         }
                         //如果用户的已分配数>= 客户的基础分配数+奖励分配数 的输出用户ID
+                        logger.info("userMonthInfo --> " + userMonthInfo.getUserId());
+                        logger.info("userMonthInfo --> " + userMonthInfo.getBaseCustomerNum());
+                        logger.info("userMonthInfo --> " + userMonthInfo.getRewardCustomerNum());
+                        logger.info("userMonthInfo --> " + userMonthInfo.getAssignedCustomerNum());
                         if ((userMonthInfo.getBaseCustomerNum() + userMonthInfo.getRewardCustomerNum()) > userMonthInfo.getAssignedCustomerNum()) {
                             ownUserId = userMonthInfo.getUserId();
                             return ownUserId;
