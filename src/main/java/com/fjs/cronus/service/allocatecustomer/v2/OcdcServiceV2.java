@@ -23,7 +23,6 @@ import com.fjs.cronus.service.AgainAllocateCustomerService;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.CustomerSalePushLogService;
 import com.fjs.cronus.service.SysConfigService;
-import com.fjs.cronus.service.allocatecustomer.v2.AutoAllocateServiceV2;
 import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.thea.ThorClientService;
@@ -41,7 +40,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -52,7 +50,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -95,7 +92,7 @@ public class OcdcServiceV2 {
     RestTemplate restTemplate;
 
     @Autowired
-    private AutoAllocateServiceV2 autoAllocateService;
+    private AutoAllocateServiceV2 autoAllocateServiceV2;
 
     @Autowired
     private CustomerInfoService customerInfoService;
@@ -180,7 +177,7 @@ public class OcdcServiceV2 {
 
                                         responseMessage.append("自动分配");
                                         responseMessage.append("-");
-                                        allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
+                                        allocateEntity = autoAllocateServiceV2.autoAllocate(customerDTO, allocateSource, token);
                                     } else {
                                         // 有负责人分给对应的业务员
                                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k5, ImmutableMap.of("salemanid", customerDTO.getOwnerUserId()));
@@ -192,7 +189,7 @@ public class OcdcServiceV2 {
                                         }
                                         responseMessage.append("分给对应的业务员添加交易");
                                         responseMessage.append("-");
-                                        String loan = autoAllocateService.addLoan(customerDTO, token);
+                                        String loan = autoAllocateServiceV2.addLoan(customerDTO, token);
                                         responseMessage.append(loan);
                                         responseMessage.append("-");
                                         allocateEntity.setSuccess(true);
@@ -226,7 +223,7 @@ public class OcdcServiceV2 {
 
                                             responseMessage.append("自动分配");
                                             responseMessage.append("-");
-                                            allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
+                                            allocateEntity = autoAllocateServiceV2.autoAllocate(customerDTO, allocateSource, token);
                                         } else {
                                             // 发消息业务员，提醒跟进
                                             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k8);
@@ -248,7 +245,7 @@ public class OcdcServiceV2 {
                             responseMessage.append("-");
                             BeanUtils.copyProperties(customerSalePushLog, customerDTO);
                             customerDTO.setTelephonenumber(customerSalePushLog.getTelephonenumber());// 修改bug，手机被加***
-                            allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
+                            allocateEntity = autoAllocateServiceV2.autoAllocate(customerDTO, allocateSource, token);
                         }
                         // 搜集 成功 or 失败 的数据
                         if (allocateEntity.isSuccess()) {
@@ -867,7 +864,7 @@ public class OcdcServiceV2 {
             }
 
             // 自动分配
-            AllocateEntity allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.DELAY, getwayToken);
+            AllocateEntity allocateEntity = autoAllocateServiceV2.autoAllocate(customerDTO, AllocateSource.DELAY, getwayToken);
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k54
                     , ImmutableMap.of("allocateEntity", allocateEntity)
             );

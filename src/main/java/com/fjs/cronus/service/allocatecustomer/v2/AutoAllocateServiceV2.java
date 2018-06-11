@@ -319,6 +319,12 @@ public class AutoAllocateServiceV2 {
             switch (allocateEntity.getAllocateStatus().getCode()) {
                 case "0": // 公盘
                     break;
+                case "-1": // 进入商机池
+                    CustomerInfo customerInfoTemp = new CustomerInfo();
+                    EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfoTemp);
+                    allocateLogService.autoAllocateAddAllocatelog(customerInfoTemp.getId(), customerDTO.getOwnerUserId(),
+                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode());
+                    break;
                 case "1": // 自动分配队列
                     // 添加分配日志
                     CustomerInfo customerInfo = new CustomerInfo();
@@ -340,9 +346,6 @@ public class AutoAllocateServiceV2 {
 
                     // 添加15分钟未沟通的标记
                     addDelayAllocate(token, customerDTO.getTelephonenumber());
-                    break;
-                case "2": // 进入待分配池
-                    this.sendCRMAssistantMessage(customerDTO.getCity(), customerDTO.getCustomerName(), token);
                     break;
                 case "3": // 已存在负责人
                     // 添加分配日志
