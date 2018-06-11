@@ -964,7 +964,7 @@ public class AutoAllocateServiceV2 {
         now.add(Calendar.MINUTE, DelayAllocateService.savetime);
         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k53
                 , ImmutableMap.of("phone", phone, "下次触发时间", now.getTime().getTime()));
-        boolean b = delayAllocateService.acceptData(phone, now.getTime());
+        boolean b = delayAllocateService.acceptData(Long.valueOf(phone), now.getTime());
         if (!b) {
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k53
                     , ImmutableMap.of("请求结果", b)
