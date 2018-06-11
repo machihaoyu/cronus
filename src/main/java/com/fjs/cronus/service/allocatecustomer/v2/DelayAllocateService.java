@@ -54,10 +54,10 @@ public class DelayAllocateService {
 
         this.queue = new DelayQueue<>();
         // 从redis获取未处理完的数据 or 因系统重启导致丢失的数据
-        HashOperations<String, String, String> operater = redisTemplateOps.opsForHash();
-        Map<String, String> entries = operater.entries(CommonRedisConst.ALLOCATE_DELAY);
-        for (Map.Entry<String, String> s : entries.entrySet()) {
-            String phone = s.getKey();
+        HashOperations<String, Long, String> operater = redisTemplateOps.opsForHash();
+        Map<Long, String> entries = operater.entries(CommonRedisConst.ALLOCATE_DELAY);
+        for (Map.Entry<Long, String> s : entries.entrySet()) {
+            Long phone = s.getKey();
             String time = s.getValue();
 
             Date date = parseTime(time);
@@ -83,12 +83,11 @@ public class DelayAllocateService {
         worker.interrupt();
     }
 
-    public boolean acceptData(String phone, Date time) {
+    public boolean acceptData(Long phone, Date time) {
         // 参数校验
-        if (StringUtils.isBlank(phone)) {
+        if (phone == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "phone 不能为null");
         }
-        phone = phone.trim();
         if (time == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "time 不能为null");
         }
@@ -122,8 +121,7 @@ public class DelayAllocateService {
     /**
      * 处理15分钟未处理重新分配业务.
      */
-    private void delayAllocate(String phone, long time) {
-        logger.info("15分钟未沟通业务----> queue触发");
+    private void delayAllocate(Long phone, long time) {
         ocdcServiceV2.delayAllocate(phone, time);
     }
 
@@ -147,8 +145,8 @@ public class DelayAllocateService {
      * 将数据放入缓存.
      * 只放最新的
      */
-    private Boolean addData2Redis(String phone, Date time) {
-        HashOperations<String, String, String> operater = redisTemplateOps.opsForHash();
+    private Boolean addData2Redis(Long phone, Date time) {
+        HashOperations<String, Long, String> operater = redisTemplateOps.opsForHash();
 
         Boolean aBoolean = operater.putIfAbsent(CommonRedisConst.ALLOCATE_DELAY, phone, parseTime(time));
         if (!aBoolean) {
@@ -162,8 +160,8 @@ public class DelayAllocateService {
         return aBoolean;
     }
 
-    public void deleteData(String phone, Date time){
-        HashOperations<String, String, String> operater = redisTemplateOps.opsForHash();
+    public void deleteData(Long phone, Date time){
+        HashOperations<String, Long, String> operater = redisTemplateOps.opsForHash();
 
         String s = operater.get(CommonRedisConst.ALLOCATE_DELAY, phone);
         Date time2 = parseTime(s);

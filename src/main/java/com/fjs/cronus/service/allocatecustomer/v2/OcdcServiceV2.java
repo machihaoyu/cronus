@@ -773,7 +773,7 @@ public class OcdcServiceV2 {
      * 处理15分钟未沟通业务.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public void delayAllocate(String phone, long time) {
+    public void delayAllocate(Long phone, long time) {
         logger.info("15分钟未沟通业务----> queue触发，调用ocdc delayAllocate");
 
         List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<>(1);
@@ -788,10 +788,10 @@ public class OcdcServiceV2 {
                     ImmutableMap.of("phone", phone, "time", time)
             );
 
-            customerSalePushLog.setTelephonenumber(phone);
+            customerSalePushLog.setTelephonenumber(phone.toString());
 
             // 根据手机号获取顾客信息
-            CustomerDTO customerDTO = this.getCustomer(phone);
+            CustomerDTO customerDTO = this.getCustomer(phone.toString());
             if (customerDTO == null) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "根据手机号找顾客信息为null");
             }
@@ -852,7 +852,6 @@ public class OcdcServiceV2 {
             }
 
             // 多实例时，只允许一个实例运行(简单处理下，满足业务场景；可以更严格处理，待优化)
-            // TODO lihong
            boolean getLock = true;
             try {
                 lockToken = cRMRedisLockHelp.lockBySetNX(CommonRedisConst.ALLOCATE_DELAY_LOCK + phone);

@@ -7,16 +7,15 @@ public class DelayAllocateData implements Delayed {
 
     /**
      * 存放数据.
-     * 数据结构：phone$salemanid$delaytime
      */
-    private String data;
+    private long data;
 
     /**
      * 延迟的时间，注意是时间点的时间.
      */
     private long delaytime;
 
-    public DelayAllocateData(String data, long delaytime) {
+    public DelayAllocateData(long data, long delaytime) {
         this.data = data;
         this.delaytime = delaytime;
     }
@@ -32,11 +31,11 @@ public class DelayAllocateData implements Delayed {
         return l == 0 ? 0 : (l > 0 ? 1 : -1);
     }
 
-    public String getData() {
+    public long getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(long data) {
         this.data = data;
     }
 
