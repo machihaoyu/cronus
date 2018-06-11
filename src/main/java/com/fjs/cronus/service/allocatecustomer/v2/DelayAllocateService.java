@@ -93,6 +93,7 @@ public class DelayAllocateService {
         }
 
         if (addData2Redis(phone, time)){
+            // 注意这里的phone使用的是long类型，是因为这里的redisTemplate的序列化器使用的是Jackson，如果使用phone是String类型，在putIfAbsent会出现bug现象.
             queue.put(new DelayAllocateData(phone, time.getTime()));
             return true;
         }
