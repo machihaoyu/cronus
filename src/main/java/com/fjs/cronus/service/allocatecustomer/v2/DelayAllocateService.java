@@ -51,10 +51,10 @@ public class DelayAllocateService {
 
         this.queue = new DelayQueue<>();
         // 从redis获取未处理完的数据 or 因系统重启导致丢失的数据
-        HashOperations<String, Long, String> operater = redisTemplateOps.opsForHash();
-        Map<Long, String> entries = operater.entries(CommonRedisConst.ALLOCATE_DELAY);
-        for (Map.Entry<Long, String> s : entries.entrySet()) {
-            Long phone = s.getKey();
+        HashOperations<String, Number, String> operater = redisTemplateOps.opsForHash();
+        Map<Number, String> entries = operater.entries(CommonRedisConst.ALLOCATE_DELAY);
+        for (Map.Entry<Number, String> s : entries.entrySet()) {
+            Long phone = s.getKey().longValue(); // 此处有坑；这里redisTemplate序列化使用的是Jackson解析器，在数字处于Integer范围内时，返回的是Integer，与Long冲突，所以使用Number类型，在转成long.
             String time = s.getValue();
 
             Date date = parseTime(time);
