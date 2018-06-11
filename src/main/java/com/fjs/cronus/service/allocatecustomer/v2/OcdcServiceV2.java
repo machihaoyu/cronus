@@ -104,10 +104,8 @@ public class OcdcServiceV2 {
     private RedisTemplate<String, String> redisConfigTemplete;
 
     @Autowired
-    private CustomerInfoMapper customerInfoMapper;
-
-    @Autowired
     private CRMRedisLockHelp cRMRedisLockHelp;
+
     @Autowired
     private DelayAllocateService delayAllocateService;
 
@@ -771,7 +769,7 @@ public class OcdcServiceV2 {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void delayAllocate(Long phone, long time) {
-        logger.info("15分钟未沟通业务----> queue触发，调用ocdc delayAllocate");
+        logger.info("15分钟未沟通业务----> queue触发，调用ocdc delayAllocate " + phone + " " +time);
 
         List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<>(1);
         CustomerSalePushLog customerSalePushLog = new CustomerSalePushLog();
@@ -858,7 +856,7 @@ public class OcdcServiceV2 {
             }
             if (!getLock) {
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k55
-                        , ImmutableMap.of("已有实例在处理此手机号", "放弃此次处理", "锁存在", time)
+                        , ImmutableMap.of("获取锁失败，已有app实例在处理此手机号", "放弃此次处理")
                 );
                 return;
             }

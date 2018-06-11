@@ -2047,6 +2047,7 @@
             <if test="null != receiveTime">
                 <![CDATA[	and receive_time < #{receiveTime}  ]]>
             </if>
+            AND own_user_id > 0
         </where>
     </select>
 
