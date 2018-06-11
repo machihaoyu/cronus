@@ -54,6 +54,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -722,6 +723,9 @@ public class AutoAllocateServiceV2 {
             }
 
             if (salesmanId != null) {
+
+                notifySendPhoneMessage4Avatar(orderNumOfCompany, orderNumber, subCompanyId, media_id, token);
+
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k39 + j
                         , ImmutableMap.of("salesmanId", salesmanId, "idFromCountQueue", idFromCountQueue));
                 result.setCompanyid(subCompanyId);
@@ -729,23 +733,6 @@ public class AutoAllocateServiceV2 {
                 result.setMediaid(subCompanyId);
                 result.setFrommediaid(idFromCountQueue ? CommonConst.COMPANY_MEDIA_QUEUE_COUNT : media_id);
                 result.setSuccessOfAvatar(true);
-
-                // 找到业务员，且实购数 == 已购数,需要发送手机短信
-                if (orderNumOfCompany + 1 == orderNumber) {
-                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k48 + j
-                            , ImmutableMap.of("实购数", orderNumOfCompany, "订购数", orderNumber, "一级吧", subCompanyId, "媒体id", media_id));
-
-                    final Integer orderNumOfCompany1 = orderNumOfCompany;
-                    new Thread(() -> {
-                        JSONObject params = new JSONObject();
-                        params.put("firstBarId", subCompanyId);
-                        params.put("mediaId", media_id);
-                        params.put("realNumber", orderNumOfCompany1);
-                        params.put("time", new Date().getTime());
-                        avatarClientService.purchaseSmsNotice(token, params);
-                    }).start();
-                }
-
                 break;
             }
         }
@@ -982,6 +969,28 @@ public class AutoAllocateServiceV2 {
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k53
                     , ImmutableMap.of("请求结果", b)
             );
+        }
+    }
+
+    /**
+     * 提醒商机发送手机短信.
+     */
+    private void notifySendPhoneMessage4Avatar (Integer orderNumOfCompany, Integer orderNumber, Integer subCompanyId, Integer media_id, String token) {
+        // 找到业务员，且实购数 == 已购数,需要发送手机短信
+        if (orderNumOfCompany + 1 == orderNumber) {
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k48
+                    , ImmutableMap.of("实购数", orderNumOfCompany, "订购数", orderNumber, "一级吧", subCompanyId, "媒体id", media_id));
+
+            final Integer orderNumOfCompany1 = orderNumOfCompany;
+
+            new Thread(() -> {
+                JSONObject params = new JSONObject();
+                params.put("firstBarId", subCompanyId);
+                params.put("mediaId", media_id);
+                params.put("realNumber", orderNumOfCompany1);
+                params.put("time", new Date().getTime());
+                avatarClientService.purchaseSmsNotice(token, params);
+            }).start();
         }
     }
 }
