@@ -44,9 +44,9 @@ import java.util.Map;
  * 员工的相关信息
  * Created by yinzf on 2017/10/9.
  */
-@Controller
-@Api(description = "用户控制器")
-@RequestMapping("/uc/v1")
+//@Controller
+//@Api(description = "用户控制器")
+//@RequestMapping("/uc/v1")
 public class UserControllerV2 {
     private static final Logger logger = LoggerFactory.getLogger(UserControllerV2.class);
 

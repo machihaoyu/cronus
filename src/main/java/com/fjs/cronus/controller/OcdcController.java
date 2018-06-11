@@ -26,8 +26,8 @@ import java.util.List;
  * <p>
  * Created by feng on 2017/7/14.
  */
-//@Controller
-//@RequestMapping(value = "/api/v1/ocdc")
+@Controller
+@RequestMapping(value = "/api/v1/ocdc")
 public class OcdcController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

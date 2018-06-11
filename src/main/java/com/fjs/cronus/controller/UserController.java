@@ -44,8 +44,8 @@ import java.util.*;
  * 员工的相关信息
  * Created by yinzf on 2017/10/9.
  */
-//@Controller
-//@RequestMapping("/uc/v1")
+@Controller
+@RequestMapping("/uc/v1")
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 

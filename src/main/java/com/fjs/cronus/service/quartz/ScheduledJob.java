@@ -2,8 +2,8 @@ package com.fjs.cronus.service.quartz;
 
 
 import com.fjs.cronus.service.*;
-import com.fjs.cronus.service.allocatecustomer.v2.AutoAllocateServiceV2;
-import com.fjs.cronus.service.allocatecustomer.v2.OcdcServiceV2;
+import com.fjs.cronus.service.allocatecustomer.v1.AutoAllocateService;
+import com.fjs.cronus.service.allocatecustomer.v1.OcdcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,10 +34,10 @@ public class ScheduledJob {
     private String token;
 
     @Autowired
-    private OcdcServiceV2 ocdcService;
+    private OcdcService ocdcService;
 
     @Autowired
-    private AutoAllocateServiceV2 autoAllocateService;
+    private AutoAllocateService autoAllocateService;
 
     @Autowired
     private AutoCleanService autoCleanService;
@@ -66,32 +66,32 @@ public class ScheduledJob {
         logger.info("ScheduledJob Start!");
         //查询大于当前时间沟通和面见表获取沟通时间
         //调用任务
-        //communicationLogService.sendMessToCustomer(token);
-        //customerMeetService.sendMessMeetToCustomer(token);
+        communicationLogService.sendMessToCustomer(token);
+        customerMeetService.sendMessMeetToCustomer(token);
 
         logger.info("3.waitingPoolAllocate start");
-        //ocdcService.waitingPoolAllocate(token);
+        ocdcService.waitingPoolAllocate(token);
         logger.info("3.waitingPoolAllocate end");
-        //ocdcService.waitingPoolAllocate(token);
+        ocdcService.waitingPoolAllocate(token);
 
-        //autoAllocateService.nonCommunicateAgainAllocate(token);
+        autoAllocateService.nonCommunicateAgainAllocate(token);
 
         logger.info("4.autoCleanTask start");
-        //autoCleanService.autoCleanTask();
+        autoCleanService.autoCleanTask();
         logger.info("4.autoCleanTask end");
 
         //dealgo 接口数据
         logger.info("5.initProfileTask start");
-        //dealgoService.initProfileTask();
+        dealgoService.initProfileTask();
         logger.info("5.initProfileTask end");
 
         logger.info("5.1.customersFromDiscardTask start");
-        //panService.customersFromDiscardTask();
+        panService.customersFromDiscardTask();
         logger.info("5.1.customersFromDiscardTask end");
 
 //        logger.error("定时任务 ------> 新注册客户15天发送短信");
         logger.info("6.sandMessage start");
-        //customerInfoService.sandMessage();
+        customerInfoService.sandMessage();
         logger.info("6.sandMessage end");
 
         logger.info("ScheduledJob End!");
