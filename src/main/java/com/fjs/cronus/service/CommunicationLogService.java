@@ -148,7 +148,8 @@ public class CommunicationLogService {
         if (customerUsefulDTO.getLoanAmount() != null && customerUsefulDTO.getLoanAmount().intValue() > 0){
             customerDto.setConfirm(CommonConst.CONFIRM__STATUS_EFFECT);
 
-            userMonthInfoService.incrNum2DB(customerDto, loginUserId, token);
+            // TODO lihong
+            //userMonthInfoService.incrNum2DB(customerDto, loginUserId, token);
         }
         if (customerUsefulDTO.getLoanAmount() != null && customerUsefulDTO.getLoanAmount().intValue() == 0){
             customerDto.setConfirm(CommonConst.CONFIRM__STATUS_NOEFFECT);
