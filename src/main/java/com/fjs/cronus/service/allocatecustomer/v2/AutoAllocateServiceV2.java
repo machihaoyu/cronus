@@ -151,7 +151,6 @@ public class AutoAllocateServiceV2 {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public synchronized AllocateEntity autoAllocate(CustomerDTO customerDTO, AllocateSource allocateSource, String token) {
-        logger.info("--- OCDC推送 跟踪 6 ----> " + customerDTO.getTelephonenumber());
         AllocateEntity allocateEntity = new AllocateEntity();
         allocateEntity.setSuccess(true);
         Long lockToken = null;
@@ -159,9 +158,7 @@ public class AutoAllocateServiceV2 {
         try {
             // 锁1分钟，如20分钟内未计算完，就超时抛错回滚;
             // 其他并行线程重试6次，每次等待5秒，共30秒
-            logger.info("--- OCDC推送 跟踪 6.1 去获取锁 ----> " + customerDTO.getTelephonenumber());
             lockToken = this.cRMRedisLockHelp.lockBySetNX2(CommonRedisConst.ALLOCATE_LOCK, 60, TimeUnit.SECONDS, 6, 5, TimeUnit.SECONDS);
-            logger.info("--- OCDC推送 跟踪 6.2 得到锁 ----> " + customerDTO.getTelephonenumber());
 
             // 获取自动分配的城市
             String allocateCities = theaClientService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY);
@@ -397,7 +394,6 @@ public class AutoAllocateServiceV2 {
             this.cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_LOCK, lockToken);
         }
 
-        logger.info("--- OCDC推送 跟踪 7 ----> " + customerDTO.getTelephonenumber());
         return allocateEntity;
     }
 

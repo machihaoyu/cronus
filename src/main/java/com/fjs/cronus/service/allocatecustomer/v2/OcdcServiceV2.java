@@ -132,9 +132,7 @@ public class OcdcServiceV2 {
 
 
             try { // try 此次 50个一批的信息，作为响应信息，如中间某个出差需要记录
-                logger.info("----- OCDC推送 跟踪 3 ----->" + ocdcData.getData().size() );
                 for (String map : ocdcData.getData()) {
-                    logger.info("----- OCDC推送 跟踪 4 ----->");
                     // 解析客户信息
                     JsonNode node = objectMapper.readValue(map, JsonNode.class);
                     CustomerSalePushLog customerSalePushLog = this.queryCustomerSalePushLogByOcdcPushData(node);
@@ -146,7 +144,6 @@ public class OcdcServiceV2 {
                     responseMessage.append("-");
                     try { // try 单个进来的顾客，记录错误信息
                         SingleCutomerAllocateDevInfoUtil.local.set(new SingleCutomerAllocateDevInfo());
-                        logger.info("--- OCDC推送 跟踪 5 ----> " + customerSalePushLog.getTelephonenumber());
                         AllocateEntity allocateEntity = new AllocateEntity();
                         CustomerDTO customerDTO = this.getCustomer(customerSalePushLog.getTelephonenumber());
                         if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) {
@@ -329,7 +326,6 @@ public class OcdcServiceV2 {
                         // 释放threadload资源（防止内存泄露）
                         SingleCutomerAllocateDevInfoUtil.local.remove();
                     }
-                    logger.info("--- OCDC推送 跟踪 计算完单个 -------> " + customerSalePushLog.getTelephonenumber());
 
                     // 搜集数据，作为响应
                     ocdcMessage.add(responseMessage.toString());
@@ -347,7 +343,6 @@ public class OcdcServiceV2 {
             // rest 响应此次请求的客户信息
             this.autoAllocateFeedback(successList, failList);
         }
-        logger.info("--- OCDC推送 跟踪 计算完这批 -------> ");
         return ocdcMessage;
     }
 
