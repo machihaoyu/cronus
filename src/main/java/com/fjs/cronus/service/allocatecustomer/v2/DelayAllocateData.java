@@ -3,6 +3,9 @@ package com.fjs.cronus.service.allocatecustomer.v2;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 放在queue中的对象.
+ */
 public class DelayAllocateData implements Delayed {
 
     /**
@@ -45,5 +48,20 @@ public class DelayAllocateData implements Delayed {
 
     public void setDelaytime(long delaytime) {
         this.delaytime = delaytime;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DelayAllocateData that = (DelayAllocateData) o;
+
+        return data == that.data;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (data ^ (data >>> 32));
     }
 }

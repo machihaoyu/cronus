@@ -2,13 +2,11 @@ package com.fjs.cronus.service.allocatecustomer.v2;
 
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.exception.CronusException;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -16,7 +14,6 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.DelayQueue;
@@ -83,7 +80,8 @@ public class DelayAllocateService {
         worker.interrupt();
     }
 
-    public boolean acceptData(Long phone, Date time) {
+    boolean acceptData(Long phone, Date time) {
+        // 注意这里的phone使用的是long类型，是因为这里的redisTemplate的序列化器使用的是Jackson，如果使用phone是String类型，在putIfAbsent会出现bug现象.
         // 参数校验
         if (phone == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "phone 不能为null");
@@ -93,8 +91,9 @@ public class DelayAllocateService {
         }
 
         if (addData2Redis(phone, time)){
-            // 注意这里的phone使用的是long类型，是因为这里的redisTemplate的序列化器使用的是Jackson，如果使用phone是String类型，在putIfAbsent会出现bug现象.
-            queue.put(new DelayAllocateData(phone, time.getTime()));
+            DelayAllocateData delayAllocateData = new DelayAllocateData(phone, time.getTime());
+            queue.remove(delayAllocateData); // 如有重复的，则删除老的，放入新的
+            queue.put(delayAllocateData);
             return true;
         }
         return false;
@@ -161,7 +160,7 @@ public class DelayAllocateService {
         return aBoolean;
     }
 
-    public void deleteData(Long phone, Date time){
+    void deleteData(Long phone, Date time){
         HashOperations<String, Long, String> operater = redisTemplateOps.opsForHash();
 
         String s = operater.get(CommonRedisConst.ALLOCATE_DELAY, phone);
