@@ -14,7 +14,6 @@ import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.enums.AllocateEnum;
 import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.AgainAllocateCustomer;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerSalePushLog;
@@ -296,7 +295,6 @@ public class OcdcServiceV2 {
                         customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
 
                     } catch (Exception e) {
-                        logger.error("分配失败", e);
                         responseMessage.append(e.getMessage());
 
                         // 以单个客户为维度，记录每个客户分配异常的信息
@@ -307,6 +305,7 @@ public class OcdcServiceV2 {
                             str = be.getResponseError().getMessage();
                         } else {
                             // 未知异常
+                            logger.error("分配失败", e);
                             str = e.getMessage();
                         }
                         SingleCutomerAllocateDevInfoUtil.local.get().setSuccess(false);
@@ -872,7 +871,6 @@ public class OcdcServiceV2 {
             customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
             customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
         } catch (Exception e) {
-            logger.error("15分钟未沟通业务", e);
             String str = "";
             if (e instanceof BaseException) {
                 // 已知异常
@@ -880,6 +878,7 @@ public class OcdcServiceV2 {
                 str = be.getResponseError().getMessage();
             } else {
                 // 未知异常
+                logger.error("15分钟未沟通业务", e);
                 str = e.getMessage();
             }
             SingleCutomerAllocateDevInfoUtil.local.get().setSuccess(false);
