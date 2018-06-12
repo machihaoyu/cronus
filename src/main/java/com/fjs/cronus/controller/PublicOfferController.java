@@ -3,6 +3,7 @@ package com.fjs.cronus.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
+import com.fjs.cronus.dto.BasePagePram;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
@@ -681,6 +682,27 @@ public class PublicOfferController {
         try {
             resultDto.setData(panService.publicSelected(page,size));
             resultDto.setResult(0);
+        } catch (Exception e) {
+            resultDto.setResult(1);
+        }
+        return resultDto;
+    }
+
+    @ApiOperation(value = "公盘优选2", notes = "公盘优选2")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/publicSelected/v2", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto<QueryResult<CustomerListDTO>> publicSelected(@RequestHeader("Authorization") String token,
+                                                                  @RequestBody BasePagePram<PanParamDTO> basePagePram) {
+        CronusDto resultDto = new CronusDto();
+        try {
+            if (basePagePram!=null) {
+
+                resultDto.setData(panService.publicSelected2(basePagePram));
+                resultDto.setResult(0);
+            }
         } catch (Exception e) {
             resultDto.setResult(1);
         }

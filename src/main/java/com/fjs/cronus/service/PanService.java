@@ -3,6 +3,7 @@ package com.fjs.cronus.service;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
+import com.fjs.cronus.dto.BasePagePram;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
@@ -545,7 +546,7 @@ public class PanService {
         QueryResult queryResult = new QueryResult();
         List<CustomerListDTO> resultList = new ArrayList<>();
         Integer start = (page - 1) * size;
-        List<CustomerInfo> customers = publicMapper.getPublicSelect(start,size);
+        List<CustomerInfo> customers = publicMapper.getPublicSelect(start,size,null,null);
         if (customers != null && customers.size() > 0){
             for (CustomerInfo customerInfo : customers) {
                 CustomerListDTO customerDto = new CustomerListDTO();
@@ -556,7 +557,36 @@ public class PanService {
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);
-            Integer count = publicMapper.getPublicSelectCount();
+            Integer count = publicMapper.getPublicSelectCount(null);
+            queryResult.setRows(customers);
+            queryResult.setTotal(count.toString());
+        }
+        return queryResult;
+    }
+
+    public QueryResult<CustomerListDTO> publicSelected2(BasePagePram<PanParamDTO> basePagePram)
+    {
+        QueryResult queryResult = new QueryResult();
+        List<CustomerListDTO> resultList = new ArrayList<>();
+        Integer start = (basePagePram.getPageNum() - 1) * basePagePram.getPageSize();
+        String telephone = "";
+        if (StringUtils.isNoneEmpty(basePagePram.getPramEntity().getTelephonenumber())
+                && StringUtils.trim(basePagePram.getPramEntity().getTelephonenumber()).length()>0)
+        {
+            telephone = DEC3Util.des3EncodeCBC(basePagePram.getPramEntity().getTelephonenumber());
+        }
+        List<CustomerInfo> customers = publicMapper.getPublicSelect(start,basePagePram.getPageSize(),null,telephone);
+        if (customers != null && customers.size() > 0){
+            for (CustomerInfo customerInfo : customers) {
+                CustomerListDTO customerDto = new CustomerListDTO();
+                EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,2,2);
+//                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+//                String phoneNumber = telephone.substring(0, 7) + "****";
+//                customerDto.setTelephonenumber(phoneNumber);
+                resultList.add(customerDto);
+            }
+            queryResult.setRows(resultList);
+            Integer count = publicMapper.getPublicSelectCount(telephone);
             queryResult.setRows(customers);
             queryResult.setTotal(count.toString());
         }
