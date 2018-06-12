@@ -142,6 +142,9 @@ public class OcdcServiceV2 {
                         if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) {
                             // 老客户
                             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k1);
+                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k56
+                                    ,ImmutableMap.of("customerSalePushLog", customerSalePushLog, "customerDTO", customerDTO)
+                            );
 
                             if (allocateSource.getCode().equals("2")) {
                                 // 待分配池
