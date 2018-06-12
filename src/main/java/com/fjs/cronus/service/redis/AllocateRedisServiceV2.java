@@ -148,7 +148,7 @@ public class AllocateRedisServiceV2 {
     /**
      * 媒体业务员queue：获取队列当月的，时间串.
      */
-    public String getMonthStr(String monthFlag){
+    public String getMonthStr(String monthFlag) {
         if (StringUtils.isBlank(monthFlag)) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "monthFlag 不能为null");
         }
@@ -179,7 +179,7 @@ public class AllocateRedisServiceV2 {
      * 转为商机的时间格式.
      * yyyyMM   -->  yyyy-MM
      */
-    public String getMonthStr4avatar(String month){
+    public String getMonthStr4avatar(String month) {
         if (StringUtils.isBlank(month)) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "month 不能为null");
         }
@@ -228,9 +228,9 @@ public class AllocateRedisServiceV2 {
             String nextMonthQueueKey = this.getKey(companyId, medial, nextMonthStr);
 
             List<String> currentMonthQueue = listOperations.range(currentMonthQueueKey, 0, -1);
-            Set<String> nextMonthQueue = currentMonthQueue.stream().filter(item -> StringUtils.isNotBlank(item) ).collect(toSet());
+            Set<String> nextMonthQueue = currentMonthQueue.stream().filter(item -> StringUtils.isNotBlank(item)).collect(toSet());
 
-            if (CollectionUtils.isNotEmpty(nextMonthQueue) ){
+            if (CollectionUtils.isNotEmpty(nextMonthQueue)) {
                 redisTemplateOps.delete(nextMonthQueueKey);
                 listOperations.leftPushAll(nextMonthQueueKey, nextMonthQueue);
             }
@@ -307,7 +307,13 @@ public class AllocateRedisServiceV2 {
             if (allSubCompany != null && allSubCompany.getResult() == 0 && allSubCompany.getData() != null) {
                 data = allSubCompany.getData();
             }
-            return CollectionUtils.isEmpty(data) ? new HashMap<>() : data.stream().collect(groupingBy(FirstBarDTO::getCity, mapping(FirstBarDTO::getId, toList())));
+            return CollectionUtils.isEmpty(data) ? new HashMap<>() : data.stream()
+                    .filter(
+                            item -> item != null
+                                    && StringUtils.isNotBlank(item.getCity())
+                                    && item.getId() != null
+                    )
+                    .collect(groupingBy(FirstBarDTO::getCity, mapping(FirstBarDTO::getId, toList())));
         }
         return new HashMap<>();
     }
@@ -331,7 +337,8 @@ public class AllocateRedisServiceV2 {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, allMedia.getMessage());
         }
         List<BaseCommonDTO> allMediaList = allMedia.getData();
-        Set<String> mediaids = CollectionUtils.isEmpty(allMediaList) ? null : allMediaList.stream().filter(i -> i != null && i.getId() != null).map(BaseCommonDTO::getId).map(String::valueOf).collect(toSet());;
+        Set<String> mediaids = CollectionUtils.isEmpty(allMediaList) ? null : allMediaList.stream().filter(i -> i != null && i.getId() != null).map(BaseCommonDTO::getId).map(String::valueOf).collect(toSet());
+        ;
         if (CollectionUtils.isEmpty(mediaids)) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "系统数据异常，系统中未找到媒体数据");
         }
