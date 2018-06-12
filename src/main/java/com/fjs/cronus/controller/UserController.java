@@ -44,8 +44,8 @@ import java.util.*;
  * 员工的相关信息
  * Created by yinzf on 2017/10/9.
  */
-@Controller
-@RequestMapping("/uc/v1")
+//@Controller
+//@RequestMapping("/uc/v1")
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -70,7 +70,7 @@ public class UserController {
 
     @Autowired
     private CronusRedisService cronusRedisService;
-
+/*
     @ApiOperation(value="得到下属员工", notes="得到下属员工")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
@@ -408,5 +408,5 @@ public class UserController {
         }
         return resultDto;
     }
-
+*/
 }

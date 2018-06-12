@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.*;
  * <p>
  * Created by feng on 2017/7/14.
  */
-//@Controller
-//@RequestMapping(value = "/api/v1/ocdc")
+@Controller
+@RequestMapping(value = "/api/v1/ocdc")
 public class OcdcControllerV2 {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -57,7 +57,6 @@ public class OcdcControllerV2 {
     @RequestMapping(value = "/ocdcCustomerPush", method = RequestMethod.POST)
     @ResponseBody
     public CronusDto ocdcCustomerPush(@RequestHeader("Authorization") String token, @RequestBody String ocdcRawData) {
-        logger.info("----- OCDC推送 跟踪 1 ----->");
         OcdcData ocdcData = JSON.parseObject(ocdcRawData, OcdcData.class);
         CronusDto resultDto = new CronusDto();
         try {

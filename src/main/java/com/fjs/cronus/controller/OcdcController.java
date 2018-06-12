@@ -26,8 +26,8 @@ import java.util.List;
  * <p>
  * Created by feng on 2017/7/14.
  */
-@Controller
-@RequestMapping(value = "/api/v1/ocdc")
+//@Controller
+//@RequestMapping(value = "/api/v1/ocdc")
 public class OcdcController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -41,7 +41,7 @@ public class OcdcController {
 
     @Autowired
     private AutoCleanService autoCleanService;
-
+/*
     @ApiOperation(value = "OCDC推送", notes = "OCDC推送客户信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
@@ -224,5 +224,5 @@ public class OcdcController {
         }
         return cronusDto;
     }
-
+*/
 }

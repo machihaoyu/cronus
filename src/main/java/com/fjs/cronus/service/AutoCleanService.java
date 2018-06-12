@@ -152,7 +152,6 @@ public class AutoCleanService {
             if (null != customerIdsByManage && customerIdsByManage.size() > 0) {
                 paramsMap.put("customerIds", customerIdsByManage);
             }
-            allUserIds.add(0);
             if (null != allUserIds && allUserIds.size() > 0) {
                 paramsMap.put("notInOwnUserIds", allUserIds);
             }

@@ -14,7 +14,6 @@ import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.enums.AllocateEnum;
 import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.AgainAllocateCustomer;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerSalePushLog;
@@ -23,7 +22,6 @@ import com.fjs.cronus.service.AgainAllocateCustomerService;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.CustomerSalePushLogService;
 import com.fjs.cronus.service.SysConfigService;
-import com.fjs.cronus.service.allocatecustomer.v2.AutoAllocateServiceV2;
 import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.thea.ThorClientService;
@@ -41,7 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -52,7 +49,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -95,7 +91,7 @@ public class OcdcServiceV2 {
     RestTemplate restTemplate;
 
     @Autowired
-    private AutoAllocateServiceV2 autoAllocateService;
+    private AutoAllocateServiceV2 autoAllocateServiceV2;
 
     @Autowired
     private CustomerInfoService customerInfoService;
@@ -107,10 +103,8 @@ public class OcdcServiceV2 {
     private RedisTemplate<String, String> redisConfigTemplete;
 
     @Autowired
-    private CustomerInfoMapper customerInfoMapper;
-
-    @Autowired
     private CRMRedisLockHelp cRMRedisLockHelp;
+
     @Autowired
     private DelayAllocateService delayAllocateService;
 
@@ -119,7 +113,6 @@ public class OcdcServiceV2 {
      */
     @Transactional
     public synchronized List<String> addOcdcCustomer(OcdcData ocdcData, AllocateSource allocateSource, String token) {
-        logger.info("----- OCDC推送 跟踪 2 ----->");
 
         List<String> successList = new ArrayList<>();
         List<String> ocdcMessage = new ArrayList<>();
@@ -180,7 +173,7 @@ public class OcdcServiceV2 {
 
                                         responseMessage.append("自动分配");
                                         responseMessage.append("-");
-                                        allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
+                                        allocateEntity = autoAllocateServiceV2.autoAllocate(customerDTO, allocateSource, token);
                                     } else {
                                         // 有负责人分给对应的业务员
                                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k5, ImmutableMap.of("salemanid", customerDTO.getOwnerUserId()));
@@ -192,7 +185,7 @@ public class OcdcServiceV2 {
                                         }
                                         responseMessage.append("分给对应的业务员添加交易");
                                         responseMessage.append("-");
-                                        String loan = autoAllocateService.addLoan(customerDTO, token);
+                                        String loan = autoAllocateServiceV2.addLoan(customerDTO, token);
                                         responseMessage.append(loan);
                                         responseMessage.append("-");
                                         allocateEntity.setSuccess(true);
@@ -226,7 +219,7 @@ public class OcdcServiceV2 {
 
                                             responseMessage.append("自动分配");
                                             responseMessage.append("-");
-                                            allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
+                                            allocateEntity = autoAllocateServiceV2.autoAllocate(customerDTO, allocateSource, token);
                                         } else {
                                             // 发消息业务员，提醒跟进
                                             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k8);
@@ -248,7 +241,7 @@ public class OcdcServiceV2 {
                             responseMessage.append("-");
                             BeanUtils.copyProperties(customerSalePushLog, customerDTO);
                             customerDTO.setTelephonenumber(customerSalePushLog.getTelephonenumber());// 修改bug，手机被加***
-                            allocateEntity = autoAllocateService.autoAllocate(customerDTO, allocateSource, token);
+                            allocateEntity = autoAllocateServiceV2.autoAllocate(customerDTO, allocateSource, token);
                         }
                         // 搜集 成功 or 失败 的数据
                         if (allocateEntity.isSuccess()) {
@@ -302,7 +295,6 @@ public class OcdcServiceV2 {
                         customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
 
                     } catch (Exception e) {
-                        logger.error("分配失败", e);
                         responseMessage.append(e.getMessage());
 
                         // 以单个客户为维度，记录每个客户分配异常的信息
@@ -313,6 +305,7 @@ public class OcdcServiceV2 {
                             str = be.getResponseError().getMessage();
                         } else {
                             // 未知异常
+                            logger.error("分配失败", e);
                             str = e.getMessage();
                         }
                         SingleCutomerAllocateDevInfoUtil.local.get().setSuccess(false);
@@ -774,7 +767,7 @@ public class OcdcServiceV2 {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void delayAllocate(Long phone, long time) {
-        logger.info("15分钟未沟通业务----> queue触发，调用ocdc delayAllocate");
+        logger.info("15分钟未沟通业务----> queue触发，调用ocdc delayAllocate " + phone + " " +time);
 
         List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<>(1);
         CustomerSalePushLog customerSalePushLog = new CustomerSalePushLog();
@@ -795,6 +788,7 @@ public class OcdcServiceV2 {
             if (customerDTO == null) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "根据手机号找顾客信息为null");
             }
+            customerDTO.setTelephonenumber(String.valueOf(phone));
             if (customerDTO.getId() == null) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "根据手机号找顾客信息,id 为 null");
             }
@@ -861,13 +855,13 @@ public class OcdcServiceV2 {
             }
             if (!getLock) {
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k55
-                        , ImmutableMap.of("已有实例在处理此手机号", "放弃此次处理", "锁存在", time)
+                        , ImmutableMap.of("获取锁失败，已有app实例在处理此手机号", "放弃此次处理")
                 );
                 return;
             }
 
             // 自动分配
-            AllocateEntity allocateEntity = autoAllocateService.autoAllocate(customerDTO, AllocateSource.DELAY, getwayToken);
+            AllocateEntity allocateEntity = autoAllocateServiceV2.autoAllocate(customerDTO, AllocateSource.DELAY, getwayToken);
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k54
                     , ImmutableMap.of("allocateEntity", allocateEntity)
             );
@@ -878,7 +872,6 @@ public class OcdcServiceV2 {
             customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
             customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
         } catch (Exception e) {
-            logger.error("15分钟未沟通业务", e);
             String str = "";
             if (e instanceof BaseException) {
                 // 已知异常
@@ -886,6 +879,7 @@ public class OcdcServiceV2 {
                 str = be.getResponseError().getMessage();
             } else {
                 // 未知异常
+                logger.error("15分钟未沟通业务", e);
                 str = e.getMessage();
             }
             SingleCutomerAllocateDevInfoUtil.local.get().setSuccess(false);
