@@ -497,6 +497,7 @@ public class UserMonthInfoServiceV2 {
             // 无分配记录，说明该用户不是走商机进入。例如：手动分配
             return;
         }
+        logger.info("---- 有效数 --> size=" + select.size());
         if (select.size() != 2) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，（subCompanyId=" + subCompanyId + "，Mediaid=" + mediaid + "，salesmanId=" + salesmanId + "，createTimeStr=" + createTimeStr + "）");
         }
@@ -506,11 +507,11 @@ public class UserMonthInfoServiceV2 {
         ee.setCustomerid(customerDto.getId());
         ee.setStatus(CommonEnum.entity_status1.getCode());
         ee.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE2);
-        int i1 = userMonthInfoDetailMapper.selectCount(ee);
-        if (i1 > 0) {
+        int count1 = userMonthInfoDetailMapper.selectCount(ee);
+        logger.info("---- 有效数 --> count1=" + count1);
+        if (count1 > 0) {
             return;
         }
-        logger.info("---- 有效数 --> i1=" + i1);
 
         // 主表 incr
         Set<Integer> ids = select.stream().map(UserMonthInfo::getId).collect(toSet());
