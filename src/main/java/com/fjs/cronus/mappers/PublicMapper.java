@@ -1,5 +1,6 @@
 package com.fjs.cronus.mappers;
 
+import com.fjs.cronus.mappers.provider.PanDataProvider;
 import com.fjs.cronus.model.CustomerInfo;
 import org.apache.ibatis.annotations.*;
 
@@ -18,7 +19,6 @@ public interface PublicMapper {
      * 获取公盘优选客户 own_user_id = -3
      * @return
      */
-    @Select("SELECT * from customer_info c where c.own_user_id = -3 limit #{start},#{size} ")
     @Results(id = "getPublicSelect", value = {
             @Result(property = "customerName", column = "customer_name"),
             @Result(property = "customerLevel", column = "customer_level"),
@@ -32,13 +32,14 @@ public interface PublicMapper {
             @Result(property = "cooperationStatus", column = "cooperation_status"),
             @Result(property = "communicateTime", column = "communicate_time")
     })
-    List<CustomerInfo> getPublicSelect(@Param("start") Integer start,@Param("size") Integer size);
+    @SelectProvider(type = PanDataProvider.class, method = "getPublicSelect")
+    List<CustomerInfo> getPublicSelect(@Param("start") Integer start,@Param("size") Integer size,@Param("order") String order,@Param("telephone") String telephone);
 
     /**
      * 获取公盘优选客户数
      * @return
      */
-    @Select("SELECT count(1) FROM customer_info c WHERE c.own_user_id = -3")
-    Integer getPublicSelectCount();
+    @SelectProvider(type = PanDataProvider.class, method = "getPublicSelectCount")
+    Integer getPublicSelectCount(@Param("telephone") String telephone);
 
 }
