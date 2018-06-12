@@ -163,6 +163,7 @@ public class OcdcServiceV2 {
                                 responseMessage.append("-");
                                 customerDTO.setTelephonenumber(customerSalePushLog.getTelephonenumber());
                                 customerDTO.setLoanAmount(customerSalePushLog.getLoanAmount());
+                                customerDTO.setExt(customerSalePushLog.getExt());
                                 if (this.isActiveApplicationChannel(customerSalePushLog)) {
                                     // 主动申请渠道
                                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k3);
