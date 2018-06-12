@@ -274,20 +274,15 @@ public class PublicOfferController {
             if (redisSubUserInfoDTO != null) {
                 subCompanyIds = redisSubUserInfoDTO.getSubCompanyId();
                 canMangerMainCity = redisSubUserInfoDTO.getCanMangerMainCity();
+
             } else {
                 canMangerMainCity = new ArrayList<>();
                 subCompanyIds = new ArrayList<>();
-                logger.warn("---------------->从交易中获取能管理主要的城市开始");
                 String mainCity = theaClientService.findValueByName(token, CommonConst.MAIN_CITY);
-                logger.warn("---------------->从交易中获取能管理主要的城市结束");
                 //获取异地城市
-                logger.warn("---------------->从交易中获取能管理异地城市开始");
                 String remoteCity = theaClientService.findValueByName(token, CommonConst.REMOTE_CITY);
-                logger.warn("---------------->从交易中获取能管理异地城市开始");
 
-                logger.warn("---------------->从Uc中获取下属信息开始");
                 List<CronusSubInfoDTO> cronusSubInfoDTOS = ucService.getSubCompanyToCronus(token, userId, CommonConst.SYSTEM_NAME_ENGLISH);
-                logger.warn("---------------->从Uc中获取下属信息结束");
                 if (cronusSubInfoDTOS != null && cronusSubInfoDTOS.size() > 0) {
                     for (CronusSubInfoDTO cronusSubInfoDTO : cronusSubInfoDTOS) {
                         if (!StringUtils.isEmpty(cronusSubInfoDTO.getCityName())) {
@@ -697,10 +692,11 @@ public class PublicOfferController {
     public CronusDto<QueryResult<CustomerListDTO>> publicSelected(@RequestHeader("Authorization") String token,
                                                                   @RequestBody BasePagePram<PanParamDTO> basePagePram) {
         CronusDto resultDto = new CronusDto();
+        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
         try {
             if (basePagePram!=null) {
-
-                resultDto.setData(panService.publicSelected2(basePagePram));
+                String city = userInfoDTO.getRedis_city();
+                resultDto.setData(panService.publicSelected2(token,basePagePram));
                 resultDto.setResult(0);
             }
         } catch (Exception e) {

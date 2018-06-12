@@ -5,10 +5,14 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.dto.BasePagePram;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.UserAuthorityScope;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.dto.cronus.PanParamDTO;
+import com.fjs.cronus.dto.cronus.RedisSubUserInfoDTO;
+import com.fjs.cronus.dto.uc.CronusSubInfoDTO;
+import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.enums.CustListTimeOrderEnum;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.AllocateLogMapper;
@@ -19,6 +23,7 @@ import com.fjs.cronus.model.AllocateLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerInfoLog;
 import com.fjs.cronus.service.client.TheaService;
+import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.CommonUtil;
@@ -60,6 +65,9 @@ public class PanService {
 
     @Autowired
     private AutoCleanService autoCleanService;
+
+    @Autowired
+    CronusRedisService cronusRedisService;
 
     public QueryResult<CustomerListDTO> listByOffer(PanParamDTO pan, Integer userId, Integer companyId , String token, String system,
                                                 Integer page, Integer size, List<String> mainCitys, List<Integer> subCompanyIds, Integer type,Integer mountLevle,List<String> utmList,List<String>paramsList) {
@@ -546,7 +554,7 @@ public class PanService {
         QueryResult queryResult = new QueryResult();
         List<CustomerListDTO> resultList = new ArrayList<>();
         Integer start = (page - 1) * size;
-        List<CustomerInfo> customers = publicMapper.getPublicSelect(start,size,null,null,null);
+        List<CustomerInfo> customers = publicMapper.getPublicSelect(start,size,null,null,null,null,null);
         if (customers != null && customers.size() > 0){
             for (CustomerInfo customerInfo : customers) {
                 CustomerListDTO customerDto = new CustomerListDTO();
@@ -557,14 +565,14 @@ public class PanService {
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);
-            Integer count = publicMapper.getPublicSelectCount(null,null);
+            Integer count = publicMapper.getPublicSelectCount(null,null,null,null);
             queryResult.setRows(customers);
             queryResult.setTotal(count.toString());
         }
         return queryResult;
     }
 
-    public QueryResult<CustomerListDTO> publicSelected2(BasePagePram<PanParamDTO> basePagePram)
+    public QueryResult<CustomerListDTO> publicSelected2(String token, BasePagePram<PanParamDTO> basePagePram)
     {
         QueryResult queryResult = new QueryResult();
         List<CustomerListDTO> resultList = new ArrayList<>();
@@ -575,7 +583,12 @@ public class PanService {
         {
             telephone = DEC3Util.des3EncodeCBC(basePagePram.getPramEntity().getTelephonenumber());
         }
-        List<CustomerInfo> customers = publicMapper.getPublicSelect(start,basePagePram.getPageSize(),null,telephone,basePagePram.getPramEntity().getCustomerName());
+
+        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
+        UserAuthorityScope userAuthorityScope = getUserAuthorityScope(token, Integer.parseInt(userInfoDTO.getUser_id()));
+
+        List<CustomerInfo> customers = publicMapper.getPublicSelect(start,basePagePram.getPageSize(),null,
+                telephone,basePagePram.getPramEntity().getCustomerName(),userAuthorityScope.getSubCompanyIds(),userAuthorityScope.getCanMangerMainCity());
         if (customers != null && customers.size() > 0){
             for (CustomerInfo customerInfo : customers) {
                 CustomerListDTO customerDto = new CustomerListDTO();
@@ -585,9 +598,60 @@ public class PanService {
             queryResult.setRows(resultList);
 
         }
-        Integer count = publicMapper.getPublicSelectCount(telephone,basePagePram.getPramEntity().getCustomerName());
+        Integer count = publicMapper.getPublicSelectCount(telephone,basePagePram.getPramEntity().getCustomerName(),
+                userAuthorityScope.getSubCompanyIds(),userAuthorityScope.getCanMangerMainCity());
         queryResult.setTotal(count.toString());
         return queryResult;
+    }
+
+
+    /**
+     * 获取用户可以管理的城市及分公司
+     * @param token
+     * @param userId
+     * @return
+     */
+    private UserAuthorityScope getUserAuthorityScope(String token,Integer userId)
+    {
+        UserAuthorityScope userAuthorityScope = new UserAuthorityScope();
+
+        RedisSubUserInfoDTO redisSubUserInfoDTO = cronusRedisService.getRedisSubUserInfo(CommonConst.CANMANGERMAINCITY + userId);
+        if (redisSubUserInfoDTO != null) {
+            userAuthorityScope.setSubCompanyIds(redisSubUserInfoDTO.getSubCompanyId());
+            userAuthorityScope.setCanMangerMainCity(redisSubUserInfoDTO.getCanMangerMainCity());
+        }
+        else {
+
+            userAuthorityScope.setSubCompanyIds(new ArrayList<>());
+            userAuthorityScope.setCanMangerMainCity(new ArrayList<>());
+            String mainCity = theaClientService.findValueByName(token, CommonConst.MAIN_CITY);
+            //获取异地城市
+            String remoteCity = theaClientService.findValueByName(token, CommonConst.REMOTE_CITY);
+
+            List<CronusSubInfoDTO> cronusSubInfoDTOS = ucService.getSubCompanyToCronus(token, userId, CommonConst.SYSTEM_NAME_ENGLISH);
+            if (cronusSubInfoDTOS != null && cronusSubInfoDTOS.size() > 0) {
+                for (CronusSubInfoDTO cronusSubInfoDTO : cronusSubInfoDTOS) {
+                    if (!StringUtils.isEmpty(cronusSubInfoDTO.getCityName())) {
+                        if (mainCity.contains(cronusSubInfoDTO.getCityName())) {//说明在主要城市内
+                            if (!userAuthorityScope.getCanMangerMainCity().contains(cronusSubInfoDTO.getCityName())) {
+                                userAuthorityScope.getCanMangerMainCity().add(cronusSubInfoDTO.getCityName());
+                            }
+                        }
+                        if (remoteCity.contains(cronusSubInfoDTO.getCityName())) {//说明是异地城市
+                            if (!userAuthorityScope.getSubCompanyIds().contains(cronusSubInfoDTO.getCityName())) {
+                                userAuthorityScope.getSubCompanyIds().add(Integer.valueOf(cronusSubInfoDTO.getSubCompanyId()));
+                            }
+                        }
+                    }
+                }
+                RedisSubUserInfoDTO redis = new RedisSubUserInfoDTO();
+                redis.setCanMangerMainCity(userAuthorityScope.getCanMangerMainCity());
+                redis.setSubCompanyId(userAuthorityScope.getSubCompanyIds());
+                cronusRedisService.setRedisSubUserInfo(CommonConst.CANMANGERMAINCITY + userId, redis);
+
+            }
+        }
+        return userAuthorityScope;
     }
 
 
