@@ -692,10 +692,8 @@ public class PublicOfferController {
     public CronusDto<QueryResult<CustomerListDTO>> publicSelected(@RequestHeader("Authorization") String token,
                                                                   @RequestBody BasePagePram<PanParamDTO> basePagePram) {
         CronusDto resultDto = new CronusDto();
-        UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
         try {
             if (basePagePram!=null) {
-                String city = userInfoDTO.getRedis_city();
                 resultDto.setData(panService.publicSelected2(token,basePagePram));
                 resultDto.setResult(0);
             }
