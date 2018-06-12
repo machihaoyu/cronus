@@ -2458,4 +2458,12 @@
       FROM customer_info
       WHERE is_deleted = 0 AND id = #{id,jdbcType=INTEGER}
     </select>
+
+    <update id="updateCustomersFromDiscard" parameterType="Map">
+        update customer_info c set c.own_user_id = 0,c.view_time = NULL
+        where id in
+        <foreach collection="ids" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

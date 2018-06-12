@@ -524,8 +524,10 @@ public class PanService {
             List<Integer> cus = publicMapper.getCustomersFromDiscard();
 
             if (cus.size() > 0) {
-                String ids = CommonUtil.initIntegerListToStr(cus);
-                publicMapper.updateCustomersFromDiscard(ids);
+//                String ids = CommonUtil.initIntegerListToStr(cus);
+                Map<String, Object> paramsMap = new HashMap<>();
+                paramsMap.put("ids", cus);
+                customerInfoMapper.updateCustomersFromDiscard(paramsMap);
             }
 
         }catch (Exception e)
