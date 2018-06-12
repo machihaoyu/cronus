@@ -61,7 +61,7 @@ public class AllocateRedisServiceV2 {
 
         String key = this.getKey(companyId, medial, effectiveDate);
         ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
-        listOperations.remove(key, 2, userId.toString());
+        listOperations.remove(key, 10, userId.toString());
         listOperations.rightPush(key, userId.toString());
     }
 
@@ -77,7 +77,7 @@ public class AllocateRedisServiceV2 {
 
         String key = this.getKey(companyId, medial, effectiveDate);
         ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
-        listOperations.remove(key, 2, userId.toString());
+        listOperations.remove(key, 10, userId.toString());
     }
 
     /**
@@ -100,7 +100,7 @@ public class AllocateRedisServiceV2 {
         ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
         String s = listOperations.leftPop(key);
         if (StringUtils.isNumeric(s)) {
-            listOperations.remove(key, 2, s);
+            listOperations.remove(key, 10, s);
             listOperations.rightPush(key, s);
             return Integer.valueOf(s);
         }
