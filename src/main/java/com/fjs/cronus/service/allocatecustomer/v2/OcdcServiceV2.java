@@ -142,6 +142,9 @@ public class OcdcServiceV2 {
                         if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) {
                             // 老客户
                             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k1);
+                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k56
+                                    ,ImmutableMap.of("customerSalePushLog", customerSalePushLog, "customerDTO", customerDTO)
+                            );
 
                             if (allocateSource.getCode().equals("2")) {
                                 // 待分配池
@@ -160,6 +163,7 @@ public class OcdcServiceV2 {
                                 responseMessage.append("-");
                                 customerDTO.setTelephonenumber(customerSalePushLog.getTelephonenumber());
                                 customerDTO.setLoanAmount(customerSalePushLog.getLoanAmount());
+                                customerDTO.setExt(customerSalePushLog.getExt());
                                 if (this.isActiveApplicationChannel(customerSalePushLog)) {
                                     // 主动申请渠道
                                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k3);
@@ -764,7 +768,7 @@ public class OcdcServiceV2 {
 
     /**
      * 处理15分钟未沟通业务.
-     */
+
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void delayAllocate(Long phone, long time) {
         logger.info("15分钟未沟通业务----> queue触发，调用ocdc delayAllocate " + phone + " " +time);
@@ -891,6 +895,6 @@ public class OcdcServiceV2 {
             cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_DELAY_LOCK + phone, lockToken);
         }
         customerSalePushLogService.insertList(customerSalePushLogList);
-    }
+    }*/
 
 }

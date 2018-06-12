@@ -27,7 +27,7 @@ public class DelayAllocateService {
     private final Logger logger = LoggerFactory.getLogger(DelayAllocateService.class);
 
     @Autowired
-    private OcdcServiceV2 ocdcServiceV2;
+    private AutoAllocateServiceV2 autoAllocateServiceV2;
 
     @Resource
     RedisTemplate redisTemplateOps;
@@ -122,7 +122,7 @@ public class DelayAllocateService {
      * 处理15分钟未处理重新分配业务.
      */
     private void delayAllocate(Long phone, long time) {
-        ocdcServiceV2.delayAllocate(phone, time);
+        autoAllocateServiceV2.delayAllocate(phone, time);
     }
 
     private Date parseTime(String time) {
