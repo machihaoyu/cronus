@@ -482,23 +482,21 @@ public class UserMonthInfoServiceV2 {
         }
 
         // 业务处理
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
         String createTimeStr = sdf.format(createTime);
 
-        logger.info("---- 有效数 --> salesmanId=" + salesmanId + " id=" + customerDto.getId() + " tel=" + customerDto.getTelephonenumber() + " utmSource=" +customerDto.getUtmSource() + " companyid=" + customerDto.getCompanyId());
+        logger.info("---- 有效数 --> salesmanId=" + salesmanId + " id=" + customerDto.getId() + " tel=" + customerDto.getTelephonenumber() + " utmSource=" +customerDto.getUtmSource() + " companyid=" + subCompanyId);
         Integer mediaid = this.getChannelInfoByChannelName(token, utmSource);
 
         logger.info("---- 有效数 --> mediaid=" + mediaid);
         Date now = new Date();
 
         // 先查该记录
-        List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, mediaid, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, salesmanId, createTimeStr, CommonEnum.entity_status1.getCode());
-        if (CollectionUtils.isEmpty(select)) {
+        List<UserMonthInfo> mediaDataList = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, mediaid, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, salesmanId, createTimeStr, CommonEnum.entity_status1.getCode());
+        logger.info("---- 有效数 --> select=" + mediaDataList);
+        if (CollectionUtils.isEmpty(mediaDataList)) {
             // 无分配记录，说明该用户不是走商机进入。例如：手动分配
             return;
-        }
-        if (select.size() != 2) {
-            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，（subCompanyId=" + subCompanyId + "，Mediaid=" + mediaid + "，salesmanId=" + salesmanId + "，createTimeStr=" + createTimeStr + "）");
         }
 
         // 业务说明：一个用户只能算一次.
@@ -506,17 +504,52 @@ public class UserMonthInfoServiceV2 {
         ee.setCustomerid(customerDto.getId());
         ee.setStatus(CommonEnum.entity_status1.getCode());
         ee.setType(CommonConst.USER_MONTH_INFO_DETAIL_TYPE2);
-        int i1 = userMonthInfoDetailMapper.selectCount(ee);
-        if (i1 > 0) {
+        int count1 = userMonthInfoDetailMapper.selectCount(ee);
+        logger.info("---- 有效数 --> count1=" + count1);
+        if (count1 > 0) {
             return;
         }
-        logger.info("---- 有效数 --> i1=" + i1);
 
-        // 主表 incr
-        Set<Integer> ids = select.stream().map(UserMonthInfo::getId).collect(toSet());
-        logger.info("---- 有效数 --> ids=" + ids);
-        userMonthInfoMapper.update2IncrNumForEffectiveCustomerNum(ids);
-        Integer id = select.stream().filter(i -> i != null && !CommonConst.COMPANY_MEDIA_QUEUE_COUNT.equals(i.getMediaid())).map(UserMonthInfo::getId).findAny().orElse(null);
+        logger.info("---- 有效数 --> size=" + mediaDataList.size());
+        Map<Integer, List<UserMonthInfo>> mediaIdMappingData = mediaDataList.stream().collect(groupingBy(UserMonthInfo::getMediaid));
+        if (mediaIdMappingData.size() == 0 ||  mediaIdMappingData.size() > 2) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，应该最多2条，（subCompanyId=" + subCompanyId + "，Mediaid=" + mediaid + "，salesmanId=" + salesmanId + "，createTimeStr=" + createTimeStr + "）");
+        }
+
+        Integer id = null;
+        List<UserMonthInfo> list = mediaIdMappingData.get(mediaid); // 特殊
+        List<UserMonthInfo> list1 = mediaIdMappingData.get(CommonConst.COMPANY_MEDIA_QUEUE_COUNT); // 总
+        if (CollectionUtils.isEmpty(list)) {
+            // 新建
+            UserMonthInfo userMonthInfoTemp = new UserMonthInfo();
+            userMonthInfoTemp.setBaseCustomerNum(0);
+            userMonthInfoTemp.setRewardCustomerNum(0);
+            userMonthInfoTemp.setAssignedCustomerNum(0);
+            userMonthInfoTemp.setEffectiveCustomerNum(1);
+            userMonthInfoTemp.setEffectiveDate(createTimeStr);
+            userMonthInfoTemp.setLastUpdateTime(now);
+            userMonthInfoTemp.setCreateTime(now);
+            userMonthInfoTemp.setUserId(salesmanId);
+            //userMonthInfoTemp.setCreateUserId(userIdByOption);
+            //userMonthInfoTemp.setLastUpdateUser(userIdByOption);
+            userMonthInfoTemp.setCompanyid(subCompanyId);
+            userMonthInfoTemp.setMediaid(mediaid);
+            userMonthInfoTemp.setStatus(CommonEnum.entity_status1.getCode());
+            userMonthInfoMapper.insertUseGeneratedKeys(userMonthInfoTemp);
+
+            id = userMonthInfoTemp.getId();
+
+            Set<Integer> ids = new HashSet<>();
+            ids.add(list1.get(0).getId());// 只给总的加，特定媒体上面已经加过了
+            userMonthInfoMapper.update2IncrNumForEffectiveCustomerNum(ids);
+        } else {
+            // 主表 incr
+            Set<Integer> ids = mediaIdMappingData.keySet();
+            logger.info("---- 有效数 --> ids=" + ids);
+            userMonthInfoMapper.update2IncrNumForEffectiveCustomerNum(ids);
+
+            id = list.get(0).getId();
+        }
 
         // 明细表记录明细
         UserMonthInfoDetail detail = new UserMonthInfoDetail();
