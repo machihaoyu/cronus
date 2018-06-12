@@ -16,6 +16,7 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.CommunicationLogService;
 import com.fjs.cronus.service.CustomerInfoService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.DEC3Util;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -125,6 +126,10 @@ public class CommunicationLogController {
             }
         }*/
         CustomerInfo customerInfo = iCustomerService.findCustomerById(customerUsefulDTO.getCustomerId());
+        if (communicationLogService.check4DelayAllocate(customerInfo.getTelephonenumber())) {
+            // 15分钟未分配，redis锁拦截业务
+            customerInfo = iCustomerService.findCustomerById(customerUsefulDTO.getCustomerId()); // 重取一遍，以防止15分钟未处理业务，重新分配了业务员
+        }
         if (customerInfo == null) {
             theaApiDTO.setResult(CommonMessage.ADD_FAIL.getCode());
             return theaApiDTO;

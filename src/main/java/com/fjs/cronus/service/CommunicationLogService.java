@@ -2,6 +2,7 @@ package com.fjs.cronus.service;
 
 
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.Common.CommunicationEnum;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.PHPLoginDto;
@@ -26,10 +27,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -61,6 +65,9 @@ public class CommunicationLogService {
     CommentService commentService;
     @Autowired
     private UserMonthInfoServiceV2 userMonthInfoService;
+
+    @Resource
+    RedisTemplate redisTemplateOps;
 
     //添加
     @Autowired
@@ -451,5 +458,37 @@ public class CommunicationLogService {
         }
 
         return result;
+    }
+
+
+    public boolean check4DelayAllocate(String telephonenumber) {
+        if (StringUtils.isBlank(telephonenumber)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "telephonenumber 不能为空");
+        }
+        String phone = DEC3Util.des3DecodeCBC(telephonenumber);
+        if (!StringUtils.isNumeric(phone)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "phone 不是数字");
+        }
+
+        String key = CommonRedisConst.ALLOCATE_DELAY_LOCK + phone;
+
+        int i = 5;
+        while ( i < 10 ) {
+            i++;
+            ValueOperations<String, String> operations = redisTemplateOps.opsForValue();
+            String lock = operations.get(key);
+            if (StringUtils.isBlank(lock)) {
+                // 无锁
+                break;
+            } else {
+                // 被锁
+                try {
+                    Thread.currentThread().sleep(3000);
+                } catch (InterruptedException e) {
+                    logger.error("线程打断异常", e);
+                }
+            }
+        }
+        return true;
     }
 }
