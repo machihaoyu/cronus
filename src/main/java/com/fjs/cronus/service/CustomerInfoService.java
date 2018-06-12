@@ -75,6 +75,8 @@ public class CustomerInfoService {
     @Autowired
     AllocateService allocateService;
     @Autowired
+    AllocateLogService allocateLogService;
+    @Autowired
     AllocateLogMapper allocateLogMapper;
     @Autowired
     TheaService theaService;
@@ -1276,7 +1278,7 @@ public class CustomerInfoService {
 
         }
         //开始批量移除客户到公盘
-        batchRemove(ids, Integer.valueOf(userInfoDTO.getUser_id()));
+        batchRemove(ids, userInfoDTO);
         //开始废弃交易
         TheaApiDTO resultDto = theaService.cancelLoanByCustomerId(token, ids);
         if (resultDto == null || resultDto.getResult() != 0) {
@@ -1290,7 +1292,7 @@ public class CustomerInfoService {
     }
 
     @Transactional
-    public void batchRemove(String ids, Integer userId) {
+    public void batchRemove(String ids, UserInfoDTO userInfoDTO) {
         Date date = new Date();
         String[] arr = ids.split(",");
         Map<String, Object> paramsMap = new HashMap<>();
@@ -1302,6 +1304,7 @@ public class CustomerInfoService {
                 paramsList.add(Integer.parseInt(strArray[i]));
             }
         }
+        Integer userId = Integer.parseInt(userInfoDTO.getUser_id());
         if (paramsList != null && paramsList.size() > 0) {
             //开始插入日志
             for (Integer id : paramsList) {
@@ -1309,6 +1312,7 @@ public class CustomerInfoService {
                 CustomerInfo customerInfo = findCustomerById(id);
                 if (customerInfo != null) {
                     //开始插入日志
+//                    allocateLogService.addAllocatelog(customerInfo,-2,CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_10.getCode(),userInfoDTO);
                     CustomerInfoLog customerInfoLog = new CustomerInfoLog();
                     EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
                     customerInfoLog.setLogCreateTime(date);
@@ -1316,12 +1320,14 @@ public class CustomerInfoService {
                     customerInfoLog.setLogUserId(userId);
                     customerInfoLog.setIsDeleted(0);
                     customerInfoLogMapper.addCustomerLog(customerInfoLog);
+
+                    allocateLogService.InsertAllocateLog(id,customerInfo.getOwnUserId(),-2,userId,userInfoDTO.getName(),CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_10.getCodeDesc());
                 }
             }
 
             //开始移除公盘
             paramsMap.put("paramsList", paramsList);
-            paramsMap.put("lastUpdateUser", userId);
+            paramsMap.put("lastUpdateUser", userInfoDTO.getUser_id());
             paramsMap.put("lastUpdateTime", date);
             paramsMap.put("viewTime", date);
             customerInfoMapper.batchRemove(paramsMap);

@@ -108,4 +108,6 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
 
     @Select("SELECT c.telephonenumber from customer_info c where c.create_time BETWEEN #{start} and #{end}")
     List<String> getCustomerPhone(@Param("start") String start, @Param("end") String end);
+
+    Integer updateCustomersFromDiscard(Map<String,Object> paramsMap);
 }

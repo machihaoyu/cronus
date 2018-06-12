@@ -108,6 +108,10 @@ public class AllocateLogService {
                 allocateLog.setOperation(CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_6.getCodeDesc());
                 customerInfoLog.setLogDescription(CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_6.getCodeDesc());
                 break;
+            case 10:
+                allocateLog.setOperation(CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_10.getCodeDesc());
+                customerInfoLog.setLogDescription(CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_10.getCodeDesc());
+                break;
             default:
                 allocateLog.setOperation(CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_7.getCodeDesc());
                 customerInfoLog.setLogDescription(CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_7.getCodeDesc());
@@ -156,6 +160,29 @@ public class AllocateLogService {
                 allocateLog.setOperation(CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_7.getCodeDesc());
                 break;
         }
+        return allocateLogMapper.insert(allocateLog);
+    }
+
+    /**
+     * 添加分配日志
+     * @param customerId
+     * @param newOwnerUserId
+     * @param createUserId
+     * @param allocateName
+     * @param operation
+     * @return
+     */
+    public Integer InsertAllocateLog(Integer customerId,Integer oldOwnerId, Integer newOwnerUserId, Integer createUserId, String allocateName, String operation) {
+        Date date = new Date();
+        //添加分配日志
+        AllocateLog allocateLog = new AllocateLog();
+        allocateLog.setCreateTime(new Date());
+        allocateLog.setOldOwnerId(oldOwnerId);
+        allocateLog.setCustomerId(customerId);
+        allocateLog.setNewOwnerId(newOwnerUserId);
+        allocateLog.setCreateUserId(createUserId);
+        allocateLog.setCreateUserName(allocateName);
+        allocateLog.setOperation(operation);
         return allocateLogMapper.insert(allocateLog);
     }
 
