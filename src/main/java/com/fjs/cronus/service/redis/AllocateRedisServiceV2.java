@@ -60,9 +60,9 @@ public class AllocateRedisServiceV2 {
         String effectiveDate = this.getMonthStr(monthFlag);
 
         String key = this.getKey(companyId, medial, effectiveDate);
-        ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
+        ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
         listOperations.remove(key, 10, userId.toString());
-        listOperations.rightPush(key, userId.toString());
+        listOperations.rightPush(key, userId);
     }
 
     /**
@@ -76,8 +76,8 @@ public class AllocateRedisServiceV2 {
         String effectiveDate = this.getMonthStr(monthFlag);
 
         String key = this.getKey(companyId, medial, effectiveDate);
-        ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
-        listOperations.remove(key, 10, userId.toString());
+        ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
+        listOperations.remove(key, 10, userId);
     }
 
     /**
@@ -86,9 +86,9 @@ public class AllocateRedisServiceV2 {
     public List<Integer> finaAllFromQueue(Integer companyId, Integer medial, String effectiveDate) {
 
         String key = this.getKey(companyId, medial, effectiveDate);
-        ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
-        List<String> range = listOperations.range(key, 0, -1);
-        return range.stream().filter(item -> item != null).map(Integer::valueOf).collect(toList());
+        ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
+        List<Integer> range = listOperations.range(key, 0, -1);
+        return range;
     }
 
     /**
@@ -97,12 +97,12 @@ public class AllocateRedisServiceV2 {
     public Integer getAndPush2End(Integer companyId, Integer medial, String effectiveDate) {
 
         String key = this.getKey(companyId, medial, effectiveDate);
-        ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
-        String s = listOperations.leftPop(key);
-        if (StringUtils.isNumeric(s)) {
+        ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
+        Integer s = listOperations.leftPop(key);
+        if (s != null) {
             listOperations.remove(key, 10, s);
             listOperations.rightPush(key, s);
-            return Integer.valueOf(s);
+            return s;
         }
         return null;
     }
@@ -222,13 +222,13 @@ public class AllocateRedisServiceV2 {
 
         if (companyId != null && medial != null && StringUtils.isNotBlank(currentMonthStr) && StringUtils.isNotBlank(nextMonthStr)) {
 
-            ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
+            ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
 
             String currentMonthQueueKey = this.getKey(companyId, medial, currentMonthStr);
             String nextMonthQueueKey = this.getKey(companyId, medial, nextMonthStr);
 
-            List<String> currentMonthQueue = listOperations.range(currentMonthQueueKey, 0, -1);
-            Set<String> nextMonthQueue = currentMonthQueue.stream().filter(item -> StringUtils.isNotBlank(item)).collect(toSet());
+            List<Integer> currentMonthQueue = listOperations.range(currentMonthQueueKey, 0, -1);
+            Set<Integer> nextMonthQueue = currentMonthQueue.stream().filter(item -> item != null).collect(toSet());
 
             if (CollectionUtils.isNotEmpty(nextMonthQueue)) {
                 redisTemplateOps.delete(nextMonthQueueKey);
@@ -242,10 +242,10 @@ public class AllocateRedisServiceV2 {
      */
     public Integer getSubCompanyIdFromQueue(String cityName, Integer mediaid) {
 
-        String subCompanyId = null;
+        Integer subCompanyId = null;
         if (StringUtils.isNotBlank(cityName)) {
 
-            ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
+            ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
 
             // 目标数据缓存key
             String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaid.toString()).concat("$").concat(cityName);
@@ -256,7 +256,7 @@ public class AllocateRedisServiceV2 {
                 listOperations.rightPush(key, subCompanyId);
             }
         }
-        return StringUtils.isBlank(subCompanyId) ? null : Integer.valueOf(subCompanyId);
+        return subCompanyId;
     }
 
     /**
@@ -267,7 +267,7 @@ public class AllocateRedisServiceV2 {
         Long size = 0L;
         if (StringUtils.isNotBlank(cityName) && StringUtils.isNotBlank(token)) {
 
-            ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
+            ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
 
             // 目标数据缓存key
             String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaid.toString()).concat("$").concat(cityName);
@@ -281,7 +281,7 @@ public class AllocateRedisServiceV2 {
                 for (Map.Entry<String, List<Integer>> entry : subCompanyByCityName.entrySet()) {
                     String cityNameTemp = entry.getKey();
                     List<Integer> subCompanyIdList = entry.getValue();
-                    Set<String> subCompanyIdList2 = CollectionUtils.isEmpty(subCompanyIdList) ? new HashSet<>() : subCompanyIdList.stream().filter(item -> item != null).map(String::valueOf).collect(toSet());
+                    Set<Integer> subCompanyIdList2 = CollectionUtils.isEmpty(subCompanyIdList) ? new HashSet<>() : subCompanyIdList.stream().filter(item -> item != null).collect(toSet());
 
                     if (cityName.equals(cityNameTemp) && CollectionUtils.isNotEmpty(subCompanyIdList2)) {
                         redisTemplateOps.delete(key);
@@ -337,24 +337,27 @@ public class AllocateRedisServiceV2 {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, allMedia.getMessage());
         }
         List<BaseCommonDTO> allMediaList = allMedia.getData();
-        Set<String> mediaids = CollectionUtils.isEmpty(allMediaList) ? null : allMediaList.stream().filter(i -> i != null && i.getId() != null).map(BaseCommonDTO::getId).map(String::valueOf).collect(toSet());
-        ;
+        Set<Integer> mediaids = CollectionUtils.isEmpty(allMediaList) ? null : allMediaList.stream().filter(i -> i != null && i.getId() != null).map(BaseCommonDTO::getId).collect(toSet());
+
         if (CollectionUtils.isEmpty(mediaids)) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "系统数据异常，系统中未找到媒体数据");
         }
 
-        Map<String, List<Integer>> cityNameMappingSubCompanyId = CollectionUtils.isEmpty(data) ? new HashMap<>() : data.stream().collect(groupingBy(FirstBarDTO::getCity, mapping(FirstBarDTO::getId, toList())));
-        for (Map.Entry<String, List<Integer>> entry : cityNameMappingSubCompanyId.entrySet()) {
-            List<Integer> value = entry.getValue();
+        Map<String, Set<Integer>> cityNameMappingSubCompanyId = CollectionUtils.isEmpty(data) ? new HashMap<>() : data.stream()
+                .filter(item -> item != null && item.getId() != null && StringUtils.isNotBlank(item.getCity()))
+                .collect(groupingBy(FirstBarDTO::getCity, mapping(FirstBarDTO::getId, toSet())));
+
+        for (Map.Entry<String, Set<Integer>> entry : cityNameMappingSubCompanyId.entrySet()) {
+            Set<Integer> value = entry.getValue();
             String cityName = entry.getKey();
 
-            Set<String> subCompanyIdSet = CollectionUtils.isEmpty(value) ? new HashSet<>() : value.stream().filter(item -> item != null).map(String::valueOf).collect(toSet());
+            Set<Integer> subCompanyIdSet = CollectionUtils.isEmpty(value) ? new HashSet<>() : value;
 
             if (StringUtils.isNotBlank(cityName) && CollectionUtils.isNotEmpty(subCompanyIdSet)) {
 
-                for (String mediaid : mediaids) {
-                    String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaid).concat("$").concat(cityName);
-                    ListOperations<String, String> listOperations = redisTemplateOps.opsForList();
+                for (Integer mediaid : mediaids) {
+                    String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaid.toString()).concat("$").concat(cityName);
+                    ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
                     redisTemplateOps.delete(key);
                     listOperations.leftPushAll(key, subCompanyIdSet);
                 }
