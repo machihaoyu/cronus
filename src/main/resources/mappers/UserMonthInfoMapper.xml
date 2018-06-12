@@ -88,6 +88,7 @@
         </foreach>
         )
         AND `effective_date`=#{currentMonth}
+        AND `status` = 1
     </update>
 
     <update id="update2IncrNumForEffectiveCustomerNum">
@@ -99,6 +100,7 @@
             #{item}
         </foreach>
         )
+        AND `status` = 1
     </update>
 
     <select id="selectSum" resultType="java.lang.Integer">
