@@ -33,13 +33,16 @@ public interface PublicMapper {
             @Result(property = "communicateTime", column = "communicate_time")
     })
     @SelectProvider(type = PanDataProvider.class, method = "getPublicSelect")
-    List<CustomerInfo> getPublicSelect(@Param("start") Integer start,@Param("size") Integer size,@Param("order") String order,@Param("telephone") String telephone);
+    List<CustomerInfo> getPublicSelect(@Param("start") Integer start,@Param("size") Integer size,@Param("order") String order,
+                                       @Param("telephone") String telephone,
+                                       @Param("customerName") String customerName);
 
     /**
      * 获取公盘优选客户数
      * @return
      */
     @SelectProvider(type = PanDataProvider.class, method = "getPublicSelectCount")
-    Integer getPublicSelectCount(@Param("telephone") String telephone);
+    Integer getPublicSelectCount(@Param("telephone") String telephone,
+                                 @Param("customerName") String customerName);
 
 }
