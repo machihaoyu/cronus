@@ -23,6 +23,7 @@ import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
+import com.fjs.cronus.model.CustomerSalePushLog;
 import com.fjs.cronus.model.UserMonthInfo;
 import com.fjs.cronus.service.*;
 import com.fjs.cronus.service.allocatecustomer.v2.UserMonthInfoServiceV2;
@@ -36,6 +37,7 @@ import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.thea.ThorClientService;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
+import com.fjs.cronus.util.SingleCutomerAllocateDevInfo;
 import com.fjs.cronus.util.SingleCutomerAllocateDevInfoUtil;
 import com.fjs.framework.exception.BaseException;
 import com.google.common.collect.ImmutableMap;
@@ -45,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -67,6 +70,9 @@ public class AutoAllocateServiceV2 {
 
     private static final String companyIdKey = "companyKey";
     private static final String salesmanIdKey = "salesmanId";
+
+    @Value("${token.current}")
+    private String getwayToken;
 
     //    @Value("${publicToken}")
 //    private String publicToken;
@@ -131,6 +137,12 @@ public class AutoAllocateServiceV2 {
 
     @Autowired
     private DelayAllocateService delayAllocateService;
+
+    @Autowired
+    private CustomerSalePushLogService customerSalePushLogService;
+
+    @Autowired
+    private OcdcServiceV2 ocdcServiceV2;
 
     /**
      * 判断是不是客户主动申请渠道
@@ -202,23 +214,7 @@ public class AutoAllocateServiceV2 {
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k1);
 
                 UserInfoDTO ownerUser = this.getOwnerUser(customerDTO, token); // 获取负责人(系统外指定业务员情况)
-                if (allocateSource != null && StringUtils.isNotBlank(allocateSource.getCode()) && AllocateSource.DELAY.getCode().equalsIgnoreCase(allocateSource.getCode())) {
-                    // 15分钟未沟通业务
-
-                    signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, mediaId);
-                    if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
-                        if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
-                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k14, ImmutableMap.of("SalesmanId", signCustomAllocate.getSalesmanId()));
-                            allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
-                            customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
-                        } else { // 未找到，抛错记录日志
-                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k19);
-                            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "老客户去队列没找到业务员");
-                        }
-                    } else {
-                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，已经是15分钟未沟通分支，说明是在有效城市内，但此次校验又不是");
-                    }
-                } else if (StringUtils.isNotEmpty(ownerUser.getUser_id())) {
+                if (StringUtils.isNotEmpty(ownerUser.getUser_id())) {
                     // 存在处理指定业务员情况（客户 or 外部系统可指定业务员）
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k18, ImmutableMap.of("salemanid", ownerUser.getUser_id()));
 
@@ -978,7 +974,7 @@ public class AutoAllocateServiceV2 {
     /**
      * 提醒商机发送手机短信.
      */
-    private void notifySendPhoneMessage4Avatar (Integer orderNumOfCompany, Integer orderNumber, Integer subCompanyId, Integer media_id, String token) {
+    private void notifySendPhoneMessage4Avatar(Integer orderNumOfCompany, Integer orderNumber, Integer subCompanyId, Integer media_id, String token) {
         // 找到业务员，且实购数 == 已购数,需要发送手机短信
         if (orderNumOfCompany + 1 == orderNumber) {
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k48
@@ -995,5 +991,190 @@ public class AutoAllocateServiceV2 {
                 avatarClientService.purchaseSmsNotice(token, params);
             }).start();
         }
+    }
+
+    /**
+     * 处理15分钟未沟通业务.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public void delayAllocate(Long phone, long time) {
+        logger.info("15分钟未沟通业务----> queue触发，调用ocdc delayAllocate " + phone + " " + time);
+
+        List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<>(1);
+        CustomerSalePushLog customerSalePushLog = new CustomerSalePushLog();
+        customerSalePushLogList.add(customerSalePushLog);
+        Calendar now = Calendar.getInstance();
+        Long lockToken = null;
+        boolean getLock = true;
+
+        try {
+
+            try {
+                lockToken = cRMRedisLockHelp.lockBySetNX(CommonRedisConst.ALLOCATE_DELAY_LOCK + phone);
+            } catch (Exception e) {
+                // 捕获获取锁失败，已有其它实例在处理，则放弃此次再分配
+                getLock = false;
+            }
+
+            if (!getLock) {
+                SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k55
+                        , ImmutableMap.of("获取锁失败，已有app实例在处理此手机号", "放弃此次处理")
+                );
+            } else {
+
+                SingleCutomerAllocateDevInfoUtil.local.set(new SingleCutomerAllocateDevInfo());
+                SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k49,
+                        ImmutableMap.of("phone", phone, "time", time)
+                );
+
+                customerSalePushLog.setTelephonenumber(phone.toString());
+
+                // 根据手机号获取顾客信息
+                CustomerDTO customerDTO = ocdcServiceV2.getCustomer(phone.toString());
+                if (customerDTO == null) {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "根据手机号找顾客信息为null");
+                }
+                customerDTO.setTelephonenumber(String.valueOf(phone));
+                if (customerDTO.getId() == null) {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "根据手机号找顾客信息,id 为 null");
+                }
+
+                // init customerSalePushLog
+                customerSalePushLog.setOcdcId(customerDTO.getOcdcId());
+                customerSalePushLog.setCustomerId(customerDTO.getId());
+                customerSalePushLog.setCustomerName(customerDTO.getCustomerName());
+                customerSalePushLog.setOwnerUserId(customerDTO.getOwnerUserId());
+                customerSalePushLog.setOwnerUserName(customerDTO.getOwnUserName());
+                customerSalePushLog.setOwnerUserName(customerDTO.getOwnUserName());
+                customerSalePushLog.setCreaterUserId(0);
+                customerSalePushLog.setCustomerLevel(customerDTO.getCustomerLevel());
+                customerSalePushLog.setHouseStatus(customerDTO.getHouseStatus());
+                customerSalePushLog.setLoanAmount(customerDTO.getLoanAmount());
+                customerSalePushLog.setSparePhone(customerDTO.getSparePhone());
+                customerSalePushLog.setAge(customerDTO.getAge());
+                customerSalePushLog.setMarriage(customerDTO.getMarriage());
+                customerSalePushLog.setIdCard(customerDTO.getIdCard());
+                customerSalePushLog.setProvinceHuji(customerDTO.getProvinceHuji());
+                customerSalePushLog.setSex(customerDTO.getSex());
+                customerSalePushLog.setCustomerAddress(customerDTO.getCustomerAddress());
+                customerSalePushLog.setPerDescription(customerDTO.getPerDescription());
+                customerSalePushLog.setHouseAmount(customerDTO.getHouseAmount());
+                customerSalePushLog.setHouseType(customerDTO.getHouseType());
+                customerSalePushLog.setHouseArea(customerDTO.getHouseArea());
+                customerSalePushLog.setHouseAge(customerDTO.getHouseAge());
+                customerSalePushLog.setHouseLoan(customerDTO.getHouseLoan());
+                customerSalePushLog.setHouseAlone(customerDTO.getHouseAlone());
+                customerSalePushLog.setHouseLocation(customerDTO.getHouseLocation());
+                customerSalePushLog.setCity(customerDTO.getCity());
+                customerSalePushLog.setRetain(customerDTO.getRemain() == null ? 0 : customerDTO.getRemain());
+                customerSalePushLog.setCreateTime(now.getTime());
+                customerSalePushLog.setUpdateTime(now.getTime());
+                customerSalePushLog.setReceiveTime(now.getTime());
+                customerSalePushLog.setAutostatus(1);
+                customerSalePushLog.setUtmSource(customerDTO.getUtmSource());
+                customerSalePushLog.setCustomerSource(customerDTO.getCustomerSource());
+                customerSalePushLog.setLaiyuan(Integer.valueOf(AllocateSource.DELAY.getCode()));
+
+                // 业务校验，在15分钟内添加沟通日志，则取消分配
+                CustomerInfo customerInfo = customerInfoService.findCustomerById(customerDTO.getId());
+                if (customerInfo == null) {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "根据id找顾客为null，customerid=" + customerDTO.getId());
+                }
+                Date communicateTime = customerInfo.getCommunicateTime();
+                Calendar temp = Calendar.getInstance(); // 调回15分钟前
+                temp.setTime(new Date(time));
+                temp.add(Calendar.MINUTE, -DelayAllocateService.savetime);
+                if (communicateTime != null && communicateTime.compareTo(temp.getTime()) > 0) {
+                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k55
+                            , ImmutableMap.of("最近沟通时间", communicateTime.getTime(), "此次触发再分配的时间", time)
+                    );
+                    return;
+                }
+
+                // 获取自动分配的城市
+                String allocateCities = theaClientService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY);
+
+                String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT); // 当月字符串
+
+                Integer mediaId = userMonthInfoService.getChannelInfoByChannelName(getwayToken, customerDTO.getUtmSource()); // 根据渠道获取来源、媒体、渠道
+
+                // 自动分配
+                AllocateForAvatarDTO signCustomAllocate = new AllocateForAvatarDTO();
+                if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
+                    signCustomAllocate = this.getAllocateUserV2(getwayToken, customerDTO.getCity(), currentMonthStr, mediaId);
+                    if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
+                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k14, ImmutableMap.of("SalesmanId", signCustomAllocate.getSalesmanId()));
+                        customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
+                    } else { // 未找到，抛错记录日志
+                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k19);
+                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "老客户去队列没找到业务员");
+                    }
+                } else {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，已经是15分钟未沟通分支，说明是在有效城市内，但此次校验又不是");
+                }
+
+                if (signCustomAllocate.getSuccessOfOldcustomer()) {
+                    // 更新客户信息
+                    SimpleUserInfoDTO simpleUserInfoDTO = thorClientService.getUserInfoById(getwayToken, customerDTO.getOwnerUserId());
+                    if (null != simpleUserInfoDTO.getSub_company_id()) {
+                        customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
+                    } else {
+                        customerDTO.setSubCompanyId(0);
+                    }
+                    customerDTO.setOwnUserName(simpleUserInfoDTO.getName());
+                    customerDTO.setReceiveTime(new Date());
+                    customerDTO.setLastUpdateTime(new Date());
+                    CustomerInfo customerInfoTemp = new CustomerInfo();
+                    EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfoTemp);
+                    if (signCustomAllocate.getSuccessOfOldcustomer()) {
+                        customerInfoTemp.setConfirm(1);
+                        customerInfoTemp.setClickCommunicateButton(0);
+                        customerInfoTemp.setCommunicateTime(null);
+                    }
+                    customerInfoService.editCustomerSys(customerInfoTemp, getwayToken);
+
+                    // 添加分配日志
+                    CustomerInfo customerInfoTemp2 = new CustomerInfo();
+                    EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfoTemp2);
+                    allocateLogService.autoAllocateAddAllocatelog(customerInfoTemp2.getId(), customerDTO.getOwnerUserId(),
+                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode());
+
+                    // 发送短信
+                    Integer r = this.sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, getwayToken);
+                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k51
+                            , ImmutableMap.of("CustomerName", customerDTO.getCustomerName(), "OwnerUserId", customerDTO.getOwnerUserId(), "simpleUserInfoDTO", simpleUserInfoDTO, "token", getwayToken)
+                            , ImmutableMap.of("短信响应", r)
+                    );
+
+                    // 添加15分钟未沟通的标记
+                    addDelayAllocate(getwayToken, customerDTO.getTelephonenumber());
+
+                    customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
+                    customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
+                }
+            }
+
+        } catch (Exception e) {
+            String str = "";
+            if (e instanceof BaseException) {
+                // 已知异常
+                BaseException be = (BaseException) e;
+                str = be.getResponseError().getMessage();
+            } else {
+                // 未知异常
+                logger.error("15分钟未沟通业务", e);
+                str = e.getMessage();
+            }
+            SingleCutomerAllocateDevInfoUtil.local.get().setSuccess(false);
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k50, ImmutableMap.of("异常", str));
+            customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
+            customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
+        } finally {
+            SingleCutomerAllocateDevInfoUtil.local.remove();
+            if (getLock) {
+                cRMRedisLockHelp.unlockForSetNx2(CommonRedisConst.ALLOCATE_DELAY_LOCK + phone, lockToken);
+            }
+        }
+        customerSalePushLogService.insertList(customerSalePushLogList);
     }
 }
