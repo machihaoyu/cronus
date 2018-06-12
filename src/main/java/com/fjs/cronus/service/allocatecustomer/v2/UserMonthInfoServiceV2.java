@@ -493,6 +493,7 @@ public class UserMonthInfoServiceV2 {
 
         // 先查该记录
         List<UserMonthInfo> select = userMonthInfoMapper.findByParamsForUpdate(subCompanyId, mediaid, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, salesmanId, createTimeStr, CommonEnum.entity_status1.getCode());
+        logger.info("---- 有效数 --> select=" + select);
         if (CollectionUtils.isEmpty(select)) {
             // 无分配记录，说明该用户不是走商机进入。例如：手动分配
             return;
