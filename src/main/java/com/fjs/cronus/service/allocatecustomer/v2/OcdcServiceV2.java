@@ -788,6 +788,7 @@ public class OcdcServiceV2 {
             if (customerDTO == null) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "根据手机号找顾客信息为null");
             }
+            customerDTO.setTelephonenumber(String.valueOf(phone));
             if (customerDTO.getId() == null) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "根据手机号找顾客信息,id 为 null");
             }
