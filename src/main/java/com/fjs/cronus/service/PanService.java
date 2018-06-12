@@ -546,7 +546,7 @@ public class PanService {
         QueryResult queryResult = new QueryResult();
         List<CustomerListDTO> resultList = new ArrayList<>();
         Integer start = (page - 1) * size;
-        List<CustomerInfo> customers = publicMapper.getPublicSelect(start,size,null,null);
+        List<CustomerInfo> customers = publicMapper.getPublicSelect(start,size,null,null,null);
         if (customers != null && customers.size() > 0){
             for (CustomerInfo customerInfo : customers) {
                 CustomerListDTO customerDto = new CustomerListDTO();
@@ -557,7 +557,7 @@ public class PanService {
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);
-            Integer count = publicMapper.getPublicSelectCount(null);
+            Integer count = publicMapper.getPublicSelectCount(null,null);
             queryResult.setRows(customers);
             queryResult.setTotal(count.toString());
         }
@@ -575,21 +575,18 @@ public class PanService {
         {
             telephone = DEC3Util.des3EncodeCBC(basePagePram.getPramEntity().getTelephonenumber());
         }
-        List<CustomerInfo> customers = publicMapper.getPublicSelect(start,basePagePram.getPageSize(),null,telephone);
+        List<CustomerInfo> customers = publicMapper.getPublicSelect(start,basePagePram.getPageSize(),null,telephone,basePagePram.getPramEntity().getCustomerName());
         if (customers != null && customers.size() > 0){
             for (CustomerInfo customerInfo : customers) {
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,2,2);
-//                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-//                String phoneNumber = telephone.substring(0, 7) + "****";
-//                customerDto.setTelephonenumber(phoneNumber);
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);
-            Integer count = publicMapper.getPublicSelectCount(telephone);
-            queryResult.setRows(customers);
-            queryResult.setTotal(count.toString());
+
         }
+        Integer count = publicMapper.getPublicSelectCount(telephone,basePagePram.getPramEntity().getCustomerName());
+        queryResult.setTotal(count.toString());
         return queryResult;
     }
 
