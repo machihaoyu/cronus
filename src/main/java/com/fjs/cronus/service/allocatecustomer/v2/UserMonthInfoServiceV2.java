@@ -485,7 +485,7 @@ public class UserMonthInfoServiceV2 {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         String createTimeStr = sdf.format(createTime);
 
-        logger.info("---- 有效数 --> salesmanId=" + salesmanId + " id=" + customerDto.getId() + " tel=" + customerDto.getTelephonenumber() + " utmSource=" +customerDto.getUtmSource() + " companyid=" + customerDto.getCompanyId());
+        logger.info("---- 有效数 --> salesmanId=" + salesmanId + " id=" + customerDto.getId() + " tel=" + customerDto.getTelephonenumber() + " utmSource=" +customerDto.getUtmSource() + " companyid=" + subCompanyId);
         Integer mediaid = this.getChannelInfoByChannelName(token, utmSource);
 
         logger.info("---- 有效数 --> mediaid=" + mediaid);
