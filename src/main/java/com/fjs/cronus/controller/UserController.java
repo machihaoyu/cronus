@@ -70,7 +70,7 @@ public class UserController {
 
     @Autowired
     private CronusRedisService cronusRedisService;
-
+/*
     @ApiOperation(value="得到下属员工", notes="得到下属员工")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
@@ -408,5 +408,5 @@ public class UserController {
         }
         return resultDto;
     }
-
+*/
 }

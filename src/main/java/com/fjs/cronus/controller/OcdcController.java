@@ -41,7 +41,7 @@ public class OcdcController {
 
     @Autowired
     private AutoCleanService autoCleanService;
-
+/*
     @ApiOperation(value = "OCDC推送", notes = "OCDC推送客户信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
@@ -224,5 +224,5 @@ public class OcdcController {
         }
         return cronusDto;
     }
-
+*/
 }
