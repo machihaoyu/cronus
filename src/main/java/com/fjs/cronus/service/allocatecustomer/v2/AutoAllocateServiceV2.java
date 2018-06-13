@@ -415,81 +415,89 @@ public class AutoAllocateServiceV2 {
         e.setStatus(CommonEnum.entity_status1.getCode());
 
         String telephone = null;
+        String content = null;
         // 校验总队列
         UserMonthInfo sumData = userMonthInfoMapper.getSumData(companyid, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr, CommonEnum.entity_status1.getCode());
-        sumData = sumData == null ? new UserMonthInfo() : sumData;
-        sumData.setBaseCustomerNum(sumData.getBaseCustomerNum() == null ? 0 : sumData.getBaseCustomerNum());
-        sumData.setAssignedCustomerNum(sumData.getAssignedCustomerNum() == null ? 0 : sumData.getAssignedCustomerNum());
 
-        if (sumData.getBaseCustomerNum() > 0 && sumData.getBaseCustomerNum() >= sumData.getAssignedCustomerNum()) {
-            // 满了，需要发短信
-            Integer sendMessageUserid = getSendMessageUserid(companyid, mediaid, token);
-            SimpleUserInfoDTO systemUserInfo = ucService.getSystemUserInfo(token, sendMessageUserid);
-            telephone = systemUserInfo.getTelephone();
-            if (StringUtils.isBlank(telephone)) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thor服务，数据异常，参数：sendMessageUserid=" + sendMessageUserid + ",响应 telephone=null");
-            }
-            // 发短信
-            Integer r = sendMessage4QueueFull(telephone, "总");
-
-            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k57
-                    , ImmutableMap.of("telephone", telephone, "队列名", "总队列")
-                    , ImmutableMap.of("短信响应", r));
-        } else {
-            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k57
-                    , ImmutableMap.of("companyid", companyid, "mediaid", mediaid, "分配数", sumData.getBaseCustomerNum(), "已分配数", sumData.getAssignedCustomerNum())
-                    , ImmutableMap.of("总队列未满", "不触发发送短信"));
-        }
-
-        // 业务情况：关注的特殊媒体才需要短信（总队列必须有，特殊队列可能有）
-        Set<Integer> followMediaidFromDB = this.companyMediaQueueService.findFollowMediaidFromDB(companyid);
-        if (!followMediaidFromDB.contains(mediaid)){
-            return;
-        }
-
-        // 校验特殊分配队列
-        UserMonthInfo sumData2 = userMonthInfoMapper.getSumData(companyid, mediaid, currentMonthStr, CommonEnum.entity_status1.getCode());
-        sumData2 = sumData2 == null ? new UserMonthInfo() : sumData2;
-        sumData2.setBaseCustomerNum(sumData2.getBaseCustomerNum() == null ? 0 : sumData2.getBaseCustomerNum());
-        sumData2.setAssignedCustomerNum(sumData2.getAssignedCustomerNum() == null ? 0 : sumData2.getAssignedCustomerNum());
-
-        if (sumData2.getBaseCustomerNum() > 0 && sumData2.getBaseCustomerNum() >= sumData2.getAssignedCustomerNum()) {
-            // 满了，需要发短信
-            if (StringUtils.isBlank(telephone)) {
+        if (sumData != null && sumData.getBaseCustomerNum() != null && sumData.getAssignedCustomerNum() != null) {
+            if (sumData.getBaseCustomerNum() > 0 && sumData.getBaseCustomerNum() >= sumData.getAssignedCustomerNum()) {
+                // 满了，需要发短信
                 Integer sendMessageUserid = getSendMessageUserid(companyid, mediaid, token);
                 SimpleUserInfoDTO systemUserInfo = ucService.getSystemUserInfo(token, sendMessageUserid);
                 telephone = systemUserInfo.getTelephone();
                 if (StringUtils.isBlank(telephone)) {
                     throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thor服务，数据异常，参数：sendMessageUserid=" + sendMessageUserid + ",响应 telephone=null");
                 }
-            }
 
-            // 获取媒体名称
-            TheaApiDTO<BaseCommonDTO> theaApiDTO = theaService.getMediaById(token, mediaid);
-            if (theaApiDTO == null) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，数据异常，参数：mediaid=" + mediaid + ",响应 theaApiDTO==null");
-            }
-            if (theaApiDTO.getResult() != 0) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，数据异常，参数：mediaid=" + mediaid + ",响应 Result=" + theaApiDTO.getResult() + ", message=" + theaApiDTO.getMessage());
-            }
-            if (theaApiDTO.getData() == null) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，数据异常，参数：mediaid=" + mediaid + ",响应 data=null");
-            }
-            String name = theaApiDTO.getData().getName();
-            if (StringUtils.isBlank(name)) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，数据异常，参数：mediaid=" + mediaid + ",响应 name=null");
-            }
-            // 发短信
-            Integer r = sendMessage4QueueFull(telephone, name);
+                content = "总";
 
-            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k57
-                    , ImmutableMap.of("telephone", telephone, "队列名", name, "mediaid", mediaid)
-                    , ImmutableMap.of("短信响应", r));
-        } else {
-            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k57
-                    , ImmutableMap.of("companyid", companyid, "mediaid", mediaid, "分配数", sumData2.getBaseCustomerNum(), "已分配数", sumData2.getAssignedCustomerNum())
-                    , ImmutableMap.of("特殊队列未满", "不触发发送短信"));
+                SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k57
+                        , ImmutableMap.of("telephone", telephone, "队列名", "总队列","分配数", sumData.getBaseCustomerNum(), "已分配数", sumData.getAssignedCustomerNum()));
+            } else {
+                SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k57
+                        , ImmutableMap.of("companyid", companyid, "mediaid", mediaid, "分配数", sumData.getBaseCustomerNum(), "已分配数", sumData.getAssignedCustomerNum())
+                        , ImmutableMap.of("总队列未满", "不触发发送短信"));
+            }
         }
+
+        // 业务情况：关注的特殊媒体才需要短信（总队列必须有，特殊队列可能有）
+        Set<Integer> followMediaidFromDB = this.companyMediaQueueService.findFollowMediaidFromDB(companyid);
+        if (followMediaidFromDB.contains(mediaid)){
+            // 校验特殊分配队列
+            UserMonthInfo sumData2 = userMonthInfoMapper.getSumData(companyid, mediaid, currentMonthStr, CommonEnum.entity_status1.getCode());
+
+            if (sumData2 != null && sumData2.getBaseCustomerNum() != null && sumData2.getAssignedCustomerNum() != null) {
+                if (sumData2.getBaseCustomerNum() > 0 && sumData2.getBaseCustomerNum() >= sumData2.getAssignedCustomerNum()) {
+                    // 满了，需要发短信
+                    if (StringUtils.isBlank(telephone)) {
+                        Integer sendMessageUserid = getSendMessageUserid(companyid, mediaid, token);
+                        SimpleUserInfoDTO systemUserInfo = ucService.getSystemUserInfo(token, sendMessageUserid);
+                        telephone = systemUserInfo.getTelephone();
+                        if (StringUtils.isBlank(telephone)) {
+                            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thor服务，数据异常，参数：sendMessageUserid=" + sendMessageUserid + ",响应 telephone=null");
+                        }
+                    }
+
+                    // 获取媒体名称
+                    TheaApiDTO<BaseCommonDTO> theaApiDTO = theaService.getMediaById(token, mediaid);
+                    if (theaApiDTO == null) {
+                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，数据异常，参数：mediaid=" + mediaid + ",响应 theaApiDTO==null");
+                    }
+                    if (theaApiDTO.getResult() != 0) {
+                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，数据异常，参数：mediaid=" + mediaid + ",响应 Result=" + theaApiDTO.getResult() + ", message=" + theaApiDTO.getMessage());
+                    }
+                    if (theaApiDTO.getData() == null) {
+                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，数据异常，参数：mediaid=" + mediaid + ",响应 data=null");
+                    }
+                    String name = theaApiDTO.getData().getName();
+                    if (StringUtils.isBlank(name)) {
+                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，数据异常，参数：mediaid=" + mediaid + ",响应 name=null");
+                    }
+
+                    if (StringUtils.isBlank(content)) {
+                        content = name;
+                    } else {
+                        content.concat(",").concat(name);
+                    }
+
+                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k57
+                            , ImmutableMap.of("telephone", telephone, "队列名", name, "mediaid", mediaid, "分配数", sumData2.getBaseCustomerNum(), "已分配数", sumData2.getAssignedCustomerNum()));
+                } else {
+                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k57
+                            , ImmutableMap.of("companyid", companyid, "mediaid", mediaid, "分配数", sumData2.getBaseCustomerNum(), "已分配数", sumData2.getAssignedCustomerNum())
+                            , ImmutableMap.of("特殊队列未满", "不触发发送短信"));
+                }
+            }
+        }
+
+        if (StringUtils.isNotBlank(content)) {
+            // 发短信
+            Integer r = sendMessage4QueueFull(telephone, content);
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k57
+                    , ImmutableMap.of("telephone", telephone, "队列名", content, "mediaid", mediaid)
+                    , ImmutableMap.of("短信响应", r));
+        }
+
 
     }
 
