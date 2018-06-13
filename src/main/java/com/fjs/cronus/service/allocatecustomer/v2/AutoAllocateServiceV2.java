@@ -1230,6 +1230,8 @@ public class AutoAllocateServiceV2 {
 
                 // 自动分配
                 Integer oldOwnerId = customerDTO.getOwnerUserId();
+                String oldOwnername = customerDTO.getOwnUserName();
+                Integer oldCompanyId = customerDTO.getSubCompanyId();
                 AllocateForAvatarDTO signCustomAllocate = new AllocateForAvatarDTO();
                 if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
                     signCustomAllocate = this.getAllocateUserV2(getwayToken, customerDTO.getCity(), currentMonthStr, mediaId);
@@ -1266,6 +1268,8 @@ public class AutoAllocateServiceV2 {
 
                     // 添加分配日志
                     customerInfoTemp.setOwnUserId(oldOwnerId);
+                    customerInfoTemp.setOwnUserName(oldOwnername);
+                    customerInfoTemp.setSubCompanyId(oldCompanyId);
                     allocateLogService.addAllocatelog(customerInfoTemp, customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
 
