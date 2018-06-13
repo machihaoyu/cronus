@@ -72,7 +72,7 @@ public class PanDataProvider {
             if (canMangerMainCity.size() > 0 && subCompanyIds.size() == 0) {
                 stringBuffer.append(" and city in (");
                 for (int i=0 ;i<canMangerMainCity.size() ;i++) {
-                    stringBuffer.append(","+canMangerMainCity.get(i)+"'");
+                    stringBuffer.append("'"+canMangerMainCity.get(i)+"'");
                     if (i!=canMangerMainCity.size()-1)
                         stringBuffer.append(",");
                 }
