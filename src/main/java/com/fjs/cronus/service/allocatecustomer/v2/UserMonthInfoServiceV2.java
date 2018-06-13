@@ -544,12 +544,16 @@ public class UserMonthInfoServiceV2 {
             ids.add(countQueue.get(0).getId());// 只给总的加，特定媒体上面已经加过了
             userMonthInfoMapper.update2IncrNumForEffectiveCustomerNum(ids);
         } else {
+            id = list.get(0).getId();
+
+
             // 主表 incr
-            Set<Integer> ids = mediaIdMappingData.keySet();
+            Set<Integer> ids = new HashSet<>();
+            ids.add(id);
+            ids.add(countQueue.get(0).getId());
             logger.info("---- 有效数 --> ids=" + ids);
             userMonthInfoMapper.update2IncrNumForEffectiveCustomerNum(ids);
 
-            id = list.get(0).getId();
         }
 
         // 明细表记录明细
