@@ -699,6 +699,7 @@ public class PublicOfferController {
             }
         } catch (Exception e) {
             resultDto.setResult(1);
+            logger.error("公盘优选异常",e);
         }
         return resultDto;
     }
