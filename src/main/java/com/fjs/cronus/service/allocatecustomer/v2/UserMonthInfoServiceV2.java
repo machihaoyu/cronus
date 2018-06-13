@@ -458,19 +458,21 @@ public class UserMonthInfoServiceV2 {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "customeId 不能为null");
         }
 
+        // 业务校验：校验该用户是否是商机过来的
         UserMonthInfoDetail detailTemp = new UserMonthInfoDetail();
         detailTemp.setStatus(CommonEnum.entity_status1.getCode());
         detailTemp.setCustomerid(customerDto.getId());
         int count = userMonthInfoDetailMapper.selectCount(detailTemp);
         if (count == 0) {
             // 非商机进入顾客，不走下面业务
+            logger.info("---- 有效数 --> 非商机产生顾客");
             return;
         }
 
+        // 参数校验
         Integer subCompanyId = customerDto.getSubCompanyId();
         String utmSource = customerDto.getUtmSource();
         Date createTime = customerDto.getCreateTime();
-
         if (subCompanyId == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "subCompanyId 不能为null");
         }
@@ -481,14 +483,13 @@ public class UserMonthInfoServiceV2 {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "createTime 不能为null");
         }
 
-        // 业务处理
+        // 根据渠道获取媒体
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
         String createTimeStr = sdf.format(createTime);
-
         logger.info("---- 有效数 --> salesmanId=" + salesmanId + " id=" + customerDto.getId() + " tel=" + customerDto.getTelephonenumber() + " utmSource=" +customerDto.getUtmSource() + " companyid=" + subCompanyId);
         Integer mediaid = this.getChannelInfoByChannelName(token, utmSource);
-
         logger.info("---- 有效数 --> mediaid=" + mediaid);
+
         Date now = new Date();
 
         // 先查该记录
@@ -518,7 +519,7 @@ public class UserMonthInfoServiceV2 {
 
         Integer id = null;
         List<UserMonthInfo> list = mediaIdMappingData.get(mediaid); // 特殊
-        List<UserMonthInfo> list1 = mediaIdMappingData.get(CommonConst.COMPANY_MEDIA_QUEUE_COUNT); // 总
+        List<UserMonthInfo> countQueue = mediaIdMappingData.get(CommonConst.COMPANY_MEDIA_QUEUE_COUNT); // 总
         if (CollectionUtils.isEmpty(list)) {
             // 新建
             UserMonthInfo userMonthInfoTemp = new UserMonthInfo();
@@ -540,7 +541,7 @@ public class UserMonthInfoServiceV2 {
             id = userMonthInfoTemp.getId();
 
             Set<Integer> ids = new HashSet<>();
-            ids.add(list1.get(0).getId());// 只给总的加，特定媒体上面已经加过了
+            ids.add(countQueue.get(0).getId());// 只给总的加，特定媒体上面已经加过了
             userMonthInfoMapper.update2IncrNumForEffectiveCustomerNum(ids);
         } else {
             // 主表 incr
