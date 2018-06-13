@@ -513,10 +513,10 @@ public class AutoAllocateServiceV2 {
         if (avatarApiDTO.getData() == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求avatar服务，数据异常，参数：companyid=" + companyid + "mediaid=" + mediaid + ",响应 data=null");
         }
-        if (StringUtils.isNumeric(avatarApiDTO.getData().toString().trim())) {
+        if (StringUtils.isBlank(avatarApiDTO.getData().toString()) || !StringUtils.isNumeric(avatarApiDTO.getData().toString().trim())) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求avatar服务，数据异常，参数：companyid=" + companyid + "mediaid=" + mediaid + ",响应 data=" + avatarApiDTO.getData());
         }
-        Integer userid = Integer.valueOf(avatarApiDTO.getData().toString());
+        Integer userid = Integer.valueOf(avatarApiDTO.getData().toString().trim());
         return userid;
     }
 
@@ -1165,7 +1165,6 @@ public class AutoAllocateServiceV2 {
                 if (customerDTO == null) {
                     throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "根据手机号找顾客信息为null");
                 }
-                customerDTO.setTelephonenumber(String.valueOf(phone));
                 if (customerDTO.getId() == null) {
                     throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "根据手机号找顾客信息,id 为 null");
                 }
@@ -1230,6 +1229,7 @@ public class AutoAllocateServiceV2 {
                 Integer mediaId = userMonthInfoService.getChannelInfoByChannelName(getwayToken, customerDTO.getUtmSource()); // 根据渠道获取来源、媒体、渠道
 
                 // 自动分配
+                Integer oldOwnerId = customerDTO.getOwnerUserId();
                 AllocateForAvatarDTO signCustomAllocate = new AllocateForAvatarDTO();
                 if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
                     signCustomAllocate = this.getAllocateUserV2(getwayToken, customerDTO.getCity(), currentMonthStr, mediaId);
@@ -1253,8 +1253,8 @@ public class AutoAllocateServiceV2 {
                         customerDTO.setSubCompanyId(0);
                     }
                     customerDTO.setOwnUserName(simpleUserInfoDTO.getName());
-                    customerDTO.setReceiveTime(new Date());
-                    customerDTO.setLastUpdateTime(new Date());
+                    customerDTO.setReceiveTime(now.getTime());
+                    customerDTO.setLastUpdateTime(now.getTime());
                     CustomerInfo customerInfoTemp = new CustomerInfo();
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfoTemp);
                     if (signCustomAllocate.getSuccessOfOldcustomer()) {
@@ -1265,10 +1265,9 @@ public class AutoAllocateServiceV2 {
                     customerInfoService.editCustomerSys(customerInfoTemp, getwayToken);
 
                     // 添加分配日志
-                    CustomerInfo customerInfoTemp2 = new CustomerInfo();
-                    EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfoTemp2);
-                    allocateLogService.autoAllocateAddAllocatelog(customerInfoTemp2.getId(), customerDTO.getOwnerUserId(),
-                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode());
+                    customerInfoTemp.setOwnUserId(oldOwnerId);
+                    allocateLogService.addAllocatelog(customerInfoTemp, customerDTO.getOwnerUserId(),
+                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
 
                     // 发送短信
                     Integer r = this.sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, getwayToken);
@@ -1278,7 +1277,7 @@ public class AutoAllocateServiceV2 {
                     );
 
                     // 添加15分钟未沟通的标记
-                    addDelayAllocate(getwayToken, customerDTO.getTelephonenumber());
+                    addDelayAllocate(getwayToken, phone.toString());
 
                     customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
                     customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
