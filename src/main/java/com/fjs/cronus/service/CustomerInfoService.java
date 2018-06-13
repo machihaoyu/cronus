@@ -1322,6 +1322,7 @@ public class CustomerInfoService {
                     customerInfoLogMapper.addCustomerLog(customerInfoLog);
 
                     allocateLogService.InsertAllocateLog(id,customerInfo.getOwnUserId(),-2,userId,userInfoDTO.getName(),CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_10.getCodeDesc());
+                    logger.warn("batchRemove-InsertAllocateLog");
                 }
             }
 
