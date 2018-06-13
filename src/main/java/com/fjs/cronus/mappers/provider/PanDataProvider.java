@@ -86,7 +86,7 @@ public class PanDataProvider {
                 }
                 stringBuffer.append(" ) ");
             } else if (canMangerMainCity.size() > 0 && subCompanyIds.size() > 0) {
-                stringBuffer.append("and city in  (");
+                stringBuffer.append("and ( city in  (");
                 for (int i=0 ;i<canMangerMainCity.size() ;i++) {
                     stringBuffer.append("'"+canMangerMainCity.get(i)+"'");
                     if (i!=canMangerMainCity.size()-1)
@@ -99,7 +99,7 @@ public class PanDataProvider {
                     if (i!=subCompanyIds.size()-1)
                         stringBuffer.append(",");
                 }
-                stringBuffer.append(" ) ");
+                stringBuffer.append(" ) ) ");
             } else if (canMangerMainCity.size() == 0 && subCompanyIds.size() == 0) {
                 stringBuffer.append(" and city  is NULL and sub_company_id IS  NULL ");
             }

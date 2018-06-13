@@ -593,6 +593,8 @@ public class PanService {
             for (CustomerInfo customerInfo : customers) {
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,2,2);
+                String phoneNumber = customerDto.getTelephonenumber().substring(0, 7) + "****";
+                customerDto.setTelephonenumber(phoneNumber);
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);
