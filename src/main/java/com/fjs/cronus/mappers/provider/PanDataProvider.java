@@ -40,7 +40,7 @@ public class PanDataProvider {
         } else {
             stringBuffer.append("0");
         }
-        if (para.get("order") != null && StringUtils.isNoneEmpty(para.get("size").toString())) {
+        if (para.get("size") != null && StringUtils.isNoneEmpty(para.get("size").toString())) {
             stringBuffer.append("," + para.get("size"));
         } else {
             stringBuffer.append(",10");
