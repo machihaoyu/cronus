@@ -513,7 +513,10 @@ public class AutoAllocateServiceV2 {
         if (avatarApiDTO.getData() == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求avatar服务，数据异常，参数：companyid=" + companyid + "mediaid=" + mediaid + ",响应 data=null");
         }
-        Integer userid = (Integer) avatarApiDTO.getData();
+        if (StringUtils.isNumeric(avatarApiDTO.getData().toString().trim())) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求avatar服务，数据异常，参数：companyid=" + companyid + "mediaid=" + mediaid + ",响应 data=" + avatarApiDTO.getData());
+        }
+        Integer userid = Integer.valueOf(avatarApiDTO.getData().toString());
         return userid;
     }
 
