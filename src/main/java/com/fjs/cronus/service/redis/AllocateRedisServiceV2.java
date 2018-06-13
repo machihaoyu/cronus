@@ -21,6 +21,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.script.DigestUtils;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +50,44 @@ public class AllocateRedisServiceV2 {
 
     @Resource
     private TheaService theaService;
+
+    /**
+     * 获取queue第一个，并放入到queue尾部.
+     * （lua脚本，保证原子性操作)
+     */
+    private String script = "local result = redis.call('lpop', KEYS[1])\n" +
+            "if result then\n" +
+            "redis.call('rpush', KEYS[1], result);\n" +
+            "return result;\n" +
+            "else\n" +
+            "return nil;\n" +
+            "end";
+
+    private RedisScript getRedisScript(String scriptStr) {
+        return new RedisScript<String>() {
+            @Override
+            public String getSha1() {
+                return DigestUtils.sha1DigestAsHex(scriptStr);
+            }
+
+            @Override
+            public Class<String> getResultType() {
+                return String.class;
+            }
+
+            @Override
+            public String getScriptAsString() {
+                return scriptStr;
+            }
+        };
+    }
+
+    private Object getAndPush2End(String key) {
+        if (StringUtils.isBlank(key)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "key 不能为null");
+        }
+        return redisTemplateOps.execute(getRedisScript(script), new StringRedisSerializer(), new StringRedisSerializer(), Collections.singletonList(key), String.valueOf("1"));
+    }
 
     /**
      * 媒体业务员queue：添加到队列尾部.
@@ -97,12 +137,10 @@ public class AllocateRedisServiceV2 {
     public Integer getAndPush2End(Integer companyId, Integer medial, String effectiveDate) {
 
         String key = this.getKey(companyId, medial, effectiveDate);
-        ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
-        Integer s = listOperations.leftPop(key);
-        if (s != null) {
-            listOperations.remove(key, 10, s);
-            listOperations.rightPush(key, s);
-            return s;
+
+        Object result = getAndPush2End(key);
+        if (result != null && StringUtils.isNumeric(result.toString().trim())) {
+            return Integer.valueOf(result.toString().trim());
         }
         return null;
     }
@@ -241,22 +279,12 @@ public class AllocateRedisServiceV2 {
      * 城市一级吧queue：找一级吧.
      */
     public Integer getSubCompanyIdFromQueue(String cityName, Integer mediaid) {
-
-        Integer subCompanyId = null;
-        if (StringUtils.isNotBlank(cityName)) {
-
-            ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
-
-            // 目标数据缓存key
-            String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaid.toString()).concat("$").concat(cityName);
-
-            if (listOperations.size(key) > 0) {
-                // 当缓存中有，取出然后移到queue尾部
-                subCompanyId = listOperations.leftPop(key);
-                listOperations.rightPush(key, subCompanyId);
-            }
+        String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaid.toString()).concat("$").concat(cityName);
+        Object result = getAndPush2End(key);
+        if (result != null && StringUtils.isNumeric(result.toString().trim())) {
+            return Integer.valueOf(result.toString().trim());
         }
-        return subCompanyId;
+        return null;
     }
 
     /**
