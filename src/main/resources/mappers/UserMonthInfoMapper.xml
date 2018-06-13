@@ -171,4 +171,19 @@
         </foreach>
     </insert>
 
+    <select id="getSumData" resultMap="BaseResultMap">
+        SELECT
+            sum(
+                base_customer_num + reward_customer_num
+            ) AS `base_customer_num`,
+            sum(assigned_customer_num) AS `assigned_customer_num`
+        FROM
+            `user_month_info`
+        WHERE
+            `companyid` = #{companyid}
+        AND `mediaid` = #{mediaid}
+        AND `effective_date` = #{effectiveDate}
+        AND `status`= #{status}
+    </select>
+
 </mapper>

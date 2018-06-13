@@ -13,6 +13,8 @@ import com.fjs.cronus.dto.avatar.AvatarApiDTO;
 import com.fjs.cronus.dto.avatar.OrderNumberDTO;
 import com.fjs.cronus.dto.avatar.OrderNumberDetailDTO;
 import com.fjs.cronus.dto.cronus.CustomerDTO;
+import com.fjs.cronus.dto.loan.TheaApiDTO;
+import com.fjs.cronus.dto.thea.BaseCommonDTO;
 import com.fjs.cronus.dto.thea.WorkDayDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.CrmUserDTO;
@@ -35,6 +37,7 @@ import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import com.fjs.cronus.service.redis.CronusRedisService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.thea.ThorClientService;
+import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DateUtils;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.SingleCutomerAllocateDevInfo;
@@ -143,6 +146,8 @@ public class AutoAllocateServiceV2 {
 
     @Autowired
     private OcdcServiceV2 ocdcServiceV2;
+    @Autowired
+    private UcService ucService;
 
     /**
      * 判断是不是客户主动申请渠道
@@ -198,6 +203,8 @@ public class AutoAllocateServiceV2 {
                         // 找到被分配的业务员
                         allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
                         customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
+                        // 短信业务：当分配队列满了需要提醒发送短信
+                        sendMessage4QueueFull(signCustomAllocate.getCompanyid(), signCustomAllocate.getMediaid(), currentMonthStr, token);
                     } else {
                         // 未找到，进商机池
                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k17);
@@ -395,6 +402,119 @@ public class AutoAllocateServiceV2 {
         }
 
         return allocateEntity;
+    }
+
+    /**
+     * 商机短信业务：当分配队列满了需要提醒发送短信.
+     */
+    private void sendMessage4QueueFull(Integer companyid, Integer mediaid, String currentMonthStr, String token) {
+
+        UserMonthInfo e = new UserMonthInfo();
+        e.setMediaid(mediaid);
+        e.setCompanyid(companyid);
+        e.setStatus(CommonEnum.entity_status1.getCode());
+
+        String telephone = null;
+        // 校验总队列
+        UserMonthInfo sumData = userMonthInfoMapper.getSumData(companyid, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr, CommonEnum.entity_status1.getCode());
+        sumData = sumData == null ? new UserMonthInfo() : sumData;
+        sumData.setBaseCustomerNum(sumData.getBaseCustomerNum() == null ? 0 : sumData.getBaseCustomerNum());
+        sumData.setAssignedCustomerNum(sumData.getAssignedCustomerNum() == null ? 0 : sumData.getAssignedCustomerNum());
+
+        if (sumData.getBaseCustomerNum() > 0 && sumData.getBaseCustomerNum() >= sumData.getAssignedCustomerNum()) {
+            // 满了，需要发短信
+            Integer sendMessageUserid = getSendMessageUserid(companyid, mediaid, token);
+            SimpleUserInfoDTO systemUserInfo = ucService.getSystemUserInfo(token, sendMessageUserid);
+            telephone = systemUserInfo.getTelephone();
+            if (StringUtils.isBlank(telephone)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thor服务，数据异常，参数：sendMessageUserid=" + sendMessageUserid + ",响应 telephone=null");
+            }
+            // 发短信
+            Integer r = sendMessage4QueueFull(telephone, "总");
+
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k57
+                    , ImmutableMap.of("telephone", telephone, "队列名", "总队列")
+                    , ImmutableMap.of("短信响应", r));
+        } else {
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k57
+                    , ImmutableMap.of("companyid", companyid, "mediaid", mediaid, "分配数", sumData.getBaseCustomerNum(), "已分配数", sumData.getAssignedCustomerNum())
+                    , ImmutableMap.of("总队列未满", "不触发发送短信"));
+        }
+
+        // 业务情况：关注的特殊媒体才需要短信（总队列必须有，特殊队列可能有）
+        Set<Integer> followMediaidFromDB = this.companyMediaQueueService.findFollowMediaidFromDB(companyid);
+        if (!followMediaidFromDB.contains(mediaid)){
+            return;
+        }
+
+        // 校验特殊分配队列
+        UserMonthInfo sumData2 = userMonthInfoMapper.getSumData(companyid, mediaid, currentMonthStr, CommonEnum.entity_status1.getCode());
+        sumData2 = sumData2 == null ? new UserMonthInfo() : sumData2;
+        sumData2.setBaseCustomerNum(sumData2.getBaseCustomerNum() == null ? 0 : sumData2.getBaseCustomerNum());
+        sumData2.setAssignedCustomerNum(sumData2.getAssignedCustomerNum() == null ? 0 : sumData2.getAssignedCustomerNum());
+
+        if (sumData2.getBaseCustomerNum() > 0 && sumData2.getBaseCustomerNum() >= sumData2.getAssignedCustomerNum()) {
+            // 满了，需要发短信
+            if (StringUtils.isBlank(telephone)) {
+                Integer sendMessageUserid = getSendMessageUserid(companyid, mediaid, token);
+                SimpleUserInfoDTO systemUserInfo = ucService.getSystemUserInfo(token, sendMessageUserid);
+                telephone = systemUserInfo.getTelephone();
+                if (StringUtils.isBlank(telephone)) {
+                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thor服务，数据异常，参数：sendMessageUserid=" + sendMessageUserid + ",响应 telephone=null");
+                }
+            }
+
+            // 获取媒体名称
+            TheaApiDTO<BaseCommonDTO> theaApiDTO = theaService.getMediaById(token, mediaid);
+            if (theaApiDTO == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，数据异常，参数：mediaid=" + mediaid + ",响应 theaApiDTO==null");
+            }
+            if (theaApiDTO.getResult() != 0) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，数据异常，参数：mediaid=" + mediaid + ",响应 Result=" + theaApiDTO.getResult() + ", message=" + theaApiDTO.getMessage());
+            }
+            if (theaApiDTO.getData() == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，数据异常，参数：mediaid=" + mediaid + ",响应 data=null");
+            }
+            String name = theaApiDTO.getData().getName();
+            if (StringUtils.isBlank(name)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求thea服务，数据异常，参数：mediaid=" + mediaid + ",响应 name=null");
+            }
+            // 发短信
+            Integer r = sendMessage4QueueFull(telephone, name);
+
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k57
+                    , ImmutableMap.of("telephone", telephone, "队列名", name, "mediaid", mediaid)
+                    , ImmutableMap.of("短信响应", r));
+        } else {
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k57
+                    , ImmutableMap.of("companyid", companyid, "mediaid", mediaid, "分配数", sumData2.getBaseCustomerNum(), "已分配数", sumData2.getAssignedCustomerNum())
+                    , ImmutableMap.of("特殊队列未满", "不触发发送短信"));
+        }
+
+    }
+
+    /**
+     * 从商机获取发送短信的目标人.
+     */
+    private Integer getSendMessageUserid(Integer companyid, Integer mediaid, String token) {
+        // 找发送短信目标人
+        JSONObject params = new JSONObject();
+        params.put("firstBarId", companyid);
+        params.put("mediaId", mediaid);
+        params.put("realNumber", 0);
+        params.put("time", new Date().getTime());
+        AvatarApiDTO<Object> avatarApiDTO = avatarClientService.getUserId(token, params);
+        if (avatarApiDTO == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求avatar服务，数据异常，参数：companyid=" + companyid + "mediaid=" + mediaid + ",响应 avatarApiDTO==null");
+        }
+        if (avatarApiDTO.getResult() != 0) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求avatar服务，数据异常，参数：companyid=" + companyid + "mediaid=" + mediaid + ",响应 Result=" + avatarApiDTO.getResult() + ", message=" + avatarApiDTO.getMessage());
+        }
+        if (avatarApiDTO.getData() == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "请求avatar服务，数据异常，参数：companyid=" + companyid + "mediaid=" + mediaid + ",响应 data=null");
+        }
+        Integer userid = (Integer) avatarApiDTO.getData();
+        return userid;
     }
 
     /**
@@ -768,6 +888,14 @@ public class AutoAllocateServiceV2 {
                 toId);
 
         return smsService.sendSmsForAutoAllocate(ownerUser.getTelephone(), customerName);
+    }
+
+    /**
+     * 商机分配队列满了，发短信.
+     */
+    private Integer sendMessage4QueueFull(String phone, String medianame) {
+        String content = medianame + "分配队列已满，请及时修改";
+        return smsService.sendCommunication(phone, content);
     }
 
     private void sendCRMAssistantMessage(String customerCity, String customerName, String token) {
