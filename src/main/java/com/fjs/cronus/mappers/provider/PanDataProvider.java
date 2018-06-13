@@ -46,6 +46,7 @@ public class PanDataProvider {
             stringBuffer.append(",10");
         }
 
+        logger.info("PublicSelectSql:"+stringBuffer.toString());
         return stringBuffer.toString();
     }
 
