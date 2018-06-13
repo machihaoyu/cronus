@@ -852,7 +852,7 @@ public class AutoAllocateServiceV2 {
                         , ImmutableMap.of("salesmanId", salesmanId, "idFromCountQueue", idFromCountQueue));
                 result.setCompanyid(subCompanyId);
                 result.setSalesmanId(salesmanId);
-                result.setMediaid(subCompanyId);
+                result.setMediaid(media_id);
                 result.setFrommediaid(idFromCountQueue ? CommonConst.COMPANY_MEDIA_QUEUE_COUNT : media_id);
                 result.setSuccessOfAvatar(true);
                 break;
