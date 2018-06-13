@@ -43,4 +43,9 @@ public interface UserMonthInfoMapper extends MyMapper<UserMonthInfo>{
      * 加悲观锁查.
      */
     List<UserMonthInfo> findByParamsForUpdate(@Param("subCompanyId")Integer subCompanyId, @Param("mediaid")Integer mediaid, @Param("countMediaid")Integer countMediaid, @Param("salesmanId")Integer salesmanId, @Param("currentMonth")String currentMonth, @Param("status")Integer status);
+
+    /**
+     * 获取一级吧、媒体、某月的分配数（分配数+奖励数）、已分配数.
+     */
+    UserMonthInfo getSumData(@Param("companyid")Integer companyid, @Param("mediaid")Integer mediaid, @Param("effectiveDate")String effectiveDate, @Param("status")Integer status);
 }

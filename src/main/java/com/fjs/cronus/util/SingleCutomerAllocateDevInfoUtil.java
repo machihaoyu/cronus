@@ -77,5 +77,6 @@ public class SingleCutomerAllocateDevInfoUtil {
     public static final String k51 = "[短信]自动分配队列";
     public static final String k52 = "[短信]已存在负责人";
     public static final String k56 = "ocdc请求数据";
+    public static final String k57 = "[短信]分配队列已满";
 
 }
