@@ -1153,6 +1153,7 @@ public class AutoAllocateServiceV2 {
         boolean getLock = true;
 
         try {
+            SingleCutomerAllocateDevInfoUtil.local.set(new SingleCutomerAllocateDevInfo());
 
             try {
                 lockToken = cRMRedisLockHelp.lockBySetNX(CommonRedisConst.ALLOCATE_DELAY_LOCK + phone);
@@ -1167,7 +1168,6 @@ public class AutoAllocateServiceV2 {
                 );
             } else {
 
-                SingleCutomerAllocateDevInfoUtil.local.set(new SingleCutomerAllocateDevInfo());
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k49,
                         ImmutableMap.of("phone", phone, "time", time)
                 );
@@ -1294,12 +1294,11 @@ public class AutoAllocateServiceV2 {
                         // 添加15分钟未沟通的标记
                         addDelayAllocate(getwayToken, phone.toString());
 
-                        customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
-                        customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
                     }
                 }
             }
-
+            customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
+            customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
         } catch (Exception e) {
             String str = "";
             if (e instanceof BaseException) {
