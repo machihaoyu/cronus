@@ -421,7 +421,7 @@ public class AutoAllocateServiceV2 {
         UserMonthInfo sumData = userMonthInfoMapper.getSumData(companyid, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr, CommonEnum.entity_status1.getCode());
 
         if (sumData != null && sumData.getBaseCustomerNum() != null && sumData.getAssignedCustomerNum() != null) {
-            if (sumData.getBaseCustomerNum() > 0 && sumData.getBaseCustomerNum() >= sumData.getAssignedCustomerNum()) {
+            if (sumData.getBaseCustomerNum() > 0 && (sumData.getAssignedCustomerNum() + 1 ) >= sumData.getBaseCustomerNum()) {
                 // 满了，需要发短信
                 Integer sendMessageUserid = getSendMessageUserid(companyid, mediaid, token);
                 SimpleUserInfoDTO systemUserInfo = ucService.getSystemUserInfo(token, sendMessageUserid);
@@ -448,7 +448,7 @@ public class AutoAllocateServiceV2 {
             UserMonthInfo sumData2 = userMonthInfoMapper.getSumData(companyid, mediaid, currentMonthStr, CommonEnum.entity_status1.getCode());
 
             if (sumData2 != null && sumData2.getBaseCustomerNum() != null && sumData2.getAssignedCustomerNum() != null) {
-                if (sumData2.getBaseCustomerNum() > 0 && sumData2.getBaseCustomerNum() >= sumData2.getAssignedCustomerNum()) {
+                if (sumData2.getBaseCustomerNum() > 0 && (sumData2.getAssignedCustomerNum() + 1) >= sumData2.getBaseCustomerNum()) {
                     // 满了，需要发短信
                     if (StringUtils.isBlank(telephone)) {
                         Integer sendMessageUserid = getSendMessageUserid(companyid, mediaid, token);
