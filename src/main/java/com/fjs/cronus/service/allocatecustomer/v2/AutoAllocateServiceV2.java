@@ -1140,10 +1140,15 @@ public class AutoAllocateServiceV2 {
     public void delayAllocate(Long phone, long time) {
         logger.info("15分钟未沟通业务----> queue触发，调用ocdc delayAllocate " + phone + " " + time);
 
+        Calendar now = Calendar.getInstance();
         List<CustomerSalePushLog> customerSalePushLogList = new ArrayList<>(1);
         CustomerSalePushLog customerSalePushLog = new CustomerSalePushLog();
+        customerSalePushLog.setRetain(0);
+        customerSalePushLog.setTelephonenumber(phone.toString());
+        customerSalePushLog.setCreateTime(now.getTime());
+        customerSalePushLog.setUpdateTime(now.getTime());
+        customerSalePushLog.setReceiveTime(now.getTime());
         customerSalePushLogList.add(customerSalePushLog);
-        Calendar now = Calendar.getInstance();
         Long lockToken = null;
         boolean getLock = true;
 
@@ -1206,9 +1211,6 @@ public class AutoAllocateServiceV2 {
                 customerSalePushLog.setHouseLocation(customerDTO.getHouseLocation());
                 customerSalePushLog.setCity(customerDTO.getCity());
                 customerSalePushLog.setRetain(customerDTO.getRemain() == null ? 0 : customerDTO.getRemain());
-                customerSalePushLog.setCreateTime(now.getTime());
-                customerSalePushLog.setUpdateTime(now.getTime());
-                customerSalePushLog.setReceiveTime(now.getTime());
                 customerSalePushLog.setAutostatus(1);
                 customerSalePushLog.setUtmSource(customerDTO.getUtmSource());
                 customerSalePushLog.setCustomerSource(customerDTO.getCustomerSource());
@@ -1227,74 +1229,74 @@ public class AutoAllocateServiceV2 {
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k55
                             , ImmutableMap.of("最近沟通时间", communicateTime.getTime(), "此次触发再分配的时间", time)
                     );
-                    return;
-                }
-
-                // 获取自动分配的城市
-                String allocateCities = theaClientService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY);
-
-                String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT); // 当月字符串
-
-                Integer mediaId = userMonthInfoService.getChannelInfoByChannelName(getwayToken, customerDTO.getUtmSource()); // 根据渠道获取来源、媒体、渠道
-
-                // 自动分配
-                Integer oldOwnerId = customerDTO.getOwnerUserId();
-                String oldOwnername = customerDTO.getOwnUserName();
-                Integer oldCompanyId = customerDTO.getSubCompanyId();
-                AllocateForAvatarDTO signCustomAllocate = new AllocateForAvatarDTO();
-                if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
-                    signCustomAllocate = this.getAllocateUserV2(getwayToken, customerDTO.getCity(), currentMonthStr, mediaId);
-                    if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
-                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k14, ImmutableMap.of("SalesmanId", signCustomAllocate.getSalesmanId()));
-                        customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
-                    } else { // 未找到，抛错记录日志
-                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k19);
-                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "老客户去队列没找到业务员");
-                    }
                 } else {
-                    throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，已经是15分钟未沟通分支，说明是在有效城市内，但此次校验又不是");
-                }
 
-                if (signCustomAllocate.getSuccessOfOldcustomer()) {
-                    // 更新客户信息
-                    SimpleUserInfoDTO simpleUserInfoDTO = thorClientService.getUserInfoById(getwayToken, customerDTO.getOwnerUserId());
-                    if (null != simpleUserInfoDTO.getSub_company_id()) {
-                        customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
+                    // 获取自动分配的城市
+                    String allocateCities = theaClientService.getConfigByName(CommonConst.CAN_ALLOCATE_CITY);
+
+                    String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT); // 当月字符串
+
+                    Integer mediaId = userMonthInfoService.getChannelInfoByChannelName(getwayToken, customerDTO.getUtmSource()); // 根据渠道获取来源、媒体、渠道
+
+                    // 自动分配
+                    Integer oldOwnerId = customerDTO.getOwnerUserId();
+                    String oldOwnername = customerDTO.getOwnUserName();
+                    Integer oldCompanyId = customerDTO.getSubCompanyId();
+                    AllocateForAvatarDTO signCustomAllocate = new AllocateForAvatarDTO();
+                    if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
+                        signCustomAllocate = this.getAllocateUserV2(getwayToken, customerDTO.getCity(), currentMonthStr, mediaId);
+                        if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
+                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k14, ImmutableMap.of("SalesmanId", signCustomAllocate.getSalesmanId()));
+                            customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
+                        } else { // 未找到，抛错记录日志
+                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k19);
+                            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "老客户去队列没找到业务员");
+                        }
                     } else {
-                        customerDTO.setSubCompanyId(0);
+                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据异常，已经是15分钟未沟通分支，说明是在有效城市内，但此次校验又不是");
                     }
-                    customerDTO.setOwnUserName(simpleUserInfoDTO.getName());
-                    customerDTO.setReceiveTime(now.getTime());
-                    customerDTO.setLastUpdateTime(now.getTime());
-                    CustomerInfo customerInfoTemp = new CustomerInfo();
-                    EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfoTemp);
+
                     if (signCustomAllocate.getSuccessOfOldcustomer()) {
-                        customerInfoTemp.setConfirm(1);
-                        customerInfoTemp.setClickCommunicateButton(0);
-                        customerInfoTemp.setCommunicateTime(null);
-                        customerInfoTemp.setReceiveTime(now.getTime());
+                        // 更新客户信息
+                        SimpleUserInfoDTO simpleUserInfoDTO = thorClientService.getUserInfoById(getwayToken, customerDTO.getOwnerUserId());
+                        if (null != simpleUserInfoDTO.getSub_company_id()) {
+                            customerDTO.setSubCompanyId(Integer.valueOf(simpleUserInfoDTO.getSub_company_id()));
+                        } else {
+                            customerDTO.setSubCompanyId(0);
+                        }
+                        customerDTO.setOwnUserName(simpleUserInfoDTO.getName());
+                        customerDTO.setReceiveTime(now.getTime());
+                        customerDTO.setLastUpdateTime(now.getTime());
+                        CustomerInfo customerInfoTemp = new CustomerInfo();
+                        EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfoTemp);
+                        if (signCustomAllocate.getSuccessOfOldcustomer()) {
+                            customerInfoTemp.setConfirm(1);
+                            customerInfoTemp.setClickCommunicateButton(0);
+                            customerInfoTemp.setCommunicateTime(null);
+                            customerInfoTemp.setReceiveTime(now.getTime());
+                        }
+                        customerInfoService.editCustomerSys(customerInfoTemp, getwayToken);
+
+                        // 添加分配日志
+                        customerInfoTemp.setOwnUserId(oldOwnerId);
+                        customerInfoTemp.setOwnUserName(oldOwnername);
+                        customerInfoTemp.setSubCompanyId(oldCompanyId);
+                        allocateLogService.addAllocatelog(customerInfoTemp, customerDTO.getOwnerUserId(),
+                                CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
+
+                        // 发送短信
+                        Integer r = this.sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, getwayToken);
+                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k51
+                                , ImmutableMap.of("CustomerName", customerDTO.getCustomerName(), "OwnerUserId", customerDTO.getOwnerUserId(), "simpleUserInfoDTO", simpleUserInfoDTO, "token", getwayToken)
+                                , ImmutableMap.of("短信响应", r)
+                        );
+
+                        // 添加15分钟未沟通的标记
+                        addDelayAllocate(getwayToken, phone.toString());
+
+                        customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
+                        customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
                     }
-                    customerInfoService.editCustomerSys(customerInfoTemp, getwayToken);
-
-                    // 添加分配日志
-                    customerInfoTemp.setOwnUserId(oldOwnerId);
-                    customerInfoTemp.setOwnUserName(oldOwnername);
-                    customerInfoTemp.setSubCompanyId(oldCompanyId);
-                    allocateLogService.addAllocatelog(customerInfoTemp, customerDTO.getOwnerUserId(),
-                            CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_3.getCode(), null);
-
-                    // 发送短信
-                    Integer r = this.sendMessage(customerDTO.getCustomerName(), customerDTO.getOwnerUserId(), simpleUserInfoDTO, getwayToken);
-                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k51
-                            , ImmutableMap.of("CustomerName", customerDTO.getCustomerName(), "OwnerUserId", customerDTO.getOwnerUserId(), "simpleUserInfoDTO", simpleUserInfoDTO, "token", getwayToken)
-                            , ImmutableMap.of("短信响应", r)
-                    );
-
-                    // 添加15分钟未沟通的标记
-                    addDelayAllocate(getwayToken, phone.toString());
-
-                    customerSalePushLog.setPushstatus(SingleCutomerAllocateDevInfoUtil.local.get().getSuccess() ? 1 : 0);
-                    customerSalePushLog.setErrorinfo(SingleCutomerAllocateDevInfoUtil.local.get().getInfo().toString());
                 }
             }
 
