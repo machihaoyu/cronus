@@ -478,7 +478,7 @@ public class AutoAllocateServiceV2 {
                     if (StringUtils.isBlank(content)) {
                         content = name;
                     } else {
-                        content.concat(",").concat(name);
+                        content = content.concat(",").concat(name);
                     }
 
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k57
@@ -498,8 +498,6 @@ public class AutoAllocateServiceV2 {
                     , ImmutableMap.of("telephone", telephone, "队列名", content, "mediaid", mediaid)
                     , ImmutableMap.of("短信响应", r));
         }
-
-
     }
 
     /**
