@@ -349,7 +349,8 @@ public class AutoAllocateServiceV2 {
                     );
 
                     // 添加15分钟未沟通的标记
-                    addDelayAllocate(token, customerDTO.getTelephonenumber());
+                    // TODO lihong 与MGM系统业务冲突，暂时关闭
+                    //addDelayAllocate(token, customerDTO.getTelephonenumber());
                     break;
                 case "3": // 已存在负责人
                     // 添加分配日志
