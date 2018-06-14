@@ -268,6 +268,7 @@ public class AutoAllocateServiceV2 {
                         customerInfo.setConfirm(1);
                         customerInfo.setClickCommunicateButton(0);
                         customerInfo.setCommunicateTime(null);
+                        customerInfo.setReceiveTime(new Date());
                     }
                     customerInfoService.editCustomerSys(customerInfo, token);
                 }
@@ -1271,6 +1272,7 @@ public class AutoAllocateServiceV2 {
                         customerInfoTemp.setConfirm(1);
                         customerInfoTemp.setClickCommunicateButton(0);
                         customerInfoTemp.setCommunicateTime(null);
+                        customerInfoTemp.setReceiveTime(now.getTime());
                     }
                     customerInfoService.editCustomerSys(customerInfoTemp, getwayToken);
 
