@@ -33,7 +33,7 @@ public class CustomerSalePushLogController {
     @Autowired
     private CustomerSalePushLogService customerSalePushLogService;
 
-    @ApiOperation(value = "根据条件查询日志信息", notes = " 根据条件查询日志信息 api")
+    @ApiOperation(value = "【非业务接口】根据条件查询日志信息", notes = " 【非业务接口】根据条件查询日志信息 api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
             @ApiImplicitParam(name = "params", value = "提交数据,{'mediaIds':'1,2,3','companyid':123}", paramType = "body", dataType = "JSONObject", required = false),
