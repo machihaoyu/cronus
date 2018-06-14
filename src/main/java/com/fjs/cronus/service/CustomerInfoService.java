@@ -418,6 +418,7 @@ public class CustomerInfoService {
         customerInfo.setRemain(CommonConst.REMAIN_STATUS_NO);
         customerInfo.setConfirm(CommonConst.CONFIRM__STATUS_NO);
         customerInfo.setReceiveId(0);
+        customerInfo.setReceiveTime(date);
         customerInfo.setCommunicateId(0);
         customerInfo.setOwnUserId(Integer.valueOf(userInfoDTO.getUser_id()));
         customerInfo.setOwnUserName(userInfoDTO.getName());
@@ -429,15 +430,10 @@ public class CustomerInfoService {
         if (customerInfo.getId() == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
         }
-        //开始插入log表
+
         //生成日志记录
-        CustomerInfoLog customerInfoLog = new CustomerInfoLog();
-        EntityToDto.customerEntityToCustomerLog(customerInfo, customerInfoLog);
-        customerInfoLog.setLogCreateTime(date);
-        customerInfoLog.setLogDescription("增加一条客户记录");
-        customerInfoLog.setLogUserId(Integer.valueOf(userInfoDTO.getUser_id()));
-        customerInfoLog.setIsDeleted(0);
-        customerInfoLogMapper.addCustomerLog(customerInfoLog);
+        allocateLogService.addAllocatelog(customerInfo,Integer.valueOf(userInfoDTO.getUser_id()),CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_4.getCode(),userInfoDTO);
+
         //需要像ocdc推送客户
         outPutService.synchronToOcdc(customerInfo);
         cronusDto.setResult(ResultResource.CODE_SUCCESS);
