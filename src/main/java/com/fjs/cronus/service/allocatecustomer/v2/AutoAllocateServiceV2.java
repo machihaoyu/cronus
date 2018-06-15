@@ -999,7 +999,7 @@ public class AutoAllocateServiceV2 {
             long size2 = allocateRedisService.getQueueSize(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k42 + "$" + i
                     , ImmutableMap.of("subCompanyId", subCompanyId, "currentMonthStr", currentMonthStr)
-                    , ImmutableMap.of("队列大小", size));
+                    , ImmutableMap.of("队列大小", size2));
             for (int j = 0; j < size2; j++) {
                 Integer salesmanId = allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
 
