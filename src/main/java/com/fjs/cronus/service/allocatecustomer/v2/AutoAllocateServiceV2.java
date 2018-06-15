@@ -247,6 +247,10 @@ public class AutoAllocateServiceV2 {
                 }
             }
 
+            if(StringUtils.isBlank(customerDTO.getCustomerName())) {
+                customerDTO.setCustomerName(CommonConst.DEFAULT_CUSTOMER_NAME + customerDTO.getOcdcId());
+            }
+
             // 保存客户
             SimpleUserInfoDTO simpleUserInfoDTO = null;
             if (null != customerDTO.getId() && customerDTO.getId() > 0) { // 老客户
@@ -274,9 +278,6 @@ public class AutoAllocateServiceV2 {
                 }
             } else { // 新客户
 
-                if(StringUtils.isBlank(customerDTO.getCustomerName())) {
-                    customerDTO.setCustomerName(CommonConst.DEFAULT_CUSTOMER_NAME + customerDTO.getOcdcId());
-                }
                 CronusDto<CustomerDTO> cronusDto = customerInfoService.fingByphone(customerDTO.getTelephonenumber());
                 CustomerDTO hasCustomer = cronusDto.getData();
                 if (null == hasCustomer || null == hasCustomer.getId()) {
