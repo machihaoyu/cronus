@@ -84,6 +84,8 @@ public class CommonConst {
 
     //默认客户名
     public static String DEFAULT_CUSTOMER_NAME = "客户";
+    // ocdc 客户未设置名字
+    public static final String NONE_CUSTOMER_NAME = "未录名客户";
 
 
     //不参加分配的权限（房速贷）
@@ -246,7 +248,5 @@ public class CommonConst {
     public static final String USER_MONTH_INFO_MONTH_CURRENT = "current";   // 当月
     public static final String USER_MONTH_INFO_MONTH_NEXT = "next";         // 下月
 
-    // ocdc 客户未设置名字
-    public static final String DEFAULT_USER_NAME = "未录名客户";
 }
 
