@@ -84,9 +84,6 @@ public class CommonConst {
 
     //默认客户名
     public static String DEFAULT_CUSTOMER_NAME = "客户";
-    // ocdc 客户未设置名字
-    public static final String NONE_CUSTOMER_NAME = "未录名客户";
-
 
     //不参加分配的权限（房速贷）
     public static String CUSTOMER_SOURCE_FANGSUDAI = "fangsudai";

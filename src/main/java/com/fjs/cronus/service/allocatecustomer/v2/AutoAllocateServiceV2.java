@@ -275,7 +275,7 @@ public class AutoAllocateServiceV2 {
             } else { // 新客户
 
                 if(StringUtils.isBlank(customerDTO.getCustomerName())) {
-                    customerDTO.setCustomerName(CommonConst.NONE_CUSTOMER_NAME);
+                    customerDTO.setCustomerName(CommonConst.DEFAULT_CUSTOMER_NAME + customerDTO.getOcdcId());
                 }
                 CronusDto<CustomerDTO> cronusDto = customerInfoService.fingByphone(customerDTO.getTelephonenumber());
                 CustomerDTO hasCustomer = cronusDto.getData();
