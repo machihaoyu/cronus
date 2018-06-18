@@ -78,5 +78,7 @@ public class SingleCutomerAllocateDevInfoUtil {
     public static final String k52 = "[短信]已存在负责人";
     public static final String k56 = "ocdc请求数据";
     public static final String k57 = "[短信]分配队列已满";
+    public static final String k58 = "（商机老客户）老客户去队列没找到业务员,依然在商机池，不做处理";
+    public static final String k59 = "老客户去队列没找到业务员，依然在公盘，不做处理";
 
 }

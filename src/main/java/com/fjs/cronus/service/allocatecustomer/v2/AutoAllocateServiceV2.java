@@ -220,6 +220,8 @@ public class AutoAllocateServiceV2 {
                 // 老客户
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k1);
 
+                // 商机老客户
+
                 UserInfoDTO ownerUser = this.getOwnerUser(customerDTO, token); // 获取负责人(系统外指定业务员情况)
                 if (StringUtils.isNotEmpty(ownerUser.getUser_id())) {
                     // 存在处理指定业务员情况（客户 or 外部系统可指定业务员）
@@ -229,16 +231,25 @@ public class AutoAllocateServiceV2 {
                     allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
                 } else if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
                     // 在有效分配城市内
-                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k15);
-                    // 根据城市，去找一级吧下业务员
-                    signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, mediaId);
-                    if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
-                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k14, ImmutableMap.of("SalesmanId", signCustomAllocate.getSalesmanId()));
-                        allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
-                        customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
-                    } else { // 未找到，抛错记录日志
-                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k19);
-                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "老客户去队列没找到业务员");
+
+                    if (customerDTO.getOwnerUserId() == -1) {
+                        // 商机老客户，先临时处理。不做处理，标记为进入公盘，其实不会做任何处理
+                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k58);
+                        allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
+                    } else {
+                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k15);
+                        // 根据城市，去找一级吧下业务员
+                        signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, mediaId);
+                        if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
+                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k14, ImmutableMap.of("SalesmanId", signCustomAllocate.getSalesmanId()));
+                            allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
+                            customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
+                        } else { // 未找到，抛错记录日志
+                            //SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k19);
+                            //throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "老客户去队列没找到业务员");
+                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k59);
+                            allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
+                        }
                     }
                 } else {
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k16);
