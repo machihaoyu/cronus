@@ -318,13 +318,14 @@ public class AutoAllocateServiceV2 {
                             }
 
                             // 新建用户信息
-                            CronusDto cronusDto1 = customerInfoService.addOcdcCustomer(customerDTO, token);
-                            if (cronusDto1.getResult() == 0) {
-                                customerDTO.setId(Integer.parseInt(cronusDto1.getData().toString()));
-                                if (signCustomAllocate.getSuccessOfAvatar()) {
-                                    // 新客户已找到业务员，记录分配数
-                                    this.userMonthInfoService.incrNum2DBForOCDCPush(signCustomAllocate, mediaId, currentMonthStr, customerDTO);
-                                }
+                            CronusDto<Integer> cronusDto1 = customerInfoService.addOcdcCustomer(customerDTO, token);
+                            if (cronusDto1.getResult() !=  0) {
+                                throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, cronusDto1.getMessage());
+                            }
+                            customerDTO.setId(cronusDto1.getData());
+                            if (signCustomAllocate.getSuccessOfAvatar()) {
+                                // 新客户已找到业务员，记录分配数
+                                this.userMonthInfoService.incrNum2DBForOCDCPush(signCustomAllocate, mediaId, currentMonthStr, customerDTO);
                             }
 
                             break;
@@ -346,9 +347,9 @@ public class AutoAllocateServiceV2 {
                     break;
                 case "1": // 自动分配队列
                     // 添加分配日志
-                    CustomerInfo customerInfo = new CustomerInfo();
-                    EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
-                    allocateLogService.autoAllocateAddAllocatelog(customerInfo.getId(), customerDTO.getOwnerUserId(),
+                    //CustomerInfo customerInfo = new CustomerInfo();
+                    //EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
+                    allocateLogService.autoAllocateAddAllocatelog(customerDTO.getId(), customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode());
 
                     if (this.isActiveApplicationChannel(customerDTO)) {
