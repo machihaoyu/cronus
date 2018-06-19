@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DigestUtils;
+import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -14,8 +17,7 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.DelayQueue;
 
 /**
@@ -45,6 +47,18 @@ public class DelayAllocateService {
      * 工作线程.
      */
     private Thread worker;
+
+    /**
+     * redis 原子性 删除15分钟未沟通手机，且保证时间是相等
+     */
+    private String script = "local timeStr = redis.call('HGET', KEYS[1], ARGV[1]);\n" +
+            "if timeStr and ARGV[2] then\n" +
+            "if ( timeStr == ARGV[2] ) then\n" +
+            "redis.call('HDEL', KEYS[1], ARGV[1])" +
+            "return timeStr;\n" +
+            "end;\n" +
+            "end\n" +
+            "return nil;";
 
     @PostConstruct
     public void initQueue() {
@@ -168,6 +182,31 @@ public class DelayAllocateService {
         if (time2 != null && time.compareTo(time2) == 0) {
             operater.delete(CommonRedisConst.ALLOCATE_DELAY, phone);
         }
+    }
+
+    private RedisScript getRedisScript(String scriptStr) {
+        return new RedisScript<String>() {
+            @Override
+            public String getSha1() {
+                return DigestUtils.sha1DigestAsHex(scriptStr);
+            }
+
+            @Override
+            public Class<String> getResultType() {
+                return String.class;
+            }
+
+            @Override
+            public String getScriptAsString() {
+                return scriptStr;
+            }
+        };
+    }
+
+    private void delete(String key, long phone, String timeStr){
+        // 此处有坑，由于redis的序列化器导致，redis中存在time是"2018-06-14 16:23:09"，所以需要再加引号
+        timeStr = "\"" + timeStr + "\"";
+        redisTemplateOps.execute(getRedisScript(script), new StringRedisSerializer(), new StringRedisSerializer(), Collections.singletonList(key), String.valueOf(phone), timeStr);
     }
 
 }

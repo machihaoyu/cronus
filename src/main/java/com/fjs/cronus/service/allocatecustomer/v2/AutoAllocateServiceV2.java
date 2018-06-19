@@ -220,6 +220,8 @@ public class AutoAllocateServiceV2 {
                 // 老客户
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k1);
 
+                // 商机老客户
+
                 UserInfoDTO ownerUser = this.getOwnerUser(customerDTO, token); // 获取负责人(系统外指定业务员情况)
                 if (StringUtils.isNotEmpty(ownerUser.getUser_id())) {
                     // 存在处理指定业务员情况（客户 or 外部系统可指定业务员）
@@ -229,22 +231,35 @@ public class AutoAllocateServiceV2 {
                     allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
                 } else if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
                     // 在有效分配城市内
-                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k15);
-                    // 根据城市，去找一级吧下业务员
-                    signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, mediaId);
-                    if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
-                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k14, ImmutableMap.of("SalesmanId", signCustomAllocate.getSalesmanId()));
-                        allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
-                        customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
-                    } else { // 未找到，抛错记录日志
-                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k19);
-                        throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "老客户去队列没找到业务员");
+
+                    if (customerDTO.getOwnerUserId() == -1) {
+                        // 商机老客户，先临时处理。不做处理，标记为进入公盘，其实不会做任何处理
+                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k58);
+                        allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
+                    } else {
+                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k15);
+                        // 根据城市，去找一级吧下业务员
+                        signCustomAllocate = this.getAllocateUserV2(token, customerDTO.getCity(), currentMonthStr, mediaId);
+                        if (signCustomAllocate.getSuccessOfOldcustomer()) { //找到业务员
+                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k14, ImmutableMap.of("SalesmanId", signCustomAllocate.getSalesmanId()));
+                            allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
+                            customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
+                        } else { // 未找到，抛错记录日志
+                            //SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k19);
+                            //throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "老客户去队列没找到业务员");
+                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k59);
+                            allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
+                        }
                     }
                 } else {
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k16);
                     customerDTO.setOwnerUserId(0);
                     allocateEntity.setAllocateStatus(AllocateEnum.TO_SERVICE_SYSTEM);
                 }
+            }
+
+            if(StringUtils.isBlank(customerDTO.getCustomerName())) {
+                customerDTO.setCustomerName(CommonConst.DEFAULT_CUSTOMER_NAME + customerDTO.getOcdcId());
             }
 
             // 保存客户
@@ -303,13 +318,14 @@ public class AutoAllocateServiceV2 {
                             }
 
                             // 新建用户信息
-                            CronusDto cronusDto1 = customerInfoService.addOcdcCustomer(customerDTO, token);
-                            if (cronusDto1.getResult() == 0) {
-                                customerDTO.setId(Integer.parseInt(cronusDto1.getData().toString()));
-                                if (signCustomAllocate.getSuccessOfAvatar()) {
-                                    // 新客户已找到业务员，记录分配数
-                                    this.userMonthInfoService.incrNum2DBForOCDCPush(signCustomAllocate, mediaId, currentMonthStr, customerDTO);
-                                }
+                            CronusDto<Integer> cronusDto1 = customerInfoService.addOcdcCustomer(customerDTO, token);
+                            if (cronusDto1.getResult() !=  0) {
+                                throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR, cronusDto1.getMessage());
+                            }
+                            customerDTO.setId(cronusDto1.getData());
+                            if (signCustomAllocate.getSuccessOfAvatar()) {
+                                // 新客户已找到业务员，记录分配数
+                                this.userMonthInfoService.incrNum2DBForOCDCPush(signCustomAllocate, mediaId, currentMonthStr, customerDTO);
                             }
 
                             break;
@@ -331,9 +347,9 @@ public class AutoAllocateServiceV2 {
                     break;
                 case "1": // 自动分配队列
                     // 添加分配日志
-                    CustomerInfo customerInfo = new CustomerInfo();
-                    EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
-                    allocateLogService.autoAllocateAddAllocatelog(customerInfo.getId(), customerDTO.getOwnerUserId(),
+                    //CustomerInfo customerInfo = new CustomerInfo();
+                    //EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);
+                    allocateLogService.autoAllocateAddAllocatelog(customerDTO.getId(), customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_1.getCode());
 
                     if (this.isActiveApplicationChannel(customerDTO)) {
@@ -349,7 +365,8 @@ public class AutoAllocateServiceV2 {
                     );
 
                     // 添加15分钟未沟通的标记
-                    addDelayAllocate(token, customerDTO.getTelephonenumber());
+                    // TODO lihong 与MGM系统业务冲突，暂时关闭
+                    //addDelayAllocate(token, customerDTO.getTelephonenumber());
                     break;
                 case "3": // 已存在负责人
                     // 添加分配日志
@@ -995,7 +1012,7 @@ public class AutoAllocateServiceV2 {
             long size2 = allocateRedisService.getQueueSize(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k42 + "$" + i
                     , ImmutableMap.of("subCompanyId", subCompanyId, "currentMonthStr", currentMonthStr)
-                    , ImmutableMap.of("队列大小", size));
+                    , ImmutableMap.of("队列大小", size2));
             for (int j = 0; j < size2; j++) {
                 Integer salesmanId = allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
 

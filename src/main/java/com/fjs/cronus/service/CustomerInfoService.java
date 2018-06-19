@@ -317,8 +317,8 @@ public class CustomerInfoService {
     }
 
     @Transactional
-    public CronusDto addOcdcCustomer(CustomerDTO customerDTO, String token) {
-        CronusDto cronusDto = new CronusDto();
+    public CronusDto<Integer> addOcdcCustomer(CustomerDTO customerDTO, String token) {
+        CronusDto<Integer> cronusDto = new CronusDto<Integer>();
         //实体与DTO相互转换
         CustomerInfo customerInfo = new CustomerInfo();
         EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfo);

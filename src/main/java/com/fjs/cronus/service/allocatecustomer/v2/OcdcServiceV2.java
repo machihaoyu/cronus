@@ -137,6 +137,7 @@ public class OcdcServiceV2 {
                     responseMessage.append("-");
                     try { // try 单个进来的顾客，记录错误信息
                         SingleCutomerAllocateDevInfoUtil.local.set(new SingleCutomerAllocateDevInfo());
+
                         AllocateEntity allocateEntity = new AllocateEntity();
                         CustomerDTO customerDTO = this.getCustomer(customerSalePushLog.getTelephonenumber());
                         if (customerDTO != null && customerDTO.getId() != null && customerDTO.getId() > 0) {
@@ -240,6 +241,10 @@ public class OcdcServiceV2 {
                         } else {
                             // 新客户
                             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k9);
+
+                            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k56
+                                    ,ImmutableMap.of("customerSalePushLog", customerSalePushLog)
+                            );
 
                             responseMessage.append("新客户，自动分配");
                             responseMessage.append("-");
