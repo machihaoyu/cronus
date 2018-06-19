@@ -1,5 +1,6 @@
 package com.fjs.cronus.util;
 
+import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.ocr.*;
 import com.fjs.cronus.model.*;
@@ -51,10 +52,27 @@ public class EntityToDto {
         if (!StringUtils.isEmpty(customerInfo.getCity())){
             dto.setCity(customerInfo.getCity());
         }
-        if (!StringUtil.isEmpty(customerInfo.getOwnUserName())){
-             if(!StringUtils.isEmpty(customerInfo.getOwnUserId()) && customerInfo.getOwnUserId() != 0) {
-                dto.setOwnUserId(customerInfo.getOwnUserId());
-                dto.setOwnUserName(customerInfo.getOwnUserName());
+        if (!StringUtils.isEmpty(customerInfo.getOwnUserId())) {
+            dto.setOwnUserId(customerInfo.getOwnUserId());
+        }
+        if(!StringUtils.isEmpty(customerInfo.getOwnUserId()) && customerInfo.getOwnUserId() > 0) {
+            dto.setOwnUserName(customerInfo.getOwnUserName());
+        }
+        if(!StringUtils.isEmpty(customerInfo.getOwnUserId()) && customerInfo.getOwnUserId() <= 0) {
+            switch (customerInfo.getOwnUserId())
+            {
+                case 0:
+                    dto.setOwnUserName(CommonConst.PUBLIC_PAN);
+                    break;
+                case -1:
+                    dto.setOwnUserName(CommonConst.BUSINESS_PAN);
+                    break;
+                case -2:
+                    dto.setOwnUserName(CommonConst.WAITING_PAN);
+                    break;
+                case -3:
+                    dto.setOwnUserName(CommonConst.PUBLIC_SELECT_PAN);
+                    break;
             }
         }
         if (!StringUtils.isEmpty(customerInfo.getCreateTime())){
