@@ -174,7 +174,7 @@ public class AutoAllocateServiceV2 {
         Long lockToken = null;
 
         try {
-            // 锁1分钟，如20分钟内未计算完，就超时抛错回滚;
+            // 锁1分钟，如1分钟内未计算完，就超时抛错回滚;
             // 其他并行线程重试6次，每次等待5秒，共30秒
             lockToken = this.cRMRedisLockHelp.lockBySetNX2(CommonRedisConst.ALLOCATE_LOCK, 60, TimeUnit.SECONDS, 6, 5, TimeUnit.SECONDS);
 
@@ -188,11 +188,13 @@ public class AutoAllocateServiceV2 {
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k12, ImmutableMap.of("UtmSource", customerDTO.getUtmSource()), ImmutableMap.of("mediaId", mediaId));
 
             String currentMonthStr = this.allocateRedisService.getMonthStr(CommonConst.USER_MONTH_INFO_MONTH_CURRENT); // 当月字符串
+            boolean isNewCustomer = false;
 
             // 分配规则
             if (customerDTO.getId() == null || customerDTO.getId().equals(0)) {
                 // 新客户：走商机系统规则
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k13);
+                isNewCustomer = true;
 
                 UserInfoDTO ownerUser = this.getOwnerUser(customerDTO, token); // 获取负责人(系统外指定业务员情况)
                 if (StringUtils.isNotEmpty(ownerUser.getUser_id())) {
@@ -225,8 +227,6 @@ public class AutoAllocateServiceV2 {
             } else {
                 // 老客户
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k1);
-
-                // 商机老客户
 
                 UserInfoDTO ownerUser = this.getOwnerUser(customerDTO, token); // 获取负责人(系统外指定业务员情况)
                 if (StringUtils.isNotEmpty(ownerUser.getUser_id())) {
@@ -380,6 +380,9 @@ public class AutoAllocateServiceV2 {
                     customerInfot.setCreateUser(0);
                     customerInfot.setLastUpdateUser(0);
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfot);
+                    if (isNewCustomer) {
+                        customerInfot.setOwnUserId(null);
+                    }
                     allocateLogService.addAllocatelog(customerInfot, customerDTO.getOwnerUserId(),
                             CommonEnum.ALLOCATE_LOG_OPERATION_TYPE_5.getCode(), null);
                     if (this.isActiveApplicationChannel(customerDTO)) {
