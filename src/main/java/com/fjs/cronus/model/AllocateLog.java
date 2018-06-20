@@ -1,11 +1,14 @@
 package com.fjs.cronus.model;
 
+import javax.persistence.Column;
+import javax.persistence.Table;
 import java.util.Date;
 
 /**
  * 日志
  * Created by feng on 2017/9/20.
  */
+@Table(name = "allocate_log")
 public class AllocateLog {
 
     private static final long serialVersionUID = 1L;
@@ -25,18 +28,25 @@ public class AllocateLog {
 
     private String operation;
 
+    @Column(name = "customer_id")
     private Integer customerId;
 
+    @Column(name = "loan_id")
     private Integer loanId;
 
+    @Column(name = "old_owner_id")
     private Integer oldOwnerId;
 
+    @Column(name = "new_owner_id")
     private Integer newOwnerId;
 
+    @Column(name = "create_user_id")
     private Integer createUserId;
 
+    @Column(name = "create_user_name")
     private String createUserName;
 
+    @Column(name = "create_time")
     private Date createTime;
 
     private String result;
