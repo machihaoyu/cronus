@@ -238,7 +238,7 @@ public class AutoAllocateServiceV2 {
                 } else if (StringUtils.isNotEmpty(customerDTO.getCity()) && StringUtils.contains(allocateCities, customerDTO.getCity())) {
                     // 在有效分配城市内
 
-                    if (customerDTO.getOwnerUserId() == -1) {
+                    if (customerDTO.getOwnerUserId() != null && customerDTO.getOwnerUserId()== -1) {
                         // 商机老客户，先临时处理。不做处理，标记为进入公盘，其实不会做任何处理
                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k58);
                         allocateEntity.setAllocateStatus(AllocateEnum.PUBLIC);
