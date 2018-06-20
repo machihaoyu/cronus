@@ -245,5 +245,9 @@ public class CommonConst {
     public static final String USER_MONTH_INFO_MONTH_CURRENT = "current";   // 当月
     public static final String USER_MONTH_INFO_MONTH_NEXT = "next";         // 下月
 
+    public static final String PUBLIC_PAN = "公盘";
+    public static final String BUSINESS_PAN = "商机盘";
+    public static final String WAITING_PAN = "扔回公盘";
+    public static final String PUBLIC_SELECT_PAN = "公盘优选";
 }
 
