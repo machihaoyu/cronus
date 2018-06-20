@@ -194,7 +194,13 @@ public class AutoAllocateServiceV2 {
                 // 新客户：走商机系统规则
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k13);
 
-                if (StringUtils.contains(allocateCities, customerDTO.getCity())) {
+                UserInfoDTO ownerUser = this.getOwnerUser(customerDTO, token); // 获取负责人(系统外指定业务员情况)
+                if (StringUtils.isNotEmpty(ownerUser.getUser_id())) {
+                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k18, ImmutableMap.of("salemanid", ownerUser.getUser_id()));
+
+                    customerDTO.setOwnerUserId(Integer.valueOf(ownerUser.getUser_id()));
+                    allocateEntity.setAllocateStatus(AllocateEnum.EXIST_OWNER);
+                } else if (StringUtils.contains(allocateCities, customerDTO.getCity())) {
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k15);
 
                     signCustomAllocate = this.allocateForAvatar(token, customerDTO, mediaId, currentMonthStr);
