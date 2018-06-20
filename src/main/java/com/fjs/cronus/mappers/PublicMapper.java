@@ -16,7 +16,7 @@ public interface PublicMapper {
     List<Integer> getCustomersFromDiscard();
 
     /**
-     * 获取公盘优选客户 own_user_id = -3
+     * 获取公盘优选客户、商机盘、扔回公盘客户。。
      * @return
      */
     @Results(id = "getPublicSelect", value = {
@@ -33,7 +33,8 @@ public interface PublicMapper {
             @Result(property = "communicateTime", column = "communicate_time")
     })
     @SelectProvider(type = PanDataProvider.class, method = "getPublicSelect")
-    List<CustomerInfo> getPublicSelect(@Param("start") Integer start,
+    List<CustomerInfo> getPublicSelect(@Param("ownUser") Integer ownUser,
+                                       @Param("start") Integer start,
                                        @Param("size") Integer size,
                                        @Param("order") String order,
                                        @Param("telephone") String telephone,
@@ -42,11 +43,12 @@ public interface PublicMapper {
                                        @Param("canMangerMainCity") List<String> canMangerMainCity);
 
     /**
-     * 获取公盘优选客户数
+     * 获取公盘客户数
      * @return
      */
     @SelectProvider(type = PanDataProvider.class, method = "getPublicSelectCount")
-    Integer getPublicSelectCount(@Param("telephone") String telephone,
+    Integer getPublicSelectCount(@Param("ownUser") Integer ownUser,
+                                 @Param("telephone") String telephone,
                                  @Param("customerName") String customerName,
                                  @Param("subCompanyIds") List<Integer> subCompanyIds,
                                  @Param("canMangerMainCity") List<String> canMangerMainCity);

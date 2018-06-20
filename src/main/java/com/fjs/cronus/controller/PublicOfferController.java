@@ -675,7 +675,7 @@ public class PublicOfferController {
                                                                   @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
         CronusDto resultDto = new CronusDto();
         try {
-            resultDto.setData(panService.publicSelected(page,size));
+            resultDto.setData(panService.publicSelected(-3,page,size));
             resultDto.setResult(0);
         } catch (Exception e) {
             resultDto.setResult(1);
@@ -694,12 +694,54 @@ public class PublicOfferController {
         CronusDto resultDto = new CronusDto();
         try {
             if (basePagePram!=null) {
-                resultDto.setData(panService.publicSelected2(token,basePagePram));
+                resultDto.setData(panService.publicCustomers(-3,token,basePagePram));
                 resultDto.setResult(0);
             }
         } catch (Exception e) {
             resultDto.setResult(1);
             logger.error("公盘优选异常",e);
+        }
+        return resultDto;
+    }
+
+    @ApiOperation(value = "商机盘客户", notes = "商机盘客户")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/businessPublic", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto<QueryResult<CustomerListDTO>> businessPublic(@RequestHeader("Authorization") String token,
+                                                                  @RequestBody BasePagePram<PanParamDTO> basePagePram) {
+        CronusDto resultDto = new CronusDto();
+        try {
+            if (basePagePram!=null) {
+                resultDto.setData(panService.publicCustomers(-1,token,basePagePram));
+                resultDto.setResult(0);
+            }
+        } catch (Exception e) {
+            resultDto.setResult(1);
+            logger.error("商机盘客户",e);
+        }
+        return resultDto;
+    }
+
+    @ApiOperation(value = "扔回公盘待显示客户", notes = "扔回公盘待显示客户")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/discardPublic", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto<QueryResult<CustomerListDTO>> discardPublic(@RequestHeader("Authorization") String token,
+                                                                  @RequestBody BasePagePram<PanParamDTO> basePagePram) {
+        CronusDto resultDto = new CronusDto();
+        try {
+            if (basePagePram!=null) {
+                resultDto.setData(panService.publicCustomers(-2,token,basePagePram));
+                resultDto.setResult(0);
+            }
+        } catch (Exception e) {
+            resultDto.setResult(1);
+            logger.error("商机盘客户",e);
         }
         return resultDto;
     }

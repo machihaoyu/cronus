@@ -18,7 +18,10 @@ public class PanDataProvider {
 
     public String getPublicSelect(Map<String, Object> para) {
         StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("SELECT * from customer_info c where c.own_user_id = -3 ");
+        stringBuffer.append("SELECT * from customer_info c where 1=1");
+        if (para.get("ownUser") != null && StringUtils.isNoneEmpty(para.get("ownUser").toString())) {
+            stringBuffer.append(" and c.own_user_id = " + para.get("ownUser") + " ");
+        }
         if (para.get("telephone") != null && StringUtils.isNoneEmpty(para.get("telephone").toString())) {
             stringBuffer.append(" and c.telephonenumber = '" + para.get("telephone") + "'");
         }
@@ -52,7 +55,10 @@ public class PanDataProvider {
 
     public String getPublicSelectCount(Map<String, Object> para) {
         StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("SELECT count(1) FROM customer_info c WHERE c.own_user_id = -3 ");
+        stringBuffer.append("SELECT count(1) FROM customer_info c WHERE 1=1 ");
+        if (para.get("ownUser") != null && StringUtils.isNoneEmpty(para.get("ownUser").toString())) {
+            stringBuffer.append(" and c.own_user_id = " + para.get("ownUser") + "");
+        }
         if (para.get("telephone") != null && StringUtils.isNoneEmpty(para.get("telephone").toString())) {
             stringBuffer.append(" and c.telephonenumber = '" + para.get("telephone") + "'");
         }
@@ -87,7 +93,7 @@ public class PanDataProvider {
                 }
                 stringBuffer.append(" ) ");
             } else if (canMangerMainCity.size() > 0 && subCompanyIds.size() > 0) {
-                stringBuffer.append("and ( city in  (");
+                stringBuffer.append(" and ( city in  (");
                 for (int i=0 ;i<canMangerMainCity.size() ;i++) {
                     stringBuffer.append("'"+canMangerMainCity.get(i)+"'");
                     if (i!=canMangerMainCity.size()-1)

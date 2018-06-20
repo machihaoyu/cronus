@@ -549,12 +549,12 @@ public class PanService {
     /**
      * 公盘优选客户
      */
-    public QueryResult<CustomerListDTO> publicSelected(Integer page, Integer size)
+    public QueryResult<CustomerListDTO> publicSelected(Integer ownUser,Integer page, Integer size)
     {
         QueryResult queryResult = new QueryResult();
         List<CustomerListDTO> resultList = new ArrayList<>();
         Integer start = (page - 1) * size;
-        List<CustomerInfo> customers = publicMapper.getPublicSelect(start,size,null,null,null,null,null);
+        List<CustomerInfo> customers = publicMapper.getPublicSelect(ownUser,start,size,null,null,null,null,null);
         if (customers != null && customers.size() > 0){
             for (CustomerInfo customerInfo : customers) {
                 CustomerListDTO customerDto = new CustomerListDTO();
@@ -565,14 +565,21 @@ public class PanService {
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);
-            Integer count = publicMapper.getPublicSelectCount(null,null,null,null);
+            Integer count = publicMapper.getPublicSelectCount(ownUser,null,null,null,null);
             queryResult.setRows(customers);
             queryResult.setTotal(count.toString());
         }
         return queryResult;
     }
 
-    public QueryResult<CustomerListDTO> publicSelected2(String token, BasePagePram<PanParamDTO> basePagePram)
+    /**
+     * 公盘客户，商机盘、扔回公盘待显示、优选
+     * @param ownUser
+     * @param token
+     * @param basePagePram
+     * @return
+     */
+    public QueryResult<CustomerListDTO> publicCustomers(Integer ownUser, String token, BasePagePram<PanParamDTO> basePagePram)
     {
         QueryResult queryResult = new QueryResult();
         List<CustomerListDTO> resultList = new ArrayList<>();
@@ -587,7 +594,7 @@ public class PanService {
         UserInfoDTO userInfoDTO = ucService.getUserIdByToken(token, CommonConst.SYSTEMNAME);
         UserAuthorityScope userAuthorityScope = getUserAuthorityScope(token, Integer.parseInt(userInfoDTO.getUser_id()));
 
-        List<CustomerInfo> customers = publicMapper.getPublicSelect(start,basePagePram.getPageSize(),null,
+        List<CustomerInfo> customers = publicMapper.getPublicSelect(ownUser,start,basePagePram.getPageSize(),null,
                 telephone,basePagePram.getPramEntity().getCustomerName(),userAuthorityScope.getSubCompanyIds(),userAuthorityScope.getCanMangerMainCity());
         if (customers != null && customers.size() > 0){
             for (CustomerInfo customerInfo : customers) {
@@ -600,7 +607,7 @@ public class PanService {
             queryResult.setRows(resultList);
 
         }
-        Integer count = publicMapper.getPublicSelectCount(telephone,basePagePram.getPramEntity().getCustomerName(),
+        Integer count = publicMapper.getPublicSelectCount(ownUser,telephone,basePagePram.getPramEntity().getCustomerName(),
                 userAuthorityScope.getSubCompanyIds(),userAuthorityScope.getCanMangerMainCity());
         queryResult.setTotal(count.toString());
         return queryResult;
