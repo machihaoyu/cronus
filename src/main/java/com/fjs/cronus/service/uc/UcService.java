@@ -1,5 +1,6 @@
 package com.fjs.cronus.service.uc;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.ResultResource;
 import com.fjs.cronus.api.PhpApiDto;
 import com.fjs.cronus.dto.CronusDto;
@@ -23,7 +24,9 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by msi on 2017/9/16.
@@ -264,4 +267,21 @@ public class UcService {
     public MemberApiDTO getUserRoles(String token){
         return thorService.getUserRoles(token);
     }
+
+    /**
+     * 用戶是否是外部机构，权限判断
+     * @param userInfoDTO
+     * @return
+     */
+    public boolean externalUser(PHPLoginDto userInfoDTO) {
+        HashMap<String, JSONObject> hashMap = userInfoDTO.getUser_info().getRole_info();
+        for (Map.Entry<String, JSONObject> entry : hashMap.entrySet()) {
+            if(entry.getValue().containsValue("外部机构"))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
