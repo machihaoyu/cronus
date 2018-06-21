@@ -229,23 +229,34 @@ public class PanService {
             logger.warn("----------------------->查询数据库获取信息结束");
             Integer total = customerInfoMapper.publicOfferCount(map);
             logger.warn("----------------------->查询数据库获取总数量信息结束");
+            boolean isExternalUser = ucService.externalUser(userInfoDTO);
             if (customerInfoList != null && customerInfoList.size() > 0) {
                 for (CustomerInfo customerInfo : customerInfoList){
                     CustomerListDTO customerDto = new CustomerListDTO();
-                    if (!channleList.contains(customerInfo.getUtmSource())){
-                        channleList.add(customerInfo.getUtmSource());
+                    if (isExternalUser)
+                    {
+                        customerInfo.setUtmSource("");
+                        customerInfo.setCustomerSource("");
+                    }
+                    else
+                    {
+                        if (!channleList.contains(customerInfo.getUtmSource())){
+                            channleList.add(customerInfo.getUtmSource());
+                        }
                     }
                     EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,userId);
                     resultDto.add(customerDto);
                 }
             }
             //屏蔽媒体
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("channelNames",channleList);
-            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
-            for (CustomerListDTO customerListDTO : resultDto ){
-                System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
-                customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
+            if (!isExternalUser) {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("channelNames", channleList);
+                Map<String, String> mediaMap = theaClientService.getMediaName(token, jsonObject);
+                for (CustomerListDTO customerListDTO : resultDto) {
+                    System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
+                    customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
+                }
             }
             result.setRows(resultDto);
             result.setTotal(total.toString());

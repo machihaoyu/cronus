@@ -922,17 +922,17 @@ public class CustomerInfoService {
             paramsMap.put("customerName", customerName);
         }
         if (!StringUtils.isEmpty(utmSource)) {
-            if ("自申请".equals(utmSource)){
+            if ("自申请".equals(utmSource)) {
                 utmSource = "c-app";
                 paramsMap.put("utmSource", utmSource);
-            }else {
-                List<String> utmList = theaClientService.getChannelNameListByMediaName(token,utmSource);
-                if (utmList == null || utmList.size() == 0){
+            } else {
+                List<String> utmList = theaClientService.getChannelNameListByMediaName(token, utmSource);
+                if (utmList == null || utmList.size() == 0) {
                     result.setRows(doList);
                     result.setTotal("0");
                     return result;
                 }
-                paramsMap.put("utmSources",utmList);
+                paramsMap.put("utmSources", utmList);
             }
         }
 
@@ -948,15 +948,15 @@ public class CustomerInfoService {
         if (ownerIds != null && ownerIds.size() > 0) {
             paramsMap.put("ownerIds", ownerIds);
         }
-        if (org.apache.commons.lang.StringUtils.isNotEmpty(createTimeStart)){
-            paramsMap.put("createTimeStart",createTimeStart + " 00:00:00");
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(createTimeStart)) {
+            paramsMap.put("createTimeStart", createTimeStart + " 00:00:00");
         }
-        if (org.apache.commons.lang.StringUtils.isNotEmpty(createTimeEnd)){
-            paramsMap.put("createTimeEnd",createTimeEnd + " 23:59:59");
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(createTimeEnd)) {
+            paramsMap.put("createTimeEnd", createTimeEnd + " 23:59:59");
         }
         //排序---zl-----
         if (!StringUtils.isEmpty(orderField) && CustListTimeOrderEnum.getEnumByCode(orderField) != null) {
-            if (StringUtils.isEmpty(sort)){
+            if (StringUtils.isEmpty(sort)) {
                 sort = "desc";
             }
             paramsMap.put("order", orderField + " " + sort);
@@ -971,20 +971,31 @@ public class CustomerInfoService {
             count = customerInfoMapper.allocationCustomerListCount(paramsMap);
         }
         if (resultList != null && resultList.size() > 0) {
+            boolean isExternalUser = ucService.externalUser(userInfoDTO);
             for (CustomerInfo customerInfo : resultList) {
-                if (!channleList.contains(customerInfo.getUtmSource())){
-                    channleList.add(customerInfo.getUtmSource());
+                if (isExternalUser)
+                {
+                    customerInfo.setUtmSource("");
+                    customerInfo.setCustomerSource("");
+                }
+                else {
+                    if (!channleList.contains(customerInfo.getUtmSource())) {
+                        channleList.add(customerInfo.getUtmSource());
+                    }
                 }
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
                 doList.add(customerDto);
             }
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("channelNames",channleList);
-            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
-            for (CustomerListDTO customerListDTO : doList ){
-                System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
-                customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
+            if (!isExternalUser)
+            {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("channelNames", channleList);
+                Map<String, String> mediaMap = theaClientService.getMediaName(token, jsonObject);
+                for (CustomerListDTO customerListDTO : doList) {
+//                    System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
+                    customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
+                }
             }
             result.setRows(doList);
             result.setTotal(count.toString());
@@ -993,6 +1004,7 @@ public class CustomerInfoService {
         result.setTotal(count.toString());
         return result;
     }
+
 
     //不分页查询客户
     public List<CustomerInfo> listByCondition(CustomerInfo customerInfo, UserInfoDTO userInfoDTO, String token, String systemName) {
