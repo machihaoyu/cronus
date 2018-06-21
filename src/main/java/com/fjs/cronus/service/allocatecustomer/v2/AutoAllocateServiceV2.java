@@ -381,16 +381,16 @@ public class AutoAllocateServiceV2 {
                     customerInfot.setLastUpdateUser(0);
                     EntityToDto.customerCustomerDtoToEntity(customerDTO, customerInfot);
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req("调试已存在负责人1",ImmutableMap.of("isNewCustomer", isNewCustomer,
-                            "customerInfot的oid", customerInfot.getOwnUserId(),
-                            "customerDTO的oid", customerDTO.getOwnerUserId()
+                            "customerInfot的oid", customerInfot.getOwnUserId() == null ? "空" : customerInfot.getOwnUserId() ,
+                            "customerDTO的oid", customerDTO.getOwnerUserId() == null ? "空" : customerDTO.getOwnerUserId()
                             )
                     );
                     if (isNewCustomer) {
                         customerInfot.setOwnUserId(null);
                     }
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req("调试已存在负责人2",ImmutableMap.of("isNewCustomer", isNewCustomer,
-                            "customerInfot的oid", customerInfot.getOwnUserId(),
-                            "customerDTO的oid", customerDTO.getOwnerUserId()
+                            "customerInfot的oid", customerInfot.getOwnUserId() == null ? "空" : customerInfot.getOwnUserId() ,
+                            "customerDTO的oid", customerDTO.getOwnerUserId() == null ? "空" : customerDTO.getOwnerUserId()
                             )
                     );
                     allocateLogService.addAllocatelog(customerInfot, customerDTO.getOwnerUserId(),
