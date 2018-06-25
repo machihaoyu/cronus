@@ -117,7 +117,7 @@ public class EzucDataDetailService {
     }
 
     /**
-     * 手动添加某业务员某日通话时长，注意，是测试接口.
+     * 手动添加某业务员某日通话时长，注意，是测试接口,用于开发测试使用.
      */
     public void addSingleData(String name, Date time, Long duration) {
 

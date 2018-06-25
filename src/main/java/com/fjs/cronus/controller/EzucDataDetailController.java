@@ -73,7 +73,7 @@ public class EzucDataDetailController {
                 result.setMessage(temp.getResponseError().getMessage());
             } else {
                 // 未知异常
-                logger.error("查询一级吧、某月、某来源、某媒体实购数（分配数）:", e);
+                logger.error("查询某个业务员通话某天通话时长", e);
                 result.setResult(CommonMessage.FAIL.getCode());
                 result.setMessage(e.getMessage());
             }
@@ -113,7 +113,7 @@ public class EzucDataDetailController {
             resultDTO.setMessage(ResultDescription.MESSAGE_SUCCESS);
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("-----------触发一次同步EZUC数据--------" + e);
+            logger.error("触发一次同步EZUC数据", e);
             resultDTO.setData(null);
             resultDTO.setResult(ResultDescription.CODE_FAIL);
             resultDTO.setMessage(e.getMessage());
@@ -156,7 +156,7 @@ public class EzucDataDetailController {
                 result.setMessage(temp.getResponseError().getMessage());
             } else {
                 // 未知异常
-                logger.error("查询一级吧、某月、某来源、某媒体实购数（分配数）:", e);
+                logger.error("刷新all业务员通话某天通话时长cache", e);
                 result.setResult(CommonMessage.FAIL.getCode());
                 result.setMessage(e.getMessage());
             }
@@ -202,7 +202,7 @@ public class EzucDataDetailController {
                 result.setMessage(temp.getResponseError().getMessage());
             } else {
                 // 未知异常
-                logger.error("查询一级吧、某月、某来源、某媒体实购数（分配数）:", e);
+                logger.error("手动添加某业务员某日通话时长", e);
                 result.setResult(CommonMessage.FAIL.getCode());
                 result.setMessage(e.getMessage());
             }
