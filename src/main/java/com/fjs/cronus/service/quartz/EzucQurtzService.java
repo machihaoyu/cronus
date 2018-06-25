@@ -10,6 +10,7 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.EzucDataDetailMapper;
 import com.fjs.cronus.mappers.EzucQurtzLogMapper;
 import com.fjs.cronus.service.EzucDataDetailService;
+import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -72,6 +73,10 @@ public class EzucQurtzService {
     @Autowired
     private EzucDataDetailService ezucDataDetailService;
 
+    @Autowired
+    CRMRedisLockHelp cRMRedisLockHelp;
+
+
     @Resource
     RedisTemplate redisTemplateOps;
 
@@ -89,6 +94,12 @@ public class EzucQurtzService {
      * 将 EZUC 数据同步过来.
      */
     public void syncData(String token, Date date) {
+
+        long lock = cRMRedisLockHelp.lockByIncr(CommonRedisConst.EZUC_DURATION_QUARTZ_KEY, 1L, TimeUnit.HOURS);
+        if (lock != 1) {
+            logger.info("EZUC 数据同步,被取消,已有锁,lock=" + lock);
+            return;
+        }
 
         JSONArray runInfo = new JSONArray(); // 收集运行中各数据，记录日志
         try {
@@ -144,6 +155,8 @@ public class EzucQurtzService {
                 logger.error("将 EZUC 数据同步过来", e);
                 runInfo.add(ImmutableMap.of("未知异常, message", e.getMessage()));
             }
+        } finally {
+            redisTemplateOps.delete(CommonRedisConst.EZUC_DURATION_QUARTZ_KEY);
         }
 
         EzucQurtzLog e = new EzucQurtzLog();
@@ -151,6 +164,7 @@ public class EzucQurtzService {
         e.setStatus(CommonEnum.entity_status1.getCode());
         e.setRuninfo(runInfo.toString());
         ezucQurtzLogMapper.insert(e);
+
     }
 
     /**
