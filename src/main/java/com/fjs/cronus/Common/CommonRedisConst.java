@@ -76,4 +76,9 @@ public class CommonRedisConst {
 
     public static String LOCK_WAITING_POOL_ALLOCATE="lock_waiting_pool_allocate";
 
+    /**
+     * EZUC key.
+     */
+    public static String EZUC_DURATION_KEY = "ezuc_duration_key";
+
 }
