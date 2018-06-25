@@ -1,5 +1,6 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonRedisConst;
@@ -132,6 +133,10 @@ public class EzucDataDetailService {
         recode.setDuration(duration * 60);
         long l = time.getTime() / 1000;
         recode.setStartTime(l);
+
+        JSONObject map = new JSONObject();
+        map.put("后台手动插入", "非定时跑批产生数据");
+        recode.setData(map.toString());
         ezucDataDetailMapper.insertSelective(recode);
 
         refreshCache(time);
