@@ -723,5 +723,11 @@ public interface ThorService {
     @RequestMapping(value = "/api/v1/userRoles", method = RequestMethod.GET)
     MemberApiDTO getUserRoles(@RequestHeader("Authorization") String token);
 
+    /**
+     * 获取业务员角色.
+     */
+    @RequestMapping(value = "/api/v1/editUser", method = RequestMethod.GET)
+    ThorApiDTO<JSONObject> findRolesBySalesmanidAndCompanyid(@RequestHeader("Authorization") String token, @RequestParam(value = "companyId") Integer companyId, @RequestParam(value = "userId") Integer  userId);
+
 }
 

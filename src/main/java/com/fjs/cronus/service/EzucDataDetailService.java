@@ -31,6 +31,9 @@ public class EzucDataDetailService {
 
     /**
      * 根据业务员名称，获取昨天的通话时长.
+     *
+     * @param name 业务员名
+     *             @param date 指定的哪天的数据；null为取昨天
      */
     public long getDurationByName(String name, Date date){
         if (StringUtils.isBlank(name)) {
