@@ -51,6 +51,9 @@ public class ScheduledJob {
     @Autowired
     private PanService panService;
 
+    @Autowired
+    private EzucQurtzService ezucQurtzService;
+
     private SimpleDateFormat dateFormat() {
         return new SimpleDateFormat("HH:mm:ss");
     }
@@ -66,33 +69,47 @@ public class ScheduledJob {
         logger.info("ScheduledJob Start!");
         //查询大于当前时间沟通和面见表获取沟通时间
         //调用任务
-        communicationLogService.sendMessToCustomer(token);
-        customerMeetService.sendMessMeetToCustomer(token);
+        new Thread(()->{
+            communicationLogService.sendMessToCustomer(token);
+        }).start();
+        new Thread(()->{
+            customerMeetService.sendMessMeetToCustomer(token);
+        }).start();
 
-        logger.info("3.waitingPoolAllocate start");
-        //ocdcService.waitingPoolAllocate(token);
-        logger.info("3.waitingPoolAllocate end");
-        //ocdcService.waitingPoolAllocate(token);
-
-        autoAllocateService.nonCommunicateAgainAllocate(token);
+        new Thread(()->{
+            autoAllocateService.nonCommunicateAgainAllocate(token);
+        }).start();
 
         logger.info("4.autoCleanTask start");
-        autoCleanService.autoCleanTask();
+        new Thread(()->{
+            autoCleanService.autoCleanTask();
+        }).start();
         logger.info("4.autoCleanTask end");
 
         //dealgo 接口数据
         logger.info("5.initProfileTask start");
-        dealgoService.initProfileTask();
+        new Thread(()->{
+            dealgoService.initProfileTask();
+        }).start();
         logger.info("5.initProfileTask end");
 
         logger.info("5.1.customersFromDiscardTask start");
-        panService.customersFromDiscardTask();
+        new Thread(()->{
+            panService.customersFromDiscardTask();
+        }).start();
         logger.info("5.1.customersFromDiscardTask end");
 
-//        logger.error("定时任务 ------> 新注册客户15天发送短信");
         logger.info("6.sandMessage start");
-        customerInfoService.sandMessage();
+        new Thread(()->{
+            customerInfoService.sandMessage();
+        }).start();
         logger.info("6.sandMessage end");
+
+        logger.info("7.ezuc qurtz start");
+        new Thread(()->{
+            ezucQurtzService.syncData4Qurtz();
+        }).start();
+        logger.info("7.ezuc qurtz end");
 
         logger.info("ScheduledJob End!");
     }

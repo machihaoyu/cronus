@@ -53,10 +53,6 @@ public class EzucDataDetailService {
         duration = ezucDataDetailMapper.getDurationByName(name, startTime.getTime() / 1000, getEndTime(date).getTime() / 1000, CommonEnum.entity_status1.getCode());
         duration = duration == null ? 0 : duration;
 
-        // 放入缓存
-        hashOperations.put(key, name, duration);
-        redisTemplateOps.expire(key, 2, TimeUnit.DAYS);
-
         return duration;
     }
 

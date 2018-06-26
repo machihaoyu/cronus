@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -73,10 +74,6 @@ public class EzucQurtzService {
     @Autowired
     private EzucDataDetailService ezucDataDetailService;
 
-    @Autowired
-    CRMRedisLockHelp cRMRedisLockHelp;
-
-
     @Resource
     RedisTemplate redisTemplateOps;
 
@@ -91,15 +88,45 @@ public class EzucQurtzService {
     private int retry = 5;
 
     /**
-     * 将 EZUC 数据同步过来.
+     * 将 EZUC 数据同步过来（定时调用）.
      */
-    public void syncData(String token, Date date) {
+    public void syncData4Qurtz() {
 
-        long lock = cRMRedisLockHelp.lockByIncr(CommonRedisConst.EZUC_DURATION_QUARTZ_KEY, 1L, TimeUnit.HOURS);
-        if (lock != 1) {
-            logger.info("EZUC 数据同步,被取消,已有锁,lock=" + lock);
+        // 获取当前时间
+        Date now = new Date();
+
+        // 获取触发时间
+        ValueOperations<String, Number> operations = redisTemplateOps.opsForValue();
+        Number runTime = operations.get(CommonRedisConst.EZUC_DURATION_QUARTZ_KEY);
+        if (runTime != null && now.getTime() < runTime.longValue()) {
+            logger.info("EZUC 数据同步,被取消,未到触发时间,runTime=" + runTime);
             return;
         }
+
+        // 设置下次触发时间
+        Calendar c = Calendar.getInstance();
+        c.setTime(now);
+        c.add(Calendar.DAY_OF_YEAR, 1);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 10);
+        c.set(Calendar.MILLISECOND, 0);
+        Date nextRunTime = c.getTime();
+        operations.set(CommonRedisConst.EZUC_DURATION_QUARTZ_KEY, nextRunTime.getTime());
+
+        try {
+            syncData(null, null);
+        } catch (Exception e){
+            // 定时忽略错误
+            logger.error("EZUC 数据同步,异常", e);
+        }
+    }
+
+    /**
+     * 将 EZUC 数据同步过来（接口调用）.
+     *
+     * @param date 指定同步哪天的数据；null则同步昨天的
+     */
+    public void syncData(String token, Date date) {
 
         JSONArray runInfo = new JSONArray(); // 收集运行中各数据，记录日志
         try {
@@ -154,8 +181,6 @@ public class EzucQurtzService {
                 logger.error("将 EZUC 数据同步过来", e);
                 runInfo.add(ImmutableMap.of("未知异常, message", e.getMessage()));
             }
-        } finally {
-            redisTemplateOps.delete(CommonRedisConst.EZUC_DURATION_QUARTZ_KEY);
         }
 
         EzucQurtzLog e = new EzucQurtzLog();
