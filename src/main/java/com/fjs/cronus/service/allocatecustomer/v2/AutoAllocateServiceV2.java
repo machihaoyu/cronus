@@ -1462,10 +1462,7 @@ public class AutoAllocateServiceV2 {
             // 业务规则：前一天 通话时长 >= 90 分钟，算通过
             String salesmanName = data.getString("name");
             if (StringUtils.isBlank(salesmanName)) {
-                SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "获取角色列表"
-                        , ImmutableMap.of("接口返回数据中字段name", "业务员name为空，salesmanName=" + salesmanName)
-                );
-                return true;
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取用户角色列表异常,响应的业务员name为null");
             }
             long durationByName = ezucDataDetailService.getDurationByName(salesmanName.trim(), null);
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k60 + "通话时长"
