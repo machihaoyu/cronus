@@ -112,7 +112,7 @@ public class EzucDataDetailService {
     /**
      * 获取url中请求的startTime参数.
      */
-    private Date getStartTime(Date date) {
+    public Date getStartTime(Date date) {
         Calendar now = Calendar.getInstance();
         if (date != null) {
             // 空就使用当前系统时间

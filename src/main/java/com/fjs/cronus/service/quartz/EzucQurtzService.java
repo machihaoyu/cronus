@@ -112,7 +112,7 @@ public class EzucQurtzService {
 
         try {
             syncData(null, null);
-        } catch (Exception e){
+        } catch (Exception e) {
             // 定时忽略错误
             logger.error("EZUC 数据同步,异常", e);
         }
@@ -126,45 +126,59 @@ public class EzucQurtzService {
     public void syncData(String token, Date date) {
 
         JSONArray runInfo = new JSONArray(); // 收集运行中各数据，记录日志
+        String key = null;
         try {
             runInfo.add(ImmutableMap.of("定时任务：开始", "start"));
 
-            now = new Date();
+            // 通时间内的数据，同时只能一个线程处理
+            ValueOperations operations = redisTemplateOps.opsForValue();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date startTime = ezucDataDetailService.getStartTime(date);
+            key = CommonRedisConst.EZUC_DURATION_QUARTZ_KEY + sdf.format(startTime);
+            Boolean aBoolean = operations.setIfAbsent(key, 1);
 
-            // 需要处理的总数
-            int count = getDataCount(runInfo, date);
-            if (count > 0) {
-                // 分页
-                int pageCount = getPageCount(count, sizePerPage);
-                runInfo.add(ImmutableMap.of("总页数", pageCount));
+            if (aBoolean != null && !aBoolean) {
+                runInfo.add(ImmutableMap.of("该时间的数据是否正被处理", aBoolean == null ? false : aBoolean));
+            } else {
 
-                // 分页处理数据
-                for (int i = 1; i <= pageCount; i++) {
-                    JSONArray jSONArray = new JSONArray();
-                    try {
-                        jSONArray = getPageDate(i, runInfo, date);
-                    } catch (Exception e) {
-                        // 吃掉单页请求，错误，不影响其他页数据，但必须记录日志.
-                        if (e instanceof CronusException) {
-                            // 已知异常
-                            CronusException temp = (CronusException) e;
-                            runInfo.add(ImmutableMap.of("已知异常,查询第 " + i + " 页, status", Integer.valueOf(temp.getResponseError().getStatus())));
-                            runInfo.add(ImmutableMap.of("已知异常,查询第 " + i + " 页, message", temp.getResponseError().getMessage()));
-                        } else {
-                            // 未知异常
-                            logger.error("将 EZUC 数据同步过来", e);
-                            runInfo.add(ImmutableMap.of("未知异常,查询第 " + i + " 页, message", e.getMessage()));
+                now = new Date();
+
+                // 需要处理的总数
+                int count = getDataCount(runInfo, date);
+                if (count > 0) {
+                    // 分页
+                    int pageCount = getPageCount(count, sizePerPage);
+                    runInfo.add(ImmutableMap.of("总页数", pageCount));
+
+                    // 分页处理数据
+                    for (int i = 1; i <= pageCount; i++) {
+                        JSONArray jSONArray = new JSONArray();
+                        try {
+                            jSONArray = getPageDate(i, runInfo, date);
+                        } catch (Exception e) {
+                            // 吃掉单页请求，错误，不影响其他页数据，但必须记录日志.
+                            if (e instanceof CronusException) {
+                                // 已知异常
+                                CronusException temp = (CronusException) e;
+                                runInfo.add(ImmutableMap.of("已知异常,查询第 " + i + " 页, status", Integer.valueOf(temp.getResponseError().getStatus())));
+                                runInfo.add(ImmutableMap.of("已知异常,查询第 " + i + " 页, message", temp.getResponseError().getMessage()));
+                            } else {
+                                // 未知异常
+                                logger.error("将 EZUC 数据同步过来", e);
+                                runInfo.add(ImmutableMap.of("未知异常,查询第 " + i + " 页, message", e.getMessage()));
+                            }
+                        }
+                        runInfo.add(ImmutableMap.of("查询第 " + i + " 页,该页总数据量", jSONArray.size()));
+                        for (int j = 0; j < jSONArray.size(); j++) {
+                            JSONObject jsonObject = jSONArray.getJSONObject(j);
+                            addSingleData(jsonObject);
                         }
                     }
-                    runInfo.add(ImmutableMap.of("查询第 " + i + " 页,该页总数据量", jSONArray.size()));
-                    for (int j = 0; j < jSONArray.size(); j++) {
-                        JSONObject jsonObject = jSONArray.getJSONObject(j);
-                        addSingleData(jsonObject);
-                    }
+
+                    // 数据入缓存
+                    ezucDataDetailService.refreshCache(date);
                 }
 
-                // 数据入缓存
-                ezucDataDetailService.refreshCache(date);
             }
 
         } catch (Exception e) {
@@ -177,6 +191,10 @@ public class EzucQurtzService {
                 // 未知异常
                 logger.error("将 EZUC 数据同步过来", e);
                 runInfo.add(ImmutableMap.of("未知异常, message", e.getMessage()));
+            }
+        } finally {
+            if (StringUtils.isNotBlank(key)) {
+                redisTemplateOps.delete(key);
             }
         }
 
