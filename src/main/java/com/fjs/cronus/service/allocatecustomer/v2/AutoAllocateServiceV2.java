@@ -891,7 +891,7 @@ public class AutoAllocateServiceV2 {
 
             if (salesmanId != null) {
                 // 新一代项目，根据通话时长进行分配限制
-                boolean b = chckByEZUC(token, subCompanyId, salesmanId);
+                boolean b = chckByEZUC(subCompanyId, salesmanId);
                 if (!b) {
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + j + "$" + "校验结果"
                             , ImmutableMap.of("业务校验结果", b));
@@ -1049,7 +1049,7 @@ public class AutoAllocateServiceV2 {
                 if (salesmanId != null) {
 
                     // 新一代项目，根据通话时长进行分配限制
-                    boolean b = chckByEZUC(token, subCompanyId, salesmanId);
+                    boolean b = chckByEZUC(subCompanyId, salesmanId);
                     if (!b) {
                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + j + "$" + "校验结果"
                                 , ImmutableMap.of("业务校验结果", b));
@@ -1382,13 +1382,13 @@ public class AutoAllocateServiceV2 {
      *
      * @return true-不限制，false-限制.
      */
-    private boolean chckByEZUC(String token, Integer companyid, Integer salesmanId){
+    private boolean chckByEZUC(Integer companyid, Integer salesmanId){
         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k60 + "获取角色列表"
                 , ImmutableMap.of("一级吧", companyid, "业务员", salesmanId)
         );
 
         // 获取业务员角色列表
-        ThorApiDTO<JSONObject> thorApiDTO = thorService.findRolesBySalesmanidAndCompanyid(token, salesmanId, companyid);
+        ThorApiDTO<JSONObject> thorApiDTO = thorService.findRolesBySalesmanidAndCompanyid(getwayToken, salesmanId, companyid);
         if (thorApiDTO == null ) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取用户角色列表异常，thorApiDTO为空");
         }
