@@ -62,6 +62,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -1457,6 +1458,8 @@ public class AutoAllocateServiceV2 {
             if (countCustomerIdByCreateId >= 3) {
                 return true;
             }
+            // 业务：1次面见能顶30分钟
+            long temp = countCustomerIdByCreateId * 30 * 60;
 
             // 校验通话时长
             // 业务规则：前一天 通话时长 >= 90 分钟，算通过
@@ -1469,11 +1472,12 @@ public class AutoAllocateServiceV2 {
                     , ImmutableMap.of("业务员", salesmanName)
                     , ImmutableMap.of("通话时长（秒）", durationByName)
             );
-            if (90 * 60 <= durationByName) {
+            if (90 * 60 <= (durationByName + temp )) {
                 return true;
             }
         }
 
         return false;
     }
+
 }
