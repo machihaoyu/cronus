@@ -1410,7 +1410,8 @@ public class AutoAllocateServiceV2 {
         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "调试"
                 , ImmutableMap.of("data", data)
         );
-        JSONArray rolesList = new JSONObject(JSONObject.parseObject(data.toString())).getJSONArray("rolesList");
+        JSONObject tempData = new JSONObject(JSONObject.parseObject(data.toString()));
+        JSONArray rolesList = tempData.getJSONArray("rolesList");
         if (rolesList == null) {
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "获取角色列表"
                     , ImmutableMap.of("接口返回rolesList", "rolesList为null")
@@ -1466,7 +1467,7 @@ public class AutoAllocateServiceV2 {
 
             // 校验通话时长
             // 业务规则：前一天 通话时长 >= 90 分钟，算通过
-            String salesmanName = data.getString("name");
+            String salesmanName = tempData.getString("name");
             if (StringUtils.isBlank(salesmanName)) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取用户角色列表异常,响应的业务员name为null");
             }
