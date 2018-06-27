@@ -165,7 +165,6 @@ public class CRMRedisLockHelp {
                 return connection.time();
             }
         };
-
         Object result = redisTemplateOps.execute(redisCallback);
         if (result == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "从redis服务器获取当前时间异常，响应为null");
@@ -202,4 +201,28 @@ public class CRMRedisLockHelp {
             redisTemplateOps.unwatch();
         }
     }
+
+    /**
+     * 使用incr实现的锁.
+     *
+     * 注意：只是简单实现，简单业务可以使用.
+     */
+    public long lockByIncr(String key, Long timeOut, TimeUnit timeUnit){
+
+        if (StringUtils.isBlank(key)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "key 不能为空");
+        }
+
+        RedisCallback redisCallback = new RedisCallback() {
+            @Override
+            public Object doInRedis(RedisConnection connection) throws DataAccessException {
+                return connection.incr(key.getBytes());
+            }
+        };
+        Object execute = redisTemplateOps.execute(redisCallback);
+        redisTemplateOps.expire(key, timeOut, timeUnit);
+
+        return execute == null ? 0 : Long.valueOf(execute.toString());
+    }
+
 }

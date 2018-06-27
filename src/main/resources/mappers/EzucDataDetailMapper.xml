@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.EzucDataDetailMapper">
+
+    <resultMap id="BaseResultMap" type="com.fjs.cronus.mappers.EzucDataDetailMapper">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="created" property="userId" jdbcType="TIMESTAMP" />
+        <result column="createid" property="createid" jdbcType="INTEGER" />
+        <result column="updated" property="updated" jdbcType="TIMESTAMP" />
+        <result column="updateid" property="updateid" jdbcType="INTEGER" />
+        <result column="deleted" property="deleted" jdbcType="TIMESTAMP" />
+        <result column="deleteid" property="deleteid" jdbcType="INTEGER" />
+        <result column="status" property="status" jdbcType="INTEGER" />
+        <result column="callerDispName" property="callerDispName" jdbcType="VARCHAR" />
+        <result column="callerDeptName" property="callerDeptName" jdbcType="VARCHAR" />
+        <result column="callerAccount" property="callerAccount" jdbcType="VARCHAR" />
+        <result column="callerDbid" property="callerDbid" jdbcType="VARCHAR" />
+        <result column="callerDeptId" property="callerDeptId" jdbcType="INTEGER" />
+        <result column="duration" property="duration" jdbcType="INTEGER" />
+        <result column="totalDuration" property="totalDuration" jdbcType="INTEGER" />
+        <result column="startTime" property="startTime" jdbcType="INTEGER" />
+        <result column="endTime" property="endTime" jdbcType="INTEGER" />
+        <result column="answerTime" property="answerTime" jdbcType="INTEGER" />
+        <result column="calleeExt" property="calleeExt" jdbcType="VARCHAR" />
+        <result column="data" property="data" jdbcType="VARCHAR" />
+
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,
+        `created`,
+        `createid`,
+        `updated`,
+        `updateid`,
+        `deleted`,
+        `deleteid`,
+        `status`,
+        `callerDispName`,
+        `callerDeptName`,
+        `callerAccount`,
+        `callerDbid`,
+        `callerDeptId`,
+        `duration`,
+        `totalDuration`,
+        `startTime`,
+        `endTime`,
+        `answerTime`,
+        `calleeExt`,
+        `data`
+    </sql>
+
+    <select id="findAllDuration" resultType="com.fjs.cronus.entity.EzucDataDetail">
+        SELECT callerDispName,
+        SUM(duration) AS duration
+        FROM `ezuc_data_detail`
+        WHERE `startTime` &gt;= #{startTime}
+        AND `startTime` &lt;= #{endTime}
+        AND `status`=#{status}
+        GROUP BY `callerDispName`
+    </select>
+
+    <select id="getDurationByName" resultType="java.lang.Long">
+        SELECT SUM(duration) AS duration
+        FROM `ezuc_data_detail`
+        WHERE `startTime` &gt;= #{startTime}
+        AND `startTime` &lt;= #{endTime}
+        AND `status`=#{status}
+        AND `callerDispName`=#{name}
+    </select>
+
+</mapper>
