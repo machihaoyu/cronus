@@ -101,7 +101,7 @@ public class AllocateRedisServiceV2 {
 
         String key = this.getKey(companyId, medial, effectiveDate);
         ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
-        listOperations.remove(key, 10, userId.toString());
+        listOperations.remove(key, 10, userId);
         listOperations.rightPush(key, userId);
     }
 
