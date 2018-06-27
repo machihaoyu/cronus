@@ -5,8 +5,10 @@ import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.Common.ResultDescription;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.TheaApiDTO;
+import com.fjs.cronus.entity.EzucQurtzLog;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.service.EzucDataDetailService;
+import com.fjs.cronus.service.EzucQurtzLogService;
 import com.fjs.cronus.service.quartz.EzucQurtzService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 @Api(description = "EZUC控制器")
 @RequestMapping("/api/v1/ezucQurtz")
@@ -33,6 +36,9 @@ public class EzucDataDetailController {
 
     @Autowired
     private EzucDataDetailService ezucDataDetailService;
+
+    @Autowired
+    private EzucQurtzLogService ezucQurtzLogService;
 
 
     @ApiOperation(value = "[非业务接口-管理接口]查询某个业务员通话某天通话时长", notes = "查询某个业务员通话某天通话时长 api")
@@ -245,6 +251,36 @@ public class EzucDataDetailController {
             } else {
                 // 未知异常
                 logger.error("手动添加某业务员某日通话时长", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "[非业务接口-管理接口]查询定时同步数据log", notes = "查询定时同步数据log api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string")
+    })
+    @RequestMapping(value = "/findEzucSyncLog", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto findEzucSyncLog(@RequestHeader("Authorization") String token, @RequestBody(required = false) EzucQurtzLog params, @RequestParam(required = false) Integer pageNum, @RequestParam(required = false) Integer pageSize) {
+        CronusDto result = new CronusDto();
+
+        try {
+
+            result.setData(ezucQurtzLogService.findEzucSyncLog(params, pageNum, pageSize));
+            result.setResult(ResultDescription.CODE_SUCCESS);
+            result.setMessage(ResultDescription.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("查询定时同步数据log", e);
                 result.setResult(CommonMessage.FAIL.getCode());
                 result.setMessage(e.getMessage());
             }

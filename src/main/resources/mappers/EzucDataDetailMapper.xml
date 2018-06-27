@@ -4,7 +4,7 @@
 
     <resultMap id="BaseResultMap" type="com.fjs.cronus.mappers.EzucDataDetailMapper">
         <id column="id" property="id" jdbcType="INTEGER" />
-        <result column="created" property="userId" jdbcType="TIMESTAMP" />
+        <result column="created" property="created" jdbcType="TIMESTAMP" />
         <result column="createid" property="createid" jdbcType="INTEGER" />
         <result column="updated" property="updated" jdbcType="TIMESTAMP" />
         <result column="updateid" property="updateid" jdbcType="INTEGER" />

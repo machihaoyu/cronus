@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.EzucQurtzLogMapper">
+
+    <resultMap id="BaseResultMap" type="com.fjs.cronus.entity.EzucQurtzLog">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="created" property="created" jdbcType="TIMESTAMP" />
+        <result column="createid" property="createid" jdbcType="INTEGER" />
+        <result column="updated" property="updated" jdbcType="TIMESTAMP" />
+        <result column="updateid" property="updateid" jdbcType="INTEGER" />
+        <result column="deleted" property="deleted" jdbcType="TIMESTAMP" />
+        <result column="deleteid" property="deleteid" jdbcType="INTEGER" />
+        <result column="status" property="status" jdbcType="INTEGER" />
+        <result column="runinfo" property="runinfo" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`,
+     `created`,
+     `createid`,
+     `updated`,
+     `updateid`,
+     `deleted`,
+     `deleteid`,
+     `status`,
+     `runinfo`
+    </sql>
+
+    <select id="findEzucSyncLog" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM `ezuc_qurtz_log`
+        ORDER BY `created` DESC
+        LIMIT #{start}, #{pageSize}
+    </select>
+
+</mapper>
