@@ -1407,6 +1407,9 @@ public class AutoAllocateServiceV2 {
             );
             return true;
         }
+        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "调试"
+                , ImmutableMap.of("data", data)
+        );
         JSONArray rolesList = data.getJSONArray("rolesList");
         if (rolesList == null) {
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "获取角色列表"
