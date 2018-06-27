@@ -10,14 +10,11 @@ import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.EzucDataDetailMapper;
 import com.fjs.cronus.mappers.EzucQurtzLogMapper;
 import com.fjs.cronus.service.EzucDataDetailService;
-import com.fjs.cronus.service.redis.CRMRedisLockHelp;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
@@ -29,11 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import javax.xml.crypto.Data;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 定时任务处理通过时间业务服务.

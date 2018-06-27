@@ -47,7 +47,7 @@ public class EzucDataDetailController {
 
         try {
             String name = jsonObject.getString("name");
-            String time = jsonObject.getString("time"); // 可为空
+            String time = jsonObject.getString("time");
             Date date = null;
             if (StringUtils.isBlank(name)) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "name 不能为空");
@@ -81,6 +81,48 @@ public class EzucDataDetailController {
         return result;
     }
 
+    @ApiOperation(value = "[非业务接口-管理接口]查询某天所有业务员通话时长", notes = "查询某天所有业务员通话时长 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "jsonObject", value = "提交数据,{\"time\":\"2018-06-20\"}", required = true, dataType = "com.alibaba.fastjson.JSONObject")
+    })
+    @RequestMapping(value = "/findAllFromCacheByDate", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto findAllFromCacheByDate(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject) {
+        CronusDto result = new CronusDto();
+
+        try {
+            String time = jsonObject.getString("time");
+            Date date = null;
+            if (StringUtils.isBlank(time)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "time 不能为空");
+            }
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                date = sdf.parse(time);
+            } catch (Exception e) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "time格式不正确，需要yyyy-MM-dd");
+            }
+
+            result.setData(ezucDataDetailService.findAllFromCacheByDate(date));
+            result.setResult(ResultDescription.CODE_SUCCESS);
+            result.setMessage(ResultDescription.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("查询某天所有业务员通话时长", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
     @ApiOperation(value = "[非业务接口-管理接口]触发一次同步EZUC数据", notes = "触发一次同步EZUC数据 api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
@@ -93,7 +135,7 @@ public class EzucDataDetailController {
 
         try {
             Date date = null;
-            String time = jsonObject.getString("time"); // 可为空
+            String time = jsonObject.getString("time");
             if (StringUtils.isBlank(time)) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "time 不能为空");
             }
@@ -132,7 +174,7 @@ public class EzucDataDetailController {
         CronusDto result = new CronusDto();
 
         try {
-            String time = jsonObject.getString("time"); // 可为空
+            String time = jsonObject.getString("time");
             Date date = null;
             if (StringUtils.isBlank(time)) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "time 不能为空");
@@ -176,7 +218,7 @@ public class EzucDataDetailController {
 
         try {
             String name = jsonObject.getString("name");
-            String time = jsonObject.getString("time"); // 可为空
+            String time = jsonObject.getString("time");
             Long duration = jsonObject.getLong("duration");
             duration = duration < 0 ? 0 : duration;
             Date date = null;

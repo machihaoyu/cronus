@@ -1,7 +1,6 @@
 package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.entity.EzucDataDetail;
@@ -57,6 +56,19 @@ public class EzucDataDetailService {
         duration = duration == null ? 0 : duration;
 
         return duration;
+    }
+
+    public Map<String, Long> findAllFromCacheByDate(Date date){
+        if (date == null) {
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "date 不能为null");
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String key = CommonRedisConst.EZUC_DURATION_KEY + sdf.format(date);
+        HashOperations<String, String, Long> hashOperations = redisTemplateOps.opsForHash();
+        Map<String, Long> result = hashOperations.entries(key);
+
+        return result;
     }
 
     /**
