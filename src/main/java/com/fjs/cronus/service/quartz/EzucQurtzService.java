@@ -136,9 +136,10 @@ public class EzucQurtzService {
             Date startTime = ezucDataDetailService.getStartTime(date);
             key = CommonRedisConst.EZUC_DURATION_QUARTZ_KEY + sdf.format(startTime);
             Boolean aBoolean = operations.setIfAbsent(key, 1);
+            aBoolean = aBoolean == null ? false : aBoolean;
 
-            if (aBoolean != null && !aBoolean) {
-                runInfo.add(ImmutableMap.of("该时间的数据是否正被处理", aBoolean == null ? false : aBoolean));
+            if (!aBoolean) {
+                runInfo.add(ImmutableMap.of("该时间的数据是否正被处理", aBoolean));
             } else {
 
                 now = new Date();
