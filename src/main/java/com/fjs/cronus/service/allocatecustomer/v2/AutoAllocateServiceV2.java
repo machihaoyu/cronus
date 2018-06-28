@@ -1389,6 +1389,12 @@ public class AutoAllocateServiceV2 {
 
         // 获取业务员角色列表
         ThorApiDTO<JSONObject> thorApiDTO = thorService.findRolesBySalesmanidAndCompanyid(getwayToken, salesmanId, companyid);
+
+        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "调试"
+                , ImmutableMap.of("thorApiDTO", thorApiDTO)
+        );
+
+
         if (thorApiDTO == null ) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取用户角色列表异常，thorApiDTO为空");
         }
