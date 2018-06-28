@@ -262,7 +262,7 @@ public class AutoAllocateServiceV2 {
                             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k14, ImmutableMap.of("SalesmanId", signCustomAllocate.getSalesmanId()));
                             allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
                             customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
-                        } else { // 未找到，抛错记录日志
+                        } else {
                             //SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k19);
                             //throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "老客户去队列没找到业务员");
                             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k59);
