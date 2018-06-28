@@ -752,6 +752,7 @@ public class AutoAllocateServiceV2 {
                 if (!b) {
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + j + "$" + "校验结果"
                             , ImmutableMap.of("业务校验结果", b));
+                    salesmanId = null;
                     continue;
                 }
 
@@ -894,6 +895,7 @@ public class AutoAllocateServiceV2 {
                     if (!b) {
                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + j + "$" + "校验结果"
                                 , ImmutableMap.of("业务校验结果", b));
+                        salesmanId = null;
                         continue;
                     }
 
@@ -901,6 +903,7 @@ public class AutoAllocateServiceV2 {
                     if (salesmanId != null) {
                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k38 + j + "$" + k
                                 , ImmutableMap.of("salesmanId", salesmanId));
+                        salesmanId = null;
                         break;
                     }
                 }
@@ -1493,6 +1496,10 @@ public class AutoAllocateServiceV2 {
             return true;
         }
         return false;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(90 * 60 <= 5399);
     }
 
 }
