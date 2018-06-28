@@ -1460,11 +1460,13 @@ public class AutoAllocateServiceV2 {
         // 校验面见顾客数
         // 业务规则：一天面见 >= 3 个顾客，算通过
         Calendar start = Calendar.getInstance();
+        start.add(Calendar.DAY_OF_YEAR, -1);
         start.set(Calendar.HOUR_OF_DAY, 0);
         start.set(Calendar.MINUTE, 0);
         start.set(Calendar.MILLISECOND, 0);
 
         Calendar end = Calendar.getInstance();
+        end.add(Calendar.DAY_OF_YEAR, -1);
         end.set(Calendar.HOUR_OF_DAY, 23);
         end.set(Calendar.MINUTE, 59);
         end.set(Calendar.MILLISECOND, 59);
