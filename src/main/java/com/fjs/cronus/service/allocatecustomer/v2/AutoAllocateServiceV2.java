@@ -903,7 +903,6 @@ public class AutoAllocateServiceV2 {
                     if (salesmanId != null) {
                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k38 + j + "$" + k
                                 , ImmutableMap.of("salesmanId", salesmanId));
-                        salesmanId = null;
                         break;
                     }
                 }
