@@ -20,6 +20,7 @@ import com.fjs.cronus.dto.thea.BaseCommonDTO;
 import com.fjs.cronus.dto.thea.WorkDayDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.CrmUserDTO;
+import com.fjs.cronus.dto.uc.MemberApiDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.enums.AllocateEnum;
@@ -1388,7 +1389,7 @@ public class AutoAllocateServiceV2 {
         );
 
         // 获取业务员角色列表
-        ThorApiDTO<Object> thorApiDTO = thorService.findRolesBySalesmanidAndCompanyid(getwayToken, salesmanId, companyid);
+        MemberApiDTO<Object> thorApiDTO = thorService.findRolesBySalesmanidAndCompanyid(getwayToken, salesmanId, companyid);
 
         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "调试"
                 , ImmutableMap.of("thorApiDTO", thorApiDTO)
