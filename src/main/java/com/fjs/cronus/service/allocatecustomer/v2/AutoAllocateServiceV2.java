@@ -1389,12 +1389,7 @@ public class AutoAllocateServiceV2 {
         );
 
         // 获取业务员角色列表
-        MemberApiDTO<Object> thorApiDTO = thorService.findRolesBySalesmanidAndCompanyid(getwayToken, salesmanId, companyid);
-
-        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "调试"
-                , ImmutableMap.of("thorApiDTO", thorApiDTO)
-        );
-
+        MemberApiDTO<JSONObject> thorApiDTO = thorService.findRolesBySalesmanidAndCompanyid(getwayToken, companyid, salesmanId);
 
         if (thorApiDTO == null ) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取用户角色列表异常，thorApiDTO为空");
@@ -1406,21 +1401,19 @@ public class AutoAllocateServiceV2 {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取用户角色列表异常,接口result非0，message=" + thorApiDTO.getMessage());
         }
 
-        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "调试"
-                , ImmutableMap.of("data", thorApiDTO.getData())
+        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "获取角色列"
+                , ImmutableMap.of("thorApiDTO", thorApiDTO)
         );
 
         // 角色列表（无数据 or null 视为无此角色）
-        JSONObject data = null;
+        JSONObject data = thorApiDTO.getData();
         if (data == null) {
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "获取角色列表"
                     , ImmutableMap.of("接口返回data", "data为null")
             );
             return true;
         }
-        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "调试"
-                , ImmutableMap.of("data", data)
-        );
+
         JSONArray rolesList = data.getJSONArray("rolesList");
         if (rolesList == null) {
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "获取角色列表"

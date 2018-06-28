@@ -727,7 +727,7 @@ public interface ThorService {
      * 获取业务员角色.
      */
     @RequestMapping(value = "/api/v1/editUserV2", method = RequestMethod.POST)
-    MemberApiDTO<Object> findRolesBySalesmanidAndCompanyid(@RequestHeader("Authorization") String token, @RequestParam(value = "companyId") Integer companyId, @RequestParam(value = "userId") Integer  userId);
+    MemberApiDTO<JSONObject> findRolesBySalesmanidAndCompanyid(@RequestHeader("Authorization") String token, @RequestParam(value = "companyId") Integer companyId, @RequestParam(value = "userId") Integer  userId);
 
 }
 
