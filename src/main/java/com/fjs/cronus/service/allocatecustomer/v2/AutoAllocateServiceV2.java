@@ -1498,8 +1498,4 @@ public class AutoAllocateServiceV2 {
         return false;
     }
 
-    public static void main(String[] args) {
-        System.out.println(90 * 60 <= 5399);
-    }
-
 }
