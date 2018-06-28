@@ -747,6 +747,14 @@ public class AutoAllocateServiceV2 {
                     continue;
                 }
 
+                // 新一代项目，根据通话时长进行分配限制
+                boolean b = chckByEZUC(subCompanyId, salesmanId);
+                if (!b) {
+                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + j + "$" + "校验结果"
+                            , ImmutableMap.of("业务校验结果", b));
+                    continue;
+                }
+
                 // 找到业务员接待
                 if (salesmanId != null) {
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k30 + j + "$" + i
@@ -881,6 +889,14 @@ public class AutoAllocateServiceV2 {
                         }
                     }
 
+                    // 新一代项目，根据通话时长进行分配限制
+                    boolean b = chckByEZUC(subCompanyId, salesmanId);
+                    if (!b) {
+                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + j + "$" + "校验结果"
+                                , ImmutableMap.of("业务校验结果", b));
+                        continue;
+                    }
+
                     // 找到业务员接待
                     if (salesmanId != null) {
                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k38 + j + "$" + k
@@ -891,14 +907,6 @@ public class AutoAllocateServiceV2 {
             }
 
             if (salesmanId != null) {
-                // 新一代项目，根据通话时长进行分配限制
-                boolean b = chckByEZUC(subCompanyId, salesmanId);
-                if (!b) {
-                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + j + "$" + "校验结果"
-                            , ImmutableMap.of("业务校验结果", b));
-                    continue;
-                }
-
                 // 通知商机系统发短信
                 notifySendPhoneMessage4Avatar(orderNumOfCompany, orderNumber, subCompanyId, media_id, token);
 
