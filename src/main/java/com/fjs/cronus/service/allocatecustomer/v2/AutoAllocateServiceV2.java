@@ -1,6 +1,7 @@
 package com.fjs.cronus.service.allocatecustomer.v2;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
@@ -9,6 +10,7 @@ import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.AllocateForAvatarDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
+import com.fjs.cronus.dto.api.ThorApiDTO;
 import com.fjs.cronus.dto.avatar.AvatarApiDTO;
 import com.fjs.cronus.dto.avatar.OrderNumberDTO;
 import com.fjs.cronus.dto.avatar.OrderNumberDetailDTO;
@@ -18,11 +20,13 @@ import com.fjs.cronus.dto.thea.BaseCommonDTO;
 import com.fjs.cronus.dto.thea.WorkDayDTO;
 import com.fjs.cronus.dto.uc.BaseUcDTO;
 import com.fjs.cronus.dto.uc.CrmUserDTO;
+import com.fjs.cronus.dto.uc.MemberApiDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.AllocateEntity;
 import com.fjs.cronus.enums.AllocateEnum;
 import com.fjs.cronus.enums.AllocateSource;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.mappers.CustomerMeetMapper;
 import com.fjs.cronus.mappers.UserMonthInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerSalePushLog;
@@ -59,6 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -146,8 +151,15 @@ public class AutoAllocateServiceV2 {
 
     @Autowired
     private OcdcServiceV2 ocdcServiceV2;
+
     @Autowired
     private UcService ucService;
+
+    @Autowired
+    private CustomerMeetMapper customerMeetMapper;
+
+    @Autowired
+    EzucDataDetailService ezucDataDetailService;
 
     /**
      * 判断是不是客户主动申请渠道
@@ -250,7 +262,7 @@ public class AutoAllocateServiceV2 {
                             SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k14, ImmutableMap.of("SalesmanId", signCustomAllocate.getSalesmanId()));
                             allocateEntity.setAllocateStatus(AllocateEnum.ALLOCATE_TO_OWNER);
                             customerDTO.setOwnerUserId(signCustomAllocate.getSalesmanId());
-                        } else { // 未找到，抛错记录日志
+                        } else {
                             //SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k19);
                             //throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "老客户去队列没找到业务员");
                             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k59);
@@ -735,6 +747,15 @@ public class AutoAllocateServiceV2 {
                     continue;
                 }
 
+                // 新一代项目，根据通话时长进行分配限制
+                boolean b = chckByEZUC(subCompanyId, salesmanId);
+                if (!b) {
+                    SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + j + "$" + "校验结果"
+                            , ImmutableMap.of("业务校验结果", b));
+                    salesmanId = null;
+                    continue;
+                }
+
                 // 找到业务员接待
                 if (salesmanId != null) {
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k30 + j + "$" + i
@@ -869,6 +890,15 @@ public class AutoAllocateServiceV2 {
                         }
                     }
 
+                    // 新一代项目，根据通话时长进行分配限制
+                    boolean b = chckByEZUC(subCompanyId, salesmanId);
+                    if (!b) {
+                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + j + "$" + "校验结果"
+                                , ImmutableMap.of("业务校验结果", b));
+                        salesmanId = null;
+                        continue;
+                    }
+
                     // 找到业务员接待
                     if (salesmanId != null) {
                         SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k38 + j + "$" + k
@@ -879,9 +909,10 @@ public class AutoAllocateServiceV2 {
             }
 
             if (salesmanId != null) {
-
+                // 通知商机系统发短信
                 notifySendPhoneMessage4Avatar(orderNumOfCompany, orderNumber, subCompanyId, media_id, token);
 
+                // 返回数据处理
                 SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k39 + j
                         , ImmutableMap.of("salesmanId", salesmanId, "idFromCountQueue", idFromCountQueue));
                 result.setCompanyid(subCompanyId);
@@ -1027,6 +1058,15 @@ public class AutoAllocateServiceV2 {
                 Integer salesmanId = allocateRedisService.getAndPush2End(subCompanyId, CommonConst.COMPANY_MEDIA_QUEUE_COUNT, currentMonthStr);
 
                 if (salesmanId != null) {
+
+                    // 新一代项目，根据通话时长进行分配限制
+                    boolean b = chckByEZUC(subCompanyId, salesmanId);
+                    if (!b) {
+                        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + j + "$" + "校验结果"
+                                , ImmutableMap.of("业务校验结果", b));
+                        continue;
+                    }
+
                     // 找到业务员
                     SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k44 + "$" + i + "$" + j
                             , ImmutableMap.of("salesmanId", salesmanId));
@@ -1347,4 +1387,116 @@ public class AutoAllocateServiceV2 {
         }
         customerSalePushLogService.insertList(customerSalePushLogList);
     }
+
+    /**
+     * 新一代项目，根据通话时长进行分配限制.
+     *
+     * @return true-不限制，false-限制.
+     */
+    private boolean chckByEZUC(Integer companyid, Integer salesmanId){
+        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Req(SingleCutomerAllocateDevInfoUtil.k60 + "获取角色列表"
+                , ImmutableMap.of("一级吧", companyid, "业务员", salesmanId)
+        );
+
+        // 获取业务员角色列表
+        MemberApiDTO<JSONObject> thorApiDTO = thorService.findRolesBySalesmanidAndCompanyid(getwayToken, companyid, salesmanId);
+
+        if (thorApiDTO == null ) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取用户角色列表异常，thorApiDTO为空");
+        }
+        if (thorApiDTO.getResult() == null ) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取用户角色列表异常,接口result为空");
+        }
+        if (!thorApiDTO.getResult().equals(0)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取用户角色列表异常,接口result非0，message=" + thorApiDTO.getMessage());
+        }
+
+        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "获取角色列"
+                , ImmutableMap.of("thorApiDTO", thorApiDTO)
+        );
+
+        // 角色列表（无数据 or null 视为无此角色）
+        JSONObject data = thorApiDTO.getData();
+        if (data == null) {
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "获取角色列表"
+                    , ImmutableMap.of("接口返回data", "data为null")
+            );
+            return true;
+        }
+
+        JSONArray rolesList = data.getJSONArray("rolesList");
+        if (rolesList == null) {
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "获取角色列表"
+                    , ImmutableMap.of("接口返回rolesList", "rolesList为null")
+            );
+            return true;
+        }
+        if (rolesList.size() == 0) {
+            SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "获取角色列表"
+                    , ImmutableMap.of("接口返回rolesList", "rolesList.size 为 0")
+            );
+            return true;
+        }
+
+        // 校验是否有该角色
+        String key = "新一代项目通话限制";
+        boolean hasRole = false;
+        for (int i = 0; i < rolesList.size(); i++) {
+            JSONObject role = rolesList.getJSONObject(i);
+            if (role != null && StringUtils.isNotBlank(role.getString("value")) && key.equals(role.getString("value").trim())) {
+                hasRole = true;
+                break;
+            }
+        }
+        SingleCutomerAllocateDevInfoUtil.local.get().setInfo4Rep(SingleCutomerAllocateDevInfoUtil.k60 + "是否有指定角色"
+                , ImmutableMap.of("hasRole", hasRole)
+        );
+
+        // 通话时长 & 面见次数校验
+        if (!hasRole) {
+            // 无该角色
+            return true;
+        }
+        // 校验面见顾客数
+        // 业务规则：一天面见 >= 3 个顾客，算通过
+        Calendar start = Calendar.getInstance();
+        start.add(Calendar.DAY_OF_YEAR, -1);
+        start.set(Calendar.HOUR_OF_DAY, 0);
+        start.set(Calendar.MINUTE, 0);
+        start.set(Calendar.MILLISECOND, 0);
+
+        Calendar end = Calendar.getInstance();
+        end.add(Calendar.DAY_OF_YEAR, -1);
+        end.set(Calendar.HOUR_OF_DAY, 23);
+        end.set(Calendar.MINUTE, 59);
+        end.set(Calendar.MILLISECOND, 59);
+        Integer countCustomerIdByCreateId = customerMeetMapper.getCountCustomerIdByCreateId(salesmanId, start.getTime(), end.getTime());
+        countCustomerIdByCreateId = countCustomerIdByCreateId == null ? 0 : countCustomerIdByCreateId;
+        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k60 + "当天面见顾客数"
+                , ImmutableMap.of("salesmanId", salesmanId, "start", start.getTime().getTime(), "end", end.getTime().getTime())
+                , ImmutableMap.of("顾客数", countCustomerIdByCreateId)
+        );
+        if (countCustomerIdByCreateId >= 3) {
+            return true;
+        }
+        // 业务：1次面见能顶30分钟
+        long temp = countCustomerIdByCreateId * 30 * 60;
+
+        // 校验通话时长
+        // 业务规则：前一天 通话时长 >= 90 分钟，算通过
+        String salesmanName = data.getString("name");
+        if (StringUtils.isBlank(salesmanName)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取用户角色列表异常,响应的业务员name为null");
+        }
+        long durationByName = ezucDataDetailService.getDurationByName(salesmanName.trim(), null);
+        SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k60 + "通话时长"
+                , ImmutableMap.of("业务员", salesmanName)
+                , ImmutableMap.of("通话时长（秒）", durationByName)
+        );
+        if (90 * 60 <= (durationByName + temp )) {
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -40,4 +40,10 @@ public interface CustomerMeetMapper extends MyMapper<CustomerMeet> {
     })
     @Select("SELECT * FROM customer_meet WHERE customer_id=#{customerId} AND is_deleted=0 AND `create_time` >= #{createTime,jdbcType=TIMESTAMP} ORDER BY create_time ASC LIMIT 1")
     CustomerMeet getByCustomerId(@Param("customerId") Integer customerId, @Param("createTime") Date createTime);
+
+    /**
+     * 查询该业务员，指定时间内面见客户数.
+     */
+    @Select("SELECT COUNT(DISTINCT`customer_id`) FROM `customer_meet` WHERE `create_time` >= #{start} AND `create_time` <= #{end} AND `create_user`=#{salesmanId} AND `is_deleted`=0")
+    Integer getCountCustomerIdByCreateId(@Param("salesmanId") Integer salesmanId, @Param("start") Date start, @Param("end") Date end);
 }

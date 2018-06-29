@@ -16,6 +16,7 @@ public enum CommonEnum {
 
     //客户登记枚举
     CUSTOMER_LEVEL_0(0, "意向客户"),
+    CUSTOMER_LEVEL_1(1, "协议客户"),
 
     //性别枚举
     SEX_MALE(0, "男"),
