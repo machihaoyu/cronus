@@ -1080,23 +1080,23 @@ public class CustomerInfoService {
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
 
-        if (null != customerInfo){
-            CrmPushCustomerDTO crmPushCustomerDTO = this.copyProperty(customerInfo);
-            new Thread(
-                    () -> {
-                        logger.info("调用DD链crmPushCustomer接口数据:" + crmPushCustomerDTO.toString());
-                        OureaDTO oureaDTO = oureaService.crmPushCustomer(token, crmPushCustomerDTO);
-                        if (null != oureaDTO && oureaDTO.getResult() != 0){
-                            logger.error("调用DD链crmPushCustomer接口：" + oureaDTO.toString());
-                        }
-                    }
-            ).start();
-//                    logger.info("调用DD链crmPushCustomer接口数据:" + crmPushCustomerDTO.toString());
-//                    OureaDTO oureaDTO = oureaService.crmPushCustomer(token, crmPushCustomerDTO);
-//                    if (null != oureaDTO && oureaDTO.getResult() != 0){
-//                        logger.error("调用DD链crmPushCustomer接口：" + oureaDTO.toString());
+//        if (null != customerInfo){
+//            CrmPushCustomerDTO crmPushCustomerDTO = this.copyProperty(customerInfo);
+//            new Thread(
+//                    () -> {
+//                        logger.info("调用DD链crmPushCustomer接口数据:" + crmPushCustomerDTO.toString());
+//                        OureaDTO oureaDTO = oureaService.crmPushCustomer(token, crmPushCustomerDTO);
+//                        if (null != oureaDTO && oureaDTO.getResult() != 0){
+//                            logger.error("调用DD链crmPushCustomer接口：" + oureaDTO.toString());
+//                        }
 //                    }
-        }
+//            ).start();
+////                    logger.info("调用DD链crmPushCustomer接口数据:" + crmPushCustomerDTO.toString());
+////                    OureaDTO oureaDTO = oureaService.crmPushCustomer(token, crmPushCustomerDTO);
+////                    if (null != oureaDTO && oureaDTO.getResult() != 0){
+////                        logger.error("调用DD链crmPushCustomer接口：" + oureaDTO.toString());
+////                    }
+//        }
 
         resultDto.setData(true);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
@@ -1920,27 +1920,27 @@ public class CustomerInfoService {
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDto.setResult(ResultResource.CODE_SUCCESS);
 
-            CustomerInfo customerInfo = null;
-            if (null != loanDTO.getCustomerId()){
-                customerInfo = this.selectById(loanDTO.getCustomerId());
-                if (null != customerInfo){
-                    CrmPushCustomerDTO crmPushCustomerDTO = this.copyProperty(customerInfo);
-                    new Thread(
-                            () -> {
-                                logger.info("调用DD链crmPushCustomer接口数据:" + crmPushCustomerDTO.toString());
-                                OureaDTO oureaDTO = oureaService.crmPushCustomer(token, crmPushCustomerDTO);
-                                if (null != oureaDTO && oureaDTO.getResult() != 0){
-                                    logger.error("调用DD链crmPushCustomer接口：" + oureaDTO.toString());
-                                }
-                            }
-                    ).start();
-//                    logger.info("调用DD链crmPushCustomer接口数据:" + crmPushCustomerDTO.toString());
-//                    OureaDTO oureaDTO = oureaService.crmPushCustomer(token, crmPushCustomerDTO);
-//                    if (null != oureaDTO && oureaDTO.getResult() != 0){
-//                        logger.error("调用DD链crmPushCustomer接口：" + oureaDTO.toString());
-//                    }
-                }
-            }
+//            CustomerInfo customerInfo = null;
+//            if (null != loanDTO.getCustomerId()){
+//                customerInfo = this.selectById(loanDTO.getCustomerId());
+//                if (null != customerInfo){
+//                    CrmPushCustomerDTO crmPushCustomerDTO = this.copyProperty(customerInfo);
+//                    new Thread(
+//                            () -> {
+//                                logger.info("调用DD链crmPushCustomer接口数据:" + crmPushCustomerDTO.toString());
+//                                OureaDTO oureaDTO = oureaService.crmPushCustomer(token, crmPushCustomerDTO);
+//                                if (null != oureaDTO && oureaDTO.getResult() != 0){
+//                                    logger.error("调用DD链crmPushCustomer接口：" + oureaDTO.toString());
+//                                }
+//                            }
+//                    ).start();
+////                    logger.info("调用DD链crmPushCustomer接口数据:" + crmPushCustomerDTO.toString());
+////                    OureaDTO oureaDTO = oureaService.crmPushCustomer(token, crmPushCustomerDTO);
+////                    if (null != oureaDTO && oureaDTO.getResult() != 0){
+////                        logger.error("调用DD链crmPushCustomer接口：" + oureaDTO.toString());
+////                    }
+//                }
+//            }
 
         } else {
             resultDto.setData(theaApiDTO.getData());

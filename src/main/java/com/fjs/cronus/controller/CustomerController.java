@@ -1247,40 +1247,40 @@ public class CustomerController {
         }
     }
 
-    @ApiOperation(value = "查询用户信息", notes = "根据客户id，查询电话号码及来源")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", dataType = "string"),
-            @ApiImplicitParam(name = "phone", value = "业务员手机号", required = true, paramType = "query", dataType = "string"),
-    })
-    @RequestMapping(value = "/queryByPhone", method = RequestMethod.GET)
-    @ResponseBody
-    public CronusDto queryByPhone(HttpServletRequest request,String phone){
-        CronusDto cronusDto = new CronusDto();
-        String token = request.getHeader("Authorization");
-        ThorApiDTO<UserModelDTO> result = thorService.getUserInfoByMobile(token,phone);
-        UserModelDTO userModel = result.getData();
-        List<CrmPushCustomerDTO> crmPushCustomerDTOList = new ArrayList<>();
-        try{
-            Integer userId = null;
-            if (!StringUtils.isEmpty(userModel.getUser_id())) {
-                userId = Integer.parseInt(userModel.getUser_id());
-                List<CustomerInfo> customerInfoList = customerInfoService.selectByOwnId(userId);
-                for (CustomerInfo customerInfo:customerInfoList){
-                    CrmPushCustomerDTO crmPushCustomerDTO = customerInfoService.copyProperty(customerInfo);
-                    crmPushCustomerDTOList.add(crmPushCustomerDTO);
-                }
-            }
-            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
-            cronusDto.setResult(ResultResource.CODE_SUCCESS);
-        }catch (Exception e) {
-            logger.error("--------------->queryByPhone查询失败", e);
-            if (e instanceof CronusException) {
-                CronusException thorException = (CronusException) e;
-                throw thorException;
-            }
-            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
-        }
-        cronusDto.setData(crmPushCustomerDTOList);
-        return cronusDto;
-    }
+//    @ApiOperation(value = "查询用户信息", notes = "根据客户id，查询电话号码及来源")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", dataType = "string"),
+//            @ApiImplicitParam(name = "phone", value = "业务员手机号", required = true, paramType = "query", dataType = "string"),
+//    })
+//    @RequestMapping(value = "/queryByPhone", method = RequestMethod.GET)
+//    @ResponseBody
+//    public CronusDto queryByPhone(HttpServletRequest request,String phone){
+//        CronusDto cronusDto = new CronusDto();
+//        String token = request.getHeader("Authorization");
+//        ThorApiDTO<UserModelDTO> result = thorService.getUserInfoByMobile(token,phone);
+//        UserModelDTO userModel = result.getData();
+//        List<CrmPushCustomerDTO> crmPushCustomerDTOList = new ArrayList<>();
+//        try{
+//            Integer userId = null;
+//            if (!StringUtils.isEmpty(userModel.getUser_id())) {
+//                userId = Integer.parseInt(userModel.getUser_id());
+//                List<CustomerInfo> customerInfoList = customerInfoService.selectByOwnId(userId);
+//                for (CustomerInfo customerInfo:customerInfoList){
+//                    CrmPushCustomerDTO crmPushCustomerDTO = customerInfoService.copyProperty(customerInfo);
+//                    crmPushCustomerDTOList.add(crmPushCustomerDTO);
+//                }
+//            }
+//            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+//            cronusDto.setResult(ResultResource.CODE_SUCCESS);
+//        }catch (Exception e) {
+//            logger.error("--------------->queryByPhone查询失败", e);
+//            if (e instanceof CronusException) {
+//                CronusException thorException = (CronusException) e;
+//                throw thorException;
+//            }
+//            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+//        }
+//        cronusDto.setData(crmPushCustomerDTOList);
+//        return cronusDto;
+//    }
 }
