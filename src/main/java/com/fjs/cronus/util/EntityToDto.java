@@ -20,19 +20,28 @@ public class EntityToDto {
         dto.setId(customerInfo.getId());
         if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
             //对手机号进行解密并且隐藏后四位
-            if (lookphone == 1) {//查看自己
-                if (userId.equals(customerInfo.getOwnUserId())) {
-                    String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-                    dto.setTelephonenumber(telephone);
-                }else {
-                    String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-                    String phoneNumber = telephone.substring(0, 7) + "****";
-                    dto.setTelephonenumber(phoneNumber);
-                }
-            }else if (lookphone == 2){//查看全部
-                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-                dto.setTelephonenumber(telephone);
+            String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+            String phoneNumber;
+            if (telephone.length()>7) {
+                phoneNumber = telephone.substring(0, 7) + "****";
+            }else {
+                phoneNumber = telephone;
             }
+            dto.setTelephonenumber(phoneNumber);
+
+//            if (lookphone == 1) {//查看自己
+//                if (userId.equals(customerInfo.getOwnUserId())) {
+//                    String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+//                    dto.setTelephonenumber(telephone);
+//                }else {
+//                    String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+//                    String phoneNumber = telephone.substring(0, 7) + "****";
+//                    dto.setTelephonenumber(phoneNumber);
+//                }
+//            }else if (lookphone == 2){//查看全部
+//                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+//                dto.setTelephonenumber(telephone);
+//            }
         }
         if (!StringUtils.isEmpty(customerInfo.getCustomerName())){
             dto.setCustomerName(customerInfo.getCustomerName());
