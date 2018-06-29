@@ -729,5 +729,14 @@ public interface ThorService {
     @RequestMapping(value = "/api/v1/editUserV2", method = RequestMethod.POST)
     MemberApiDTO<JSONObject> findRolesBySalesmanidAndCompanyid(@RequestHeader("Authorization") String token, @RequestParam(value = "companyId") Integer companyId, @RequestParam(value = "userId") Integer  userId);
 
+    /**
+     * 根据手机号获取业务员信息
+     * @param token
+     * @param mobile
+     * @return
+     */
+    @RequestMapping(value = "/api/v1/getUserInfoByMobile",method = RequestMethod.GET)
+    ThorApiDTO<UserModelDTO> getUserInfoByMobile(@RequestHeader("Authorization") String token, @RequestParam("mobile") String mobile);
+
 }
 
