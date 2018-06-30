@@ -13,6 +13,7 @@ import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.EntityToDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,9 +111,7 @@ public class LookPoolService {
                 }
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, user_Id);
-                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-                String phoneNumber = telephone.substring(0, 7) + "****";
-                customerDto.setTelephonenumber(phoneNumber);
+                customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);
@@ -185,9 +184,7 @@ public class LookPoolService {
                 }
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,user_Id);
-                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-                String phoneNumber = telephone.substring(0, 7) + "****";
-                customerDto.setTelephonenumber(phoneNumber);
+                customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);

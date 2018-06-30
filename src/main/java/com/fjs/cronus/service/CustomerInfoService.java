@@ -34,6 +34,7 @@ import com.fjs.cronus.service.client.OureaService;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
@@ -157,6 +158,13 @@ public class CustomerInfoService {
             for (CustomerInfo customerInfo : resultList) {
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
+                if (customerDto.getCity()!=null && customerDto.getCity().trim().equals("广州"))
+                {
+                    //广州手机号暂时不处理
+                }
+                else {
+                    customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
+                }
                 //判断自己的lookphone
                 dtoList.add(customerDto);
             }
@@ -249,6 +257,13 @@ public class CustomerInfoService {
                 }
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
+                if (customerDto.getCity()!=null && customerDto.getCity().trim().equals("广州"))
+                {
+                    //广州手机号暂时不处理
+                }
+                else {
+                    customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
+                }
                 //判断自己的lookphone
                 dtoList.add(customerDto);
             }
@@ -885,6 +900,14 @@ public class CustomerInfoService {
             for (CustomerInfo customerInfo : resultList) {
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
+                if (customerDto.getCity()!=null && customerDto.getCity().trim().equals("广州"))
+                {
+                    //广州手机号暂时不处理
+                }
+                else {
+                    customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
+                }
+
                 doList.add(customerDto);
             }
             result.setRows(doList);
@@ -991,6 +1014,13 @@ public class CustomerInfoService {
                 }
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
+                if (customerDto.getCity()!=null && customerDto.getCity().trim().equals("广州"))
+                {
+                    //广州手机号暂时不处理
+                }
+                else {
+                    customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
+                }
                 doList.add(customerDto);
             }
             if (!isExternalUser)
@@ -1192,9 +1222,7 @@ public class CustomerInfoService {
                         channleList.add(customerInfo.getUtmSource());
                     }
                     EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
-                    String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-                    String phoneNumber = telephone.substring(0, 7) + "****";
-                    customerDto.setTelephonenumber(phoneNumber);
+                    customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
                     resultList.add(customerDto);
                 }
                 queryResult.setRows(resultList);

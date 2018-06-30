@@ -135,6 +135,7 @@ public class PanService {
                 for (CustomerInfo customerInfo : customerInfoList){
                     CustomerListDTO customerDto = new CustomerListDTO();
                     EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,userId);
+                    customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
                     resultDto.add(customerDto);
                 }
             }
@@ -245,6 +246,7 @@ public class PanService {
                         }
                     }
                     EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,userId);
+                    customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
                     resultDto.add(customerDto);
                 }
             }
@@ -411,6 +413,7 @@ public class PanService {
                 for (CustomerInfo customerInfo : customerInfoList){
                     CustomerListDTO customerDto = new CustomerListDTO();
                     EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,userId);
+                    customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
                     resultDto.add(customerDto);
                 }
             }
@@ -507,6 +510,7 @@ public class PanService {
                     }
                     CustomerListDTO customerDto = new CustomerListDTO();
                     EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,lookphone,userId);
+                    customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
                     resultDto.add(customerDto);
                 }
                 //屏蔽媒体
@@ -570,9 +574,7 @@ public class PanService {
             for (CustomerInfo customerInfo : customers) {
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,2,2);
-                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-                String phoneNumber = telephone.substring(0, 7) + "****";
-                customerDto.setTelephonenumber(phoneNumber);
+                customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);
@@ -611,8 +613,7 @@ public class PanService {
             for (CustomerInfo customerInfo : customers) {
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo,customerDto,2,2);
-                String phoneNumber = customerDto.getTelephonenumber().substring(0, 7) + "****";
-                customerDto.setTelephonenumber(phoneNumber);
+                customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
                 resultList.add(customerDto);
             }
             queryResult.setRows(resultList);
