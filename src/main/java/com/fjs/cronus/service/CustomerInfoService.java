@@ -262,7 +262,13 @@ public class CustomerInfoService {
                     //广州手机号暂时不处理
                 }
                 else {
-                    customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
+                    if (level!=null && level.trim().equals("成交客户"))
+                    {
+                        //成交客户号码不处理
+                    }
+                    else {
+                        customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
+                    }
                 }
                 //判断自己的lookphone
                 dtoList.add(customerDto);
