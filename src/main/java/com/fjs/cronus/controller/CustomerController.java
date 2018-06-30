@@ -1254,7 +1254,7 @@ public class CustomerController {
     })
     @RequestMapping(value = "/queryByPhone", method = RequestMethod.GET)
     @ResponseBody
-    public CronusDto queryByPhone(HttpServletRequest request,String phone){
+    public CronusDto<List<CrmPushCustomerDTO>> queryByPhone(HttpServletRequest request,String phone){
         CronusDto cronusDto = new CronusDto();
         String token = request.getHeader("Authorization");
         ThorApiDTO<UserModelDTO> result = thorService.getUserInfoByMobile(token,phone);
