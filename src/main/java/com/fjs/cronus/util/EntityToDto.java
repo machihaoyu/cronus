@@ -22,10 +22,16 @@ public class EntityToDto {
             //对手机号进行解密并且隐藏后四位
             String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
             String phoneNumber;
-            if (telephone.length()>7) {
-                phoneNumber = telephone.substring(0, 7) + "****";
-            }else {
+            if (customerInfo.getCity()!=null &&customerInfo.getCity().equals("广州"))
+            {
                 phoneNumber = telephone;
+            }
+            else {
+                if (telephone.length() > 7 ) {
+                    phoneNumber = telephone.substring(0, 7) + "****";
+                } else {
+                    phoneNumber = telephone;
+                }
             }
             dto.setTelephonenumber(phoneNumber);
 
