@@ -21,4 +21,6 @@ public interface CustomerSalePushLogMapper {
     public List<CustomerSalePushLog> findByFeild(Map<String,Object> paramsMap);
 
     List<CustomerSalePushLog> findPageData(@Param("customerSalePushLog") CustomerSalePushLog params, @Param("start") Integer start, @Param("pageSize") Integer pageSize);
+
+    Long getPageDataCount(@Param("customerSalePushLog") CustomerSalePushLog params);
 }

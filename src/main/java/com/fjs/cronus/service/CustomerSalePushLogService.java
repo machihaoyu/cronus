@@ -1,11 +1,14 @@
 package com.fjs.cronus.service;
 
+import com.fjs.cronus.dto.BasePageableVO;
 import com.fjs.cronus.mappers.CustomerSalePushLogMapper;
 import com.fjs.cronus.model.CustomerSalePushLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by feng on 2017/9/18.
@@ -26,12 +29,25 @@ public class CustomerSalePushLogService {
 //        return count;
     }
 
-    public List<CustomerSalePushLog> findPageData(CustomerSalePushLog params, Integer pageNum, Integer pageSize) {
+    public Map<String, Object> findPageData(CustomerSalePushLog params, Integer pageNum, Integer pageSize) {
+        Map<String, Object> result = new HashMap<>();
 
         if (pageNum == null || pageNum <= 0) pageNum = 0;
         if (pageSize == null || pageSize <= 0) pageSize = 10;
         params = params == null ? new CustomerSalePushLog() : params;
-        List<CustomerSalePushLog> pageData = customerSalePushLogMapper.findPageData(params, pageNum*pageSize, pageSize);
-        return pageData;
+
+        Long total = customerSalePushLogMapper.getPageDataCount(params);
+        total = total == null ? 0 : total;
+        List<CustomerSalePushLog> pageData = null;
+        if (total > 0) {
+            pageData = customerSalePushLogMapper.findPageData(params, pageNum*pageSize, pageSize);
+        }
+
+        result.put("count", total);
+        result.put("pageNum", pageNum);
+        result.put("pageSize", pageSize);
+        result.put("pageCount", BasePageableVO.calculate(total.intValue(), pageSize));
+        result.put("list", pageData);
+        return result;
     }
 }

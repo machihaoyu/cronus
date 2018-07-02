@@ -211,4 +211,31 @@
         ORDER BY `create_time` DESC
         LIMIT #{start}, #{pageSize}
     </select>
+
+    <select id="getPageDataCount" resultType="java.lang.Long">
+        SELECT COUNT(`id`) FROM `customer_sale_push_log`
+        <where>
+            <if test="customerSalePushLog.id != null ">
+                and id = #{customerSalePushLog.id}
+            </if>
+            <if test="customerSalePushLog.telephonenumber != null and customerSalePushLog.telephonenumber !=''">
+                and telephonenumber = #{customerSalePushLog.telephonenumber}
+            </if>
+            <if test="customerSalePushLog.customerName != null and customerSalePushLog.customerName !=''">
+                and customer_name = #{customerSalePushLog.customerName}
+            </if>
+            <if test="customerSalePushLog.ocdcId != null ">
+                and ocdc_id = #{customerSalePushLog.ocdcId}
+            </if>
+            <if test="customerSalePushLog.customerId != null ">
+                and customer_id = #{customerSalePushLog.customerId}
+            </if>
+            <if test="customerSalePushLog.loanId != null ">
+                and loan_id = #{customerSalePushLog.loanId}
+            </if>
+            <if test="customerSalePushLog.idCard != null ">
+                and id_card = #{customerSalePushLog.idCard}
+            </if>
+        </where>
+    </select>
 </mapper>
