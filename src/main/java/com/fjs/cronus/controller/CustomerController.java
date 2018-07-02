@@ -10,15 +10,19 @@ import com.fjs.cronus.dto.CustomerPartDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
+import com.fjs.cronus.dto.api.ThorApiDTO;
 import com.fjs.cronus.dto.api.WalletApiDTO;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.customer.CustomerCountDTO;
+import com.fjs.cronus.dto.ourea.CrmPushCustomerDTO;
 import com.fjs.cronus.dto.thea.LoanDTO6;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
+import com.fjs.cronus.dto.uc.UserModelDTO;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.*;
+import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import io.swagger.annotations.Api;
@@ -59,6 +63,8 @@ public class CustomerController {
     TheaClientService theaClientService;
     @Autowired
     AllocateLogService allocateLogService;
+    @Autowired
+    private ThorService thorService;
 
     @Autowired
     SmsService smsService;
@@ -1239,5 +1245,42 @@ public class CustomerController {
             }
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
+    }
+
+    @ApiOperation(value = "查询用户信息", notes = "根据客户id，查询电话号码及来源")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", dataType = "string"),
+            @ApiImplicitParam(name = "phone", value = "业务员手机号", required = true, paramType = "query", dataType = "string"),
+    })
+    @RequestMapping(value = "/queryByPhone", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<List<CrmPushCustomerDTO>> queryByPhone(HttpServletRequest request,String phone){
+        CronusDto cronusDto = new CronusDto();
+        String token = request.getHeader("Authorization");
+        ThorApiDTO<UserModelDTO> result = thorService.getUserInfoByMobile(token,phone);
+        UserModelDTO userModel = result.getData();
+        List<CrmPushCustomerDTO> crmPushCustomerDTOList = new ArrayList<>();
+        try{
+            Integer userId = null;
+            if (!StringUtils.isEmpty(userModel.getUser_id())) {
+                userId = Integer.parseInt(userModel.getUser_id());
+                List<CustomerInfo> customerInfoList = customerInfoService.selectByOwnId(userId);
+                for (CustomerInfo customerInfo:customerInfoList){
+                    CrmPushCustomerDTO crmPushCustomerDTO = customerInfoService.copyProperty(customerInfo);
+                    crmPushCustomerDTOList.add(crmPushCustomerDTO);
+                }
+            }
+            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            cronusDto.setResult(ResultResource.CODE_SUCCESS);
+        }catch (Exception e) {
+            logger.error("--------------->queryByPhone查询失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException) e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+        cronusDto.setData(crmPushCustomerDTOList);
+        return cronusDto;
     }
 }

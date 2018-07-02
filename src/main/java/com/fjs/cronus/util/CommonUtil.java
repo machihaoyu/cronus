@@ -91,6 +91,39 @@ public class CommonUtil {
         return str.toString();
     }
 
+    /**
+     * 加密手机号星号处理
+     * @param telephonenumber
+     * @return
+     */
+    public static String starCodeTelephone(String telephonenumber)
+    {
+        String telephone = DEC3Util.des3DecodeCBC(telephonenumber);
+        String phoneNumber ;
+        if (telephone.length() > 7 ) {
+            phoneNumber = telephone.substring(0, 7) + "****";
+        } else {
+            phoneNumber = telephone;
+        }
+        return phoneNumber;
+    }
+
+    /**
+     * 明文手机号星号处理
+     * @param telephoneNumber
+     * @return
+     */
+    public static String starTelephone(String telephoneNumber)
+    {
+        String phoneNumber ;
+        if (telephoneNumber.length() > 7 ) {
+            phoneNumber = telephoneNumber.substring(0, 7) + "****";
+        } else {
+            phoneNumber = telephoneNumber+"****";
+        }
+        return phoneNumber;
+    }
+
     public static void main(String[] args) {
         String s1 = "Programming";
         String s2 = new String("Programming");

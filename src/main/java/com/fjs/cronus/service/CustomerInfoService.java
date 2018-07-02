@@ -9,12 +9,15 @@ import com.fjs.cronus.dto.CustomerPartDTO;
 import com.fjs.cronus.dto.QueryResult;
 import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
+import com.fjs.cronus.dto.api.WalletApiDTO;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
 import com.fjs.cronus.dto.customer.CustomerComDTO;
 import com.fjs.cronus.dto.customer.CustomerCountDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
+import com.fjs.cronus.dto.ourea.CrmPushCustomerDTO;
+import com.fjs.cronus.dto.ourea.OureaDTO;
 import com.fjs.cronus.dto.thea.LoanDTO6;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
@@ -24,15 +27,14 @@ import com.fjs.cronus.mappers.AllocateLogMapper;
 import com.fjs.cronus.mappers.CommunicationLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoLogMapper;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
-import com.fjs.cronus.model.AllocateLog;
-import com.fjs.cronus.model.CommunicationLog;
-import com.fjs.cronus.model.CustomerInfo;
-import com.fjs.cronus.model.CustomerInfoLog;
+import com.fjs.cronus.model.*;
 
 import com.fjs.cronus.service.api.OutPutService;
+import com.fjs.cronus.service.client.OureaService;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
+import com.fjs.cronus.util.CommonUtil;
 import com.fjs.cronus.util.DEC3Util;
 import com.fjs.cronus.util.EntityToDto;
 import com.fjs.cronus.util.PhoneFormatCheckUtils;
@@ -47,10 +49,13 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import tk.mybatis.mapper.entity.Example;
 
 
 import javax.annotation.Resource;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -90,6 +95,8 @@ public class CustomerInfoService {
     RedisTemplate<String,String> redisTemplate;
     @Autowired
     SmsService smsService;
+    @Autowired
+    private OureaService oureaService;
 
     public static final String REDIS_CRONUS_GETHISTORYCOUNT = "cronus_cronus_getHistoryCount_";
     public static final long REDIS_CRONUS_GETHISTORYCOUNT_TIME = 600;
@@ -151,6 +158,13 @@ public class CustomerInfoService {
             for (CustomerInfo customerInfo : resultList) {
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
+                if (customerDto.getCity()!=null && customerDto.getCity().trim().equals("广州"))
+                {
+                    //广州手机号暂时不处理
+                }
+                else {
+                    customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
+                }
                 //判断自己的lookphone
                 dtoList.add(customerDto);
             }
@@ -243,6 +257,19 @@ public class CustomerInfoService {
                 }
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
+                if (customerDto.getCity()!=null && customerDto.getCity().trim().equals("广州"))
+                {
+                    //广州手机号暂时不处理
+                }
+                else {
+                    if (level!=null && level.trim().equals("成交客户"))
+                    {
+                        //成交客户号码不处理
+                    }
+                    else {
+                        customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
+                    }
+                }
                 //判断自己的lookphone
                 dtoList.add(customerDto);
             }
@@ -879,6 +906,14 @@ public class CustomerInfoService {
             for (CustomerInfo customerInfo : resultList) {
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
+                if (customerDto.getCity()!=null && customerDto.getCity().trim().equals("广州"))
+                {
+                    //广州手机号暂时不处理
+                }
+                else {
+                    customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
+                }
+
                 doList.add(customerDto);
             }
             result.setRows(doList);
@@ -985,6 +1020,13 @@ public class CustomerInfoService {
                 }
                 CustomerListDTO customerDto = new CustomerListDTO();
                 EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
+                if (customerDto.getCity()!=null && customerDto.getCity().trim().equals("广州"))
+                {
+                    //广州手机号暂时不处理
+                }
+                else {
+                    customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
+                }
                 doList.add(customerDto);
             }
             if (!isExternalUser)
@@ -1073,6 +1115,24 @@ public class CustomerInfoService {
         customerInfoLog.setLogUserId(userId);
         customerInfoLog.setIsDeleted(0);
         customerInfoLogMapper.addCustomerLog(customerInfoLog);
+
+//        if (null != customerInfo){
+//            CrmPushCustomerDTO crmPushCustomerDTO = this.copyProperty(customerInfo);
+//            new Thread(
+//                    () -> {
+//                        logger.info("调用DD链crmPushCustomer接口数据:" + crmPushCustomerDTO.toString());
+//                        OureaDTO oureaDTO = oureaService.crmPushCustomer(token, crmPushCustomerDTO);
+//                        if (null != oureaDTO && oureaDTO.getResult() != 0){
+//                            logger.error("调用DD链crmPushCustomer接口：" + oureaDTO.toString());
+//                        }
+//                    }
+//            ).start();
+////                    logger.info("调用DD链crmPushCustomer接口数据:" + crmPushCustomerDTO.toString());
+////                    OureaDTO oureaDTO = oureaService.crmPushCustomer(token, crmPushCustomerDTO);
+////                    if (null != oureaDTO && oureaDTO.getResult() != 0){
+////                        logger.error("调用DD链crmPushCustomer接口：" + oureaDTO.toString());
+////                    }
+//        }
 
         resultDto.setData(true);
         resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
@@ -1168,9 +1228,7 @@ public class CustomerInfoService {
                         channleList.add(customerInfo.getUtmSource());
                     }
                     EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
-                    String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-                    String phoneNumber = telephone.substring(0, 7) + "****";
-                    customerDto.setTelephonenumber(phoneNumber);
+                    customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
                     resultList.add(customerDto);
                 }
                 queryResult.setRows(resultList);
@@ -1895,6 +1953,29 @@ public class CustomerInfoService {
         if (theaApiDTO != null && theaApiDTO.getResult() == 0) {
             resultDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             resultDto.setResult(ResultResource.CODE_SUCCESS);
+
+//            CustomerInfo customerInfo = null;
+//            if (null != loanDTO.getCustomerId()){
+//                customerInfo = this.selectById(loanDTO.getCustomerId());
+//                if (null != customerInfo){
+//                    CrmPushCustomerDTO crmPushCustomerDTO = this.copyProperty(customerInfo);
+//                    new Thread(
+//                            () -> {
+//                                logger.info("调用DD链crmPushCustomer接口数据:" + crmPushCustomerDTO.toString());
+//                                OureaDTO oureaDTO = oureaService.crmPushCustomer(token, crmPushCustomerDTO);
+//                                if (null != oureaDTO && oureaDTO.getResult() != 0){
+//                                    logger.error("调用DD链crmPushCustomer接口：" + oureaDTO.toString());
+//                                }
+//                            }
+//                    ).start();
+////                    logger.info("调用DD链crmPushCustomer接口数据:" + crmPushCustomerDTO.toString());
+////                    OureaDTO oureaDTO = oureaService.crmPushCustomer(token, crmPushCustomerDTO);
+////                    if (null != oureaDTO && oureaDTO.getResult() != 0){
+////                        logger.error("调用DD链crmPushCustomer接口：" + oureaDTO.toString());
+////                    }
+//                }
+//            }
+
         } else {
             resultDto.setData(theaApiDTO.getData());
             resultDto.setMessage(theaApiDTO.getMessage());
@@ -2230,6 +2311,106 @@ public class CustomerInfoService {
         CustomerBasicDTO customerBasicDTO = customerInfoMapper.selectCustomerById(id);
         customerBasicDTO.setTelephonenumber(DEC3Util.des3DecodeCBC(customerBasicDTO.getTelephonenumber()));
         return customerBasicDTO;
+    }
+
+    /**
+     * 根据id查找客户
+     * @param id
+     * @return
+     */
+    public CustomerInfo selectById(Integer id){
+        CustomerInfo customerInfo = new CustomerInfo();
+        customerInfo.setId(id);
+        customerInfo = customerInfoMapper.selectOne(customerInfo);
+        return customerInfo;
+    }
+
+    /**
+     * 将客户信息赋值DD
+     * @param customerInfo
+     * @return
+     */
+    public CrmPushCustomerDTO copyProperty(CustomerInfo customerInfo){
+        CrmPushCustomerDTO crmPushCustomerDTO = new CrmPushCustomerDTO();
+        if (!StringUtils.isEmpty(customerInfo.getAge())){
+            crmPushCustomerDTO.setAge(Integer.parseInt(customerInfo.getAge()));
+        }
+        crmPushCustomerDTO.setCrmCusId(customerInfo.getId());
+        crmPushCustomerDTO.setCrmUserId(customerInfo.getOwnUserId());
+//        crmPushCustomerDTO.setCrmUserId(726131);
+        if (null != customerInfo.getExpectLoanTime()){
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            String temp = format.format(customerInfo.getExpectMoneyTime());
+            crmPushCustomerDTO.setExpectTime(temp);
+        }
+        crmPushCustomerDTO.setHouseCity(customerInfo.getCity());
+        crmPushCustomerDTO.setHouseholdReg(customerInfo.getProvinceHuji());
+        crmPushCustomerDTO.setLoanAmount(customerInfo.getLoanAmount());
+        if (null != customerInfo.getExpectLoanTime()){
+            Integer loanTerm = Integer.parseInt(customerInfo.getExpectLoanTime());
+            loanTerm = 1;
+            loanTerm = 12 * loanTerm;
+            crmPushCustomerDTO.setLoanTerm(loanTerm);
+        }
+        crmPushCustomerDTO.setName(customerInfo.getCustomerName());
+        return crmPushCustomerDTO;
+    }
+
+    /**
+     * 通过业务员id查找保留客户
+     * @param ownId
+     * @return
+     */
+    public List<CustomerInfo> selectRemainByOwnId(Integer ownId){
+        Example example=new Example(CustomerInfo.class);
+        Example.Criteria criteria=example.createCriteria();
+        criteria.andEqualTo("isDeleted",CommonConst.DATA_NORMAIL);
+        criteria.andEqualTo("remain",CommonConst.REMAIN_STATUS_YES);
+        criteria.andEqualTo("ownUserId",ownId);
+
+        example.setOrderByClause("id desc");
+        List<CustomerInfo> customerInfoList = customerInfoMapper.selectByExample(example);
+        return customerInfoList;
+    }
+
+    /**
+     * 通过业务员id查找协议客户
+     * @param ownId
+     * @return
+     */
+    public List<CustomerInfo> selectServiceByOwnId(Integer ownId){
+        Example example=new Example(CustomerInfo.class);
+        Example.Criteria criteria=example.createCriteria();
+        criteria.andEqualTo("isDeleted",CommonConst.DATA_NORMAIL);
+        criteria.andEqualTo("customerLevel",CommonEnum.CUSTOMER_LEVEL_1.getCodeDesc());
+        criteria.andEqualTo("ownUserId",ownId);
+
+        example.setOrderByClause("id desc");
+        List<CustomerInfo> customerInfoList = customerInfoMapper.selectByExample(example);
+        return customerInfoList;
+    }
+
+    //获取业务员下的保留或者协议客户
+    public List<CustomerInfo> selectByOwnId(Integer ownId){
+        List<CustomerInfo> totalList = new ArrayList<>();
+        List<Integer> idList = new ArrayList<>();
+        List<CustomerInfo> remainList = this.selectRemainByOwnId(ownId);
+        for (CustomerInfo customerInfo:remainList){
+            idList.add(customerInfo.getId());
+            totalList.add(customerInfo);
+        }
+        List<CustomerInfo> serviceList = this.selectServiceByOwnId(ownId);
+        for (CustomerInfo customerInfo:serviceList){
+            if (! CollectionUtils.isEmpty(totalList) && !idList.contains(customerInfo.getId())){
+                idList.add(customerInfo.getId());
+                totalList.add(customerInfo);
+            }
+        }
+//        Collections.sort(idList, Collections.reverseOrder());
+//        for (Integer id:idList){
+//            System.out.println("客户id: " + id);
+//        }
+        return totalList;
     }
 
 }
