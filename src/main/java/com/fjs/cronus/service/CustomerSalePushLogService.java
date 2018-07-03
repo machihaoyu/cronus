@@ -32,7 +32,11 @@ public class CustomerSalePushLogService {
     public Map<String, Object> findPageData(CustomerSalePushLog params, Integer pageNum, Integer pageSize) {
         Map<String, Object> result = new HashMap<>();
 
-        if (pageNum == null || pageNum <= 0) pageNum = 0;
+        if (pageNum == null || pageNum <= 0){
+            pageNum = 0;
+        } else {
+            pageNum--;
+        }
         if (pageSize == null || pageSize <= 0) pageSize = 10;
         params = params == null ? new CustomerSalePushLog() : params;
 
