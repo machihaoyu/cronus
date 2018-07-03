@@ -21,10 +21,11 @@ public class CustomerSalePushLogService {
 
     /**
      * 批量添加日志
+     *
      * @param customerSalePushLogList
      * @return
      */
-    public void insertList(List<CustomerSalePushLog> customerSalePushLogList){
+    public void insertList(List<CustomerSalePushLog> customerSalePushLogList) {
         customerSalePushLogMapper.insertList(customerSalePushLogList);
 //        return count;
     }
@@ -32,10 +33,9 @@ public class CustomerSalePushLogService {
     public Map<String, Object> findPageData(CustomerSalePushLog params, Integer pageNum, Integer pageSize) {
         Map<String, Object> result = new HashMap<>();
 
-        if (pageNum == null || pageNum <= 0){
-            pageNum = 0;
-        } else {
-            pageNum--;
+        Integer tempPageNum = 0;
+        if (pageNum == null && pageNum >= 1) {
+            tempPageNum = pageNum - 1;
         }
         if (pageSize == null || pageSize <= 0) pageSize = 10;
         params = params == null ? new CustomerSalePushLog() : params;
@@ -44,7 +44,7 @@ public class CustomerSalePushLogService {
         total = total == null ? 0 : total;
         List<CustomerSalePushLog> pageData = null;
         if (total > 0) {
-            pageData = customerSalePushLogMapper.findPageData(params, pageNum*pageSize, pageSize);
+            pageData = customerSalePushLogMapper.findPageData(params, tempPageNum * pageSize, pageSize);
         }
 
         result.put("count", total);
