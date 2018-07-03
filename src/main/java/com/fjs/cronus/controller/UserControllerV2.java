@@ -494,4 +494,37 @@ public class UserControllerV2 {
         return resultDTO;
     }
 
+    @ApiOperation(value = "查询指定媒体，指定城市在queue中的所有一级吧", notes = "查询指定媒体，指定城市在queue中的所有一级吧 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "params", value = "请求参数,值：{'cityName':'上海', 'mediaId':123}", required = true, paramType = "body", dataType = "JSONObject"),
+    })
+    @RequestMapping(value = "/findFirstBarByCityAndMedia", method = RequestMethod.POST)
+    @ResponseBody
+    public TheaApiDTO findFirstBarByCityAndMedia(@RequestHeader("Authorization") String token, @RequestBody JSONObject params ) {
+        TheaApiDTO resultDTO = new TheaApiDTO<>();
+
+        try {
+            String cityName = params.getString("cityName");
+            Integer mediaId = params.getInteger("mediaId");
+            if (StringUtils.isBlank(cityName)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "cityName 不能为null");
+            }
+            if (mediaId == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mediaId 不能为null");
+            }
+
+            resultDTO.setData(this.allocateRedisService.findFirstBarByCityAndMedia(token, cityName, mediaId));
+            resultDTO.setResult(ResultDescription.CODE_SUCCESS);
+            resultDTO.setMessage(ResultDescription.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("-----------查询用户可操作的分公司失败！！--------" + e);
+            resultDTO.setData(null);
+            resultDTO.setResult(ResultDescription.CODE_FAIL);
+            resultDTO.setMessage(e.getMessage());
+        }
+        return resultDTO;
+    }
+
 }

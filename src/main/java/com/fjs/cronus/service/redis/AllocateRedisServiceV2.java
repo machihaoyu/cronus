@@ -276,7 +276,7 @@ public class AllocateRedisServiceV2 {
     }
 
     /**
-     * 城市一级吧queue：找一级吧.
+     * 城市一级吧queue：找第一个一级吧.
      */
     public Integer getSubCompanyIdFromQueue(String cityName, Integer mediaid) {
         String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaid.toString()).concat("$").concat(cityName);
@@ -300,12 +300,13 @@ public class AllocateRedisServiceV2 {
             // 目标数据缓存key
             String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaid.toString()).concat("$").concat(cityName);
 
-            if (listOperations.size(key) > 0) {
+            Long temp = listOperations.size(key);
+            if ( temp > 0) {
                 // 当缓存中有，取出然后移到queue尾部
-                size = listOperations.size(key);
+                size = temp;
             } else {
                 // 当缓存无，去库中取并放入到缓存中
-                Map<String, List<Integer>> subCompanyByCityName = this.findSubCompanyByCityName(token, cityName);
+                Map<String, List<Integer>> subCompanyByCityName = this.findSubCompanyByCityName(token);
                 for (Map.Entry<String, List<Integer>> entry : subCompanyByCityName.entrySet()) {
                     String cityNameTemp = entry.getKey();
                     List<Integer> subCompanyIdList = entry.getValue();
@@ -327,8 +328,8 @@ public class AllocateRedisServiceV2 {
     /**
      * 城市一级吧queue：获取所有一级吧.
      */
-    private Map<String, List<Integer>> findSubCompanyByCityName(String token, String city) {
-        if (StringUtils.isNotBlank(city) && StringUtils.isNotBlank(token)) {
+    private Map<String, List<Integer>> findSubCompanyByCityName(String token) {
+        if (StringUtils.isNotBlank(token)) {
             // 获取所有一级吧
             AvatarApiDTO<List<FirstBarDTO>> allSubCompany = avatarClientService.findAllSubCompany(token);
             List<FirstBarDTO> data = null;
@@ -395,4 +396,15 @@ public class AllocateRedisServiceV2 {
         }
     }
 
+    /**
+     * 从redis中获取一级吧id.
+     */
+    public List<Integer> findFirstBarByCityAndMedia(String token, String cityName, Integer mediaId) {
+
+        ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
+        // 目标数据缓存key
+        String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaId.toString()).concat("$").concat(cityName);
+        return listOperations.range(key, 0, -1);
+
+    }
 }
