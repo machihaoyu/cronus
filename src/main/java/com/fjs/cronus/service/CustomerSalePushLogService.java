@@ -34,7 +34,7 @@ public class CustomerSalePushLogService {
         Map<String, Object> result = new HashMap<>();
 
         Integer tempPageNum = 0;
-        if (pageNum == null && pageNum >= 1) {
+        if (pageNum != null && pageNum >= 1) {
             tempPageNum = pageNum - 1;
         }
         if (pageSize == null || pageSize <= 0) pageSize = 10;
