@@ -101,7 +101,7 @@ public class AllocateRedisServiceV2 {
 
         String key = this.getKey(companyId, medial, effectiveDate);
         ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
-        listOperations.remove(key, 10, userId);
+        listOperations.remove(key, 0, userId);
         listOperations.rightPush(key, userId);
     }
 
@@ -117,7 +117,7 @@ public class AllocateRedisServiceV2 {
 
         String key = this.getKey(companyId, medial, effectiveDate);
         ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
-        listOperations.remove(key, 10, userId);
+        listOperations.remove(key, 0, userId);
     }
 
     /**
@@ -397,7 +397,7 @@ public class AllocateRedisServiceV2 {
     }
 
     /**
-     * 从redis中获取一级吧id.
+     * 城市下一级吧queue：从redis中获取一级吧id.
      */
     public List<Integer> findFirstBarByCityAndMedia(String token, String cityName, Integer mediaId) {
 
