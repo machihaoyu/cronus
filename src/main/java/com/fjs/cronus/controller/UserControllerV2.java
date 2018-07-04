@@ -527,4 +527,80 @@ public class UserControllerV2 {
         return resultDTO;
     }
 
+    @ApiOperation(value = "新增一级吧到指定媒体，指定城市的queue中", notes = "新增一级吧到指定媒体，指定城市的queue中 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "params", value = "请求参数,值：{'cityName':'上海', 'mediaId':123, 'companyId': 123}", required = true, paramType = "body", dataType = "JSONObject"),
+    })
+    @RequestMapping(value = "/addFirstBar2CityAndMediaQueue", method = RequestMethod.POST)
+    @ResponseBody
+    public TheaApiDTO addFirstBar2CityAndMediaQueue(@RequestHeader("Authorization") String token, @RequestBody JSONObject params ) {
+        TheaApiDTO resultDTO = new TheaApiDTO<>();
+
+        try {
+            String cityName = params.getString("cityName");
+            Integer mediaId = params.getInteger("mediaId");
+            Integer companyId = params.getInteger("companyId");
+            if (StringUtils.isBlank(cityName)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "cityName 不能为null");
+            }
+            if (mediaId == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mediaId 不能为null");
+            }
+            if (companyId == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "companyId 不能为null");
+            }
+
+            this.allocateRedisService.addFirstBar2CityAndMediaQueue(token, cityName, mediaId, companyId);
+            resultDTO.setData("成功");
+            resultDTO.setResult(ResultDescription.CODE_SUCCESS);
+            resultDTO.setMessage(ResultDescription.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("-----------查询用户可操作的分公司失败！！--------" + e);
+            resultDTO.setData(null);
+            resultDTO.setResult(ResultDescription.CODE_FAIL);
+            resultDTO.setMessage(e.getMessage());
+        }
+        return resultDTO;
+    }
+
+    @ApiOperation(value = "删除指定媒体，指定城市的queue中的一级吧", notes = "删除指定媒体，指定城市的queue中的一级吧 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "params", value = "请求参数,值：{'cityName':'上海', 'mediaId':123, 'companyId': 123}", required = true, paramType = "body", dataType = "JSONObject"),
+    })
+    @RequestMapping(value = "/delFirstBar2CityAndMediaQueue", method = RequestMethod.POST)
+    @ResponseBody
+    public TheaApiDTO delFirstBar2CityAndMediaQueue(@RequestHeader("Authorization") String token, @RequestBody JSONObject params ) {
+        TheaApiDTO resultDTO = new TheaApiDTO<>();
+
+        try {
+            String cityName = params.getString("cityName");
+            Integer mediaId = params.getInteger("mediaId");
+            Integer companyId = params.getInteger("companyId");
+            if (StringUtils.isBlank(cityName)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "cityName 不能为null");
+            }
+            if (mediaId == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "mediaId 不能为null");
+            }
+            if (companyId == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "companyId 不能为null");
+            }
+
+            this.allocateRedisService.delFirstBar2CityAndMediaQueue(token, cityName, mediaId, companyId);
+            resultDTO.setData("成功");
+            resultDTO.setResult(ResultDescription.CODE_SUCCESS);
+            resultDTO.setMessage(ResultDescription.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("-----------查询用户可操作的分公司失败！！--------" + e);
+            resultDTO.setData(null);
+            resultDTO.setResult(ResultDescription.CODE_FAIL);
+            resultDTO.setMessage(e.getMessage());
+        }
+        return resultDTO;
+    }
+
 }

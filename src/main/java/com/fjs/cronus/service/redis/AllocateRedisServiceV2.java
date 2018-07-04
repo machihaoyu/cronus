@@ -407,4 +407,25 @@ public class AllocateRedisServiceV2 {
         return listOperations.range(key, 0, -1);
 
     }
+
+    /**
+     * 城市下一级吧queue：新增一级吧到指定城市媒体的队列中.
+     */
+    public void addFirstBar2CityAndMediaQueue(String token, String cityName, Integer mediaId, Integer companyId) {
+        // 目标数据缓存key
+        String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaId.toString()).concat("$").concat(cityName.trim());
+        ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
+        listOperations.remove(key, 0, companyId);
+        listOperations.leftPush(key, companyId);
+    }
+
+    /**
+     * 城市下一级吧queue：删除指定媒体，指定城市的queue中的一级吧.
+     */
+    public void delFirstBar2CityAndMediaQueue(String token, String cityName, Integer mediaId, Integer companyId) {
+        // 目标数据缓存key
+        String key = CommonRedisConst.ALLOCATE_SUBCOMPANYID.concat("$").concat(mediaId.toString()).concat("$").concat(cityName.trim());
+        ListOperations<String, Integer> listOperations = redisTemplateOps.opsForList();
+        listOperations.remove(key, 0, companyId);
+    }
 }
