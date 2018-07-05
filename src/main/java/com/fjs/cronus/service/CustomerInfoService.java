@@ -2338,10 +2338,12 @@ public class CustomerInfoService {
         crmPushCustomerDTO.setCrmCusId(customerInfo.getId());
         crmPushCustomerDTO.setCrmUserId(customerInfo.getOwnUserId());
 //        crmPushCustomerDTO.setCrmUserId(726131);
-        if (null != customerInfo.getExpectLoanTime()){
+        if (!StringUtils.isEmpty(customerInfo.getExpectLoanTime()) ){
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            String temp = format.format(customerInfo.getExpectLoanTime());
-            crmPushCustomerDTO.setExpectTime(temp);
+            if (!customerInfo.getExpectLoanTime().equals("0") && !customerInfo.getExpectLoanTime().equals("1")){
+                String temp = format.format(customerInfo.getExpectLoanTime());
+                crmPushCustomerDTO.setExpectTime(temp);
+            }
         }
         crmPushCustomerDTO.setHouseCity(customerInfo.getCity());
         crmPushCustomerDTO.setHouseholdReg(customerInfo.getProvinceHuji());
