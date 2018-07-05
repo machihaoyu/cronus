@@ -2340,7 +2340,7 @@ public class CustomerInfoService {
 //        crmPushCustomerDTO.setCrmUserId(726131);
         if (null != customerInfo.getExpectLoanTime()){
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            String temp = format.format(customerInfo.getExpectMoneyTime());
+            String temp = format.format(customerInfo.getExpectLoanTime());
             crmPushCustomerDTO.setExpectTime(temp);
         }
         crmPushCustomerDTO.setHouseCity(customerInfo.getCity());
