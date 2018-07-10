@@ -2350,7 +2350,6 @@ public class CustomerInfoService {
         crmPushCustomerDTO.setLoanAmount(customerInfo.getLoanAmount());
         if (null != customerInfo.getExpectLoanTime()){
             Integer loanTerm = Integer.parseInt(customerInfo.getExpectLoanTime());
-            loanTerm = 1;
             loanTerm = 12 * loanTerm;
             crmPushCustomerDTO.setLoanTerm(loanTerm);
         }
