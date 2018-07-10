@@ -1283,4 +1283,52 @@ public class CustomerController {
         cronusDto.setData(crmPushCustomerDTOList);
         return cronusDto;
     }
+
+    @ApiOperation(value = "B端客户列表", notes = "B端客户列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", dataType = "string"),
+            @ApiImplicitParam(name = "level", value = "客户状态 (意向客户 协议客户 成交客户)", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "houseStatus", value = "房产情况（有或者无）", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "remain", value = "是否保留  0不保留1保留", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "loanAmount", value = "交易金额",required = false, paramType = "query",  dataType = "BigDecimal"),
+            @ApiImplicitParam(name="cooperationStatus",value = "跟进状态,暂未接通，无意向，有意向待跟踪，资质差无法操作，\n" +
+                    "\t\t空号，外地，同业，内部员工，其他",required = false,paramType = "query",dataType = "string"),
+            @ApiImplicitParam(name = "page", value = "查询第几页(从1开始)", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "每页显示多少条记录", required = false, paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/busniess/customerList", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<QueryResult<CustomerListDTO>> bCustomerList(
+                                                        @RequestParam(value = "level", required = false) String level,
+                                                        @RequestParam(value = "houseStatus", required = false) String houseStatus,
+                                                        @RequestParam(value = "remain", required = false) Integer remain,
+                                                        @RequestParam(value = "loanAmount", required = false) BigDecimal loanAmount,
+                                                        @RequestParam(value = "cooperationStatus",required = false) String cooperationStatus,
+                                                        @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                                        @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
+                                                                @RequestHeader("Authorization") String token) {
+
+
+        CronusDto<QueryResult<CustomerListDTO>> cronusDto = new CronusDto();
+        //获取当前用户登录的id
+        Integer userId = Integer.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (userId == null) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
+        }
+        try {
+            QueryResult queryResult = customerInfoService.bCustomerList(userId, page, size, remain, level, token,
+                    cooperationStatus);
+            cronusDto.setData(queryResult);
+            cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
+            cronusDto.setResult(ResultResource.CODE_SUCCESS);
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("--------------->customerList获取b端列表信息操作失败", e);
+            if (e instanceof CronusException) {
+                CronusException thorException = (CronusException) e;
+                throw thorException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
 }

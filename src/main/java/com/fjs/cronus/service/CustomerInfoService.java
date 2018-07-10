@@ -2414,4 +2414,45 @@ public class CustomerInfoService {
         return totalList;
     }
 
+    public QueryResult bCustomerList(Integer userId, Integer page, Integer size, Integer remain,
+                                       String level, String token, String cooperationStatus) {
+        QueryResult result = new QueryResult();
+        Map<String, Object> paramsMap = new HashMap<>();
+        List<CustomerInfo> resultList = new ArrayList<>();
+        List<CustomerListDTO> dtoList = new ArrayList<>();
+        PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO == null) {
+            throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
+        }
+        if (remain != null) {
+            paramsMap.put("remain", remain);
+        }
+        if (!StringUtils.isEmpty(level)) {
+            paramsMap.put("level", level);
+        }
+        if (!StringUtils.isEmpty(cooperationStatus)){
+            paramsMap.put("cooperationStatus", cooperationStatus);
+        }
+
+        //获取下属员工
+        List<Integer> ids = ucService.getSubUserByUserId(token, userId);
+        paramsMap.put("owerId", ids);
+        paramsMap.put("start", (page - 1) * size);
+        paramsMap.put("size", size);
+        Integer lookphone = Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
+        resultList = customerInfoMapper.customerList(paramsMap);
+        Integer count = customerInfoMapper.customerListCount(paramsMap);
+        if (resultList != null && resultList.size() > 0) {
+            for (CustomerInfo customerInfo : resultList) {
+                CustomerListDTO customerDto = new CustomerListDTO();
+                EntityToDto.customerEntityToCustomerListDto(customerInfo, customerDto, lookphone, userId);
+                customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
+                //判断自己的lookphone
+                dtoList.add(customerDto);
+            }
+            result.setRows(dtoList);
+        }
+        result.setTotal(count.toString());
+        return result;
+    }
 }
