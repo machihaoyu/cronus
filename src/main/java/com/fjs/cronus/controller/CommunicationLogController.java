@@ -232,4 +232,26 @@ public class CommunicationLogController {
         }
     }
 
+    @ApiOperation(value = "b端根据客户id获取沟通日志", notes = "b端根据客户id获取沟通日志")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", dataType = "string"),
+            @ApiImplicitParam(name = "customerId", value = "客户id", required = true, paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/busniess/selectByCustomerId", method = RequestMethod.GET)
+    @ResponseBody
+    public CronusDto<CustomerUsefulDTO> bSelectByCustomerId(@RequestParam(required = true) Integer customerId, @RequestHeader("Authorization") String token) {
+        CronusDto theaApiDTO = new CronusDto<>();
+        CustomerUsefulDTO customerUsefulDTO = null;
+        try {
+            customerUsefulDTO = communicationLogService.findByCustomerId(customerId, token);
+            theaApiDTO.setResult(CommonMessage.SUCCESS.getCode());
+            theaApiDTO.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+        } catch (Exception e) {
+            logger.error("b端根据客户id获取沟通日志失败", e);
+            theaApiDTO.setResult(CommonMessage.FAIL.getCode());
+            theaApiDTO.setMessage(CommonMessage.FAIL.getCodeDesc());
+        }
+        theaApiDTO.setData(customerUsefulDTO);
+        return theaApiDTO;
+    }
 }
