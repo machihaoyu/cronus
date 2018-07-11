@@ -154,6 +154,12 @@
       <if test="cooperationStatus != null and cooperationStatus != '' ">
           and c.cooperation_status = #{cooperationStatus}
       </if>
+      <if test="houseStatus != null and houseStatus != '' and houseStatus == '有'.toString()">
+          and (c.house_status = '有' or c.house_status = '是')
+      </if>
+      <if test="houseStatus != null and houseStatus != '' and houseStatus == '无'.toString()">
+          and (c.house_status = '无' or c.house_status = '无')
+      </if>
       <if test="ownUserName != null and ownUserName != '' ">
           and c.own_user_name = #{ownUserName}
       </if>
@@ -168,6 +174,27 @@
       </if>
       <if test="remain != null ">
           and c.remain = #{remain}
+      </if>
+      <if test="loanAmount != null and loanAmount ==0 ">
+          and c.loan_amount = 0
+      </if>
+      <if test="loanAmount != null and loanAmount ==1 ">
+          and c.loan_amount &lt;= 5 and c.loan_amount &gt; 0
+      </if>
+      <if test="loanAmount != null and loanAmount ==2 ">
+          and c.loan_amount &lt;= 10 and c.loan_amount &gt; 5
+      </if>
+      <if test="loanAmount != null and loanAmount ==3 ">
+          and c.loan_amount &lt;= 50 and c.loan_amount &gt; 10
+      </if>
+      <if test="loanAmount != null and loanAmount ==4 ">
+          and c.loan_amount &lt;= 100 and c.loan_amount &gt; 50
+      </if>
+      <if test="loanAmount != null and loanAmount ==5 ">
+          and c.loan_amount &lt;= 500 and c.loan_amount &gt; 100
+      </if>
+      <if test="loanAmount != null and loanAmount ==6 ">
+          and c.loan_amount &gt; 500
       </if>
       <if test="level != null ">
           and c.customer_type = #{level}
@@ -228,6 +255,12 @@
       <if test="cooperationStatus != null and cooperationStatus != '' ">
           and c.cooperation_status = #{cooperationStatus}
       </if>
+      <if test="houseStatus != null and houseStatus != '' and houseStatus == '有'.toString()">
+          and (c.house_status = '有' or c.house_status = '是')
+      </if>
+      <if test="houseStatus != null and houseStatus != '' and houseStatus == '无'.toString()">
+          and (c.house_status = '无' or c.house_status = '无')
+      </if>
       <if test="ownUserName != null and ownUserName != '' ">
           and c.own_user_name = #{ownUserName}
       </if>
@@ -246,6 +279,27 @@
 
       <if test="remain != null ">
           and c.remain = #{remain}
+      </if>
+      <if test="loanAmount != null and loanAmount ==0 ">
+          and c.loan_amount = 0
+      </if>
+      <if test="loanAmount != null and loanAmount ==1 ">
+          and c.loan_amount &lt;= 5 and c.loan_amount &gt; 0
+      </if>
+      <if test="loanAmount != null and loanAmount ==2 ">
+          and c.loan_amount &lt;= 10 and c.loan_amount &gt; 5
+      </if>
+      <if test="loanAmount != null and loanAmount ==3 ">
+          and c.loan_amount &lt;= 50 and c.loan_amount &gt; 10
+      </if>
+      <if test="loanAmount != null and loanAmount ==4 ">
+          and c.loan_amount &lt;= 100 and c.loan_amount &gt; 50
+      </if>
+      <if test="loanAmount != null and loanAmount ==5 ">
+          and c.loan_amount &lt;= 500 and c.loan_amount &gt; 100
+      </if>
+      <if test="loanAmount != null and loanAmount ==6 ">
+          and c.loan_amount &gt; 500
       </if>
       <if test="level != null ">
           and c.customer_type = #{level}
