@@ -41,7 +41,7 @@ public class SalesmanCallDataController {
                     "\"answerTime\":通话拨通时间，时间戳。例如：1531012442000," +
                     "\"endTime\":通话结束时间，时间戳。例如：1531012442000," +
                     "\"duration\":通话时长，指拨通时间到结束时间。单位为秒，例如：449," +
-                    "\"totalDuration\":总时间，指拨打时间到结束时间。单位为秒，例如：123" +
+                    "\"totalDuration\":总时间，指拨打时间到结束时间。单位为秒，例如：123," +
                     "\"customerPhoneNum\":客户手机号" +
                     "}"
                     , required = true, dataType = "com.alibaba.fastjson.JSONObject")
