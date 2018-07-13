@@ -2411,7 +2411,7 @@ public class CustomerInfoService {
         return totalList;
     }
 
-    public QueryResult bCustomerList(Integer userId, Integer page, Integer size, Integer remain,
+    public QueryResult bCustomerList(Integer userId, String customerName, String telephonenumber,Integer page, Integer size, Integer remain,
                                        String level, String token, String cooperationStatus,String houseStatus,Integer loanAmount) {
         QueryResult result = new QueryResult();
         Map<String, Object> paramsMap = new HashMap<>();
@@ -2420,6 +2420,13 @@ public class CustomerInfoService {
         PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
         if (userInfoDTO == null) {
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
+        }
+        if (!StringUtils.isEmpty(customerName)) {
+            paramsMap.put("customerName", customerName);
+        }
+        //手机需要解密加密
+        if (!StringUtils.isEmpty(telephonenumber)) {
+            paramsMap.put("telephonenumber", DEC3Util.des3EncodeCBC(telephonenumber));
         }
         if (remain != null) {
             paramsMap.put("remain", remain);

@@ -1284,6 +1284,8 @@ public class CustomerController {
     @ApiOperation(value = "B端客户列表", notes = "B端客户列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", dataType = "string"),
+            @ApiImplicitParam(name = "customerName", value = "客户姓名", required = false, paramType = "query", dataType = "string"),
+            @ApiImplicitParam(name = "telephonenumber", value = "电话号码", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "level", value = "客户状态 (意向客户 协议客户 成交客户)", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "houseStatus", value = "房产情况（有或者无）", required = false, paramType = "query", dataType = "string"),
             @ApiImplicitParam(name = "remain", value = "是否保留  0不保留1保留", required = false, paramType = "query", dataType = "int"),
@@ -1295,6 +1297,8 @@ public class CustomerController {
     @RequestMapping(value = "/busniess/customerList", method = RequestMethod.GET)
     @ResponseBody
     public CronusDto<QueryResult<CustomerDTO2>> bCustomerList(
+                                                        @RequestParam(value = "customerName", required = false) String customerName,
+                                                        @RequestParam(value = "telephonenumber", required = false) String telephonenumber,
                                                         @RequestParam(value = "level", required = false) String level,
                                                         @RequestParam(value = "houseStatus", required = false) String houseStatus,
                                                         @RequestParam(value = "remain", required = false) Integer remain,
@@ -1312,7 +1316,7 @@ public class CustomerController {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR);
         }
         try {
-            QueryResult queryResult = customerInfoService.bCustomerList(userId, page, size, remain, level, token,
+            QueryResult queryResult = customerInfoService.bCustomerList(userId, customerName, telephonenumber,page, size, remain, level, token,
                     cooperationStatus,houseStatus,loanAmount);
             cronusDto.setData(queryResult);
             cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
