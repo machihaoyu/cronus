@@ -82,6 +82,11 @@ public class CommonRedisConst {
     public static String EZUC_DURATION_KEY = "ezuc_duration_key";
 
     /**
+     * 业务员面见次数（key后有时间指定，具体到天） key.
+     */
+    public static String EZUC_DURATION_MEETINGCOUNT = "ezuc_duration_meetingcount";
+
+    /**
      * EZUC 定时任务 key.
      */
     public static String EZUC_DURATION_QUARTZ_KEY = "ezuc_duration_quartz_key";

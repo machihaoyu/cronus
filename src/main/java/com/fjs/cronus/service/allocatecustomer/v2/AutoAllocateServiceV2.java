@@ -161,6 +161,9 @@ public class AutoAllocateServiceV2 {
     @Autowired
     EzucDataDetailService ezucDataDetailService;
 
+    @Autowired
+    SalesmanCallDataService salesmanCallDataService;
+
     /**
      * 判断是不是客户主动申请渠道
      *
@@ -1470,8 +1473,7 @@ public class AutoAllocateServiceV2 {
         end.set(Calendar.HOUR_OF_DAY, 23);
         end.set(Calendar.MINUTE, 59);
         end.set(Calendar.MILLISECOND, 59);
-        Integer countCustomerIdByCreateId = customerMeetMapper.getCountCustomerIdByCreateId(salesmanId, start.getTime(), end.getTime());
-        countCustomerIdByCreateId = countCustomerIdByCreateId == null ? 0 : countCustomerIdByCreateId;
+        Integer countCustomerIdByCreateId = salesmanCallDataService.getMeetingCount(Long.valueOf(salesmanId), start.getTime(), end.getTime());
         SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k60 + "当天面见顾客数"
                 , ImmutableMap.of("salesmanId", salesmanId, "start", start.getTime().getTime(), "end", end.getTime().getTime())
                 , ImmutableMap.of("顾客数", countCustomerIdByCreateId)
@@ -1488,7 +1490,7 @@ public class AutoAllocateServiceV2 {
         if (StringUtils.isBlank(salesmanName)) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取用户角色列表异常,响应的业务员name为null");
         }
-        long durationByName = ezucDataDetailService.getDurationByName(salesmanName.trim(), null);
+        long durationByName = salesmanCallDataService.getDurationByName(salesmanName.trim(), null);
         SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k60 + "通话时长"
                 , ImmutableMap.of("业务员", salesmanName)
                 , ImmutableMap.of("通话时长（秒）", durationByName)

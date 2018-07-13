@@ -2,13 +2,16 @@ package com.fjs.cronus.service.quartz;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.entity.EzucDataDetail;
 import com.fjs.cronus.entity.EzucQurtzLog;
+import com.fjs.cronus.entity.SalesmanCallData;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.EzucDataDetailMapper;
 import com.fjs.cronus.mappers.EzucQurtzLogMapper;
+import com.fjs.cronus.mappers.SalesmanCallDataMapper;
 import com.fjs.cronus.service.EzucDataDetailService;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -73,6 +77,9 @@ public class EzucQurtzService {
 
     @Resource
     RedisTemplate redisTemplateOps;
+
+    @Autowired
+    private SalesmanCallDataMapper salesmanCallDataMapper;
 
     /**
      * 当前时间.
@@ -177,7 +184,7 @@ public class EzucQurtzService {
                     }
 
                     // 数据入缓存
-                    ezucDataDetailService.refreshCache(date);
+                    //ezucDataDetailService.refreshCache(date);
                 }
 
             }
@@ -215,31 +222,67 @@ public class EzucQurtzService {
 
         String callerDispName = jsonObject.getString("callerDispName");
         Long startTime = jsonObject.getLong("startTime");
+
+        // 记录EZUC数据
+        Boolean isexist = null;
+        Boolean isexist2 = null;
         if (StringUtils.isNotBlank(callerDispName) && startTime != null) {
-            EzucDataDetail i = new EzucDataDetail();
+
+            /*EzucDataDetail i = new EzucDataDetail();
             i.setCallerDispName(callerDispName);
             i.setStartTime(startTime);
             i.setStatus(CommonEnum.entity_status1.getCode());
             int i1 = ezucDataDetailMapper.selectCount(i);
-            if (i1 > 0) return; // 已存在的记录无需再次插入
+            if (i1 > 0) {
+                isexist = true; // 已存在的记录无需再次插入
+            };*/
+
+            SalesmanCallData i2 = new SalesmanCallData();
+            i2.setSalesManName(callerDispName);
+            i2.setStartTime(startTime);
+            i2.setStatus(CommonEnum.entity_status1.getCode());
+            int i3 = salesmanCallDataMapper.selectCount(i2);
+            if (i3 > 0) {
+                isexist2 = true; // 已存在的记录无需再次插入
+            }
         }
 
-        EzucDataDetail data = new EzucDataDetail();
-        data.setCreated(now);
-        data.setStatus(CommonEnum.entity_status1.getCode());
-        data.setCallerDispName(callerDispName);
-        data.setCallerDeptName(jsonObject.getString("callerDeptName"));
-        data.setCallerAccount(jsonObject.getString("callerAccount"));
-        data.setCallerDbid(jsonObject.getInteger("callerDbid"));
-        data.setCallerDeptId(jsonObject.getInteger("callerDeptId"));
-        data.setDuration(jsonObject.getLong("duration"));
-        data.setTotalDuration(jsonObject.getLong("totalDuration"));
-        data.setStartTime(startTime);
-        data.setEndTime(jsonObject.getInteger("endTime"));
-        data.setAnswerTime(jsonObject.getInteger("answerTime"));
-        data.setCalleeExt(jsonObject.getString("calleeExt"));
-        data.setData(jsonObject.toString());
-        ezucDataDetailMapper.insertSelective(data);
+        /*if (isexist == null || !isexist) {
+            // 记录到 ezuc_data_detail 表
+            EzucDataDetail data = new EzucDataDetail();
+            data.setCreated(now);
+            data.setStatus(CommonEnum.entity_status1.getCode());
+            data.setCallerDispName(callerDispName);
+            data.setCallerDeptName(jsonObject.getString("callerDeptName"));
+            data.setCallerAccount(jsonObject.getString("callerAccount"));
+            data.setCallerDbid(jsonObject.getInteger("callerDbid"));
+            data.setCallerDeptId(jsonObject.getInteger("callerDeptId"));
+            data.setDuration(jsonObject.getLong("duration"));
+            data.setTotalDuration(jsonObject.getLong("totalDuration"));
+            data.setStartTime(startTime);
+            data.setEndTime(jsonObject.getInteger("endTime"));
+            data.setAnswerTime(jsonObject.getInteger("answerTime"));
+            data.setCalleeExt(jsonObject.getString("calleeExt"));
+            data.setData(jsonObject.toString());
+            ezucDataDetailMapper.insertSelective(data);
+        }*/
+
+        if (isexist2 == null || !isexist2) {
+            // 记录到 salesman_call_data 表
+            SalesmanCallData data = new SalesmanCallData();
+            data.setSalesManName(callerDispName);
+            data.setCustomerPhoneNum(jsonObject.getString("calleeExt"));
+            data.setStartTime(startTime);
+            data.setAnswerTime(jsonObject.getLong("answerTime"));
+            data.setEndTime(jsonObject.getLong("endTime"));
+            data.setDuration(jsonObject.getLong("duration"));
+            data.setTotalDuration(jsonObject.getLong("totalDuration"));
+            data.setCallType(0);
+            data.setRecordingUrl(jsonObject.getString("recordingUrl"));
+            data.setSystype(CommonConst.SYSTYPE_EZUC);
+            data.setCreated(new Date());
+            salesmanCallDataMapper.insertSelective(data);
+        }
     }
 
     /**

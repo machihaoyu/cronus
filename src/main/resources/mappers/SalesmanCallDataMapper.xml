@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.SalesmanCallDataMapper">
+
+    <resultMap id="BaseResultMap" type="com.fjs.cronus.entity.SalesmanCallData">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="created" property="created" jdbcType="TIMESTAMP" />
+        <result column="createid" property="createid" jdbcType="INTEGER" />
+        <result column="updated" property="updated" jdbcType="TIMESTAMP" />
+        <result column="updateid" property="updateid" jdbcType="INTEGER" />
+        <result column="deleted" property="deleted" jdbcType="TIMESTAMP" />
+        <result column="deleteid" property="deleteid" jdbcType="INTEGER" />
+        <result column="status" property="status" jdbcType="INTEGER" />
+        <result column="sales_man_id" property="salesManId" jdbcType="INTEGER" />
+        <result column="sales_man_name" property="salesManName" jdbcType="VARCHAR" />
+        <result column="sub_companyid" property="subCompanyid" jdbcType="INTEGER" />
+        <result column="customerid" property="customerid" jdbcType="INTEGER" />
+        <result column="customer_phone_num" property="customerPhoneNum" jdbcType="INTEGER" />
+        <result column="start_time" property="startTime" jdbcType="INTEGER" />
+        <result column="answer_time" property="answerTime" jdbcType="INTEGER" />
+        <result column="end_time" property="endTime" jdbcType="INTEGER" />
+        <result column="duration" property="duration" jdbcType="INTEGER" />
+        <result column="total_duration" property="totalDuration" jdbcType="INTEGER" />
+        <result column="call_type" property="callType" jdbcType="INTEGER" />
+        <result column="recording_url" property="recordingUrl" jdbcType="VARCHAR" />
+        <result column="systype" property="systype" jdbcType="INTEGER" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+      `id`,
+      `created`,
+      `createid`,
+      `updated`,
+      `updateid`,
+      `deleted`,
+      `deleteid`,
+      `status`,
+      `sales_man_id`,
+      `sales_man_name`,
+      `sub_companyid`,
+      `customerid`,
+      `customer_phone_num`,
+      `start_time`,
+      `answer_time`,
+      `end_time`,
+      `duration`,
+      `total_duration`,
+      `call_type`,
+      `recording_url`,
+      `systype`
+    </sql>
+
+    <select id="findAllDuration" resultType="com.fjs.cronus.entity.SalesmanCallData">
+        SELECT
+        `sales_man_name` AS salesManName,
+        SUM(duration) AS duration
+        FROM `salesman_call_data`
+        WHERE `start_time` &gt;= #{startTime}
+        AND `start_time` &lt;= #{endTime}
+        AND `status`=#{status}
+        GROUP BY `sales_man_name`
+    </select>
+
+    <select id="getDurationByName" resultType="java.lang.Long">
+        SELECT SUM(duration) AS duration
+        FROM `salesman_call_data`
+        WHERE `start_time` &gt;= #{startTime}
+        AND `start_time` &lt;= #{endTime}
+        AND `status`=#{status}
+        AND `sales_man_name`=#{name}
+    </select>
+
+</mapper>

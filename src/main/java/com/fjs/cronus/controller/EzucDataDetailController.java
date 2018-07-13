@@ -48,6 +48,7 @@ public class EzucDataDetailController {
     })
     @RequestMapping(value = "/getDurationByName", method = RequestMethod.POST)
     @ResponseBody
+    @Deprecated
     public CronusDto getDurationByName(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject) {
         CronusDto result = new CronusDto();
 
@@ -176,6 +177,7 @@ public class EzucDataDetailController {
     })
     @RequestMapping(value = "/refreshCache", method = RequestMethod.POST)
     @ResponseBody
+    @Deprecated
     public CronusDto refreshCache(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject) {
         CronusDto result = new CronusDto();
 
@@ -219,6 +221,7 @@ public class EzucDataDetailController {
     })
     @RequestMapping(value = "/addSingleData", method = RequestMethod.POST)
     @ResponseBody
+    @Deprecated
     public CronusDto addSingleData(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject) {
         CronusDto result = new CronusDto();
 

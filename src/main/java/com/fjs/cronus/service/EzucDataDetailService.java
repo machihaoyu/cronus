@@ -34,7 +34,9 @@ public class EzucDataDetailService {
      * @param name 业务员名
      *             @param date 指定的哪天的数据；null为取昨天
      */
+    @Deprecated
     public long getDurationByName(String name, Date date){
+        /*
         if (StringUtils.isBlank(name)) {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "业务员名称不能为空");
         }
@@ -56,6 +58,8 @@ public class EzucDataDetailService {
         duration = duration == null ? 0 : duration;
 
         return duration;
+        */
+        return 0L;
     }
 
     public Map<String, Long> findAllFromCacheByDate(Date date){
@@ -74,8 +78,9 @@ public class EzucDataDetailService {
     /**
      * 刷新缓存.
      */
+    @Deprecated
     public void refreshCache(Date date){
-        Date startTime = getStartTime(date);
+        /*Date startTime = getStartTime(date);
         List<EzucDataDetail> allDuration = ezucDataDetailMapper.findAllDuration(startTime.getTime() / 1000, getEndTime(date).getTime() / 1000, CommonEnum.entity_status1.getCode());
         allDuration = CollectionUtils.isEmpty(allDuration) ? new ArrayList() : allDuration;
         Map<String, Long> nameMappingDuration = allDuration.stream()
@@ -88,13 +93,13 @@ public class EzucDataDetailService {
             HashOperations<String, String, Long> hashOperations = redisTemplateOps.opsForHash();
             hashOperations.putAll(key, nameMappingDuration);
             redisTemplateOps.expire(key, 2, TimeUnit.DAYS);
-        }
+        }*/
     }
 
     /**
      * 获取url中请求的endtime参数.
      */
-    private Date getEndTime(Date date) {
+    public Date getEndTime(Date date) {
         Calendar now = Calendar.getInstance();
         if (date != null) {
             // 空就使用当前系统时间
@@ -130,9 +135,10 @@ public class EzucDataDetailService {
     /**
      * 手动添加某业务员某日通话时长，注意，是测试接口,用于开发测试使用.
      */
+    @Deprecated
     public void addSingleData(String name, Date time, Long duration) {
 
-        EzucDataDetail temp = new EzucDataDetail();
+        /*EzucDataDetail temp = new EzucDataDetail();
         temp.setCallerDispName(name);
         temp.setStartTime(time.getTime() / 1000);
         ezucDataDetailMapper.delete(temp);
@@ -150,6 +156,6 @@ public class EzucDataDetailService {
         recode.setData(map.toString());
         ezucDataDetailMapper.insertSelective(recode);
 
-        refreshCache(time);
+        refreshCache(time);*/
     }
 }

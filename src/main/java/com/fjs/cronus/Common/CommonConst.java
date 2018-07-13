@@ -249,5 +249,10 @@ public class CommonConst {
     public static final String BUSINESS_PAN = "商机盘";
     public static final String WAITING_PAN = "扔回公盘";
     public static final String PUBLIC_SELECT_PAN = "公盘优选";
+
+    // 业务员通话数据记录常量
+    public static final Integer SYSTYPE_EZUC = 0; // EZUC
+    public static final Integer SYSTYPE_B_ANDROID = 1; // b端Android
+
 }
 
