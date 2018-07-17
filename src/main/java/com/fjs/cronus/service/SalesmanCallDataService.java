@@ -36,7 +36,7 @@ public class SalesmanCallDataService {
     private SalesmanCallDataMapper salesmanCallDataMapper;
 
     @Autowired
-    private CustomerInfoMapper customerInfoMapper;
+    private CustomerInfoService customerInfoService;
 
     @Autowired
     private ThorService thorService;
@@ -119,7 +119,7 @@ public class SalesmanCallDataService {
         String salesManName = userInfoByToken.getData().getName();
         Long subCompanyId = Long.valueOf(userInfoByToken.getData().getSub_company_id());
 
-        CustomerInfo customerInfo = customerInfoMapper.selectByPrimaryKey(customerid); // 获取顾客信息
+        CustomerInfo customerInfo = customerInfoService.findCustomerById(customerid.intValue()); // 获取顾客信息
         if (customerInfo == null) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "客户不存在");
         }
