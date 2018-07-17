@@ -253,19 +253,6 @@ public class CommunicationLogService {
         String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
         String phoneNumber = telephone.substring(0, 7) + "****";
         customerUsefulDTO.setTelephonenumber(phoneNumber);
-//        if (lookphone == 1) {//查看自己
-//            if (userId.equals(customerInfo.getOwnUserId())) {
-//                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-//                customerUsefulDTO.setTelephonenumber(telephone);
-//            }else {
-//                String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-//                String phoneNumber = telephone.substring(0, 7) + "****";
-//                customerUsefulDTO.setTelephonenumber(phoneNumber);
-//            }
-//        }else if (lookphone == 2){//查看全部
-//            String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
-//            customerUsefulDTO.setTelephonenumber(telephone);
-//        }
         if (customerInfo.getConfirm() == 2 || customerInfo.getConfirm() == 3){
             //查询有效客户
             long customerUsefulTme = System.currentTimeMillis();

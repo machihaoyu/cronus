@@ -3,10 +3,7 @@ package com.fjs.cronus.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.*;
-import com.fjs.cronus.dto.CronusDto;
-import com.fjs.cronus.dto.CustomerBasicDTO;
-import com.fjs.cronus.dto.CustomerPartDTO;
-import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.dto.*;
 import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
 import com.fjs.cronus.dto.api.WalletApiDTO;
@@ -2414,4 +2411,90 @@ public class CustomerInfoService {
         return totalList;
     }
 
+    public QueryResult bCustomerList(Integer userId, String customerName, String telephonenumber,Integer page, Integer size, Integer remain,
+                                       String level, String token, String cooperationStatus,String houseStatus,Integer loanAmount) {
+        QueryResult result = new QueryResult();
+        Map<String, Object> paramsMap = new HashMap<>();
+        List<CustomerInfo> resultList = new ArrayList<>();
+        List<CustomerDTO2> dtoList = new ArrayList<>();
+        PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
+        if (userInfoDTO == null) {
+            throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
+        }
+        if (!StringUtils.isEmpty(customerName)) {
+            paramsMap.put("customerName", customerName);
+        }
+        //手机需要解密加密
+        if (!StringUtils.isEmpty(telephonenumber)) {
+            paramsMap.put("telephonenumber", DEC3Util.des3EncodeCBC(telephonenumber));
+        }
+        if (remain != null) {
+            paramsMap.put("remain", remain);
+        }
+        if (loanAmount != null) {
+            paramsMap.put("loanAmount", loanAmount);
+        }
+        if (!StringUtils.isEmpty(level)) {
+            paramsMap.put("level", level);
+        }
+        if (!StringUtils.isEmpty(cooperationStatus)){
+            paramsMap.put("cooperationStatus", cooperationStatus);
+        }
+        if (!StringUtils.isEmpty(houseStatus)){
+            paramsMap.put("houseStatus", houseStatus);
+        }
+
+        //获取下属员工
+        List<Integer> ids = ucService.getSubUserByUserId(token, userId);
+        paramsMap.put("owerId", ids);
+        paramsMap.put("start", (page - 1) * size);
+        paramsMap.put("size", size);
+        Integer lookphone = Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
+        resultList = customerInfoMapper.customerList(paramsMap);
+        Integer count = customerInfoMapper.customerListCount(paramsMap);
+        if (resultList != null && resultList.size() > 0) {
+            for (CustomerInfo customerInfo : resultList) {
+                CustomerDTO2 customerDto = new CustomerDTO2();
+                this.customerEntityToCustomerListDto(customerInfo, customerDto);
+                customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
+                dtoList.add(customerDto);
+            }
+            result.setRows(dtoList);
+        }
+        result.setTotal(count.toString());
+        return result;
+    }
+
+    public void customerEntityToCustomerListDto(CustomerInfo customerInfo, CustomerDTO2 dto){
+        dto.setId(customerInfo.getId());
+        if (!StringUtils.isEmpty(customerInfo.getTelephonenumber())){
+            //对手机号进行解密并且隐藏后四位
+            String telephone = DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber());
+            dto.setTelephonenumber(telephone);
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerName())){
+            dto.setCustomerName(customerInfo.getCustomerName());
+        }
+        if (customerInfo.getLoanAmount() != null){
+            dto.setLoanAmount(customerInfo.getLoanAmount());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getHouseStatus())){
+            dto.setHouseStatus(customerInfo.getHouseStatus());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getUtmSource())){
+            dto.setUtmSource(customerInfo.getUtmSource());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCreateTime())){
+            dto.setCreateTime(customerInfo.getCreateTime());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getRemain())){
+            dto.setRemain(customerInfo.getRemain());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCustomerType())){
+            dto.setLevel(customerInfo.getCustomerType());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCooperationStatus())){
+            dto.setCooptionstatus(customerInfo.getCooperationStatus());
+        }
+    }
 }
