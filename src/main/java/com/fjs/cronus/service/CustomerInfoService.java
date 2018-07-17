@@ -2450,7 +2450,7 @@ public class CustomerInfoService {
         paramsMap.put("start", (page - 1) * size);
         paramsMap.put("size", size);
         Integer lookphone = Integer.parseInt(userInfoDTO.getUser_info().getLook_phone());
-        resultList = customerInfoMapper.customerList(paramsMap);
+        resultList = customerInfoMapper.bCustomerList(paramsMap);
         Integer count = customerInfoMapper.customerListCount(paramsMap);
         if (resultList != null && resultList.size() > 0) {
             for (CustomerInfo customerInfo : resultList) {
