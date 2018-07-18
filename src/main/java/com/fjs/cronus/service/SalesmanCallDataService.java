@@ -1,5 +1,7 @@
 package com.fjs.cronus.service;
 
+import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.dto.CronusDto;
@@ -14,10 +16,15 @@ import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.util.DEC3Util;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
@@ -31,6 +38,8 @@ import static java.util.stream.Collectors.*;
 
 @Service
 public class SalesmanCallDataService {
+
+    private static final Logger logger = LoggerFactory.getLogger(SalesmanCallDataService.class);
 
     @Autowired
     private SalesmanCallDataMapper salesmanCallDataMapper;
@@ -163,6 +172,7 @@ public class SalesmanCallDataService {
     /**
      * 刷新缓存.
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void refreshCache(Date date) {
 
         Date startTime = ezucDataDetailService.getStartTime(date);
@@ -179,6 +189,57 @@ public class SalesmanCallDataService {
             hashOperations.putAll(key, nameMappingDuration);
             redisTemplateOps.expire(key, 2, TimeUnit.DAYS);
         }
+    }
+
+    /**
+     * 定时任务，插入单条数据.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public void addSigle4Qurtz(JSONObject jsonObject){
+
+        try {
+            String callerDispName = jsonObject.getString("callerDispName");
+            if (StringUtils.isBlank(callerDispName)) {
+                // 无业务员名称数据，不录入系统
+                return;
+            }
+            Long startTime = jsonObject.getLong("startTime");
+
+            Boolean isexist = null;
+            if (StringUtils.isNotBlank(callerDispName) && startTime != null) {
+                SalesmanCallData i2 = new SalesmanCallData();
+                i2.setSalesManName(callerDispName);
+                i2.setStartTime(startTime);
+                i2.setStatus(CommonEnum.entity_status1.getCode());
+                int i3 = salesmanCallDataMapper.selectCount(i2);
+                if (i3 > 0) {
+                    isexist = true; // 已存在的记录，不录入系统
+                } else {
+                    isexist = false;
+                }
+            }
+
+            if (isexist == null || !isexist) {
+                // 记录到 salesman_call_data 表
+                SalesmanCallData data = new SalesmanCallData();
+                data.setSalesManName(callerDispName);
+                data.setCustomerPhoneNum(jsonObject.getString("calleeExt"));
+                data.setStartTime(startTime);
+                data.setAnswerTime(jsonObject.getLong("answerTime"));
+                data.setEndTime(jsonObject.getLong("endTime"));
+                data.setDuration(jsonObject.getLong("duration"));
+                data.setTotalDuration(jsonObject.getLong("totalDuration"));
+                data.setCallType(0);
+                data.setRecordingUrl(jsonObject.getString("recordingUrl"));
+                data.setSystype(CommonConst.SYSTYPE_EZUC);
+                data.setCreated(new Date());
+                salesmanCallDataMapper.insertSelective(data);
+            }
+        } catch ( Exception e) {
+            logger.error("定时任务，插入单条数据", e);
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
+
     }
 
     /**

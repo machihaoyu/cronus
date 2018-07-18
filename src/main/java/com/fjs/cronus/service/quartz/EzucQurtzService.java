@@ -13,6 +13,7 @@ import com.fjs.cronus.mappers.EzucDataDetailMapper;
 import com.fjs.cronus.mappers.EzucQurtzLogMapper;
 import com.fjs.cronus.mappers.SalesmanCallDataMapper;
 import com.fjs.cronus.service.EzucDataDetailService;
+import com.fjs.cronus.service.SalesmanCallDataService;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -79,7 +80,7 @@ public class EzucQurtzService {
     RedisTemplate redisTemplateOps;
 
     @Autowired
-    private SalesmanCallDataMapper salesmanCallDataMapper;
+    private SalesmanCallDataService salesmanCallDataService;
 
     /**
      * 当前时间.
@@ -184,7 +185,7 @@ public class EzucQurtzService {
                     }
 
                     // 数据入缓存
-                    //ezucDataDetailService.refreshCache(date);
+                    salesmanCallDataService.refreshCache(date);
                 }
 
             }
@@ -217,37 +218,28 @@ public class EzucQurtzService {
     /**
      * 数据入库.
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public void addSingleData(JSONObject jsonObject) {
+    private void addSingleData(JSONObject jsonObject) {
 
+        /*
         String callerDispName = jsonObject.getString("callerDispName");
         Long startTime = jsonObject.getLong("startTime");
 
         // 记录EZUC数据
         Boolean isexist = null;
-        Boolean isexist2 = null;
         if (StringUtils.isNotBlank(callerDispName) && startTime != null) {
 
-            /*EzucDataDetail i = new EzucDataDetail();
+            EzucDataDetail i = new EzucDataDetail();
             i.setCallerDispName(callerDispName);
             i.setStartTime(startTime);
             i.setStatus(CommonEnum.entity_status1.getCode());
             int i1 = ezucDataDetailMapper.selectCount(i);
             if (i1 > 0) {
                 isexist = true; // 已存在的记录无需再次插入
-            };*/
+            };
 
-            SalesmanCallData i2 = new SalesmanCallData();
-            i2.setSalesManName(callerDispName);
-            i2.setStartTime(startTime);
-            i2.setStatus(CommonEnum.entity_status1.getCode());
-            int i3 = salesmanCallDataMapper.selectCount(i2);
-            if (i3 > 0) {
-                isexist2 = true; // 已存在的记录无需再次插入
-            }
         }
 
-        /*if (isexist == null || !isexist) {
+        if (isexist == null || !isexist) {
             // 记录到 ezuc_data_detail 表
             EzucDataDetail data = new EzucDataDetail();
             data.setCreated(now);
@@ -265,24 +257,10 @@ public class EzucQurtzService {
             data.setCalleeExt(jsonObject.getString("calleeExt"));
             data.setData(jsonObject.toString());
             ezucDataDetailMapper.insertSelective(data);
-        }*/
-
-        if (isexist2 == null || !isexist2) {
-            // 记录到 salesman_call_data 表
-            SalesmanCallData data = new SalesmanCallData();
-            data.setSalesManName(callerDispName);
-            data.setCustomerPhoneNum(jsonObject.getString("calleeExt"));
-            data.setStartTime(startTime);
-            data.setAnswerTime(jsonObject.getLong("answerTime"));
-            data.setEndTime(jsonObject.getLong("endTime"));
-            data.setDuration(jsonObject.getLong("duration"));
-            data.setTotalDuration(jsonObject.getLong("totalDuration"));
-            data.setCallType(0);
-            data.setRecordingUrl(jsonObject.getString("recordingUrl"));
-            data.setSystype(CommonConst.SYSTYPE_EZUC);
-            data.setCreated(new Date());
-            salesmanCallDataMapper.insertSelective(data);
         }
+
+        */
+        salesmanCallDataService.addSigle4Qurtz(jsonObject);
     }
 
     /**
