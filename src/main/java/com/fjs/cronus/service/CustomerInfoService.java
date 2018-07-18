@@ -2496,5 +2496,11 @@ public class CustomerInfoService {
         if (!StringUtils.isEmpty(customerInfo.getCooperationStatus())){
             dto.setCooptionstatus(customerInfo.getCooperationStatus());
         }
+        if (!StringUtils.isEmpty(customerInfo.getConfirm())){
+            dto.setConfirm(customerInfo.getConfirm());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCommunicateTime())){
+            dto.setCommunicateTime(customerInfo.getCommunicateTime());
+        }
     }
 }
