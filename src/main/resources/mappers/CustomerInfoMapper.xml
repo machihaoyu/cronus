@@ -2521,4 +2521,115 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="bCustomerList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="cronus_column_List" />
+        from customer_info  c
+        WHERE  c.is_deleted = 0
+        <if test="customerName !=null and customerName !=''">
+            and c.customer_name  like CONCAT(#{customerName},'%' )
+        </if>
+        <if test="telephonenumber != null and telephonenumber!=''">
+            AND c.telephonenumber = #{telephonenumber}
+        </if>
+        <if test="utmSource != null and utmSource != '' ">
+            and c.utm_source = #{utmSource}
+        </if>
+        <if test="utmSources != null and utmSources.size > 0">
+            and c.utm_source IN
+            <foreach collection="utmSources" item="item"
+                     index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="cooperationStatus != null and cooperationStatus != '' ">
+            and c.cooperation_status = #{cooperationStatus}
+        </if>
+        <if test="houseStatus != null and houseStatus != '' and houseStatus == '有'.toString()">
+            and (c.house_status = '有' or c.house_status = '是')
+        </if>
+        <if test="houseStatus != null and houseStatus != '' and houseStatus == '无'.toString()">
+            and (c.house_status = '无' or c.house_status = '无')
+        </if>
+        <if test="ownUserName != null and ownUserName != '' ">
+            and c.own_user_name = #{ownUserName}
+        </if>
+        <if test="customerSource != null and customerSource != '' ">
+            and c.customer_source = #{customerSource}
+        </if>
+        <if test="createTimeStart != null and createTimeEnd != null">
+            and c.create_time BETWEEN #{createTimeStart} and #{createTimeEnd}
+        </if>
+        <if test="circle != null  ">
+            and c.circle = #{circle,}
+        </if>
+        <if test="companyId != null ">
+            and c.company_id = #{companyId}
+        </if>
+
+        <if test="remain != null ">
+            and c.remain = #{remain}
+        </if>
+        <if test="loanAmount != null and loanAmount ==0 ">
+            and c.loan_amount = 0
+        </if>
+        <if test="loanAmount != null and loanAmount ==1 ">
+            and c.loan_amount &lt;= 5 and c.loan_amount &gt; 0
+        </if>
+        <if test="loanAmount != null and loanAmount ==2 ">
+            and c.loan_amount &lt;= 10 and c.loan_amount &gt; 5
+        </if>
+        <if test="loanAmount != null and loanAmount ==3 ">
+            and c.loan_amount &lt;= 50 and c.loan_amount &gt; 10
+        </if>
+        <if test="loanAmount != null and loanAmount ==4 ">
+            and c.loan_amount &lt;= 100 and c.loan_amount &gt; 50
+        </if>
+        <if test="loanAmount != null and loanAmount ==5 ">
+            and c.loan_amount &lt;= 500 and c.loan_amount &gt; 100
+        </if>
+        <if test="loanAmount != null and loanAmount ==6 ">
+            and c.loan_amount &gt; 500
+        </if>
+        <if test="level != null ">
+            and c.customer_type = #{level}
+        </if>
+        <if test="owerId!=null and owerId.size>0">
+            AND c.own_user_id in
+            <foreach collection="owerId" item="owerId"
+                     index="index" open="(" close=")" separator=",">
+                ${owerId}
+            </foreach>
+        </if>
+        <if test="cooperation_status!=null and cooperation_status.size>0">
+            AND c.cooperation_status in
+            <foreach item="item" index="index" collection="cooperation_status" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="communication_order!=null">
+            <choose>
+                <when test="communication_order == 0">
+                    and c.communicate_time is NULL
+                </when>
+                <when test="communication_order == 1">
+                    and c.communicate_time is NOT NULL and c.confirm = 1
+                </when>
+                <when test="communication_order == 2">
+                    and c.communicate_time is NOT NULL and c.confirm = 2
+                </when>
+            </choose>
+        </if>
+        <choose>
+            <when test="order != null and order !=''">
+                order by ${order}
+            </when>
+            <otherwise>
+                order by c.create_time desc
+            </otherwise>
+        </choose>
+        limit #{start},#{size}
+    </select>
 </mapper>

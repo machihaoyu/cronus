@@ -17,6 +17,8 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
 
     List <CustomerInfo> customerList(Map<String,Object> paramMap);
 
+    List <CustomerInfo> bCustomerList(Map<String,Object> paramMap);
+
     Integer customerListCount(Map<String,Object> paramMap);
 
     void insertCustomer(CustomerInfo customerInfo);
