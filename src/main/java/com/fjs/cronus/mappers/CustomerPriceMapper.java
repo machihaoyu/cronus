@@ -15,4 +15,9 @@ public interface CustomerPriceMapper {
     void updateIsClose(@Param("customerInfoId") Integer customerInfoId);
 
     Integer addCustomerPrice(CustomerPriceEntity customerPriceEntity);
+
+    @Update("UPDATE customer_price SET is_receive = 1,gmt_receive = NOW() WHERE is_close = 0 AND is_deleted = 0 AND customer_info_id = #{customerId}")
+    Integer receiveSuccess(@Param("customerId") Integer customerId);
+
+    CustomerPriceEntity getCustomerPriceByCustomerId(@Param("customerId") Integer customerId);
 }

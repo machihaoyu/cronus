@@ -206,6 +206,10 @@ public class CronusException extends BaseException {
 
         LOAN_AMOUNT_FORMAT_ERROR("9000","贷款金额格式有误"),
 
+        CUSTOMER_ALREADY_RECEIVE("9001","该客户已被领取"),
+
+        CUSTOMER_NOT_RECEIVE("9002","未设置价格,客户不能领取"),
+
         ;
         private String status;
         private String error;

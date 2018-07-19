@@ -90,6 +90,7 @@
       <result column="communicate_id" jdbcType="INTEGER" property="communicateId" />
       <result column="receive_id" jdbcType="INTEGER" property="receiveId" />
       <result column="ocdc_id" jdbcType="INTEGER" property="ocdcId" />
+      <result column="media_customer_count_id" jdbcType="INTEGER" property="mediaCustomerCountId" />
   </resultMap>
 
 <resultMap id="businessPool" type="com.fjs.cronus.model.BusinessPool">
@@ -2746,4 +2747,10 @@
         </choose>
         limit #{start},#{size}
     </select>
+
+  <select id="getCustomer" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+      SELECT * FROM customer_info WHERE is_deleted = 0 AND own_user_id = -1 AND id = #{customerId}
+  </select>
+
+
 </mapper>

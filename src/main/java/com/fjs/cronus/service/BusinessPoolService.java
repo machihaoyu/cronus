@@ -1,11 +1,16 @@
 package com.fjs.cronus.service;
 
 
+import com.alibaba.fastjson.JSONObject;
+import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.BusinessPoolDTO;
 import com.fjs.cronus.dto.MediaCustomerCountDTO;
 import com.fjs.cronus.dto.MediaPriceDTO;
+import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.BaseUcDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
+import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.CustomerPriceEntity;
 import com.fjs.cronus.entity.MediaPriceEntity;
 import com.fjs.cronus.dto.QueryResult;
@@ -15,7 +20,10 @@ import com.fjs.cronus.mappers.CustomerPriceMapper;
 import com.fjs.cronus.mappers.MediaCustomerCountMapper;
 import com.fjs.cronus.mappers.MediaPriceMapper;
 import com.fjs.cronus.model.BusinessPool;
+import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.service.client.ThorService;
+import com.fjs.cronus.service.thea.TheaClientService;
+import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.FastJsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -50,6 +58,15 @@ public class BusinessPoolService {
 
     @Autowired
     private CustomerPriceMapper customerPriceMapper;
+
+    @Autowired
+    UcService ucService;
+
+    @Autowired
+    TheaClientService theaClientService;
+
+    @Autowired
+    PanService panService;
 
     /**
      * 商机池列表
@@ -107,7 +124,7 @@ public class BusinessPoolService {
                 BusinessPoolDTO businessPoolDTO = new BusinessPoolDTO();
                 BeanUtils.copyProperties(businessPool,businessPoolDTO);
                 //如果该客户没有设置价格,就查询其媒体的价格
-                BigDecimal accountingMethod = businessPool.getAccountingMethod();
+                Integer accountingMethod = businessPool.getAccountingMethod();
                 if (null == accountingMethod){
                     //查询媒体定价
                     MediaPriceEntity mediaPriceEntity = mediaPriceMapper.getMediaPrice(businessPool.getMediaCustomerCountId());
@@ -237,4 +254,85 @@ public class BusinessPoolService {
         Integer userId = Integer.valueOf(userDTO.getUser_id());
         return userId;
     }
+
+
+    /**
+     * 领取客户
+     * @param token
+     * @param jsonObject
+     */
+    @Transactional
+    public void receiveCustomerInPool(String token, JSONObject jsonObject) {
+
+        //校验参数
+        if (!jsonObject.containsKey("customerId")){
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR,CronusException.Type.CRM_PARAMS_ERROR.getError());
+        }
+        Integer customerId = jsonObject.getInteger("customerId");
+        // 查询该客户是否存在
+        CustomerInfo customer = customerInfoMapper.getCustomer(customerId);
+        if (null == customer){
+            throw new CronusException(CronusException.Type.CRM_CUSTOMEINFO_ERROR,CronusException.Type.CRM_CUSTOMEINFO_ERROR.getError());
+        }
+        //校验该客户是否已经被领取
+        if (customer.getOwnUserId() != -1){
+            throw new CronusException(CronusException.Type.CUSTOMER_ALREADY_RECEIVE,CronusException.Type.CUSTOMER_ALREADY_RECEIVE.getError());
+        }
+        //校验该客户是否有价格(客户价格或者媒体的价格), 没有设置价格的不能领取
+        CustomerPriceEntity customerPriceEntity = customerPriceMapper.getCustomerPriceByCustomerId(customerId);
+        MediaCustomerCountDTO mediaCustomerCountDTO = mediaCustomerCountMapper.getCustomerPrice(customer.getMediaCustomerCountId());
+
+        if (null == customerPriceEntity || null == mediaCustomerCountDTO || null == mediaCustomerCountDTO.getAccountingMethod()){
+            throw new CronusException(CronusException.Type.CUSTOMER_NOT_RECEIVE,CronusException.Type.CUSTOMER_NOT_RECEIVE.getError());
+        }
+
+        //通过token获取当前登录人信息
+        PHPLoginDto resultDto = ucService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
+        String[] authority = resultDto.getAuthority();
+        if (authority.length > 0) {
+            List<String> authList = Arrays.asList(authority);
+            if (authList.contains(CommonConst.PULL_LOAN_URL)) {
+                throw new CronusException(CronusException.Type.CRM_DATAAUTH_ERROR,CronusException.Type.CRM_DATAAUTH_ERROR.getError());
+            }
+        }
+        UserInfoDTO userInfoDTO = resultDto.getUser_info();
+        CustomerInfo customerInfo = null;
+        //获取登录人id
+        Integer userId = null;
+        if (StringUtils.isNotEmpty(userInfoDTO.getUser_id())) {
+            userId = Integer.parseInt(userInfoDTO.getUser_id());
+        }
+        //领取客户
+        String maxCount = theaClientService.findValueByName(token, CommonConst.CANPUUMAXCOUNT);
+        Integer count = panService.keepCount(userId);
+        if (count >= Integer.parseInt(maxCount)){
+            throw new CronusException(CronusException.Type.MESSAGE_PULLCUSTOMERCOUNT_ERROR,CronusException.Type.MESSAGE_PULLCUSTOMERCOUNT_ERROR.getError());
+        }
+        boolean updateResult = panService.pullPan(customerId, userId, token, userInfoDTO.getName());
+        if (updateResult == false) {
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR,CronusException.Type.CRM_OTHER_ERROR.getError());
+        }
+
+        //领取客户成功之后, 更新customer_price表(是否领取和领取时间)
+        count = customerPriceMapper.receiveSuccess(customerId);
+        if (count < 1){
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR,CronusException.Type.CRM_OTHER_ERROR.getError());
+        }
+        //更新media_customer_count的已购买量
+        count = mediaCustomerCountMapper.updatePurchasedNumber(customer.getMediaCustomerCountId());
+        if (count < 1){
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR,CronusException.Type.CRM_OTHER_ERROR.getError());
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+
 }

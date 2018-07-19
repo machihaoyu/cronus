@@ -1,5 +1,6 @@
 package com.fjs.cronus.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.*;
 import com.fjs.cronus.exception.CronusException;
@@ -8,6 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +90,7 @@ public class BusinessPoolController {
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
             return cronusDto;
         } catch (Exception e) {
-            logger.error("businessPoolList 媒体列表 >>>>>> " + e.getMessage(),e);
+            logger.error("utmSourceList 媒体列表失败 >>>>>> " + e.getMessage(),e);
             if (e instanceof CronusException){
                 CronusException cronusException = (CronusException)e;
                 throw cronusException;
@@ -106,6 +108,7 @@ public class BusinessPoolController {
     @RequestMapping(value = "/editUtmSourcePrice",method = RequestMethod.POST)
     public CronusDto editUtmSourcePrice(@RequestHeader("Authorization")String token,@RequestBody MediaPriceDTO mediaPriceDTO){
 
+        logger.warn("editUtmSourcePrice 参数 >>>>>> " + ReflectionToStringBuilder.toString(mediaPriceDTO));
         try {
             CronusDto cronusDto = new CronusDto<>();
             businessPoolService.editUtmSourcePrice(token,mediaPriceDTO);
@@ -113,7 +116,7 @@ public class BusinessPoolController {
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
             return cronusDto;
         } catch (Exception e) {
-            logger.error("editUtmSourcePrice 修改媒体价格 >>>>>> " + e.getMessage(),e);
+            logger.error("editUtmSourcePrice 修改媒体价格失败 >>>>>> " + e.getMessage(),e);
             if (e instanceof CronusException){
                 CronusException cronusException = (CronusException)e;
                 throw cronusException;
@@ -131,6 +134,7 @@ public class BusinessPoolController {
     @RequestMapping(value = "/editCustomerPrice",method = RequestMethod.POST)
     public CronusDto editCustomerPrice(@RequestHeader("Authorization")String token,@RequestBody MediaPriceDTO mediaPriceDTO){
 
+        logger.warn("editCustomerPrice 参数 >>>>>> " + ReflectionToStringBuilder.toString(mediaPriceDTO));
         try {
             CronusDto cronusDto = new CronusDto<>();
             businessPoolService.editCustomerPrice(token,mediaPriceDTO);
@@ -138,7 +142,33 @@ public class BusinessPoolController {
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
             return cronusDto;
         } catch (Exception e) {
-            logger.error("editUtmSourcePrice 修改客户价格 >>>>>> " + e.getMessage(),e);
+            logger.error("editCustomerPrice 修改客户价格失败 >>>>>> " + e.getMessage(),e);
+            if (e instanceof CronusException){
+                CronusException cronusException = (CronusException)e;
+                throw cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+
+
+    @ApiOperation(value = "商机池领取客户",notes = "商机池领取客户")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+            @ApiImplicitParam(name = "jsonObject",value = "包含客户id的json对象,例:{\"customerId\":\"123\"}",required = true,paramType = "body",dataType = "JSONObject")
+    })
+    @RequestMapping(value = "/receiveCustomerInPool",method = RequestMethod.POST)
+    public CronusDto receiveCustomerInPool(@RequestHeader("Authorization")String token,@RequestBody JSONObject jsonObject){
+
+        logger.warn("receiveCustomerInPool 参数 >>>>>> " + jsonObject);
+        try {
+            CronusDto cronusDto = new CronusDto<>();
+            businessPoolService.receiveCustomerInPool(token,jsonObject);
+            cronusDto.setResult(CommonMessage.SUCCESS.getCode());
+            cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("receiveCustomerInPool 领取客户失败 >>>>>> " + e.getMessage(),e);
             if (e instanceof CronusException){
                 CronusException cronusException = (CronusException)e;
                 throw cronusException;

@@ -185,6 +185,8 @@ public class CustomerInfo extends BaseModel {
 
     private Integer ocdcId;
 
+    private Integer mediaCustomerCountId;
+
     public Integer getCompanyId() {
         return companyId;
     }
@@ -871,6 +873,14 @@ public class CustomerInfo extends BaseModel {
 
     public void setOcdcId(Integer ocdcId) {
         this.ocdcId = ocdcId;
+    }
+
+    public Integer getMediaCustomerCountId() {
+        return mediaCustomerCountId;
+    }
+
+    public void setMediaCustomerCountId(Integer mediaCustomerCountId) {
+        this.mediaCustomerCountId = mediaCustomerCountId;
     }
 
     @Override

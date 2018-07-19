@@ -56,4 +56,26 @@
     </select>
 
 
+    <select id="getCustomerPrice" resultMap="mediaCustomerCountDTO" parameterType="java.lang.Integer">
+        SELECT
+        mcc.id,
+        mcc.source_name,
+        mcc.media_name,
+        mcc.customer_stock,
+        mcc.purchased_number,
+        mp.accounting_method,
+        mp.prepurchase_price,
+        mp.commission_rate,
+        mp.loan_rate
+        FROM
+        media_customer_count mcc
+        LEFT JOIN media_price mp ON mcc.id = mp.media_customer_count_id
+        AND mp.is_deleted = 0
+        AND mp.is_close = 0
+        WHERE
+        mcc.is_deleted = 0
+        AND mcc.id = #{mediaCustomerCountId}
+    </select>
+
+
 </mapper>

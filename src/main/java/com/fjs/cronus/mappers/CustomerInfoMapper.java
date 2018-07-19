@@ -124,4 +124,7 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
     void updateIsPush(@Param("id") Integer id);
 
     List<BusinessPool> businessPoolList(HashMap<String, Object> map);
+
+    //查找商机池客户
+    CustomerInfo getCustomer(@Param("customerId") Integer customerId);
 }
