@@ -111,6 +111,12 @@ public class ScheduledJob {
         }).start();
         logger.info("7.ezuc qurtz end");
 
+        logger.info("8.ezuc qurtz start");
+        new Thread(()->{
+            customerInfoService.pushCustomer();
+        }).start();
+        logger.info("8.ezuc qurtz end");
+
         logger.info("ScheduledJob End!");
     }
 }

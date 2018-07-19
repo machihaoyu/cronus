@@ -254,5 +254,10 @@ public class CommonConst {
     public static final Integer SYSTYPE_EZUC = 0; // EZUC
     public static final Integer SYSTYPE_B_ANDROID = 1; // b端Android
 
+
+    //蜜巴的id
+    public static final Integer SUB_COMPANY_ID = 1156; // TODO 线上蜜巴id 1156 chenkeming
+    public static final String PUSH_CUSTOMER_URL = "http://test.api.daizhimi.com/crm/receive"; // TODO 上线之前换地址 chenkeming
+
 }
 

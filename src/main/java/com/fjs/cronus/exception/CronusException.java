@@ -201,7 +201,10 @@ public class CronusException extends BaseException {
 		AUTO_CLEAN_ERROR("6093","自动清洗错误"),
 
         MESSAGE_CONNECT_THOR_SYSTEM_ERROR("6094","链接用户系统错误"),
-        ALLOCATE_NUM_ERROR("6095","月申请数和月奖励数之和需大于已分配数")
+        ALLOCATE_NUM_ERROR("6095","月申请数和月奖励数之和需大于已分配数"),
+
+
+        LOAN_AMOUNT_FORMAT_ERROR("9000","贷款金额格式有误"),
 
         ;
         private String status;

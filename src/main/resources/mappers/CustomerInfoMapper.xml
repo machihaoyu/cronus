@@ -91,6 +91,22 @@
       <result column="receive_id" jdbcType="INTEGER" property="receiveId" />
       <result column="ocdc_id" jdbcType="INTEGER" property="ocdcId" />
   </resultMap>
+
+<resultMap id="businessPool" type="com.fjs.cronus.model.BusinessPool">
+    <result column="id" property="id" jdbcType="INTEGER"/>
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR"/>
+    <result column="loan_amount" property="loanAmount" jdbcType="VARCHAR"/>
+    <result column="house_status" property="houseStatus" jdbcType="VARCHAR"/>
+    <result column="customer_source" property="customerSource" jdbcType="VARCHAR"/>
+    <result column="utm_source" property="utmSource" jdbcType="VARCHAR"/>
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    <result column="media_customer_count_id" property="mediaCustomerCountId" jdbcType="INTEGER"/>
+    <result column="accounting_method" property="accountingMethod" jdbcType="INTEGER"/>
+    <result column="prepurchase_price" property="prepurchasePrice" jdbcType="DECIMAL"/>
+    <result column="commission_rate" property="commissionRate" jdbcType="DECIMAL"/>
+    <result column="loan_rate" property="loanRate" jdbcType="DECIMAL"/>
+</resultMap>
+
   <resultMap id="ResultMapWithBLOBs" type="com.fjs.cronus.model.CustomerInfo" extends="BaseResultMap" >
       <result column="per_description" jdbcType="LONGVARCHAR" property="perDescription" />
       <result column="employed_info" jdbcType="LONGVARCHAR" property="employedInfo" />
@@ -2521,6 +2537,104 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="getCustomerPush" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        SELECT * FROM customer_info WHERE is_deleted = 0 AND own_user_id = #{ownerId} and is_push = 0
+    </select>
+
+
+
+   <select id="businessPoolList" resultMap="businessPool" parameterType="java.util.Map">
+          SELECT
+        ci.id,
+        ci.customer_name,
+        ci.loan_amount,
+        ci.house_status,
+        ci.customer_source,
+        ci.utm_source,
+        ci.city,
+        ci.create_time,
+        ci.media_customer_count_id,
+        cp.accounting_method,
+        cp.prepurchase_price,
+        cp.commission_rate,
+        cp.loan_rate
+        FROM
+        customer_info ci
+        LEFT JOIN customer_price cp ON ci.id = cp.customer_info_id
+        AND cp.is_deleted = 0
+        AND cp.is_close = 0
+        WHERE
+        ci.is_deleted = 0
+        AND ci.own_user_id = -1
+        <if test="nameOrTelephone != null and nameOrTelephone != ''">
+            AND (ci.customer_name LIKE CONCAT('%',#{nameOrTelephone},'%' ) OR ci.telephonenumber LIKE CONCAT('%',#{nameOrTelephone},'%' ))
+        </if>
+       <if test="customerSource != null and customerSource != ''">
+           AND ci.customer_source = #{customerSource}
+       </if>
+       <if test="utmSource != null and utmSource != ''">
+           AND ci.utm_source LIKE CONCAT('%',#{utmSource},'%' )
+       </if>
+       <if test="houseStatus != null and houseStatus != '' and houseStatus == '有'.toString()">
+           AND ci.house_status = #{houseStatus}
+       </if>
+       <if test="houseStatus != null and houseStatus != '' and houseStatus == '无'.toString()">
+           AND ci.house_status is NULL
+       </if>
+       <if test="loanAmountStart != null and loanAmountStart != '' and loanAmountEnd != null and loanAmountEnd != ''">
+           AND ci.loan_amount BETWEEN #{loanAmountStart} AND #{loanAmountEnd}
+       </if>
+       <if test="city != null and city != ''">
+           AND ci.city = #{city}
+       </if>
+       <if test="createTime != null and createTime != ''">
+           AND ci.create_time = #{createTime}
+       </if>
+       ORDER BY ci.create_time DESC LIMIT #{page},#{size}
+        </select>
+
+
+   <select id="businessPoolListCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT
+        COUNT(*)
+        FROM
+        customer_info ci
+        LEFT JOIN customer_price cp ON ci.id = cp.customer_info_id
+        AND cp.is_deleted = 0
+        AND cp.is_close = 0
+        WHERE
+        ci.is_deleted = 0
+        AND ci.own_user_id = -1
+        <if test="nameOrTelephone != null and nameOrTelephone != ''">
+            AND (ci.customer_name LIKE CONCAT('%',#{nameOrTelephone},'%' ) OR ci.telephonenumber LIKE CONCAT('%',#{nameOrTelephone},'%' ))
+        </if>
+        <if test="customerSource != null and customerSource != ''">
+            AND ci.customer_source = #{customerSource}
+        </if>
+        <if test="utmSource != null and utmSource != ''">
+            AND ci.utm_source LIKE CONCAT('%',#{utmSource},'%' )
+        </if>
+        <if test="houseStatus != null and houseStatus != '' and houseStatus == '有'.toString()">
+            AND ci.house_status = #{houseStatus}
+        </if>
+        <if test="houseStatus != null and houseStatus != '' and houseStatus == '无'.toString()">
+            AND ci.house_status is NULL
+        </if>
+        <if test="loanAmountStart != null and loanAmountStart != '' and loanAmountEnd != null and loanAmountEnd != ''">
+            AND ci.loan_amount BETWEEN #{loanAmountStart} AND #{loanAmountEnd}
+        </if>
+        <if test="city != null and city != ''">
+            AND ci.city = #{city}
+        </if>
+        <if test="createTime != null and createTime != ''">
+            AND ci.create_time = #{createTime}
+        </if>
+        ORDER BY ci.create_time DESC LIMIT #{page},#{size}
+   </select>
+
+
+
 
     <select id="bCustomerList" parameterType="java.util.Map" resultMap="ResultMapWithBLOBs">
         select

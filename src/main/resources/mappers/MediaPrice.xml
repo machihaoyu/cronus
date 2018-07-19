@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.MediaPriceMapper" >
+
+    <resultMap id="mediaPriceEntity" type="com.fjs.cronus.entity.MediaPriceEntity">
+        <result column="id" property="id" jdbcType="INTEGER"/>
+        <result column="media_customer_count_id" property="mediaCustomerCountId" jdbcType="INTEGER"/>
+        <result column="accounting_method" property="accountingMethod" jdbcType="INTEGER"/>
+        <result column="prepurchase_price" property="prepurchasePrice" jdbcType="DECIMAL"/>
+        <result column="commission_rate" property="commissionRate" jdbcType="DECIMAL"/>
+        <result column="loan_rate" property="loanRate" jdbcType="DECIMAL"/>
+        <result column="create_user" property="createUser" jdbcType="INTEGER"/>
+        <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="DATE"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="DATE"/>
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
+        <result column="is_close" property="isClose" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="getMediaPrice" resultMap="mediaPriceEntity" parameterType="java.lang.Integer">
+        SELECT * FROM media_price  WHERE is_deleted = 0 AND media_customer_count_id = #{mediaCustomerCountId} ORDER BY gmt_create DESC LIMIT 1
+    </select>
+
+    <insert id="addMediaPrice" parameterType="com.fjs.cronus.entity.MediaPriceEntity">
+        INSERT INTO media_price (media_customer_count_id,accounting_method,prepurchase_price,commission_rate,loan_rate,create_user,last_update_user)
+        VALUES(#{mediaCustomerCountId},#{accountingMethod},#{prepurchasePrice},#{commissionRate},#{loanRate},#{createUser},#{lastUpdateUser})
+    </insert>
+
+</mapper>
