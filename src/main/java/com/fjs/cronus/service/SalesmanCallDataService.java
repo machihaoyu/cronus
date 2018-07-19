@@ -203,6 +203,7 @@ public class SalesmanCallDataService {
                 // 无业务员名称数据，不录入系统
                 return;
             }
+            callerDispName = callerDispName.trim();
             Long startTime = jsonObject.getLong("startTime");
 
             Boolean isexist = null;
