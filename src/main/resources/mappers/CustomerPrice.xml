@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.CustomerPriceMapper" >
+
+
+
+    <insert id="addCustomerPrice" parameterType="com.fjs.cronus.entity.CustomerPriceEntity">
+        INSERT INTO customer_price (customer_info_id,accounting_method,prepurchase_price,commission_rate,loan_rate,create_user,last_update_user)
+        VALUES(#{customerInfoId},#{accountingMethod},#{prepurchasePrice},#{commissionRate},#{loanRate},#{createUser},#{lastUpdateUser})
+
+    </insert>
+
+</mapper>

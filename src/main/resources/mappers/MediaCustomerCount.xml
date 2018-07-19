@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.MediaCustomerCountMapper" >
+
+    <resultMap id="mediaCustomerCountDTO" type="com.fjs.cronus.dto.MediaCustomerCountDTO">
+        <result column="id" property="id" jdbcType="INTEGER"/>
+        <result column="source_name" property="customerSource" jdbcType="VARCHAR"/>
+        <result column="media_name" property="utmSource" jdbcType="VARCHAR"/>
+        <result column="customer_stock" property="customerStock" jdbcType="INTEGER"/>
+        <result column="purchased_number" property="purchasedNumber" jdbcType="DECIMAL"/>
+        <result column="accounting_method" property="accountingMethod" jdbcType="INTEGER"/>
+        <result column="prepurchase_price" property="prepurchasePrice" jdbcType="DECIMAL"/>
+        <result column="commission_rate" property="commissionRate" jdbcType="DECIMAL"/>
+        <result column="loan_rate" property="loanRate" jdbcType="DECIMAL"/>
+
+    </resultMap>
+
+    <select id="utmSourceList" parameterType="java.util.Map" resultMap="mediaCustomerCountDTO">
+        SELECT
+        mcc.id,
+        mcc.source_name,
+        mcc.media_name,
+        mcc.customer_stock,
+        mcc.purchased_number,
+        mp.accounting_method,
+        mp.prepurchase_price,
+        mp.commission_rate,
+        mp.loan_rate
+        FROM
+        media_customer_count mcc
+        LEFT JOIN media_price mp ON mcc.id = mp.media_customer_count_id
+        AND mp.is_deleted = 0
+        AND mp.is_close = 0
+        WHERE
+        mcc.is_deleted = 0
+        <if test="utmSource != null and utmSource != ''">
+            AND mcc.media_name LIKE CONCAT('%',#{utmSource},'%' )
+        </if>
+        ORDER BY mcc.gmt_create DESC LIMIT #{page},#{size}
+    </select>
+
+
+    <select id="utmSourceListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT
+        COUNT(*)
+        FROM
+        media_customer_count mcc
+        LEFT JOIN media_price mp ON mcc.id = mp.media_customer_count_id
+        AND mp.is_deleted = 0
+        AND mp.is_close = 0
+        WHERE
+        mcc.is_deleted = 0
+        <if test="utmSource != null and utmSource != ''">
+            AND mcc.media_name LIKE CONCAT('%',#{utmSource},'%' )
+        </if>
+    </select>
+
+
+</mapper>

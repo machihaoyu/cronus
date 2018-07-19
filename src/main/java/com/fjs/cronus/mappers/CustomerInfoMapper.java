@@ -2,11 +2,13 @@ package com.fjs.cronus.mappers;
 
 import com.fjs.cronus.dto.CustomerBasicDTO;
 import com.fjs.cronus.dto.CustomerPartDTO;
+import com.fjs.cronus.model.BusinessPool;
 import com.fjs.cronus.model.CommunicationLog;
 import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.util.MyMapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.HashMap;
 import java.util.List;
@@ -112,4 +114,14 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
     List<String> getCustomerPhone(@Param("start") String start, @Param("end") String end);
 
     Integer updateCustomersFromDiscard(Map<String,Object> paramsMap);
+
+    List<CustomerInfo> getCustomerPush(@Param("ownerId") Integer ownerId);
+
+    Integer businessPoolListCount(HashMap<String, Object> map);
+
+    //将客户设置为已推送
+    @Update("UPDATE customer_info SET is_push = 1 WHERE is_deleted = 0 AND id = #{id}")
+    void updateIsPush(@Param("id") Integer id);
+
+    List<BusinessPool> businessPoolList(HashMap<String, Object> map);
 }

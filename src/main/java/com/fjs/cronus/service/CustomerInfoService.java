@@ -4,9 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.*;
 import com.fjs.cronus.dto.*;
-import com.fjs.cronus.dto.api.PHPUserDto;
-import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
-import com.fjs.cronus.dto.api.WalletApiDTO;
+import com.fjs.cronus.dto.api.*;
 import com.fjs.cronus.dto.api.uc.AppUserDto;
 import com.fjs.cronus.dto.api.uc.SubCompanyDto;
 import com.fjs.cronus.dto.cronus.*;
@@ -16,8 +14,8 @@ import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.ourea.CrmPushCustomerDTO;
 import com.fjs.cronus.dto.ourea.OureaDTO;
 import com.fjs.cronus.dto.thea.LoanDTO6;
+import com.fjs.cronus.dto.uc.LightUserInfoDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
-import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.enums.CustListTimeOrderEnum;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.AllocateLogMapper;
@@ -29,17 +27,17 @@ import com.fjs.cronus.model.*;
 import com.fjs.cronus.service.api.OutPutService;
 import com.fjs.cronus.service.client.OureaService;
 import com.fjs.cronus.service.client.TheaService;
+import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
-import com.fjs.cronus.util.CommonUtil;
-import com.fjs.cronus.util.DEC3Util;
-import com.fjs.cronus.util.EntityToDto;
-import com.fjs.cronus.util.PhoneFormatCheckUtils;
+import com.fjs.cronus.util.*;
 import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -64,6 +62,9 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 public class CustomerInfoService {
+
+    @Value("${token.current}")
+    private String publicToken;
 
     private static final Logger logger = LoggerFactory.getLogger(CustomerInfoService.class);
     @Autowired
@@ -94,6 +95,8 @@ public class CustomerInfoService {
     SmsService smsService;
     @Autowired
     private OureaService oureaService;
+    @Autowired
+    private ThorService thorService;
 
     public static final String REDIS_CRONUS_GETHISTORYCOUNT = "cronus_cronus_getHistoryCount_";
     public static final long REDIS_CRONUS_GETHISTORYCOUNT_TIME = 600;
@@ -2417,6 +2420,7 @@ public class CustomerInfoService {
         Map<String, Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
         List<CustomerDTO2> dtoList = new ArrayList<>();
+        List<String> channleList = new ArrayList<>();
         PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
         if (userInfoDTO == null) {
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
@@ -2454,10 +2458,21 @@ public class CustomerInfoService {
         Integer count = customerInfoMapper.customerListCount(paramsMap);
         if (resultList != null && resultList.size() > 0) {
             for (CustomerInfo customerInfo : resultList) {
+                if (!channleList.contains(customerInfo.getUtmSource())){
+                    channleList.add(customerInfo.getUtmSource());
+                }
                 CustomerDTO2 customerDto = new CustomerDTO2();
                 this.customerEntityToCustomerListDto(customerInfo, customerDto);
                 customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
                 dtoList.add(customerDto);
+            }
+            //屏蔽媒体
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("channelNames",channleList);
+            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+            for (CustomerDTO2 customerListDTO : dtoList ){
+                System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
+                customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
             }
             result.setRows(dtoList);
         }
@@ -2496,5 +2511,60 @@ public class CustomerInfoService {
         if (!StringUtils.isEmpty(customerInfo.getCooperationStatus())){
             dto.setCooptionstatus(customerInfo.getCooperationStatus());
         }
+        if (!StringUtils.isEmpty(customerInfo.getConfirm())){
+            dto.setConfirm(customerInfo.getConfirm());
+        }
+        if (!StringUtils.isEmpty(customerInfo.getCommunicateTime())){
+            dto.setCommunicateTime(customerInfo.getCommunicateTime());
+        }
     }
+
+
+    /**
+     * 查询蜜巴的客户(未推送的), 推给蜜巴
+     */
+    public void pushCustomer(){
+
+        logger.warn(" 1.---------------------给蜜巴推送客户定时任务开始---------------------");
+        // 获取公司员工列表
+        ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(publicToken, CommonConst.SUB_COMPANY_ID);
+        if (baseUcDTO.getResult().equals(0) && baseUcDTO.getData().size() > 0) {
+            //调用成功, 取出用户的id  只设置一个业务员
+            Integer ownerId = baseUcDTO.getData().get(0).getId();
+            logger.warn(" 2.给蜜巴推送客户定时任务 获取到队列的业务员id 为 : " +  ownerId);
+            //查询该用户下所有未推送的客户
+            List<CustomerInfo> customerInfoList = customerInfoMapper.getCustomerPush(ownerId);
+            logger.warn("3.给蜜巴推送客户定时任务,查询到的客户为 : " + ReflectionToStringBuilder.toString(customerInfoList));
+            ArrayList<Object> list = new ArrayList<>();
+            if (null != customerInfoList && customerInfoList.size() > 0){
+                for (CustomerInfo customerInfo : customerInfoList){
+                    PushCustomerDTO pushCustomerDTO = new PushCustomerDTO();
+                    pushCustomerDTO.setCustomerName(customerInfo.getCustomerName());
+                    pushCustomerDTO.setMobile(DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber()));
+                    pushCustomerDTO.setCityName(customerInfo.getCity());
+                    pushCustomerDTO.setLoanQuota(customerInfo.getLoanAmount());
+                    pushCustomerDTO.setApplyTime(customerInfo.getCreateTime());
+                    pushCustomerDTO.setSource(customerInfo.getCustomerSource());
+                    list.add(pushCustomerDTO);
+                }
+            }
+            //调用接口
+            if (null != list && list.size() > 0){
+                JSONArray jsonArray = new JSONArray(list);
+                logger.warn("4.给蜜巴推送客户定时任务参数为 : " + jsonArray);
+                HttpClientHelper httpClientHelper = HttpClientHelper.getInstance();
+                String result  = httpClientHelper.sendJsonHttpPost(CommonConst.PUSH_CUSTOMER_URL,jsonArray.toJSONString());
+                logger.warn("5.给蜜巴推送客户定时任务结果为 : " + result);
+            }
+            //当调用成功之后, 修改客户的状态 : is_push设置为1
+            if (null != customerInfoList && customerInfoList.size() > 0){
+                for (CustomerInfo customerInfo : customerInfoList){
+                    //将改客户的is_push设置为1
+                    customerInfoMapper.updateIsPush(customerInfo.getId());
+                }
+            }
+
+        }
+    }
+
 }
