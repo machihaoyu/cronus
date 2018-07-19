@@ -2420,6 +2420,7 @@ public class CustomerInfoService {
         Map<String, Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
         List<CustomerDTO2> dtoList = new ArrayList<>();
+        List<String> channleList = new ArrayList<>();
         PHPLoginDto userInfoDTO = ucService.getAllUserInfo(token, CommonConst.SYSTEM_NAME_ENGLISH);
         if (userInfoDTO == null) {
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
@@ -2457,10 +2458,21 @@ public class CustomerInfoService {
         Integer count = customerInfoMapper.customerListCount(paramsMap);
         if (resultList != null && resultList.size() > 0) {
             for (CustomerInfo customerInfo : resultList) {
+                if (!channleList.contains(customerInfo.getUtmSource())){
+                    channleList.add(customerInfo.getUtmSource());
+                }
                 CustomerDTO2 customerDto = new CustomerDTO2();
                 this.customerEntityToCustomerListDto(customerInfo, customerDto);
                 customerDto.setTelephonenumber(CommonUtil.starTelephone(customerDto.getTelephonenumber()));
                 dtoList.add(customerDto);
+            }
+            //屏蔽媒体
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("channelNames",channleList);
+            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+            for (CustomerDTO2 customerListDTO : dtoList ){
+                System.out.println(mediaMap.get(customerListDTO.getUtmSource()));
+                customerListDTO.setUtmSource(mediaMap.get(customerListDTO.getUtmSource()));
             }
             result.setRows(dtoList);
         }
