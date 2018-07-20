@@ -66,6 +66,12 @@ public class CustomerInfoService {
     @Value("${token.current}")
     private String publicToken;
 
+    @Value("${pushCutomerToMiBa.miBaId}") //蜜巴的id
+    private Integer miBaId;
+
+    @Value("${pushCutomerToMiBa.pushCustomerUrl}") //给蜜巴推客户的url
+    private String pushCustomerUrl;
+
     private static final Logger logger = LoggerFactory.getLogger(CustomerInfoService.class);
     @Autowired
     CustomerInfoMapper customerInfoMapper;
@@ -2535,7 +2541,7 @@ public class CustomerInfoService {
 
         logger.warn(" 1.---------------------给蜜巴推送客户定时任务开始---------------------");
         // 获取公司员工列表
-        ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(publicToken, CommonConst.SUB_COMPANY_ID);
+        ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(publicToken, miBaId);
         if (baseUcDTO.getResult().equals(0) && baseUcDTO.getData().size() > 0) {
             //调用成功, 取出用户的id  只设置一个业务员
             Integer ownerId = baseUcDTO.getData().get(0).getId();
@@ -2561,7 +2567,7 @@ public class CustomerInfoService {
                 JSONArray jsonArray = new JSONArray(list);
                 logger.warn("4.给蜜巴推送客户定时任务参数为 : " + jsonArray);
                 HttpClientHelper httpClientHelper = HttpClientHelper.getInstance();
-                String result  = httpClientHelper.sendJsonHttpPost(CommonConst.PUSH_CUSTOMER_URL,jsonArray.toJSONString());
+                String result  = httpClientHelper.sendJsonHttpPost(pushCustomerUrl,jsonArray.toJSONString());
                 logger.warn("5.给蜜巴推送客户定时任务结果为 : " + result);
             }
             //当调用成功之后, 修改客户的状态 : is_push设置为1
