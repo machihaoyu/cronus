@@ -104,6 +104,9 @@ public class CustomerInfoService {
     @Autowired
     private ThorService thorService;
 
+//    @Autowired
+//    private MediaCustomerCountMapper mediaCustomerCountMapper;
+
     public static final String REDIS_CRONUS_GETHISTORYCOUNT = "cronus_cronus_getHistoryCount_";
     public static final long REDIS_CRONUS_GETHISTORYCOUNT_TIME = 600;
     public static final long NEW_CUSTOMER_MESSAGE_TIME = 86400;
@@ -384,6 +387,34 @@ public class CustomerInfoService {
         if (customerInfo.getId() == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
         }
+
+        // ----------------------商机池判断开始-------------------------------------
+        //判断是否是商机池客户, 如果是商机池客户(ownUserId = -1),就新增或更新media_customer_count表
+//        logger.error("判断是否是商机池客户 , 客户的名字和ownUserId为 : " + customerInfo.getCustomerName() + "," + customerInfo.getOwnUserId());
+//        if (-1 == customerInfo.getOwnUserId()){
+//            //是商机池客户  先判断媒体表中有没有该媒体,如果没有就新增,如果有,就将customer_stock加1
+//            String customerSource = customerInfo.getCustomerSource();
+//            String utmSource = customerInfo.getUtmSource();
+//            MediaCustomerCountEntity mediaCustomerCountEntity  = mediaCustomerCountMapper.getMediaCustomerCount(customerSource,utmSource);
+//            if (mediaCustomerCountEntity != null){
+//                //说明已经有该媒体, 将将customer_stock加1
+//                mediaCustomerCountMapper.updatePurchasedNumber(mediaCustomerCountEntity.getId());
+//
+//            }else {
+//                //没有该媒体, 新增媒体,customer_stock设置为1,purchased_number设置为0
+//
+//            }
+//
+//
+//
+//
+//        }
+
+        //--------------------------商机池判断结束--------------------------------------
+
+
+
+
         //开始插入log表
         //生成日志记录
         CustomerInfoLog customerInfoLog = new CustomerInfoLog();
@@ -2558,27 +2589,28 @@ public class CustomerInfoService {
                     pushCustomerDTO.setCityName(customerInfo.getCity());
                     pushCustomerDTO.setLoanQuota(customerInfo.getLoanAmount());
                     pushCustomerDTO.setApplyTime(customerInfo.getCreateTime());
-                    pushCustomerDTO.setSource(customerInfo.getCustomerSource());
+                    pushCustomerDTO.setSource(customerInfo.getUtmSource());
                     list.add(pushCustomerDTO);
                 }
-            }
-            //调用接口
-            if (null != list && list.size() > 0){
-                JSONArray jsonArray = new JSONArray(list);
-                logger.warn("4.给蜜巴推送客户定时任务参数为 : " + jsonArray);
-                HttpClientHelper httpClientHelper = HttpClientHelper.getInstance();
-                String result  = httpClientHelper.sendJsonHttpPost(pushCustomerUrl,jsonArray.toJSONString());
-                logger.warn("5.给蜜巴推送客户定时任务结果为 : " + result);
-            }
-            //当调用成功之后, 修改客户的状态 : is_push设置为1
-            if (null != customerInfoList && customerInfoList.size() > 0){
-                for (CustomerInfo customerInfo : customerInfoList){
-                    //将改客户的is_push设置为1
-                    customerInfoMapper.updateIsPush(customerInfo.getId());
+                //调用接口
+                if (null != list && list.size() > 0){
+                    JSONArray jsonArray = new JSONArray(list);
+                    logger.warn("4.给蜜巴推送客户定时任务参数为 : " + jsonArray);
+                    HttpClientHelper httpClientHelper = HttpClientHelper.getInstance();
+                    String result  = httpClientHelper.sendJsonHttpPost(pushCustomerUrl,jsonArray.toJSONString());
+                    logger.warn("5.给蜜巴推送客户定时任务结果为 : " + result);
+                    //当调用成功之后, 修改客户的状态 : is_push设置为1
+                    if ("success".equals(result)){
+                        for (CustomerInfo customerInfo : customerInfoList){
+                            //将改客户的is_push设置为1
+                            customerInfoMapper.updateIsPush(customerInfo.getId());
+                        }
+                    }
                 }
-            }
 
+            }
         }
     }
+
 
 }
