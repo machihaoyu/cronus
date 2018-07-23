@@ -14,6 +14,7 @@ import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.CustomerPriceEntity;
 import com.fjs.cronus.entity.MediaPriceEntity;
 import com.fjs.cronus.dto.QueryResult;
+import com.fjs.cronus.enums.AccountingMethodEnum;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.CustomerPriceMapper;
@@ -98,13 +99,21 @@ public class BusinessPoolService {
             map.put("houseStatus",houseStatus);
         }
         if (null != loanAmount && StringUtils.isNotEmpty(loanAmount)){
-            String[] loanAmounts = loanAmount.split("-");
-            if (loanAmounts.length != 2){
-                throw new CronusException(CronusException.Type.LOAN_AMOUNT_FORMAT_ERROR,CronusException.Type.LOAN_AMOUNT_FORMAT_ERROR.getError());
+            //loanAmount 的格式为0-20万, 或者500万(即500万以上)
+            if (loanAmount.equals("500")){
+                //500万以上
+                map.put("loanAmount",loanAmount);
+            }else {
+                //0-20万的格式
+                String[] loanAmounts = loanAmount.split("-");
+                if (loanAmounts.length != 2){
+                    throw new CronusException(CronusException.Type.LOAN_AMOUNT_FORMAT_ERROR,CronusException.Type.LOAN_AMOUNT_FORMAT_ERROR.getError());
+                }
+                List<String> loanAmountList = Arrays.asList(loanAmounts);
+                map.put("loanAmountStart",loanAmountList.get(0));
+                map.put("loanAmountEnd",loanAmountList.get(1));
             }
-            List<String> loanAmountList = Arrays.asList(loanAmounts);
-            map.put("loanAmountStart",loanAmountList.get(0));
-            map.put("loanAmountEnd",loanAmountList.get(1));
+
         }
         if (null != city && StringUtils.isNotEmpty(city)){
             map.put("city",city);
@@ -180,6 +189,9 @@ public class BusinessPoolService {
     @Transactional
     public void editUtmSourcePrice(String token, MediaPriceDTO mediaPriceDTO) {
 
+        //校验参数
+        checkData(mediaPriceDTO);
+
         //获取当前用户的id
         Integer currentUserId = getCurrentUserId(token);
         //将之前的定价都关闭 : is_close=1
@@ -203,6 +215,49 @@ public class BusinessPoolService {
 
     }
 
+    /**
+     * 校验修改媒体或者客户价格
+     * @param mediaPriceDTO
+     */
+    public void checkData(MediaPriceDTO mediaPriceDTO){
+
+        if (mediaPriceDTO.getAccountingMethod() == null || AccountingMethodEnum.findByCode(mediaPriceDTO.getAccountingMethod()) == null){
+            throw new CronusException(CronusException.Type.ACCOUNTING_METHOD_ERROR,CronusException.Type.ACCOUNTING_METHOD_ERROR.getError());
+        }
+
+        switch (mediaPriceDTO.getAccountingMethod()){
+            case 1:
+                //当预购单价的时候, 只有预购单价有值
+                if (mediaPriceDTO.getPrepurchasePrice() == null || mediaPriceDTO.getCommissionRate() != null || mediaPriceDTO.getLoanRate() != null){
+                    throw new CronusException(CronusException.Type.ACCOUNTING_PRICE_ERROR,CronusException.Type.ACCOUNTING_PRICE_ERROR.getError());
+                }
+                break;
+            case 2:
+                if (mediaPriceDTO.getPrepurchasePrice() != null || mediaPriceDTO.getCommissionRate() == null || mediaPriceDTO.getLoanRate() != null){
+                    throw new CronusException(CronusException.Type.ACCOUNTING_PRICE_ERROR,CronusException.Type.ACCOUNTING_PRICE_ERROR.getError());
+                }
+                break;
+            case 3:
+                if (mediaPriceDTO.getPrepurchasePrice() != null || mediaPriceDTO.getCommissionRate() != null || mediaPriceDTO.getLoanRate() == null){
+                    throw new CronusException(CronusException.Type.ACCOUNTING_PRICE_ERROR,CronusException.Type.ACCOUNTING_PRICE_ERROR.getError());
+                }
+                break;
+            case 4:
+                if (mediaPriceDTO.getPrepurchasePrice() == null || mediaPriceDTO.getCommissionRate() == null || mediaPriceDTO.getLoanRate() != null){
+                    throw new CronusException(CronusException.Type.ACCOUNTING_PRICE_ERROR,CronusException.Type.ACCOUNTING_PRICE_ERROR.getError());
+                }
+                break;
+            case 5:
+                if (mediaPriceDTO.getPrepurchasePrice() == null || mediaPriceDTO.getCommissionRate() != null || mediaPriceDTO.getLoanRate() == null){
+                    throw new CronusException(CronusException.Type.ACCOUNTING_PRICE_ERROR,CronusException.Type.ACCOUNTING_PRICE_ERROR.getError());
+                }
+                break;
+            default:
+                throw new CronusException(CronusException.Type.ACCOUNTING_PRICE_ERROR,CronusException.Type.ACCOUNTING_PRICE_ERROR.getError());
+
+        }
+    }
+
 
     /**
      * 修改客户价格
@@ -211,6 +266,9 @@ public class BusinessPoolService {
      */
     @Transactional
     public void editCustomerPrice(String token, MediaPriceDTO mediaPriceDTO) {
+
+        //校验参数
+        checkData(mediaPriceDTO);
 
         //获取当前用户的id
         Integer currentUserId = getCurrentUserId(token);

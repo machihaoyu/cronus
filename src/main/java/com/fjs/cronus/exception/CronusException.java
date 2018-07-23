@@ -210,6 +210,10 @@ public class CronusException extends BaseException {
 
         CUSTOMER_NOT_RECEIVE("9002","未设置价格,客户不能领取"),
 
+        ACCOUNTING_METHOD_ERROR("9003","核算方法有误"),
+
+        ACCOUNTING_PRICE_ERROR("9005","定价方式有误"),
+
         ;
         private String status;
         private String error;

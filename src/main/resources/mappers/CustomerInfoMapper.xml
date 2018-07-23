@@ -2589,6 +2589,9 @@
        <if test="houseStatus != null and houseStatus != '' and houseStatus == '无'.toString()">
            AND ci.house_status is NULL
        </if>
+       <if test="loanAmount != null and loanAmount != ''">
+           AND ci.loan_amount >= #{loanAmount}
+       </if>
        <if test="loanAmountStart != null and loanAmountStart != '' and loanAmountEnd != null and loanAmountEnd != ''">
            AND ci.loan_amount BETWEEN #{loanAmountStart} AND #{loanAmountEnd}
        </if>
@@ -2628,6 +2631,9 @@
         <if test="houseStatus != null and houseStatus != '' and houseStatus == '无'.toString()">
             AND ci.house_status is NULL
         </if>
+       <if test="loanAmount != null and loanAmount != ''">
+           AND ci.loan_amount >= #{loanAmount}
+       </if>
         <if test="loanAmountStart != null and loanAmountStart != '' and loanAmountEnd != null and loanAmountEnd != ''">
             AND ci.loan_amount BETWEEN #{loanAmountStart} AND #{loanAmountEnd}
         </if>
