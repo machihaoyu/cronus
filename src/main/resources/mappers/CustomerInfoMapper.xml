@@ -629,6 +629,9 @@
           <if test="receiveId != null">
               receive_id,
           </if>
+          <if test="mediaCustomerCountId != null">
+              media_customer_count_id,
+          </if>
           <if test="ocdcId != null">
               `ocdc_id`,
           </if>
@@ -900,6 +903,9 @@
           </if>
           <if test="receiveId != null">
               #{receiveId,jdbcType=INTEGER},
+          </if>
+          <if test="mediaCustomerCountId != null">
+              #{mediaCustomerCountId,jdbcType=INTEGER}
           </if>
           <if test="ocdcId != null">
               #{ocdcId,jdbcType=INTEGER},
@@ -2589,8 +2595,8 @@
        <if test="city != null and city != ''">
            AND ci.city = #{city}
        </if>
-       <if test="createTime != null and createTime != ''">
-           AND ci.create_time = #{createTime}
+       <if test="createTime != null and createTime != '' and createTimeEnd != null and createTimeEnd != ''">
+           AND ci.create_time BETWEEN #{createTime} AND #{createTimeEnd}
        </if>
        ORDER BY ci.create_time DESC LIMIT #{page},#{size}
         </select>
@@ -2628,8 +2634,8 @@
         <if test="city != null and city != ''">
             AND ci.city = #{city}
         </if>
-        <if test="createTime != null and createTime != ''">
-            AND ci.create_time = #{createTime}
+        <if test="createTime != null and createTime != '' and createTimeEnd != null and createTimeEnd != ''">
+            AND ci.create_time BETWEEN #{createTime} AND #{createTimeEnd}
         </if>
         ORDER BY ci.create_time DESC LIMIT #{page},#{size}
    </select>

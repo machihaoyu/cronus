@@ -16,12 +16,10 @@ import com.fjs.cronus.dto.ourea.OureaDTO;
 import com.fjs.cronus.dto.thea.LoanDTO6;
 import com.fjs.cronus.dto.uc.LightUserInfoDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
+import com.fjs.cronus.entity.MediaCustomerCountEntity;
 import com.fjs.cronus.enums.CustListTimeOrderEnum;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.mappers.AllocateLogMapper;
-import com.fjs.cronus.mappers.CommunicationLogMapper;
-import com.fjs.cronus.mappers.CustomerInfoLogMapper;
-import com.fjs.cronus.mappers.CustomerInfoMapper;
+import com.fjs.cronus.mappers.*;
 import com.fjs.cronus.model.*;
 
 import com.fjs.cronus.service.api.OutPutService;
@@ -104,8 +102,8 @@ public class CustomerInfoService {
     @Autowired
     private ThorService thorService;
 
-//    @Autowired
-//    private MediaCustomerCountMapper mediaCustomerCountMapper;
+    @Autowired
+    private MediaCustomerCountMapper mediaCustomerCountMapper;
 
     public static final String REDIS_CRONUS_GETHISTORYCOUNT = "cronus_cronus_getHistoryCount_";
     public static final long REDIS_CRONUS_GETHISTORYCOUNT_TIME = 600;
@@ -383,37 +381,49 @@ public class CustomerInfoService {
         customerInfo.setCommunicateId(0);
         customerInfo.setFirstAllocateTime(date);
         customerInfo.setOcdcId(customerDTO.getOcdcId());
+
+        // ----------------------商机池判断开始-------------------------------------
+        MediaCustomerCountEntity mediaCustomerCount = null;
+        try {
+            //判断是否是商机池客户, 如果是商机池客户(ownUserId = -1),就新增或更新media_customer_count表
+            logger.error("1.判断是否是商机池客户 , 客户的名字和ownUserId为 : " + customerInfo.getCustomerName() + "," + customerInfo.getOwnUserId());
+            mediaCustomerCount = new MediaCustomerCountEntity();
+            if (-1 == customerInfo.getOwnUserId()){
+                logger.error("2.是商机池客户 , 客户的名字和ownUserId为 : " + customerInfo.getCustomerName() + "," + customerInfo.getOwnUserId());
+                //是商机池客户  先判断媒体表中有没有该媒体,如果没有就新增,如果有,就将customer_stock加1
+                String customerSource = customerInfo.getCustomerSource();
+                String utmSource = customerInfo.getUtmSource();
+                mediaCustomerCount  = mediaCustomerCountMapper.getMediaCustomerCount(customerSource,utmSource);
+                if (mediaCustomerCount != null){
+                    //说明已经有该媒体, 将将customer_stock加1
+                    mediaCustomerCountMapper.updatePurchasedNumber(mediaCustomerCount.getId());
+
+                }else {
+                    //没有该媒体, 新增媒体,customer_stock设置为1,purchased_number设置为0
+                    mediaCustomerCount.setSourceName(customerInfo.getCustomerSource());
+                    mediaCustomerCount.setMediaName(customerInfo.getUtmSource());
+                    mediaCustomerCount.setCustomerStock(1);
+                    mediaCustomerCount.setPurchasedNumber(0);
+                    mediaCustomerCount.setCreateUser(customerInfo.getId());
+                    mediaCustomerCount.setLastUpdateUser(customerInfo.getId());
+                    //新增渠道媒体
+                    mediaCustomerCountMapper.addMediaCustomerCount(mediaCustomerCount);
+                }
+            }
+            //--------------------------商机池判断结束--------------------------------------
+        } catch (Exception e) {
+            logger.error("商机池客户添加或更新媒体失败 >>>>>> " + e.getMessage(),e);
+        }
+
+        //设置客户的媒体表id的值(media_customer_count_id)
+        if (null != mediaCustomerCount){
+            customerInfo.setMediaCustomerCountId(mediaCustomerCount.getId());
+        }
+        //新增客户
         customerInfoMapper.insertCustomer(customerInfo);
         if (customerInfo.getId() == null) {
             throw new CronusException(CronusException.Type.CRM_CUSTOMER_ERROR);
         }
-
-        // ----------------------商机池判断开始-------------------------------------
-        //判断是否是商机池客户, 如果是商机池客户(ownUserId = -1),就新增或更新media_customer_count表
-//        logger.error("判断是否是商机池客户 , 客户的名字和ownUserId为 : " + customerInfo.getCustomerName() + "," + customerInfo.getOwnUserId());
-//        if (-1 == customerInfo.getOwnUserId()){
-//            //是商机池客户  先判断媒体表中有没有该媒体,如果没有就新增,如果有,就将customer_stock加1
-//            String customerSource = customerInfo.getCustomerSource();
-//            String utmSource = customerInfo.getUtmSource();
-//            MediaCustomerCountEntity mediaCustomerCountEntity  = mediaCustomerCountMapper.getMediaCustomerCount(customerSource,utmSource);
-//            if (mediaCustomerCountEntity != null){
-//                //说明已经有该媒体, 将将customer_stock加1
-//                mediaCustomerCountMapper.updatePurchasedNumber(mediaCustomerCountEntity.getId());
-//
-//            }else {
-//                //没有该媒体, 新增媒体,customer_stock设置为1,purchased_number设置为0
-//
-//            }
-//
-//
-//
-//
-//        }
-
-        //--------------------------商机池判断结束--------------------------------------
-
-
-
 
         //开始插入log表
         //生成日志记录

@@ -35,7 +35,8 @@ public class BusinessPoolController {
             @ApiImplicitParam(name = "houseStatus",value = "有房(有,无)",required = false,paramType = "query",dataType = "string"),
             @ApiImplicitParam(name = "loanAmount",value = "贷款金额(0-20)",required = false,paramType = "query",dataType = "string"),
             @ApiImplicitParam(name = "city",value = "所属城市",required = false,paramType = "query",dataType = "string"),
-            @ApiImplicitParam(name = "createTime",value = "注册时间",required = false,paramType = "query",dataType = "string"),
+            @ApiImplicitParam(name = "createTime",value = "注册开始时间",required = false,paramType = "query",dataType = "string"),
+            @ApiImplicitParam(name = "createTimeEnd",value = "注册结束时间",required = false,paramType = "query",dataType = "string"),
             @ApiImplicitParam(name = "page", value = "查询第几页", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "显示多少", required = false, paramType = "query", dataType = "int"),
     })
@@ -48,12 +49,13 @@ public class BusinessPoolController {
                                                                     @RequestParam(value = "loanAmount",required = false) String loanAmount,
                                                                     @RequestParam(value = "city",required = false) String city,
                                                                     @RequestParam(value = "createTime",required = false) String createTime,
+                                                                    @RequestParam(value = "createTimeEnd",required = false) String createTimeEnd,
                                                                     @RequestParam(value = "page",required = false,defaultValue = "1") Integer page,
                                                                     @RequestParam(value = "size",required = false,defaultValue = "10") Integer size ){
 
         try {
             CronusDto<QueryResult<BusinessPoolDTO>> cronusDto = new CronusDto<>();
-            QueryResult<BusinessPoolDTO> queryResult = businessPoolService.businessPoolList(nameOrTelephone,customerSource,utmSource,houseStatus,loanAmount,city,createTime,page,size);
+            QueryResult<BusinessPoolDTO> queryResult = businessPoolService.businessPoolList(nameOrTelephone,customerSource,utmSource,houseStatus,loanAmount,city,createTime,createTimeEnd,page,size);
             cronusDto.setData(queryResult);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());

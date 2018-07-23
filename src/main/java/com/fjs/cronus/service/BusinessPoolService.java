@@ -81,7 +81,7 @@ public class BusinessPoolService {
      * @param size
      * @return
      */
-    public QueryResult<BusinessPoolDTO> businessPoolList(String nameOrTelephone, String customerSource, String utmSource, String houseStatus, String loanAmount, String city, String createTime, Integer page, Integer size) {
+    public QueryResult<BusinessPoolDTO> businessPoolList(String nameOrTelephone, String customerSource, String utmSource, String houseStatus, String loanAmount, String city, String createTime,String createTimeEnd,Integer page, Integer size) {
 
         QueryResult<BusinessPoolDTO> queryResult = new QueryResult<>();
         HashMap<String, Object> map = new HashMap<>();
@@ -109,8 +109,9 @@ public class BusinessPoolService {
         if (null != city && StringUtils.isNotEmpty(city)){
             map.put("city",city);
         }
-        if (null != createTime && StringUtils.isNotEmpty(createTime)){
-            map.put("createTime",createTime);
+        if (null != createTime && StringUtils.isNotEmpty(createTime) && null != createTimeEnd && StringUtils.isNotEmpty(createTimeEnd)){
+            map.put("createTime",createTime + " 00:00:00");
+            map.put("createTimeEnd",createTimeEnd + " 23:59:59");
         }
         map.put("page",(page - 1) * size);
         map.put("size",size);

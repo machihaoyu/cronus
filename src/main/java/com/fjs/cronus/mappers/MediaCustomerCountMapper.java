@@ -1,6 +1,7 @@
 package com.fjs.cronus.mappers;
 
 import com.fjs.cronus.dto.MediaCustomerCountDTO;
+import com.fjs.cronus.entity.MediaCustomerCountEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
@@ -20,4 +21,9 @@ public interface MediaCustomerCountMapper  {
     Integer updatePurchasedNumber(@Param("mediaCustomerCountId") Integer mediaCustomerCountId);
 
     MediaCustomerCountDTO getCustomerPrice(@Param("mediaCustomerCountId") Integer mediaCustomerCountId);
+
+
+    MediaCustomerCountEntity getMediaCustomerCount(@Param("customerSource") String customerSource, @Param("utmSource") String utmSource);
+
+    Integer addMediaCustomerCount(MediaCustomerCountEntity mediaCustomerCount);
 }
