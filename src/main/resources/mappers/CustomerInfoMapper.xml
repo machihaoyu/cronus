@@ -2607,7 +2607,7 @@
 
    <select id="businessPoolListCount" resultType="java.lang.Integer" parameterType="java.util.Map">
         SELECT
-        COUNT(*)
+        IFNULL(COUNT(*),0)
         FROM
         customer_info ci
         LEFT JOIN customer_price cp ON ci.id = cp.customer_info_id
@@ -2643,7 +2643,7 @@
         <if test="createTime != null and createTime != '' and createTimeEnd != null and createTimeEnd != ''">
             AND ci.create_time BETWEEN #{createTime} AND #{createTimeEnd}
         </if>
-        ORDER BY ci.create_time DESC LIMIT #{page},#{size}
+
    </select>
 
 

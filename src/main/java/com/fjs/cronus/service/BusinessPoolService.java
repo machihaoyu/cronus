@@ -341,8 +341,11 @@ public class BusinessPoolService {
         CustomerPriceEntity customerPriceEntity = customerPriceMapper.getCustomerPriceByCustomerId(customerId);
         MediaCustomerCountDTO mediaCustomerCountDTO = mediaCustomerCountMapper.getCustomerPrice(customer.getMediaCustomerCountId());
 
-        if (null == customerPriceEntity || null == mediaCustomerCountDTO || null == mediaCustomerCountDTO.getAccountingMethod()){
-            throw new CronusException(CronusException.Type.CUSTOMER_NOT_RECEIVE,CronusException.Type.CUSTOMER_NOT_RECEIVE.getError());
+        if (null == customerPriceEntity){
+            if (null == mediaCustomerCountDTO || mediaCustomerCountDTO.getAccountingMethod() == null){
+                //该客户没有价格
+                throw new CronusException(CronusException.Type.CUSTOMER_NOT_RECEIVE,CronusException.Type.CUSTOMER_NOT_RECEIVE.getError());
+            }
         }
 
         //通过token获取当前登录人信息
