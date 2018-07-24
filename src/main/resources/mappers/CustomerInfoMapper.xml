@@ -2575,13 +2575,13 @@
         ci.is_deleted = 0
         AND ci.own_user_id = -1
         <if test="nameOrTelephone != null and nameOrTelephone != ''">
-            AND (ci.customer_name LIKE CONCAT('%',#{nameOrTelephone},'%' ) OR ci.telephonenumber LIKE CONCAT('%',#{nameOrTelephone},'%' ))
+            AND ci.customer_name LIKE CONCAT('%',#{nameOrTelephone},'%' )
         </if>
        <if test="customerSource != null and customerSource != ''">
            AND ci.customer_source = #{customerSource}
        </if>
        <if test="utmSource != null and utmSource != ''">
-           AND ci.utm_source LIKE CONCAT('%',#{utmSource},'%' )
+           AND ci.utm_source = #{utmSource}
        </if>
        <if test="houseStatus != null and houseStatus != '' and houseStatus == '有'.toString()">
            AND ci.house_status = #{houseStatus}
@@ -2617,13 +2617,13 @@
         ci.is_deleted = 0
         AND ci.own_user_id = -1
         <if test="nameOrTelephone != null and nameOrTelephone != ''">
-            AND (ci.customer_name LIKE CONCAT('%',#{nameOrTelephone},'%' ) OR ci.telephonenumber LIKE CONCAT('%',#{nameOrTelephone},'%' ))
+            AND ci.customer_name LIKE CONCAT('%',#{nameOrTelephone},'%' )
         </if>
         <if test="customerSource != null and customerSource != ''">
             AND ci.customer_source = #{customerSource}
         </if>
         <if test="utmSource != null and utmSource != ''">
-            AND ci.utm_source LIKE CONCAT('%',#{utmSource},'%' )
+            AND ci.utm_source = #{utmSource}
         </if>
         <if test="houseStatus != null and houseStatus != '' and houseStatus == '有'.toString()">
             AND ci.house_status = #{houseStatus}

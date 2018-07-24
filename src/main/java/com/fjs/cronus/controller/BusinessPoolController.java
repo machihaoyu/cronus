@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Api(description = "商机池")
 @RequestMapping(value = "/api/v1")
@@ -178,5 +180,56 @@ public class BusinessPoolController {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
         }
     }
+
+
+    @ApiOperation(value = "商机池所有客户来源",notes = "商机池所有客户来源")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/getAllCustomerSourceList",method = RequestMethod.GET)
+    public CronusDto<List<String>> getAllCustomerSourceList(@RequestHeader("Authorization")String token ){
+
+        try {
+            CronusDto<List<String>> cronusDto = new CronusDto<>();
+            List<String> customerSourceList = businessPoolService.getCustomerSourceList(token);
+            cronusDto.setData(customerSourceList);
+            cronusDto.setResult(CommonMessage.SUCCESS.getCode());
+            cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("getAllCustomerSourceList 获取所有媒体失败 >>>>>> " + e.getMessage(),e);
+            if (e instanceof CronusException){
+                CronusException cronusException = (CronusException)e;
+                throw cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+
+
+    @ApiOperation(value = "商机池所有媒体",notes = "商机池所有媒体")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 467405f6-331c-4914-beb7-42027bf09a01", dataType = "string"),
+    })
+    @RequestMapping(value = "/getAllUtmSourceList",method = RequestMethod.GET)
+    public CronusDto<List<String>> getAllUtmSourceList(@RequestHeader("Authorization")String token ){
+
+        try {
+            CronusDto<List<String>> cronusDto = new CronusDto<>();
+            List<String> utmSourceList = businessPoolService.getAllUtmSourceList(token);
+            cronusDto.setData(utmSourceList);
+            cronusDto.setResult(CommonMessage.SUCCESS.getCode());
+            cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
+            return cronusDto;
+        } catch (Exception e) {
+            logger.error("getAllUtmSourceList 获取所有媒体失败 >>>>>> " + e.getMessage(),e);
+            if (e instanceof CronusException){
+                CronusException cronusException = (CronusException)e;
+                throw cronusException;
+            }
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR);
+        }
+    }
+
 
 }

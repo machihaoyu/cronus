@@ -11,6 +11,8 @@ import com.fjs.cronus.dto.MediaPriceDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.BaseUcDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
+import com.fjs.cronus.dto.loan.TheaApiDTO;
+import com.fjs.cronus.dto.thea.BaseCommonDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.CustomerPriceEntity;
 import com.fjs.cronus.entity.MediaPriceEntity;
@@ -23,6 +25,7 @@ import com.fjs.cronus.mappers.MediaCustomerCountMapper;
 import com.fjs.cronus.mappers.MediaPriceMapper;
 import com.fjs.cronus.model.BusinessPool;
 import com.fjs.cronus.model.CustomerInfo;
+import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
@@ -59,13 +62,16 @@ public class BusinessPoolService {
     private CustomerPriceMapper customerPriceMapper;
 
     @Autowired
-    UcService ucService;
+    private UcService ucService;
 
     @Autowired
-    TheaClientService theaClientService;
+    private TheaClientService theaClientService;
 
     @Autowired
-    PanService panService;
+    private PanService panService;
+
+    @Autowired
+    private TheaService theaService;
 
     /**
      * 商机池列表
@@ -409,12 +415,46 @@ public class BusinessPoolService {
     }
 
 
+    /**
+     * 商机池所有客户来源
+     * @return
+     */
+    public List<String> getCustomerSourceList(String token) {
+        ArrayList<String> customerSourceList = new ArrayList<>();
+        //查询客户来源, 当做搜索条件
+        TheaApiDTO<List<BaseCommonDTO>> allMedia = theaService.getAllSource(token);
+        if (!CommonMessage.SUCCESS.getCode().equals(allMedia.getResult())) {
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, allMedia.getMessage());
+        }
+        List<BaseCommonDTO> baseCommonDTOList = allMedia.getData();
+        if (null != baseCommonDTOList && baseCommonDTOList.size() > 0){
+            for (BaseCommonDTO baseCommonDTO : baseCommonDTOList){
+                customerSourceList.add(baseCommonDTO.getName());
+            }
+        }
+        return customerSourceList;
+    }
 
 
+    /**
+     * 商机池所有媒体
+     * @return
+     */
+    public List<String> getAllUtmSourceList(String token) {
 
+        ArrayList<String> utmSourceList = new ArrayList<>();
+        //查询客户媒体, 当做搜索条件
+        TheaApiDTO<List<BaseCommonDTO>> allMedia = theaService.getAllMedia(token);
+        if (!CommonMessage.SUCCESS.getCode().equals(allMedia.getResult())) {
+            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, allMedia.getMessage());
+        }
+        List<BaseCommonDTO> baseCommonDTOList = allMedia.getData();
+        if (null != baseCommonDTOList && baseCommonDTOList.size() > 0){
+            for (BaseCommonDTO baseCommonDTO : baseCommonDTOList){
+                utmSourceList.add(baseCommonDTO.getName());
+            }
+        }
 
-
-
-
-
+        return utmSourceList;
+    }
 }

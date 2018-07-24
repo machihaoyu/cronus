@@ -97,6 +97,9 @@ public interface TheaService {
     @RequestMapping(value = "/media/v1/getAllMedia",method = RequestMethod.GET)
     TheaApiDTO<List<BaseCommonDTO>> getAllMedia(@RequestHeader("Authorization")String token);
 
+    @RequestMapping(value = "/source/v1/getAllSource",method = RequestMethod.GET)
+    TheaApiDTO<List<BaseCommonDTO>> getAllSource(@RequestHeader("Authorization")String token);
+
     @RequestMapping(value = "/channel/v1/getInfoByChannelName", method = RequestMethod.POST)
     TheaApiDTO<BaseChannelDTO> getInfoByChannelName(@RequestHeader("Authorization")String token, @RequestBody JSONObject jsonObject);
 

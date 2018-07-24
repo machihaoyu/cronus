@@ -127,4 +127,11 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
 
     //查找商机池客户
     CustomerInfo getCustomer(@Param("customerId") Integer customerId);
+
+//    @Select("SELECT DISTINCT customer_source FROM customer_info WHERE is_deleted = 0 AND own_user_id = -1")
+//    List<String> getCustomerSourceList();
+//
+//    @Select("SELECT DISTINCT utm_source FROM customer_info WHERE is_deleted = 0 AND own_user_id = -1")
+//    List<String> getAllUtmSourceList();
+
 }
