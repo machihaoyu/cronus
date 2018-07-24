@@ -2593,7 +2593,7 @@
            AND ci.loan_amount >= #{loanAmount}
        </if>
        <if test="loanAmountStart != null and loanAmountStart != '' and loanAmountEnd != null and loanAmountEnd != ''">
-           AND ci.loan_amount BETWEEN #{loanAmountStart} AND #{loanAmountEnd}
+           AND ci.loan_amount <![CDATA[ > ]]> #{loanAmountStart} AND ci.loan_amount <![CDATA[ <= ]]> #{loanAmountEnd}
        </if>
        <if test="city != null and city != ''">
            AND ci.city = #{city}
@@ -2635,7 +2635,7 @@
            AND ci.loan_amount >= #{loanAmount}
        </if>
         <if test="loanAmountStart != null and loanAmountStart != '' and loanAmountEnd != null and loanAmountEnd != ''">
-            AND ci.loan_amount BETWEEN #{loanAmountStart} AND #{loanAmountEnd}
+            AND ci.loan_amount <![CDATA[ > ]]> #{loanAmountStart} AND ci.loan_amount <![CDATA[ <= ]]> #{loanAmountEnd}
         </if>
         <if test="city != null and city != ''">
             AND ci.city = #{city}
