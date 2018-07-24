@@ -3,6 +3,7 @@ package com.fjs.cronus.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
+import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.dto.BusinessPoolDTO;
 import com.fjs.cronus.dto.MediaCustomerCountDTO;
@@ -35,10 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class BusinessPoolService {
@@ -287,6 +285,7 @@ public class BusinessPoolService {
         customerPriceEntity.setLoanRate(mediaPriceDTO.getLoanRate());
         customerPriceEntity.setCreateUser(currentUserId);
         customerPriceEntity.setLastUpdateUser(currentUserId);
+        customerPriceEntity.setIsClose(CommonEnum.NO.getCode());
 
         Integer count = customerPriceMapper.addCustomerPrice(customerPriceEntity);
         if (count < 1){
@@ -376,10 +375,31 @@ public class BusinessPoolService {
         }
 
         //领取客户成功之后, 更新customer_price表(是否领取和领取时间)
-        count = customerPriceMapper.receiveSuccess(customerId);
-        if (count < 1){
-            throw new CronusException(CronusException.Type.CRM_OTHER_ERROR,CronusException.Type.CRM_OTHER_ERROR.getError());
+        if (null == customerPriceEntity){
+            //领取表中无记录, 需要新增记录
+            CustomerPriceEntity customerPrice = new CustomerPriceEntity();
+            customerPrice.setCustomerInfoId(customerId);
+            customerPrice.setAccountingMethod(mediaCustomerCountDTO.getAccountingMethod());
+            customerPrice.setPrepurchasePrice(mediaCustomerCountDTO.getPrepurchasePrice());
+            customerPrice.setCommissionRate(mediaCustomerCountDTO.getCommissionRate());
+            customerPrice.setLoanRate(mediaCustomerCountDTO.getLoanRate());
+            customerPrice.setCreateUser(userId);
+            customerPrice.setLastUpdateUser(userId);
+            customerPrice.setIsReceive(CommonEnum.YES.getCode());
+            customerPrice.setGmtReceive(new Date());
+            customerPrice.setIsClose(CommonEnum.YES.getCode());
+            count = customerPriceMapper.addCustomerPrice(customerPrice);
+            if (count < 1){
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR,CronusException.Type.CRM_OTHER_ERROR.getError());
+            }
+        }else {
+            //更新时间
+            count = customerPriceMapper.receiveSuccess(customerId);
+            if (count < 1){
+                throw new CronusException(CronusException.Type.CRM_OTHER_ERROR,CronusException.Type.CRM_OTHER_ERROR.getError());
+            }
         }
+
         //更新media_customer_count的已购买量
         count = mediaCustomerCountMapper.updatePurchasedNumber(customer.getMediaCustomerCountId());
         if (count < 1){

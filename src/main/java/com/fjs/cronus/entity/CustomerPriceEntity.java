@@ -132,4 +132,5 @@ public class CustomerPriceEntity {
     public void setIsClose(Integer isClose) {
         this.isClose = isClose;
     }
+
 }

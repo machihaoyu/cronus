@@ -17,7 +17,7 @@ public class MediaCustomerCountDTO {
     @ApiModelProperty("已购买量")
     private Integer purchasedNumber;
     @ApiModelProperty(value = "核算方法(1-预购单价, 2-佣金比例, 3-放款比例, 4-预购单价&佣金比例, 5-预购单价&放款比例)")
-    private BigDecimal accountingMethod;
+    private Integer accountingMethod;
     @ApiModelProperty(value = "预购单价")
     private BigDecimal prepurchasePrice;
     @ApiModelProperty(value = "佣金比例")
@@ -66,11 +66,11 @@ public class MediaCustomerCountDTO {
         this.purchasedNumber = purchasedNumber;
     }
 
-    public BigDecimal getAccountingMethod() {
+    public Integer getAccountingMethod() {
         return accountingMethod;
     }
 
-    public void setAccountingMethod(BigDecimal accountingMethod) {
+    public void setAccountingMethod(Integer accountingMethod) {
         this.accountingMethod = accountingMethod;
     }
 
