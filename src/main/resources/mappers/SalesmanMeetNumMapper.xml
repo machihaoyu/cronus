@@ -38,7 +38,7 @@
         SELECT <include refid="Base_Column_List" /> FROM `salesman_meet_num` WHERE `time` &gt;= #{start} AND `time` &lt;= #{end} AND `status`=#{status}
     </select>
 
-    <select id="getByTimeAndName">
+    <select id="getByTimeAndName" resultType="java.lang.Long">
         SELECT SUM(`num`) FROM `salesman_meet_num` WHERE `time` &gt;= #{start} AND `time` &lt;= #{end} AND `sales_man_name`=#{salemanName}  AND `status`=#{status}
     </select>
 </mapper>
