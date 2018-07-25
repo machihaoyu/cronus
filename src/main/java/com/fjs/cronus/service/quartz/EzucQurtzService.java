@@ -231,7 +231,6 @@ public class EzucQurtzService {
      * 通话时长统计.
      */
     private void syncSalesmanCallTimeData4Qurtz(Date date){
-        logger.info("------------------> 通话时长统计 ");
         Date now = new Date();
 
         // 通过当天0点到指定时间的数据
