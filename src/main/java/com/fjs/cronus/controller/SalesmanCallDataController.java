@@ -183,7 +183,7 @@ public class SalesmanCallDataController {
     @ApiOperation(value = "[非业务接口-管理接口]init通话时长、通话次数、面见次数", notes = "init通话时长、通话次数、面见次数 api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
-            @ApiImplicitParam(name = "jsonObject", value = "提交数据,{\"time\":\"2018-06-01 01-01-01\",\"type\":\"day 或 month\"}", required = true, dataType = "com.alibaba.fastjson.JSONObject")
+            @ApiImplicitParam(name = "jsonObject", value = "提交数据,{\"time\":\"2018-06-01 01:01:01\",\"type\":\"day 或 month\"}", required = true, dataType = "com.alibaba.fastjson.JSONObject")
     })
     @RequestMapping(value = "/initSyncData", method = RequestMethod.POST)
     @ResponseBody
