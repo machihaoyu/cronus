@@ -383,23 +383,24 @@ public class CustomerInfoService {
         customerInfo.setOcdcId(customerDTO.getOcdcId());
 
         // ----------------------商机池判断开始-------------------------------------
-        MediaCustomerCountEntity mediaCustomerCount = null;
         try {
             //判断是否是商机池客户, 如果是商机池客户(ownUserId = -1),就新增或更新media_customer_count表
             logger.error("1.判断是否是商机池客户 , 客户的名字和ownUserId为 : " + customerInfo.getCustomerName() + "," + customerInfo.getOwnUserId());
-            mediaCustomerCount = new MediaCustomerCountEntity();
             if (-1 == customerInfo.getOwnUserId()){
                 logger.error("2.是商机池客户 , 客户的名字和ownUserId为 : " + customerInfo.getCustomerName() + "," + customerInfo.getOwnUserId());
                 //是商机池客户  先判断媒体表中有没有该媒体,如果没有就新增,如果有,就将customer_stock加1
                 String customerSource = customerInfo.getCustomerSource();
                 String utmSource = customerInfo.getUtmSource();
-                mediaCustomerCount  = mediaCustomerCountMapper.getMediaCustomerCount(customerSource,utmSource);
+                MediaCustomerCountEntity mediaCustomerCount  = mediaCustomerCountMapper.getMediaCustomerCount(customerSource,utmSource);
                 if (mediaCustomerCount != null){
                     //说明已经有该媒体, 将将customer_stock加1
                     mediaCustomerCountMapper.updatePurchasedNumber(mediaCustomerCount.getId());
+                    //设置客户的媒体表id的值(media_customer_count_id)
+                    customerInfo.setMediaCustomerCountId(mediaCustomerCount.getId());
 
                 }else {
                     //没有该媒体, 新增媒体,customer_stock设置为1,purchased_number设置为0
+                    mediaCustomerCount = new MediaCustomerCountEntity();
                     mediaCustomerCount.setSourceName(customerInfo.getCustomerSource());
                     mediaCustomerCount.setMediaName(customerInfo.getUtmSource());
                     mediaCustomerCount.setCustomerStock(1);
@@ -408,6 +409,8 @@ public class CustomerInfoService {
                     mediaCustomerCount.setLastUpdateUser(customerInfo.getId());
                     //新增渠道媒体
                     mediaCustomerCountMapper.addMediaCustomerCount(mediaCustomerCount);
+                    //设置客户的媒体表id的值(media_customer_count_id)
+                    customerInfo.setMediaCustomerCountId(mediaCustomerCount.getId());
                 }
             }
             //--------------------------商机池判断结束--------------------------------------
@@ -415,10 +418,6 @@ public class CustomerInfoService {
             logger.error("商机池客户添加或更新媒体失败 >>>>>> " + e.getMessage(),e);
         }
 
-        //设置客户的媒体表id的值(media_customer_count_id)
-        if (null != mediaCustomerCount){
-            customerInfo.setMediaCustomerCountId(mediaCustomerCount.getId());
-        }
         //新增客户
         customerInfoMapper.insertCustomer(customerInfo);
         if (customerInfo.getId() == null) {
