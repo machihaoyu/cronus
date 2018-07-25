@@ -16,8 +16,8 @@
 
     <resultMap id="mediaCustomerCountEntity" type="com.fjs.cronus.entity.MediaCustomerCountEntity">
         <result column="id" property="id" jdbcType="INTEGER"/>
-        <result column="source_name" property="customerSource" jdbcType="VARCHAR"/>
-        <result column="media_name" property="utmSource" jdbcType="VARCHAR"/>
+        <result column="source_name" property="sourceName" jdbcType="VARCHAR"/>
+        <result column="media_name" property="mediaName" jdbcType="VARCHAR"/>
         <result column="customer_stock" property="customerStock" jdbcType="INTEGER"/>
         <result column="purchased_number" property="purchasedNumber" jdbcType="INTEGER"/>
         <result column="create_user" property="createUser" jdbcType="INTEGER"/>
@@ -95,7 +95,7 @@
 
     <insert id="addMediaCustomerCount" parameterType="com.fjs.cronus.entity.MediaCustomerCountEntity">
         INSERT INTO media_customer_count (source_name,media_name,customer_stock,purchased_number,create_user,last_update_user)
-        VALUES(#{customerSource},#{utmSource},#{customerStock},#{purchasedNumber},#{createUser},#{lastUpdateUser})
+        VALUES(#{sourceName},#{mediaName},#{customerStock},#{purchasedNumber},#{createUser},#{lastUpdateUser})
     </insert>
 
 
