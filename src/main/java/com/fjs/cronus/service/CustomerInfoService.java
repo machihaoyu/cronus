@@ -383,7 +383,6 @@ public class CustomerInfoService {
         customerInfo.setOcdcId(customerDTO.getOcdcId());
 
         // ----------------------商机池判断开始-------------------------------------
-        MediaCustomerCountEntity mediaCustomerCount = null;
         try {
             //判断是否是商机池客户, 如果是商机池客户(ownUserId = -1),就新增或更新media_customer_count表
             logger.error("1.判断是否是商机池客户 , 客户的名字和ownUserId为 : " + customerInfo.getCustomerName() + "," + customerInfo.getOwnUserId());
@@ -392,7 +391,7 @@ public class CustomerInfoService {
                 //是商机池客户  先判断媒体表中有没有该媒体,如果没有就新增,如果有,就将customer_stock加1
                 String customerSource = customerInfo.getCustomerSource();
                 String utmSource = customerInfo.getUtmSource();
-                mediaCustomerCount  = mediaCustomerCountMapper.getMediaCustomerCount(customerSource,utmSource);
+                MediaCustomerCountEntity mediaCustomerCount  = mediaCustomerCountMapper.getMediaCustomerCount(customerSource,utmSource);
                 if (mediaCustomerCount != null){
                     //说明已经有该媒体, 将将customer_stock加1
                     mediaCustomerCountMapper.updatePurchasedNumber(mediaCustomerCount.getId());
@@ -401,6 +400,7 @@ public class CustomerInfoService {
 
                 }else {
                     //没有该媒体, 新增媒体,customer_stock设置为1,purchased_number设置为0
+                    mediaCustomerCount = new MediaCustomerCountEntity();
                     mediaCustomerCount.setSourceName(customerInfo.getCustomerSource());
                     mediaCustomerCount.setMediaName(customerInfo.getUtmSource());
                     mediaCustomerCount.setCustomerStock(1);
