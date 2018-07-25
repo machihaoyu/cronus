@@ -581,7 +581,34 @@ public class SalesmanCallDataService {
                         }
                     }
                 }
+
+                // 通话时长：构建今日缓存数据
+                salesmanCallTimeService.buildDayCatch(date);
+
+                // 通话时长：构建当周缓存数据
+                salesmanCallTimeService.buildWeekCatch(date);
+
+                // 通话次数：构建今日缓存数据
+                salesmanCallNumService.buildDayCatch(date);
+
+                // 通话次数：构建当周缓存数据
+                salesmanCallNumService.buildWeekCatch(date);
+
+                // 面见次数：构建今日缓存数据
+                salesmanMeetNumService.buildDayCatch(date);
+
+                // 面见次数：构建当周缓存数据
+                salesmanMeetNumService.buildWeekCatch(date);
             }
+
+            // 通话时长：构建当月缓存数据
+            salesmanCallTimeService.buildMonthCatch(date);
+
+            // 通话次数：构建当月缓存数据
+            salesmanCallNumService.buildMonthCatch(date);
+
+            // 面见次数：构建当月缓存数据
+            salesmanMeetNumService.buildMonthCatch(date);
 
         } catch (Exception e) {
             throw e;

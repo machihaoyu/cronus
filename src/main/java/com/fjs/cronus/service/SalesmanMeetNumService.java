@@ -2,10 +2,13 @@ package com.fjs.cronus.service;
 
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonRedisConst;
+import com.fjs.cronus.entity.SalesmanCallTime;
 import com.fjs.cronus.entity.SalesmanMeetNum;
 import com.fjs.cronus.mappers.CustomerMeetMapper;
 import com.fjs.cronus.mappers.SalesmanMeetNumMapper;
 import com.fjs.cronus.util.DateUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,7 +19,10 @@ import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class SalesmanMeetNumService {
@@ -326,6 +332,91 @@ public class SalesmanMeetNumService {
         redisTemplateOps.expire(cacheKey, 32, TimeUnit.DAYS);
 
         return result;
+    }
+
+    /**
+     * 构建天级别缓存.
+     */
+    public void buildDayCatch(Date date) {
+        Calendar instance = Calendar.getInstance();
+        instance.setTime(date);
+        instance.set(Calendar.HOUR_OF_DAY, 0);
+        instance.set(Calendar.MINUTE, 0);
+        instance.set(Calendar.SECOND, 0);
+        Date formatDate = instance.getTime(); // 格式化时间，不需要时分秒
+
+        List<SalesmanMeetNum> list = salesmanMeetNumMapper.findByTime(formatDate, formatDate, CommonEnum.entity_status1.getCode());
+
+        if (!CollectionUtils.isEmpty(list)) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+
+            String cacheKey = CommonRedisConst.SALES_MAN_MEET_NUM_DAY + ":" + sdf.format(formatDate);
+            HashOperations<String, String, Number> hash = redisTemplateOps.opsForHash();
+
+            Map<String, Number> map = list.stream()
+                    .filter(item -> item != null && item.getNum() != null && StringUtils.isNotBlank(item.getSalesManName()))
+                    .collect(Collectors.toMap(SalesmanMeetNum::getSalesManName, SalesmanMeetNum::getNum, (x, y) -> x));
+
+            if (map.size() > 0) {
+                hash.putAll(cacheKey, map);
+                redisTemplateOps.expire(cacheKey, 3, TimeUnit.DAYS);
+            }
+        }
+    }
+
+    /**
+     * 构建周级别缓存.
+     */
+    public void buildWeekCatch(Date date) {
+        Date weekStart = DateUtils.getWeekStart(date); // 获取当周周一
+        Date weekEnd = DateUtils.getWeekEnd(date); // 获取当周周日
+
+        List<SalesmanMeetNum> list = salesmanMeetNumMapper.findByTime(weekStart, weekEnd, CommonEnum.entity_status1.getCode());
+
+        if (!CollectionUtils.isEmpty(list)) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+
+            String cacheKey = CommonRedisConst.SALES_MAN_MEET_NUM_WEEK + ":" + sdf.format(weekStart);
+            HashOperations<String, String, Number> hash = redisTemplateOps.opsForHash();
+
+            Map<String, Number> map = list.stream()
+                    .filter(item -> item != null && item.getNum() != null && StringUtils.isNotBlank(item.getSalesManName()))
+                    .collect(Collectors.toMap(SalesmanMeetNum::getSalesManName, SalesmanMeetNum::getNum, (x, y) -> x));
+
+            if (map.size() > 0) {
+                hash.putAll(cacheKey, map);
+                redisTemplateOps.expire(cacheKey, 15, TimeUnit.DAYS);
+            }
+        }
+
+    }
+
+    /**
+     * 构建月级别缓存.
+     */
+    public void buildMonthCatch(Date date) {
+        Date currMonthStart = DateUtils.getMonthStart(date); // 获取当月第一天
+        Date currMonthEnd = DateUtils.getMonthEnd(date); // 获取当月最后一天
+
+        List<SalesmanMeetNum> list = salesmanMeetNumMapper.findByTime(currMonthStart, currMonthEnd, CommonEnum.entity_status1.getCode());
+
+        if (!CollectionUtils.isEmpty(list)) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+
+            String cacheKey = CommonRedisConst.SALES_MAN_MEET_NUM_MONTH + ":" + sdf.format(currMonthStart);
+            HashOperations<String, String, Number> hash = redisTemplateOps.opsForHash();
+
+
+            Map<String, Number> map = list.stream()
+                    .filter(item -> item != null && item.getNum() != null && StringUtils.isNotBlank(item.getSalesManName()))
+                    .collect(Collectors.toMap(SalesmanMeetNum::getSalesManName, SalesmanMeetNum::getNum, (x, y) -> x));
+
+
+            if (map.size() > 0) {
+                hash.putAll(cacheKey, map);
+                redisTemplateOps.expire(cacheKey, 63, TimeUnit.DAYS);
+            }
+        }
     }
 
 }
