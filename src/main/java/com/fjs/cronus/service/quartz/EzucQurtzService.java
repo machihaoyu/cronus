@@ -122,9 +122,8 @@ public class EzucQurtzService {
         c2.setTime(now);
         c2.add(Calendar.HOUR_OF_DAY, -1);
 
-        // TODO lihong
         try {
-            //syncData(null, c.getTime());
+            syncData(null, c.getTime());
         } catch (Exception e) {
             // 定时忽略错误
             logger.error("EZUC 数据同步,异常", e);
