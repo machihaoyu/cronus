@@ -2546,7 +2546,7 @@
     </update>
 
     <select id="getCustomerPush" resultMap="BaseResultMap" parameterType="java.lang.Integer">
-        SELECT * FROM customer_info WHERE is_deleted = 0 AND own_user_id = #{ownerId} and is_push = 0
+        SELECT * FROM customer_info WHERE is_deleted = 0 AND own_user_id = #{ownerId} and is_push = 0 AND communicate_time is NULL
     </select>
 
 
