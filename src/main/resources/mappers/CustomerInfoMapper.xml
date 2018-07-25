@@ -2583,12 +2583,12 @@
        <if test="utmSource != null and utmSource != ''">
            AND ci.utm_source = #{utmSource}
        </if>
-       <if test="houseStatus != null and houseStatus != '' and houseStatus == '有'.toString()">
+       <if test="houseStatus != null and houseStatus != ''">
            AND ci.house_status = #{houseStatus}
        </if>
-       <if test="houseStatus != null and houseStatus != '' and houseStatus == '无'.toString()">
-           AND ci.house_status is NULL
-       </if>
+       <!--<if test="houseStatus != null and houseStatus != '' and houseStatus == '无'.toString()">-->
+           <!--AND ci.house_status is NULL-->
+       <!--</if>-->
        <if test="loanAmount != null and loanAmount != ''">
            AND ci.loan_amount >= #{loanAmount}
        </if>
@@ -2625,12 +2625,12 @@
         <if test="utmSource != null and utmSource != ''">
             AND ci.utm_source = #{utmSource}
         </if>
-        <if test="houseStatus != null and houseStatus != '' and houseStatus == '有'.toString()">
+        <if test="houseStatus != null and houseStatus != ''">
             AND ci.house_status = #{houseStatus}
         </if>
-        <if test="houseStatus != null and houseStatus != '' and houseStatus == '无'.toString()">
-            AND ci.house_status is NULL
-        </if>
+        <!--<if test="houseStatus != null and houseStatus != '' and houseStatus == '无'.toString()">-->
+            <!--AND ci.house_status is NULL-->
+        <!--</if>-->
        <if test="loanAmount != null and loanAmount != ''">
            AND ci.loan_amount >= #{loanAmount}
        </if>
