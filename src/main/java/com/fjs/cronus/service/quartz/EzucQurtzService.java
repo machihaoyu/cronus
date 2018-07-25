@@ -153,7 +153,7 @@ public class EzucQurtzService {
             } else {
                 redisTemplateOps.expire(key, 30, TimeUnit.MINUTES);
 
-                // 需要处理的总数
+                // 同步第三方系统数据
                 int count = getDataCount(runInfo, date);
                 if (count > 0) {
                     // 分页
@@ -184,21 +184,17 @@ public class EzucQurtzService {
                             addSingleData(jsonObject);
                         }
                     }
-
-                    // 数据入缓存
-                    //salesmanCallDataService.refreshCache(date);
-
-                    // 通话时长统计
-                    new Thread(()->{
-                        syncSalesmanCallTimeData4Qurtz(date);
-                    }).start();
-
-                    // 通话次数统计
-                    new Thread(()->{
-                        syncSalesmanCallNumData4Qurtz(date);
-                    }).start();
-
                 }
+
+                // 通话时长统计
+                new Thread(()->{
+                    syncSalesmanCallTimeData4Qurtz(date);
+                }).start();
+
+                // 通话次数统计
+                new Thread(()->{
+                    syncSalesmanCallNumData4Qurtz(date);
+                }).start();
 
             }
 
