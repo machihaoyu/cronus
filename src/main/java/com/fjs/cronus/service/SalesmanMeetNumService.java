@@ -130,7 +130,7 @@ public class SalesmanMeetNumService {
     /**
      * 今日：面见次数.
      */
-    public long getMeetNumOfNow(String salemanName) {
+    public long getMeetNumOfNow(Long userId, String salemanName) {
 
         // 获取缓存key
         Calendar instance = Calendar.getInstance();
@@ -149,6 +149,7 @@ public class SalesmanMeetNumService {
         // 从数据库中取数据
         SalesmanMeetNum temp = new SalesmanMeetNum();
         temp.setSalesManName(salemanName);
+        temp.setSalesManId(userId);
         temp.setTime(instance.getTime());
         temp.setStatus(CommonEnum.entity_status1.getCode());
         SalesmanMeetNum db = salesmanMeetNumMapper.selectOne(temp);
@@ -167,7 +168,7 @@ public class SalesmanMeetNumService {
     /**
      * 昨日：面见次数.
      */
-    public long getMeetNumOfYestday(String salemanName) {
+    public long getMeetNumOfYestday(Long userId, String salemanName) {
 
         // 获取缓存key
         Calendar instance = Calendar.getInstance();
@@ -188,6 +189,7 @@ public class SalesmanMeetNumService {
         SalesmanMeetNum temp = new SalesmanMeetNum();
         temp.setSalesManName(salemanName);
         temp.setTime(instance.getTime());
+        temp.setSalesManId(userId);
         temp.setStatus(CommonEnum.entity_status1.getCode());
         SalesmanMeetNum db = salesmanMeetNumMapper.selectOne(temp);
 

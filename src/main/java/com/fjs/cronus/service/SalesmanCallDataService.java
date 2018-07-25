@@ -375,10 +375,10 @@ public class SalesmanCallDataService {
         result.put("perNum", salesmanCallNumService.getCallTimeOfYesterday(salemanName));
 
         // 今日面见次数
-        result.put("currMeetNum", salesmanMeetNumService.getMeetNumOfNow(salemanName));
+        result.put("currMeetNum", salesmanMeetNumService.getMeetNumOfNow(userId, salemanName));
 
         // 昨日面见次数
-        result.put("perMeetNum", salesmanMeetNumService.getMeetNumOfYestday(salemanName));
+        result.put("perMeetNum", salesmanMeetNumService.getMeetNumOfYestday(userId, salemanName));
 
         return result;
     }

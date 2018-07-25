@@ -1462,9 +1462,9 @@ public class AutoAllocateServiceV2 {
         // 校验面见顾客数
         // 业务规则：一天面见 >= 3 个顾客，算通过
         String salesmanName = data.getString("name");
-        Long countCustomerIdByCreateId = salesmanMeetNumService.getMeetNumOfYestday(salesmanName);
+        Long countCustomerIdByCreateId = salesmanMeetNumService.getMeetNumOfYestday(salesmanId.longValue(), salesmanName);
         SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k60 + "当天面见顾客数"
-                , ImmutableMap.of("salesmanName", salesmanName)
+                , ImmutableMap.of("salesmanName", salesmanName, "salesmanId", salesmanId)
                 , ImmutableMap.of("顾客数", countCustomerIdByCreateId)
         );
         if (countCustomerIdByCreateId >= 3) {
