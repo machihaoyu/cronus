@@ -61,8 +61,28 @@
         GROUP BY `sales_man_name`
     </select>
 
+    <select id="findAllNum" resultType="com.fjs.cronus.entity.SalesmanCallData">
+        SELECT
+        `sales_man_name` AS salesManName,
+        COUNT(`id`) AS duration
+        FROM `salesman_call_data`
+        WHERE `start_time` &gt;= #{startTime}
+        AND `start_time` &lt;= #{endTime}
+        AND `status`=#{status}
+        GROUP BY `sales_man_name`
+    </select>
+
     <select id="getDurationByName" resultType="java.lang.Long">
         SELECT SUM(duration) AS duration
+        FROM `salesman_call_data`
+        WHERE `start_time` &gt;= #{startTime}
+        AND `start_time` &lt;= #{endTime}
+        AND `status`=#{status}
+        AND `sales_man_name`=#{name}
+    </select>
+
+    <select id="getNumByName" resultType="java.lang.Long">
+        SELECT COUNT(`id`) AS duration
         FROM `salesman_call_data`
         WHERE `start_time` &gt;= #{startTime}
         AND `start_time` &lt;= #{endTime}

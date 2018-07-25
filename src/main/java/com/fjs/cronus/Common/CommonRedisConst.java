@@ -79,7 +79,7 @@ public class CommonRedisConst {
     /**
      * EZUC key.
      */
-    public static String EZUC_DURATION_KEY = "ezuc_duration_key";
+    public static  final String EZUC_DURATION_KEY = "ezuc_duration_key";
 
     /**
      * 业务员面见次数（key后有时间指定，具体到天） key.
@@ -87,8 +87,52 @@ public class CommonRedisConst {
     public static String EZUC_DURATION_MEETINGCOUNT = "ezuc_duration_meetingcount";
 
     /**
-     * EZUC 定时任务 key.
+     * EZUC 定时任务，同步锁（目前是一小时同步一次） key.
      */
-    public static String EZUC_DURATION_QUARTZ_KEY = "ezuc_duration_quartz_key";
+    public static  final String EZUC_DURATION_QUARTZ_SYNC_LOCK = "ezuc:duration:quartz_sync:lock";
+
+    /**
+     * EZUC 同步数据 锁key.
+     */
+    public static  final String EZUC_DURATION_SYNC_LOCK = "ezuc:duration:use:sync:lock";
+
+    /**
+     * 通话时长：天.
+     */
+    public static final String SALES_MAN_CALL_TIME_DAY = "salesman:call:time:day";
+    /**
+     * 通话时长：周.
+     */
+    public static final String SALES_MAN_CALL_TIME_WEEK = "salesman:call:time:week";
+    /**
+     * 通话时长：月.
+     */
+    public static final String SALES_MAN_CALL_TIME_MONTH = "salesman:call:time:month";
+
+    /**
+     * 通话次数：天.
+     */
+    public static final String SALES_MAN_CALL_NUM_DAY = "salesman:call:num:day";
+    /**
+     * 通话次数：周.
+     */
+    public static final String SALES_MAN_CALL_NUM_WEEK = "salesman:call:num:week";
+    /**
+     * 通话次数：月.
+     */
+    public static final String SALES_MAN_CALL_NUM_MONTH = "salesman:call:num:month";
+
+    /**
+     * 面见次数：天.
+     */
+    public static final String SALES_MAN_MEET_NUM_DAY = "salesman:meet:num:day";
+    /**
+     * 通话次数：周.
+     */
+    public static final String SALES_MAN_MEET_NUM_WEEK = "salesman:meet:num:week";
+    /**
+     * 通话次数：月.
+     */
+    public static final String SALES_MAN_MEET_NUM_MONTH = "salesman:meet:num:month";
 
 }

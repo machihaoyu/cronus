@@ -5,6 +5,11 @@ import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.dto.CronusDto;
+import com.fjs.cronus.dto.api.PHPUserDto;
+import com.fjs.cronus.dto.api.ThorApiDTO;
+import com.fjs.cronus.dto.uc.CronusUserInfoDto;
+import com.fjs.cronus.dto.uc.LightUserInfoDTO;
+import com.fjs.cronus.dto.uc.ThorQueryDto;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.SalesmanCallData;
 import com.fjs.cronus.exception.CronusException;
@@ -12,15 +17,22 @@ import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.CustomerMeetMapper;
 import com.fjs.cronus.mappers.SalesmanCallDataMapper;
 import com.fjs.cronus.model.CustomerInfo;
+import com.fjs.cronus.model.CustomerMeet;
 import com.fjs.cronus.service.client.ThorService;
+import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.util.DEC3Util;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.primitives.Ints;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +40,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.*;
@@ -41,6 +50,9 @@ public class SalesmanCallDataService {
 
     private static final Logger logger = LoggerFactory.getLogger(SalesmanCallDataService.class);
 
+    @Value("${token.current}")
+    private String publicToken;
+
     @Autowired
     private SalesmanCallDataMapper salesmanCallDataMapper;
 
@@ -48,13 +60,22 @@ public class SalesmanCallDataService {
     private CustomerInfoService customerInfoService;
 
     @Autowired
-    private ThorService thorService;
-
-    @Autowired
     private EzucDataDetailService ezucDataDetailService;
 
     @Autowired
     private CustomerMeetMapper customerMeetMapper;
+
+    @Autowired
+    private ThorService thorService;
+
+    @Autowired
+    private SalesmanCallTimeService salesmanCallTimeService;
+    @Autowired
+    private SalesmanCallNumService salesmanCallNumService;
+    @Autowired
+    private SalesmanMeetNumService salesmanMeetNumService;
+    @Autowired
+    private TheaClientService theaClientService;
 
     @Resource
     RedisTemplate redisTemplateOps;
@@ -167,14 +188,34 @@ public class SalesmanCallDataService {
         data.setCreateid(salesManId);
 
         salesmanCallDataMapper.insertSelective(data);
+
+        // 统计通话时长、通话次数
+        new Thread(() -> {
+            countData(subCompanyId, salesManId, salesManName);
+        }).start();
+    }
+
+    /**
+     * 统计通话时长、通话次数.
+     */
+    private void countData(Long subCompanyId, Long salesManId, String salesManName) {
+
+        // 通话时长
+        salesmanCallTimeService.countData(subCompanyId, salesManId, salesManName.trim());
+        salesmanCallTimeService.reflushCache(subCompanyId, salesManId, salesManName.trim(), new Date());
+
+        // 通话次数
+        salesmanCallNumService.countData(subCompanyId, salesManId, salesManName.trim());
+        salesmanCallNumService.reflushCache(subCompanyId, salesManId, salesManName.trim(), new Date());
     }
 
     /**
      * 刷新缓存.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    @Deprecated
     public void refreshCache(Date date) {
-
+/*
         Date startTime = ezucDataDetailService.getStartTime(date);
         List<SalesmanCallData> allDuration = salesmanCallDataMapper.findAllDuration(startTime.getTime() / 1000, ezucDataDetailService.getEndTime(date).getTime() / 1000, CommonEnum.entity_status1.getCode());
         allDuration = CollectionUtils.isEmpty(allDuration) ? new ArrayList() : allDuration;
@@ -188,14 +229,14 @@ public class SalesmanCallDataService {
             HashOperations<String, String, Long> hashOperations = redisTemplateOps.opsForHash();
             hashOperations.putAll(key, nameMappingDuration);
             redisTemplateOps.expire(key, 2, TimeUnit.DAYS);
-        }
+        }*/
     }
 
     /**
      * 定时任务，插入单条数据.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public void addSigle4Qurtz(JSONObject jsonObject){
+    public void addSigle4Qurtz(JSONObject jsonObject) {
 
         try {
             String callerDispName = jsonObject.getString("callerDispName");
@@ -236,7 +277,7 @@ public class SalesmanCallDataService {
                 data.setCreated(new Date());
                 salesmanCallDataMapper.insertSelective(data);
             }
-        } catch ( Exception e) {
+        } catch (Exception e) {
             logger.error("定时任务，插入单条数据", e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
@@ -249,8 +290,9 @@ public class SalesmanCallDataService {
      * @param name 业务员名
      * @param date 指定的哪天的数据；null为取昨天
      */
+    @Deprecated
     public long getDurationByName(String name, Date date) {
-
+/*
         if (StringUtils.isBlank(name)) {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "业务员名称不能为空");
         }
@@ -271,15 +313,17 @@ public class SalesmanCallDataService {
         duration = salesmanCallDataMapper.getDurationByName(name, startTime.getTime() / 1000, ezucDataDetailService.getEndTime(date).getTime() / 1000, CommonEnum.entity_status1.getCode());
         duration = duration == null ? 0 : duration;
 
-        return duration;
+        return duration;*/
+        return 0;
     }
 
     /**
      * 获取指定业务员，指定时间面见次数.
      */
-    public int getMeetingCount(Long salesmanId, Date start, Date end){
+    @Deprecated
+    public int getMeetingCount(Long salesmanId, Date start, Date end) {
 
-        HashOperations<String, Long, Number> hashOperations = redisTemplateOps.opsForHash();
+        /*HashOperations<String, Long, Number> hashOperations = redisTemplateOps.opsForHash();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         String key = CommonRedisConst.EZUC_DURATION_MEETINGCOUNT.concat(sdf.format(start));
         Number number = hashOperations.get(key, salesmanId);
@@ -289,7 +333,263 @@ public class SalesmanCallDataService {
 
             hashOperations.put(key, salesmanId, number);
         }
-        return number.intValue();
+        return number.intValue();*/
+
+        return 0;
+    }
+
+    /**
+     * 获取今日通话数据.
+     */
+    public Map<String, Object> getSaleManCallData(String token, Long userId, String type) {
+
+        CronusDto<UserInfoDTO> userInfoByToken = thorService.getUserInfoByToken(token, null);
+        String salemanName = userInfoByToken.getData().getName();
+
+        if ("day".equalsIgnoreCase(type)) {
+            return getSaleManCallData4Day(token, userId, salemanName.trim());
+        } else if ("week".equalsIgnoreCase(type)) {
+            return getSaleManCallData4Week(token, userId, salemanName.trim());
+        } else if ("month".equalsIgnoreCase(type)) {
+            return getSaleManCallData4Month(token, userId, salemanName.trim());
+        }
+        return null;
+    }
+
+    /**
+     * 日统计.
+     */
+    private Map<String, Object> getSaleManCallData4Day(String token, Long userId, String salemanName) {
+        Map<String, Object> result = new HashMap<>();
+
+        // 通话时长
+        result.put("currTime", salesmanCallTimeService.getCallTimeOfNow(salemanName));
+
+        // 昨日通话时长
+        result.put("perTime", salesmanCallTimeService.getCallTimeOfYesterday(salemanName));
+
+        // 今日通话次数
+        result.put("currNum", salesmanCallNumService.getCallTimeOfNow(salemanName));
+
+        // 昨日通话次数
+        result.put("perNum", salesmanCallNumService.getCallTimeOfYesterday(salemanName));
+
+        // 今日面见次数
+        result.put("currMeetNum", salesmanMeetNumService.getMeetNumOfNow(salemanName));
+
+        // 昨日面见次数
+        result.put("perMeetNum", salesmanMeetNumService.getMeetNumOfYestday(salemanName));
+
+        return result;
+    }
+
+    /**
+     * 周统计.
+     */
+    private Map<String, Object> getSaleManCallData4Week(String token, Long userId, String salemanName) {
+        Map<String, Object> result = new HashMap<>();
+
+        // 本周通话时长
+        result.put("currTime", salesmanCallTimeService.getCallTimeOfCurrWeek(salemanName));
+
+        // 上周通话时长
+        result.put("perTime", salesmanCallTimeService.getCallTimeOfPreWeek(salemanName));
+
+        // 本周通话次数
+        result.put("currNum", salesmanCallNumService.getCallTimeOfCurrWeek(salemanName));
+
+        // 上周通话次数
+        result.put("perNum", salesmanCallNumService.getCallTimeOfPreWeek(salemanName));
+
+        // 本周面见次数
+        result.put("currMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(salemanName));
+
+        // 上周面见次数
+        result.put("perMeetNum", salesmanMeetNumService.getMeetNumOfPreWeek(salemanName));
+
+        return result;
+    }
+
+    /**
+     * 月统计.
+     */
+    private Map<String, Object> getSaleManCallData4Month(String token, Long userId, String salemanName) {
+        Map<String, Object> result = new HashMap<>();
+
+        // 本月通话时长
+        result.put("currTime", salesmanCallTimeService.getCallTimeOfCurrMonth(salemanName));
+
+        // 上月通话时长
+        result.put("perTime", salesmanCallTimeService.getCallTimeOfPreMonth(salemanName));
+
+        // 本月通话次数
+        result.put("currNum", salesmanCallNumService.getCallTimeOfCurrMonth(salemanName));
+
+        // 上月通话次数
+        result.put("perNum", salesmanCallNumService.getCallTimeOfPreMonth(salemanName));
+
+        // 本月面见次数
+        result.put("currMeetNum", salesmanMeetNumService.getMeetNumOfCurrMonth(salemanName));
+
+        // 上月面见次数
+        result.put("perMeetNum", salesmanMeetNumService.getMeetNumOfPreMonth(salemanName));
+
+        return result;
+    }
+
+    /**
+     * 获取指定条件的数据.
+     */
+    public List<Map<String, Object>> findSaleManCallData(String token, Long userId, String salesmanName, Integer departmentId, boolean finish) {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        CronusDto<UserInfoDTO> userInfoByToken = thorService.getUserInfoByToken(token, null);
+        Integer sub_company_id = Integer.valueOf(userInfoByToken.getData().getSub_company_id());
+
+        ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(publicToken, sub_company_id);
+
+        Set<String> salemannameSet = new HashSet<>();
+        Map<String, String> salesmanNameMappingDepartment = new HashMap<>();
+        for (LightUserInfoDTO lightUserInfoDTO : baseUcDTO.getData()) {
+            if (lightUserInfoDTO != null && StringUtils.isNotBlank(lightUserInfoDTO.getName())) {
+                if (StringUtils.isNotBlank(salesmanName) && !salesmanName.equalsIgnoreCase(lightUserInfoDTO.getName())) {
+                    continue;
+                }
+                if (departmentId != null && !departmentId.equals(lightUserInfoDTO.getDepartmentId())) {
+                    continue;
+                }
+                salemannameSet.add(lightUserInfoDTO.getName());
+                salesmanNameMappingDepartment.put(lightUserInfoDTO.getName(), lightUserInfoDTO.getDepartment());
+            }
+        }
+
+        String tt = theaClientService.getConfigByName(CommonConst.SALESMAN_CALL_TIME_LIMIT);
+        long t = Integer.valueOf(tt) * 60;
+        for (String s : salemannameSet) {
+            long callTimeOfNow = salesmanCallTimeService.getCallTimeOfNow(s);
+            if (finish && callTimeOfNow < t) {
+                continue;
+            }
+            Map<String, Object> temp = new HashMap<>();
+            temp.put("salesmanName", s);
+            temp.put("departmen", salesmanNameMappingDepartment.get(s));
+            temp.put("todayCallTime", callTimeOfNow);
+            temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(s));
+            temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(s));
+            temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(s));
+            temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(s));
+            result.add(temp);
+        }
+        return result;
+    }
+
+    /**
+     * 非业务接口-管理接口:
+     *
+     * 数据同步：由于是新增功能，导致新增表，需要拉下数据到新表中.
+     */
+    public String initSyncData(String type, Date date, String token) {
+
+        ValueOperations operations = redisTemplateOps.opsForValue();
+        String key = "salesmanCall_initdata_lock";
+
+        Object o = operations.get(key);
+        if (o != null) {
+            return "被锁，正计算中";
+        }
+        try {
+            operations.set(key, 1);
+            redisTemplateOps.expire(key, 1, TimeUnit.MINUTES);
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+            // 得到该月总天数
+            Calendar a = Calendar.getInstance();
+            a.setTime(date);
+            a.set(Calendar.DATE, 1);//把日期设置为当月第一天
+            a.roll(Calendar.DATE, -1);//日期回滚一天，也就是最后一天
+            int maxDate = a.get(Calendar.DATE);
+
+            // 循环同步该月每天数据
+            for (int i = 1; i <= maxDate; i++) {
+                Calendar start = Calendar.getInstance();
+                start.setTime(date);
+                start.set(Calendar.DATE, i);
+                start.set(Calendar.HOUR_OF_DAY, 0);
+                start.set(Calendar.MINUTE, 0);
+                start.set(Calendar.SECOND, 0);
+
+                Calendar end = Calendar.getInstance();
+                end.setTime(date);
+                end.set(Calendar.DATE, i);
+                end.set(Calendar.HOUR_OF_DAY, 23);
+                end.set(Calendar.MINUTE, 59);
+                end.set(Calendar.SECOND, 59);
+
+                if ("day".equalsIgnoreCase(type)) {
+                    // 如果指定同步哪天数据
+                    Calendar temp = Calendar.getInstance();
+                    temp.setTime(date);
+                    int i1 = temp.get(Calendar.DATE);
+                    if (i1 != i) {
+                        continue;
+                    }
+                }
+
+                // init通话时长
+                List<SalesmanCallData> allDuration = salesmanCallDataMapper.findAllDuration(start.getTime().getTime() / 1000, end.getTime().getTime() / 1000, CommonEnum.entity_status1.getCode());
+                if (!CollectionUtils.isEmpty(allDuration)) {
+                    for (SalesmanCallData salesmanCallData : allDuration) {
+                        if (salesmanCallData != null && StringUtils.isNotBlank(salesmanCallData.getSalesManName()) && salesmanCallData.getDuration() != null) {
+                            salesmanCallTimeService.addSingle4Qurtz(salesmanCallData.getSalesManName(), salesmanCallData.getDuration(), start.getTime(), a.getTime());
+                        }
+                    }
+                }
+
+                // init通话次数
+                List<SalesmanCallData> allNum = salesmanCallDataMapper.findAllNum(start.getTime().getTime() / 1000, end.getTime().getTime() / 1000, CommonEnum.entity_status1.getCode());
+                if (!CollectionUtils.isEmpty(allNum)) {
+                    for (SalesmanCallData salesmanCallData : allNum) {
+                        if (salesmanCallData != null && StringUtils.isNotBlank(salesmanCallData.getSalesManName()) && salesmanCallData.getDuration() != null) {
+                            salesmanCallNumService.addSingle4Qurtz(salesmanCallData.getSalesManName(), salesmanCallData.getDuration().intValue(), start.getTime(), a.getTime());
+                        }
+                    }
+                }
+
+                // init面见次数
+                List<CustomerMeet> list = customerMeetMapper.findBydTime(start.getTime(), end.getTime());
+                list = CollectionUtils.isEmpty(list) ? new ArrayList<>() : list;
+
+                Set<Integer> salemanIds = list.stream().filter(item -> item != null && item.getCreateUser() != null).map(CustomerMeet::getCreateUser).collect(toSet());
+                if (!CollectionUtils.isEmpty(salemanIds)) {
+                    Joiner joiner = Joiner.on(",");
+                    String join = joiner.join(salemanIds);
+
+                    if (StringUtils.isNotBlank(join)) {
+                        CronusUserInfoDto cronusUserInfoDto = new CronusUserInfoDto();
+                        cronusUserInfoDto.setUser_ids(join);
+                        ThorQueryDto<List<PHPUserDto>> userByIds = thorService.getUserByIds(token, cronusUserInfoDto);
+                        if (userByIds != null && userByIds.getRetData() != null) {
+                            for (PHPUserDto p : userByIds.getRetData()) {
+                                String name = p.getName();
+                                String sub_company_id = p.getSub_company_id();
+                                String user_id = p.getUser_id();
+                                if (StringUtils.isNotBlank(name) && StringUtils.isNotBlank(sub_company_id) && StringUtils.isNotBlank(user_id)) {
+                                    salesmanMeetNumService.countData(Long.valueOf(sub_company_id), Long.valueOf(user_id), name, start.getTime());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            throw e;
+        }finally {
+            redisTemplateOps.delete(key);
+        }
+
+        return  "成功";
     }
 
 }

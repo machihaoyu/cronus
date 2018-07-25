@@ -2,19 +2,21 @@ package com.fjs.cronus.service.quartz;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonRedisConst;
-import com.fjs.cronus.entity.EzucDataDetail;
 import com.fjs.cronus.entity.EzucQurtzLog;
 import com.fjs.cronus.entity.SalesmanCallData;
+import com.fjs.cronus.entity.SalesmanCallTime;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.EzucDataDetailMapper;
 import com.fjs.cronus.mappers.EzucQurtzLogMapper;
 import com.fjs.cronus.mappers.SalesmanCallDataMapper;
 import com.fjs.cronus.service.EzucDataDetailService;
 import com.fjs.cronus.service.SalesmanCallDataService;
+import com.fjs.cronus.service.SalesmanCallNumService;
+import com.fjs.cronus.service.SalesmanCallTimeService;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,17 +27,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 定时任务处理通过时间业务服务.
@@ -72,6 +70,8 @@ public class EzucQurtzService {
 
     @Autowired
     private EzucQurtzLogMapper ezucQurtzLogMapper;
+    @Autowired
+    private SalesmanCallDataMapper salesmanCallDataMapper;
 
     @Autowired
     private EzucDataDetailService ezucDataDetailService;
@@ -82,10 +82,10 @@ public class EzucQurtzService {
     @Autowired
     private SalesmanCallDataService salesmanCallDataService;
 
-    /**
-     * 当前时间.
-     */
-    private Date now;
+    @Autowired
+    private SalesmanCallTimeService salesmanCallTimeService;
+    @Autowired
+    private SalesmanCallNumService salesmanCallNumService;
 
     /**
      * 重试次数.
@@ -102,24 +102,29 @@ public class EzucQurtzService {
 
         // 获取触发时间
         ValueOperations<String, Number> operations = redisTemplateOps.opsForValue();
-        Number runTime = operations.get(CommonRedisConst.EZUC_DURATION_QUARTZ_KEY);
-        if (runTime != null && now.getTime() < runTime.longValue()) {
-            logger.info("EZUC 数据同步,被取消,未到触发时间,runTime=" + runTime);
+        Number timeOflock = operations.get(CommonRedisConst.EZUC_DURATION_QUARTZ_SYNC_LOCK);
+        if (timeOflock != null && now.getTime() < timeOflock.longValue()) {
+            logger.info("EZUC 数据同步,被取消,未到触发时间,timeOflock=" + timeOflock);
             return;
         }
 
         // 设置下次触发时间
         Calendar c = Calendar.getInstance();
         c.setTime(now);
-        c.add(Calendar.DAY_OF_YEAR, 1);
-        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.add(Calendar.HOUR_OF_DAY, 1);
         c.set(Calendar.MINUTE, 10);
-        c.set(Calendar.MILLISECOND, 0);
+        c.set(Calendar.SECOND, 0);
         Date nextRunTime = c.getTime();
-        operations.set(CommonRedisConst.EZUC_DURATION_QUARTZ_KEY, nextRunTime.getTime());
+        operations.set(CommonRedisConst.EZUC_DURATION_QUARTZ_SYNC_LOCK, nextRunTime.getTime());
 
+        // 同步指定时间的数据（前一小时数据）
+        Calendar c2 = Calendar.getInstance();
+        c2.setTime(now);
+        c2.add(Calendar.HOUR_OF_DAY, -1);
+
+        // TODO lihong
         try {
-            syncData(null, null);
+            //syncData(null, c.getTime());
         } catch (Exception e) {
             // 定时忽略错误
             logger.error("EZUC 数据同步,异常", e);
@@ -128,29 +133,26 @@ public class EzucQurtzService {
 
     /**
      * 将 EZUC 数据同步过来（接口调用）.
-     *
-     * @param date 指定同步哪天的数据；null则同步昨天的
      */
     public void syncData(String token, Date date) {
 
         JSONArray runInfo = new JSONArray(); // 收集运行中各数据，记录日志
         String key = null;
+        Date now = new Date();
         try {
             runInfo.add(ImmutableMap.of("定时任务：开始", "start"));
 
-            // 通时间内的数据，同时只能一个线程处理
+            // 同一时间内的数据，同时只能一个线程处理
             ValueOperations operations = redisTemplateOps.opsForValue();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date startTime = ezucDataDetailService.getStartTime(date);
-            key = CommonRedisConst.EZUC_DURATION_QUARTZ_KEY + sdf.format(startTime);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH");
+            key = CommonRedisConst.EZUC_DURATION_SYNC_LOCK + sdf.format(date);
             Boolean aBoolean = operations.setIfAbsent(key, 1);
             aBoolean = aBoolean == null ? false : aBoolean;
 
             if (!aBoolean) {
-                runInfo.add(ImmutableMap.of("该时间的数据是否正被处理", aBoolean));
+                runInfo.add(ImmutableMap.of("该时间的数据正被处理", aBoolean));
             } else {
-
-                now = new Date();
+                redisTemplateOps.expire(key, 30, TimeUnit.MINUTES);
 
                 // 需要处理的总数
                 int count = getDataCount(runInfo, date);
@@ -185,7 +187,18 @@ public class EzucQurtzService {
                     }
 
                     // 数据入缓存
-                    salesmanCallDataService.refreshCache(date);
+                    //salesmanCallDataService.refreshCache(date);
+
+                    // 通话时长统计
+                    new Thread(()->{
+                        syncSalesmanCallTimeData4Qurtz(date);
+                    }).start();
+
+                    // 通话次数统计
+                    new Thread(()->{
+                        syncSalesmanCallNumData4Qurtz(date);
+                    }).start();
+
                 }
 
             }
@@ -212,6 +225,88 @@ public class EzucQurtzService {
         e.setStatus(CommonEnum.entity_status1.getCode());
         e.setRuninfo(runInfo.toString());
         ezucQurtzLogMapper.insert(e);
+
+    }
+
+    /**
+     * 通话时长统计.
+     */
+    private void syncSalesmanCallTimeData4Qurtz(Date date){
+        logger.info("------------------> 通话时长统计 ");
+        Date now = new Date();
+
+        // 通过当天0点到指定时间的数据
+        Calendar instance = Calendar.getInstance();
+        instance.setTime(date);
+        instance.set(Calendar.HOUR_OF_DAY, 0);
+        instance.set(Calendar.MINUTE, 0);
+        instance.set(Calendar.SECOND, 0);
+        Date start = instance.getTime();
+
+        Calendar instance2 = Calendar.getInstance();
+        instance2.setTime(date);
+        instance2.set(Calendar.MINUTE, 59);
+        instance2.set(Calendar.SECOND, 59);
+        Date end = instance2.getTime();
+
+        List<SalesmanCallData> allDuration = salesmanCallDataMapper.findAllDuration(start.getTime() / 1000, end.getTime() / 1000, CommonEnum.entity_status1.getCode());
+
+        if (!CollectionUtils.isEmpty(allDuration)) {
+            for (SalesmanCallData salesmanCallData : allDuration) {
+                if (salesmanCallData != null && StringUtils.isNotBlank(salesmanCallData.getSalesManName()) && salesmanCallData.getDuration() != null) {
+                    salesmanCallTimeService.addSingle4Qurtz(salesmanCallData.getSalesManName(), salesmanCallData.getDuration(), start, now);
+                }
+            }
+
+            // 构建今日缓存数据
+            salesmanCallTimeService.buildDayCatch(date);
+
+            // 构建当周缓存数据
+            salesmanCallTimeService.buildWeekCatch(date);
+
+            // 构建当月缓存数据
+            salesmanCallTimeService.buildMonthCatch(date);
+        }
+    }
+
+    /**
+     * 通话次数统计.
+     */
+    private void syncSalesmanCallNumData4Qurtz(Date date){
+        Date now = new Date();
+
+        // 统计指定时间内的数据（目前以小时为最小单位）
+        Calendar instance = Calendar.getInstance();
+        instance.setTime(date);
+        instance.set(Calendar.HOUR_OF_DAY, 0);
+        instance.set(Calendar.MINUTE, 0);
+        instance.set(Calendar.SECOND, 0);
+        Date start = instance.getTime();
+
+        Calendar instance2 = Calendar.getInstance();
+        instance2.setTime(date);
+        instance2.set(Calendar.MINUTE, 59);
+        instance2.set(Calendar.SECOND, 59);
+        Date end = instance2.getTime();
+
+        List<SalesmanCallData> allNum = salesmanCallDataMapper.findAllNum(start.getTime() / 1000, end.getTime() / 1000, CommonEnum.entity_status1.getCode());
+
+        if (!CollectionUtils.isEmpty(allNum)) {
+            for (SalesmanCallData salesmanCallData : allNum) {
+                if (salesmanCallData != null && StringUtils.isNotBlank(salesmanCallData.getSalesManName()) && salesmanCallData.getDuration() != null) {
+                    salesmanCallNumService.addSingle4Qurtz(salesmanCallData.getSalesManName(), salesmanCallData.getDuration().intValue(), start, now);
+                }
+            }
+
+            // 构建今日缓存数据
+            salesmanCallNumService.buildDayCatch(date);
+
+            // 构建当周缓存数据
+            salesmanCallNumService.buildWeekCatch(date);
+
+            // 构建当月缓存数据
+            salesmanCallNumService.buildMonthCatch(date);
+        }
 
     }
 
@@ -268,16 +363,9 @@ public class EzucQurtzService {
      */
     private String getEndTime(Date date) {
         Calendar now = Calendar.getInstance();
-        if (date != null) {
-            // 指定同步的时间
-            now.setTime(date);
-        } else {
-            // 无就去昨天的
-            now.add(Calendar.DAY_OF_MONTH, -1);
-        }
-        now.set(Calendar.HOUR_OF_DAY, 23);
+        now.setTime(date);
         now.set(Calendar.MINUTE, 59);
-        now.set(Calendar.MILLISECOND, 59);
+        now.set(Calendar.SECOND, 59);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         return sdf.format(now.getTime());
@@ -288,16 +376,9 @@ public class EzucQurtzService {
      */
     private static String getStartTime(Date date) {
         Calendar now = Calendar.getInstance();
-        if (date != null) {
-            // 指定同步的时间
-            now.setTime(date);
-        } else {
-            // 无就去昨天的
-            now.add(Calendar.DAY_OF_MONTH, -1);
-        }
-        now.set(Calendar.HOUR_OF_DAY, 0);
+        now.setTime(date);
         now.set(Calendar.MINUTE, 0);
-        now.set(Calendar.MILLISECOND, 0);
+        now.set(Calendar.SECOND, 0);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         return sdf.format(now.getTime());

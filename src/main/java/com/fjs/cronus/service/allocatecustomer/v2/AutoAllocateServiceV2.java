@@ -10,7 +10,6 @@ import com.fjs.cronus.api.thea.LoanDTO;
 import com.fjs.cronus.dto.AllocateForAvatarDTO;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.SimpleUserInfoDTO;
-import com.fjs.cronus.dto.api.ThorApiDTO;
 import com.fjs.cronus.dto.avatar.AvatarApiDTO;
 import com.fjs.cronus.dto.avatar.OrderNumberDTO;
 import com.fjs.cronus.dto.avatar.OrderNumberDetailDTO;
@@ -32,7 +31,6 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerSalePushLog;
 import com.fjs.cronus.model.UserMonthInfo;
 import com.fjs.cronus.service.*;
-import com.fjs.cronus.service.allocatecustomer.v2.UserMonthInfoServiceV2;
 import com.fjs.cronus.service.client.AvatarClientService;
 import com.fjs.cronus.service.client.TheaService;
 import com.fjs.cronus.service.client.ThorService;
@@ -49,7 +47,6 @@ import com.fjs.cronus.util.SingleCutomerAllocateDevInfoUtil;
 import com.fjs.framework.exception.BaseException;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -159,10 +154,14 @@ public class AutoAllocateServiceV2 {
     private CustomerMeetMapper customerMeetMapper;
 
     @Autowired
-    EzucDataDetailService ezucDataDetailService;
+    private EzucDataDetailService ezucDataDetailService;
 
     @Autowired
-    SalesmanCallDataService salesmanCallDataService;
+    private SalesmanCallDataService salesmanCallDataService;
+    @Autowired
+    private SalesmanCallTimeService salesmanCallTimeService;
+    @Autowired
+    private SalesmanMeetNumService salesmanMeetNumService;
 
     /**
      * 判断是不是客户主动申请渠道
@@ -1462,20 +1461,10 @@ public class AutoAllocateServiceV2 {
         }
         // 校验面见顾客数
         // 业务规则：一天面见 >= 3 个顾客，算通过
-        Calendar start = Calendar.getInstance();
-        start.add(Calendar.DAY_OF_YEAR, -1);
-        start.set(Calendar.HOUR_OF_DAY, 0);
-        start.set(Calendar.MINUTE, 0);
-        start.set(Calendar.MILLISECOND, 0);
-
-        Calendar end = Calendar.getInstance();
-        end.add(Calendar.DAY_OF_YEAR, -1);
-        end.set(Calendar.HOUR_OF_DAY, 23);
-        end.set(Calendar.MINUTE, 59);
-        end.set(Calendar.MILLISECOND, 59);
-        Integer countCustomerIdByCreateId = salesmanCallDataService.getMeetingCount(Long.valueOf(salesmanId), start.getTime(), end.getTime());
+        String salesmanName = data.getString("name");
+        Long countCustomerIdByCreateId = salesmanMeetNumService.getMeetNumOfYestday(salesmanName);
         SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k60 + "当天面见顾客数"
-                , ImmutableMap.of("salesmanId", salesmanId, "start", start.getTime().getTime(), "end", end.getTime().getTime())
+                , ImmutableMap.of("salesmanName", salesmanName)
                 , ImmutableMap.of("顾客数", countCustomerIdByCreateId)
         );
         if (countCustomerIdByCreateId >= 3) {
@@ -1486,16 +1475,16 @@ public class AutoAllocateServiceV2 {
 
         // 校验通话时长
         // 业务规则：前一天 通话时长 >= 90 分钟，算通过
-        String salesmanName = data.getString("name");
         if (StringUtils.isBlank(salesmanName)) {
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "获取用户角色列表异常,响应的业务员name为null");
         }
-        long durationByName = salesmanCallDataService.getDurationByName(salesmanName.trim(), null);
+        long durationByName = salesmanCallTimeService.getCallTimeOfYesterday(salesmanName.trim());
         SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k60 + "通话时长"
                 , ImmutableMap.of("业务员", salesmanName)
                 , ImmutableMap.of("通话时长（秒）", durationByName)
         );
-        if (90 * 60 <= (durationByName + temp )) {
+        String allocateCities = theaClientService.getConfigByName(CommonConst.SALESMAN_CALL_TIME_LIMIT);
+        if (Integer.valueOf(allocateCities) * 60 <= (durationByName + temp )) {
             return true;
         }
         return false;

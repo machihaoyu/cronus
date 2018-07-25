@@ -95,6 +95,7 @@ public class EzucDataDetailController {
     })
     @RequestMapping(value = "/findAllFromCacheByDate", method = RequestMethod.POST)
     @ResponseBody
+    @Deprecated
     public CronusDto findAllFromCacheByDate(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject) {
         CronusDto result = new CronusDto();
 
@@ -133,7 +134,7 @@ public class EzucDataDetailController {
     @ApiOperation(value = "[非业务接口-管理接口]触发一次同步EZUC数据", notes = "触发一次同步EZUC数据 api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
-            @ApiImplicitParam(name = "jsonObject", value = "提交数据,{\"time\":\"2018-06-20\"}", required = true, dataType = "com.alibaba.fastjson.JSONObject")
+            @ApiImplicitParam(name = "jsonObject", value = "提交数据,{\"time\":\"2018-06-20 13\"}", required = true, dataType = "com.alibaba.fastjson.JSONObject")
     })
     @RequestMapping(value = "/syncData", method = RequestMethod.POST)
     @ResponseBody
@@ -147,10 +148,10 @@ public class EzucDataDetailController {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "time 不能为空");
             }
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH");
                 date = sdf.parse(time);
             } catch (Exception e) {
-                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "time格式不正确，需要yyyy-MM-dd");
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "time格式不正确，需要yyyy-MM-dd HH");
             }
 
             final Date temp = date;

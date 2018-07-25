@@ -23,6 +23,7 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerMeet;
 import com.fjs.cronus.service.Echo.EchoService;
 import com.fjs.cronus.service.client.TheaService;
+import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DEC3Util;
@@ -61,6 +62,10 @@ public class CustomerMeetService {
 
     @Autowired
     private CustomerInfoMapper customerInfoMapper;
+    @Autowired
+    private SalesmanMeetNumService salesmanMeetNumService;
+    @Autowired
+    private ThorService thorService;
     @Value("${Echo.meetsuccess}")
     private String meetsuccess;
 
@@ -94,7 +99,18 @@ public class CustomerMeetService {
             echoService.addStationMsg(stationMsgReqDTO);
             logger.debug("发送短信成功" +stationMsgReqDTO.toString() );
         }catch (Exception e){e.printStackTrace();}
-        return customerMeetMapper.insert(customerMeet);
+
+        int insert = customerMeetMapper.insert(customerMeet);
+        if (insert > 0) {
+
+            // 统计面见次数
+            CronusDto<UserInfoDTO> userInfoByToken = thorService.getUserInfoByToken(token, null);
+            UserInfoDTO data = userInfoByToken.getData();
+            salesmanMeetNumService.countData(Long.valueOf(data.getSub_company_id()), Long.valueOf(data.getUser_id()), data.getName(), date);
+            salesmanMeetNumService.reflushCache(Long.valueOf(data.getSub_company_id()), Long.valueOf(data.getUser_id()), data.getName(), date);
+        }
+
+        return insert;
     }
 
 

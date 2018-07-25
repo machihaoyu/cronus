@@ -62,8 +62,9 @@ public class EzucDataDetailService {
         return 0L;
     }
 
+    @Deprecated
     public Map<String, Long> findAllFromCacheByDate(Date date){
-        if (date == null) {
+        /*if (date == null) {
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "date 不能为null");
         }
 
@@ -72,7 +73,8 @@ public class EzucDataDetailService {
         HashOperations<String, String, Long> hashOperations = redisTemplateOps.opsForHash();
         Map<String, Long> result = hashOperations.entries(key);
 
-        return result;
+        return result;*/
+        return null;
     }
 
     /**

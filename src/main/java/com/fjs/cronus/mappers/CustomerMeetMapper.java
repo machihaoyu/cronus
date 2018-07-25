@@ -46,4 +46,20 @@ public interface CustomerMeetMapper extends MyMapper<CustomerMeet> {
      */
     @Select("SELECT COUNT(DISTINCT`customer_id`) FROM `customer_meet` WHERE `create_time` >= #{start} AND `create_time` <= #{end} AND `create_user`=#{salesmanId} AND `is_deleted`=0")
     Integer getCountCustomerIdByCreateId(@Param("salesmanId") Integer salesmanId, @Param("start") Date start, @Param("end") Date end);
+
+    /**
+     * 查询指定时间范围内的面见记录.
+     */
+    @Results({
+            @Result(column = "loan_id", property = "loanId"),
+            @Result(column = "customer_id", property = "customerId"),
+            @Result(column = "meet_time", property = "meetTime"),
+            @Result(column = "create_time", property = "createTime"),
+            @Result(column = "last_update_time", property = "lastUpdateTime"),
+            @Result(column = "create_user", property = "createUser"),
+            @Result(column = "last_update_user", property = "lastUpdateUser"),
+            @Result(column = "is_deleted", property = "isDeleted"),
+    })
+    @Select("SELECT * FROM customer_meet WHERE  is_deleted=0 AND `create_time` >= #{start,jdbcType=TIMESTAMP} AND `create_time` <= #{end,jdbcType=TIMESTAMP} ")
+    List<CustomerMeet> findBydTime(@Param("start") Date start, @Param("end") Date end);
 }

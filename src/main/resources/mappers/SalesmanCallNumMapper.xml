@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fjs.cronus.mappers.SalesmanCallNumMapper">
+
+    <resultMap id="BaseResultMap" type="com.fjs.cronus.entity.SalesmanCallNum">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="created" property="created" jdbcType="TIMESTAMP" />
+        <result column="createid" property="createid" jdbcType="INTEGER" />
+        <result column="updated" property="updated" jdbcType="TIMESTAMP" />
+        <result column="updateid" property="updateid" jdbcType="INTEGER" />
+        <result column="deleted" property="deleted" jdbcType="TIMESTAMP" />
+        <result column="deleteid" property="deleteid" jdbcType="INTEGER" />
+        <result column="status" property="status" jdbcType="INTEGER" />
+        <result column="sales_man_id" property="salesManId" jdbcType="INTEGER" />
+        <result column="sales_man_name" property="salesManName" jdbcType="VARCHAR" />
+        <result column="sub_companyid" property="subCompanyid" jdbcType="INTEGER" />
+        <result column="time" property="time" jdbcType="TIMESTAMP" />
+        <result column="num" property="num" jdbcType="INTEGER" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    `id`,
+    `created`,
+    `createid`,
+    `updated`,
+    `updateid`,
+    `deleted`,
+    `deleteid`,
+    `status`,
+    `sales_man_id`,
+    `sales_man_name`,
+    `sub_companyid`,
+    `time`,
+    `num`
+    </sql>
+
+    <select id="findByTime" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM `salesman_call_num` WHERE `time` &gt;= #{start} AND `time` &lt;= #{end} AND `status`=#{status}
+    </select>
+
+    <select id="getByTimeAndName">
+        SELECT SUM(`num`) FROM `salesman_call_num` WHERE `time` &gt;= #{start} AND `time` &lt;= #{end} AND `sales_man_name`=#{salemanName}  AND `status`=#{status}
+    </select>
+</mapper>

@@ -434,6 +434,61 @@ public final class DateUtils {
         return todayEnd.getTime();
     }
 
+    /**
+     * 获取指定时间所在周的周一 示例：2013-05-13 00:00:00.
+     */
+    public static Date getWeekStart(Date date) {
+        Calendar currentDate = Calendar.getInstance();
+        currentDate.setTime(date);
+        currentDate.setFirstDayOfWeek(Calendar.MONDAY);
+        currentDate.set(Calendar.HOUR_OF_DAY, 0);
+        currentDate.set(Calendar.MINUTE, 0);
+        currentDate.set(Calendar.SECOND, 0);
+        currentDate.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        return currentDate.getTime();
+    }
+
+    /**
+     * 获取指定时间所在周的周日 示例：2013-05-19 23:59:59.
+     */
+    public static Date getWeekEnd(Date date) {
+        Calendar currentDate = Calendar.getInstance();
+        currentDate.setTime(date);
+        currentDate.setFirstDayOfWeek(Calendar.MONDAY);
+        currentDate.set(Calendar.HOUR_OF_DAY, 23);
+        currentDate.set(Calendar.MINUTE, 59);
+        currentDate.set(Calendar.SECOND, 59);
+        currentDate.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+        return currentDate.getTime();
+    }
+
+    /**
+     * 根据某日期获取当前月第一天日期 示例：2016-12-01 00:00:00.
+     */
+    public static Date getMonthStart(Date cur) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(cur);
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        return cal.getTime();
+    }
+
+    /**
+     * 根据某日期获取当前月最后一天日期 示例：2016-12-31 23:59:59.
+     */
+    public static Date getMonthEnd(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.roll(Calendar.DAY_OF_MONTH, -1);
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        return cal.getTime();
+    }
+
     public static void main(String [] args){
         try {
 

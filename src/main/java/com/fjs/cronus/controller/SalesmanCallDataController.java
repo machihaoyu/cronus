@@ -1,5 +1,6 @@
 package com.fjs.cronus.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonMessage;
@@ -18,8 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
 @Api(description = "业务员通话记录-控制器")
 @RequestMapping("/api/v1/salesmanCallData")
@@ -94,6 +96,7 @@ public class SalesmanCallDataController {
     })
     @RequestMapping(value = "/refreshCache", method = RequestMethod.POST)
     @ResponseBody
+    @Deprecated
     public CronusDto refreshCache(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject) {
         CronusDto result = new CronusDto();
 
@@ -137,6 +140,7 @@ public class SalesmanCallDataController {
     })
     @RequestMapping(value = "/getDurationByName", method = RequestMethod.POST)
     @ResponseBody
+    @Deprecated
     public CronusDto getDurationByName(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject) {
         CronusDto result = new CronusDto();
 
@@ -158,6 +162,129 @@ public class SalesmanCallDataController {
             }
 
             result.setData(salesmanCallDataService.getDurationByName(name, date));
+            result.setResult(ResultDescription.CODE_SUCCESS);
+            result.setMessage(ResultDescription.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("查询某个业务员通话某天通话时长", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "[非业务接口-管理接口]init通话时长、通话次数、面见次数", notes = "init通话时长、通话次数、面见次数 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "jsonObject", value = "提交数据,{\"time\":\"2018-06-01 01-01-01\",\"type\":\"day 或 month\"}", required = true, dataType = "com.alibaba.fastjson.JSONObject")
+    })
+    @RequestMapping(value = "/initSyncData", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto initSyncData(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject) {
+        CronusDto result = new CronusDto();
+
+        try {
+            Date time = jsonObject.getDate("time");
+            if (time == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "time 不能为空");
+            }
+
+            String type = jsonObject.getString("type");
+            if (StringUtils.isBlank(type)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "type 不能为空");
+            }
+            List<String> strings = Arrays.asList("day", "month");
+            if (!strings.contains(type)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "type 非法");
+            }
+
+            result.setData(salesmanCallDataService.initSyncData(type, time, token));
+            result.setResult(ResultDescription.CODE_SUCCESS);
+            result.setMessage(ResultDescription.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("查询某个业务员通话某天通话时长", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "获取通话数据", notes = "获取通话数据 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "jsonObject", value = "提交数据,{\"type\":\"day 或 week 或 month\"}", required = true, dataType = "com.alibaba.fastjson.JSONObject")
+    })
+    @RequestMapping(value = "/getSaleManCallData", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto getSaleManCallData(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject) {
+        CronusDto result = new CronusDto();
+
+        try {
+
+            String type = jsonObject.getString("type");
+            if (StringUtils.isBlank(type)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "type 不能为空");
+            }
+            List<String> strings = Arrays.asList("day", "week", "month");
+            if (!strings.contains(type)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "type 非法");
+            }
+
+            Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+
+            result.setData(salesmanCallDataService.getSaleManCallData(token, userId, type.trim()));
+            result.setResult(ResultDescription.CODE_SUCCESS);
+            result.setMessage(ResultDescription.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("查询某个业务员通话某天通话时长", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "获取团队通话数据", notes = "获取团队通话数据 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "jsonObject", value = "提交数据,{\"salesmanName\":\"业务员名\",\"departmentId\":1,\" finish\":\"false 或 true\"}", required = true, dataType = "com.alibaba.fastjson.JSONObject")
+    })
+    @RequestMapping(value = "/findSaleManCallData", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto findSaleManCallData(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject) {
+        CronusDto result = new CronusDto();
+
+        try {
+
+            String salesmanName = jsonObject.getString("salesmanName");
+            Integer departmentId = jsonObject.getInteger("departmentId");
+            Boolean finish = jsonObject.getBoolean("finish");
+
+            Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+
+            result.setData(salesmanCallDataService.findSaleManCallData(token, userId, salesmanName, departmentId, finish));
             result.setResult(ResultDescription.CODE_SUCCESS);
             result.setMessage(ResultDescription.MESSAGE_SUCCESS);
         } catch (Exception e) {
