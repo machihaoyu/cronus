@@ -905,7 +905,7 @@
               #{receiveId,jdbcType=INTEGER},
           </if>
           <if test="mediaCustomerCountId != null">
-              #{mediaCustomerCountId,jdbcType=INTEGER}
+              #{mediaCustomerCountId,jdbcType=INTEGER},
           </if>
           <if test="ocdcId != null">
               #{ocdcId,jdbcType=INTEGER},
