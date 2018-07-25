@@ -1295,6 +1295,7 @@ public class CustomerController {
             @ApiImplicitParam(name="cooperationStatus",value = "跟进状态(暂未接通，无意向，有意向待跟踪，资质差无法操作,空号，外地，同业，内部员工，其他)",required = false,paramType = "query",dataType = "string"),
             @ApiImplicitParam(name = "page", value = "查询第几页(从1开始)", required = false, paramType = "query", dataType = "int"),
             @ApiImplicitParam(name = "size", value = "每页显示多少条记录", required = false, paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "ownCustomer", value = "是否查看自己的客户(0-自己的客户,其他-全部客户)", required = false, paramType = "query", dataType = "int"),
     })
     @RequestMapping(value = "/busniess/customerList", method = RequestMethod.GET)
     @ResponseBody
@@ -1308,7 +1309,8 @@ public class CustomerController {
                                                         @RequestParam(value = "cooperationStatus",required = false) String cooperationStatus,
                                                         @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
                                                         @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
-                                                                @RequestHeader("Authorization") String token) {
+                                                        @RequestParam(value = "ownCustomer",required = false) Integer ownCustomer,
+                                                        @RequestHeader("Authorization") String token) {
 
 
         CronusDto<QueryResult<CustomerDTO2>> cronusDto = new CronusDto();
@@ -1319,7 +1321,7 @@ public class CustomerController {
         }
         try {
             QueryResult queryResult = customerInfoService.bCustomerList(userId, customerName, telephonenumber,page, size, remain, level, token,
-                    cooperationStatus,houseStatus,loanAmount);
+                    cooperationStatus,houseStatus,loanAmount,ownCustomer);
             cronusDto.setData(queryResult);
             cronusDto.setMessage(ResultResource.MESSAGE_SUCCESS);
             cronusDto.setResult(ResultResource.CODE_SUCCESS);

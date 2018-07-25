@@ -2470,7 +2470,7 @@ public class CustomerInfoService {
     }
 
     public QueryResult bCustomerList(Integer userId, String customerName, String telephonenumber,Integer page, Integer size, Integer remain,
-                                       String level, String token, String cooperationStatus,String houseStatus,Integer loanAmount) {
+                                       String level, String token, String cooperationStatus,String houseStatus,Integer loanAmount,Integer ownCustomer) {
         QueryResult result = new QueryResult();
         Map<String, Object> paramsMap = new HashMap<>();
         List<CustomerInfo> resultList = new ArrayList<>();
@@ -2480,6 +2480,9 @@ public class CustomerInfoService {
         if (userInfoDTO == null) {
             throw new CronusException(CronusException.Type.CEM_CUSTOMERINTERVIEW);
         }
+        //当前登录人的id
+        String currentUserId = userInfoDTO.getUser_info().getUser_id();
+
         if (!StringUtils.isEmpty(customerName)) {
             paramsMap.put("customerName", customerName);
         }
@@ -2503,8 +2506,14 @@ public class CustomerInfoService {
             paramsMap.put("houseStatus", houseStatus);
         }
 
-        //获取下属员工
-        List<Integer> ids = ucService.getSubUserByUserId(token, userId);
+        List<Integer> ids = new ArrayList<>();
+        if (null != ownCustomer && ownCustomer == 0){
+            //查询当前登录人名下的客户
+            ids.add(Integer.valueOf(currentUserId));
+        }else {
+            //获取下属员工
+            ids = ucService.getSubUserByUserId(token, userId);
+        }
         paramsMap.put("owerId", ids);
         paramsMap.put("start", (page - 1) * size);
         paramsMap.put("size", size);
