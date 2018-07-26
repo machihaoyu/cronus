@@ -65,7 +65,7 @@ public class CustomerInfoService {
     private String publicToken;
 
     @Value("${pushCutomerToMiBa.miBaId}") //蜜巴的id
-    private Integer miBaId;
+    private String miBaIds;
 
     @Value("${pushCutomerToMiBa.pushCustomerUrl}") //给蜜巴推客户的url
     private String pushCustomerUrl;
@@ -2591,46 +2591,52 @@ public class CustomerInfoService {
     public void pushCustomer(){
 
         logger.warn(" 1.---------------------给蜜巴推送客户定时任务开始---------------------");
-        // 获取公司员工列表
-        ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(publicToken, miBaId);
-        if (baseUcDTO.getResult().equals(0) && baseUcDTO.getData().size() > 0) {
-            //调用成功, 取出用户的id  只设置一个业务员
-            Integer ownerId = baseUcDTO.getData().get(0).getId();
-            logger.warn(" 2.给蜜巴推送客户定时任务 获取到队列的业务员id 为 : " +  ownerId);
-            //查询该用户下所有未推送的客户
-            List<CustomerInfo> customerInfoList = customerInfoMapper.getCustomerPush(ownerId);
-            logger.warn("3.给蜜巴推送客户定时任务,查询到的客户为 : " + ReflectionToStringBuilder.toString(customerInfoList));
-            ArrayList<Object> list = new ArrayList<>();
-            if (null != customerInfoList && customerInfoList.size() > 0){
-                for (CustomerInfo customerInfo : customerInfoList){
-                    PushCustomerDTO pushCustomerDTO = new PushCustomerDTO();
-                    pushCustomerDTO.setCustomerName(customerInfo.getCustomerName());
-                    pushCustomerDTO.setMobile(DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber()));
-                    pushCustomerDTO.setCityName(customerInfo.getCity());
-                    pushCustomerDTO.setLoanQuota(customerInfo.getLoanAmount());
-                    pushCustomerDTO.setApplyTime(customerInfo.getCreateTime());
-                    pushCustomerDTO.setSource(customerInfo.getUtmSource());
-                    list.add(pushCustomerDTO);
-                }
-                //调用接口
-                if (null != list && list.size() > 0){
-                    JSONArray jsonArray = new JSONArray(list);
-                    logger.warn("4.给蜜巴推送客户定时任务参数为 : " + jsonArray);
-                    HttpClientHelper httpClientHelper = HttpClientHelper.getInstance();
-                    String result  = httpClientHelper.sendJsonHttpPost(pushCustomerUrl,jsonArray.toJSONString());
-                    logger.warn("5.给蜜巴推送客户定时任务结果为 : " + result);
-                    //当调用成功之后, 修改客户的状态 : is_push设置为1
-                    if ("success".equals(result)){
-                        for (CustomerInfo customerInfo : customerInfoList){
-                            //将改客户的is_push设置为1
-                            customerInfoMapper.updateIsPush(customerInfo.getId());
+        String[] strs = miBaIds.split(","); //配置的多个id , 其中用逗号分开
+        for (String miBaId : strs){
+            //循环一级巴的id去推送客户
+            // 获取公司员工列表
+            ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(publicToken, Integer.valueOf(miBaId));
+            if (baseUcDTO.getResult().equals(0) && baseUcDTO.getData().size() > 0) {
+                //调用成功, 取出用户的id  只设置一个业务员
+                Integer ownerId = baseUcDTO.getData().get(0).getId();
+                logger.warn(" 2.给蜜巴推送客户定时任务 获取到队列的业务员id 为 : " +  ownerId);
+                //查询该用户下所有未推送的客户
+                List<CustomerInfo> customerInfoList = customerInfoMapper.getCustomerPush(ownerId);
+                logger.warn("3.给蜜巴推送客户定时任务,查询到的客户为 : " + ReflectionToStringBuilder.toString(customerInfoList));
+                ArrayList<Object> list = new ArrayList<>();
+                if (null != customerInfoList && customerInfoList.size() > 0){
+                    for (CustomerInfo customerInfo : customerInfoList){
+                        PushCustomerDTO pushCustomerDTO = new PushCustomerDTO();
+                        pushCustomerDTO.setCustomerName(customerInfo.getCustomerName());
+                        pushCustomerDTO.setMobile(DEC3Util.des3DecodeCBC(customerInfo.getTelephonenumber()));
+                        pushCustomerDTO.setCityName(customerInfo.getCity());
+                        pushCustomerDTO.setLoanQuota(customerInfo.getLoanAmount());
+                        pushCustomerDTO.setApplyTime(customerInfo.getCreateTime());
+                        pushCustomerDTO.setSource(customerInfo.getUtmSource());
+                        list.add(pushCustomerDTO);
+                    }
+                    //调用接口
+                    if (null != list && list.size() > 0){
+                        JSONArray jsonArray = new JSONArray(list);
+                        logger.warn("4.给蜜巴推送客户定时任务参数为 : " + jsonArray);
+                        HttpClientHelper httpClientHelper = HttpClientHelper.getInstance();
+                        String result  = httpClientHelper.sendJsonHttpPost(pushCustomerUrl,jsonArray.toJSONString());
+                        logger.warn("5.给蜜巴推送客户定时任务结果为 : " + result);
+                        //当调用成功之后, 修改客户的状态 : is_push设置为1
+                        if ("success".equals(result)){
+                            for (CustomerInfo customerInfo : customerInfoList){
+                                //将改客户的is_push设置为1
+                                customerInfoMapper.updateIsPush(customerInfo.getId());
+                            }
                         }
                     }
-                }
 
+                }
             }
         }
+
     }
+
 
 
 }
