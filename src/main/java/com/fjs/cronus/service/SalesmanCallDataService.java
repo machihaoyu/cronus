@@ -455,8 +455,7 @@ public class SalesmanCallDataService {
 
         ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(token, sub_company_id);
 
-        Set<String> salemannameSet = new HashSet<>();
-        Map<String, String> salesmanNameMappingDepartment = new HashMap<>();
+        List<LightUserInfoDTO> tempList = new ArrayList<>();
         for (LightUserInfoDTO lightUserInfoDTO : baseUcDTO.getData()) {
             if (lightUserInfoDTO != null && StringUtils.isNotBlank(lightUserInfoDTO.getName())) {
                 if (StringUtils.isNotBlank(salesmanName) && !salesmanName.equalsIgnoreCase(lightUserInfoDTO.getName())) {
@@ -465,51 +464,50 @@ public class SalesmanCallDataService {
                 if (departmentId != null && !departmentId.equals(lightUserInfoDTO.getDepartmentId())) {
                     continue;
                 }
-                salemannameSet.add(lightUserInfoDTO.getName());
-                salesmanNameMappingDepartment.put(lightUserInfoDTO.getName(), lightUserInfoDTO.getDepartment());
+                tempList.add(lightUserInfoDTO);
             }
         }
 
         String tt = theaClientService.getConfigByName(CommonConst.SALESMAN_CALL_TIME_LIMIT);
         long t = Integer.valueOf(tt) * 60;
-        for (String s : salemannameSet) {
-            long callTimeOfNow = salesmanCallTimeService.getCallTimeOfNow(s);
+        for (LightUserInfoDTO e : tempList) {
+            long callTimeOfNow = salesmanCallTimeService.getCallTimeOfNow(e.getName());
             if (finish != null) {
                 if (callTimeOfNow > t) {
                     // 大于限制的值
                     Map<String, Object> temp = new HashMap<>();
-                    temp.put("salesmanName", s);
-                    temp.put("departmen", salesmanNameMappingDepartment.get(s));
+                    temp.put("salesmanName", e.getName());
+                    temp.put("departmen", e.getDepartment());
                     temp.put("todayCallTime", callTimeOfNow);
-                    temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(s));
-                    temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(s));
-                    temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(s));
-                    temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(s));
+                    temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(e.getName()));
+                    temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(e.getName()));
+                    temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(e.getName()));
+                    temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfNow(e.getId().longValue(), e.getName()));
                     temp.put("callTimeLimit", t);
                     result.add(temp);
                 } else {
                     // 大于限制的值
                     Map<String, Object> temp = new HashMap<>();
-                    temp.put("salesmanName", s);
-                    temp.put("departmen", salesmanNameMappingDepartment.get(s));
+                    temp.put("salesmanName", e.getName());
+                    temp.put("departmen", e.getDepartment());
                     temp.put("todayCallTime", callTimeOfNow);
-                    temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(s));
-                    temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(s));
-                    temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(s));
-                    temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(s));
+                    temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(e.getName()));
+                    temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(e.getName()));
+                    temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(e.getName()));
+                    temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfNow(e.getId().longValue(), e.getName()));
                     temp.put("callTimeLimit", t);
                     result.add(temp);
                 }
             } else {
                 Map<String, Object> temp = new HashMap<>();
-                temp.put("salesmanName", s);
-                temp.put("departmen", salesmanNameMappingDepartment.get(s));
+                temp.put("salesmanName", e.getName());
+                temp.put("departmen", e.getDepartment());
                 temp.put("todayCallTime", callTimeOfNow);
-                temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(s));
-                temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(s));
-                temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(s));
+                temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(e.getName()));
+                temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(e.getName()));
+                temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfNow(e.getId().longValue(), e.getName()));
                 temp.put("callTimeLimit", t);
-                temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(s));
+                temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(e.getName()));
                 result.add(temp);
             }
         }
