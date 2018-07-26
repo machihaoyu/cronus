@@ -42,7 +42,7 @@ public class SalesmanCallNumService {
     /**
      * 今日：通话次数.
      */
-    public int getCallTimeOfNow(String salemanName) {
+    public int getCallNumOfNow(String salemanName) {
 
         // 获取缓存key
         Calendar instance = Calendar.getInstance();
@@ -79,7 +79,7 @@ public class SalesmanCallNumService {
     /**
      * 昨日：通话次数.
      */
-    public int getCallTimeOfYesterday(String salemanName) {
+    public int getCallNumOfYesterday(String salemanName) {
 
         // 获取缓存key
         Calendar instance = Calendar.getInstance();
@@ -117,7 +117,7 @@ public class SalesmanCallNumService {
     /**
      * 本周：通话次数.
      */
-    public int getCallTimeOfCurrWeek(String salemanName) {
+    public int getCallNumOfCurrWeek(String salemanName) {
 
         // 获取缓存key
         Date now = new Date();
@@ -145,7 +145,7 @@ public class SalesmanCallNumService {
     /**
      * 上周：通话次数.
      */
-    public int getCallTimeOfPreWeek(String salemanName) {
+    public int getCallNumOfPreWeek(String salemanName) {
 
         // 获取缓存key
         Date now = new Date();
@@ -179,7 +179,7 @@ public class SalesmanCallNumService {
     /**
      * 本月：通话次数
      */
-    public int getCallTimeOfCurrMonth(String salemanName) {
+    public int getCallNumOfCurrMonth(String salemanName) {
 
         // 获取缓存key
         Date now = new Date();
@@ -208,7 +208,7 @@ public class SalesmanCallNumService {
     /**
      * 上月：通话次数
      */
-    public int getCallTimeOfPreMonth(String salemanName) {
+    public int getCallNumOfPreMonth(String salemanName) {
 
         // 获取缓存key
         Date now = new Date();

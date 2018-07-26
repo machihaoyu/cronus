@@ -376,10 +376,10 @@ public class SalesmanCallDataService {
         result.put("perTime", salesmanCallTimeService.getCallTimeOfYesterday(salemanName));
 
         // 今日通话次数
-        result.put("currNum", salesmanCallNumService.getCallTimeOfNow(salemanName));
+        result.put("currNum", salesmanCallNumService.getCallNumOfNow(salemanName));
 
         // 昨日通话次数
-        result.put("perNum", salesmanCallNumService.getCallTimeOfYesterday(salemanName));
+        result.put("perNum", salesmanCallNumService.getCallNumOfYesterday(salemanName));
 
         // 今日面见次数
         result.put("currMeetNum", salesmanMeetNumService.getMeetNumOfNow(userId, salemanName));
@@ -403,10 +403,10 @@ public class SalesmanCallDataService {
         result.put("perTime", salesmanCallTimeService.getCallTimeOfPreWeek(salemanName));
 
         // 本周通话次数
-        result.put("currNum", salesmanCallNumService.getCallTimeOfCurrWeek(salemanName));
+        result.put("currNum", salesmanCallNumService.getCallNumOfCurrWeek(salemanName));
 
         // 上周通话次数
-        result.put("perNum", salesmanCallNumService.getCallTimeOfPreWeek(salemanName));
+        result.put("perNum", salesmanCallNumService.getCallNumOfPreWeek(salemanName));
 
         // 本周面见次数
         result.put("currMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(salemanName));
@@ -430,10 +430,10 @@ public class SalesmanCallDataService {
         result.put("perTime", salesmanCallTimeService.getCallTimeOfPreMonth(salemanName));
 
         // 本月通话次数
-        result.put("currNum", salesmanCallNumService.getCallTimeOfCurrMonth(salemanName));
+        result.put("currNum", salesmanCallNumService.getCallNumOfCurrMonth(salemanName));
 
         // 上月通话次数
-        result.put("perNum", salesmanCallNumService.getCallTimeOfPreMonth(salemanName));
+        result.put("perNum", salesmanCallNumService.getCallNumOfPreMonth(salemanName));
 
         // 本月面见次数
         result.put("currMeetNum", salesmanMeetNumService.getMeetNumOfCurrMonth(salemanName));
@@ -479,9 +479,9 @@ public class SalesmanCallDataService {
                     temp.put("salesmanName", e.getName());
                     temp.put("departmen", e.getDepartment());
                     temp.put("todayCallTime", callTimeOfNow);
-                    temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(e.getName()));
+                    temp.put("todayCallNum", salesmanCallNumService.getCallNumOfNow(e.getName()));
                     temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(e.getName()));
-                    temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(e.getName()));
+                    temp.put("weekCallNum", salesmanCallNumService.getCallNumOfCurrWeek(e.getName()));
                     temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfNow(e.getId().longValue(), e.getName()));
                     temp.put("callTimeLimit", t);
                     result.add(temp);
@@ -491,8 +491,8 @@ public class SalesmanCallDataService {
                     temp.put("salesmanName", e.getName());
                     temp.put("departmen", e.getDepartment());
                     temp.put("todayCallTime", callTimeOfNow);
-                    temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(e.getName()));
-                    temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(e.getName()));
+                    temp.put("todayCallNum", salesmanCallNumService.getCallNumOfNow(e.getName()));
+                    temp.put("weekCallNum", salesmanCallNumService.getCallNumOfCurrWeek(e.getName()));
                     temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(e.getName()));
                     temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfNow(e.getId().longValue(), e.getName()));
                     temp.put("callTimeLimit", t);
@@ -503,11 +503,11 @@ public class SalesmanCallDataService {
                 temp.put("salesmanName", e.getName());
                 temp.put("departmen", e.getDepartment());
                 temp.put("todayCallTime", callTimeOfNow);
-                temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(e.getName()));
+                temp.put("todayCallNum", salesmanCallNumService.getCallNumOfNow(e.getName()));
                 temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(e.getName()));
                 temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfNow(e.getId().longValue(), e.getName()));
                 temp.put("callTimeLimit", t);
-                temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(e.getName()));
+                temp.put("weekCallNum", salesmanCallNumService.getCallNumOfCurrWeek(e.getName()));
                 result.add(temp);
             }
         }
