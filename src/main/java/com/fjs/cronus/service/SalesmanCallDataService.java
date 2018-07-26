@@ -486,7 +486,7 @@ public class SalesmanCallDataService {
                     temp.put("callTimeLimit", t);
                     result.add(temp);
                 } else {
-                    // 大于限制的值
+                    // 小于限制的值
                     Map<String, Object> temp = new HashMap<>();
                     temp.put("salesmanName", e.getName());
                     temp.put("departmen", e.getDepartment());
