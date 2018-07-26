@@ -458,7 +458,7 @@ public class SalesmanCallDataService {
             }
         }
 
-        String tt = theaClientService.getConfigByName(CommonConst.SALESMAN_CALL_TIME_LIMIT);
+        String tt = finish ? theaClientService.getConfigByName(CommonConst.SALESMAN_CALL_TIME_LIMIT) : "0";
         long t = Integer.valueOf(tt) * 60;
         for (String s : salemannameSet) {
             long callTimeOfNow = salesmanCallTimeService.getCallTimeOfNow(s);
