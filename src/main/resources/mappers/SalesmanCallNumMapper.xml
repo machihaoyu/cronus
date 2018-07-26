@@ -35,7 +35,7 @@
     </sql>
 
     <select id="findByTime" resultMap="BaseResultMap">
-        SELECT <include refid="Base_Column_List" /> FROM `salesman_call_num` WHERE `time` &gt;= #{start} AND `time` &lt;= #{end} AND `status`=#{status}
+        SELECT `sales_man_name`, SUM(`num`) AS `num` FROM `salesman_call_num` WHERE `time` &gt;= #{start} AND `time` &lt;= #{end} AND `status`=#{status} GROUP BY `sales_man_name`
     </select>
 
     <select id="getByTimeAndName" resultType="java.lang.Long">
