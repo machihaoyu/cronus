@@ -411,7 +411,7 @@ public class SalesmanCallNumService {
         Long weekToday = salesmanCallNumMapper.getByTimeAndName(salesmanName, weekStart, weekEnd, CommonEnum.entity_status1.getCode());
         weekToday = weekToday == null ? 0 : weekToday;
 
-        String weekCacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_WEEK + ":" + sdf.format(instance.getTime());
+        String weekCacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_WEEK + ":" + sdf.format(weekStart);
         hash.put(weekCacheKey, salesmanName, weekToday);
         redisTemplateOps.expire(weekCacheKey, 15, TimeUnit.DAYS);
 
@@ -423,7 +423,7 @@ public class SalesmanCallNumService {
         Long month = salesmanCallNumMapper.getByTimeAndName(salesmanName, monthStart, monthEnd, CommonEnum.entity_status1.getCode());
         month = month == null ? 0 : month;
 
-        String monthCacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_MONTH + ":" + sdf.format(instance.getTime());
+        String monthCacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_MONTH + ":" + sdf.format(monthStart);
         hash.put(monthCacheKey, salesmanName, month);
         redisTemplateOps.expire(monthCacheKey, 63, TimeUnit.DAYS);
 
