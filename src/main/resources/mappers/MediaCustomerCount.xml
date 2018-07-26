@@ -20,8 +20,6 @@
         <result column="media_name" property="mediaName" jdbcType="VARCHAR"/>
         <result column="customer_stock" property="customerStock" jdbcType="INTEGER"/>
         <result column="purchased_number" property="purchasedNumber" jdbcType="INTEGER"/>
-        <result column="create_user" property="createUser" jdbcType="INTEGER"/>
-        <result column="last_update_user" property="lastUpdateUser" jdbcType="INTEGER"/>
         <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
         <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
         <result column="is_deleted" property="isDeleted" jdbcType="INTEGER"/>
@@ -94,8 +92,8 @@
     </select>
 
     <insert id="addMediaCustomerCount" parameterType="com.fjs.cronus.entity.MediaCustomerCountEntity">
-        INSERT INTO media_customer_count (source_name,media_name,customer_stock,purchased_number,create_user,last_update_user)
-        VALUES(#{sourceName},#{mediaName},#{customerStock},#{purchasedNumber},#{createUser},#{lastUpdateUser})
+        INSERT INTO media_customer_count (source_name,media_name,customer_stock,purchased_number)
+        VALUES(#{sourceName},#{mediaName},#{customerStock},#{purchasedNumber})
     </insert>
 
 
