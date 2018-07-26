@@ -334,6 +334,7 @@ public class SalesmanCallDataController {
             result.setMessage(ResultDescription.MESSAGE_SUCCESS);
         } catch (Exception e) {
             if (e instanceof CronusException) {
+                logger.error("获取团队通话数据", e);
                 // 已知异常
                 CronusException temp = (CronusException) e;
                 result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
