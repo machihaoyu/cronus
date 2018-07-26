@@ -339,7 +339,7 @@ public class SalesmanCallNumService {
      */
     public void buildMonthCatch(Date date) {
         Date currMonthStart = DateUtils.getMonthStart(date); // 获取当月第一天
-        Date currMonthEnd = DateUtils.getWeekEnd(date); // 获取当月最后一天
+        Date currMonthEnd = DateUtils.getMonthEnd(date); // 获取当月最后一天
 
         List<SalesmanCallNum> list = salesmanCallNumMapper.findByTime(currMonthStart, currMonthEnd, CommonEnum.entity_status1.getCode());
 

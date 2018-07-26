@@ -579,22 +579,22 @@ public class SalesmanCallDataService {
                 }
 
                 // 通话时长：构建今日缓存数据
-                salesmanCallTimeService.buildDayCatch(date);
+                salesmanCallTimeService.buildDayCatch(start.getTime());
 
                 // 通话时长：构建当周缓存数据
-                salesmanCallTimeService.buildWeekCatch(date);
+                salesmanCallTimeService.buildWeekCatch(start.getTime());
 
                 // 通话次数：构建今日缓存数据
-                salesmanCallNumService.buildDayCatch(date);
+                salesmanCallNumService.buildDayCatch(start.getTime());
 
                 // 通话次数：构建当周缓存数据
-                salesmanCallNumService.buildWeekCatch(date);
+                salesmanCallNumService.buildWeekCatch(start.getTime());
 
                 // 面见次数：构建今日缓存数据
-                salesmanMeetNumService.buildDayCatch(date);
+                salesmanMeetNumService.buildDayCatch(start.getTime());
 
                 // 面见次数：构建当周缓存数据
-                salesmanMeetNumService.buildWeekCatch(date);
+                salesmanMeetNumService.buildWeekCatch(start.getTime());
             }
 
             // 通话时长：构建当月缓存数据
