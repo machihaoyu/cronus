@@ -123,7 +123,7 @@ public class EzucQurtzService {
         c2.add(Calendar.HOUR_OF_DAY, -1);
 
         try {
-            syncData(null, c.getTime());
+            syncData(null, c2.getTime());
         } catch (Exception e) {
             // 定时忽略错误
             logger.error("EZUC 数据同步,异常", e);
