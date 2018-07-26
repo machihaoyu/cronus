@@ -260,7 +260,7 @@ public class CommonConst {
     public static final String PUSH_CUSTOMER_URL = "https://file.daixiaomi.com.cn/wx/"; //  上线之前换地址 chenkeming
 
     // 系统常量配置：业务员通话时长限制key.
-    public static final String SALESMAN_CALL_TIME_LIMIT = "salesman_Call_Time_Limit";
+    public static final String SALESMAN_CALL_TIME_LIMIT = "salesmanCallTimeLimit";
 
 }
 
