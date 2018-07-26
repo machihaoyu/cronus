@@ -10,8 +10,6 @@ public class MediaCustomerCountEntity {
     private String mediaName; // varchar(255) DEFAULT NULL COMMENT '媒体名称',
     private Integer customerStock; // int(11) DEFAULT '0' COMMENT '商机池客户存量',
     private Integer  purchasedNumber; // int(11) DEFAULT '0' COMMENT '已购买量',
-    private Integer createUser; // int(11) NOT NULL COMMENT '创建人id',
-    private Integer lastUpdateUser; // int(11) NOT NULL COMMENT '更新人',
     private Date gmtCreate; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     private Date gmtModified; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     private Integer isDeleted; // tinyint(11) DEFAULT '0' COMMENT '是否删除(0:未删除,1:已删除)',
@@ -55,22 +53,6 @@ public class MediaCustomerCountEntity {
 
     public void setPurchasedNumber(Integer purchasedNumber) {
         this.purchasedNumber = purchasedNumber;
-    }
-
-    public Integer getCreateUser() {
-        return createUser;
-    }
-
-    public void setCreateUser(Integer createUser) {
-        this.createUser = createUser;
-    }
-
-    public Integer getLastUpdateUser() {
-        return lastUpdateUser;
-    }
-
-    public void setLastUpdateUser(Integer lastUpdateUser) {
-        this.lastUpdateUser = lastUpdateUser;
     }
 
     public Date getGmtCreate() {

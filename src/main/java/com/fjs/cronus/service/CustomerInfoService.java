@@ -408,8 +408,6 @@ public class CustomerInfoService {
                     mediaCustomerCount.setMediaName(customerInfo.getUtmSource());
                     mediaCustomerCount.setCustomerStock(1);
                     mediaCustomerCount.setPurchasedNumber(0);
-                    mediaCustomerCount.setCreateUser(customerInfo.getId());
-                    mediaCustomerCount.setLastUpdateUser(customerInfo.getId());
                     //新增渠道媒体
                     Integer count = mediaCustomerCountMapper.addMediaCustomerCount(mediaCustomerCount);
                     logger.error("6.是商机池客户 , 没有该媒体 " + customerSource + " , " + utmSource + ", 新增的结果为 : " + count);
