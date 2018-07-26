@@ -224,6 +224,51 @@ public class SalesmanCallDataController {
         return result;
     }
 
+    @ApiOperation(value = "[非业务接口-管理接口]重新构建通话时长、通话次数、面见次数cache", notes = "重新构建通话时长、通话次数、面见次数cache api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "jsonObject", value = "提交数据,{\"time\":\"2018-06-01 01:01:01\",\"type\":\"day 或 week 或 month \"}", required = true, dataType = "com.alibaba.fastjson.JSONObject")
+    })
+    @RequestMapping(value = "/rebuildCatch", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto rebuildCatch(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject) {
+        CronusDto result = new CronusDto();
+
+        try {
+            Date time = jsonObject.getDate("time");
+            if (time == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "time 不能为空");
+            }
+
+            String type = jsonObject.getString("type");
+            if (StringUtils.isBlank(type)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "type 不能为空");
+            }
+            List<String> strings = Arrays.asList("day", "week", "month");
+            if (!strings.contains(type)) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "type 非法");
+            }
+
+            salesmanCallDataService.rebuildCatch(type, time, token);
+            result.setData("成功");
+            result.setResult(ResultDescription.CODE_SUCCESS);
+            result.setMessage(ResultDescription.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("查询某个业务员通话某天通话时长", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
     @ApiOperation(value = "获取通话数据", notes = "获取通话数据 api")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),

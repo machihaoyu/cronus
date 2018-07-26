@@ -615,4 +615,19 @@ public class SalesmanCallDataService {
         return  "成功";
     }
 
+    public void rebuildCatch(String type, Date time, String token) {
+        if ("day".equalsIgnoreCase(type)) {
+            salesmanCallTimeService.buildDayCatch(time);
+            salesmanCallNumService.buildDayCatch(time);
+            salesmanMeetNumService.buildDayCatch(time);
+        } else if ("week".equalsIgnoreCase(type)) {
+            salesmanCallTimeService.buildWeekCatch(time);
+            salesmanCallNumService.buildWeekCatch(time);
+            salesmanMeetNumService.buildWeekCatch(time);
+        } else if ("month".equalsIgnoreCase(type)) {
+            salesmanCallTimeService.buildMonthCatch(time);
+            salesmanCallNumService.buildMonthCatch(time);
+            salesmanMeetNumService.buildMonthCatch(time);
+        }
+    }
 }
