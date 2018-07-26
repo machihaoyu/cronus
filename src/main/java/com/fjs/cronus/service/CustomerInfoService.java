@@ -395,12 +395,13 @@ public class CustomerInfoService {
                 logger.error("3.是商机池客户 , 查询数据库该媒体是 " + mediaCustomerCount);
                 if (mediaCustomerCount != null){
                     //说明已经有该媒体, 将将customer_stock加1
-                    mediaCustomerCountMapper.updatePurchasedNumber(mediaCustomerCount.getId());
+                    Integer count = mediaCustomerCountMapper.updatePurchasedNumber(mediaCustomerCount.getId());
+                    logger.error("4.是商机池客户 , 查询数据库该媒体是 " + mediaCustomerCount + ", 更新的结果是 : " + count);
                     //设置客户的媒体表id的值(media_customer_count_id)
                     customerInfo.setMediaCustomerCountId(mediaCustomerCount.getId());
 
                 }else {
-                    logger.error("4.是商机池客户 , 没有该媒体 " + customerSource + " , " + utmSource);
+                    logger.error("5.是商机池客户 , 没有该媒体 " + customerSource + " , " + utmSource);
                     //没有该媒体, 新增媒体,customer_stock设置为1,purchased_number设置为0
                     mediaCustomerCount = new MediaCustomerCountEntity();
                     mediaCustomerCount.setSourceName(customerInfo.getCustomerSource());
@@ -410,7 +411,8 @@ public class CustomerInfoService {
                     mediaCustomerCount.setCreateUser(customerInfo.getId());
                     mediaCustomerCount.setLastUpdateUser(customerInfo.getId());
                     //新增渠道媒体
-                    mediaCustomerCountMapper.addMediaCustomerCount(mediaCustomerCount);
+                    Integer count = mediaCustomerCountMapper.addMediaCustomerCount(mediaCustomerCount);
+                    logger.error("6.是商机池客户 , 没有该媒体 " + customerSource + " , " + utmSource + ", 新增的结果为 : " + count);
                     //设置客户的媒体表id的值(media_customer_count_id)
                     customerInfo.setMediaCustomerCountId(mediaCustomerCount.getId());
                 }

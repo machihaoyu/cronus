@@ -47,6 +47,7 @@ import com.fjs.cronus.util.SingleCutomerAllocateDevInfoUtil;
 import com.fjs.framework.exception.BaseException;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -602,7 +603,9 @@ public class AutoAllocateServiceV2 {
             JSONObject json = new JSONObject();
             json.put("firstBarId", subCompanyId);
             json.put("month", allocateRedisService.getMonthStr4avatar(currentMonthStr));
+            logger.warn("请求商机系统参数 : " + json);
             AvatarApiDTO<OrderNumberDTO> orderNumberDTOAvatarApiDTO = this.avatarClientService.queryOrderNumber(token, json);
+            logger.warn("请求商机系统结果1 : " + orderNumberDTOAvatarApiDTO);
             if (orderNumberDTOAvatarApiDTO == null || orderNumberDTOAvatarApiDTO.getResult() != 0) {
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR, "请求商机系统异常：响应为null");
             }
@@ -618,6 +621,7 @@ public class AutoAllocateServiceV2 {
             }
 
             List<OrderNumberDetailDTO> orderNumberList = data.getOrderNumberList();
+            logger.warn("请求商机系统结果2 : " + ReflectionToStringBuilder.toString(orderNumberList));
             Integer orderNumber = orderNumberList.stream().filter(i -> i != null && media_id.equals(i.getMeidaId())).map(OrderNumberDetailDTO::getOrderNumber).findAny().orElse(0);
             SingleCutomerAllocateDevInfoUtil.local.get().setInfo(SingleCutomerAllocateDevInfoUtil.k24 + j
                     , ImmutableMap.of("firstBarId", subCompanyId, "currentMonthStr", currentMonthStr)
