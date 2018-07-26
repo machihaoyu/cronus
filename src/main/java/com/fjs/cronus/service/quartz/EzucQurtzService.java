@@ -112,7 +112,7 @@ public class EzucQurtzService {
         Calendar c = Calendar.getInstance();
         c.setTime(now);
         c.add(Calendar.HOUR_OF_DAY, 1);
-        c.set(Calendar.MINUTE, 10);
+        c.set(Calendar.MINUTE, 0);
         c.set(Calendar.SECOND, 0);
         Date nextRunTime = c.getTime();
         operations.set(CommonRedisConst.EZUC_DURATION_QUARTZ_SYNC_LOCK, nextRunTime.getTime());

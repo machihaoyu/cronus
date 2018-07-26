@@ -357,6 +357,18 @@ public class SalesmanCallDataService {
     private Map<String, Object> getSaleManCallData4Day(String token, Long userId, String salemanName) {
         Map<String, Object> result = new HashMap<>();
 
+        // 通话限制
+        String tt = theaClientService.getConfigByName(CommonConst.SALESMAN_CALL_TIME_LIMIT);
+        long t = Integer.valueOf(tt) * 60;
+
+        result.put("callTimeLimit", t);
+
+        // 截止同步数据时间
+        Calendar instance = Calendar.getInstance();
+        instance.set(Calendar.MINUTE, 0);
+        instance.set(Calendar.SECOND, 0);
+        result.put("lastSyncTime", instance.getTime().getTime());
+
         // 通话时长
         result.put("currTime", salesmanCallTimeService.getCallTimeOfNow(salemanName));
 
@@ -473,6 +485,7 @@ public class SalesmanCallDataService {
                     temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(s));
                     temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(s));
                     temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(s));
+                    temp.put("callTimeLimit", t);
                     result.add(temp);
                 } else {
                     // 大于限制的值
@@ -483,7 +496,7 @@ public class SalesmanCallDataService {
                     temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(s));
                     temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(s));
                     temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(s));
-                    temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(s));
+                    temp.put("callTimeLimit", t);
                     result.add(temp);
                 }
             } else {
@@ -493,8 +506,8 @@ public class SalesmanCallDataService {
                 temp.put("todayCallTime", callTimeOfNow);
                 temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(s));
                 temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(s));
+                temp.put("callTimeLimit", t);
                 temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(s));
-                temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(s));
                 result.add(temp);
             }
         }
