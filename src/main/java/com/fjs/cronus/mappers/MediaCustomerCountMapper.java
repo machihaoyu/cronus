@@ -26,4 +26,7 @@ public interface MediaCustomerCountMapper  {
     MediaCustomerCountEntity getMediaCustomerCount(@Param("customerSource") String customerSource, @Param("utmSource") String utmSource);
 
     Integer addMediaCustomerCount(MediaCustomerCountEntity mediaCustomerCount);
+
+    @Update("UPDATE media_customer_count SET customer_stock = customer_stock + 1 WHERE is_deleted = 0 AND id = #{mediaCustomerCountId}")
+    Integer updateCustomerStock(@Param("mediaCustomerCountId") Integer mediaCustomerCountId);
 }

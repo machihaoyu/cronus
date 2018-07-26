@@ -395,7 +395,7 @@ public class CustomerInfoService {
                 logger.error("3.是商机池客户 , 查询数据库该媒体是 " + mediaCustomerCount);
                 if (mediaCustomerCount != null){
                     //说明已经有该媒体, 将将customer_stock加1
-                    Integer count = mediaCustomerCountMapper.updatePurchasedNumber(mediaCustomerCount.getId());
+                    Integer count = mediaCustomerCountMapper.updateCustomerStock(mediaCustomerCount.getId());
                     logger.error("4.是商机池客户 , 查询数据库该媒体是 " + mediaCustomerCount + ", 更新的结果是 : " + count);
                     //设置客户的媒体表id的值(media_customer_count_id)
                     customerInfo.setMediaCustomerCountId(mediaCustomerCount.getId());
