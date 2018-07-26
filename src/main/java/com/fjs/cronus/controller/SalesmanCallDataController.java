@@ -172,7 +172,7 @@ public class SalesmanCallDataController {
                 result.setMessage(temp.getResponseError().getMessage());
             } else {
                 // 未知异常
-                logger.error("查询某个业务员通话某天通话时长", e);
+                logger.error("[非业务接口-管理接口]查询某个业务员通话某天通话时长", e);
                 result.setResult(CommonMessage.FAIL.getCode());
                 result.setMessage(e.getMessage());
             }
@@ -216,7 +216,7 @@ public class SalesmanCallDataController {
                 result.setMessage(temp.getResponseError().getMessage());
             } else {
                 // 未知异常
-                logger.error("查询某个业务员通话某天通话时长", e);
+                logger.error("[非业务接口-管理接口]init通话时长、通话次数、面见次数", e);
                 result.setResult(CommonMessage.FAIL.getCode());
                 result.setMessage(e.getMessage());
             }
@@ -261,7 +261,7 @@ public class SalesmanCallDataController {
                 result.setMessage(temp.getResponseError().getMessage());
             } else {
                 // 未知异常
-                logger.error("查询某个业务员通话某天通话时长", e);
+                logger.error("[非业务接口-管理接口]重新构建通话时长、通话次数、面见次数cache", e);
                 result.setResult(CommonMessage.FAIL.getCode());
                 result.setMessage(e.getMessage());
             }
@@ -303,7 +303,7 @@ public class SalesmanCallDataController {
                 result.setMessage(temp.getResponseError().getMessage());
             } else {
                 // 未知异常
-                logger.error("查询某个业务员通话某天通话时长", e);
+                logger.error("获取通话数据", e);
                 result.setResult(CommonMessage.FAIL.getCode());
                 result.setMessage(e.getMessage());
             }
@@ -340,7 +340,7 @@ public class SalesmanCallDataController {
                 result.setMessage(temp.getResponseError().getMessage());
             } else {
                 // 未知异常
-                logger.error("查询某个业务员通话某天通话时长", e);
+                logger.error("获取团队通话数据", e);
                 result.setResult(CommonMessage.FAIL.getCode());
                 result.setMessage(e.getMessage());
             }

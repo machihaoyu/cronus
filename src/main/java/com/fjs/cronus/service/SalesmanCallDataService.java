@@ -435,7 +435,7 @@ public class SalesmanCallDataService {
     /**
      * 获取指定条件的数据.
      */
-    public List<Map<String, Object>> findSaleManCallData(String token, Long userId, String salesmanName, Integer departmentId, boolean finish) {
+    public List<Map<String, Object>> findSaleManCallData(String token, Long userId, String salesmanName, Integer departmentId, Boolean finish) {
         List<Map<String, Object>> result = new ArrayList<>();
 
         CronusDto<UserInfoDTO> userInfoByToken = thorService.getUserInfoByToken(token, null);
