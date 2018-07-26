@@ -441,7 +441,7 @@ public class SalesmanCallDataService {
         CronusDto<UserInfoDTO> userInfoByToken = thorService.getUserInfoByToken(token, null);
         Integer sub_company_id = Integer.valueOf(userInfoByToken.getData().getSub_company_id());
 
-        ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(publicToken, sub_company_id);
+        ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(token, sub_company_id);
 
         Set<String> salemannameSet = new HashSet<>();
         Map<String, String> salesmanNameMappingDepartment = new HashMap<>();
@@ -458,29 +458,52 @@ public class SalesmanCallDataService {
             }
         }
 
-        String tt = finish ? theaClientService.getConfigByName(CommonConst.SALESMAN_CALL_TIME_LIMIT) : "0";
+        String tt = theaClientService.getConfigByName(CommonConst.SALESMAN_CALL_TIME_LIMIT);
         long t = Integer.valueOf(tt) * 60;
         for (String s : salemannameSet) {
             long callTimeOfNow = salesmanCallTimeService.getCallTimeOfNow(s);
-            if (finish && callTimeOfNow < t) {
-                continue;
+            if (finish != null) {
+                if (callTimeOfNow > t) {
+                    // 大于限制的值
+                    Map<String, Object> temp = new HashMap<>();
+                    temp.put("salesmanName", s);
+                    temp.put("departmen", salesmanNameMappingDepartment.get(s));
+                    temp.put("todayCallTime", callTimeOfNow);
+                    temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(s));
+                    temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(s));
+                    temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(s));
+                    temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(s));
+                    result.add(temp);
+                } else {
+                    // 大于限制的值
+                    Map<String, Object> temp = new HashMap<>();
+                    temp.put("salesmanName", s);
+                    temp.put("departmen", salesmanNameMappingDepartment.get(s));
+                    temp.put("todayCallTime", callTimeOfNow);
+                    temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(s));
+                    temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(s));
+                    temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(s));
+                    temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(s));
+                    result.add(temp);
+                }
+            } else {
+                Map<String, Object> temp = new HashMap<>();
+                temp.put("salesmanName", s);
+                temp.put("departmen", salesmanNameMappingDepartment.get(s));
+                temp.put("todayCallTime", callTimeOfNow);
+                temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(s));
+                temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(s));
+                temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(s));
+                temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(s));
+                result.add(temp);
             }
-            Map<String, Object> temp = new HashMap<>();
-            temp.put("salesmanName", s);
-            temp.put("departmen", salesmanNameMappingDepartment.get(s));
-            temp.put("todayCallTime", callTimeOfNow);
-            temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(s));
-            temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(s));
-            temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(s));
-            temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(s));
-            result.add(temp);
         }
         return result;
     }
 
     /**
      * 非业务接口-管理接口:
-     *
+     * <p>
      * 数据同步：由于是新增功能，导致新增表，需要拉下数据到新表中.
      */
     public String initSyncData(String type, Date date, String token) {
@@ -608,11 +631,11 @@ public class SalesmanCallDataService {
 
         } catch (Exception e) {
             throw e;
-        }finally {
+        } finally {
             redisTemplateOps.delete(key);
         }
 
-        return  "成功";
+        return "成功";
     }
 
     public void rebuildCatch(String type, Date time, String token) {
