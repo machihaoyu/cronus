@@ -3,7 +3,6 @@ package com.fjs.cronus.service;
 import com.alibaba.fastjson.JSONObject;
 import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
-import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.dto.api.PHPUserDto;
 import com.fjs.cronus.dto.api.ThorApiDTO;
@@ -13,7 +12,6 @@ import com.fjs.cronus.dto.uc.ThorQueryDto;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.SalesmanCallData;
 import com.fjs.cronus.exception.CronusException;
-import com.fjs.cronus.mappers.CustomerInfoMapper;
 import com.fjs.cronus.mappers.CustomerMeetMapper;
 import com.fjs.cronus.mappers.SalesmanCallDataMapper;
 import com.fjs.cronus.model.CustomerInfo;
@@ -22,15 +20,12 @@ import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.thea.TheaClientService;
 import com.fjs.cronus.util.DEC3Util;
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.primitives.Ints;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -43,7 +38,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 public class SalesmanCallDataService {
@@ -500,6 +495,7 @@ public class SalesmanCallDataService {
         try {
             operations.set(key, 1);
             redisTemplateOps.expire(key, 1, TimeUnit.MINUTES);
+            Date now = new Date();
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -541,7 +537,7 @@ public class SalesmanCallDataService {
                 if (!CollectionUtils.isEmpty(allDuration)) {
                     for (SalesmanCallData salesmanCallData : allDuration) {
                         if (salesmanCallData != null && StringUtils.isNotBlank(salesmanCallData.getSalesManName()) && salesmanCallData.getDuration() != null) {
-                            salesmanCallTimeService.addSingle4Qurtz(salesmanCallData.getSalesManName(), salesmanCallData.getDuration(), start.getTime(), a.getTime());
+                            salesmanCallTimeService.addSingle4Qurtz(salesmanCallData.getSalesManName(), salesmanCallData.getDuration(), start.getTime(), now);
                         }
                     }
                 }
@@ -551,7 +547,7 @@ public class SalesmanCallDataService {
                 if (!CollectionUtils.isEmpty(allNum)) {
                     for (SalesmanCallData salesmanCallData : allNum) {
                         if (salesmanCallData != null && StringUtils.isNotBlank(salesmanCallData.getSalesManName()) && salesmanCallData.getDuration() != null) {
-                            salesmanCallNumService.addSingle4Qurtz(salesmanCallData.getSalesManName(), salesmanCallData.getDuration().intValue(), start.getTime(), a.getTime());
+                            salesmanCallNumService.addSingle4Qurtz(salesmanCallData.getSalesManName(), salesmanCallData.getDuration().intValue(), start.getTime(), now);
                         }
                     }
                 }
