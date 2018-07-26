@@ -250,10 +250,22 @@ public class CommonConst {
     public static final String WAITING_PAN = "扔回公盘";
     public static final String PUBLIC_SELECT_PAN = "公盘优选";
 
-    // 业务员通话数据记录常量
+    /**
+     * ------------------------- 业务员通话常量 start ----------------------------------->
+     */
+
+    // 业务员通话数据来源系统
     public static final Integer SYSTYPE_EZUC = 0; // EZUC
     public static final Integer SYSTYPE_B_ANDROID = 1; // b端Android
 
+    // 时间格式化
+    public static final String SALESMAN_CALL_DAY = "yyyyMMdd"; // 日
+    public static final String SALESMAN_CALL_WEEK = "yyyyMMdd"; // 周
+    public static final String SALESMAN_CALL_MONTH = "yyyyMMdd"; // 月
+
+    /**
+     * <------------------------- 业务员通话常量 end -----------------------------------
+     */
 
     //蜜巴的id
     public static final Integer SUB_COMPANY_ID = 1156; // TODO 线上蜜巴id 1156 chenkeming

@@ -494,8 +494,9 @@ public class SalesmanCallDataService {
                     temp.put("departmen", salesmanNameMappingDepartment.get(s));
                     temp.put("todayCallTime", callTimeOfNow);
                     temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(s));
-                    temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(s));
                     temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(s));
+                    temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(s));
+                    temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(s));
                     temp.put("callTimeLimit", t);
                     result.add(temp);
                 }
@@ -506,6 +507,7 @@ public class SalesmanCallDataService {
                 temp.put("todayCallTime", callTimeOfNow);
                 temp.put("todayCallNum", salesmanCallNumService.getCallTimeOfNow(s));
                 temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(s));
+                temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfCurrWeek(s));
                 temp.put("callTimeLimit", t);
                 temp.put("weekCallNum", salesmanCallNumService.getCallTimeOfCurrWeek(s));
                 result.add(temp);

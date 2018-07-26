@@ -1,5 +1,6 @@
 package com.fjs.cronus.service;
 
+import com.fjs.cronus.Common.CommonConst;
 import com.fjs.cronus.Common.CommonEnum;
 import com.fjs.cronus.Common.CommonRedisConst;
 import com.fjs.cronus.entity.SalesmanCallNum;
@@ -48,7 +49,7 @@ public class SalesmanCallNumService {
         instance.set(Calendar.HOUR_OF_DAY, 0);
         instance.set(Calendar.MINUTE, 0);
         instance.set(Calendar.SECOND, 0);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat sdf = new SimpleDateFormat(CommonConst.SALESMAN_CALL_DAY);
         String format = sdf.format(instance.getTime()); // 获取当天
         String cacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_DAY + ":" + format;
 
@@ -86,7 +87,7 @@ public class SalesmanCallNumService {
         instance.set(Calendar.HOUR_OF_DAY, 0);
         instance.set(Calendar.MINUTE, 0);
         instance.set(Calendar.SECOND, 0);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat sdf = new SimpleDateFormat(CommonConst.SALESMAN_CALL_DAY);
         String format = sdf.format(instance.getTime());
         String cacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_DAY + ":" + format;
 
@@ -121,7 +122,7 @@ public class SalesmanCallNumService {
         // 获取缓存key
         Date now = new Date();
         Date weekStart = DateUtils.getWeekStart(now); // 获取当周周一
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat sdf = new SimpleDateFormat(CommonConst.SALESMAN_CALL_WEEK);
         String format = sdf.format(weekStart);
         String cacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_WEEK + ":" + format;
 
@@ -155,7 +156,7 @@ public class SalesmanCallNumService {
         instance.add(Calendar.DAY_OF_YEAR, -7);
         Date preWeekStart = instance.getTime(); //获取上周一
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat sdf = new SimpleDateFormat(CommonConst.SALESMAN_CALL_WEEK);
         String format = sdf.format(preWeekStart);
         String cacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_WEEK + ":" + format;
 
@@ -184,7 +185,7 @@ public class SalesmanCallNumService {
         Date now = new Date();
         Date currMonthStart = DateUtils.getMonthStart(now); // 获取当月第一天
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat sdf = new SimpleDateFormat(CommonConst.SALESMAN_CALL_MONTH);
         String format = sdf.format(currMonthStart);
         String cacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_MONTH + ":" + format;
 
@@ -217,7 +218,7 @@ public class SalesmanCallNumService {
         instance.add(Calendar.DAY_OF_YEAR, -1);
         Date preMonthStart = DateUtils.getMonthStart(instance.getTime()); // 上月第一天
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat sdf = new SimpleDateFormat(CommonConst.SALESMAN_CALL_MONTH);
         String format = sdf.format(preMonthStart);
         String cacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_MONTH + ":" + format;
 
@@ -292,7 +293,7 @@ public class SalesmanCallNumService {
         List<SalesmanCallNum> list = salesmanCallNumMapper.findByTime(formatDate, formatDate, CommonEnum.entity_status1.getCode());
 
         if (!CollectionUtils.isEmpty(list)) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat sdf = new SimpleDateFormat(CommonConst.SALESMAN_CALL_DAY);
 
             String cacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_DAY + ":" + sdf.format(formatDate);
             HashOperations<String, String, Number> hash = redisTemplateOps.opsForHash();
@@ -318,7 +319,7 @@ public class SalesmanCallNumService {
         List<SalesmanCallNum> list = salesmanCallNumMapper.findByTime(weekStart, weekEnd, CommonEnum.entity_status1.getCode());
 
         if (!CollectionUtils.isEmpty(list)) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat sdf = new SimpleDateFormat(CommonConst.SALESMAN_CALL_WEEK);
 
             String cacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_WEEK + ":" + sdf.format(weekStart);
             HashOperations<String, String, Number> hash = redisTemplateOps.opsForHash();
@@ -344,7 +345,7 @@ public class SalesmanCallNumService {
         List<SalesmanCallNum> list = salesmanCallNumMapper.findByTime(currMonthStart, currMonthEnd, CommonEnum.entity_status1.getCode());
 
         if (!CollectionUtils.isEmpty(list)) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat sdf = new SimpleDateFormat(CommonConst.SALESMAN_CALL_MONTH);
 
             String cacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_MONTH + ":" + sdf.format(currMonthStart);
             HashOperations<String, String, Number> hash = redisTemplateOps.opsForHash();
@@ -387,7 +388,9 @@ public class SalesmanCallNumService {
      * 刷新指定业务员cache.
      */
     public void reflushCache(Long subCompanyid, Long salesmanId, String salesmanName, Date data){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat sdfDay = new SimpleDateFormat(CommonConst.SALESMAN_CALL_DAY);
+        SimpleDateFormat sdfWeek = new SimpleDateFormat(CommonConst.SALESMAN_CALL_WEEK);
+        SimpleDateFormat sdfMonth = new SimpleDateFormat(CommonConst.SALESMAN_CALL_MONTH);
         HashOperations<String, String, Number> hash = redisTemplateOps.opsForHash();
 
         // 刷新今日
@@ -400,7 +403,7 @@ public class SalesmanCallNumService {
         Long today = salesmanCallNumMapper.getByTimeAndName(salesmanName, instance.getTime(), instance.getTime(), CommonEnum.entity_status1.getCode());
         today = today == null ? 0 : today;
 
-        String todayCacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_DAY + ":" + sdf.format(instance.getTime());
+        String todayCacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_DAY + ":" + sdfDay.format(instance.getTime());
         hash.put(todayCacheKey, salesmanName, today);
         redisTemplateOps.expire(todayCacheKey, 3, TimeUnit.DAYS);
 
@@ -411,7 +414,7 @@ public class SalesmanCallNumService {
         Long weekToday = salesmanCallNumMapper.getByTimeAndName(salesmanName, weekStart, weekEnd, CommonEnum.entity_status1.getCode());
         weekToday = weekToday == null ? 0 : weekToday;
 
-        String weekCacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_WEEK + ":" + sdf.format(weekStart);
+        String weekCacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_WEEK + ":" + sdfWeek.format(weekStart);
         hash.put(weekCacheKey, salesmanName, weekToday);
         redisTemplateOps.expire(weekCacheKey, 15, TimeUnit.DAYS);
 
@@ -423,7 +426,7 @@ public class SalesmanCallNumService {
         Long month = salesmanCallNumMapper.getByTimeAndName(salesmanName, monthStart, monthEnd, CommonEnum.entity_status1.getCode());
         month = month == null ? 0 : month;
 
-        String monthCacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_MONTH + ":" + sdf.format(monthStart);
+        String monthCacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_MONTH + ":" + sdfMonth.format(monthStart);
         hash.put(monthCacheKey, salesmanName, month);
         redisTemplateOps.expire(monthCacheKey, 63, TimeUnit.DAYS);
 
