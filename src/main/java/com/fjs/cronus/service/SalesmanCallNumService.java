@@ -297,7 +297,7 @@ public class SalesmanCallNumService {
             String cacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_DAY + ":" + sdf.format(formatDate);
             HashOperations<String, String, Number> hash = redisTemplateOps.opsForHash();
 
-            Map<String, Integer> map = list.stream()
+            Map<String, Number> map = list.stream()
                     .filter(item -> item != null && item.getNum() != null && StringUtils.isNotBlank(item.getSalesManName()))
                     .collect(Collectors.toMap(SalesmanCallNum::getSalesManName, SalesmanCallNum::getNum, (x, y) -> x));
 
@@ -323,7 +323,7 @@ public class SalesmanCallNumService {
             String cacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_WEEK + ":" + sdf.format(weekStart);
             HashOperations<String, String, Number> hash = redisTemplateOps.opsForHash();
 
-            Map<String, Integer> map = list.stream()
+            Map<String, Number> map = list.stream()
                     .filter(item -> item != null && item.getNum() != null && StringUtils.isNotBlank(item.getSalesManName()))
                     .collect(Collectors.toMap(SalesmanCallNum::getSalesManName, SalesmanCallNum::getNum, (x, y) -> x));
 
@@ -349,7 +349,7 @@ public class SalesmanCallNumService {
             String cacheKey = CommonRedisConst.SALES_MAN_CALL_NUM_MONTH + ":" + sdf.format(currMonthStart);
             HashOperations<String, String, Number> hash = redisTemplateOps.opsForHash();
 
-            Map<String, Integer> map = list.stream()
+            Map<String, Number> map = list.stream()
                     .filter(item -> item != null && item.getNum() != null && StringUtils.isNotBlank(item.getSalesManName()))
                     .collect(Collectors.toMap(SalesmanCallNum::getSalesManName, SalesmanCallNum::getNum, (x, y) -> x));
 
