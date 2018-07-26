@@ -392,6 +392,7 @@ public class CustomerInfoService {
                 String customerSource = customerInfo.getCustomerSource();
                 String utmSource = customerInfo.getUtmSource();
                 MediaCustomerCountEntity mediaCustomerCount  = mediaCustomerCountMapper.getMediaCustomerCount(customerSource,utmSource);
+                logger.error("3.是商机池客户 , 查询数据库该媒体是 " + mediaCustomerCount);
                 if (mediaCustomerCount != null){
                     //说明已经有该媒体, 将将customer_stock加1
                     mediaCustomerCountMapper.updatePurchasedNumber(mediaCustomerCount.getId());
@@ -399,6 +400,7 @@ public class CustomerInfoService {
                     customerInfo.setMediaCustomerCountId(mediaCustomerCount.getId());
 
                 }else {
+                    logger.error("4.是商机池客户 , 没有该媒体 " + customerSource + " , " + utmSource);
                     //没有该媒体, 新增媒体,customer_stock设置为1,purchased_number设置为0
                     mediaCustomerCount = new MediaCustomerCountEntity();
                     mediaCustomerCount.setSourceName(customerInfo.getCustomerSource());
