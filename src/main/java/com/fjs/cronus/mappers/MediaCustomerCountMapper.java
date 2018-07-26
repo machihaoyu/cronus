@@ -17,7 +17,7 @@ public interface MediaCustomerCountMapper  {
 
     Integer utmSourceListCount(HashMap<String, Object> map);
 
-    @Update("UPDATE media_customer_count SET purchased_number = purchased_number + 1 WHERE is_deleted = 0 AND id = #{mediaCustomerCountId}")
+    @Update("UPDATE media_customer_count SET purchased_number = purchased_number + 1,customer_stock = customer_stock - 1 WHERE is_deleted = 0 AND id = #{mediaCustomerCountId}")
     Integer updatePurchasedNumber(@Param("mediaCustomerCountId") Integer mediaCustomerCountId);
 
     MediaCustomerCountDTO getCustomerPrice(@Param("mediaCustomerCountId") Integer mediaCustomerCountId);

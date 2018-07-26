@@ -406,7 +406,7 @@ public class BusinessPoolService {
             }
         }
 
-        //更新media_customer_count的已购买量
+        //更新media_customer_count的已购买量(+1), customer_stock存量-1
         count = mediaCustomerCountMapper.updatePurchasedNumber(customer.getMediaCustomerCountId());
         if (count < 1){
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR,CronusException.Type.CRM_OTHER_ERROR.getError());
