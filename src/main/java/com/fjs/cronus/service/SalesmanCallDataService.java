@@ -485,7 +485,7 @@ public class SalesmanCallDataService {
         for (PHPUserDto e : myUsers) {
             long callTimeOfNow = salesmanCallTimeService.getCallTimeOfNow(e.getName());
             if (finish != null) {
-                if (finish && callTimeOfNow > t) {
+                if (finish && callTimeOfNow >= t) {
                     // 大于限制的值
                     Map<String, Object> temp = new HashMap<>();
                     temp.put("salesmanName", e.getName());
