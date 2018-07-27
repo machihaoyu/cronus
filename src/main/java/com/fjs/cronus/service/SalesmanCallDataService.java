@@ -445,7 +445,7 @@ public class SalesmanCallDataService {
     }
 
     /**
-     * 获取指定条件的数据.
+     * 团队数据，获取指定条件的数据.
      */
     public List<Map<String, Object>> findSaleManCallData(String token, Long userId, String salesmanName, Integer departmentId, Boolean finish) {
         List<Map<String, Object>> result = new ArrayList<>();
@@ -473,7 +473,7 @@ public class SalesmanCallDataService {
         for (LightUserInfoDTO e : tempList) {
             long callTimeOfNow = salesmanCallTimeService.getCallTimeOfNow(e.getName());
             if (finish != null) {
-                if (callTimeOfNow > t) {
+                if (finish && callTimeOfNow > t) {
                     // 大于限制的值
                     Map<String, Object> temp = new HashMap<>();
                     temp.put("salesmanName", e.getName());
@@ -485,7 +485,8 @@ public class SalesmanCallDataService {
                     temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfNow(e.getId().longValue(), e.getName()));
                     temp.put("callTimeLimit", t);
                     result.add(temp);
-                } else {
+                }
+                if (!finish && callTimeOfNow < t) {
                     // 小于限制的值
                     Map<String, Object> temp = new HashMap<>();
                     temp.put("salesmanName", e.getName());
