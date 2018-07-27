@@ -44,7 +44,7 @@ public interface CustomerMeetMapper extends MyMapper<CustomerMeet> {
     /**
      * 查询该业务员，指定时间内面见客户数.
      */
-    @Select("SELECT COUNT(DISTINCT`customer_id`) FROM `customer_meet` WHERE `create_time` >= #{start} AND `create_time` <= #{end} AND `create_user`=#{salesmanId} AND `is_deleted`=0")
+    @Select("SELECT COUNT(DISTINCT`customer_id`) FROM `customer_meet` WHERE `meet_time` >= #{start} AND `meet_time` <= #{end} AND `create_user`=#{salesmanId} AND `is_deleted`=0")
     Integer getCountCustomerIdByCreateId(@Param("salesmanId") Integer salesmanId, @Param("start") Date start, @Param("end") Date end);
 
     /**
