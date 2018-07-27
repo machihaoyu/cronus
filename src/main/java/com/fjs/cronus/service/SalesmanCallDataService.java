@@ -18,6 +18,7 @@ import com.fjs.cronus.model.CustomerInfo;
 import com.fjs.cronus.model.CustomerMeet;
 import com.fjs.cronus.service.client.ThorService;
 import com.fjs.cronus.service.thea.TheaClientService;
+import com.fjs.cronus.service.uc.UcService;
 import com.fjs.cronus.util.DEC3Util;
 import com.google.common.base.Joiner;
 import org.apache.commons.collections4.CollectionUtils;
@@ -72,8 +73,11 @@ public class SalesmanCallDataService {
     @Autowired
     private TheaClientService theaClientService;
 
+    @Autowired
+    private UcService ucService;
+
     @Resource
-    RedisTemplate redisTemplateOps;
+    private RedisTemplate redisTemplateOps;
 
     /**
      * 暴露服务给b端Android接口，增加数据.
@@ -450,39 +454,47 @@ public class SalesmanCallDataService {
     public List<Map<String, Object>> findSaleManCallData(String token, Long userId, String salesmanName, Integer departmentId, Boolean finish) {
         List<Map<String, Object>> result = new ArrayList<>();
 
-        CronusDto<UserInfoDTO> userInfoByToken = thorService.getUserInfoByToken(token, null);
-        Integer sub_company_id = Integer.valueOf(userInfoByToken.getData().getSub_company_id());
+        // 获取下属
+        List<Integer> ids = ucService.getSubUserByUserId(token, userId.intValue());
+        if (CollectionUtils.isEmpty(ids)) return result;
 
-        ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(token, sub_company_id);
+        Joiner joiner = Joiner.on(",");
+        String join = joiner.join(ids);
 
-        List<LightUserInfoDTO> tempList = new ArrayList<>();
-        for (LightUserInfoDTO lightUserInfoDTO : baseUcDTO.getData()) {
-            if (lightUserInfoDTO != null && StringUtils.isNotBlank(lightUserInfoDTO.getName())) {
-                if (StringUtils.isNotBlank(salesmanName) && !salesmanName.equalsIgnoreCase(lightUserInfoDTO.getName())) {
-                    continue;
+        // 筛选，获取有效下属
+        List<PHPUserDto> myUsers = new ArrayList<>();
+        CronusUserInfoDto cronusUserInfoDto = new CronusUserInfoDto();
+        cronusUserInfoDto.setUser_ids(join);
+        ThorQueryDto<List<PHPUserDto>> userByIds = thorService.getUserByIds(token, cronusUserInfoDto);
+        if (userByIds != null && userByIds.getRetData() != null) {
+            for (PHPUserDto p : userByIds.getRetData()) {
+                if (StringUtils.isNotBlank(p.getName()) && StringUtils.isNotBlank(p.getUser_id()) ) {
+                    if (StringUtils.isNotBlank(salesmanName) && !salesmanName.equalsIgnoreCase(p.getName())) {
+                        continue;
+                    }
+                    if (departmentId != null && !departmentId.equals(p.getDepartment_id())) {
+                        continue;
+                    }
+                    myUsers.add(p);
                 }
-                if (departmentId != null && !departmentId.equals(lightUserInfoDTO.getDepartmentId())) {
-                    continue;
-                }
-                tempList.add(lightUserInfoDTO);
             }
         }
 
         String tt = theaClientService.getConfigByName(CommonConst.SALESMAN_CALL_TIME_LIMIT);
         long t = Integer.valueOf(tt) * 60;
-        for (LightUserInfoDTO e : tempList) {
+        for (PHPUserDto e : myUsers) {
             long callTimeOfNow = salesmanCallTimeService.getCallTimeOfNow(e.getName());
             if (finish != null) {
                 if (finish && callTimeOfNow > t) {
                     // 大于限制的值
                     Map<String, Object> temp = new HashMap<>();
                     temp.put("salesmanName", e.getName());
-                    temp.put("departmen", e.getDepartment());
+                    temp.put("departmen", e.getDepartment_name());
                     temp.put("todayCallTime", callTimeOfNow);
                     temp.put("todayCallNum", salesmanCallNumService.getCallNumOfNow(e.getName()));
                     temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(e.getName()));
                     temp.put("weekCallNum", salesmanCallNumService.getCallNumOfCurrWeek(e.getName()));
-                    temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfNow(e.getId().longValue(), e.getName()));
+                    temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfNow(Long.valueOf(e.getUser_id()), e.getName()));
                     temp.put("callTimeLimit", t);
                     result.add(temp);
                 }
@@ -490,23 +502,23 @@ public class SalesmanCallDataService {
                     // 小于限制的值
                     Map<String, Object> temp = new HashMap<>();
                     temp.put("salesmanName", e.getName());
-                    temp.put("departmen", e.getDepartment());
+                    temp.put("departmen", e.getDepartment_name());
                     temp.put("todayCallTime", callTimeOfNow);
                     temp.put("todayCallNum", salesmanCallNumService.getCallNumOfNow(e.getName()));
                     temp.put("weekCallNum", salesmanCallNumService.getCallNumOfCurrWeek(e.getName()));
                     temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(e.getName()));
-                    temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfNow(e.getId().longValue(), e.getName()));
+                    temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfNow(Long.valueOf(e.getUser_id()), e.getName()));
                     temp.put("callTimeLimit", t);
                     result.add(temp);
                 }
             } else {
                 Map<String, Object> temp = new HashMap<>();
                 temp.put("salesmanName", e.getName());
-                temp.put("departmen", e.getDepartment());
+                temp.put("departmen", e.getDepartment_name());
                 temp.put("todayCallTime", callTimeOfNow);
                 temp.put("todayCallNum", salesmanCallNumService.getCallNumOfNow(e.getName()));
                 temp.put("weekCallTime", salesmanCallTimeService.getCallTimeOfCurrWeek(e.getName()));
-                temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfNow(e.getId().longValue(), e.getName()));
+                temp.put("todayMeetNum", salesmanMeetNumService.getMeetNumOfNow(Long.valueOf(e.getUser_id()), e.getName()));
                 temp.put("callTimeLimit", t);
                 temp.put("weekCallNum", salesmanCallNumService.getCallNumOfCurrWeek(e.getName()));
                 result.add(temp);
