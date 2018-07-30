@@ -120,8 +120,8 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
     Integer businessPoolListCount(HashMap<String, Object> map);
 
     //将客户设置为已推送
-    @Update("UPDATE customer_info SET is_push = 1 WHERE is_deleted = 0 AND id = #{id}")
-    void updateIsPush(@Param("id") Integer id);
+//    @Update("UPDATE customer_info SET is_push = 1 WHERE is_deleted = 0 AND id = #{id}")
+//    void updateIsPush(@Param("id") Integer id);
 
     List<BusinessPool> businessPoolList(HashMap<String, Object> map);
 
