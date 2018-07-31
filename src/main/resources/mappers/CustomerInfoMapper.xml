@@ -2589,8 +2589,15 @@
        <if test="customerSource != null and customerSource != ''">
            AND ci.customer_source = #{customerSource}
        </if>
-       <if test="utmSource != null and utmSource != ''">
-           AND ci.utm_source = #{utmSource}
+       <!--<if test="utmSource != null and utmSource != ''">-->
+           <!--AND ci.utm_source = #{utmSource}-->
+       <!--</if>-->
+       <if test="utmSource != null and utmSource.size > 0">
+           and ci.utm_source IN
+           <foreach collection="utmSource" item="item"
+                    index="index" open="(" close=")" separator=",">
+               #{item}
+           </foreach>
        </if>
        <if test="houseStatus != null and houseStatus != ''">
            AND ci.house_status = #{houseStatus}
@@ -2631,9 +2638,16 @@
         <if test="customerSource != null and customerSource != ''">
             AND ci.customer_source = #{customerSource}
         </if>
-        <if test="utmSource != null and utmSource != ''">
-            AND ci.utm_source = #{utmSource}
-        </if>
+        <!--<if test="utmSource != null and utmSource != ''">-->
+            <!--AND ci.utm_source = #{utmSource}-->
+        <!--</if>-->
+       <if test="utmSource != null and utmSource.size > 0">
+           and ci.utm_source IN
+           <foreach collection="utmSource" item="item"
+                    index="index" open="(" close=")" separator=",">
+               #{item}
+           </foreach>
+       </if>
         <if test="houseStatus != null and houseStatus != ''">
             AND ci.house_status = #{houseStatus}
         </if>

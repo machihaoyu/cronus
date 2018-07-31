@@ -98,7 +98,11 @@ public class BusinessPoolService {
             map.put("customerSource",customerSource);
         }
         if (null != utmSource && StringUtils.isNotEmpty(utmSource)){
-            map.put("utmSource",utmSource);
+            //调用thea接口获取媒体下的渠道
+            List<String> utmList = theaClientService.getChannelNameListByMediaName(token,utmSource);
+            if (utmList != null && utmList.size() >= 0){
+                map.put("utmSource",utmList);
+            }
         }
         if (null != houseStatus && StringUtils.isNotEmpty(houseStatus)){
             map.put("houseStatus",houseStatus);
