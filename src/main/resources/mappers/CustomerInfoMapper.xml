@@ -2546,7 +2546,16 @@
     </update>
 
     <select id="getCustomerPush" resultMap="BaseResultMap" parameterType="java.lang.Integer">
-        SELECT * FROM customer_info WHERE is_deleted = 0 AND own_user_id = #{ownerId} and is_push = 0 AND communicate_time is NULL
+        SELECT * FROM customer_info WHERE own_user_id = #{ownerId}  AND communicate_time is NULL  AND id NOT in (SELECT
+	    ci.id
+        FROM
+	    customer_info ci
+        INNER JOIN push_customer pc ON ci.id = pc.customer_info_id
+        AND pc.is_deleted = 0
+        WHERE
+	    ci.is_deleted = 0
+        AND ci.own_user_id = #{ownerId}
+        AND ci.communicate_time IS NULL)
     </select>
 
 
@@ -2593,7 +2602,7 @@
            AND ci.loan_amount >= #{loanAmount}
        </if>
        <if test="loanAmountStart != null and loanAmountStart != '' and loanAmountEnd != null and loanAmountEnd != ''">
-           AND ci.loan_amount <![CDATA[ > ]]> #{loanAmountStart} AND ci.loan_amount <![CDATA[ <= ]]> #{loanAmountEnd}
+           AND ci.loan_amount <![CDATA[ >= ]]> #{loanAmountStart} AND ci.loan_amount <![CDATA[ < ]]> #{loanAmountEnd}
        </if>
        <if test="city != null and city != ''">
            AND ci.city = #{city}
@@ -2635,7 +2644,7 @@
            AND ci.loan_amount >= #{loanAmount}
        </if>
         <if test="loanAmountStart != null and loanAmountStart != '' and loanAmountEnd != null and loanAmountEnd != ''">
-            AND ci.loan_amount <![CDATA[ > ]]> #{loanAmountStart} AND ci.loan_amount <![CDATA[ <= ]]> #{loanAmountEnd}
+            AND ci.loan_amount <![CDATA[ >= ]]> #{loanAmountStart} AND ci.loan_amount <![CDATA[ < ]]> #{loanAmountEnd}
         </if>
         <if test="city != null and city != ''">
             AND ci.city = #{city}

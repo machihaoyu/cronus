@@ -17,6 +17,7 @@ import com.fjs.cronus.dto.thea.LoanDTO6;
 import com.fjs.cronus.dto.uc.LightUserInfoDTO;
 import com.fjs.cronus.dto.uc.UserInfoDTO;
 import com.fjs.cronus.entity.MediaCustomerCountEntity;
+import com.fjs.cronus.entity.PushCustomerEntity;
 import com.fjs.cronus.enums.CustListTimeOrderEnum;
 import com.fjs.cronus.exception.CronusException;
 import com.fjs.cronus.mappers.*;
@@ -104,6 +105,9 @@ public class CustomerInfoService {
 
     @Autowired
     private MediaCustomerCountMapper mediaCustomerCountMapper;
+
+    @Autowired
+    private PushCustomerMapper pushCustomerMapper;
 
     public static final String REDIS_CRONUS_GETHISTORYCOUNT = "cronus_cronus_getHistoryCount_";
     public static final long REDIS_CRONUS_GETHISTORYCOUNT_TIME = 600;
@@ -2598,7 +2602,8 @@ public class CustomerInfoService {
             ThorApiDTO<List<LightUserInfoDTO>> baseUcDTO = thorService.getUserlistByCompanyId(publicToken, Integer.valueOf(miBaId));
             if (baseUcDTO.getResult().equals(0) && baseUcDTO.getData().size() > 0) {
                 //调用成功, 取出用户的id  只设置一个业务员
-                Integer ownerId = baseUcDTO.getData().get(0).getId();
+                LightUserInfoDTO lightUserInfoDTO = baseUcDTO.getData().get(0);
+                Integer ownerId = lightUserInfoDTO.getId();
                 logger.warn(" 2.给蜜巴推送客户定时任务 获取到队列的业务员id 为 : " +  ownerId);
                 //查询该用户下所有未推送的客户
                 List<CustomerInfo> customerInfoList = customerInfoMapper.getCustomerPush(ownerId);
@@ -2625,8 +2630,15 @@ public class CustomerInfoService {
                         //当调用成功之后, 修改客户的状态 : is_push设置为1
                         if ("success".equals(result)){
                             for (CustomerInfo customerInfo : customerInfoList){
-                                //将改客户的is_push设置为1
-                                customerInfoMapper.updateIsPush(customerInfo.getId());
+                                //将改客户的is_push设置为push_customer表中的主键
+//                                customerInfoMapper.updateIsPush(customerInfo.getId());
+
+                                //推送客户表新增记录
+                                PushCustomerEntity pushCustomerEntity = new PushCustomerEntity();
+                                pushCustomerEntity.setCustomerInfoId(customerInfo.getId());
+                                pushCustomerEntity.setSubCompanyId(Integer.valueOf(miBaId));
+                                pushCustomerEntity.setSubCompanyName(lightUserInfoDTO.getSub_company());
+                                pushCustomerMapper.addPushCustomer(pushCustomerEntity);
                             }
                         }
                     }
