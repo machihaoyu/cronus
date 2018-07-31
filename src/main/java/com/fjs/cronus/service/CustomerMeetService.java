@@ -106,8 +106,8 @@ public class CustomerMeetService {
             // 统计面见次数
             CronusDto<UserInfoDTO> userInfoByToken = thorService.getUserInfoByToken(token, null);
             UserInfoDTO data = userInfoByToken.getData();
-            salesmanMeetNumService.countData(Long.valueOf(data.getSub_company_id()), Long.valueOf(data.getUser_id()), data.getName(), date);
-            salesmanMeetNumService.reflushCache(Long.valueOf(data.getSub_company_id()), Long.valueOf(data.getUser_id()), data.getName(), date);
+            salesmanMeetNumService.countData(Long.valueOf(data.getSub_company_id()), Long.valueOf(data.getUser_id()), data.getName(), customerMeetDTO.getMeetTime());
+            salesmanMeetNumService.reflushCache(Long.valueOf(data.getSub_company_id()), Long.valueOf(data.getUser_id()), data.getName(), customerMeetDTO.getMeetTime());
         }
 
         return insert;
