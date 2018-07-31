@@ -395,17 +395,26 @@ public class CustomerInfoService {
                 //是商机池客户  先判断媒体表中有没有该媒体,如果没有就新增,如果有,就将customer_stock加1
                 String customerSource = customerInfo.getCustomerSource();
                 String utmSource = customerInfo.getUtmSource();
-                MediaCustomerCountEntity mediaCustomerCount  = mediaCustomerCountMapper.getMediaCustomerCount(customerSource,utmSource);
-                logger.error("3.是商机池客户 , 查询数据库该媒体是 " + mediaCustomerCount);
+                //通过渠道获取媒体
+                ArrayList<Object> channleList = new ArrayList<>();
+                channleList.add(utmSource);
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("channelNames",channleList);
+                Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+                logger.error("3.是商机池客户 , 调用thea服务获取到的媒体为 : " + mediaMap.get(utmSource).toString());
+                String mediaName = mediaMap.get(utmSource);
+
+                MediaCustomerCountEntity mediaCustomerCount  = mediaCustomerCountMapper.getMediaCustomerCount(customerSource,mediaName);
+                logger.error("4.是商机池客户 , 查询数据库该媒体是 " + mediaCustomerCount);
                 if (mediaCustomerCount != null){
                     //说明已经有该媒体, 将将customer_stock加1
                     Integer count = mediaCustomerCountMapper.updateCustomerStock(mediaCustomerCount.getId());
-                    logger.error("4.是商机池客户 , 查询数据库该媒体是 " + mediaCustomerCount + ", 更新的结果是 : " + count);
+                    logger.error("5.是商机池客户 , 查询数据库该媒体是 " + mediaCustomerCount + ", 更新的结果是 : " + count);
                     //设置客户的媒体表id的值(media_customer_count_id)
                     customerInfo.setMediaCustomerCountId(mediaCustomerCount.getId());
 
                 }else {
-                    logger.error("5.是商机池客户 , 没有该媒体 " + customerSource + " , " + utmSource);
+                    logger.error("6.是商机池客户 , 没有该渠道 " + customerSource + " , " + utmSource);
                     //没有该媒体, 新增媒体,customer_stock设置为1,purchased_number设置为0
                     mediaCustomerCount = new MediaCustomerCountEntity();
                     mediaCustomerCount.setSourceName(customerInfo.getCustomerSource());

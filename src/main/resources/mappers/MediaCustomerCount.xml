@@ -88,7 +88,7 @@
     </select>
 
     <select id="getMediaCustomerCount" parameterType="java.lang.String" resultMap="mediaCustomerCountEntity">
-        SELECT * FROM media_customer_count WHERE is_deleted = 0 and source_name = #{customerSource} AND media_name = #{utmSource}
+        SELECT * FROM media_customer_count WHERE is_deleted = 0 and source_name = #{customerSource} AND media_name = #{mediaName}
     </select>
 
     <insert id="addMediaCustomerCount" parameterType="com.fjs.cronus.entity.MediaCustomerCountEntity">

@@ -10,6 +10,7 @@ import com.fjs.cronus.dto.MediaCustomerCountDTO;
 import com.fjs.cronus.dto.MediaPriceDTO;
 import com.fjs.cronus.dto.api.PHPLoginDto;
 import com.fjs.cronus.dto.cronus.BaseUcDTO;
+import com.fjs.cronus.dto.cronus.CustomerListDTO;
 import com.fjs.cronus.dto.cronus.UcUserDTO;
 import com.fjs.cronus.dto.loan.TheaApiDTO;
 import com.fjs.cronus.dto.thea.BaseCommonDTO;
@@ -86,7 +87,7 @@ public class BusinessPoolService {
      * @param size
      * @return
      */
-    public QueryResult<BusinessPoolDTO> businessPoolList(String nameOrTelephone, String customerSource, String utmSource, String houseStatus, String loanAmount, String city, String createTime,String createTimeEnd,Integer page, Integer size) {
+    public QueryResult<BusinessPoolDTO> businessPoolList(String token,String nameOrTelephone, String customerSource, String utmSource, String houseStatus, String loanAmount, String city, String createTime,String createTimeEnd,Integer page, Integer size) {
 
         QueryResult<BusinessPoolDTO> queryResult = new QueryResult<>();
         HashMap<String, Object> map = new HashMap<>();
@@ -133,10 +134,14 @@ public class BusinessPoolService {
         Integer count = customerInfoMapper.businessPoolListCount(map);
         List<BusinessPool> businessPoolDTOList = customerInfoMapper.businessPoolList(map);
         ArrayList<BusinessPoolDTO> list = new ArrayList<>();
+        List<String> channleList = new ArrayList<>();
         if (null != businessPoolDTOList && businessPoolDTOList.size() > 0){
             for (BusinessPool businessPool : businessPoolDTOList){
                 BusinessPoolDTO businessPoolDTO = new BusinessPoolDTO();
                 BeanUtils.copyProperties(businessPool,businessPoolDTO);
+
+                channleList.add(businessPool.getUtmSource());
+
                 //如果该客户没有设置价格,就查询其媒体的价格
                 Integer accountingMethod = businessPool.getAccountingMethod();
                 if (null == accountingMethod){
@@ -151,7 +156,16 @@ public class BusinessPoolService {
                 }
                 list.add(businessPoolDTO);
             }
+            //通过渠道获取媒体
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("channelNames",channleList);
+            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+            logger.warn(mediaMap.keySet().toString());
+            for (BusinessPoolDTO businessPoolDTO : list){
+                businessPoolDTO.setUtmSource(mediaMap.get(businessPoolDTO.getUtmSource()));
+            }
         }
+
         queryResult.setTotal(count.toString());
         queryResult.setRows(list);
         return queryResult;
@@ -165,7 +179,7 @@ public class BusinessPoolService {
      * @param size
      * @return
      */
-    public QueryResult<MediaCustomerCountDTO> utmSourceList(String utmSource, Integer page, Integer size) {
+    public QueryResult<MediaCustomerCountDTO> utmSourceList(String token,String utmSource, Integer page, Integer size) {
 
         QueryResult<MediaCustomerCountDTO> queryResult = new QueryResult<>();
         HashMap<String, Object> map = new HashMap<>();
@@ -177,6 +191,21 @@ public class BusinessPoolService {
         //查询数据
         Integer count = mediaCustomerCountMapper.utmSourceListCount(map);
         List<MediaCustomerCountDTO> mediaCustomerCountDTOList = mediaCustomerCountMapper.utmSourceList(map);
+//        List<String> channleList = new ArrayList<>();
+//        if (null != mediaCustomerCountDTOList && mediaCustomerCountDTOList.size() > 0){
+//            for (MediaCustomerCountDTO mediaCustomerCountDTO : mediaCustomerCountDTOList){
+//                channleList.add(mediaCustomerCountDTO.getUtmSource());
+//            }
+//            //通过渠道获取媒体
+//            JSONObject jsonObject = new JSONObject();
+//            jsonObject.put("channelNames",channleList);
+//            logger.warn("utmSourceList 调用thea参数 : " + jsonObject);
+//            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+//            logger.warn(mediaMap.keySet().toString());
+//            for (MediaCustomerCountDTO mediaCustomerCountDTO : mediaCustomerCountDTOList){
+//                mediaCustomerCountDTO.setUtmSource(mediaMap.get(mediaCustomerCountDTO.getUtmSource()));
+//            }
+//        }
 
         queryResult.setTotal(count.toString());
         queryResult.setRows(mediaCustomerCountDTOList);
@@ -212,6 +241,7 @@ public class BusinessPoolService {
         mediaPriceEntity.setLoanRate(mediaPriceDTO.getLoanRate());
         mediaPriceEntity.setCreateUser(currentUserId);
         mediaPriceEntity.setLastUpdateUser(currentUserId);
+
         Integer count = mediaPriceMapper.addMediaPrice(mediaPriceEntity);
         if (count < 1){
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR,CronusException.Type.CRM_OTHER_ERROR.getError());

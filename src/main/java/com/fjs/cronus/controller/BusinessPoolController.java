@@ -57,7 +57,7 @@ public class BusinessPoolController {
 
         try {
             CronusDto<QueryResult<BusinessPoolDTO>> cronusDto = new CronusDto<>();
-            QueryResult<BusinessPoolDTO> queryResult = businessPoolService.businessPoolList(nameOrTelephone,customerSource,utmSource,houseStatus,loanAmount,city,createTime,createTimeEnd,page,size);
+            QueryResult<BusinessPoolDTO> queryResult = businessPoolService.businessPoolList(token,nameOrTelephone,customerSource,utmSource,houseStatus,loanAmount,city,createTime,createTimeEnd,page,size);
             cronusDto.setData(queryResult);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());
@@ -88,7 +88,7 @@ public class BusinessPoolController {
 
         try {
             CronusDto<QueryResult<MediaCustomerCountDTO>> cronusDto = new CronusDto<>();
-            QueryResult<MediaCustomerCountDTO> queryResult = businessPoolService.utmSourceList(utmSource,page,size);
+            QueryResult<MediaCustomerCountDTO> queryResult = businessPoolService.utmSourceList(token,utmSource,page,size);
             cronusDto.setData(queryResult);
             cronusDto.setResult(CommonMessage.SUCCESS.getCode());
             cronusDto.setMessage(CommonMessage.SUCCESS.getCodeDesc());

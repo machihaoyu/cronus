@@ -23,7 +23,7 @@ public interface MediaCustomerCountMapper  {
     MediaCustomerCountDTO getCustomerPrice(@Param("mediaCustomerCountId") Integer mediaCustomerCountId);
 
 
-    MediaCustomerCountEntity getMediaCustomerCount(@Param("customerSource") String customerSource, @Param("utmSource") String utmSource);
+    MediaCustomerCountEntity getMediaCustomerCount(@Param("customerSource") String customerSource, @Param("mediaName") String mediaName);
 
     Integer addMediaCustomerCount(MediaCustomerCountEntity mediaCustomerCount);
 
