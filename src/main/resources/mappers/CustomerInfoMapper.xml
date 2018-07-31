@@ -2546,16 +2546,16 @@
     </update>
 
     <select id="getCustomerPush" resultMap="BaseResultMap" parameterType="java.lang.Integer">
-        SELECT
-	    ci.*
+        SELECT * FROM customer_info WHERE own_user_id = #{ownerId}  AND communicate_time is NULL  AND id NOT in (SELECT
+	    ci.id
         FROM
 	    customer_info ci
         INNER JOIN push_customer pc ON ci.id = pc.customer_info_id
         AND pc.is_deleted = 0
         WHERE
 	    ci.is_deleted = 0
-        AND ci.own_user_id = 425777
-        AND ci.communicate_time IS NULL
+        AND ci.own_user_id = #{ownerId}
+        AND ci.communicate_time IS NULL)
     </select>
 
 
