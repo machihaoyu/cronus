@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,8 +18,8 @@ public interface MediaCustomerCountMapper  {
 
     Integer utmSourceListCount(HashMap<String, Object> map);
 
-    @Update("UPDATE media_customer_count SET purchased_number = purchased_number + 1,customer_stock = customer_stock - 1 WHERE is_deleted = 0 AND id = #{mediaCustomerCountId}")
-    Integer updatePurchasedNumber(@Param("mediaCustomerCountId") Integer mediaCustomerCountId);
+    @Update("UPDATE media_customer_count SET purchased_number = purchased_number + 1,customer_stock = customer_stock - 1,gmt_modified=#{date} WHERE is_deleted = 0 AND id = #{mediaCustomerCountId}")
+    Integer updatePurchasedNumber(@Param("mediaCustomerCountId") Integer mediaCustomerCountId,@Param("date") Date date);
 
     MediaCustomerCountDTO getCustomerPrice(@Param("mediaCustomerCountId") Integer mediaCustomerCountId);
 
@@ -27,6 +28,6 @@ public interface MediaCustomerCountMapper  {
 
     Integer addMediaCustomerCount(MediaCustomerCountEntity mediaCustomerCount);
 
-    @Update("UPDATE media_customer_count SET customer_stock = customer_stock + 1 WHERE is_deleted = 0 AND id = #{mediaCustomerCountId}")
-    Integer updateCustomerStock(@Param("mediaCustomerCountId") Integer mediaCustomerCountId);
+    @Update("UPDATE media_customer_count SET customer_stock = customer_stock + 1,gmt_modified=#{date} WHERE is_deleted = 0 AND id = #{mediaCustomerCountId}")
+    Integer updateCustomerStock(@Param("mediaCustomerCountId") Integer mediaCustomerCountId,@Param("date") Date date);
 }

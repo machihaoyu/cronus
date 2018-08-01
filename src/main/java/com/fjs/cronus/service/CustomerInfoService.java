@@ -408,7 +408,7 @@ public class CustomerInfoService {
                 logger.error("4.是商机池客户 , 查询数据库该媒体是 " + mediaCustomerCount);
                 if (mediaCustomerCount != null){
                     //说明已经有该媒体, 将将customer_stock加1
-                    Integer count = mediaCustomerCountMapper.updateCustomerStock(mediaCustomerCount.getId());
+                    Integer count = mediaCustomerCountMapper.updateCustomerStock(mediaCustomerCount.getId(),new Date());
                     logger.error("5.是商机池客户 , 查询数据库该媒体是 " + mediaCustomerCount + ", 更新的结果是 : " + count);
                     //设置客户的媒体表id的值(media_customer_count_id)
                     customerInfo.setMediaCustomerCountId(mediaCustomerCount.getId());
@@ -421,6 +421,8 @@ public class CustomerInfoService {
                     mediaCustomerCount.setMediaName(mediaName);
                     mediaCustomerCount.setCustomerStock(1);
                     mediaCustomerCount.setPurchasedNumber(0);
+                    mediaCustomerCount.setGmtCreate(new Date());
+                    mediaCustomerCount.setGmtModified(new Date());
                     //新增渠道媒体
                     Integer count = mediaCustomerCountMapper.addMediaCustomerCount(mediaCustomerCount);
                     logger.error("7.是商机池客户 , 没有该媒体 " + customerSource + " , " + utmSource + ", 新增的结果为 : " + count);
@@ -2647,6 +2649,8 @@ public class CustomerInfoService {
                                 pushCustomerEntity.setCustomerInfoId(customerInfo.getId());
                                 pushCustomerEntity.setSubCompanyId(Integer.valueOf(miBaId));
                                 pushCustomerEntity.setSubCompanyName(lightUserInfoDTO.getSub_company());
+                                pushCustomerEntity.setGmtCreate(new Date());
+                                pushCustomerEntity.setGmtModified(new Date());
                                 pushCustomerMapper.addPushCustomer(pushCustomerEntity);
                             }
                         }

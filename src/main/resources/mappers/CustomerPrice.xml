@@ -21,8 +21,8 @@
 
 
     <insert id="addCustomerPrice" parameterType="com.fjs.cronus.entity.CustomerPriceEntity">
-        INSERT INTO customer_price (customer_info_id,accounting_method,prepurchase_price,commission_rate,loan_rate,create_user,last_update_user,gmt_receive,is_close,is_receive)
-        VALUES(#{customerInfoId},#{accountingMethod},#{prepurchasePrice},#{commissionRate},#{loanRate},#{createUser},#{lastUpdateUser},#{gmtReceive},#{isClose},#{isReceive})
+        INSERT INTO customer_price (customer_info_id,accounting_method,prepurchase_price,commission_rate,loan_rate,create_user,last_update_user,gmt_receive,is_close,is_receive,gmt_create,gmt_modified)
+        VALUES(#{customerInfoId},#{accountingMethod},#{prepurchasePrice},#{commissionRate},#{loanRate},#{createUser},#{lastUpdateUser},#{gmtReceive},#{isClose},#{isReceive},#{gmtCreate},#{gmtModified})
     </insert>
 
     <select id="getCustomerPriceByCustomerId" resultMap="customerPriceEntity" parameterType="java.lang.Integer">

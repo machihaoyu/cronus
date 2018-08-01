@@ -22,8 +22,8 @@
     </select>
 
     <insert id="addMediaPrice" parameterType="com.fjs.cronus.entity.MediaPriceEntity">
-        INSERT INTO media_price (media_customer_count_id,accounting_method,prepurchase_price,commission_rate,loan_rate,create_user,last_update_user)
-        VALUES(#{mediaCustomerCountId},#{accountingMethod},#{prepurchasePrice},#{commissionRate},#{loanRate},#{createUser},#{lastUpdateUser})
+        INSERT INTO media_price (media_customer_count_id,accounting_method,prepurchase_price,commission_rate,loan_rate,create_user,last_update_user,gmt_create,gmt_modified)
+        VALUES(#{mediaCustomerCountId},#{accountingMethod},#{prepurchasePrice},#{commissionRate},#{loanRate},#{createUser},#{lastUpdateUser},#{gmtCreate},#{gmtModified})
     </insert>
 
 </mapper>

@@ -5,8 +5,8 @@
 
 
     <insert id="addPushCustomer" parameterType="com.fjs.cronus.entity.PushCustomerEntity">
-        INSERT INTO push_customer (customer_info_id,sub_company_id,sub_company_name)
-        VALUES (#{customerInfoId},#{subCompanyId},#{subCompanyName})
+        INSERT INTO push_customer (customer_info_id,sub_company_id,sub_company_name,gmt_create,gmt_modified)
+        VALUES (#{customerInfoId},#{subCompanyId},#{subCompanyName},#{gmtCreate},#{gmtModified})
     </insert>
 
 

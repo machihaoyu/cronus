@@ -235,7 +235,7 @@ public class BusinessPoolService {
         if (null == mediaPriceDTO.getId()){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR,CronusException.Type.CRM_PARAMS_ERROR.getError());
         }
-        mediaPriceMapper.updateIsClose(mediaPriceDTO.getId());
+        mediaPriceMapper.updateIsClose(mediaPriceDTO.getId(),new Date());
         //新增修改后的媒体价格
         MediaPriceEntity mediaPriceEntity = new MediaPriceEntity();
         mediaPriceEntity.setMediaCustomerCountId(mediaPriceDTO.getId());
@@ -245,6 +245,8 @@ public class BusinessPoolService {
         mediaPriceEntity.setLoanRate(mediaPriceDTO.getLoanRate());
         mediaPriceEntity.setCreateUser(currentUserId);
         mediaPriceEntity.setLastUpdateUser(currentUserId);
+        mediaPriceEntity.setGmtCreate(new Date());
+        mediaPriceEntity.setGmtModified(new Date());
 
         Integer count = mediaPriceMapper.addMediaPrice(mediaPriceEntity);
         if (count < 1){
@@ -314,7 +316,7 @@ public class BusinessPoolService {
         if (null == mediaPriceDTO.getId()){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR,CronusException.Type.CRM_PARAMS_ERROR.getError());
         }
-        customerPriceMapper.updateIsClose(mediaPriceDTO.getId());
+        customerPriceMapper.updateIsClose(mediaPriceDTO.getId(),new Date());
 
         //新增修改后的客户价格
         CustomerPriceEntity customerPriceEntity = new CustomerPriceEntity();
@@ -326,6 +328,8 @@ public class BusinessPoolService {
         customerPriceEntity.setCreateUser(currentUserId);
         customerPriceEntity.setLastUpdateUser(currentUserId);
         customerPriceEntity.setIsClose(CommonEnum.NO.getCode());
+        customerPriceEntity.setGmtCreate(new Date());
+        customerPriceEntity.setGmtModified(new Date());
 
         Integer count = customerPriceMapper.addCustomerPrice(customerPriceEntity);
         if (count < 1){
@@ -428,20 +432,23 @@ public class BusinessPoolService {
             customerPrice.setIsReceive(CommonEnum.YES.getCode());
             customerPrice.setGmtReceive(new Date());
             customerPrice.setIsClose(CommonEnum.YES.getCode());
+            customerPrice.setGmtCreate(new Date());
+            customerPrice.setGmtModified(new Date());
             count = customerPriceMapper.addCustomerPrice(customerPrice);
             if (count < 1){
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR,CronusException.Type.CRM_OTHER_ERROR.getError());
             }
         }else {
             //更新时间
-            count = customerPriceMapper.receiveSuccess(customerId);
+            count = customerPriceMapper.receiveSuccess(customerId,new Date());
             if (count < 1){
                 throw new CronusException(CronusException.Type.CRM_OTHER_ERROR,CronusException.Type.CRM_OTHER_ERROR.getError());
             }
         }
 
         //更新media_customer_count的已购买量(+1), customer_stock存量-1
-        count = mediaCustomerCountMapper.updatePurchasedNumber(customer.getMediaCustomerCountId());
+        Date date = new Date();
+        count = mediaCustomerCountMapper.updatePurchasedNumber(customer.getMediaCustomerCountId(),date);
         if (count < 1){
             throw new CronusException(CronusException.Type.CRM_OTHER_ERROR,CronusException.Type.CRM_OTHER_ERROR.getError());
         }
