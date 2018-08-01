@@ -418,7 +418,7 @@ public class CustomerInfoService {
                     //没有该媒体, 新增媒体,customer_stock设置为1,purchased_number设置为0
                     mediaCustomerCount = new MediaCustomerCountEntity();
                     mediaCustomerCount.setSourceName(customerInfo.getCustomerSource());
-                    mediaCustomerCount.setMediaName(customerInfo.getUtmSource());
+                    mediaCustomerCount.setMediaName(mediaName);
                     mediaCustomerCount.setCustomerStock(1);
                     mediaCustomerCount.setPurchasedNumber(0);
                     //新增渠道媒体
