@@ -44,7 +44,7 @@
         WHERE
         mcc.is_deleted = 0
         <if test="utmSource != null and utmSource != ''">
-            AND mcc.media_name LIKE CONCAT('%',#{utmSource},'%' )
+            AND mcc.media_name = #{utmSource}
         </if>
         ORDER BY mcc.gmt_create DESC LIMIT #{page},#{size}
     </select>
@@ -61,7 +61,7 @@
         WHERE
         mcc.is_deleted = 0
         <if test="utmSource != null and utmSource != ''">
-            AND mcc.media_name LIKE CONCAT('%',#{utmSource},'%' )
+            AND mcc.media_name = #{utmSource}
         </if>
     </select>
 
