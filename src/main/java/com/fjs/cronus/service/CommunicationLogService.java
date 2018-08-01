@@ -122,7 +122,7 @@ public class CommunicationLogService {
                         break;
                     case poor_qualifications:
                         try {
-                            smsService.sendCommunication(customerphone, CommonConst.POOR_QUALIFICATIONS);
+//                            smsService.sendCommunication(customerphone, CommonConst.POOR_QUALIFICATIONS);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
