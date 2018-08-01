@@ -91,7 +91,7 @@
         SELECT * FROM media_customer_count WHERE is_deleted = 0 and source_name = #{customerSource} AND media_name = #{mediaName}
     </select>
 
-    <insert id="addMediaCustomerCount" parameterType="com.fjs.cronus.entity.MediaCustomerCountEntity">
+    <insert id="addMediaCustomerCount" parameterType="com.fjs.cronus.entity.MediaCustomerCountEntity" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
         INSERT INTO media_customer_count (source_name,media_name,customer_stock,purchased_number)
         VALUES(#{sourceName},#{mediaName},#{customerStock},#{purchasedNumber})
     </insert>

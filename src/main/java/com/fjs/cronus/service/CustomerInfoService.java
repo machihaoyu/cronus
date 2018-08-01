@@ -423,7 +423,7 @@ public class CustomerInfoService {
                     mediaCustomerCount.setPurchasedNumber(0);
                     //新增渠道媒体
                     Integer count = mediaCustomerCountMapper.addMediaCustomerCount(mediaCustomerCount);
-                    logger.error("6.是商机池客户 , 没有该媒体 " + customerSource + " , " + utmSource + ", 新增的结果为 : " + count);
+                    logger.error("7.是商机池客户 , 没有该媒体 " + customerSource + " , " + utmSource + ", 新增的结果为 : " + count);
                     //设置客户的媒体表id的值(media_customer_count_id)
                     customerInfo.setMediaCustomerCountId(mediaCustomerCount.getId());
                 }
