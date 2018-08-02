@@ -1617,6 +1617,9 @@
         <if test="customerName !=null and customerName !=''">
             and c.customer_name  like CONCAT(#{customerName},'%' )
         </if>
+        <if test="customerSource !=null and customerSource !=''">
+            and c.customer_source = #{customerSource}
+        </if>
 
         <if test="utmSource != null and utmSource != '' ">
             and c.utm_source = #{utmSource}
@@ -1666,6 +1669,9 @@
         and  c.remain = 0
         <if test="customerName !=null and customerName !=''">
             and c.customer_name  like CONCAT(#{customerName},'%' )
+        </if>
+        <if test="customerSource !=null and customerSource !=''">
+            and c.customer_source = #{customerSource}
         </if>
 
         <if test="utmSource != null and utmSource != '' ">
