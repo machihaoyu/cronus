@@ -394,13 +394,13 @@ public class BusinessPoolService {
 
         //通过token获取当前登录人信息
         PHPLoginDto resultDto = ucService.getAllUserInfo(token, CommonConst.SYSTEMNAME);
-        String[] authority = resultDto.getAuthority();
-        if (authority.length > 0) {
-            List<String> authList = Arrays.asList(authority);
-            if (authList.contains(CommonConst.PULL_LOAN_URL)) {
-                throw new CronusException(CronusException.Type.CRM_DATAAUTH_ERROR,CronusException.Type.CRM_DATAAUTH_ERROR.getError());
-            }
-        }
+//        String[] authority = resultDto.getAuthority();
+//        if (authority.length > 0) {
+//            List<String> authList = Arrays.asList(authority);
+//            if (authList.contains(CommonConst.PULL_LOAN_URL)) {
+//                throw new CronusException(CronusException.Type.CRM_DATAAUTH_ERROR,CronusException.Type.CRM_DATAAUTH_ERROR.getError());
+//            }
+//        }
         UserInfoDTO userInfoDTO = resultDto.getUser_info();
         CustomerInfo customerInfo = null;
         //获取登录人id
