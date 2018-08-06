@@ -316,7 +316,8 @@ public class BusinessPoolService {
         if (null == mediaPriceDTO.getId()){
             throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR,CronusException.Type.CRM_PARAMS_ERROR.getError());
         }
-        customerPriceMapper.updateIsClose(mediaPriceDTO.getId(),new Date());
+        Date date = new Date();
+        customerPriceMapper.updateIsClose(mediaPriceDTO.getId(),date);
 
         //新增修改后的客户价格
         CustomerPriceEntity customerPriceEntity = new CustomerPriceEntity();

@@ -13,7 +13,7 @@ import java.util.Date;
 public interface CustomerPriceMapper {
 
 
-    @Update("UPDATE customer_price SET is_close = 1,gmt_modified={date} WHERE is_deleted = 0 AND is_close = 0 AND customer_info_id = #{customerInfoId}")
+    @Update("UPDATE customer_price SET is_close = 1,gmt_modified=#{date} WHERE is_deleted = 0 AND is_close = 0 AND customer_info_id = #{customerInfoId}")
     void updateIsClose(@Param("customerInfoId") Integer customerInfoId,@Param("date") Date date);
 
     Integer addCustomerPrice(CustomerPriceEntity customerPriceEntity);
