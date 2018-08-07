@@ -89,90 +89,95 @@ public class BusinessPoolService {
      */
     public QueryResult<BusinessPoolDTO> businessPoolList(String token,String nameOrTelephone, String customerSource, String utmSource, String houseStatus, String loanAmount, String city, String createTime,String createTimeEnd,Integer page, Integer size) {
 
+
         QueryResult<BusinessPoolDTO> queryResult = new QueryResult<>();
-        HashMap<String, Object> map = new HashMap<>();
-        if (null != nameOrTelephone && StringUtils.isNotEmpty(nameOrTelephone)){
-            map.put("nameOrTelephone",nameOrTelephone);
-        }
-        if (null != customerSource && StringUtils.isNotEmpty(customerSource)){
-            map.put("customerSource",customerSource);
-        }
-        if (null != utmSource && StringUtils.isNotEmpty(utmSource)){
-            //调用thea接口获取媒体下的渠道
-            List<String> utmList = theaClientService.getChannelNameListByMediaName(token,utmSource);
-            if (utmList != null && utmList.size() >= 0){
-                map.put("utmSource",utmList);
-            }
-        }
-        if (null != houseStatus && StringUtils.isNotEmpty(houseStatus)){
-            map.put("houseStatus",houseStatus);
-        }
-        if (null != loanAmount && StringUtils.isNotEmpty(loanAmount)){
-            //loanAmount 的格式为0-20万, 或者500万(即500万以上)
-            if (loanAmount.equals("500")){
-                //500万以上
-                map.put("loanAmount",loanAmount);
-            }else {
-                //0-20万的格式
-                String[] loanAmounts = loanAmount.split("-");
-                if (loanAmounts.length != 2){
-                    throw new CronusException(CronusException.Type.LOAN_AMOUNT_FORMAT_ERROR,CronusException.Type.LOAN_AMOUNT_FORMAT_ERROR.getError());
-                }
-                List<String> loanAmountList = Arrays.asList(loanAmounts);
-                map.put("loanAmountStart",loanAmountList.get(0));
-                map.put("loanAmountEnd",loanAmountList.get(1));
-            }
-
-        }
-        if (null != city && StringUtils.isNotEmpty(city)){
-            map.put("city",city);
-        }
-        if (null != createTime && StringUtils.isNotEmpty(createTime) && null != createTimeEnd && StringUtils.isNotEmpty(createTimeEnd)){
-            map.put("createTime",createTime + " 00:00:00");
-            map.put("createTimeEnd",createTimeEnd + " 23:59:59");
-        }
-        map.put("page",(page - 1) * size);
-        map.put("size",size);
-
-        //根据条件查询客户
-        Integer count = customerInfoMapper.businessPoolListCount(map);
-        List<BusinessPool> businessPoolDTOList = customerInfoMapper.businessPoolList(map);
-        ArrayList<BusinessPoolDTO> list = new ArrayList<>();
-        List<String> channleList = new ArrayList<>();
-        if (null != businessPoolDTOList && businessPoolDTOList.size() > 0){
-            for (BusinessPool businessPool : businessPoolDTOList){
-                BusinessPoolDTO businessPoolDTO = new BusinessPoolDTO();
-                BeanUtils.copyProperties(businessPool,businessPoolDTO);
-
-                channleList.add(businessPool.getUtmSource());
-
-                //如果该客户没有设置价格,就查询其媒体的价格
-                Integer accountingMethod = businessPool.getAccountingMethod();
-                if (null == accountingMethod){
-                    //查询媒体定价
-                    MediaPriceEntity mediaPriceEntity = mediaPriceMapper.getMediaPrice(businessPool.getMediaCustomerCountId());
-                    if (null != mediaPriceEntity){
-                        businessPoolDTO.setAccountingMethod(mediaPriceEntity.getAccountingMethod());
-                        businessPoolDTO.setPrepurchasePrice(mediaPriceEntity.getPrepurchasePrice());
-                        businessPoolDTO.setCommissionRate(mediaPriceEntity.getCommissionRate());
-                        businessPoolDTO.setLoanRate(mediaPriceEntity.getLoanRate());
-                    }
-                }
-                list.add(businessPoolDTO);
-            }
-            //通过渠道获取媒体
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("channelNames",channleList);
-            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
-            logger.warn(mediaMap.keySet().toString());
-            for (BusinessPoolDTO businessPoolDTO : list){
-                businessPoolDTO.setUtmSource(mediaMap.get(businessPoolDTO.getUtmSource()));
-            }
-        }
-
-        queryResult.setTotal(count.toString());
-        queryResult.setRows(list);
+        queryResult.setTotal("0");
+        queryResult.setRows(new ArrayList<>());
         return queryResult;
+
+//        HashMap<String, Object> map = new HashMap<>();
+//        if (null != nameOrTelephone && StringUtils.isNotEmpty(nameOrTelephone)){
+//            map.put("nameOrTelephone",nameOrTelephone);
+//        }
+//        if (null != customerSource && StringUtils.isNotEmpty(customerSource)){
+//            map.put("customerSource",customerSource);
+//        }
+//        if (null != utmSource && StringUtils.isNotEmpty(utmSource)){
+//            //调用thea接口获取媒体下的渠道
+//            List<String> utmList = theaClientService.getChannelNameListByMediaName(token,utmSource);
+//            if (utmList != null && utmList.size() >= 0){
+//                map.put("utmSource",utmList);
+//            }
+//        }
+//        if (null != houseStatus && StringUtils.isNotEmpty(houseStatus)){
+//            map.put("houseStatus",houseStatus);
+//        }
+//        if (null != loanAmount && StringUtils.isNotEmpty(loanAmount)){
+//            //loanAmount 的格式为0-20万, 或者500万(即500万以上)
+//            if (loanAmount.equals("500")){
+//                //500万以上
+//                map.put("loanAmount",loanAmount);
+//            }else {
+//                //0-20万的格式
+//                String[] loanAmounts = loanAmount.split("-");
+//                if (loanAmounts.length != 2){
+//                    throw new CronusException(CronusException.Type.LOAN_AMOUNT_FORMAT_ERROR,CronusException.Type.LOAN_AMOUNT_FORMAT_ERROR.getError());
+//                }
+//                List<String> loanAmountList = Arrays.asList(loanAmounts);
+//                map.put("loanAmountStart",loanAmountList.get(0));
+//                map.put("loanAmountEnd",loanAmountList.get(1));
+//            }
+//
+//        }
+//        if (null != city && StringUtils.isNotEmpty(city)){
+//            map.put("city",city);
+//        }
+//        if (null != createTime && StringUtils.isNotEmpty(createTime) && null != createTimeEnd && StringUtils.isNotEmpty(createTimeEnd)){
+//            map.put("createTime",createTime + " 00:00:00");
+//            map.put("createTimeEnd",createTimeEnd + " 23:59:59");
+//        }
+//        map.put("page",(page - 1) * size);
+//        map.put("size",size);
+//
+//        //根据条件查询客户
+//        Integer count = customerInfoMapper.businessPoolListCount(map);
+//        List<BusinessPool> businessPoolDTOList = customerInfoMapper.businessPoolList(map);
+//        ArrayList<BusinessPoolDTO> list = new ArrayList<>();
+//        List<String> channleList = new ArrayList<>();
+//        if (null != businessPoolDTOList && businessPoolDTOList.size() > 0){
+//            for (BusinessPool businessPool : businessPoolDTOList){
+//                BusinessPoolDTO businessPoolDTO = new BusinessPoolDTO();
+//                BeanUtils.copyProperties(businessPool,businessPoolDTO);
+//
+//                channleList.add(businessPool.getUtmSource());
+//
+//                //如果该客户没有设置价格,就查询其媒体的价格
+//                Integer accountingMethod = businessPool.getAccountingMethod();
+//                if (null == accountingMethod){
+//                    //查询媒体定价
+//                    MediaPriceEntity mediaPriceEntity = mediaPriceMapper.getMediaPrice(businessPool.getMediaCustomerCountId());
+//                    if (null != mediaPriceEntity){
+//                        businessPoolDTO.setAccountingMethod(mediaPriceEntity.getAccountingMethod());
+//                        businessPoolDTO.setPrepurchasePrice(mediaPriceEntity.getPrepurchasePrice());
+//                        businessPoolDTO.setCommissionRate(mediaPriceEntity.getCommissionRate());
+//                        businessPoolDTO.setLoanRate(mediaPriceEntity.getLoanRate());
+//                    }
+//                }
+//                list.add(businessPoolDTO);
+//            }
+//            //通过渠道获取媒体
+//            JSONObject jsonObject = new JSONObject();
+//            jsonObject.put("channelNames",channleList);
+//            Map<String,String> mediaMap = theaClientService.getMediaName(token,jsonObject);
+//            logger.warn(mediaMap.keySet().toString());
+//            for (BusinessPoolDTO businessPoolDTO : list){
+//                businessPoolDTO.setUtmSource(mediaMap.get(businessPoolDTO.getUtmSource()));
+//            }
+//        }
+//
+//        queryResult.setTotal(count.toString());
+//        queryResult.setRows(list);
+//        return queryResult;
     }
 
 
