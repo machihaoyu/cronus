@@ -76,10 +76,6 @@ public class ScheduledJob {
             customerMeetService.sendMessMeetToCustomer(token);
         }).start();
 
-        new Thread(()->{
-            autoAllocateService.nonCommunicateAgainAllocate(token);
-        }).start();
-
         logger.info("4.autoCleanTask start");
         new Thread(()->{
             autoCleanService.autoCleanTask();
