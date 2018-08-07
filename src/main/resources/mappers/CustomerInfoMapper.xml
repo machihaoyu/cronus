@@ -2576,16 +2576,9 @@
         ci.utm_source,
         ci.city,
         ci.create_time,
-        ci.media_customer_count_id,
-        cp.accounting_method,
-        cp.prepurchase_price,
-        cp.commission_rate,
-        cp.loan_rate
+        ci.media_customer_count_id
         FROM
         customer_info ci
-        LEFT JOIN customer_price cp ON ci.id = cp.customer_info_id
-        AND cp.is_deleted = 0
-        AND cp.is_close = 0
         WHERE
         ci.is_deleted = 0
         AND ci.own_user_id = -1
@@ -2632,9 +2625,6 @@
         IFNULL(COUNT(*),0)
         FROM
         customer_info ci
-        LEFT JOIN customer_price cp ON ci.id = cp.customer_info_id
-        AND cp.is_deleted = 0
-        AND cp.is_close = 0
         WHERE
         ci.is_deleted = 0
         AND ci.own_user_id = -1

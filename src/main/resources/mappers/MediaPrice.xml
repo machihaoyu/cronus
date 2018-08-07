@@ -26,4 +26,17 @@
         VALUES(#{mediaCustomerCountId},#{accountingMethod},#{prepurchasePrice},#{commissionRate},#{loanRate},#{createUser},#{lastUpdateUser},#{gmtCreate},#{gmtModified})
     </insert>
 
+    <select id="getPriceByCustomers" parameterType="java.util.Map" resultMap="mediaPriceEntity">
+        SELECT * FROM media_price WHERE is_close = 0
+        <if test="mediaCustomerCountIdList != null and mediaCustomerCountIdList.size > 0">
+            AND media_customer_count_id IN
+            <foreach collection="mediaCustomerCountIdList" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+
+        </if>
+
+
+    </select>
+
 </mapper>

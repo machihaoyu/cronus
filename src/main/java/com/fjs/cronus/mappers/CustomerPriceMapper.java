@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 @Mapper
@@ -22,4 +24,7 @@ public interface CustomerPriceMapper {
     Integer receiveSuccess(@Param("customerId") Integer customerId,@Param("date") Date date);
 
     CustomerPriceEntity getCustomerPriceByCustomerId(@Param("customerId") Integer customerId);
+
+
+    List<CustomerPriceEntity> getCustomerPriceByCustomerIds(Map<String, Object> map);
 }

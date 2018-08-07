@@ -117,13 +117,13 @@ public interface CustomerInfoMapper extends MyMapper<CustomerInfo> {
 
     List<CustomerInfo> getCustomerPush(@Param("ownerId") Integer ownerId);
 
-    Integer businessPoolListCount(HashMap<String, Object> map);
+    Integer businessPoolListCount(Map<String, Object> map);
 
     //将客户设置为已推送
 //    @Update("UPDATE customer_info SET is_push = 1 WHERE is_deleted = 0 AND id = #{id}")
 //    void updateIsPush(@Param("id") Integer id);
 
-    List<BusinessPool> businessPoolList(HashMap<String, Object> map);
+    List<BusinessPool> businessPoolList(Map<String, Object> map);
 
     //查找商机池客户
     CustomerInfo getCustomer(@Param("customerId") Integer customerId);

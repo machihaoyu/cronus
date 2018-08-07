@@ -29,4 +29,14 @@
         SELECT * FROM customer_price WHERE is_deleted = 0 AND is_close = 0 AND customer_info_id = #{customerId}
     </select>
 
+    <select id="getCustomerPriceByCustomerIds" parameterType="java.util.Map" resultMap="customerPriceEntity">
+        SELECT * FROM customer_price WHERE is_deleted = 0 AND is_close = 0
+         <if test="customerInfoIdList != null and customerInfoIdList.size > 0">
+             AND customer_info_id IN
+            <foreach collection="customerInfoIdList" separator="," open="(" close=")" index="index" item="item">
+                #{item}
+            </foreach>
+         </if>
+    </select>
+
 </mapper>

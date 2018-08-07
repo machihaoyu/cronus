@@ -6,6 +6,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface MediaPriceMapper {
@@ -17,4 +19,6 @@ public interface MediaPriceMapper {
     void updateIsClose(@Param("mediaCustomerCountId") Integer mediaCustomerCountId,@Param("date") Date date);
 
     Integer addMediaPrice(MediaPriceEntity mediaPriceEntity);
+
+    List<MediaPriceEntity> getPriceByCustomers(Map<String, Object> map);
 }
