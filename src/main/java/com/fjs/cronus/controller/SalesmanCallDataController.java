@@ -400,7 +400,7 @@ public class SalesmanCallDataController {
         try {
 
             Long customerPhone = jsonObject.getLong("customerPhone");
-            Long salemanPhone = jsonObject.getLong("SalemanPhone");
+            Long salemanPhone = jsonObject.getLong("salemanPhone");
             if (customerPhone == null) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "顾客手机号不能为空");
             }
@@ -444,7 +444,7 @@ public class SalesmanCallDataController {
         CronusDto result = new CronusDto();
         try {
 
-            Long salemanPhone = jsonObject.getLong("SalemanPhone");
+            Long salemanPhone = jsonObject.getLong("salemanPhone");
             if (salemanPhone == null) {
                 throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "业务员手机号不能为空");
             }

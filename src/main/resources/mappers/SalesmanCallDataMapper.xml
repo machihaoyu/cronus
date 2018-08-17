@@ -110,7 +110,7 @@
         `sales_man_id` =#{salesManId}
         AND `systype`=#{systype}
         AND `status`=#{status}
-        AND (`recording_url` IS NULL OR `recording_url` =='')
+        AND (`recording_url` IS NULL OR `recording_url` ='')
         ORDER BY `created` DESC
     </select>
 
