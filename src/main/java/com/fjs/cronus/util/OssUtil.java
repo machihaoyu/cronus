@@ -85,4 +85,33 @@ public class OssUtil {
             }
         }
     }
+
+    /**
+     * 业务员，通话记录语音文件上传.
+     */
+    public static String salemanRecordUpload(String fileName, InputStream in) {
+        OSSClient ossClient = null;
+        try {
+            ossClient = init();
+            logger.info("start upload!");
+            ossClient.putObject(new PutObjectRequest(bucketName, fileName, in));
+            logger.info("End upload!");
+            return aliyunOssUrl + "/" + fileName;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new CronusException(CronusException.Type.THEA_SYSTEM_ERROR);
+        } finally {
+            if (null != ossClient) {
+                ossClient.shutdown();
+            }
+            if (in !=null){
+                try{
+                    in.close();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 }

@@ -7,6 +7,7 @@ import com.fjs.cronus.Common.CommonMessage;
 import com.fjs.cronus.Common.ResultDescription;
 import com.fjs.cronus.dto.CronusDto;
 import com.fjs.cronus.exception.CronusException;
+import com.fjs.cronus.service.SalemanRecordUploadLogService;
 import com.fjs.cronus.service.SalesmanCallDataService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -32,6 +34,9 @@ public class SalesmanCallDataController {
 
     @Autowired
     private SalesmanCallDataService salesmanCallDataService;
+
+    @Autowired
+    private SalemanRecordUploadLogService salemanRecordUploadLogService;
 
     @ApiOperation(value = "[b端Android]录入通话记录", notes = "[b端Android]录入通话记录 api")
     @ApiImplicitParams({
@@ -67,10 +72,7 @@ public class SalesmanCallDataController {
 
             Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
 
-
-            salesmanCallDataService.addSingle(token, userId, customerid, startTime, answerTime, endTime, duration, totalDuration, callType, recordingUrl, CommonConst.SYSTYPE_B_ANDROID, customerPhoneNum);
-
-            result.setData("成功");
+            result.setData(salesmanCallDataService.addSingle(token, userId, customerid, startTime, answerTime, endTime, duration, totalDuration, callType, recordingUrl, CommonConst.SYSTYPE_B_ANDROID, customerPhoneNum));
             result.setResult(ResultDescription.CODE_SUCCESS);
             result.setMessage(ResultDescription.MESSAGE_SUCCESS);
         } catch (Exception e) {
@@ -342,6 +344,126 @@ public class SalesmanCallDataController {
             } else {
                 // 未知异常
                 logger.error("获取团队通话数据", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "业务员通话语音上传", notes = "业务员通话语音上传 api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "salesmanCallDataId", value = "记录通话数据后，服务器响应的id", paramType = "query", dataType = "int"),
+    })
+    @RequestMapping(value = "/updateLoad", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto updateLoad(@RequestHeader("Authorization") String token, HttpServletRequest request, @RequestParam("salesmanCallDataId") Long salesmanCallDataId) {
+        CronusDto result = new CronusDto();
+        try {
+
+            Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+
+            result.setData(salemanRecordUploadLogService.updateLoad(request, salesmanCallDataId, userId));
+            result.setResult(ResultDescription.CODE_SUCCESS);
+            result.setMessage(ResultDescription.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                logger.error("业务员通话语音上传", e);
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("业务员通话语音上传", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "查询通话记录（已上传语音）;b端Android", notes = "查询通话记录（已上传语音）;b端Android api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "jsonObject", value = "{" +
+                    "\"customerPhone\":\"顾客手机号\",\"" +
+                    "\"salemanPhone\":\"业务员手机号\"" +
+                    "}", required = true, dataType = "com.alibaba.fastjson.JSONObject")
+
+    })
+    @RequestMapping(value = "/findBySalemanphoneAndCustomerphone", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto findBySalemanidAndCustomerid(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject) {
+        CronusDto result = new CronusDto();
+        try {
+
+            Long customerPhone = jsonObject.getLong("customerPhone");
+            Long salemanPhone = jsonObject.getLong("SalemanPhone");
+            if (customerPhone == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "顾客手机号不能为空");
+            }
+            if (salemanPhone == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "业务员手机号不能为空");
+            }
+
+            Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+
+            result.setData(salesmanCallDataService.findBySalemanidAndCustomerid(customerPhone, salemanPhone, userId));
+            result.setResult(ResultDescription.CODE_SUCCESS);
+            result.setMessage(ResultDescription.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                logger.error("业务员通话语音上传", e);
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("业务员通话语音上传", e);
+                result.setResult(CommonMessage.FAIL.getCode());
+                result.setMessage(e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "查询通话记录（未上传语音）;b端Android", notes = "查询通话记录（未上传语音）;b端Android api")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "认证信息", required = true, paramType = "header", defaultValue = "Bearer 39656461-c539-4784-b622-feda73134267", dataType = "string"),
+            @ApiImplicitParam(name = "jsonObject", value = "{" +
+                    "\"salemanPhone\":\"业务员手机号\"" +
+                    "}", required = true, dataType = "com.alibaba.fastjson.JSONObject")
+
+    })
+    @RequestMapping(value = "/findBySalemanphone", method = RequestMethod.POST)
+    @ResponseBody
+    public CronusDto findBySalemanphone(@RequestHeader("Authorization") String token, @RequestBody JSONObject jsonObject) {
+        CronusDto result = new CronusDto();
+        try {
+
+            Long salemanPhone = jsonObject.getLong("SalemanPhone");
+            if (salemanPhone == null) {
+                throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "业务员手机号不能为空");
+            }
+
+            Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+
+            result.setData(salesmanCallDataService.findBySalemanphone(salemanPhone, userId));
+            result.setResult(ResultDescription.CODE_SUCCESS);
+            result.setMessage(ResultDescription.MESSAGE_SUCCESS);
+        } catch (Exception e) {
+            if (e instanceof CronusException) {
+                logger.error("业务员通话语音上传", e);
+                // 已知异常
+                CronusException temp = (CronusException) e;
+                result.setResult(Integer.valueOf(temp.getResponseError().getStatus()));
+                result.setMessage(temp.getResponseError().getMessage());
+            } else {
+                // 未知异常
+                logger.error("业务员通话语音上传", e);
                 result.setResult(CommonMessage.FAIL.getCode());
                 result.setMessage(e.getMessage());
             }

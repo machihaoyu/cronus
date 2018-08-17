@@ -90,4 +90,28 @@
         AND `sales_man_name`=#{name}
     </select>
 
+    <select id="findHasRecordingUrlBySalemanidAndCustomerPhone" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM `salesman_call_data`
+        WHERE
+        `sales_man_id` =#{salesManId}
+        AND `customer_phone_num` =#{customerPhoneNum}
+        AND `systype`=#{systype}
+        AND `status`=#{status}
+        AND `recording_url` IS NOT NULL
+        AND `recording_url` !=''
+        ORDER BY `created` DESC
+    </select>
+
+    <select id="findNotHasRecordingUrlBySalemanid" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM `salesman_call_data`
+        WHERE
+        `sales_man_id` =#{salesManId}
+        AND `systype`=#{systype}
+        AND `status`=#{status}
+        AND (`recording_url` IS NULL OR `recording_url` =='')
+        ORDER BY `created` DESC
+    </select>
+
 </mapper>

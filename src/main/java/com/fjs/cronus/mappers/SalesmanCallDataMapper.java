@@ -30,4 +30,13 @@ public interface SalesmanCallDataMapper extends MyMapper<SalesmanCallData> {
      */
     List<SalesmanCallData> findAllNum(@Param("startTime") long startTime, @Param("endTime") long endTime, @Param("status") Integer status);
 
+    /**
+     * 根据业务员id、顾客手机号，查询通话记录（有语音）
+     */
+    List<SalesmanCallData> findHasRecordingUrlBySalemanidAndCustomerPhone(@Param("salesManId")Long userId, @Param("customerPhoneNum")Long customerPhone, @Param("systype")Integer systypeBAndroid, @Param("status")Integer status);
+
+    /**
+     * 根据业务员id，查询通话记录（无语音）
+     */
+    List<SalesmanCallData> findNotHasRecordingUrlBySalemanid(@Param("salesManId")Long loginUid, @Param("systype")Integer systypeBAndroid, @Param("status")Integer code);
 }

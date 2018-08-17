@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
@@ -82,7 +83,7 @@ public class SalesmanCallDataService {
     /**
      * 暴露服务给b端Android接口，增加数据.
      */
-    public void addSingle(String token,
+    public SalesmanCallData addSingle(String token,
                           Long salesManId,
                           Long customerid,
                           Long startTime,
@@ -166,7 +167,9 @@ public class SalesmanCallDataService {
         i2.setStartTime(startTime);
         i2.setStatus(CommonEnum.entity_status1.getCode());
         int i3 = salesmanCallDataMapper.selectCount(i2);
-        if (i3 > 0) return;
+        if (i3 > 0) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "数据重复，该记录已存在（同一个业务员，同时间则视为重复记录）");
+        }
 
         // 数据入库
         SalesmanCallData data = new SalesmanCallData();
@@ -186,12 +189,14 @@ public class SalesmanCallDataService {
         data.setCreated(new Date());
         data.setCreateid(salesManId);
 
-        salesmanCallDataMapper.insertSelective(data);
+        salesmanCallDataMapper.insertUseGeneratedKeys(data);
 
         // 统计通话时长、通话次数
         new Thread(() -> {
             countData(subCompanyId, salesManId, salesManName);
         }).start();
+
+        return data;
     }
 
     /**
@@ -664,6 +669,9 @@ public class SalesmanCallDataService {
         return "成功";
     }
 
+    /**
+     * [非业务接口-管理接口]重新构建通话时长、通话次数、面见次数cache.
+     */
     public void rebuildCatch(String type, Date time, String token) {
         if ("day".equalsIgnoreCase(type)) {
             salesmanCallTimeService.buildDayCatch(time);
@@ -679,4 +687,19 @@ public class SalesmanCallDataService {
             salesmanMeetNumService.buildMonthCatch(time);
         }
     }
+
+    /**
+     * 查询通话记录（已上传语音）;b端Android.
+     */
+    public List<SalesmanCallData> findBySalemanidAndCustomerid(Long customerPhone, Long salemanPhone, Long loginUid ) {
+        return salesmanCallDataMapper.findHasRecordingUrlBySalemanidAndCustomerPhone(loginUid, customerPhone, CommonConst.SYSTYPE_B_ANDROID, CommonEnum.entity_status1.getCode());
+    }
+
+    /**
+     * 查询通话记录（未上传语音）;b端Android.
+     */
+    public List<SalesmanCallData> findBySalemanphone(Long salemanPhone,  Long loginUid ) {
+        return salesmanCallDataMapper.findNotHasRecordingUrlBySalemanid(loginUid, CommonConst.SYSTYPE_B_ANDROID, CommonEnum.entity_status1.getCode());
+    }
+
 }
