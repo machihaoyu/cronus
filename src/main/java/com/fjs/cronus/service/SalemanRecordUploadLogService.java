@@ -50,6 +50,23 @@ public class SalemanRecordUploadLogService {
 
         MultipartFile file = multipartRequest.getFile(fileNames.next());
         String fileName = file.getOriginalFilename();
+
+        // 数据校验：语音文件必须和通话记录数据相匹配（根据文件名，文件名规则为：顾客id_通话开始时间戳_业务员id）
+        if (StringUtils.isBlank(fileName)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "语音文件名不能为空");
+        }
+        String[] split = fileName.split("_");
+        if (split.length != 3) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "语音文件名格式不正确（约定格式为：顾客id_通话开始时间戳_业务员id）");
+        }
+        Long customerid = Long.valueOf(split[0]);
+        Long startTime = Long.valueOf(split[1]);
+        Long salesManId = Long.valueOf(split[2]);
+        if (!salesmanCallData.getCustomerid().equals(customerid) || !salesmanCallData.getStartTime().equals(startTime) || !salesmanCallData.getSalesManId().equals(salesManId)) {
+            throw new CronusException(CronusException.Type.CRM_PARAMS_ERROR, "语音文件错误，该语音文件不属于该通话记录");
+        }
+
+        // 上传
         InputStream inputStream = null;
         try {
             inputStream = file.getInputStream();
