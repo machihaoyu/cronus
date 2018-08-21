@@ -1557,16 +1557,22 @@ public class CustomerInfoService {
                 }
 
             }
-            try {
-                Integer thearesult = theaClientService.serviceContractToUser(token, strIds, removeDTO.getEmpId());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            try {
-                Integer thearesult1 = theaClientService.cancelAll(token, strIds, removeDTO.getEmpId());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            new Thread(
+                    () -> {
+                        try {
+                            Integer thearesult = theaClientService.serviceContractToUser(token, strIds, removeDTO.getEmpId());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }).start();
+            new Thread(
+                    () -> {
+                        try {
+                            Integer thearesult1 = theaClientService.cancelAll(token, strIds, removeDTO.getEmpId());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }).start();
             removeCustomerAddLog(customerInfoList, removeDTO.getEmpId(), removeDTO.getEmpId(), systemUserInfo.getName());
             flag = true;
         }
